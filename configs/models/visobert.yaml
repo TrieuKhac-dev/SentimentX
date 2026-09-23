@@ -1,0 +1,14 @@
+# Cấu hình "MODEL ĐỌC DỮ LIỆU THẾ NÀO" của ViSoBERT.
+#
+# max_length:
+#   Ngưỡng cắt input, tính bằng TOKEN. Đây là chỗ để THỬ NGHIỆM (sửa số ở đây, không phải
+#   sửa code).
+#   - Trần kiến trúc của ViSoBERT là 514 vị trí (`max_position_embeddings` trong
+#     config.json của model).
+#   - 256 là LỰA CHỌN CỦA DỰ ÁN, không phải giới hạn của model: review dài nhất trong
+#     dữ liệu cosmetics là 229 token, và đặt cùng 256 với PhoBERT để hai model có cùng
+#     ngân sách input (so sánh mới công bằng). Xem
+#     docs/04_experiments/02_phase3_input.md §4 để biết cách chọn số này.
+#   - Giá trị mặc định (khi file này không ghi khoá) là MAX_LENGTH trong
+#     src/preprocessing/visobert.py = 256.
+max_length: 256

@@ -1,0 +1,15 @@
+﻿Aspect,Sentiment,Precision,Recall,F1
+SMELL,positive,97.06,97.06,97.06
+SMELL,negative,66.67,66.67,66.67
+PRICE,positive,100,97.22,98.59
+PRICE,negative,0,0,0
+TEXTURE,positive,92.68,100,96.2
+TEXTURE,negative,100,76.92,86.96
+COLOUR,positive,100,97.1,98.53
+COLOUR,negative,77.78,100,87.5
+STAYINGPOWER,positive,100,100,100
+STAYINGPOWER,negative,100,100,100
+PACKING,positive,100,98.18,99.08
+PACKING,negative,66.67,100,80
+SHIPPING,positive,100,100,100
+SHIPPING,negative,100,100,100

@@ -1,0 +1,14 @@
+Bạn là chuyên gia phân tích cảm xúc theo khía cạnh cho review mỹ phẩm tiếng Việt.
+
+Nhiệm vụ: với mỗi khía cạnh dưới đây, hãy chọn đúng một mã cảm xúc.
+{label_guide}
+
+Danh sách khía cạnh: {aspects}
+
+Review:
+"""
+{text}
+"""
+
+Chỉ trả về DUY NHẤT một object JSON, khóa là tên khía cạnh, giá trị là mã số.
+Ví dụ định dạng: {example}

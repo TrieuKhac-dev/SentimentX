@@ -1,0 +1,48 @@
+# Thư viện cho EDA + Data Pipeline + Báo cáo
+#
+# Cài đặt: pip install -r requirements.txt
+
+# --- Xử lý dữ liệu bảng ---
+pandas
+numpy
+
+# --- Đọc file cấu hình (configs/*.yaml) ---
+PyYAML
+
+# --- Sinh báo cáo ---
+plotly
+jinja2
+
+# --- Pha 3: đo input thật ---
+# run_token_stats.py chỉ cần transformers (KHÔNG cần torch).
+transformers
+
+# --- Pha 4: chạy Qwen3 bằng CHỈ DẪN (prompt / CoT) rồi chấm điểm ---
+# torch bắt buộc là bản CUDA (2,6 GB) nên phải cài bằng lệnh riêng, không đặt trong file
+# này được:
+#     pip install torch --index-url https://download.pytorch.org/whl/cu126
+#     (mạng chậm — đã gặp: tải từ download-r2.pytorch.org bị treo, dùng mirror:
+#      pip install torch --index-url https://mirrors.aliyun.com/pytorch-wheels/cu126/)
+torch
+# accelerate: cần cho device_map="auto" (chia model giữa VRAM và RAM khi VRAM thiếu)
+accelerate
+# bitsandbytes: LƯỢNG HÓA 4-BIT KHI CHẠY. Qwen3-4B ở bf16 là 8 GB, GPU của máy này có
+# 6 GB, nên không lượng hóa thì không chạy được. Đây KHÔNG phải để huấn luyện.
+bitsandbytes
+
+# Phiên bản đã chạy thật ở máy này (Windows, GPU 6 GB):
+#     torch 2.14.0+cu126 | transformers 5.17.0 | accelerate 1.15.0 | bitsandbytes 0.50.2
+# Chưa ghim cứng vì còn thử nghiệm; khi nào chốt kết quả cuối thì nên ghim (xem
+# docs/04_experiments/04_backlog.md).
+
+# --- Pha 3: tách từ tiếng Việt cho PhoBERT ---
+# Bộ CHÍNH CHỦ là RDRSegmenter/VnCoreNLP (VinAI dùng chính nó để tiền huấn luyện
+# PhoBERT). Gói này chỉ là phần Python; nó CẦN JAVA (JDK/JRE 1.8+) nữa:
+#     pip install py-vncorenlp
+#     powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1
+#     powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1
+py-vncorenlp
+
+# Bộ tách từ LEGACY, chỉ dùng khi chưa cài được Java (--segmenter pyvi).
+pyvi
+

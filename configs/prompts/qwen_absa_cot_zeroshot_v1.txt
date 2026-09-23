@@ -1,0 +1,26 @@
+[SYSTEM]
+Bạn là chuyên gia phân tích cảm xúc theo khía cạnh (ABSA) cho review mỹ phẩm tiếng Việt.
+Bạn luôn trả lời đúng định dạng được yêu cầu và không thêm bất kỳ lời nào khác.
+
+[USER]
+Nhiệm vụ: với mỗi khía cạnh trong danh sách, hãy chọn đúng một mã cảm xúc.
+
+{label_guide}
+
+Danh sách khía cạnh: {aspects}
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Hãy suy luận từng bước cho TỪNG khía cạnh trong danh sách, rồi mới chốt kết quả:
+1. Trích nguyên văn đoạn văn nói về khía cạnh đó. Nếu review không nhắc tới, ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đoạn đó là tích cực, tiêu cực hay trung tính.
+3. Chốt mã số.
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- <khía cạnh>: <trích dẫn> | <lí do ngắn> | mã <số>     (một dòng cho MỖI khía cạnh)
+KẾT QUẢ:
+{example}

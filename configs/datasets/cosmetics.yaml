@@ -1,0 +1,59 @@
+# =====================================================================
+# CẤU HÌNH MỘT DATASET
+#
+# Muốn thêm dataset mới:
+#   1. Copy file này thành configs/datasets/<tên>.yaml rồi sửa các giá trị.
+#   2. Đặt dữ liệu gốc vào data/raw/<tên>/
+#   3. Chạy: python run_eda.py --dataset <tên>
+# Không cần sửa code EDA hay Data Pipeline.
+# =====================================================================
+
+# Tên dataset (cũng là tên file cấu hình)
+name: cosmetics
+
+# Phiên bản của BỘ DỮ LIỆU GỐC. Tăng số này mỗi khi dữ liệu gốc thay đổi.
+# Mã phiên bản kết quả = <name>-v<version>-<8 ký tự hash của dữ liệu + config>.
+version: "0.1.0"
+
+# Định dạng file gốc: csv | jsonl | parquet
+# (muốn thêm định dạng khác: thêm một loader trong src/loaders/)
+format: csv
+
+# Thư mục chứa dữ liệu gốc (đường dẫn tính từ gốc dự án)
+raw_dir: data/raw/cosmetics
+
+# Tên cột chứa nội dung review trong file gốc
+text_column: data
+
+# Các aspect của bài toán ABSA
+aspects:
+  - stayingpower
+  - texture
+  - smell
+  - price
+  - colour
+  - shipping
+  - packing
+
+# Cột có trong file gốc nhưng KHÔNG dùng -> bỏ ngay khi đọc.
+# "others" bị loại vì trong dữ liệu nó chỉ có nhãn neutral và ô trống,
+# không mang tín hiệu phân loại cảm xúc.
+drop_columns:
+  - others
+
+# Nhãn sentiment hợp lệ.
+# Ô trống ở cột aspect nghĩa là "aspect này không được nhắc tới" (null),
+# KHÔNG phải neutral.
+labels:
+  - positive
+  - negative
+  - neutral
+
+# Các file của dataset. EDA và báo cáo cần đủ 3 split train / val / test.
+splits:
+  train: data_train.csv
+  val: data_val.csv
+  test: data_test.csv
+
+# File gộp toàn bộ dữ liệu (tuỳ chọn, dùng để đối chiếu)
+full: full_data.csv

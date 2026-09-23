@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{#-
+    Thân báo cáo: chỉ SỐ LIỆU và BIỂU ĐỒ.
+    Không có câu diễn giải — phần giải thích nằm trong docs/.
+-#}
+
+{#-
+    Một macro cho MỌI bảng, để quy tắc hiển thị ô chỉ tồn tại ở một chỗ:
+      - pre_wrap_columns: cột văn bản — giữ nguyên xuống dòng như trong CSV
+        (nhờ vậy copy ô trong báo cáo dán đi tìm trong CSV là thấy);
+      - narrow_columns  : cột ngắn (khía cạnh, split, mã nhãn) — co hết mức;
+      - num_columns     : cột số — canh phải.
+-#}
+{% macro table_block(table) %}
+{%- set pres = table.pre_wrap_columns or [] -%}
+{%- set narrows = table.narrow_columns or [] -%}
+{%- set nums = table.num_columns or [] -%}
+<h3>{{ table.title }}</h3>
+<table>
+  <thead>
+    <tr>
+      {%- for column in table.columns %}
+      <th{% if loop.index0 in pres %} class="pre"{% elif loop.index0 in narrows %} class="narrow"{% elif loop.index0 in nums %} class="num"{% endif %}>{{ column }}</th>
+      {%- endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {%- if not table.rows %}
+    <tr><td colspan="{{ table.columns|length if table.columns else 1 }}">(không có dữ liệu)</td></tr>
+    {%- endif %}
+    {%- for row in table.rows %}
+    <tr>
+      {%- for cell in row %}
+      <td{% if loop.index0 in pres %} class="pre"{% elif loop.index0 in narrows %} class="narrow"{% elif loop.index0 in nums %} class="num"{% endif %}>{{ cell }}</td>
+      {%- endfor %}
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>
+{% endmacro %}
+
+{% block content %}
+{% for section in sections %}
+<section id="{{ section.id }}">
+  <h2>{{ section.title }}</h2>
+
+  {% if section.cards %}
+  <div class="cards">
+    {%- for card in section.cards %}
+    <div class="card">
+      <div class="label">{{ card.label }}</div>
+      <div class="value">{{ card.value }}</div>
+    </div>
+    {%- endfor %}
+  </div>
+  {% endif %}
+
+  {#- Bảng "đặt trên cùng": thông tin cấu trúc file, hiện trước biểu đồ -#}
+  {% for table in section.lead_tables %}{{ table_block(table) }}{% endfor %}
+
+  {% for block in section.chart_blocks %}
+  <div class="chart">
+    {% if block.error %}
+    <p class="error">Không vẽ được biểu đồ "{{ block.title }}": {{ block.error }}</p>
+    {% else %}
+    {{ block.html|safe }}
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% for table in section.tables %}{{ table_block(table) }}{% endfor %}
+</section>
+{% endfor %}
+{% endblock %}

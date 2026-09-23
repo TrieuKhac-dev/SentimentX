@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+{{ plotlyjs_tag|safe }}
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --brand: #2563eb;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 0 48px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    padding: 28px 32px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 24px; }
+  header .subtitle { margin: 0 0 12px; opacity: .9; }
+  header .meta { font-size: 13px; opacity: .85; }
+  header .meta span { display: inline-block; margin-right: 16px; }
+  nav {
+    background: var(--card);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  nav a {
+    color: var(--brand);
+    text-decoration: none;
+    margin-right: 18px;
+    font-size: 14px;
+  }
+  nav a:hover { text-decoration: underline; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 32px; }
+  section {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  section h2 { margin: 0 0 4px; font-size: 19px; color: #111827; }
+  section h3 {
+    margin: 24px 0 8px;
+    font-size: 14px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 4px; }
+  .card {
+    background: #f9fafb;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 16px;
+    min-width: 150px;
+  }
+  .card .label { font-size: 12px; color: var(--muted); }
+  .card .value { font-size: 21px; font-weight: 600; }
+  .chart {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px 4px;
+    margin: 18px 0 4px;
+    background: #fff;
+  }
+  .chart .error {
+    color: var(--warn);
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 8px 0;
+    font-size: 14px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0 4px;
+    font-size: 14px;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+    word-break: break-word;
+  }
+  th { background: #f3f4f6; font-weight: 600; }
+  tr:nth-child(even) td { background: #fcfcfd; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  /* Cột hẹp (aspect, split, mã nhãn): co lại hết mức để nhường chỗ cho văn bản dài */
+  th.narrow, td.narrow { width: 1%; white-space: nowrap; }
+  /* Cột văn bản giữ nguyên xuống dòng như trong CSV: copy dán đi tìm lại được */
+  th.pre, td.pre { white-space: pre-wrap; }
+  p.files { color: var(--muted); font-size: 13px; margin: 14px 0 0; }
+  code {
+    background: #f3f4f6;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12.5px;
+  }
+  footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>{{ title }}</h1>
+  <p class="subtitle">{{ subtitle }}</p>
+  <div class="meta">
+    {%- for item in meta %}<span>{{ item }}</span>{% endfor -%}
+  </div>
+</header>
+<nav>
+  {%- for section in sections %}<a href="#{{ section.id }}">{{ section.title }}</a>{% endfor -%}
+</nav>
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer>Báo cáo được sinh tự động lúc {{ generated_at }} — dự án SentimentX.</footer>
+</body>
+</html>
