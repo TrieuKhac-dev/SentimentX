@@ -31,12 +31,14 @@ theo `neutral_policy: drop`.
 
 ## Số của công bố được lưu ở đâu
 
-`data/reference_publication/` gồm ba tệp, chép nguyên từ `observation_announcement/`:
+`data/reference_publication/` gồm năm tệp, chép nguyên từ `observation_announcement/`:
 
 | Tệp | Nội dung |
 |---|---|
 | `accuracy_by_aspect.csv` | accuracy theo khía cạnh, cột là 0-shot, 1-shot, 5-shot, cộng dòng `Aspect` là độ chính xác phát hiện khía cạnh |
-| `prf_by_aspect_sentiment.csv` | Precision, Recall, F1 theo khía cạnh và sắc thái |
+| `prf_by_aspect_sentiment_0shot.csv` | Precision, Recall, F1 theo khía cạnh và sắc thái, biến thể 0-shot |
+| `prf_by_aspect_sentiment_1shot.csv` | như trên, biến thể 1-shot |
+| `prf_by_aspect_sentiment_5shot.csv` | như trên, biến thể 5-shot |
 | `sentiment_distribution.csv` | phân bố nhãn của dataset |
 
 Các tệp này là số liệu tham chiếu, **không** được sinh tự động và không sửa.

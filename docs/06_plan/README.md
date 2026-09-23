@@ -14,7 +14,7 @@
 
 | Phase | Nội dung | File | Trạng thái |
 |---|---|---|---|
-| P0 | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md` | đang làm |
+| P0 | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md` | xong |
 | P1 | Đường dẫn tập trung | `P1_paths.md` | chưa làm |
 | P2 | Versioning dữ liệu và guard | `P2_versioning.md` | chưa làm |
 | P3 | Tầng config thí nghiệm | `P3_config_layer.md` | chưa làm |

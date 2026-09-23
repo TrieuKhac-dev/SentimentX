@@ -10,7 +10,7 @@ và hai nhánh `main` + `experiment` trên GitHub.
 
 ## 2. Trạng thái
 
-đang làm
+xong
 
 ## 3. Việc nhỏ (mỗi task một commit)
 
@@ -22,14 +22,14 @@ và hai nhánh `main` + `experiment` trên GitHub.
 - [x] T2. Copy `data/reports/assets/plotly.min.js` sang `data/assets/plotly.min.js`.
       → `chore(assets): move shared plotly asset into data/assets`
 - [x] T3. Chuyển `data/raw/` và `data/models/` sang cây mới (không commit, chỉ là tệp trên đĩa).
-- [ ] T4. Thêm `.gitignore` (ignore dữ liệu theo đuôi tệp), `.gitattributes`, các `.gitkeep`
+- [x] T4. Thêm `.gitignore` (ignore dữ liệu theo đuôi tệp), `.gitattributes`, các `.gitkeep`
       và `data/models/README.md`.
       → `chore(git): ignore data by extension and keep folder placeholders`
-- [ ] T5. Thêm `.env.example` và `.env.colab.example`.
+- [x] T5. Thêm `.env.example` và `.env.colab.example`.
       → `docs(env): add env templates for local and colab`
-- [ ] T6. `git init`, commit đầu tiên, push `main`, tạo nhánh `experiment`.
-      → `chore: initial import of refactored project`
-- [ ] T7. Xoá `.git` ở cây cũ (làm cuối cùng, không thể hoàn tác).
+- [x] T6. `git init`, commit đầu tiên, push `main`, tạo nhánh `experiment`.
+      → `chore: initial import of refactored project` (commit `6fa0d32`)
+- [x] T7. Xoá `.git` ở cây cũ (làm cuối cùng, không thể hoàn tác).
 
 ## 4. Điều kiện hoàn thành (DoD)
 
