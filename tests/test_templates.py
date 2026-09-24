@@ -169,6 +169,40 @@ class TestBootstrap(unittest.TestCase):
             with self.subTest(notebook=str(path)):
                 self.assert_fetch_first(self.bootstrap_source(path), path.name)
 
+    def test_bootstrap_survives_a_second_run(self):
+        """Chạy lại notebook trên Colab không được lỗi khi thư mục code đã có sẵn.
+
+        Lỗi thật: `/content/SentimentX` còn lại từ lần chạy trước, nên `git clone` báo
+        `destination path ... already exists and is not an empty directory` (mã thoát 128) - một dòng
+        lỗi đỏ làm người đọc tưởng notebook hỏng, trong khi chỉ cần bỏ qua bước kéo.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("is_repo_here", source)
+        lines = [line for line in source.splitlines() if not line.lstrip().startswith("#")]
+        clone = next(index for index, line in enumerate(lines) if 'git("clone"' in line)
+        guard = next(index for index, line in enumerate(lines) if "if is_repo_here():" in line)
+        self.assertLess(guard, clone,
+                        "phải kiểm thư mục đã là repo chưa TRƯỚC khi kéo code mới")
+        # Thư mục có sẵn mà KHÔNG phải repo thì phải DỪNG kèm cách sửa, không kéo đè lên dữ liệu lạ.
+        self.assertIn("rm -rf", source)
+
+    def test_bootstrap_is_the_same_in_every_notebook(self):
+        """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
+
+        Sửa cách kéo code ở bản mẫu mà quên notebook đã giao là notebook đó mãi mãi chạy phiên bản
+        cũ - mà nó đã được ghim, người nhận không tự sửa được. So từng ký tự để việc quên đó lộ ra
+        ngay tại đây, kèm đúng đường dẫn cần chép lại.
+        """
+        template = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        found = sorted((paths.root() / "experiments").rglob("notebook.ipynb"))
+        self.assertTrue(found, "chưa có notebook thí nghiệm nào để so")
+        for path in found:
+            with self.subTest(notebook=str(path)):
+                self.assertEqual(
+                    self.bootstrap_source(path), template,
+                    "{}: ô bootstrap khác bản mẫu - chép lại từ {}".format(
+                        path, TEMPLATES / "experiment" / "notebook.ipynb"))
+
 
 if __name__ == "__main__":
     unittest.main()
