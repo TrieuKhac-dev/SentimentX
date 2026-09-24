@@ -14,6 +14,10 @@ parent: null
 model: qwen3-4b-instruct-2507
 method: prompt-cot
 
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --title "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: null
+
 data:
   # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
   dataset: cosmetics

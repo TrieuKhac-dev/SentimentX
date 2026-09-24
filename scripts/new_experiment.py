@@ -25,6 +25,7 @@ xem trước khi commit được ghim vào notebook.
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -61,6 +62,8 @@ def parse_args(argv=None):
     parser.add_argument("--parent", default=None,
                         help="Thí nghiệm làm lại từ đâu, dạng <model>/<method>/<expNNN>; "
                              "'none' nếu là bản gốc (mặc định: none).")
+    parser.add_argument("--title", default=None,
+                        help="Mô tả ngắn, ghi vào `notes` của config.yaml. Sửa sau cũng được.")
     parser.add_argument("--branch", default=None,
                         help="Nhánh đã ghim cần kiểm (mặc định: repo.yaml).")
     parser.add_argument("--dry-run", action="store_true", help="Chỉ in ra, không ghi file.")
@@ -78,14 +81,19 @@ def clean_parent(text):
     return "/".join(parts)
 
 
-def config_text(template, model_id, method, exp_id, parent):
-    """Config của thí nghiệm: sửa ĐÚNG bốn dòng định danh, giữ nguyên phần còn lại của bản mẫu.
+def config_text(template, model_id, method, exp_id, parent, title=None):
+    """Config của thí nghiệm: sửa ĐÚNG năm dòng định danh, giữ nguyên phần còn lại của bản mẫu.
 
     Sửa theo dòng và kiểm dòng đó CÓ THẬT, thay vì ghép lại cả file: bản mẫu còn nhiều ghi chú giải
     thích, ghép lại là mất hết và tạo nguồn sự thật thứ hai cho các khoá khác.
+
+    `title` đi vào `notes` (một dòng, không xuống dòng) và được ghi bằng JSON để tiêu đề có dấu hai
+    chấm hay dấu ngoặc kép vẫn là YAML hợp lệ.
     """
     wanted = {"exp_id": exp_id, "model": model_id, "method": method,
-              "parent": "null" if parent is None else parent}
+              "parent": "null" if parent is None else parent,
+              "notes": "null" if not title else json.dumps(str(title).strip(),
+                                                            ensure_ascii=False)}
     lines, seen = [], set()
     for line in template.splitlines():
         key = line.split(":", 1)[0].strip() if ":" in line else ""
@@ -147,7 +155,7 @@ def main(argv=None):
                 "(docs/00_workflow/01_flow.md). Đẩy nhánh lên rồi chạy lại lệnh này.".format(ref))
 
         directory, files = load_templates()
-        config = config_text(files[CONFIG], model_id, method, exp_id, parent)
+        config = config_text(files[CONFIG], model_id, method, exp_id, parent, args.title)
         notebook = notebooks.read(directory / NOTEBOOK)
         notebooks.set_exp_dir(notebook, experiment)
     except (NewExperimentError, experiments.ExperimentError, notebooks.NotebookError,

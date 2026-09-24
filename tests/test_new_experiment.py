@@ -16,6 +16,8 @@ import importlib.util
 import unittest
 from pathlib import Path
 
+import yaml
+
 from src import experiments, notebooks, paths
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,19 +35,27 @@ new_experiment = load_script("new_experiment")
 
 
 class ConfigTextTest(unittest.TestCase):
-    """Sinh config của thí nghiệm từ bản mẫu: sửa bốn dòng định danh, giữ ghi chú."""
+    """Sinh config của thí nghiệm từ bản mẫu: sửa năm dòng định danh, giữ ghi chú."""
 
     def setUp(self):
         self.template = (paths.templates_dir() / "experiment" / "config.yaml").read_text(
             encoding="utf-8")
 
-    def test_bon_dong_dinh_danh_duoc_dat_dung(self):
+    def test_nam_dong_dinh_danh_duoc_dat_dung(self):
         text = new_experiment.config_text(self.template, "model-x", "method-y", "exp007",
                                           "model-x/method-y/exp003")
         self.assertIn("exp_id: exp007\n", text)
         self.assertIn("model: model-x\n", text)
         self.assertIn("method: method-y\n", text)
         self.assertIn("parent: model-x/method-y/exp003\n", text)
+        self.assertIn("notes: null\n", text)
+
+    def test_tieu_de_di_vao_notes_va_van_la_yaml_hop_le(self):
+        """`--title` là tham số tài liệu đã hướng dẫn; tiêu đề có dấu hai chấm vẫn phải hợp lệ."""
+        text = new_experiment.config_text(self.template, "model-x", "method-y", "exp007", None,
+                                          "CoT 1 shot: bản thử")
+        self.assertIn('notes: "CoT 1 shot: bản thử"\n', text)
+        self.assertEqual(yaml.safe_load(text)["notes"], "CoT 1 shot: bản thử")
 
     def test_parent_rong_thanh_null(self):
         text = new_experiment.config_text(self.template, "model-x", "method-y", "exp007", None)
