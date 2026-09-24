@@ -1,42 +1,42 @@
-# P3 — Tầng config thí nghiệm
+# P3 - Tầng config thí nghiệm
 
 > Đọc file này khi: tạo hoặc sửa cấu hình của một thí nghiệm.
-> Liên quan: `docs/05_config/05_experiments_shared.md` · `docs/05_config/06_experiment.md`
+> Liên quan: `docs/05_config/05_experiments_shared.md`, `docs/05_config/06_experiment.md`
 
 ## 1. Mục tiêu phase
 
-Cấu hình thí nghiệm được hợp nhất từ 7 lớp, biết rõ mỗi khoá đến từ tệp nào,
+Cấu hình thí nghiệm được hợp nhất từ 7 lớp, biết rõ mỗi khoá đến từ file nào,
 có dấu vết để tra cứu, và chặn được các lỗi im lặng (thiếu vai, rò rỉ dữ liệu, trùng thí nghiệm).
 
 ## 2. Trạng thái
 
 chưa làm
 
-## 3. Việc nhỏ (mỗi task một commit)
+## 3. Task nhỏ (mỗi task một commit)
 
 - [ ] T1. Thêm config dùng chung: `configs/experiments/repo.yaml`, `task.yaml`, `evaluation.yaml`,
       `training.yaml`, `tracking.yaml`.
-      → `feat(config): add shared experiment configs`
+      -> `feat(config): add shared experiment configs`
 - [ ] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá,
       in bảng ghi đè.
-      → `feat(experiments): merge config layers with per-key source tracking`
+      -> `feat(experiments): merge config layers with per-key source tracking`
 - [ ] T3. `config_sha256`: băm JSON chuẩn hoá của config đã hợp nhất, cộng văn bản prompt đã hợp nhất
       (`prompt_merged`).
-      → `feat(experiments): hash merged config and merged prompt`
-- [ ] T4. Kiểm tra: `roles` bắt buộc khai; một dataset duy nhất; `splits` phải có trong tệp dataset version;
+      -> `feat(experiments): hash merged config and merged prompt`
+- [ ] T4. Kiểm tra: `roles` bắt buộc khai; một dataset duy nhất; `splits` phải có trong file dataset version;
       chặn `eval` trỏ vào `train`.
-      → `feat(experiments): validate roles single dataset and leakage`
+      -> `feat(experiments): validate roles single dataset and leakage`
 - [ ] T5. Sinh danh sách `requires` từ dataset version, mã phiên bản và `roles`; cộng `requires_extra`.
-      → `feat(experiments): derive required paths`
+      -> `feat(experiments): derive required paths`
 - [ ] T6. Guard trùng: so `(config_sha256, mã, exp_id)` với mọi `run_meta.json` đã có.
-      → `feat(experiments): add duplicate guard`
+      -> `feat(experiments): add duplicate guard`
 - [ ] T7. Test cho thứ tự hợp nhất, bảng ghi đè và các lỗi kiểm tra.
-      → `test(experiments): cover merge overrides and validation`
+      -> `test(experiments): cover merge overrides and validation`
 
 ## 4. Điều kiện hoàn thành (DoD)
 
 - Notebook in được bảng ghi đè và giá trị hiệu lực của một thí nghiệm mẫu.
-- Config thiếu `roles` hoặc `eval` trỏ `train` đều báo lỗi rõ ràng, kèm tệp đã đọc.
+- Config thiếu `roles` hoặc `eval` trỏ `train` đều báo lỗi rõ ràng, kèm file đã đọc.
 - Đổi một khoá trong config dùng chung làm `config_sha256` đổi.
 
 ## 5. Rủi ro / lưu ý

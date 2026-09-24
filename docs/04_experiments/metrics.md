@@ -1,9 +1,9 @@
 # Chỉ số đánh giá
 
 > Đọc file này khi: viết báo cáo, hoặc kiểm tra cách tính một chỉ số.
-> Liên quan: `docs/04_experiments/reference_publication.md` · `src/evaluation/metrics.py`
+> Liên quan: `docs/04_experiments/reference_publication.md`, `src/evaluation/metrics.py`
 
-Bộ chỉ số lấy theo công bố tham chiếu, không tự thêm bớt khi so sánh.
+Metric lấy theo công bố tham chiếu, không tự thêm bớt khi so sánh.
 Mọi chỉ số tính trên **cùng một tập đánh giá** là split `test` của dataset.
 
 ## Hai câu hỏi phải tách rời
@@ -16,16 +16,16 @@ hoặc bỏ qua khía cạnh nhưng đoán đúng các khía cạnh còn lại.
 
 ## Danh sách chỉ số
 
-| Chỉ số | Tên trong `scores` | Định nghĩa |
-|---|---|---|
-| Độ chính xác theo khía cạnh | `accuracy` | số ô đúng chia cho số ô, tính riêng cho từng khía cạnh |
-| Chính xác khi có nhắc tới | `accuracy` | chỉ tính trên các ô mà nhãn đúng khác "không nhắc tới" |
-| Phát hiện khía cạnh | `aspect_detection` | bài toán nhị phân có nhắc tới hay không: accuracy, precision, recall, F1 |
-| Precision, Recall, F1 theo khía cạnh và sắc thái | `prf` | tính riêng cho từng cặp khía cạnh và nhãn, ví dụ `price` và `negative` |
-| Trung bình macro và micro | `aggregate` | gộp theo khía cạnh hoặc gộp theo ô |
-| Khớp hoàn toàn | `aggregate` | tỉ lệ review đoán đúng cả bảy khía cạnh |
-| Ma trận nhầm theo khía cạnh | `confusion` | bảng đếm nhãn đúng so với nhãn đoán, dùng để vẽ |
-| Tỉ lệ đọc được | không phải chỉ số chấm điểm | tỉ lệ kết quả đọc được, kèm phân bố lí do lỗi |
+| Chỉ số                                           | Tên trong `scores`          | Định nghĩa                                                               |
+| ------------------------------------------------ | --------------------------- | ------------------------------------------------------------------------ |
+| Độ chính xác theo khía cạnh                      | `accuracy`                  | số ô đúng chia cho số ô, tính riêng cho từng khía cạnh                   |
+| Chính xác khi có nhắc tới                        | `accuracy`                  | chỉ tính trên các ô mà nhãn đúng khác "không nhắc tới"                   |
+| Phát hiện khía cạnh                              | `aspect_detection`          | bài toán nhị phân có nhắc tới hay không: accuracy, precision, recall, F1 |
+| Precision, Recall, F1 theo khía cạnh và sắc thái | `prf`                       | tính riêng cho từng cặp khía cạnh và nhãn, ví dụ `price` và `negative`   |
+| Trung bình macro và micro                        | `aggregate`                 | gộp theo khía cạnh hoặc gộp theo ô                                       |
+| Khớp hoàn toàn                                   | `aggregate`                 | tỉ lệ review đoán đúng cả bảy khía cạnh                                  |
+| Ma trận nhầm theo khía cạnh                      | `confusion`                 | bảng đếm nhãn đúng so với nhãn đoán, dùng để vẽ                          |
+| Tỉ lệ đọc được                                   | không phải chỉ số chấm điểm | tỉ lệ kết quả đọc được, kèm phân bố lí do lỗi                            |
 
 ## Quy ước bắt buộc
 
@@ -35,14 +35,14 @@ hoặc bỏ qua khía cạnh nhưng đoán đúng các khía cạnh còn lại.
 - Khi ở `label_space: binary`, các ô nhãn `neutral` bị loại theo `neutral_policy`;
   số ô bị loại ghi vào `metrics.json`.
 
-## Tệp kết quả
+## File kết quả
 
-| Tệp | Nội dung |
-|---|---|
-| `metrics.json` | toàn bộ chỉ số, kèm `label_space`, `neutral_policy`, số ô bị loại |
-| `metrics.csv` | bảng dài: `aspect`, `sentiment`, `metric`, `value`, để so giữa các thí nghiệm |
-| `mispredictions.csv` | chỉ các dòng đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán |
-| `plots/` | biểu đồ, gồm ma trận nhầm nếu bật |
+| File                 | Nội dung                                                                      |
+| -------------------- | ----------------------------------------------------------------------------- |
+| `metrics.json`       | toàn metric, kèm `label_space`, `neutral_policy`, số ô bị loại                |
+| `metrics.csv`        | bảng dài: `aspect`, `sentiment`, `metric`, `value`, để so giữa các thí nghiệm |
+| `mispredictions.csv` | chỉ các dòng đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán                    |
+| `plots/`             | biểu đồ, gồm ma trận nhầm nếu bật                                             |
 
 ## Bảng tổng hợp
 

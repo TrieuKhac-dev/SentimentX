@@ -1,7 +1,7 @@
-# P5 — Ghim code và notebook
+# P5 - Ghim code và notebook
 
 > Đọc file này khi: tạo thí nghiệm mới, ghim bản code, hoặc giao notebook cho giảng viên.
-> Liên quan: `docs/00_workflow/01_flow.md` · `docs/05_config/06_experiment.md`
+> Liên quan: `docs/00_workflow/01_flow.md`, `docs/05_config/06_experiment.md`
 
 ## 1. Mục tiêu phase
 
@@ -12,26 +12,26 @@ và có công cụ tạo thí nghiệm mới nhanh, chính xác, không xung đ�
 
 chưa làm
 
-## 3. Việc nhỏ (mỗi task một commit)
+## 3. Task nhỏ (mỗi task một commit)
 
 - [ ] T1. `src/repo.py`: `prepare()` kéo đúng commit đã ghim (fetch theo sha, có phương án dự phòng
       `clone --filter=blob:none`), kiểm `git rev-parse HEAD`, đọc config từ chính commit đó.
-      → `feat(repo): fetch and verify pinned commit`
+      -> `feat(repo): fetch and verify pinned commit`
 - [ ] T2. `scripts/pin.py`: ghi `REPO_URL`, `REPO_SHA`, `EXP_DIR` vào cell đầu của notebook
-      (dùng `nbformat`), kiểm commit chỉ đổi đúng tệp notebook, cảnh báo nếu sha chưa nằm trên nhánh `experiment`.
-      → `feat(scripts): add pin script writing repo url sha and exp dir`
+      (dùng `nbformat`), kiểm commit chỉ đổi đúng file notebook, cảnh báo nếu sha chưa nằm trên nhánh `experiment`.
+      -> `feat(scripts): add pin script writing repo url sha and exp dir`
 - [ ] T3. `templates/`: `README.md`, `templates/experiment/{README.md, config.yaml, notebook.ipynb}`,
       `templates/prompt/{prompt.txt, examples.txt, system.txt}`.
-      → `feat(templates): add experiment and prompt templates`
+      -> `feat(templates): add experiment and prompt templates`
 - [ ] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
-      → `feat(notebook): add first experiment notebook`
+      -> `feat(notebook): add first experiment notebook`
 - [ ] T5. Preflight: kiểm `requires` và `requires_extra`, mã phiên bản, `roles`, GPU và quantization,
       Java khi cần, quyền ghi Drive, trạng thái FRESH hay RESUME.
-      → `feat(preflight): check paths device and drive`
+      -> `feat(preflight): check paths device and drive`
 - [ ] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
       đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
-      → `feat(scripts): add new experiment scaffolder`
+      -> `feat(scripts): add new experiment scaffolder`
 
 ## 4. Điều kiện hoàn thành (DoD)
 

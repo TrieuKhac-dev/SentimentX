@@ -1,7 +1,7 @@
-# P6 — Reports, CI, docs
+# P6 - Reports, CI, docs
 
 > Đọc file này khi: sinh bảng tổng hợp, hoặc khi CI báo đỏ.
-> Liên quan: `docs/00_workflow/03_ci.md` · `docs/05_config/*`
+> Liên quan: `docs/00_workflow/03_ci.md`, `docs/05_config/*`
 
 ## 1. Mục tiêu phase
 
@@ -12,26 +12,26 @@ và tài liệu đầy đủ cho cả nhóm.
 
 chưa làm
 
-## 3. Việc nhỏ (mỗi task một commit)
+## 3. Task nhỏ (mỗi task một commit)
 
 - [ ] T1. `scripts/collect_reports.py`: quét `run_meta.json` và các `metrics.csv` để sinh bốn nhóm report
       (`dataset_registry`, `experiment_registry`, `model_input`, `metrics_matrix`), mỗi nhóm có
       `csv` nguồn, `html` trình bày, `md` chỉ chứa sơ đồ Mermaid; nhận nhiều gốc bằng `--root`.
-      → `feat(scripts): generate registry model input and metrics matrix reports`
+      -> `feat(scripts): generate registry model input and metrics matrix reports`
 - [ ] T2. `scripts/ci_checks.py`: sáu kiểm tra (không có dữ liệu bị git theo dõi, `.gitignore` đúng,
       notebook sạch output, mọi registry hợp lệ, mọi config thí nghiệm hợp lệ, `REPO_SHA` hợp lệ và tồn tại).
-      → `feat(ci): add repository checks script`
+      -> `feat(ci): add repository checks script`
 - [ ] T3. `.github/workflows/ci.yml` chạy khi push và pull request vào nhánh `experiment`.
-      → `ci: add github actions workflow for experiment branch`
+      -> `ci: add github actions workflow for experiment branch`
 - [ ] T4. `requirements-ci.txt`, `requirements-colab.txt` (không cài lại torch).
-      → `chore(deps): add ci colab and base requirements`
+      -> `chore(deps): add ci colab and base requirements`
 - [ ] T5. Docs nhóm quy trình: `01_flow`, `02_rules`, `03_ci`, `04_terms`, `05_git_commits`, `06_conventions`.
-      → `docs(workflow): add workflow rules ci terms commits and conventions`
+      -> `docs(workflow): add workflow rules ci terms commits and conventions`
 - [ ] T6. Docs tham chiếu cấu hình: `05_config/01..07`.
-      → `docs(config): add configuration reference`
+      -> `docs(config): add configuration reference`
 - [ ] T7. Docs đánh giá: `04_experiments/metrics.md`, `04_experiments/reference_publication.md`;
       cập nhật `docs/README.md` làm mục lục duy nhất.
-      → `docs(experiments): add metrics and reference publication pages`
+      -> `docs(experiments): add metrics and reference publication pages`
 
 ## 4. Điều kiện hoàn thành (DoD)
 

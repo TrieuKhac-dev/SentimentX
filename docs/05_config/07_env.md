@@ -1,39 +1,39 @@
-# 05.07. Biến môi trường và bí mật
+# 05.07. Biến môi trường và secret
 
-> Đọc file này khi: cấu hình máy cá nhân, hoặc chuẩn bị tệp env để gửi giảng viên.
-> Liên quan: `docs/00_workflow/02_rules.md` · `docs/05_config/01_paths.md`
+> Đọc file này khi: cấu hình máy cá nhân, hoặc chuẩn bị file env để gửi giảng viên.
+> Liên quan: `docs/00_workflow/02_rules.md`, `docs/05_config/01_paths.md`
 
-## Các tệp env
+## Các file env
 
-| Tệp | Commit | Dùng cho | Nội dung |
-|---|---|---|---|
-| `.env.example` | có | máy cá nhân, bản mẫu | tên biến, giá trị để trống |
-| `.env` | không | máy cá nhân, bản thật | giá trị thật |
-| `.env.colab.example` | có | Colab, bản mẫu | tên biến, giá trị để trống |
-| `.env.colab` | **không** | Colab, bản gửi giảng viên | **đầy đủ khoá bí mật** |
+| File                 | Commit    | Dùng cho                  | Nội dung                   |
+| -------------------- | --------- | ------------------------- | -------------------------- |
+| `.env.example`       | có        | máy cá nhân, bản mẫu      | tên biến, giá trị để trống |
+| `.env`               | không     | máy cá nhân, bản thật     | giá trị thật               |
+| `.env.colab.example` | có        | Colab, bản mẫu            | tên biến, giá trị để trống |
+| `.env.colab`         | **không** | Colab, bản gửi giảng viên | **đầy đủ khoá secret**     |
 
 ## Các biến
 
-| Biến | Ý nghĩa |
-|---|---|
-| `DAGSHUB_TOKEN` | token truy cập DagsHub |
-| `SENTIMENTX_DATA_ROOT` | gốc dữ liệu, trên Colab trỏ vào Drive |
-| `SENTIMENTX_RESULTS_ROOT` | gốc kết quả, trên Colab trỏ vào Drive |
-| `SENTIMENTX_ENV` | `colab` hoặc `local` |
-| `HF_HOME` | nơi cache model; trên Colab để ở đĩa tạm, không để trên Drive |
+| Biến                      | Ý nghĩa                                                       |
+| ------------------------- | ------------------------------------------------------------- |
+| `DAGSHUB_TOKEN`           | token truy cập DagsHub                                        |
+| `SENTIMENTX_DATA_ROOT`    | gốc dữ liệu, trên Colab trỏ vào Drive                         |
+| `SENTIMENTX_RESULTS_ROOT` | gốc kết quả, trên Colab trỏ vào Drive                         |
+| `SENTIMENTX_ENV`          | `colab` hoặc `local`                                          |
+| `HF_HOME`                 | nơi cache model; trên Colab để ở đĩa tạm, không để trên Drive |
 
 ## Thứ tự nạp
 
 1. Colab Secrets, nếu giảng viên tự đặt.
-2. Tệp `<Drive>/env/.env.colab`.
+2. File `<Drive>/env/.env.colab`.
 3. `os.environ`.
-4. Tệp `.env` ở máy cá nhân.
+4. File `.env` ở máy cá nhân.
 
 Notebook in ra bảng biến nào có, biến nào thiếu. Chỉ in **tên biến**, không in giá trị.
 
 ## Kết nối DagsHub
 
-Tệp `configs/dagshub.yaml` giữ phần hạ tầng, không chứa token:
+File `configs/dagshub.yaml` giữ phần hạ tầng, không chứa token:
 
 ```yaml
 dagshub:

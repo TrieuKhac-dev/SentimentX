@@ -1,7 +1,7 @@
-# P7 — Chạy lại từ đầu và so với công bố
+# P7 - Chạy lại từ đầu và so với công bố
 
 > Đọc file này khi: bắt đầu sinh kết quả chính thức cho báo cáo.
-> Liên quan: `docs/04_experiments/metrics.md` · `docs/04_experiments/reference_publication.md`
+> Liên quan: `docs/04_experiments/metrics.md`, `docs/04_experiments/reference_publication.md`
 
 ## 1. Mục tiêu phase
 
@@ -12,23 +12,23 @@ và có một vòng bàn giao hoàn chỉnh cho giảng viên.
 
 chưa làm
 
-## 3. Việc nhỏ (mỗi task một commit)
+## 3. Task nhỏ (mỗi task một commit)
 
 - [ ] T1. Chạy lại pipeline để sinh phiên bản dataset đầu tiên theo cấu trúc mới.
-      → `feat(data): rebuild dataset version from raw`
+      -> `feat(data): rebuild dataset version from raw`
 - [ ] T2. Chạy lại EDA trên raw và trên dataset; sinh report tương ứng.
-      → `feat(data): regenerate eda and pipeline reports`
+      -> `feat(data): regenerate eda and pipeline reports`
 - [ ] T3. Chạy baseline prompt 0-shot, 1-shot, 5-shot trên tập `test` đúng như công bố.
-      → `feat(experiments): run baseline prompt experiments`
+      -> `feat(experiments): run baseline prompt experiments`
 - [ ] T4. Sinh bảng so sánh với cột `reference`; ghi lại kết quả và khoảng cách.
-      → `docs(experiments): record baseline results against reference`
+      -> `docs(experiments): record baseline results against reference`
 - [ ] T5. Giao notebook cho giảng viên: đẩy dữ liệu, notebook và `.env.colab` lên Drive, gửi hướng dẫn.
       (không tạo commit)
 
 ## 4. Điều kiện hoàn thành (DoD)
 
 - `data/reports/metrics_matrix/accuracy_by_aspect.csv` có cột `reference` và cột cho từng `expNNN`.
-- Tập `test` không đổi: `sha256` khớp `eval_lock` trong tệp dataset version.
+- Tập `test` không đổi: `sha256` khớp `eval_lock` trong file dataset version.
 - Một thí nghiệm chạy trọn vẹn trên Colab của giảng viên, kết quả nằm trên Drive và trên DagsHub.
 
 ## 5. Rủi ro / lưu ý

@@ -1,35 +1,38 @@
-# P1 — Đường dẫn tập trung
+# P1 - Đường dẫn tập trung
 
 > Đọc file này khi: sửa hoặc thêm đường dẫn trong dự án.
-> Liên quan: `docs/05_config/01_paths.md` · `docs/00_workflow/02_rules.md`
+> Liên quan: `docs/05_config/01_paths.md`, `docs/00_workflow/02_rules.md`
 
 ## 1. Mục tiêu phase
 
 Mọi đường dẫn của dự án lấy từ một nguồn duy nhất là `configs/paths.yaml`, qua `src/paths.py`.
-Đổi cấu trúc thư mục thì chỉ sửa một tệp cấu hình.
+Đổi cấu trúc thư mục thì chỉ sửa một file cấu hình.
 
 ## 2. Trạng thái
 
-chưa làm
+xong
 
-## 3. Việc nhỏ (mỗi task một commit)
+## 3. Task nhỏ (mỗi task một commit)
 
-- [ ] T1. Thêm `configs/paths.yaml`: `roots`, `data`, `reports`, `configs`, `patterns`, `colab`, `canonical`.
-      → `feat(config): add central paths config`
-- [ ] T2. Thêm `src/paths.py`: nạp một lần, cấp API `root()`, `data()`, `processed()`, `report()`,
+- [x] T1. Thêm `configs/paths.yaml`: `roots`, `data`, `reports`, `configs`, `patterns`, `colab`, `canonical`.
+- [x] T2. Thêm `src/paths.py`: nạp một lần, cấp API `root()`, `data()`, `processed()`, `report()`,
       `experiment_dir()`, `results_dir()`, `pattern()`; hỗ trợ ghi đè bằng biến môi trường
       `SENTIMENTX_DATA_ROOT`, `SENTIMENTX_RESULTS_ROOT`.
-      → `feat(paths): add paths module with env overrides`
-- [ ] T3. Thêm `src/runtime.py`: `is_colab()`, biến `SENTIMENTX_ENV`, hàm nạp biến môi trường
+- [x] T3. Thêm `src/runtime.py`: `is_colab()`, biến `SENTIMENTX_ENV`, hàm nạp biến môi trường
       theo thứ tự Colab Secrets, `.env.colab`, `os.environ`, `.env`.
-      → `feat(runtime): add colab detection and env loading`
-- [ ] T4. Chuyển `src/config.py`, `src/versioning.py`, `src/reporting/`, các `run_*.py` sang dùng
-      `src/paths.py`; bỏ các hằng số đường dẫn cũ như `MODEL_EVAL_REPORT_DIR`.
-      → `refactor(config): route all paths through paths module`
-- [ ] T5. Bỏ khoá `raw_dir` trong config dataset; suy ra từ `paths.yaml` + `name` + `raw_version`.
-      → `refactor(datasets): derive raw dir from paths`
-- [ ] T6. Thêm test cho `src/paths.py` (đường dẫn mặc định và khi có biến môi trường).
-      → `test(paths): cover resolution and env overrides`
+- [x] T4. Chuyển `src/config.py`, `src/versioning.py`, `src/reporting/`, các `run_*.py` sang dùng
+      `src/paths.py`.
+- [x] T5. Bỏ khoá `raw_dir` trong config dataset; suy ra từ `paths.yaml` + `name` + `raw_version`.
+      Kèm theo: dữ liệu gốc chuyển vào `data/raw/cosmetics/v0.1.0/` và thêm `raw_meta.yaml`.
+- [x] T6. Thêm test cho `src/paths.py`: đường dẫn mặc định, ghi đè bằng biến môi trường, và
+      luật không còn đường dẫn viết cứng trong `src/` và các `run_*.py`.
+
+Ghi chú khi làm, khác kế hoạch ban đầu:
+
+- `MODEL_EVAL_REPORT_DIR` chưa bỏ ở đây mà để tới P4, vì đúng lúc đó kết quả đánh giá mới
+  chuyển sang thư mục thí nghiệm. Bỏ sớm thì phải sửa hai lần.
+- `EDA_REPORT_DIR` và `PIPELINE_REPORT_DIR` để lại tới P2, vì P2 mới đổi chỗ ghi kết quả.
+- T4, T5, T6 nằm chung một commit với việc dọn ký hiệu AI trong code, vì cùng sửa một số file.
 
 ## 4. Điều kiện hoàn thành (DoD)
 
@@ -40,7 +43,7 @@ chưa làm
 
 ## 5. Rủi ro / lưu ý
 
-- `.gitignore` và `.gitattributes` không đọc được YAML, nên khi đổi cây thư mục vẫn phải sửa tay hai tệp này.
+- `.gitignore` và `.gitattributes` không đọc được YAML, nên khi đổi cây thư mục vẫn phải sửa tay hai file này.
 - Thứ duy nhất còn nằm trong code là `ROOT_DIR` suy từ `__file__`, vì cần nó để tìm ra `paths.yaml`.
 
 ## 6. Phụ thuộc

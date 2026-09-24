@@ -1,80 +1,53 @@
-# Dữ liệu gốc (`data/raw`)
+# Dữ liệu gốc
 
-## 1. Vì sao dữ liệu nằm ở `data/raw` mà không phải `datasets`
+> Đọc file này khi: làm việc với dữ liệu gốc.
+>
+> Liên quan: `docs/01_dataset/02_schema.md`, `docs/05_config/03_datasets.md`
 
-Trước đây dữ liệu nằm ở thư mục `datasets/`. Cách gọi đó chưa chính xác:
+## 1. Nơi lưu và cách đánh phiên bản
 
-- **"Dataset"** thường dùng cho dữ liệu **đã qua xử lý, đã kiểm duyệt, sẵn sàng dùng**.
-- Dữ liệu ban đầu ở đây mới chỉ được **gán nhãn và chia split**, **chưa qua bất kỳ
-  bước xử lý nào** (còn review rỗng, còn trùng lặp, còn nhiễu).
+```
+data/raw/<name>/<raw_version>/
+```
 
-Vì vậy dự án tách thành:
+| Thành phần      | Nghĩa                        | Ví dụ       |
+| --------------- | ---------------------------- | ----------- |
+| `<name>`        | tên dataset                  | `cosmetics` |
+| `<raw_version>` | phiên bản của bộ dữ liệu gốc | `v0.1.0`    |
 
-| Thư mục | Nội dung |
-|---------|----------|
-| `data/raw/<tên dataset>/` | Dữ liệu gốc, chỉ đọc — **không bao giờ sửa** |
-| `data/processed/versions/<mã>/` | Dữ liệu **đã qua pipeline** — phần này mới đúng nghĩa "dataset" |
+Ví dụ: `data/raw/cosmetics/v0.1.0/data_train.csv`.
 
-Mỗi dataset có **một thư mục riêng** dưới `data/raw/` (`data/raw/cosmetics/`,
-`data/raw/newdata/`...). Thư mục `datasets/` cũ đã được **xoá**; nội dung của nó
-đã được chuyển vào `data/raw/cosmetics/` nguyên vẹn từng byte.
+Luật: **tăng `<raw_version>` mỗi khi dữ liệu gốc thay đổi**, và **giữ nguyên bản cũ**.
+Nhờ vậy vẫn tạo lại được một phiên bản dataset cũ từ đúng bộ dữ liệu gốc của nó.
 
-## 2. Các file dữ liệu
+## 2. Hai thư mục khác nhau, không được lẫn
 
-| File | Số dòng | Ghi chú |
-|------|---------|---------|
-| `data/raw/cosmetics/data_train.csv` | 12.981 | tập huấn luyện |
-| `data/raw/cosmetics/data_val.csv` | 1.623 | tập kiểm định trong lúc huấn luyện |
-| `data/raw/cosmetics/data_test.csv` | 1.623 | tập đánh giá cuối cùng |
-| `data/raw/cosmetics/full_data.csv` | 16.227 | bản gộp của cả 3 tập trên |
+| Thư mục                          | Nội dung                                |
+| -------------------------------- | --------------------------------------- |
+| `data/raw/<name>/<raw_version>/` | Dữ liệu gốc, chỉ đọc, không bao giờ sửa |
+| `data/processed/<mã>/`           | Dữ liệu đã qua xử lý, tức dataset       |
 
-Tổng 3 split = 16.227 dòng, đúng bằng `full_data.csv`, nên `full_data.csv` chỉ là
-bản nối lại — **pipeline xử lý 3 file split riêng biệt** để không phá vỡ ranh giới
-train / val / test.
+## 3. Thông tin của một phiên bản dữ liệu gốc
 
-Danh sách file nào thuộc split nào do `configs/datasets/<tên>.yaml` khai báo (khoá
-`splits`), không viết cứng trong code.
+Mỗi phiên bản có file `raw_meta.yaml` nằm ngay trong thư mục của nó, ghi: nguồn thu thập,
+giấy phép, ngày thu thập, và với từng file: số byte, số dòng, `sha256`.
 
-## 3. Vấn đề encoding (quan trọng khi đọc file)
+File này **được commit**, vì dữ liệu gốc thì không.
 
-Khi kiểm tra byte đầu file:
+Muốn xem số liệu hay đặc trưng của dữ liệu thì mở đúng thư mục dữ liệu:
+`data/raw/<name>/<raw_version>/` hoặc `data/processed/<mã>/`. Tài liệu này không chép lại số liệu.
 
-- `data_train.csv`, `data_val.csv`, `data_test.csv` → có **BOM** (`EF BB BF`)
-- `full_data.csv` → **không có BOM**
+## 4. Đọc file gốc cho đúng
 
-Nếu không xử lý, tên cột đầu tiên có thể bị đọc thành `\ufeffdata` thay vì `data`.
-Dự án luôn đọc bằng `encoding="utf-8-sig"` (`src/utils.py::read_csv`), cách này
-đúng cho **cả hai trường hợp**.
+Một số file CSV có BOM ở đầu file, một số không. Nếu đọc sai thì tên cột đầu tiên thành `\ufeffdata`.
+Dự án luôn đọc bằng `encoding="utf-8-sig"`, cách này đúng cho cả hai trường hợp.
 
-## 4. Đặc điểm dữ liệu đã biết
+## 5. Git không đổi kiểu xuống dòng
 
-Đây là các đặc điểm cần lưu ý khi thiết kế pipeline (EDA đo lại chính xác bằng số —
-xem [02_eda/02_metrics.md](../02_eda/02_metrics.md)):
-
-| Đặc điểm | Ví dụ |
-|----------|-------|
-| Teencode | `ko`, `cx`, `sp`, `mn`, `r`, `n`, `trc` |
-| Viết không dấu | `son dep lam` |
-| Ký tự lặp (nhấn mạnh cảm xúc) | `đẹpppppp`, `thíchhhh` |
-| Emoji | `😍😍😍`, `❤️` |
-| Chuỗi vô nghĩa | `fjfiidkxsksososxkxncnfrooeodk...` |
-| Quảng cáo / tin nhắn nhà mạng | `[QC] Giảm 3% khi thanh toán...`, `Viettel tặng 20%...` |
-| Nội dung template | `Công dụng: ... Kết cấu: ... Độ bền màu: ...` |
-
-## 5. Lưu ý về dữ liệu gốc
-
-`data/raw/` là **nguồn sự thật duy nhất**. Toàn bộ code chỉ đọc từ đó; mọi thay đổi
-đều ghi ra `data/processed/`.
-
-Nội dung dữ liệu gốc còn được đưa vào **mã phiên bản** (`src/versioning.py`), nên
-chỉ cần sửa một dòng trong file CSV là kết quả sẽ thuộc một phiên bản mới — không
-có chuyện kết quả cũ bị ghi đè mà không biết.
-
-Repo cũng khai báo `.gitattributes` để Git **không tự đổi kiểu xuống dòng** (LF ⇄ CRLF)
-cho các file trong `data/`. Nếu không, cùng một file trên hai máy sẽ cho ra hai mã
-phiên bản khác nhau dù dữ liệu không hề thay đổi.
+`.gitattributes` khai `data/** -text` để Git không tự đổi LF thành CRLF. Nếu không,
+cùng một file trên hai máy sẽ cho ra hai mã phiên bản khác nhau dù dữ liệu không đổi.
 
 ---
 
-Xem tiếp: [02_schema.md](02_schema.md) — schema và ý nghĩa nhãn;
-[03_new_dataset.md](03_new_dataset.md) — thêm dataset mới.
+Xem tiếp: [02_schema.md](02_schema.md) - schema và ý nghĩa nhãn;
+[03_new_dataset.md](03_new_dataset.md) - thêm dataset mới.

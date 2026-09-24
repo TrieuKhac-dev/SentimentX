@@ -1,28 +1,28 @@
-# Kế hoạch triển khai — mục lục
+# Kế hoạch triển khai - mục lục
 
 > Đọc file này khi: bắt đầu làm việc, hoặc muốn biết đang ở bước nào.
-> Liên quan: `docs/00_workflow/01_flow.md` · `docs/00_workflow/05_git_commits.md` · `docs/README.md`
+> Liên quan: `docs/00_workflow/01_flow.md`, `docs/00_workflow/05_git_commits.md`, `docs/README.md`
 
 ## Cách dùng
 
-- Mỗi phase là một file. Trong mỗi file, mục **3. Việc nhỏ** là danh sách task có checkbox.
+- Mỗi phase là một file. Trong mỗi file, mục **3. Task nhỏ** là danh sách task có checkbox.
 - Một task = **một commit** (Conventional Commits, tiếng Anh). Commit message ghi ngay cạnh task.
 - Trạng thái ghi ở **mục 2** của từng file: `chưa làm` / `đang làm` / `xong`.
 - Chỉ chuyển phase khi mục **4. Điều kiện hoàn thành (DoD)** đã đạt.
 
 ## Trạng thái tổng
 
-| Phase | Nội dung | File | Trạng thái |
-|---|---|---|---|
-| P0 | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md` | xong |
-| P1 | Đường dẫn tập trung | `P1_paths.md` | chưa làm |
-| P2 | Versioning dữ liệu và guard | `P2_versioning.md` | chưa làm |
-| P3 | Tầng config thí nghiệm | `P3_config_layer.md` | chưa làm |
-| P4 | Log, MLflow/DagsHub, resume | `P4_logging_mlflow.md` | chưa làm |
-| P5 | Ghim code và notebook | `P5_notebook_pin.md` | chưa làm |
-| P6 | Reports, CI, docs | `P6_reports_ci.md` | chưa làm |
-| P7 | Chạy lại từ đầu và so với công bố | `P7_rerun.md` | chưa làm |
-| — | Bảng toàn bộ commit | `APPENDIX_commits.md` | — |
+| Phase | Nội dung                                 | File                   | Trạng thái |
+| ----- | ---------------------------------------- | ---------------------- | ---------- |
+| P0    | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md`     | xong       |
+| P1    | Đường dẫn tập trung                      | `P1_paths.md`          | chưa làm   |
+| P2    | Versioning dữ liệu và guard              | `P2_versioning.md`     | chưa làm   |
+| P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | chưa làm   |
+| P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | chưa làm   |
+| P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | chưa làm   |
+| P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | chưa làm   |
+| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | chưa làm   |
+| -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 
 ## Cổng kiểm tra bắt buộc
 
