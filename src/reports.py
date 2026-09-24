@@ -29,7 +29,7 @@ from pathlib import Path
 
 from src import config, dataset as dataset_module, paths, utils, versioning
 
-GREETING = "chưa có dữ liệu"
+NO_DATA = "chưa có dữ liệu"
 
 # Tên file CSV nguồn của mỗi nhóm. Nhóm có nhiều bảng thì tên ở đây là bảng CHÍNH; các bảng phụ
 # khai trong `TABLE_NAMES` (metrics_matrix có hai bảng, đúng như docs/04_experiments/metrics.md).
@@ -156,7 +156,7 @@ def dataset_rows():
                 "on_disk": "yes" if directory.is_dir() else "no",
                 "splits": ", ".join("{}={}".format(key, splits[key]) for key in sorted(splits)),
                 "rows": sum(splits.values()),
-                "eval_locked": ", ".join(locked) or GREETING,
+                "eval_locked": ", ".join(locked) or NO_DATA,
                 "aspects": ", ".join(cfg.get("aspects") or []),
                 "raw_dir": str(cfg.get("raw_dir") or ""),
                 "config": utils.rel(dataset_module.config_path(name, version)),
@@ -295,6 +295,45 @@ def column_label(run):
     return "{} n{}".format(metrics.get("prompt") or canonical_label(run), limit or "all")
 
 
+def column_labels(runs):
+    """Nhãn cột cho CẢ BỘ lượt chạy, bảo đảm KHÔNG TRÙNG NHAU.
+
+    Vì sao phải làm việc này: hai cột cùng tên không báo lỗi mà ghi đè lẫn nhau (từ điển theo nhãn),
+    nên số liệu của một lượt chạy biến mất trong im lặng. Chuyện đó xảy ra thật khi so nhiều model:
+    mỗi model có thư mục `exp001` riêng, còn nhãn cột chỉ là `exp001`.
+
+    Cách chữa, theo thứ tự: nếu nhãn trùng vì KHÁC MODEL (so Qwen với PhoBERT) thì thêm tên model
+    vào trước, vì đó mới là thứ phân biệt được; nếu vẫn trùng (ví dụ hai lần chạy cùng thí nghiệm với
+    `n` khác nhau) thì thêm `#2`, `#3`... KHÔNG đánh số thứ tự ngay từ đầu, vì như vậy tên cột phụ
+    thuộc thứ tự quét chứ không phụ thuộc nội dung.
+    """
+    base = [column_label(run) for run in runs]
+    groups = {}
+    for run, label in zip(runs, base):
+        groups.setdefault(label, []).append(short_model(run))
+    labels, used = [], {}
+    for run, label in zip(runs, base):
+        models = {name for name in groups[label] if name}
+        if len(groups[label]) > 1 and len(models) > 1:
+            label = "{} {}".format(short_model(run), label).strip()
+        if label in used:
+            used[label] += 1
+            label = "{} #{}".format(label, used[label])
+        else:
+            used[label] = 1
+        labels.append(label)
+    return labels
+
+
+def short_model(run):
+    """Tên model ngắn (đoạn cuối đường dẫn) - chỉ dùng khi cần phân biệt hai cột cùng nhãn."""
+    meta = run.get("meta") or {}
+    value = ((meta.get("experiment") or {}).get("model")
+             or (run.get("metrics") or {}).get("model") or "")
+    text = str(value).replace("\\", "/").strip("/")
+    return text.split("/")[-1] if text else ""
+
+
 def metric_map(run):
     """Bảng `(aspect, sentiment, metric) -> giá trị` của một lượt chạy, đọc từ `metrics.csv`.
 
@@ -327,7 +366,7 @@ def accuracy_table(runs, reference=None, suffix=None):
     của khía cạnh đó, đúng cách bảng của công bố đếm. Khía cạnh CHỈ CÓ trong bảng công bố vẫn được
     giữ thành một dòng (ô của các lượt chạy để trống), để thấy ngay còn thiếu gì.
     """
-    labels = [column_label(run) for run in runs]
+    labels = column_labels(runs)
     maps = [metric_map(run) for run in runs]
     aspects = sorted({key[0].lower() for item in maps for key in item
                       if key[1:] == ("all", "accuracy")})
@@ -363,7 +402,7 @@ def prf_table(runs, reference=None, suffix=None):
     (không gộp `all`, không lấy dòng `mentioned` - đó là cách đếm khác, xem metrics.md). Ô nào của
     công bố mà lượt chạy chưa có thì vẫn thành một dòng, với ô của lượt chạy để trống.
     """
-    labels = [column_label(run) for run in runs]
+    labels = column_labels(runs)
     maps = [metric_map(run) for run in runs]
     cells = {(key[0].lower(), key[1].lower()) for item in maps for key in item
              if key[2] in ("precision", "recall", "f1")
@@ -437,7 +476,7 @@ def html_page(name, tables, empty=False):
              "từ file của từng lượt chạy; sơ đồ quan hệ nằm ở <code>{}.md</code>.</p>".format(
                  html.escape(name))]
     if empty:
-        parts.append('<p class="empty">{}</p>'.format(html.escape(GREETING.upper())))
+        parts.append('<p class="empty">{}</p>'.format(html.escape(NO_DATA.upper())))
     for file_name, (columns, rows) in tables.items():
         parts.append('<div class="scroll"><table>')
         parts.append("<caption>{}</caption>".format(html.escape(file_name)))
@@ -481,7 +520,7 @@ def mermaid_graph(edges, isolated=()):
         arrow = "-->|{}|".format(str(label).replace("|", "/")) if label else "-->"
         lines.append("  {} {} {}".format(ids[source], arrow, ids[target]))
     if not lines:
-        return 'graph LR\n  n1["{}"]'.format(GREETING)
+        return 'graph LR\n  n1["{}"]'.format(NO_DATA)
     return "\n".join(["graph LR"] + lines)
 
 
@@ -589,9 +628,9 @@ def group_tables(name, runs, reference=None):
             edges.append((file_name, "", row.get("model_id") or row.get("model") or "model"))
         return {CSV_NAME[name]: (columns, rows)}, mermaid_graph(edges, isolated=["model_input"])
     if name == "metrics_matrix":
-        edges = [(column_label(run), "chấm trên",
+        edges = [(label, "chấm trên",
                   (run["meta"].get("data") or {}).get("ma") or "chưa rõ dữ liệu")
-                 for run in runs]
+                 for run, label in zip(runs, column_labels(runs))]
         if accuracy_ref or prf_ref:
             edges = [("<công bố>", "so với", source) for source, _label, _target in edges] + edges
         tables = {TABLE_NAMES[name][0]: accuracy_table(runs, accuracy_ref, suffix),

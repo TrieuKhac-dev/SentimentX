@@ -167,6 +167,60 @@ class ReferenceTest(unittest.TestCase):
         self.assertEqual(reports.load_reference(empty), (None, None, None))
 
 
+class ColumnLabelTest(unittest.TestCase):
+    """Nhãn cột phải KHÔNG TRÙNG NHAU.
+
+    Đây là lỗi thật đã gặp: hai thí nghiệm khác model nhưng cùng số `expNNN` (chuyện bình thường khi
+    so Qwen với PhoBERT) cho ra hai cột cùng tên, và vì bảng dựng theo từ điển nhãn -> cột, lượt
+    chạy thứ hai GHI ĐÈ lượt thứ nhất, không báo gì.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-columns-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def _labels(self, runs):
+        return reports.column_labels(runs)
+
+    def test_hai_model_cung_so_thi_them_ten_model(self):
+        write_run(self.root, "run-a",
+                  experiment={"model": "qwen3-4b-instruct-2507", "method": "prompt-cot",
+                              "exp_id": "exp001"})
+        write_run(self.root, "run-b",
+                  experiment={"model": "phobert-base", "method": "prompt-cot",
+                              "exp_id": "exp001"})
+        runs = reports.scan_runs([self.root])
+        self.assertEqual(self._labels(runs),
+                         ["qwen3-4b-instruct-2507 exp001", "phobert-base exp001"])
+
+    def test_cung_ten_thi_them_so_thu_tu(self):
+        write_run(self.root, "run-a")
+        write_run(self.root, "run-b")
+        runs = reports.scan_runs([self.root])
+        self.assertEqual(self._labels(runs), ["absa_cot_v1 n4", "absa_cot_v1 n4 #2"])
+
+    def test_khong_trung_khi_chi_co_mot_luot_chay(self):
+        write_run(self.root, "run-a")
+        runs = reports.scan_runs([self.root])
+        self.assertEqual(self._labels(runs), ["absa_cot_v1 n4"])
+
+    def test_cot_trong_bang_accuracy_khong_trung_va_khong_mat_du_lieu(self):
+        write_run(self.root, "run-a",
+                  experiment={"model": "qwen3-4b-instruct-2507", "method": "prompt-cot",
+                              "exp_id": "exp001"})
+        write_run(self.root, "run-b",
+                  experiment={"model": "phobert-base", "method": "prompt-cot",
+                              "exp_id": "exp001"})
+        runs = reports.scan_runs([self.root])
+        columns, rows = reports.accuracy_table(runs)
+        self.assertEqual(len(columns), len(set(columns)), columns)
+        colour = [row for row in rows if row["aspect"] == "colour"][0]
+        # Hai cột, hai giá trị riêng: không cột nào bị nuốt.
+        self.assertEqual(colour["qwen3-4b-instruct-2507 exp001"], 75.0)
+        self.assertEqual(colour["phobert-base exp001"], 75.0)
+        self.assertEqual(len([key for key in colour if key != "aspect"]), 2)
+
+
 class WriteTest(unittest.TestCase):
 
     def setUp(self):
@@ -191,7 +245,7 @@ class WriteTest(unittest.TestCase):
     def test_nhom_rong_van_ghi_va_bao_rong(self):
         result = reports.build(roots=[self.source], out_root=self.out, groups=["model_input"])
         self.assertEqual(result["model_input"]["rows"], 0)
-        self.assertIn(reports.GREETING.upper(),
+        self.assertIn(reports.NO_DATA.upper(),
                       result["model_input"]["html"].read_text(encoding="utf-8"))
 
     def test_khong_ghi_de_lan_nhau_giua_cac_nhom(self):
