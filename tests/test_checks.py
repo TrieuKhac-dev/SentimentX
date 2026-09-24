@@ -194,6 +194,57 @@ class RealTreeTest(unittest.TestCase):
         self.assertEqual(len(report["notes"]), len(checks.CHECKS))
 
 
+class DocumentationLinksTest(unittest.TestCase):
+    """Kiểm tra 7: link trong tài liệu phải trỏ tới file có thật.
+
+    Lỗi thật đã gặp: README còn trỏ `docs/04_experiments/02_phase3_input.md` sau khi file đó đổi tên.
+    Không ai đọc tài liệu để phát hiện việc này, nên nó phải do máy kiểm.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+        (self.root / "docs" / "nhom").mkdir(parents=True)
+        (self.root / "docs" / "co.md").write_text("file that\n", encoding="utf-8")
+        (self.root / "docs" / "nhom" / "sau.md").write_text("file that\n", encoding="utf-8")
+        self.write_readme("xem [tài liệu](docs/co.md)\n")
+
+    def write_readme(self, text):
+        (self.root / "README.md").write_text(text, encoding="utf-8")
+
+    def test_co_link_chet_thi_bao_kem_duong_dan(self):
+        self.write_readme("xem [tài liệu](docs/khong-co.md)\n")
+        found = checks.documentation_links(self.root)
+        self.assertEqual(len(found), 1)
+        self.assertIn("README.md", found[0])
+        self.assertIn("docs/khong-co.md", found[0])
+
+    def test_link_dung_thi_khong_bao(self):
+        self.write_readme("xem [tài liệu](docs/co.md) và [nữa](docs/nhom/sau.md)\n")
+        self.assertEqual(checks.documentation_links(self.root), [])
+
+    def test_file_markdown_long_trong_docs_cung_duoc_kiem(self):
+        path = self.root / "docs" / "nhom" / "sau.md"
+        path.write_text("[hỏng](../../ngoai.md)\n", encoding="utf-8")
+        found = checks.documentation_links(self.root)
+        self.assertEqual(len(found), 1)
+        self.assertIn("ngoai.md", found[0])
+
+    def test_duong_dan_trong_dau_code_khong_bi_kiem(self):
+        """`data/processed/<mã>/train.csv` là ví dụ có chỗ trống, không phải link - kiểm là báo sai."""
+        self.write_readme("Kết quả ở `data/processed/<mã>/train.csv` và `configs/paths.yaml`.\n")
+        self.assertEqual(checks.documentation_links(self.root), [])
+
+    def test_url_va_neo_trong_cung_trang_thi_bo_qua(self):
+        self.write_readme("[DagsHub](https://dagshub.com/x/y) và [mục 2](#2-cai-dat)\n")
+        self.assertEqual(checks.documentation_links(self.root), [])
+
+    def test_khong_co_readme_thi_khong_bao_loi(self):
+        (self.root / "README.md").unlink()
+        self.assertEqual(checks.documentation_links(self.root), [])
+
+
 if __name__ == "__main__":
     unittest.main()
 

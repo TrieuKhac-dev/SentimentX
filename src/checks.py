@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""SÁU kiểm tra tĩnh cho CI: không cần GPU, không cần dữ liệu, không gọi mạng.
+"""BẢY kiểm tra tĩnh cho CI: không cần GPU, không cần dữ liệu, không gọi mạng.
 
-SÁU KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
+BẢY KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
     1. Không file DỮ LIỆU nào bị git theo dõi (ngoài bảng chi tiết trong `pipeline/`, `eda/` và
        metadata/report được phép) - chặn việc vô tình commit dữ liệu nặng.
     2. `.gitignore` đúng: dữ liệu nặng bị bỏ qua, nhưng metadata và report thì KHÔNG - mất metadata
@@ -14,6 +14,8 @@ SÁU KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
        sau khi đã chờ kéo code.
     6. `REPO_SHA` trong notebook là sha hợp lệ và TỒN TẠI trong repo - ghim sai thì notebook kéo
        không được bản code nào, mà lỗi chỉ lộ ra lúc chạy.
+    7. Link trong tài liệu (`README.md`, `docs/**/*.md`) trỏ tới file có thật - người mới đọc tài
+       liệu trước tiên, mà không ai kiểm đường dẫn trong đó.
 
 Logic nằm ở đây chứ không nằm trong script vì CI chạy `python scripts/ci_checks.py` còn test chạy
 thẳng hàm trong file này - hai bên kiểm đúng cùng một thứ, không phải hai bản.
@@ -63,7 +65,7 @@ class CheckError(Exception):
 
 
 def run(root=None, log=None):
-    """Chạy sáu kiểm tra, trả về `{problems, notes, info}`. KHÔNG ném."""
+    """Chạy bảy kiểm tra, trả về `{problems, notes, info}`. KHÔNG ném."""
     root = Path(root or paths.root())
     problems, notes, info = [], [], {"root": utils.rel(root)}
 
@@ -377,6 +379,58 @@ def pinned_value(source, name):
 # Sáu kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
 # `run()` phía trên vẫn dùng được) để bên gọi - script in số việc, test đếm số nhóm - cùng đọc MỘT
 # danh sách: thêm kiểm tra thứ bảy thì không phải đi sửa chỗ nào đếm số nữa.
+# ---
+# 7. Link trong tài liệu
+# ---
+
+# Thư mục và file tài liệu cần kiểm. Ghi tên trần (không kèm dấu phân cách) để không vi phạm
+# `test_sources_have_no_hardcoded_paths`.
+MARKDOWN_DIRS = ("docs",)
+MARKDOWN_EXTRA = ("README.md",)
+MARKDOWN_SUFFIX = "." + "md"
+LINK_PATTERN = re.compile(r"\]\(([^)#\s]+)\)")
+
+
+def _documents(root):
+    """Các file tài liệu phải kiểm: README ở gốc và mọi file markdown trong `docs/`."""
+    found = []
+    for name in MARKDOWN_EXTRA:
+        path = Path(root) / name
+        if path.is_file():
+            found.append(path)
+    for name in MARKDOWN_DIRS:
+        base = Path(root) / name
+        if base.is_dir():
+            found.extend(sorted(base.rglob("*" + MARKDOWN_SUFFIX)))
+    return found
+
+
+def documentation_links(root):
+    """Link kiểu `[chữ](đường/dẫn)` trong tài liệu phải trỏ tới file hoặc thư mục CÓ THẬT.
+
+    Vì sao cần: tài liệu là thứ người mới đọc trước tiên, mà đường dẫn trong tài liệu thì không ai
+    kiểm. Lỗi thật đã gặp: README còn trỏ tới `02_phase3_input.md` sau khi file đó đổi tên thành
+    `02_model_input.md` - người đọc đi tìm một file không tồn tại, còn người viết thì không biết.
+
+    Chỉ kiểm LINK, không kiểm đường dẫn nằm trong dấu `code`: đường dẫn trong code thường là ví dụ có
+    chỗ trống (`data/processed/<mã>/train.csv`), đem kiểm sẽ báo lỗi sai hàng loạt. Link thì không có
+    chỗ trống - gặp `<`, `>`, `{`, `}` hoặc URL thì bỏ qua.
+    """
+    found = []
+    for path in _documents(root):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for target in LINK_PATTERN.findall(text):
+            target = target.strip()
+            if not target or target.startswith(("http", "mailto:")):
+                continue
+            if any(char in target for char in "<>{}*"):
+                continue
+            if (Path(root) / target).exists() or (path.parent / target).exists():
+                continue
+            found.append("{}: link chết -> {}".format(utils.rel(path), target))
+    return found
+
+
 CHECKS = (
     ("dữ liệu bị git theo dõi", data_tracked),
     ("quy tắc .gitignore", gitignore_rules),
@@ -384,6 +438,7 @@ CHECKS = (
     ("registry", registries),
     ("config thí nghiệm", experiment_configs),
     ("REPO_SHA đã ghim", pinned_shas),
+    ("link trong tài liệu", documentation_links),
 )
 
 
