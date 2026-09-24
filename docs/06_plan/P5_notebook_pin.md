@@ -29,9 +29,14 @@ chưa làm
 - [ ] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
       -> `feat(notebook): add first experiment notebook`
-- [ ] T5. Preflight: kiểm `requires` và `requires_extra`, mã phiên bản, `roles`, GPU và quantization,
+- [x] T5. Preflight: kiểm `requires` và `requires_extra`, mã phiên bản, `roles`, GPU và quantization,
       Java khi cần, quyền ghi Drive, trạng thái FRESH hay RESUME.
       -> `feat(preflight): check paths device and drive`
+      Làm TRƯỚC T3 để template notebook gọi được hàm đã có sẵn. Chạy thử trên máy thật: nhận ra
+      dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng), GPU
+      RTX 3050 6GB + torch 2.14.0+cu126 + bitsandbytes, cả hai gốc ghi được, trạng thái NEW - và
+      bắt được một LỖI THẬT: tôi đã so `data.version` (phiên bản file config dataset) với mã
+      phiên bản dữ liệu ĐÃ XỬ LÝ, hai thứ khác nhau, nên báo lỗi sai.
 - [ ] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
       đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
       -> `feat(scripts): add new experiment scaffolder`

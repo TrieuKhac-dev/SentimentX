@@ -141,6 +141,27 @@ KHÔNG bị xoá: các khối dở được chuyển vào `predictions/_bo-qua-<
 bộ nhớ), không phải điểm của phần còn lại. `metrics.json` ghi lại `resume.mode`, `resume.reused`
 và `resume.new` để người đọc biết con số trước mặt sinh ra từ lượt chạy liền mạch hay không.
 
+## Kiểm trước khi chạy
+
+Cell preflight của notebook gọi `src/preflight.py` TRƯỚC khi nạp model. Một lượt val tốn hàng chục
+phút, nên phát hiện thiếu Java, thiếu `test.csv` hay Drive chỉ đọc ở mẫu thứ 800 là mất cả buổi.
+Preflight kiểm trong vài giây:
+
+| Nhóm            | Kiểm gì                                                                              |
+| --------------- | ------------------------------------------------------------------------------------ |
+| Cấu hình        | `experiments.check`: khoá lạ, thiếu `data.roles`, nhiều dataset, vai trỏ vào `train`   |
+| Đường dẫn       | `experiments.requires`: file dữ liệu của từng vai, bảng mã nhãn, prompt, `requires_extra` |
+| Dữ liệu         | có dataset đã xử lý chưa, mã phiên bản tính từ config, `data.version` khớp config dataset |
+| Tập đánh giá    | `test.csv` khớp `eval_lock` (rules.md mục 11)                                          |
+| Thiết bị        | có GPU không, `inference.quantization` khai trong model config có dùng được không      |
+| Bộ tách từ      | bộ mà model cần (ví dụ `vncorenlp` cho PhoBERT) chạy được chưa, thiếu gì              |
+| Ghi được        | gốc dữ liệu và gốc kết quả (trên Colab: Drive phải mount)                              |
+| Trạng thái      | lần này là chạy mới (NEW) hay chạy tiếp (RESUME), và vì sao                            |
+
+Preflight **không ném**: nó gom hết vào `problems` để notebook in ra một lần, kèm cả những việc
+không chặn chạy. Lỗi thiếu đường dẫn được ghi vào `errors.json` mục `requires` nếu có truyền `log`
+- nhờ vậy câu hỏi "máy này còn thiếu gì" trả lời được ngay từ file kết quả.
+
 ## Khi có lỗi
 
 | Hiện tượng                      | Xem ở đâu                               |
