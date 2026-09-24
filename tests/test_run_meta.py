@@ -56,13 +56,27 @@ class TestRecords(unittest.TestCase):
         self.assertEqual(payload["task"], {})
         self.assertEqual(payload["overrides"], [])
 
-    def test_device_info_keeps_what_was_read_and_leaves_the_rest_empty(self):
-        info = run_meta.device_info({"thiết bị": "cuda:0", "quant": "4-bit nf4", "torch": "2.14.0"},
-                                    quant="4bit")
+    def test_device_info_prefers_the_resolved_quantization(self):
+        """Bản ghi phải nói phép đo đã chạy bằng gì, không phải tham số khai trong config.
+
+        `quant` truyền vào thường là "auto" (tham số của người chạy), còn giá trị THẬT nằm ở
+        `model_info` do bước nạp model trả về ("4-bit nf4 (tính bằng float16)").
+        """
+        info = run_meta.device_info({"thiết bị": "cuda:0", "quant": "4-bit nf4 (tính bằng float16)",
+                                     "torch": "2.14.0"}, quant="auto")
         self.assertEqual(info["device"], "cuda:0")
-        self.assertEqual(info["quantization"], "4bit")
+        self.assertEqual(info["quantization"], "4-bit nf4 (tính bằng float16)")
         self.assertEqual(info["libs"], {"torch": "2.14.0"})
         self.assertIsNone(info["vram_gb"])
+
+    def test_device_info_falls_back_to_the_declared_quantization(self):
+        info = run_meta.device_info({}, quant="4bit")
+        self.assertEqual(info["quantization"], "4bit")
+
+    def test_device_info_without_anything_readable(self):
+        info = run_meta.device_info()
+        self.assertIsNone(info["quantization"])
+        self.assertEqual(info["libs"], {})
 
     def test_new_record_starts_one_attempt(self):
         payload = self.build()

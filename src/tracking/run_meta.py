@@ -128,7 +128,9 @@ def device_info(model=None, quant=None):
         "device": model.get("thiết bị"),
         "gpu": model.get("gpu"),
         "vram_gb": model.get("vram_gb"),
-        "quantization": quant or model.get("quant"),
+        # Ưu tiên giá trị ĐÃ GIẢI từ bước nạp model ("4-bit nf4 (tính bằng float16)") hơn tham số
+        # khai trong config ("auto"), vì bản ghi phải nói phép đo đã chạy bằng gì.
+        "quantization": model.get("quant") or quant,
         "libs": {name: version for name, version in (("torch", model.get("torch")),
                                                      ("transformers", model.get("transformers")))
                  if version},

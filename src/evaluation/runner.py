@@ -248,6 +248,27 @@ def write(rows, columns, out_dir, name=None):
                            Path(out_dir) / (name or paths.pattern("predictions")))
 
 
+def compute_dtype_name(bf16_supported):
+    """Tên kiểu số dùng để nạp model: `bfloat16` nếu máy hỗ trợ, còn lại `float16`.
+
+    VÌ SAO PHẢI CHỌN THEO MÁY: bf16 chỉ có từ Ampere trở lên (RTX 30xx, A100, L4). T4 của Colab là
+    Turing nên KHÔNG có bf16; ép bf16 ở đó là hoặc lỗi, hoặc chậm bất thường mà không rõ nguyên nhân.
+    fp16 thì GPU nào cũng có, nên nó là lựa chọn an toàn.
+    """
+    return "bfloat16" if bf16_supported else "float16"
+
+
+def _model_dtype(torch):
+    """`(kiểu số, tên)` để nạp model, chọn theo máy đang chạy. Xem `compute_dtype_name`."""
+    try:
+        supported = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
+    except (AttributeError, RuntimeError):
+        # Bản torch cũ không có `is_bf16_supported`, hoặc driver hỏng: coi như không hỗ trợ.
+        supported = False
+    name = compute_dtype_name(supported)
+    return getattr(torch, name), name
+
+
 def _load_model(model_name, quantization, torch):
     """Nạp model, thử lần lượt các cách cho tới khi được; ghi lại cách ĐÃ dùng.
 
@@ -258,18 +279,18 @@ def _load_model(model_name, quantization, torch):
     """
     from transformers import AutoModelForCausalLM
 
+    dtype, short = _model_dtype(torch)
     attempts = []
     if quantization is not None:
-        attempts.append(("4-bit + device_map=auto", {"dtype": torch.bfloat16,
-                                                     "quantization_config": quantization,
-                                                     "device_map": "auto"}))
-        attempts.append(("4-bit", {"dtype": torch.bfloat16,
-                                   "quantization_config": quantization}))
-    attempts.append(("bf16 + device_map=auto", {"dtype": torch.bfloat16,
-                                                "device_map": "auto"}))
-    attempts.append(("bf16", {"dtype": torch.bfloat16}))
-    attempts.append(("bf16 (torch_dtype, bản transformers cũ)",
-                     {"torch_dtype": torch.bfloat16, "device_map": "auto"}))
+        attempts.append(("4-bit + device_map=auto ({})".format(short),
+                         {"dtype": dtype, "quantization_config": quantization,
+                          "device_map": "auto"}))
+        attempts.append(("4-bit ({})".format(short),
+                         {"dtype": dtype, "quantization_config": quantization}))
+    attempts.append(("{} + device_map=auto".format(short), {"dtype": dtype, "device_map": "auto"}))
+    attempts.append((short, {"dtype": dtype}))
+    attempts.append(("{} (torch_dtype, bản transformers cũ)".format(short),
+                     {"torch_dtype": dtype, "device_map": "auto"}))
 
     errors = []
     for label, kwargs in attempts:
@@ -291,6 +312,7 @@ def load(quant="auto", model_name=None):
     `quant`: "4bit" (bắt buộc phải có bitsandbytes) | "bf16" | "auto" (thử 4-bit trước).
     """
     torch = _require("torch")
+    dtype, short = _model_dtype(torch)
     model_name = model_name or qwen.MODEL_NAME
     if model_name == qwen.MODEL_NAME:
         tokenizer = qwen.tokenizer()
@@ -316,7 +338,7 @@ def load(quant="auto", model_name=None):
             quantization = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.bfloat16,
+                bnb_4bit_compute_dtype=dtype,
                 bnb_4bit_use_double_quant=True)
         except ImportError as exc:
             if quant == "4bit":
@@ -326,8 +348,10 @@ def load(quant="auto", model_name=None):
                     "    (trên Windows, bản bitsandbytes >= 0.43 có sẵn bản dựng).") from exc
 
     model, how = _load_model(model_name, quantization, torch)
-    info["quant"] = "4-bit nf4" if quantization is not None and how.startswith("4-bit") \
-        else "bf16"
+    # Ghi cả kiểu số THẬT đã dùng: cùng một cấu hình chạy trên T4 (fp16) và trên RTX 30xx (bf16) cho
+    # ra hai phép đo khác nhau, nên bản ghi phải nói rõ đã chạy bằng kiểu nào.
+    info["quant"] = "4-bit nf4 (tính bằng {})".format(short) \
+        if quantization is not None and how.startswith("4-bit") else short
     info["cách nạp"] = how
     info["thiết bị"] = str(next(model.parameters()).device)
     if torch.cuda.is_available():
