@@ -19,8 +19,9 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
-from src import config, dataset, experiment_run, experiments, paths, prompts
+from src import config, dataset, experiment_run, experiments, paths, prompts, resume
 from src.preprocessing import qwen
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -188,6 +189,20 @@ class PlanTest(unittest.TestCase):
             paths.experiment_dir("model", "method", "exp001").as_posix()))
         self.assertEqual(plan["info"]["experiment"],
                          {"model": "model", "method": "method", "exp_id": "exp001"})
+
+    def test_plan_chi_lap_ke_hoach_khong_dong_vao_ket_qua_cu(self):
+        """`plan()` KHÔNG được chuyển/xoá kết quả cũ: người gọi có thể chỉ muốn xem trước rồi thôi.
+
+        Việc chuyển khối cũ sang `_bo-qua-*` thuộc `run()`. Ở đây chặn bằng một spy ném lỗi nếu ai
+        gọi `stash()` trong lúc lập kế hoạch, và kiểm kế hoạch có ghi lại SỐ khối cần chuyển.
+        """
+        with mock.patch.object(experiment_run.resume.Parts, "count", return_value=3), \
+                mock.patch.object(experiment_run.resume, "decide",
+                                  return_value=(resume.MODE_NEW, "theo yêu cầu --new")), \
+                mock.patch.object(experiment_run.resume.Parts, "stash",
+                                  side_effect=AssertionError("plan() đã chuyển kết quả cũ")):
+            plan = self._plan(new=True)
+        self.assertEqual(plan["stash_count"], 3)
 
     def test_plan_prompt_nam_canh_thi_nghiem(self):
         source = prompts.prompt_path(self.prompt_name)

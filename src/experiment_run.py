@@ -321,11 +321,10 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         run_meta.read(out_dir), resume.fingerprint(config_sha256, version_id, repo["sha"]),
         done_count, force_new=new)
     if mode == resume.MODE_NEW and done_count:
-        # Kết quả cũ KHÔNG bị xoá: chuyển sang thư mục con, vì nó là dấu vết của một lần chạy thật.
-        stashed = parts.stash()
-        info["stashed"] = utils.rel(stashed)
-        print("Chạy lại từ đầu: {} khối cũ được chuyển sang {}".format(
-            done_count, utils.rel(stashed)))
+        # KHÔNG chuyển kết quả cũ ở đây: `plan()` chỉ lập kế hoạch, người gọi có thể chỉ muốn XEM
+        # trước (in ra cấu hình, kiểm tra) rồi quyết định không chạy. Việc chuyển khối cũ sang thư
+        # mục con nằm trong `run()`, kèm số khối cần chuyển ở `stash_count`.
+        info["stash_count"] = done_count
 
     # Mẫu đã chạy xong thì bỏ qua (chỉ khi chạy tiếp).
     skip = parts.keys() if mode == resume.MODE_RESUME else set()
@@ -344,7 +343,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "label_map": label_map, "labels": label_names(label_map), "aspects": aspects,
         "texts": texts, "golds": golds, "row_index": row_index, "generation": generation,
         "sampled": sampled, "max_length": max_length, "model": model, "quant": quant,
-        "names": names,
+        "names": names, "stash_count": info.get("stash_count", 0),
         "batch_size": batch_size, "quiet": quiet, "tag": tag, "out_dir": out_dir, "info": info,
         "repo": repo, "config_sha256": config_sha256, "mode": mode, "reason": reason,
         "parts": parts, "skip": skip,
@@ -379,6 +378,13 @@ def run(plan_data, log=None):
 
     with runlog.start(out_dir, mode=mode, info=info) as active:
         log = log or active
+        if plan_data.get("stash_count"):
+            # Kết quả cũ KHÔNG bị xoá: chuyển sang thư mục con, vì nó là dấu vết của một lần chạy
+            # thật. Làm ở đây chứ không ở `plan()` để bước lập kế hoạch không đụng vào đĩa.
+            stashed = plan_data["parts"].stash()
+            info["stashed"] = utils.rel(stashed)
+            print("Chạy lại từ đầu: {} khối cũ được chuyển sang {}".format(
+                plan_data["stash_count"], utils.rel(stashed)))
         # Bản ghi lần chạy: ghi NGAY từ đầu, để lần chạy hỏng vẫn còn dấu vết (đang ở attempt nào,
         # với code và config nào). Chốt lại lúc đóng log; việc chốt chạy TRƯỚC phần ghi nhận nên
         # bản được tải lên máy chủ là bản đã chốt.
