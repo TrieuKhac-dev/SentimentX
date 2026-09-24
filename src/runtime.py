@@ -17,6 +17,7 @@ còn thiếu, để notebook in ra. Không bao giờ in giá trị, vì đó là
 
 import os
 import sys
+from pathlib import Path
 
 ENV_NAME = "SENTIMENTX_ENV"
 
@@ -70,6 +71,48 @@ def _local_env_path():
     """File `.env` ở gốc repo, không phụ thuộc thư mục đang đứng."""
     from src import paths
     return str(paths.root() / ".env")
+
+
+def drive_dir(folder=None, candidates=None):
+    """Thư mục Drive của nhóm trên Colab, nhận ra bằng FILE ĐÁNH DẤU.
+
+    Vì sao phải có file đánh dấu: MyDrive và Shared drives trông giống nhau, mà chỉ một trong hai
+    là thư mục giảng viên cấp. Đoán theo tên thư mục thì notebook có thể đọc nhầm một thư mục
+    cùng tên của người khác - và lúc đó nó ghi kết quả vào chỗ không ai tìm thấy.
+
+    KHÔNG tự mount Drive: việc mount là của người chạy notebook (docs/00_workflow/01_flow.md).
+
+    Trả về `Path` hoặc None (chưa mount, hoặc chưa có thư mục nào khớp).
+    """
+    from src import paths
+
+    folder = folder if folder is not None else os.environ.get("SENTIMENTX_DRIVE_FOLDER", "")
+    settings = paths.cfg().get("colab") or {}
+    marker = str(settings.get("folder_marker") or "")
+    places = list(candidates if candidates is not None
+                  else settings.get("drive_candidates") or [])
+    for place in places:
+        try:
+            candidate = Path(str(place).format(folder=folder or ""))
+        except (KeyError, IndexError, ValueError):
+            continue
+        if not candidate.is_dir():
+            continue
+        if marker and not (candidate / marker).exists():
+            continue
+        return candidate
+    return None
+
+
+def drive_env_file(folder=None, candidates=None):
+    """File env trên Drive (`<Drive>/env/.env.colab`), hoặc None nếu chưa thấy Drive."""
+    from src import paths
+
+    root = drive_dir(folder=folder, candidates=candidates)
+    if root is None:
+        return None
+    name = str((paths.cfg().get("colab") or {}).get("env_file") or "")
+    return (root / name) if name else None
 
 
 def _apply_file(path):

@@ -1,0 +1,36 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp001
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: null
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.1.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi training.enabled: true.
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo:
+#   prompt.txt                         file nằm ngay trong thư mục này
+#   ../../../configs/prompts/absa_cot_v1.txt   file trong thư viện prompt dùng chung
+prompt: prompt.txt
+
+# Chỉ khai khi cần:
+# examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
+# system_prompt: ../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
+# requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
+#   - ../../../data/models/Qwen3-0.6B

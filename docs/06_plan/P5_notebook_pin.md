@@ -23,9 +23,16 @@ chưa làm
       Ghi cả `REPO_BRANCH`. Không BẮT BUỘC `nbformat`: việc là sửa nguồn của đúng một ô nên `json`
       của thư viện chuẩn là đủ, có `nbformat` thì còn kiểm cấu trúc trước khi ghi - lệnh ghim phải
       chạy được trên mọi máy.
-- [ ] T3. `templates/`: `README.md`, `templates/experiment/{README.md, config.yaml, notebook.ipynb}`,
+- [x] T3. `templates/`: `README.md`, `templates/experiment/{README.md, config.yaml, notebook.ipynb}`,
       `templates/prompt/{prompt.txt, examples.txt, system.txt}`.
       -> `feat(templates): add experiment and prompt templates`
+      Notebook mẫu có 8 ô: tiêu đề, ô GHIM (do `pin.py` ghi), bootstrap (`repo.prepare` +
+      `runtime.load_env` + tìm Drive), cấu hình đang dùng, preflight (dừng nếu có việc phải sửa),
+      chạy qua chính `run_qwen_eval.py`, kết quả nằm ở đâu, và ô kết thúc.
+      Kèm hai thứ mà bootstrap cần: `runtime.drive_dir()`/`drive_env_file()` (nhận Drive bằng FILE
+      ĐÁNH DẤU, không đoán theo tên - MyDrive và Shared drives trông giống nhau), và `device_report`
+      bắt thêm `OSError` khi nạp `torch` (torch cài hỏng thì báo thành việc phải sửa, không để
+      ngoại lệ hệ điều hành làm dừng notebook).
 - [ ] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
       -> `feat(notebook): add first experiment notebook`

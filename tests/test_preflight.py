@@ -140,8 +140,10 @@ class TestDeviceAndSegmenter(PreflightCase):
 
         self.assertEqual(info["quantization"], "4bit")
         self.assertIn("torch", info)
-        # Máy có GPU hay không tuỳ nơi chạy, nhưng phải nói rõ một trong hai.
-        if info.get("cuda"):
+        if not info["torch"]:
+            # Máy chưa có torch, hoặc torch cài hỏng (thiếu DLL, hết bộ nhớ trang).
+            self.assertTrue(any("torch" in item for item in problems))
+        elif info.get("cuda"):
             self.assertTrue(info.get("gpu"))
             self.assertGreater(info.get("vram_gb") or 0, 0)
         else:

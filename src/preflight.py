@@ -124,10 +124,12 @@ def device_report(model_id, problems, notes, info):
 
     try:
         import torch
-    except ImportError:
-        problems.append("Chưa cài `torch`. Cài bằng:\n"
+    except (ImportError, OSError) as exc:
+        # `OSError` là trường hợp CÀI HỎNG (thiếu DLL, hết bộ nhớ trang): báo như một vấn đề kèm
+        # lí do, thay vì để ngoại lệ hệ điều hành làm notebook dừng ở giữa.
+        problems.append("Không nạp được `torch`: {}: {}. Cài lại bằng:\n"
                         "      pip install torch --index-url "
-                        "https://download.pytorch.org/whl/cu126")
+                        "https://download.pytorch.org/whl/cu126".format(type(exc).__name__, exc))
         info["torch"] = ""
         return info
     info["torch"] = getattr(torch, "__version__", "")

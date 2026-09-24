@@ -1,0 +1,12 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án - KHÔNG được gửi cho model) ---
+# Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
+# Kiểm chứng: python run_check_examples.py --prompt <tên prompt>
+# Số ví dụ là một BIẾN THỰC NGHIỆM: bỏ/thêm khối "--- Ví dụ n ---" ở dưới là đổi số ví dụ,
+# KHÔNG phải sửa prompt.
+# Nếu sau này lấy ví dụ TỪ DỮ LIỆU: CHỈ được lấy từ split train, và ghi rõ "train, dòng <số>"
+# ngay dưới đây. Lấy từ val/test là rò rỉ dữ liệu đánh giá - điểm đo được sẽ vô nghĩa.
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "<một câu review thật ngắn, tự soạn>"
+KẾT QUẢ:
+{{"<khía cạnh>": <mã>, ...}}

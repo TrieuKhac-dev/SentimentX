@@ -38,7 +38,7 @@ Nếu không muốn dùng lệnh: vẫn có thể copy tay `templates/experiment
 ## Luồng một thí nghiệm
 
 1. Tạo thí nghiệm mới bằng lệnh ở trên.
-2. Viết config và các file của thí nghiệm:
+2. Viết config và các file của thí nghiệm (bản mẫu ở `templates/`, xem `templates/README.md`):
    - `config.yaml`: bắt buộc cho mọi thí nghiệm.
    - `prompt.txt` và `examples.txt`: chỉ dùng cho model dạng LLM, ví dụ Qwen3.
      Model encoder như PhoBERT, ViSoBERT không dùng prompt.
