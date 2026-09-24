@@ -84,6 +84,8 @@ phiên), đúng triệu chứng `Gốc dữ liệu : /content/SentimentX/data` �
 - `HF_HOME` **không** để trên Drive: model 4B tải về Drive rất chậm. Cần bản gốc: `.env.colab.example`.
 - File này KHÔNG được commit (`.gitignore` chặn). Gói bàn giao chứa nó là có chủ ý, để người chạy
   không phải điền gì; gửi qua kênh riêng và đổi token sau khi kết thúc đồ án (luật 17 đến 19).
+- Tệp trong gói được ghi bằng UTF-8 **kèm BOM** để Notepad và trình xem trong WinRAR hiện đúng chữ
+  tiếng Việt; `runtime._apply_file` đọc bằng `utf-8-sig`, nên BOM không lọt vào tên khoá.
 
 ## 3. Nhóm chuẩn bị thư mục trên Drive (làm một lần, rồi chia sẻ)
 

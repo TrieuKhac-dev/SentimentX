@@ -36,6 +36,15 @@
 - Mỗi registry có hàm `check()` báo lỗi rõ, và có lệnh `--list-*` để liệt kê.
 - Thêm registry mới thì cập nhật `src/registry.py`, vì đó là hướng dẫn mở rộng trung tâm.
 
+## Sửa tệp văn bản có chữ tiếng Việt (Windows)
+
+- Không sửa bằng `Get-Content` rồi `Set-Content` mặc định của PowerShell 5.1: `Get-Content` đọc tệp
+  UTF-8 không BOM theo ANSI, nên chữ tiếng Việt hỏng ngay khi ghi lại. Ca thật: `env/.env.colab`
+  trong gói bàn giao bị biến `# Biến môi trường` thành `# Biáº¿n mÃ´i trÆ°á»ng`, và người nhận nhìn
+  thấy "lỗi font".
+- Dùng editor, hoặc `[System.IO.File]::ReadAllText` / `WriteAllText` với `UTF8Encoding` và ghi rõ
+  encoding ở cả hai chiều. Code đọc tệp cấu hình bằng `utf-8-sig` để chịu được BOM.
+
 ## Tài liệu
 
 - Mỗi file tài liệu mở đầu bằng **đúng hai dòng**, ngay sau dòng tiêu đề `#`:
