@@ -158,3 +158,9 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Ghi lại cây mới của gói bàn giao (16 file) và vì sao phải ghim lại | `docs(plan): record the handover layout` |
 | Đọc tệp env chịu được BOM, và ghi tệp env gửi kèm bằng UTF-8 có BOM (chữ tiếng Việt trong tệp cũ đã bị hỏng do vòng `Get-Content`/`Set-Content` của PowerShell 5.1) | `fix(runtime): read env files tolerantly of a byte order mark` + `docs(workflow): the shipped env file carries a BOM, and say why` |
 | Ghim lại `exp001` (bản code đọc env an toàn với BOM) | `chore(experiments): pin d9a705f so the handover reads its env file safely` |
+| Kiểu số nạp model chọn theo máy (T4 không có bf16), và kiểu đã dùng được ghi lại | `fix(evaluation): pick the number type the GPU actually supports` |
+| Preflight nói rõ torch là bản CPU hay bản CUDA khi không thấy GPU | `fix(preflight): name the torch build when no GPU is visible` |
+| Bảng tra lỗi Colab thêm hai dòng: phiên CPU / torch bị cài đè, và T4 dùng fp16 | `docs(workflow): the colab error table now covers the no-gpu and T4 cases` |
+| Giữ lượt chạy 4 mẫu lần hai, sau khi đổi kiểu số | `chore(experiments): keep the second four-sample run, now that the number type is recorded` |
+| Ghim lại `exp001` để lượt chạy trên T4 dùng đúng kiểu số | `chore(experiments): pin 1ae179a so the T4 run picks the right number type` |
+| Trang hướng dẫn chạy notebook trên máy cá nhân | `docs(workflow): add the page for running the notebook on a local machine` |

@@ -22,6 +22,7 @@
 | 00_workflow    | `05_git_commits.md`        | quy ước commit và cách chia nhỏ task             | trước khi commit                    |
 | 00_workflow    | `06_conventions.md`        | quy ước code, config, tài liệu                   | khi viết mới                        |
 | 00_workflow    | `07_colab.md`              | chạy notebook trên Colab: Drive, env, thứ tự bước | trước khi chạy trên Colab          |
+| 00_workflow    | `08_local.md`              | chạy notebook trên máy cá nhân có GPU CUDA        | trước khi chạy trên máy cá nhân    |
 | 01_dataset     | `01_raw_data.md`           | dữ liệu gốc: nơi lưu, cách đặt tên, phiên bản    | làm việc với dữ liệu gốc            |
 | 01_dataset     | `02_schema.md`             | schema của dữ liệu và cách khai trong config     | khi đọc hoặc sửa schema             |
 | 01_dataset     | `03_new_dataset.md`        | cách thêm dataset mới                            | khi có dữ liệu mới                  |
