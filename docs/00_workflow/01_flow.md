@@ -53,6 +53,27 @@ Nếu không muốn dùng lệnh: vẫn có thể copy tay `templates/experiment
      vì kết quả chạy trên Colab nằm trên Drive.
 9. Sinh lại bảng tổng hợp: `python scripts/collect_reports.py`.
 
+## Ghim code vào notebook
+
+Cell đầu của mỗi notebook chỉ có **bốn hằng số**: `REPO_URL`, `REPO_BRANCH`, `REPO_SHA` (commit đã
+ghim) và `EXP_DIR` (thư mục thí nghiệm). `python scripts/pin.py <model>/<method>/<expNNN>` ghi bốn
+giá trị đó; ô đã ghim được tìm **theo dấu**, nên ghim lại thì cập nhật đúng ô cũ chứ không thêm ô
+thứ hai.
+
+Cell bootstrap (do `templates/` sinh ra) gọi `src.repo.prepare(...)` để kéo **đúng** commit đó rồi
+mới `import src`. Nhờ vậy:
+
+- Notebook chạy trên máy cá nhân: thư mục code đang đúng commit rồi nên **không cần mạng**.
+- Notebook chạy trên Colab: kéo code theo sha (fetch theo sha, không được thì
+  `clone --filter=blob:none` rồi `checkout`), sau đó kiểm lại `git rev-parse HEAD` **phải** bằng
+  đúng sha - lệch thì dừng, không chạy trên bản code không rõ là bản nào.
+- Commit đã ghim phải nằm trên nhánh cho phép (mặc định `experiment`); chưa thì cảnh báo, vì không
+  ai khác tải lại được đúng bản code đã sinh ra kết quả.
+
+Trước khi ghi, `pin.py` còn kiểm **cây làm việc phải sạch ngoài file notebook**: commit ghim chỉ
+được đổi đúng một file. Sau khi ghim thì không sửa `experiments/**/expNNN/**` nữa cho tới khi
+giảng viên chạy xong (P5, mục rủi ro).
+
 ## Ba điều quan trọng nhất
 
 - Notebook luôn kéo đúng bản code đã ghim, không kéo bản khác, để tránh sai lệch phiên bản code.

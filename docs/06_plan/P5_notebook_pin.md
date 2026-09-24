@@ -14,12 +14,15 @@ chưa làm
 
 ## 3. Task nhỏ (mỗi task một commit)
 
-- [ ] T1. `src/repo.py`: `prepare()` kéo đúng commit đã ghim (fetch theo sha, có phương án dự phòng
+- [x] T1. `src/repo.py`: `prepare()` kéo đúng commit đã ghim (fetch theo sha, có phương án dự phòng
       `clone --filter=blob:none`), kiểm `git rev-parse HEAD`, đọc config từ chính commit đó.
       -> `feat(repo): fetch and verify pinned commit`
-- [ ] T2. `scripts/pin.py`: ghi `REPO_URL`, `REPO_SHA`, `EXP_DIR` vào cell đầu của notebook
+- [x] T2. `scripts/pin.py`: ghi `REPO_URL`, `REPO_SHA`, `EXP_DIR` vào cell đầu của notebook
       (dùng `nbformat`), kiểm commit chỉ đổi đúng file notebook, cảnh báo nếu sha chưa nằm trên nhánh `experiment`.
       -> `feat(scripts): add pin script writing repo url sha and exp dir`
+      Ghi cả `REPO_BRANCH`. Không BẮT BUỘC `nbformat`: việc là sửa nguồn của đúng một ô nên `json`
+      của thư viện chuẩn là đủ, có `nbformat` thì còn kiểm cấu trúc trước khi ghi - lệnh ghim phải
+      chạy được trên mọi máy.
 - [ ] T3. `templates/`: `README.md`, `templates/experiment/{README.md, config.yaml, notebook.ipynb}`,
       `templates/prompt/{prompt.txt, examples.txt, system.txt}`.
       -> `feat(templates): add experiment and prompt templates`
