@@ -64,12 +64,7 @@ def run(root=None, log=None):
     root = Path(root or paths.root())
     problems, notes, info = [], [], {"root": utils.rel(root)}
 
-    for name, function in (("dữ liệu bị git theo dõi", data_tracked),
-                           ("quy tắc .gitignore", gitignore_rules),
-                           ("notebook sạch output", notebooks_clean),
-                           ("registry", registries),
-                           ("config thí nghiệm", experiment_configs),
-                           ("REPO_SHA đã ghim", pinned_shas)):
+    for name, function in CHECKS:
         try:
             found = function(root)
         except CheckError as exc:
@@ -349,6 +344,19 @@ def pinned_value(source, name):
     pattern = re.compile(r"^{}\s*=\s*['\"]([^'\"]*)['\"]".format(re.escape(name)), re.MULTILINE)
     matched = pattern.search(source or "")
     return matched.group(1).strip() if matched else None
+
+
+# Sáu kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
+# `run()` phía trên vẫn dùng được) để bên gọi - script in số việc, test đếm số nhóm - cùng đọc MỘT
+# danh sách: thêm kiểm tra thứ bảy thì không phải đi sửa chỗ nào đếm số nữa.
+CHECKS = (
+    ("dữ liệu bị git theo dõi", data_tracked),
+    ("quy tắc .gitignore", gitignore_rules),
+    ("notebook sạch output", notebooks_clean),
+    ("registry", registries),
+    ("config thí nghiệm", experiment_configs),
+    ("REPO_SHA đã ghim", pinned_shas),
+)
 
 
 

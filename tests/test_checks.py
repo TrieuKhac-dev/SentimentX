@@ -178,7 +178,8 @@ class RealTreeTest(unittest.TestCase):
     def test_sau_kiem_tra_deu_sach(self):
         report = checks.run()
         self.assertEqual(report["problems"], [])
-        self.assertEqual(len(report["notes"]), 6)
+        # Đếm theo `checks.CHECKS` chứ không viết số cứng: thêm kiểm tra mới thì test vẫn đúng.
+        self.assertEqual(len(report["notes"]), len(checks.CHECKS))
 
 
 if __name__ == "__main__":
