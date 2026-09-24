@@ -1,0 +1,108 @@
+2026/09/24 20:50:11 INFO mlflow.agent.hint: Load the `instrumenting-with-mlflow-tracing` skill at G:\my_app\miniconda3\Lib\site-packages\mlflow\assistant\skills\instrumenting-with-mlflow-tracing\SKILL.md before writing any tracing code; it ships with this MLflow install. Set MLFLOW_DISABLE_AGENT_HINT=1 to silence this.
+W0924 20:50:20.034000 24068 site-packages\torch\utils\flop_counter.py:113] triton not found; flop counting will not work for triton kernels
+======================================================================
+QWEN3 BẰNG CHỈ DẪN - chạy model rồi chấm điểm (đánh giá model)
+======================================================================
+LƯU Ý: config chưa khai `data.roles.eval`; chạy tay nên dùng split 'val' (tập LỰA CHỌN, không phải test).
+LƯU Ý: chạy NGOÀI thí nghiệm nên kết quả đi vào data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507 (không thuộc thí nghiệm nào). Muốn kết quả nằm trong thí nghiệm thì chạy notebook của thí nghiệm.
+Loading weights:   0%|          | 0/398 [00:00<?, ?it/s]Loading weights:   0%|          | 1/398 [00:00<04:05,  1.61it/s]Loading weights:   1%|          | 4/398 [00:00<00:59,  6.64it/s]Loading weights:   3%|▎         | 12/398 [00:00<00:17, 21.53it/s]Loading weights:   4%|▍         | 17/398 [00:00<00:14, 25.75it/s]Loading weights:   7%|▋         | 26/398 [00:01<00:09, 37.64it/s]Loading weights:   9%|▉         | 36/398 [00:01<00:07, 48.75it/s]Loading weights:  11%|█         | 42/398 [00:01<00:07, 49.66it/s]Loading weights:  12%|█▏        | 48/398 [00:01<00:07, 49.57it/s]Loading weights:  14%|█▍        | 55/398 [00:01<00:06, 52.97it/s]Loading weights:  15%|█▌        | 61/398 [00:01<00:06, 48.69it/s]Loading weights:  17%|█▋        | 69/398 [00:01<00:06, 54.47it/s]Loading weights:  19%|█▉        | 75/398 [00:01<00:06, 53.66it/s]Loading weights:  20%|██        | 81/398 [00:02<00:05, 53.30it/s]Loading weights:  22%|██▏       | 89/398 [00:02<00:05, 60.06it/s]Loading weights:  24%|██▍       | 96/398 [00:02<00:05, 55.51it/s]Loading weights:  26%|██▌       | 103/398 [00:02<00:05, 53.48it/s]Loading weights:  28%|██▊       | 111/398 [00:02<00:04, 59.57it/s]Loading weights:  30%|██▉       | 118/398 [00:02<00:05, 55.11it/s]Loading weights:  31%|███▏      | 125/398 [00:02<00:05, 53.20it/s]Loading weights:  33%|███▎      | 133/398 [00:02<00:04, 59.41it/s]Loading weights:  35%|███▌      | 140/398 [00:03<00:04, 53.86it/s]Loading weights:  37%|███▋      | 147/398 [00:03<00:04, 52.81it/s]Loading weights:  39%|███▉      | 157/398 [00:03<00:04, 58.41it/s]Loading weights:  41%|████      | 163/398 [00:03<00:04, 54.33it/s]Loading weights:  42%|████▏     | 169/398 [00:03<00:04, 53.00it/s]Loading weights:  45%|████▍     | 179/398 [00:03<00:03, 58.23it/s]Loading weights:  46%|████▋     | 185/398 [00:03<00:03, 56.95it/s]Loading weights:  48%|████▊     | 191/398 [00:04<00:03, 55.83it/s]Loading weights:  50%|█████     | 199/398 [00:04<00:03, 61.62it/s]Loading weights:  52%|█████▏    | 206/398 [00:04<00:03, 56.59it/s]Loading weights:  54%|█████▎    | 213/398 [00:04<00:03, 54.07it/s]Loading weights:  56%|█████▌    | 223/398 [00:04<00:02, 58.70it/s]Loading weights:  58%|█████▊    | 229/398 [00:04<00:03, 55.94it/s]Loading weights:  59%|█████▉    | 235/398 [00:04<00:03, 52.32it/s]Loading weights:  61%|██████    | 243/398 [00:04<00:02, 59.03it/s]Loading weights:  63%|██████▎   | 250/398 [00:05<00:02, 55.46it/s]Loading weights:  65%|██████▍   | 257/398 [00:05<00:02, 52.92it/s]Loading weights:  67%|██████▋   | 267/398 [00:05<00:02, 57.81it/s]Loading weights:  69%|██████▊   | 273/398 [00:05<00:02, 55.47it/s]Loading weights:  70%|███████   | 279/398 [00:05<00:02, 54.55it/s]Loading weights:  73%|███████▎  | 289/398 [00:05<00:01, 59.70it/s]Loading weights:  74%|███████▍  | 295/398 [00:05<00:01, 56.79it/s]Loading weights:  76%|███████▌  | 301/398 [00:05<00:01, 55.28it/s]Loading weights:  78%|███████▊  | 311/398 [00:06<00:01, 61.88it/s]Loading weights:  80%|███████▉  | 318/398 [00:06<00:01, 57.63it/s]Loading weights:  81%|████████▏ | 324/398 [00:06<00:01, 50.03it/s]Loading weights:  84%|████████▍ | 334/398 [00:06<00:01, 56.28it/s]Loading weights:  86%|████████▌ | 341/398 [00:06<00:00, 57.84it/s]Loading weights:  87%|████████▋ | 347/398 [00:06<00:01, 50.81it/s]Loading weights:  89%|████████▉ | 355/398 [00:06<00:00, 56.78it/s]Loading weights:  91%|█████████ | 361/398 [00:07<00:00, 51.33it/s]Loading weights:  92%|█████████▏| 367/398 [00:07<00:00, 50.34it/s]Loading weights:  95%|█████████▍| 377/398 [00:07<00:00, 56.80it/s]Loading weights:  96%|█████████▌| 383/398 [00:07<00:00, 55.22it/s]Loading weights:  98%|█████████▊| 389/398 [00:07<00:00, 53.63it/s]Loading weights: 100%|██████████| 398/398 [00:07<00:00, 51.66it/s]
+Cấu hình chạy:
+  thí nghiệm  : chạy NGOÀI thí nghiệm (kết quả không thuộc thí nghiệm nào)
+  prompt      : absa_cot_v1 (configs/prompts/absa_cot_v1.txt), sha 3abf6934
+  ví dụ       : configs/prompts/examples/absa_cot_v1.txt - 2 ví dụ, sha c513f5a6
+  tập dữ liệu : val - 4 (TẬP CON ngẫu nhiên, seed 42)
+  ngưỡng cắt  : 1280 token (max_length của Qwen)
+  sinh        : greedy (tái lập)
+  tối đa sinh : 400 token/review
+  model       : data/models/Qwen3-4B-Instruct-2507 - 4-bit nf4, 4-bit + device_map=auto, cuda:0
+
+Đang sinh...
+    lô 1/3: 1 câu | 11.1 giây | 17.8 token sinh/giây
+    lô 2/3: 1 câu | 9.8 giây | 19.5 token sinh/giây
+    lô 3/3: 1 câu | 10.2 giây | 19.7 token sinh/giây
+
+Đọc kết quả:
+  tổng              : 4
+  đọc được          : 4
+  % đọc được        : 100.0
+  có khối suy luận  : 4
+  có <think>        : 0
+  thiếu khía cạnh   : 0
+
+Số theo khía cạnh và sắc thái:
+  aspect        sentiment  accuracy  accuracy_macro  accuracy_micro  accuracy_when_mentioned  detection_f1_macro  detection_f1_micro  exact_match  f1     precision  recall  sentiment_f1_macro  sentiment_f1_micro  support  when_mentioned_macro
+  ------------  ---------  --------  --------------  --------------  -----------------------  ------------------  ------------------  -----------  -----  ---------  ------  ------------------  ------------------  -------  --------------------
+  stayingpower  all        75.0                                                                                                                                                                                                                   
+  stayingpower  mentioned  75.0                                      0.0                                                                           0.0    0.0        0.0                                                                          
+  texture       all        100.0                                                                                                                                                                                                                  
+  texture       mentioned  100.0                                     0.0                                                                           0.0    0.0        0.0                                                                          
+  smell         all        75.0                                                                                                                                                                                                                   
+  smell         mentioned  75.0                                      50.0                                                                          0.667  1.0        0.5                                                                          
+  price         all        100.0                                                                                                                                                                                                                  
+  price         mentioned  100.0                                     100.0                                                                         1.0    1.0        1.0                                                                          
+  colour        all        100.0                                                                                                                                                                                                                  
+  colour        mentioned  100.0                                     100.0                                                                         1.0    1.0        1.0                                                                          
+  shipping      all        75.0                                                                                                                                                                                                                   
+  shipping      mentioned  75.0                                      50.0                                                                          0.667  1.0        0.5                                                                          
+  packing       all        100.0                                                                                                                                                                                                                  
+  packing       mentioned  100.0                                     0.0                                                                           0.0    0.0        0.0                                                                          
+  stayingpower  positive                                                                                                                           0.0    0.0        0.0                                             1                            
+  stayingpower  negative                                                                                                                           0.0    0.0        0.0                                             0                            
+  texture       positive                                                                                                                           0.0    0.0        0.0                                             0                            
+  texture       negative                                                                                                                           0.0    0.0        0.0                                             0                            
+  smell         positive                                                                                                                           0.667  1.0        0.5                                             2                            
+  smell         negative                                                                                                                           0.0    0.0        0.0                                             0                            
+  price         positive                                                                                                                           1.0    1.0        1.0                                             1                            
+  price         negative                                                                                                                           0.0    0.0        0.0                                             0                            
+  colour        positive                                                                                                                           1.0    1.0        1.0                                             1                            
+  colour        negative                                                                                                                           0.0    0.0        0.0                                             0                            
+  shipping      positive                                                                                                                           0.0    0.0        0.0                                             0                            
+  shipping      negative                                                                                                                           0.667  1.0        0.5                                             2                            
+  packing       positive                                                                                                                           0.0    0.0        0.0                                             0                            
+  packing       negative                                                                                                                           0.0    0.0        0.0                                             0                            
+  all           all                  89.29           89.29                                    0.476               0.727               50.0                                   0.667               0.727                        60.0                
+
+Tổng hợp:
+  accuracy
+    macro                89.29
+    micro                89.29
+    when_mentioned_macro 60.0
+    when_mentioned_micro 57.14
+    correct              25
+    cells                28
+    by_aspect            stayingpower=75.0  texture=100.0  smell=75.0  price=100.0  colour=100.0  shipping=75.0  packing=100.0
+    when_mentioned_by_aspect stayingpower=0.0  texture=0.0  smell=50.0  price=100.0  colour=100.0  shipping=50.0  packing=0.0
+  aspect_detection
+    macro                accuracy=89.286  precision=0.571  recall=0.429  f1=0.476
+    micro                tp=4  fp=0  fn=3  tn=21  cells=28  precision=1.0  recall=0.571  f1=0.727  accuracy=89.29
+    support              mentioned=7  not_mentioned=21
+  prf
+    macro                precision=0.8  recall=0.6  f1=0.667
+    micro                precision=1.0  recall=0.571  f1=0.727  support=7
+    sentiments           ['positive', 'negative']
+  aggregate
+    accuracy_macro       89.29
+    accuracy_micro       89.29
+    when_mentioned_macro 60.0
+    exact_match          reviews=4  correct=2  percent=50.0
+    reviews              4
+    aspects              7
+    cells                28
+  confusion
+    aspects              ['stayingpower', 'texture', 'smell', 'price', 'colour', 'shipping', 'packing']
+    labels               ['', 'positive', 'negative', 'không đọc được']
+    cells                28
+    dropped_neutral      0
+
+Chi phí lượt này: 197.0 token sinh/review TB, 31.1 giây, 19.0 token sinh/giây
+Dùng lại 1 mẫu của lần chạy trước (3 mẫu chạy trong lượt này).
+Hoàn tất. Đã ghi vào data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507:
+  - predictions.csv    data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/predictions.csv
+  - metrics.json       data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/metrics.json
+  - metrics.csv        data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/metrics.csv
+  - mispredictions.csv data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/mispredictions.csv
+  (tên thư mục 'prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507' ghi rõ cấu hình của lần chạy này)
+🏃 View run prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507 at: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow/#/experiments/0/runs/c89b66413f164a6aa8e4a9c6ef15c471
+🧪 View experiment at: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow/#/experiments/0
+
+Xong. Kết quả ở data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507 (chế độ RESUME).

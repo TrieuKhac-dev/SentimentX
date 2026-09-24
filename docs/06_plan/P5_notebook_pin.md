@@ -10,7 +10,9 @@ và có công cụ tạo thí nghiệm mới nhanh, chính xác, không xung đ�
 
 ## 2. Trạng thái
 
-chưa làm
+xong (T1..T6) trên máy cá nhân. Hai mục của mục 4 cần Colab THẬT (kéo code theo sha trên Colab, và
+gốc kết quả nằm trên Drive vì máy cá nhân không mô phỏng được Drive) sẽ kiểm ở P7 cùng lượt chạy
+lại toàn bộ - đó là lý do P5 chưa đóng hẳn.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -35,12 +37,24 @@ chưa làm
       ĐÁNH DẤU, không đoán theo tên - MyDrive và Shared drives trông giống nhau), và `device_report`
       bắt thêm `OSError` khi nạp `torch` (torch cài hỏng thì báo thành việc phải sửa, không để
       ngoại lệ hệ điều hành làm dừng notebook).
-- [ ] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
+- [x] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
-      -> `feat(notebook): add first experiment notebook`
-- [x] T5. Preflight: kiểm `requires` và `requires_extra`, mã phiên bản, `roles`, GPU và quantization,
-      Java khi cần, quyền ghi Drive, trạng thái FRESH hay RESUME.
-      -> `feat(preflight): check paths device and drive`
+      -> `feat(experiments): create exp001 - Qwen3-4B CoT prompt, scored on val`
+      Tạo bằng CHÍNH `new_experiment.py` (ăn thử công cụ) rồi `scripts/pin.py` ghim commit
+      `fe180947` vào ô đầu (`chore(experiments): pin commit fe180947 into the exp001 notebook`).
+      exp001 chấm trên `val` với `n: 200`, prompt CoT lấy từ thư viện dùng chung bằng ĐƯỜNG DẪN.
+      Preflight cho exp001 báo 0 việc phải sửa. Lượt chạy 200 mẫu của exp001 để dành cho P7; đường
+      chạy đã chứng minh bằng một lượt 4 mẫu thật ngoài thí nghiệm (xem P4 T8).
+      Làm T4 thì lộ ra và sửa hai lỗi thật: đường dẫn prompt trong config thiếu một cấp `../`
+      (đúng loại lỗi preflight sinh ra để bắt), và `preflight.run()` để lỗi đó thoát ra thành
+      traceback thay vì kể thành việc-phải-sửa.
+- [ ] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
+      đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
+      -> `feat(experiments): add scripts/new_experiment.py to scaffold an experiment`
+      Kèm `src/notebooks.py` (một định nghĩa ô ghim dùng chung với `pin.py`, để hai công cụ không
+      thể hiểu ô ghim khác nhau) và `experiments.list_experiments()`/`next_exp_id()` trong thư viện
+      (chọn số kế tiếp theo số LỚN NHẤT đã có, nên xoá một thí nghiệm ở giữa không đụng số khác).
+      Từ chối khi: thí nghiệm đã có, config model chưa có, nhánh ghim chưa lên remote.
       Làm TRƯỚC T3 để template notebook gọi được hàm đã có sẵn. Chạy thử trên máy thật: nhận ra
       dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng), GPU
       RTX 3050 6GB + torch 2.14.0+cu126 + bitsandbytes, cả hai gốc ghi được, trạng thái NEW - và

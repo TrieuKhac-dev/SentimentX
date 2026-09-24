@@ -1,0 +1,11 @@
+﻿chỉ số,split,prompt,kiểu đọc,đọc được,lí do,text,nhãn đúng,nhãn đoán,token sinh,giây,có suy luận,có <think>,câu trả lời
+1309,val,absa_cot_v1,khối KẾT QUẢ,có,ok,Giao lâu son có mùi socola vjajsjjsjshdjdjdbdjdhdjsksbevrvfkdjrvtccycgbfkfjbdvfvgccgbfdjjdtvgcgcg bgnfjfnbfvgctctcrbnd rvbrjjdudhebvrjdjdbrhdidjbevejdjrb,"{""stayingpower"": 0, ""texture"": 0, ""smell"": 1, ""price"": 0, ""colour"": 0, ""shipping"": 2, ""packing"": 0}","{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}",191,10.82,có,không,"SUY LUẬN:
+- stayingpower: không nhắc tới | không có thông tin về độ bền màu | mã 0
+- texture: không nhắc tới | không có thông tin về chất cảm giác | mã 0
+- smell: không nhắc tới | không có thông tin về mùi | mã 0
+- price: không nhắc tới | không có thông tin về giá | mã 0
+- colour: không nhắc tới | không có thông tin về màu | mã 0
+- shipping: không nhắc tới | không có thông tin về vận chuyển | mã 0
+- packing: không nhắc tới | không có thông tin về đóng gói | mã 0
+KẾT QUẢ:
+{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}"

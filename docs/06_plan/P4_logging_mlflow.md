@@ -10,9 +10,9 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-xong (T1..T9). Còn MỘT mục của mục 4 phải kiểm bằng lượt chạy model thật: "ngắt giữa chừng rồi
-chạy lại" - cơ chế đã có và đã có test, nhưng chỉ một lượt chạy thật mới chứng minh được
-`run.log` ghi `[RUN] mode=RESUME` và tiếp tục từ mẫu đã dừng. Việc đó nằm ở P7 (chạy lại toàn bộ).
+xong (T1..T9). Cả mục cuối của mục 4 - "ngắt giữa chừng rồi chạy lại trên MỘT LƯỢT CHẠY THẬT" - đã
+kiểm ngày 24/09/2026 bằng một lượt chạy Qwen3-4B-Instruct-2507 (4-bit) trên máy cá nhân; xem chi
+tiết ở T8. Không còn mục nào phải chờ P7.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -44,8 +44,19 @@ chạy lại" - cơ chế đã có và đã có test, nhưng chỉ một lượt
       điều kiện resume là `config_sha256` + mã phiên bản + `repo.sha` đều không đổi.
       -> `feat(resume): chunk predictions and resume by sample`
       Kiểm bằng test (17 ca mới: quyết định NEW/RESUME/STOP, dòng viết dở được đếm lại, khối cũ
-      được chuyển sang thư mục con, điểm số dùng cả mẫu cũ). Phần "ngắt giữa chừng rồi chạy lại"
-      trên máy thật cần một lượt chạy model nên kiểm ở P7 cùng lượt chạy lại toàn bộ.
+      được chuyển sang thư mục con, điểm số dùng cả mẫu cũ) và bằng một LƯỢT CHẠY THẬT ngày
+      24/09/2026 (`--prompt absa_cot_v1 --limit 4`, Qwen3-4B-Instruct-2507 4-bit, chạy ngoài thí
+      nghiệm nên kết quả ở `data/reports/model_eval/`):
+        - lần 1 `mode=NEW`; ngắt MỀM (Ctrl+Break, giống bấm Stop trong Colab) ngay sau khi khối
+          `predictions/part_0001.jsonl` đầu tiên đã nằm trên đĩa. `run.log` ghi `[RUN] mode=NEW`,
+          tiến trình tự thoát (mã `0xC000013A`) - tức là ngắt giữa chừng được, không chỉ hỏng giả.
+        - lần 2 chạy ĐÚNG lệnh đó: `run.log` ghi `[RUN] mode=RESUME`; `[RUN] n_samples=3` (chỉ 3 mẫu
+          còn lại, không chạy lại mẫu đã xong); `metrics.json` có
+          `resume = {mode: RESUME, reason: "chạy tiếp từ 1 mẫu đã xong của lần chạy trước",
+          reused: 1, new: 3}`; lượt này xong sau 49,6 giây.
+        - lần 3 thêm `--new`: `mode=NEW`, `[RUN] stashed=.../predictions/_bo-qua-2026-09-24-205105`
+          (kết quả cũ được CHUYỂN sang thư mục con, không xoá), `resume = {mode: NEW, reused: 0,
+          new: 4}`, mã thoát 0.
 - [x] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
       -> `test(evaluation): add metric tests`
       Kiểm từng cam kết một: độ chính xác của bài toán nhắc tới (cả hai lớp), macro/micro và khớp

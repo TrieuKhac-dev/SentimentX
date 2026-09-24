@@ -1,0 +1,44 @@
+﻿chỉ số,split,prompt,kiểu đọc,đọc được,lí do,text,nhãn đúng,nhãn đoán,token sinh,giây,có suy luận,có <think>,câu trả lời
+51,val,absa_cot_v1,khối KẾT QUẢ,có,ok,"Màu đẹp miễn chê, mình mua ngay đợt sale nên tiết kiệm được khá nhiều tiền. Mình mua tặng bạn nhưng bạn mình khen nhiều. Thanks shop","{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 1, ""colour"": 1, ""shipping"": 0, ""packing"": 0}","{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 1, ""colour"": 1, ""shipping"": 0, ""packing"": 0}",234,12.13,có,không,"SUY LUẬN:
+- colour: ""màu đẹp miễn chê"" | khen màu đẹp, ấn tượng | mã 1
+- texture: ""không nhắc tới"" | không có thông tin về chất cảm giác | mã 0
+- smell: ""không nhắc tới"" | không có thông tin về mùi | mã 0
+- price: ""mình mua ngay đợt sale nên tiết kiệm được khá nhiều tiền"" | tiết kiệm tiền, ngầm khen giá tốt | mã 1
+- packing: ""không nhắc tới"" | không có thông tin về đóng gói | mã 0
+- shipping: ""không nhắc tới"" | không có thông tin về vận chuyển | mã 0
+- stayingpower: ""không nhắc tới"" | không có thông tin về độ bền màu | mã 0
+KẾT QUẢ:
+{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 1, ""colour"": 1, ""shipping"": 0, ""packing"": 0}"
+228,val,absa_cot_v1,khối KẾT QUẢ,có,ok,"Đẹp vãi lúa ạ
+Giao hàng lâu thật nhưng son đẹp quá 😍😘❤
+Biết vậy em mua 2 cây 😥","{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 2, ""packing"": 0}","{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 2, ""packing"": 0}",198,9.91,có,không,"SUY LUẬN:
+- stayingpower: không nhắc tới | không có thông tin về độ bền màu | mã 0  
+- texture: không nhắc tới | không có thông tin về chất cảm giác | mã 0  
+- smell: không nhắc tới | không có thông tin về mùi hương | mã 0  
+- price: không nhắc tới | không có thông tin về giá | mã 0  
+- colour: không nhắc tới | không có thông tin về màu sắc | mã 0  
+- shipping: ""giao hàng lâu thật"" | giao hàng chậm, không tích cực | mã 2  
+- packing: không nhắc tới | không có thông tin về đóng gói | mã 0  
+
+KẾT QUẢ:
+{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 2, ""packing"": 0}"
+1309,val,absa_cot_v1,khối KẾT QUẢ,có,ok,Giao lâu son có mùi socola vjajsjjsjshdjdjdbdjdhdjsksbevrvfkdjrvtccycgbfkfjbdvfvgccgbfdjjdtvgcgcg bgnfjfnbfvgctctcrbnd rvbrjjdudhebvrjdjdbrhdidjbevejdjrb,"{""stayingpower"": 0, ""texture"": 0, ""smell"": 1, ""price"": 0, ""colour"": 0, ""shipping"": 2, ""packing"": 0}","{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}",191,9.72,có,không,"SUY LUẬN:
+- stayingpower: không nhắc tới | không có thông tin về độ bền màu | mã 0
+- texture: không nhắc tới | không có thông tin về chất cảm giác | mã 0
+- smell: không nhắc tới | không có thông tin về mùi | mã 0
+- price: không nhắc tới | không có thông tin về giá | mã 0
+- colour: không nhắc tới | không có thông tin về màu | mã 0
+- shipping: không nhắc tới | không có thông tin về vận chuyển | mã 0
+- packing: không nhắc tới | không có thông tin về đóng gói | mã 0
+KẾT QUẢ:
+{""stayingpower"": 0, ""texture"": 0, ""smell"": 0, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}"
+1518,val,absa_cot_v1,khối KẾT QUẢ,có,ok,"Hàng đúng mô tả , đánh lên lì , rất thơm mùi socola","{""stayingpower"": 1, ""texture"": 0, ""smell"": 1, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}","{""stayingpower"": 0, ""texture"": 0, ""smell"": 1, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}",202,10.19,có,không,"SUY LUẬN:
+- stayingpower: không nhắc tới | không có thông tin về độ bền màu | mã 0  
+- texture: không nhắc tới | không có thông tin về chất cảm giác | mã 0  
+- smell: ""rất thơm mùi socola"" | mùi thơm dễ chịu, được khen | mã 1  
+- price: không nhắc tới | không có thông tin về giá | mã 0  
+- colour: không nhắc tới | không có thông tin về màu sắc | mã 0  
+- shipping: không nhắc tới | không có thông tin về vận chuyển | mã 0  
+- packing: không nhắc tới | không có thông tin về đóng gói | mã 0  
+KẾT QUẢ:
+{""stayingpower"": 0, ""texture"": 0, ""smell"": 1, ""price"": 0, ""colour"": 0, ""shipping"": 0, ""packing"": 0}"
