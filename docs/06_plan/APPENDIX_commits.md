@@ -154,3 +154,5 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Bỏ dải `print("=" * 70)` ở 7 cửa vào dòng lệnh | `style(cli): drop the printed banner dividers` |
 | Ghim lại `exp001` vào bản code đã sửa (pin cũ không chạy được thí nghiệm này) | `chore(experiments): pin 5c99f38 so exp001 reads its prompt files` |
 | Preflight báo thiếu `bitsandbytes` kể cả khi máy thiếu `torch` (đây là nguyên nhân CI đỏ) | `fix(preflight): name the missing pieces even when torch itself is missing` |
+| Cây Drive trong tài liệu khớp gói bàn giao: thêm `README.md`, `notebooks/<model>/<method>/expNNN.ipynb`, `processing_log.json`, `raw_meta.yaml`, và cảnh báo hai khoá gốc trong `.env.colab` | `docs(workflow): the Drive tree is the one the package carries` |
+| Ghi lại cây mới của gói bàn giao (16 file) và vì sao phải ghim lại | `docs(plan): record the handover layout` |

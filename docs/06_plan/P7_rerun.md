@@ -39,11 +39,23 @@ GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn kho�
 - [ ] T5. Giao notebook cho giảng viên: đẩy dữ liệu, notebook và `.env.colab` lên Drive, gửi hướng dẫn.
       (không tạo commit)
       Gói bàn giao đã dựng lại (25/09/2026, sau khi sửa lỗi đọc file prompt theo đường dẫn - xem
-      bên dưới), chỉ chờ gửi: `sentimentx-exp001-ban-giao.zip` (2,03 MB) với 13 file, giữ đúng cấu
-      trúc mà notebook mong đợi khi giải nén vào Drive: `.sentimentx_root` (file đánh dấu),
-      `notebook-exp001.ipynb`, `HUONG_DAN.md`, `env/.env.colab.example`,
-      `data/raw/cosmetics/v0.1.0/` (4 CSV + `raw_meta.yaml`), `data/processed/<mã>/` (train, val,
-      test, label_map).
+      bên dưới), chỉ chờ gửi: `sentimentx-exp001-ban-giao.zip` (2,03 MB) với 16 file, cây đúng như
+      `docs/00_workflow/07_colab.md` mục 2:
+
+      ```
+      .sentimentx_root                      README.md
+      env/.env.colab  env/.env.colab.example
+      notebooks/qwen3-4b-instruct-2507/prompt-cot/exp001.ipynb
+      experiments/qwen3-4b-instruct-2507/prompt-cot/exp001/README.md
+      data/raw/cosmetics/v0.1.0/            4 CSV + raw_meta.yaml
+      data/processed/<mã>/                  train, val, test, label_map.json, processing_log.json
+      ```
+
+      `env/.env.colab` có token DagsHub thật (gói gửi qua kênh riêng, đổi token sau đồ án). Hai khoá
+      gốc đường dẫn trong file đó để nguyên dạng CHÚ THÍCH: `runtime._apply_file` dùng
+      `os.environ.setdefault` và ô bootstrap nạp file này TRƯỚC khi tự dò thư mục, nên khoá nào có
+      trong file sẽ thắng giá trị tự dò - khai sai tên thư mục là mất dữ liệu và kết quả vào máy ảo.
+
       Notebook trong gói ghim BẢN CODE MỚI NHẤT đã rà soát: đọc bốn hằng số ở ô đầu notebook, và
       `python scripts/ci_checks.py` kiểm sha đó tồn tại trong repo cùng nằm trên nhánh `experiment`;
       `preflight` chạy với hai gốc trỏ vào CHÍNH GÓI báo 0 việc phải sửa, chế độ NEW; `test.csv`
