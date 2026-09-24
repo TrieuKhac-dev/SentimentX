@@ -35,7 +35,7 @@ cần GPU (`python -m unittest discover -s tests`).
 import time
 from pathlib import Path
 
-from src import config, utils, versioning
+from src import config, paths, utils
 from src.evaluation import metrics, parse
 from src.preprocessing import qwen
 
@@ -225,15 +225,20 @@ def _as_json(labels):
     return json.dumps(labels, ensure_ascii=False)
 
 
-def file_name(tag=None, kind="predictions"):
-    """Tên file kết quả của một lần chạy (mỗi cấu hình một file, không ghi đè nhau)."""
-    return "{}{}.csv".format(kind, "__" + tag if tag else "")
+def run_dir(version_id, tag):
+    """Thư mục của MỘT lần chạy: `<thư mục kết quả đánh giá>/<mã phiên bản>/<hậu tố>/`.
+
+    Mỗi cấu hình chạy (prompt, split, cách sinh) có thư mục riêng, nên tên file TRONG đó là tên
+    cố định đọc từ `configs/paths.yaml` (`predictions.csv`, `metrics.json`) thay vì ghép chuỗi.
+    Ghép chuỗi thì tên file là nguồn sự thật thứ hai, và nó lệch khỏi config lúc nào không biết.
+    """
+    return config.MODEL_EVAL_REPORT_DIR / str(version_id) / str(tag)
 
 
-def write(rows, columns, version_id, tag=None, kind="predictions"):
-    """Ghi bảng ra CSV theo phiên bản dữ liệu. Trả về đường dẫn file."""
-    out_dir = config.MODEL_EVAL_REPORT_DIR / version_id
-    return utils.write_csv(rows, columns, out_dir / file_name(tag, kind))
+def write(rows, columns, out_dir, name=None):
+    """Ghi một bảng CSV vào thư mục của lần chạy. Trả về đường dẫn file."""
+    return utils.write_csv(rows, columns,
+                           Path(out_dir) / (name or paths.pattern("predictions")))
 
 
 def _load_model(model_name, quantization, torch):

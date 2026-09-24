@@ -53,11 +53,31 @@ def config_path(model_id, method, exp_id):
     return experiment_dir(model_id, method, exp_id) / paths.pattern("experiment_config")
 
 
+def shared_path(name):
+    """Đường dẫn MỘT lớp cấu hình dùng chung: `repo`, `task`, `evaluation`, `training`, `tracking`."""
+    if name not in SHARED:
+        raise ExperimentError(
+            "Không có lớp cấu hình dùng chung '{}'. Các lớp hiện có: {}.".format(
+                name, ", ".join(SHARED)))
+    return paths.config_path("experiments", "{}.yaml".format(name))
+
+
+def shared(name):
+    """Nội dung MỘT lớp cấu hình dùng chung, chưa hợp nhất với lớp nào.
+
+    Dùng cho công cụ chỉ cần lớp dùng chung: ví dụ phần chấm điểm đọc `task` (cách nhìn bài toán)
+    và `evaluation` (chỉ số nào cần tính) mà chưa cần cấu hình riêng của một thí nghiệm. Nhờ vậy
+    công cụ không phải chép lại giá trị mặc định - `configs/experiments/*.yaml` vẫn là nguồn duy
+    nhất, và đổi ở đó là đổi cho mọi chỗ dùng.
+    """
+    return _read(name, shared_path(name), None)
+
+
 def layer_files(model_id, method, exp_id):
     """Danh sách (nhãn lớp, đường dẫn) theo ĐÚNG thứ tự hợp nhất."""
     files = [(MODEL_LAYER, model_config.config_path(model_id))]
     for name in SHARED:
-        files.append((name, paths.config_path("experiments", "{}.yaml".format(name))))
+        files.append((name, shared_path(name)))
     files.append((EXPERIMENT_LAYER, config_path(model_id, method, exp_id)))
     return files
 

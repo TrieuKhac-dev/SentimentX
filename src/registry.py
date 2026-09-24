@@ -44,7 +44,15 @@ CÁCH MỞ RỘNG
      `src/preprocessing/segmenters/base.py` (thêm file rồi đăng ký trong `SEGMENTERS`).
      Tuyệt đối KHÔNG nhét bước tách từ vào pipeline chung.
 
-6) Thêm một KHÔNG GIAN NHÃN mới (cách nhìn bài toán: chỉ hai nhãn, hay giữ đủ bốn trạng thái):
+6) Thêm một CÁCH CHẤM ĐIỂM mới (chỉ số mới, hoặc chỉ số theo công bố khác):
+   - Viết file trong `src/evaluation/scorers/`, ví dụ `per_review.py`, theo hợp đồng ở
+     `src/evaluation/scorers/base.py` (`NAME`, `DESCRIPTION`, `run(samples)`).
+   - Thêm một dòng vào `SCORERS` trong `src/evaluation/scorers/__init__.py`.
+   - Thêm tên vào `scores` trong `configs/experiments/evaluation.yaml`, nếu muốn nó chạy.
+     Mọi phép đếm lấy từ `samples` (lớp `Samples`), KHÔNG tự đếm lại: hai chỗ đếm là hai con
+     số có thể lệch nhau cho cùng một đại lượng.
+
+7) Thêm một KHÔNG GIAN NHÃN mới (cách nhìn bài toán: chỉ hai nhãn, hay giữ đủ bốn trạng thái):
    - Viết file trong `src/labels/`, ví dụ `three_way.py`, theo hợp đồng ở `src/labels/base.py`
      (`NAME`, `DESCRIPTION`, `CODES`, `SEPARATE_NOT_MENTIONED`, `check()`, `project()`).
    - Thêm một dòng vào `LABEL_SPACES` trong `src/labels/__init__.py`.

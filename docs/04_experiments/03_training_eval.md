@@ -135,7 +135,7 @@ python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-
 | Sinh       | **greedy** (`do_sample=False`)                                                             | Tái lập: chạy lại phải ra đúng kết quả đó                                                |
 | Nạp model  | 4-bit nf4, batch 4                                                                         | 4B ở bf16 là 8 GB, GPU có 6 GB                                                           |
 | Ngưỡng cắt | 1280 token                                                                                 | prompt CoT cần tới 1.195 token (tiền xử lý cho model, mục 4.2)                              |
-| Đầu ra     | `predictions__*.csv` (từng review) + `metrics__*.csv` (từng khía cạnh) + `summary__*.json` | mục lục ghi thêm prompt, sha, sha BỘ VÍ DỤ, cấu hình sinh, và `rescored` nếu có chấm lại |
+| Đầu ra     | Một thư mục riêng cho mỗi cấu hình: `predictions.csv`, `metrics.json`, `metrics.csv`, `mispredictions.csv` | Tên file cố định (đọc từ `configs/paths.yaml`), cấu hình nằm ở tên thư mục, nên không ghi đè nhau. `metrics.json` ghi `label_space`, `neutral_policy`, số ô neutral bị loại, và `rescored` nếu có chấm lại |
 
 ### 6.2. Kết quả (cùng một tập 100 review)
 

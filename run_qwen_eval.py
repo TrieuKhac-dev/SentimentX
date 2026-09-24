@@ -2,10 +2,15 @@
 """Chạy Qwen3 bằng CHỈ DẪN (prompt một lượt / CoT) rồi chấm điểm (đánh giá model).
 
 Cách dùng:
+    python run_qwen_eval.py --list-scorers          # đang có chỉ số nào
     python run_qwen_eval.py --dataset cosmetics --split val
     python run_qwen_eval.py --split val --prompt absa_direct_v1
     python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200
     python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200 --sample
+
+Một lần chạy ghi vào MỘT thư mục riêng (`<phiên bản>/<hậu tố cấu hình>/`): `predictions.csv`,
+`metrics.json`, `metrics.csv`, `mispredictions.csv`. Tên file cố định, đọc từ
+`configs/paths.yaml`; cấu hình nằm ở tên THƯ MỤC nên hai lần chạy không ghi đè nhau.
 
 VÌ SAO PHẢI CHẠY TRÊN VAL TRƯỚC
 ---
@@ -37,13 +42,12 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, prompts, utils, versioning
-from src.evaluation import metrics, runner
+from src import config, dataset, experiments, labels, paths, prompts, utils, versioning
+from src.evaluation import metrics, runner, scorers
 from src.preprocessing import loader, qwen
 
-# Cột của file chỉ số theo khía cạnh (mỗi lần chạy một file)
-METRIC_COLUMNS = ["prompt", "split", "mẫu", "khía cạnh", "số mẫu", "đúng", "acc",
-                  "có nhắc tới", "acc khi có nhắc", "P nhắc", "R nhắc", "F1 nhắc"]
+# Cột của file chỉ số do `src/evaluation/scorers/` quyết định (bảng dài: aspect, sentiment,
+# metric, value) - không khai lại ở đây, để không có hai nguồn sự thật cho cùng một bảng.
 
 # Cấu hình lấy mẫu theo khuyến nghị trong model card của Qwen3-4B-Instruct-2507
 # (Temperature=0.7, TopP=0.8, TopK=20). Chỉ dùng khi chạy `--sample`.
@@ -59,9 +63,11 @@ def parse_args(argv=None):
                         help="Mã phiên bản dữ liệu đã xử lý (mặc định: bản mới nhất).")
     parser.add_argument("--split", default="val", choices=["val", "test", "train"],
                         help="Tập để chạy. Mặc định 'val' - tập LỰA CHỌN, không phải test.")
-    parser.add_argument("--prompt", required=True,
-                        help="Tên prompt. Bắt buộc: prompt thuộc config của thí nghiệm, "
-                             "không lấy từ config model.")
+    parser.add_argument("--prompt", default=None,
+                        help="Tên prompt. Bắt buộc khi chạy: prompt thuộc config của thí "
+                             "nghiệm, không lấy từ config model.")
+    parser.add_argument("--list-scorers", dest="list_scorers", action="store_true",
+                        help="In các bộ chấm điểm đang có (registry SCORERS) rồi thoát.")
     parser.add_argument("--model", default=None,
                         help="Ghi đè tên model trên Hugging Face (mặc định: "
                              "Qwen/Qwen3-4B-Instruct-2507 trong src/preprocessing/qwen.py). "
@@ -156,16 +162,63 @@ def print_config(prompt, examples, split, limit, total, max_length, generation, 
     print()
 
 
+def task_settings():
+    """Cách nhìn bài toán đang dùng, lấy từ `configs/experiments/task.yaml`.
+
+    Không chép giá trị mặc định vào đây: chép thì sửa config mà kết quả không đổi, và người đọc
+    số liệu sẽ tưởng đang đo một bài toán khác với bài toán đã khai.
+    """
+    return experiments.shared("task")
+
+
+def evaluation_settings():
+    """Cách chấm điểm đang dùng, lấy từ `configs/experiments/evaluation.yaml`."""
+    return experiments.shared("evaluation")
+
+
+def label_names(label_map):
+    """Bảng tên nhãn để in kết quả (mã -> tên). Khoá là số vì bảng đếm dùng mã bằng số."""
+    return {int(code): name for code, name in (label_map.get("id_to_label") or {}).items()}
+
+
+def print_scores(scores):
+    """In các con số tổng hợp của từng bộ chấm. Bảng chi tiết in bằng `scorers.table`."""
+    for name, values in scores.items():
+        print("  {}".format(name))
+        for key, value in values.items():
+            if isinstance(value, dict):
+                flat = "  ".join("{}={}".format(inner, item) for inner, item in value.items()
+                                 if isinstance(item, (int, float, str)))
+                if flat:
+                    print("    {:<20} {}".format(key, flat))
+            else:
+                print("    {:<20} {}".format(key, value))
+
+
 def main(argv=None):
     args = parse_args(argv)
+
+    if args.list_scorers:
+        print("Các bộ chấm điểm đang có (khai trong evaluation.scores):")
+        for line in scorers.describe():
+            print("  " + line)
+        return 0
 
     print("=" * 70)
     print("QWEN3 BẰNG CHỈ DẪN - chạy model rồi chấm điểm (đánh giá model)")
     print("=" * 70)
 
+    if not args.prompt:
+        print("LỖI: thiếu --prompt. Prompt thuộc config của thí nghiệm, không lấy từ config "
+              "model. Xem `run_token_stats.py --list-prompts` để biết đang có prompt nào.")
+        return 2
+
     try:
         ds = dataset.load_config(args.dataset)
-    except dataset.DatasetError as exc:
+        task = task_settings()
+        evaluation = evaluation_settings()
+        names = scorers.check(evaluation.get("scores"))
+    except (dataset.DatasetError, experiments.ExperimentError, scorers.ScorerError) as exc:
         print("LỖI: {}".format(exc))
         return 2
     version_id = args.version or versioning.compute_id(ds)
@@ -180,11 +233,15 @@ def main(argv=None):
         label_map = loader.load_label_map(version_id, dataset=ds["name"])
         frame = loader.load_processed(args.split, version_id=version_id,
                                       dataset=ds["name"])
-    except FileNotFoundError as exc:
+        # Lọc bảng mã nhãn theo không gian nhãn TRƯỚC khi đưa cho model: đưa một nhãn mà bài
+        # toán không dùng là mọi câu trả lời mang nhãn đó đều bị tính sai.
+        label_map = labels.filter_label_map(label_map, task["label_space"],
+                                            task["neutral_policy"])
+        aspects = labels.task_aspects(task, label_map["aspects"])
+    except (FileNotFoundError, experiments.ExperimentError, labels.base.LabelError) as exc:
         print("LỖI: {}".format(exc))
         return 2
 
-    aspects = list(label_map["aspects"])
     texts = frame[config.TEXT_COLUMN].astype(str).tolist()
     codes = frame[aspects].astype(int).to_numpy().tolist()
     golds = [dict(zip(aspects, row)) for row in codes]
@@ -225,8 +282,12 @@ def main(argv=None):
         batch_size=args.batch_size, max_length=max_length, generation=generation,
         row_index=row_index, quiet=args.quiet)
 
-    metric_rows, summary = metrics.score(golds, preds, aspects)
     read = metrics.read_rate(infos)
+    samples = scorers.Samples.build(
+        aspects, golds, preds, task=task, labels=label_names(label_map),
+        sample_ids=[str(index) for index in row_index],
+        meta={"split": args.split, "dataset": ds["name"], "version_id": version_id})
+    result = scorers.run_all(samples, names=names)
 
     print("\nĐọc kết quả:")
     for key, value in read.items():
@@ -235,55 +296,57 @@ def main(argv=None):
     for reason, count in read["lí do lỗi"].items():
         print("      lỗi: {:<44} {}".format(reason, count))
 
-    print("\nTheo khía cạnh:")
-    print_table([[row[column] for column in METRIC_COLUMNS[3:]] for row in metric_rows],
-                METRIC_COLUMNS[3:])
+    print("\nSố theo khía cạnh và sắc thái:")
+    table_rows, table_columns = scorers.table(result["rows"])
+    print_table(table_rows, table_columns)
     print("\nTổng hợp:")
-    for key, value in summary.items():
-        print("  {:<18}: {}".format(key, value))
+    print_scores(result["scores"])
     print("\nChi phí: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
         meta["token sinh TB"], meta["giây"], meta["token sinh/giây"]))
     return _write_all(args, ds, version_id, prompt, examples, generation, max_length,
-                      model_info, rows, metric_rows, summary, read, meta)
+                      model_info, rows, samples, result, evaluation, read, meta)
 
 
 def _write_all(args, ds, version_id, prompt, examples, generation, max_length,
-               model_info, rows, metric_rows, summary, read, meta):
-    """Ghi 3 file kết quả (dự đoán, chỉ số, tổng hợp) + một dòng vào mục lục."""
+               model_info, rows, samples, result, evaluation, read, meta):
+    """Ghi kết quả của lần chạy vào thư mục riêng của nó. Trả về mã thoát.
+
+    Thư mục riêng cho mỗi cấu hình nên tên file TRONG đó là tên cố định; cấu hình nằm ở tên thư
+    mục. Nhờ vậy không bao giờ ghi đè số liệu của lần chạy khác, và cũng không phải ghép tên file
+    từ cấu hình (ghép chuỗi là nguồn sự thật thứ hai, lệch lúc nào không biết).
+    """
     tag = build_tag(prompt, args.split, args.limit, generation, args.quant)
-    paths = {}
-    paths["dự đoán"] = runner.write(rows, runner.PREDICTION_COLUMNS, version_id, tag)
-    metric_file_rows = [
-        [prompt.name, args.split, meta["số mẫu"]]
-        + [row[column] for column in METRIC_COLUMNS[3:]]
-        for row in metric_rows
-    ]
-    paths["chỉ số"] = runner.write(metric_file_rows, METRIC_COLUMNS, version_id, tag,
-                                   kind="metrics")
-    summary_path = paths["dự đoán"].parent / "summary__{}.json".format(tag)
-    utils.write_json({
+    out_dir = runner.run_dir(version_id, tag)
+    save = dict(evaluation.get("save") or {})
+
+    shown = {}
+    if save.get("predictions", True):
+        shown[paths.pattern("predictions")] = runner.write(
+            rows, runner.PREDICTION_COLUMNS, out_dir)
+
+    extra = {
+        "dataset": ds["name"],
+        "version_id": version_id,
         "prompt": prompt.name,
         "prompt_sha": prompt.sha,
         "prompt_examples": examples,
-        "dataset": ds["name"],
-        "version_id": version_id,
-        "split": args.split,
-        "tập con": {"limit": args.limit, "seed": args.seed,
-                    "cách chọn": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"},
         "model": model_info,
         "max_length": max_length,
-        "sinh": generation,
-        "đọc kết quả": read,
-        "chỉ số": summary,
-        "chi phí": meta,
-    }, summary_path)
-    paths["tổng hợp"] = summary_path
+        "generation": generation,
+        "subset": {"limit": args.limit, "seed": args.seed,
+                   "how": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"},
+        "read_rate": read,
+        "cost": meta,
+        "scores_order": result["names"],
+    }
+    shown.update(scorers.write(out_dir, samples, names=result["names"],
+                               save_confusion=bool(save.get("confusion", True)),
+                               extra=extra))
 
-    print("Hoàn tất. Đã ghi:")
-    for kind, path in paths.items():
-        print("  - {:<10} {}".format(kind, utils.rel(path)))
-    print("  (hậu tố tên file '{}' ghi rõ cấu hình - số liệu của lần chạy khác không bị "
-          "ghi đè)".format(tag))
+    print("Hoàn tất. Đã ghi vào {}:".format(utils.rel(out_dir)))
+    for name, path in shown.items():
+        print("  - {:<18} {}".format(name, utils.rel(path)))
+    print("  (tên thư mục '{}' ghi rõ cấu hình của lần chạy này)".format(tag))
     return 0
 
 

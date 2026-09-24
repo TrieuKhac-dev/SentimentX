@@ -10,7 +10,7 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-chưa làm
+đang làm - T1, T2, T3 xong.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -21,7 +21,7 @@ chưa làm
 - [x] T2. Chiếu nhãn cho model: `src/labels/allowed_codes()`, `filter_label_map()` (bảng mã nhãn đưa
       cho model), và `preprocessing.loader.project_multi_head()` trả `(nhãn, mask)` - ô neutral bị
       loại thì mask 0 chứ không xoá cả dòng; `dropped_cells()` để ghi vào metrics.json.
-- [ ] T3. `src/evaluation/scorers/`: registry `SCORERS` gồm `accuracy`, `aspect_detection`, `prf`,
+- [x] T3. `src/evaluation/scorers/`: registry `SCORERS` gồm `accuracy`, `aspect_detection`, `prf`,
       `aggregate`, `confusion`; ghi `metrics.json` và `metrics.csv`.
       -> `feat(evaluation): add scorers registry`
 - [ ] T4. `src/runlog.py`: `run.log` luôn có, `errors.json` chỉ khi có lỗi, ghi được khi crash.
@@ -38,6 +38,10 @@ chưa làm
       -> `feat(resume): chunk predictions and resume by sample`
 - [ ] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
       -> `test(evaluation): add metric tests`
+
+Việc sửa theo góp ý khi rà soát (header tài liệu đúng hai dòng, và đổi tên prompt dùng chung
+theo nội dung thay vì theo model) nằm chung một commit `623c053`, vì ba file tài liệu bị cả hai
+việc. Không phải một task của P4, ghi ở đây để tra lại nguồn gốc thay đổi.
 
 ## 4. Điều kiện hoàn thành (DoD)
 

@@ -192,10 +192,10 @@ của BỘ VÍ DỤ, kể cả khi chạy bằng cấu hình dự án: hai bộ 
 ví dụ) là hai thí nghiệm, mà `prompt_sha` của chúng lại giống nhau nên không có mã đó thì
 chúng sẽ ghi đè lên nhau. Xem `python run_token_stats.py --list-prompts` để biết prompt nào
 đang có bao nhiêu ví dụ và đường dẫn file ví dụ.
-Đổi prompt chỉ cần thêm một file `configs/prompts/<tên>.txt`; đổi prompt mà model đang dùng
-thì sửa `configs/models/qwen.yaml`. Ngưỡng cắt thì đổi được ở **cả ba chỗ**, ưu tiên từ trên
-xuống: `--max-length` → `max_length` trong `configs/models/<model>.yaml` → hằng số
-`MAX_LENGTH` trong module model (chi tiết: [docs/04_experiments/02_phase3_input.md §4](docs/04_experiments/02_phase3_input.md)).
+Đổi prompt chỉ cần thêm một file `configs/prompts/<tên>.txt`; prompt mà một thí nghiệm dùng thì
+ghi ở config của chính thí nghiệm đó, không ghi ở `configs/models/`. Ngưỡng cắt thì đổi được ở
+**cả hai chỗ**, ưu tiên từ trên xuống: `--max-length` → `preprocess.max_length` trong
+`configs/models/<model_id>.yaml` (chi tiết: [docs/04_experiments/02_model_input.md](docs/04_experiments/02_model_input.md)).
 
 
 
@@ -207,12 +207,12 @@ Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo phiên b
 
 | Muốn xem gì | Mở file |
 |-------------|---------|
-| Báo cáo EDA | `data/reports/eda/versions/<mã>/report.html` |
-| Báo cáo Pipeline | `data/reports/pipeline/versions/<mã>/report.html` |
-| Dataset đã xử lý | `data/processed/versions/<mã>/processed_train.csv` |
-| Độ dài input thật của từng model | `data/reports/model_input/versions/<mã>/token_stats.csv` |
-| Chạy Qwen3 + điểm số (pha 4) | `data/reports/model_eval/versions/<mã>/predictions__<hậu tố>.csv` (kèm `metrics__*.csv` và `summary__*.json`) |
-| Danh sách phiên bản | `data/processed/manifest.json` (hoặc `python build_report.py --list`) |
+| Báo cáo EDA | `data/processed/<mã>/eda/report.html` (dữ liệu gốc: `data/raw/<tên>/<phiên bản>/eda/`) |
+| Báo cáo Pipeline | `data/processed/<mã>/pipeline/report.html` |
+| Dataset đã xử lý | `data/processed/<mã>/train.csv` (kèm `val.csv`, `test.csv`, `label_map.json`) |
+| Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats.csv` |
+| Chạy Qwen3 + điểm số | `data/reports/model_eval/<mã>/<hậu tố cấu hình>/` (gồm `predictions.csv`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
+| Danh sách phiên bản | `python build_report.py --list` |
 
 Mã phiên bản có dạng `cosmetics-v0.1.0-e6ffefe4`, được tính từ **nội dung
 config + nội dung dữ liệu gốc**. Đổi config hoặc đổi dữ liệu ⇒ mã mới ⇒ **kết quả

@@ -35,6 +35,26 @@ hoặc bỏ qua khía cạnh nhưng đoán đúng các khía cạnh còn lại.
 - Khi ở `label_space: binary`, các ô nhãn `neutral` bị loại theo `neutral_policy`;
   số ô bị loại ghi vào `metrics.json`.
 
+## Bộ chấm điểm là registry
+
+`configs/experiments/evaluation.yaml` khai `scores` là danh sách tên. Mỗi tên là một module trong
+`src/evaluation/scorers/`:
+
+| Tên                | Module                        | Nội dung                                                            |
+| ------------------ | ----------------------------- | ------------------------------------------------------------------- |
+| `accuracy`         | `scorers/accuracy.py`         | độ chính xác theo khía cạnh, và độ chính xác khi đã nhắc tới         |
+| `aspect_detection` | `scorers/aspect_detection.py` | nhị phân "có nhắc tới hay không": accuracy, precision, recall, F1    |
+| `prf`              | `scorers/prf.py`              | precision/recall/F1 cho từng cặp (khía cạnh, sắc thái)               |
+| `aggregate`        | `scorers/aggregate.py`        | trung bình macro/micro và tỉ lệ khớp hoàn toàn                       |
+| `confusion`        | `scorers/confusion.py`        | ma trận nhầm theo khía cạnh (chỉ vào `metrics.json`, không vào CSV)  |
+
+Thêm một cách chấm mới: viết một module theo hợp đồng ở `scorers/base.py` rồi thêm một dòng vào
+`SCORERS`. Tên lạ trong `scores` bị báo lỗi kèm danh sách, không im lặng bỏ qua.
+
+Điểm macro chỉ lấy trung bình trên các đơn vị CÓ dữ liệu để chấm: một khía cạnh không được nhắc
+trong tập con đang chấm không bị tính là 0 - tính là 0 thì điểm tụt mà không có lỗi nào cả. Số ô
+của từng đơn vị vẫn nằm trong `metrics.csv` nên cách tính này không che mất thông tin.
+
 ## File kết quả
 
 | File                 | Nội dung                                                                      |
@@ -43,6 +63,15 @@ hoặc bỏ qua khía cạnh nhưng đoán đúng các khía cạnh còn lại.
 | `metrics.csv`        | bảng dài: `aspect`, `sentiment`, `metric`, `value`, để so giữa các thí nghiệm |
 | `mispredictions.csv` | chỉ các dòng đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán                    |
 | `plots/`             | biểu đồ, gồm ma trận nhầm nếu bật                                             |
+
+`metrics.json` gồm: `label_space`, `neutral_policy`, `not_mentioned`, `dropped_neutral` (và
+`dropped_neutral_by_aspect`), `n_reviews`, `aspects`, `scores` (mỗi bộ chấm một khối), `tables`
+(ma trận nhầm theo khía cạnh), và thông tin của lần chạy (prompt, model, cách sinh, chi phí).
+Khoá `rescored` xuất hiện khi file được chấm lại từ `predictions.csv` thay vì chạy lại model.
+
+Trong `metrics.csv`, giá trị `all` ở cột `aspect` hoặc `sentiment` nghĩa là "gộp mọi giá trị của
+cột đó" - ví dụ dòng `all, all, accuracy_macro` là con số tổng hợp. `plots/` do bước sinh báo cáo
+vẽ từ `metrics.json` và `predictions.csv`, không phải do phần chấm điểm.
 
 ## Bảng tổng hợp
 

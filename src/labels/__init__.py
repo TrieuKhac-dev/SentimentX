@@ -77,6 +77,24 @@ def allowed_codes(name, neutral_policy):
     return codes
 
 
+def task_aspects(task, available):
+    """Khía cạnh đem chấm theo `task.aspects`: `all` hoặc danh sách, giữ thứ tự của dataset.
+
+    Tên khía cạnh không có trong dataset là LỖI chứ không bỏ qua: bỏ qua thì thí nghiệm chạy trên
+    tập khía cạnh khác với khai báo, và người đọc số liệu không có cách nào biết.
+    """
+    wanted = (task or {}).get("aspects") or "all"
+    available = list(available)
+    if wanted == "all":
+        return available
+    unknown = [name for name in wanted if name not in available]
+    if unknown:
+        raise base.LabelError(
+            "task.aspects có khía cạnh không có trong dataset: {}. Dataset đang có: {}.".format(
+                ", ".join(unknown), ", ".join(available)))
+    return [name for name in available if name in wanted]
+
+
 def filter_label_map(label_map, name, neutral_policy):
     """Lọc `label_map.json` của dataset để chỉ còn các nhãn dùng được cho thí nghiệm.
 

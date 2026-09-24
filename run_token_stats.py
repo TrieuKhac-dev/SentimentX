@@ -16,8 +16,8 @@ Phép đo này chỉ làm được bằng chính tokenizer của model, xem chi 
 src/preprocessing/token_stats.py.
 
 Kết quả (trong thư mục theo phiên bản):
-    data/reports/model_input/versions/<mã>/token_stats.csv
-    data/reports/model_input/versions/<mã>/token_stats__prompt-X__seg-Y.csv  (khi đổi
+    data/reports/model_input/<mã>/token_stats.csv
+    data/reports/model_input/<mã>/token_stats__prompt-X__seg-Y.csv  (khi đổi
         prompt/bộ tách từ so với mặc định - KHÔNG ghi đè lên số liệu cũ)
 
 Chỉ cần thư viện `transformers` (không cần torch). Model nào không đo được sẽ được bỏ
