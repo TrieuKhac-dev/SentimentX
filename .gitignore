@@ -2,6 +2,9 @@ __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
 .vscode/
+# Trạng thái của công cụ soạn code (IDE/agent), không phải file của dự án. Có nó trong cây làm việc
+# thì `scripts/pin.py` từ chối chạy vì tưởng cây bẩn.
+.agent_harnesses.json
 
 # Secret: không bao giờ commit
 .env
