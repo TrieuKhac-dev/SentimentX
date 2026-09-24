@@ -33,12 +33,13 @@ n: 200
 
 # Prompt lấy từ THƯ VIỆN DÙNG CHUNG, không phải file riêng của thí nghiệm: đây là prompt CoT của
 # phương pháp `prompt-cot` (chuỗi suy luận + 2 ví dụ few-shot). Đường dẫn tính từ thư mục thí nghiệm
-# trước, rồi tới gốc repo. Prompt khai bằng ĐƯỜNG DẪN thì file ví dụ phải khai TƯỜNG MINH: suy ra
-# theo tên chỉ đúng khi prompt gọi bằng tên trong thư viện.
-prompt: ../../../configs/prompts/absa_cot_v1.txt
-examples: ../../../configs/prompts/examples/absa_cot_v1.txt
+# trước, rồi tới gốc repo: từ đây lên gốc repo là BỐN cấp (`<model>/<method>/<expNNN>` nằm trong
+# `experiments/`). Prompt khai bằng ĐƯỜNG DẪN thì file ví dụ phải khai TƯỜNG MINH: suy ra theo tên
+# chỉ đúng khi prompt gọi bằng tên trong thư viện.
+prompt: ../../../../configs/prompts/absa_cot_v1.txt
+examples: ../../../../configs/prompts/examples/absa_cot_v1.txt
 
 # Chỉ khai khi cần:
-# system_prompt: ../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
+# system_prompt: ../../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
 # requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
 #   - ../../../data/models/Qwen3-0.6B

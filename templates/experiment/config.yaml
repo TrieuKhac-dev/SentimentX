@@ -24,13 +24,14 @@ data:
   # Khai `train` và `val` khi training.enabled: true.
   roles: {eval: test}
 
-# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo:
-#   prompt.txt                         file nằm ngay trong thư mục này
-#   ../../../configs/prompts/absa_cot_v1.txt   file trong thư viện prompt dùng chung
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
 prompt: prompt.txt
 
 # Chỉ khai khi cần:
 # examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
-# system_prompt: ../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
+# system_prompt: ../../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
 # requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
 #   - ../../../data/models/Qwen3-0.6B

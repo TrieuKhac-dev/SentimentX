@@ -352,6 +352,13 @@ def prompt_merged(result):
         if not value:
             continue
         path = resolve_file(result, value)
+        if not path.exists():
+            # Nói RÕ hai chỗ đã thử: đường dẫn trong config tính từ thư mục thí nghiệm trước, nên
+            # thiếu một cấp `../` sẽ trỏ ra ngoài repo và rất khó đoán nếu chỉ in đường dẫn đã tính.
+            raise ExperimentError(
+                "Không thấy {}: config khai {!r}, đã thử {} rồi {}. Đường dẫn tính từ thư mục thí "
+                "nghiệm trước, rồi tới gốc repo.".format(
+                    label, value, Path(result["dir"]) / str(value), paths.root() / str(value)))
         parts.append("# {}\n{}".format(utils.rel(path), _read_prompt_file(path, label)))
     if not parts:
         raise ExperimentError(

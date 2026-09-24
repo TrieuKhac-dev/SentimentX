@@ -239,10 +239,11 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, force_new
 
     # 8. Chạy mới hay chạy tiếp, dùng chung quyết định với lúc chạy thật.
     if version_id:
-        want = resume.fingerprint(
-            experiments.config_sha256(result), version_id, repo.current_sha())
-        state_report(out_dir, want, problems, notes, info, force_new=force_new)
-        info["fingerprint"] = want
+        want = _collect(problems, notes, "dấu vân tay cấu hình (config + prompt + dữ liệu)",
+                        _fingerprint, result, version_id)
+        if want:
+            state_report(out_dir, want, problems, notes, info, force_new=force_new)
+            info["fingerprint"] = want
 
     if log is not None:
         for item in notes:
@@ -253,6 +254,19 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, force_new
 
     return {"problems": problems, "notes": notes, "info": info, "missing": missing,
             "version_id": version_id}
+
+
+def _fingerprint(result, version_id):
+    """Bộ ba quyết định chạy mới hay chạy tiếp, tách ra để `run()` thu LỖI thành VẤN ĐỀ.
+
+    `config_sha256` phải đọc cả văn bản prompt, nên thiếu file prompt là lỗi ngay ở đây. Đó đúng là
+    việc kiểm trước phải kể ra thành danh sách việc-phải-sửa: ném ra giữa chừng thì notebook dừng
+    bằng vết gọi, người đọc không biết phải sửa chỗ nào.
+    """
+    from src import repo
+
+    return resume.fingerprint(experiments.config_sha256(result), version_id,
+                              repo.current_sha())
 
 
 def check(*args, **kwargs):
