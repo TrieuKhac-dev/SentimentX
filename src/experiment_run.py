@@ -331,9 +331,10 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "batch_size": batch_size, "quiet": quiet, "tag": tag, "out_dir": out_dir, "info": info,
         "repo": repo, "config_sha256": config_sha256, "mode": mode, "reason": reason,
         "parts": parts, "skip": skip,
-        "files": input_files(ds, prompt_obj.path, model_id,
-                             prompts.resolve(prompt_obj.examples_value, exp_dir,
-                                             examples=True)[1]),
+        "files": input_files(
+            ds, prompt_obj.path, model_id,
+            prompts.resolve(prompt_obj.examples_value, exp_dir, examples=True)[1]
+            if prompt_obj.examples_value else None),
     }
 
 

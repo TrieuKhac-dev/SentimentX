@@ -140,8 +140,11 @@ def resolve(value, base_dir=None, examples=False):
     """
     text = str(value or "").strip()
     if not text:
-        raise PromptError("Thiếu tên hoặc đường dẫn {}của prompt.".format(
-            "file ví dụ " if examples else ""))
+        raise PromptError(
+            "Thiếu giá trị khai cho {}của prompt: nêu tên trong thư viện dùng chung, hoặc đường "
+            "dẫn tới file. Prompt cần ô nhớ {{examples}} thì phải khai khoá `examples` trong "
+            "config của thí nghiệm (xem docs/05_config/06_experiment.md).".format(
+                "FILE VÍ DỤ few-shot" if examples else "prompt"))
     bare = "/" not in text and "\\" not in text and not text.endswith(".txt")
     if bare:
         return text, (examples_path(text) if examples else prompt_path(text))
@@ -266,7 +269,8 @@ class Prompt:
         # Tên (hoặc đường dẫn) file VÍ DỤ few-shot đi cùng prompt này. Prompt nằm trong thư mục
         # thí nghiệm thì file ví dụ cũng ở đó, nên phải mang theo giá trị đã khai trong config
         # chứ không suy ra từ tên prompt (suy ra là nguồn sự thật thứ hai, lệch lúc nào không biết).
-        self.examples_value = self.name if examples is None else str(examples)
+        # None nghĩa là CHƯA khai: prompt cần {examples} thì lỗi ngay, prompt không cần thì bỏ qua.
+        self.examples_value = str(examples) if examples is not None else None
         self.sha = hashlib.sha1(text.encode("utf-8")).hexdigest()[:8]
         self.where = _display(path)
         self.placeholders = _placeholders(text, self.where)
@@ -355,7 +359,8 @@ class Prompt:
 
     def describe(self):
         """Một dòng mô tả prompt, để in ra console (dùng cho --list-prompts)."""
-        info = examples_info(self.examples_value) if "examples" in self.placeholders else None
+        info = (examples_info(self.examples_value) if self.examples_value
+                and "examples" in self.placeholders else None)
         if info is None:
             shot = "-"
         elif info["missing"]:
@@ -394,8 +399,15 @@ def load(value, base_dir=None, examples=None):
                 name, _display(path), ", ".join(available()) or "(trống)",
                 hint + " " if hint else "", PROMPT_HINT)
         )
-    return Prompt(name, path, _read_text(path),
-                  examples=value if examples is None else examples)
+    # File ví dụ mặc định chỉ suy ra được khi prompt gọi bằng TÊN (cùng tên trong thư viện dùng
+    # chung). Prompt khai bằng ĐƯỜNG DẪN thì KHÔNG suy ra: lấy file prompt làm file ví dụ là lỗi
+    # im lặng đúng loại nguy hiểm nhất - model nhận cả file prompt ở chỗ đáng lẽ là mấy ví dụ mẫu,
+    # và kết quả vẫn ra số bình thường. Không khai `examples` thì báo lỗi rõ ràng lúc nạp.
+    if examples is None:
+        bare = ("/" not in str(value) and "\\" not in str(value)
+                and not str(value).endswith(".txt"))
+        examples = value if bare else None
+    return Prompt(name, path, _read_text(path), examples=examples)
 
 
 def render(name, values):

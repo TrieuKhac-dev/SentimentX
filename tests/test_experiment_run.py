@@ -100,6 +100,29 @@ class ResolveTest(unittest.TestCase):
             prompts.resolve("   ")
 
 
+class ExamplesDefaultTest(unittest.TestCase):
+    """File ví dụ few-shot: suy ra được theo TÊN, KHÔNG suy ra theo đường dẫn."""
+
+    def test_prompt_goi_bang_ten_thi_vi_du_cung_ten(self):
+        self.assertEqual(prompts.load("absa_cot_v1").examples_value, "absa_cot_v1")
+
+    def test_prompt_goi_bang_duong_dan_thi_vi_du_chua_khai(self):
+        source = prompts.prompt_path("absa_cot_v1")
+        if not source.is_file():
+            self.skipTest("chưa có prompt absa_cot_v1 trong thư viện")
+        tmp = Path(tempfile.mkdtemp(prefix="sentimentx-examples-"))
+        try:
+            shutil.copyfile(str(source), str(tmp / "prompt.txt"))
+            prompt = prompts.load("prompt.txt", base_dir=tmp)
+            # None chứ KHÔNG phải đường dẫn tới file prompt: lấy file prompt làm file ví dụ là lỗi
+            # im lặng - model nhận cả file prompt ở chỗ đáng lẽ là vài ví dụ mẫu, số liệu vẫn ra.
+            self.assertIsNone(prompt.examples_value)
+            with self.assertRaises(prompts.PromptError):
+                prompts.examples_info(prompt.examples_value, base_dir=tmp)
+        finally:
+            shutil.rmtree(str(tmp), ignore_errors=True)
+
+
 class PlanTest(unittest.TestCase):
     """Lập kế hoạch cho một lần chạy thật (không cần GPU)."""
 
@@ -147,8 +170,14 @@ class PlanTest(unittest.TestCase):
         tmp = Path(tempfile.mkdtemp(prefix="sentimentx-exp-"))
         try:
             shutil.copyfile(str(source), str(tmp / "prompt.txt"))
+            # File ví dụ phải khai TƯỜNG MINH khi prompt đi bằng đường dẫn (xem ExamplesTest).
+            examples = prompts.examples_path(self.prompt_name)
+            extra = {}
+            if examples.is_file():
+                shutil.copyfile(str(examples), str(tmp / "examples.txt"))
+                extra["examples"] = "examples.txt"
             plan = experiment_run.plan(dict(self.merged, dir=str(tmp)), split="val", limit=2,
-                                       prompt="prompt.txt")
+                                       prompt="prompt.txt", **extra)
             self.assertEqual(plan["prompt"].name, "prompt")
             self.assertEqual(plan["prompt"].path, tmp / "prompt.txt")
             self.assertEqual(len(plan["texts"]), 2)
@@ -157,6 +186,24 @@ class PlanTest(unittest.TestCase):
             self.skipTest("chưa có dữ liệu đã xử lý trên máy này: {}".format(exc))
         finally:
             shutil.rmtree(str(tmp), ignore_errors=True)
+
+    def test_plan_bao_loi_khi_prompt_can_vi_du_ma_chua_khai(self):
+        source = prompts.prompt_path(self.prompt_name)
+        if not source.is_file():
+            self.skipTest("prompt {} không có file".format(self.prompt_name))
+        if "examples" not in prompts.load(self.prompt_name).placeholders:
+            self.skipTest("prompt {} không dùng ô nhớ {{examples}}".format(self.prompt_name))
+        tmp = Path(tempfile.mkdtemp(prefix="sentimentx-exp-"))
+        try:
+            shutil.copyfile(str(source), str(tmp / "prompt.txt"))
+            # Prompt cần ví dụ mà config không khai `examples`: phải lỗi NGAY ở bước lập kế hoạch
+            # (chưa nạp model) - và tuyệt đối không được lấy file prompt làm file ví dụ.
+            with self.assertRaises(prompts.PromptError):
+                experiment_run.plan(dict(self.merged, dir=str(tmp)), split="val", limit=2,
+                                    prompt="prompt.txt")
+        finally:
+            shutil.rmtree(str(tmp), ignore_errors=True)
+
 
 
 if __name__ == "__main__":
