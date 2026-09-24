@@ -1,0 +1,15 @@
+﻿aspect,sentiment,absa_cot_v1 n1 P,absa_cot_v1 n1 R,absa_cot_v1 n1 F1,absa_cot_v1 n4 P,absa_cot_v1 n4 R,absa_cot_v1 n4 F1,COT+0-shot P,COT+0-shot R,COT+0-shot F1
+colour,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.7778,1.0,0.875
+colour,positive,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.971,0.9853
+packing,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.6667,1.0,0.8
+packing,positive,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.9818,0.9908
+price,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+price,positive,0.0,0.0,0.0,1.0,1.0,1.0,1.0,0.9722,0.9859
+shipping,negative,0.0,0.0,0.0,1.0,0.5,0.667,1.0,1.0,1.0
+shipping,positive,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0
+smell,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.6667,0.6667,0.6667
+smell,positive,0.0,0.0,0.0,1.0,0.5,0.667,0.9706,0.9706,0.9706
+stayingpower,negative,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0
+stayingpower,positive,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,1.0
+texture,negative,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.7692,0.8696
+texture,positive,0.0,0.0,0.0,0.0,0.0,0.0,0.9268,1.0,0.962

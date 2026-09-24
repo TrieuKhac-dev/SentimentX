@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>dataset_registry</title>
+<style>
+body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:24px;color:#222}
+table{border-collapse:collapse;margin:0 0 28px;font-size:13px}
+th,td{border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top}
+th{background:#f2f2f2}
+caption{text-align:left;font-weight:600;padding:6px 0}
+.scroll{overflow:auto;max-height:70vh}
+.empty{color:#a00}
+</style>
+</head>
+<body>
+<h1>dataset_registry</h1>
+<p>Sinh tự động bằng <code>python scripts/collect_reports.py</code>. Số liệu đọc lại từ file của từng lượt chạy; sơ đồ quan hệ nằm ở <code>dataset_registry.md</code>.</p>
+<div class="scroll"><table>
+<caption>dataset_registry.csv</caption>
+<tr><th>dataset</th><th>version</th><th>ma</th><th>on_disk</th><th>splits</th><th>rows</th><th>eval_locked</th><th>aspects</th><th>raw_dir</th><th>config</th></tr>
+<tr><td>cosmetics</td><td>v0.1.0</td><td>cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5</td><td>yes</td><td>test=2271, train=18143, val=2229</td><td>22643</td><td>chưa có dữ liệu</td><td>stayingpower, texture, smell, price, colour, shipping, packing</td><td></td><td>configs/datasets/cosmetics/v0.1.0.yaml</td></tr>
+</table></div>
+</body>
+</html>

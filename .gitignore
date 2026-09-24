@@ -42,5 +42,6 @@ experiments/**/results/**/plots/
 experiments/**/results/**/model/
 
 # Mục lục do tracker `local_json` sinh ra: là chỉ mục, không phải bằng chứng. Bằng chứng nằm ở
-# `run_meta.json` và `metrics.json` TRONG thư mục kết quả của từng lần chạy.
-data/reports/experiment_registry/**
+# `run_meta.json` và `metrics.json` TRONG thư mục kết quả của từng lần chạy. Bảng tổng hợp của cả
+# nhóm `experiment_registry` thì VẪN theo dõi - nó là thứ người đọc mở ra xem, không phải chỉ mục.
+data/reports/experiment_registry/runs/**
