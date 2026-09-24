@@ -119,6 +119,9 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P6 T5 | `docs(plan): sync the phase status table` |
 | P6 T5 | `docs(workflow): the notebook does the colab setup itself` |
 | P6 T5 | `docs(readme): bring the front page to the current layout` |
+| P6 T3 | `test(ci): skip dataset tests where there is no data` |
+| P6 T3 | `feat(ci): check documentation links` |
+| P6 T3 | `ci: add github actions workflow for experiment branch` |
 
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 

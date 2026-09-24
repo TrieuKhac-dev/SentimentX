@@ -20,7 +20,7 @@
 | P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | xong       |
 | P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
 | P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | xong T1..T6; DoD "kéo code theo sha trên Colab thật" ĐÃ có bằng chứng (hai lần chạy thật); còn DoD "gốc kết quả trên Drive" |
-| P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | đang làm: xong T1, T2, T4; còn T3; T5–T7 nội dung đã có, đang soát để tick |
+| P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | xong T1..T4 (CI đã có workflow); T5–T7 nội dung đã có, đang soát để tick |
 | P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: xong T1 (dataset dựng lại thành `...-e0ccc484`); còn T2..T5 |
 | -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 

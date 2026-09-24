@@ -10,8 +10,8 @@ và tài liệu đầy đủ cho cả nhóm.
 
 ## 2. Trạng thái
 
-xong T1, T2, T4. Còn T3, T5, T6, T7. (T5 nhận thêm một file ngoài danh sách dự kiến:
-`00_workflow/07_colab.md` - xem T4/T5.)
+xong T1..T4. Còn T5–T7: nội dung đã có trên đĩa, đang soát để tick. (T5 nhận thêm một file ngoài
+danh sách dự kiến: `00_workflow/07_colab.md` - xem T4/T5.)
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -46,8 +46,15 @@ xong T1, T2, T4. Còn T3, T5, T6, T7. (T5 nhận thêm một file ngoài danh s�
       chạy `ci_checks.py` từ thư mục khác là kiểm NHẦM repo mà vẫn báo "sạch". Đã sửa (truyền `root`
       cho `object_exists`/`ref_exists`/`is_ancestor`) kèm test; phần sửa này nằm trong commit
       `fix(evaluation): sampling falls back to the model card, not to 1.0` vì cùng một lần commit.
-- [ ] T3. `.github/workflows/ci.yml` chạy khi push và pull request vào nhánh `experiment`.
+- [x] T3. `.github/workflows/ci.yml` chạy khi push và pull request vào nhánh `experiment`.
       -> `ci: add github actions workflow for experiment branch`
+      Ba việc, ba commit: `test(ci): skip dataset tests where there is no data` (bốn test của preflight
+      cần dataset đã xử lý, mà bản clone sạch không có dữ liệu - nay chúng tự bỏ qua ở CI, vẫn chạy đủ
+      ở máy cá nhân); `feat(ci): check documentation links` (kiểm tra 7: link trong `README.md` và
+      `docs/**/*.md` phải trỏ tới file có thật - chính lỗi vừa gặp ở bước đồng bộ kế hoạch); và commit
+      này (workflow: `fetch-depth: 0`, `requirements-ci.txt`, hai lệnh).
+      Cách biết trước CI có xanh không, không cần chờ GitHub: chạy lại bộ test với hai gốc đường dẫn
+      trỏ vào thư mục rỗng (giả lập máy sạch).
 - [x] T4. `requirements-ci.txt`, `requirements-colab.txt` (không cài lại torch).
       -> `chore(deps): add ci colab and base requirements`
       Danh sách KHÔNG đoán: quét `ast` các import ở CẤP MODULE của `src/` và `tests/` thì chỉ có

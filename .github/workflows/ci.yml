@@ -1,0 +1,36 @@
+# CI cho nhánh `experiment`: kiểm CẤU TRÚC, không chạy model và không đọc dữ liệu
+# (docs/00_workflow/03_ci.md). Vì vậy job này cài rất ít (`requirements-ci.txt`) và không cần GPU.
+name: ci
+
+on:
+  push:
+    branches: [experiment]
+  pull_request:
+    branches: [experiment]
+
+jobs:
+  kiem-tra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # BẮT BUỘC để kiểm tra 6 chạy được: nó hỏi git xem `REPO_SHA` có tồn tại trong repo và có
+          # nằm trên nhánh `experiment` hay không. Với `fetch-depth: 1` (mặc định) các commit cũ
+          # không có mặt, và phép kiểm đó báo sai.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cài thư viện tối thiểu
+        run: pip install -r requirements-ci.txt
+
+      - name: Kiểm tra cấu trúc
+        run: python scripts/ci_checks.py
+
+      - name: Chạy test
+        # Bản clone sạch KHÔNG có dữ liệu (luật 20), nên nhóm test cần dataset đã xử lý tự bỏ qua ở
+        # đây (xem `HAS_DATASET` trong tests/test_preflight.py). Trên máy cá nhân, nơi có dữ liệu,
+        # chúng vẫn chạy đủ.
+        run: python -m unittest discover -s tests
