@@ -67,6 +67,23 @@ class TestEnvironment(unittest.TestCase):
                     os.environ.pop(name, None)
 
 
+    def test_load_env_reads_a_file_with_a_byte_order_mark(self):
+        """Tệp env gửi cho người chạy có BOM (để Windows hiện đúng chữ tiếng Việt).
+
+        `utf-8-sig` bỏ BOM. Không bỏ thì BOM lọt vào TÊN khoá đầu tiên và khoá đó biến mất trong im
+        lặng - token có trong tệp mà chương trình vẫn báo thiếu token.
+        """
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / ".env.colab"
+            path.write_bytes(b"\xef\xbb\xbfDAGSHUB_TOKEN=gia-tri-that\n")
+            os.environ.pop("DAGSHUB_TOKEN", None)
+            try:
+                runtime.load_env(colab_env_file=str(path))
+                self.assertEqual(os.environ.get("DAGSHUB_TOKEN"), "gia-tri-that")
+            finally:
+                os.environ.pop("DAGSHUB_TOKEN", None)
+
+
 class TestDriveDir(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()

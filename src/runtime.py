@@ -163,8 +163,13 @@ def _apply_file(path):
     ghép `os.path.join("", "hub")` thành thư mục `hub` TƯƠNG ĐỐI, và tải model vào ngay trong repo
     (đã gặp thật: 6,3 GB cache nằm trong cây làm việc). Khoá để trống nghĩa là "không đặt", đúng quy
     ước của `src/paths.py` với hai gốc đường dẫn.
+
+    VÌ SAO ĐỌC BẰNG `utf-8-sig`: tệp env gửi cho người chạy được ghi kèm BOM để công cụ Windows
+    (Notepad, trình xem trong WinRAR) hiện đúng chữ tiếng Việt. `utf-8-sig` bỏ BOM nếu có và hành xử
+    y hệt `utf-8` nếu không, nên BOM không thể lọt vào TÊN của khoá đầu tiên - đúng lỗi im lặng cần
+    tránh: token có trong tệp mà chương trình vẫn báo thiếu.
     """
-    with open(path, "r", encoding="utf-8") as handle:
+    with open(path, "r", encoding="utf-8-sig") as handle:
         for line in handle:
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
