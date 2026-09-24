@@ -161,6 +161,12 @@ class TestDeviceAndSegmenter(PreflightCase):
             self.assertTrue(any("GPU" in item for item in problems))
 
     def test_quantization_needs_bitsandbytes_or_says_so(self):
+        """Máy thiếu `torch` vẫn phải được kể là thiếu `bitsandbytes` khi config khai 4-bit.
+
+        Hai việc độc lập: bản đầu của `device_report` thoát sớm khi không nạp được torch, nên trên
+        máy chưa cài torch (CI) vấn đề về bitsandbytes biến mất - người chạy sửa xong torch mới biết
+        còn thiếu thứ nữa.
+        """
         import importlib.util
         problems, notes, info = [], [], {}
         preflight.device_report(TEST_MODEL, problems, notes, info)

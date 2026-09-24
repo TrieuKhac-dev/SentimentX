@@ -186,11 +186,24 @@ def eval_lock_report(ds, version_id, problems, notes, info):
 
 
 def device_report(model_id, problems, notes, info):
-    """Thiết bị và cách nạp model: có GPU không, lượng hoá khai trong config có dùng được không."""
+    """Thiết bị và cách nạp model: có GPU không, lượng hoá khai trong config có dùng được không.
+
+    Hai việc này ĐỘC LẬP với nhau, nên kiểm riêng rồi kể chung: máy thiếu `torch` là một vấn đề,
+    thiếu `bitsandbytes` (khi config khai 4-bit) là vấn đề thứ hai - người sửa cần thấy cả hai
+    trong cùng một lần chạy preflight, không phải sửa xong cái thứ nhất mới biết có cái thứ hai.
+    """
     inference = model_config.inference(model_id) if model_id else {}
     quantization = str(inference.get("quantization") or "").strip().lower() or None
     info["inference"] = dict(inference)
     info["quantization"] = quantization
+
+    # Kiểm lượng hoá TRƯỚC, rồi mới tới torch: nó không phụ thuộc torch, và như vậy một máy thiếu
+    # cả hai vẫn được kể đủ hai việc.
+    quantization_problem = None
+    if quantization == "4bit" and importlib.util.find_spec("bitsandbytes") is None:
+        quantization_problem = (
+            "Model config khai `inference.quantization: 4bit` nhưng máy chưa có "
+            "`bitsandbytes`: pip install bitsandbytes")
 
     try:
         import torch
@@ -200,6 +213,8 @@ def device_report(model_id, problems, notes, info):
         problems.append("Không nạp được `torch`: {}: {}. Cài lại bằng:\n"
                         "      pip install torch --index-url "
                         "https://download.pytorch.org/whl/cu126".format(type(exc).__name__, exc))
+        if quantization_problem:
+            problems.append(quantization_problem)
         info["torch"] = ""
         return info
     info["torch"] = getattr(torch, "__version__", "")
@@ -216,10 +231,8 @@ def device_report(model_id, problems, notes, info):
             "bằng ngày; kiểm lại driver CUDA và bản torch có CUDA.")
 
     if quantization == "4bit":
-        if importlib.util.find_spec("bitsandbytes") is None:
-            problems.append(
-                "Model config khai `inference.quantization: 4bit` nhưng máy chưa có "
-                "`bitsandbytes`: pip install bitsandbytes")
+        if quantization_problem:
+            problems.append(quantization_problem)
         else:
             notes.append("lượng hoá: 4-bit (đã có bitsandbytes)")
     elif quantization and info.get("vram_gb") and info["vram_gb"] < 8:
