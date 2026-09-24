@@ -42,7 +42,7 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, experiments, labels, paths, prompts, utils, versioning
+from src import config, dataset, experiments, labels, paths, prompts, runlog, utils, versioning
 from src.evaluation import metrics, runner, scorers
 from src.preprocessing import loader, qwen
 
@@ -266,82 +266,105 @@ def main(argv=None):
         print("LƯU Ý: đang chạy trên TEST. Tập này chỉ dùng cho con số CUỐI CÙNG, sau khi đã")
         print("       chốt prompt và ngưỡng trên val - chọn theo test là tự lừa mình.\n")
 
-    try:
-        model, tokenizer, model_info = runner.load(args.quant, model_name=args.model)
-    except (ImportError, RuntimeError, OSError) as exc:
-        print("LỖI: {}".format(exc))
-        return 2
+    # Một thư mục kết quả cho MỘT cấu hình chạy: log, chỉ số và bản ghi lần chạy nằm cạnh nhau.
+    # Dựng thư mục và mở log TRƯỚC khi nạp model - nạp model hỏng là trường hợp hay gặp nhất
+    # (thiếu bitsandbytes, hết VRAM), nên phải có chỗ ghi lại ngay.
+    tag = build_tag(prompt, args.split, args.limit, generation, args.quant)
+    out_dir = runner.run_dir(version_id, tag)
+    info = {
+        "dataset": ds["name"], "version_id": version_id, "split": args.split,
+        "prompt": prompt.name, "prompt_sha": prompt.sha,
+        "model": args.model or qwen.MODEL_NAME, "quant": args.quant,
+        "max_length": max_length, "generation": generation,
+        "subset": {"limit": args.limit, "seed": args.seed}, "n_samples": len(texts),
+    }
 
-    examples = prompts.examples_info(prompt.name)
-    print_config(prompt, examples, args.split, args.limit, len(texts), max_length,
-                 generation, model_info)
-    print("Đang sinh...")
+    with runlog.start(out_dir, mode="NEW", info=info) as log:
+        log.step("nạp model: {} (quant={})".format(info["model"], args.quant))
+        try:
+            model, tokenizer, model_info = runner.load(args.quant, model_name=args.model)
+        except (ImportError, RuntimeError, OSError) as exc:
+            # `requires` là thứ còn thiếu để chạy được, để lần sau không phải đoán.
+            log.error("Không nạp được model: {}".format(exc), exc=exc,
+                      context={"model": info["model"], "quant": args.quant},
+                      requires=["bitsandbytes + accelerate (lượng hóa 4-bit)",
+                                "VRAM trống đủ cho model 4B"])
+            print("LỖI: {}".format(exc))
+            return 2
+        log.step("đã nạp model: {}, {}".format(
+            model_info.get("quant"), model_info.get("cách nạp")), seconds=log.elapsed())
 
-    rows, infos, preds, meta = runner.run(
-        args.split, texts, golds, aspects, label_map, prompt.name, model, tokenizer,
-        batch_size=args.batch_size, max_length=max_length, generation=generation,
-        row_index=row_index, quiet=args.quiet)
+        examples = prompts.examples_info(prompt.name)
+        print_config(prompt, examples, args.split, args.limit, len(texts), max_length,
+                     generation, model_info)
+        print("Đang sinh...")
+        log.step("bắt đầu sinh {} mẫu của split {} (batch {})".format(
+            len(texts), args.split, args.batch_size))
 
-    read = metrics.read_rate(infos)
-    samples = scorers.Samples.build(
-        aspects, golds, preds, task=task, labels=label_names(label_map),
-        sample_ids=[str(index) for index in row_index],
-        meta={"split": args.split, "dataset": ds["name"], "version_id": version_id})
-    result = scorers.run_all(samples, names=names)
+        rows, infos, preds, meta = runner.run(
+            args.split, texts, golds, aspects, label_map, prompt.name, model, tokenizer,
+            batch_size=args.batch_size, max_length=max_length, generation=generation,
+            row_index=row_index, quiet=args.quiet)
+        log.step("sinh xong {} mẫu".format(len(rows)), seconds=meta["giây"])
 
-    print("\nĐọc kết quả:")
-    for key, value in read.items():
-        if key != "lí do lỗi":
-            print("  {:<18}: {}".format(key, value))
-    for reason, count in read["lí do lỗi"].items():
-        print("      lỗi: {:<44} {}".format(reason, count))
+        read = metrics.read_rate(infos)
+        log.step("đọc được {}% kết quả ({} mẫu không đọc được)".format(
+            read["% đọc được"], read["tổng"] - read["đọc được"]))
+        samples = scorers.Samples.build(
+            aspects, golds, preds, task=task, labels=label_names(label_map),
+            sample_ids=[str(index) for index in row_index],
+            meta={"split": args.split, "dataset": ds["name"], "version_id": version_id})
+        result = scorers.run_all(samples, names=names)
+        log.step("chấm xong {} chỉ số: {}".format(len(names), ", ".join(names)))
+        if samples.meta["dropped_neutral"]:
+            log.step("loại {} ô neutral theo neutral_policy={}".format(
+                samples.meta["dropped_neutral"], task["neutral_policy"]))
 
-    print("\nSố theo khía cạnh và sắc thái:")
-    table_rows, table_columns = scorers.table(result["rows"])
-    print_table(table_rows, table_columns)
-    print("\nTổng hợp:")
-    print_scores(result["scores"])
-    print("\nChi phí: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
-        meta["token sinh TB"], meta["giây"], meta["token sinh/giây"]))
-    return _write_all(args, ds, version_id, prompt, examples, generation, max_length,
-                      model_info, rows, samples, result, evaluation, read, meta)
+        print("\nĐọc kết quả:")
+        for key, value in read.items():
+            if key != "lí do lỗi":
+                print("  {:<18}: {}".format(key, value))
+        for reason, count in read["lí do lỗi"].items():
+            print("      lỗi: {:<44} {}".format(reason, count))
+
+        print("\nSố theo khía cạnh và sắc thái:")
+        table_rows, table_columns = scorers.table(result["rows"])
+        print_table(table_rows, table_columns)
+        print("\nTổng hợp:")
+        print_scores(result["scores"])
+        print("\nChi phí: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
+            meta["token sinh TB"], meta["giây"], meta["token sinh/giây"]))
+
+        extra = dict(info)
+        extra.update({
+            "prompt_examples": examples,
+            "model_info": model_info,
+            "subset": {"limit": args.limit, "seed": args.seed,
+                       "how": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"},
+            "read_rate": read,
+            "cost": meta,
+            "scores_order": result["names"],
+        })
+        return _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log)
 
 
-def _write_all(args, ds, version_id, prompt, examples, generation, max_length,
-               model_info, rows, samples, result, evaluation, read, meta):
+def _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log):
     """Ghi kết quả của lần chạy vào thư mục riêng của nó. Trả về mã thoát.
 
     Thư mục riêng cho mỗi cấu hình nên tên file TRONG đó là tên cố định; cấu hình nằm ở tên thư
     mục. Nhờ vậy không bao giờ ghi đè số liệu của lần chạy khác, và cũng không phải ghép tên file
     từ cấu hình (ghép chuỗi là nguồn sự thật thứ hai, lệch lúc nào không biết).
     """
-    tag = build_tag(prompt, args.split, args.limit, generation, args.quant)
-    out_dir = runner.run_dir(version_id, tag)
     save = dict(evaluation.get("save") or {})
-
     shown = {}
     if save.get("predictions", True):
         shown[paths.pattern("predictions")] = runner.write(
             rows, runner.PREDICTION_COLUMNS, out_dir)
-
-    extra = {
-        "dataset": ds["name"],
-        "version_id": version_id,
-        "prompt": prompt.name,
-        "prompt_sha": prompt.sha,
-        "prompt_examples": examples,
-        "model": model_info,
-        "max_length": max_length,
-        "generation": generation,
-        "subset": {"limit": args.limit, "seed": args.seed,
-                   "how": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"},
-        "read_rate": read,
-        "cost": meta,
-        "scores_order": result["names"],
-    }
+        log.step("ghi {} dòng dự đoán".format(len(rows)))
     shown.update(scorers.write(out_dir, samples, names=result["names"],
                                save_confusion=bool(save.get("confusion", True)),
                                extra=extra))
+    log.step("đã ghi: {}".format(", ".join(sorted(shown))))
 
     print("Hoàn tất. Đã ghi vào {}:".format(utils.rel(out_dir)))
     for name, path in shown.items():

@@ -60,6 +60,36 @@ Nếu không muốn dùng lệnh: vẫn có thể copy tay `templates/experiment
 - Kết quả chỉ được dùng khi commit đã ghim nằm trên nhánh `experiment`,
   và khi merge vào nhánh `experiment` không phải sửa bất kỳ file nào.
 
+## Nhật ký một lần chạy
+
+Mỗi lần chạy có một thư mục kết quả riêng. Trong đó:
+
+| File            | Khi nào có     | Nội dung                                                                 |
+| --------------- | -------------- | ------------------------------------------------------------------------ |
+| `run.log`       | luôn có        | từng bước đã chạy, kèm số giây của bước tốn thời gian                     |
+| `errors.json`   | chỉ khi có lỗi | kiểu lỗi, vết gọi, thứ còn thiếu (`requires`), máy đã chạy               |
+| `metrics.json`  | khi chấm xong  | chỉ số, kèm `label_space`, `neutral_policy`, số ô neutral bị loại         |
+| `run_meta.json` | khi chấm xong  | bản ghi lần chạy để tra cứu, và để MLflow gắn nhãn cho run               |
+
+Trong `run.log`, mỗi dòng bắt đầu bằng một mục, nên tìm bằng `grep`:
+
+| Mục       | Nội dung                                                           |
+| --------- | ------------------------------------------------------------------ |
+| `[RUN]`   | bắt đầu/kết thúc lần chạy, `mode=NEW` hay `mode=RESUME`, cấu hình   |
+| `[STEP]`  | bước đang chạy                                                     |
+| `[WARN]`  | việc không làm chết run nhưng người đọc phải biết                   |
+| `[ERROR]` | lỗi - đồng thời được ghi vào `errors.json`                          |
+| `[TRACK]` | ghi kết quả lên MLflow: thành công hay thất bại                     |
+
+Hai quy tắc không được vi phạm:
+
+- Mỗi dòng log được ghi xuống đĩa NGAY, không đệm. Tiến trình bị dừng đột ngột vẫn còn log tới
+  dòng cuối cùng đã chạy, nên biết được đã đi tới đâu.
+- `errors.json` KHÔNG được tạo khi không có lỗi. File rỗng làm người đọc tưởng đã từng có lỗi,
+  còn thiếu file thì rõ ràng là không lỗi.
+
+Xem `src/runlog.py` để biết cách gọi, và `docs/04_experiments/metrics.md` cho phần chỉ số.
+
 ## Khi có lỗi
 
 | Hiện tượng                      | Xem ở đâu                               |

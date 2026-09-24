@@ -10,7 +10,7 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-đang làm - T1, T2, T3 xong.
+đang làm - T1, T2, T3, T4 xong.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -24,7 +24,7 @@ và resume được khi bị ngắt giữa chừng.
 - [x] T3. `src/evaluation/scorers/`: registry `SCORERS` gồm `accuracy`, `aspect_detection`, `prf`,
       `aggregate`, `confusion`; ghi `metrics.json` và `metrics.csv`.
       -> `feat(evaluation): add scorers registry`
-- [ ] T4. `src/runlog.py`: `run.log` luôn có, `errors.json` chỉ khi có lỗi, ghi được khi crash.
+- [x] T4. `src/runlog.py`: `run.log` luôn có, `errors.json` chỉ khi có lỗi, ghi được khi crash.
       -> `feat(runlog): write run log and error file only on failure`
 - [ ] T5. `src/tracking/`: registry `TRACKERS` gồm `mlflow`, `local_json`, `none`.
       -> `feat(tracking): add trackers registry`
