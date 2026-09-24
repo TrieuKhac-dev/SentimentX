@@ -153,7 +153,14 @@ def gitignore_rules(root):
         if any(rule.rstrip("/") == pattern for rule in rules):
             found.append("đang bỏ qua cả {!r} - metadata và report PHẢI được theo dõi.".format(
                 pattern))
-    for item in _scratch_files(tracked_files(root)):
+    try:
+        tracked = tracked_files(root)
+    except CheckError:
+        # Không đọc được danh sách file của git (chưa cài git, hoặc gốc không phải repo). Việc đó đã
+        # là một vấn đề ở kiểm tra 1; kể lại ở đây chỉ làm rối báo cáo - mà các quy tắc trong
+        # `.gitignore` thì vẫn kiểm được bình thường.
+        tracked = []
+    for item in _scratch_files(tracked):
         found.append("{} (file tạm bị git theo dõi; bỏ bằng `git rm --cached {}`)".format(
             item, item))
     return found
