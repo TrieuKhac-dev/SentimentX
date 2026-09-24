@@ -15,9 +15,9 @@
 | Giai đoạn | Nội dung                                 | File                   | Trạng thái |
 | ----- | ---------------------------------------- | ---------------------- | ---------- |
 | P0    | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md`     | xong       |
-| P1    | Đường dẫn tập trung                      | `P1_paths.md`          | chưa làm   |
-| P2    | Versioning dữ liệu và guard              | `P2_versioning.md`     | chưa làm   |
-| P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | chưa làm   |
+| P1    | Đường dẫn tập trung                      | `P1_paths.md`          | xong       |
+| P2    | Versioning dữ liệu và guard              | `P2_versioning.md`     | xong       |
+| P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | xong       |
 | P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | chưa làm   |
 | P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | chưa làm   |
 | P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | chưa làm   |

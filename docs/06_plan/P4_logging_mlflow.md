@@ -14,12 +14,12 @@ chưa làm
 
 ## 3. Task nhỏ (mỗi task một commit)
 
-- [ ] T1. `src/labels/`: registry `LABEL_SPACES` với `binary` và `full`; `neutral_policy`,
-      `not_mentioned`; hợp đồng `check()`.
-      -> `feat(labels): add label space registry`
-- [ ] T2. Model preprocessing: chiếu nhãn theo `task.yaml` (lược neutral), tái sử dụng được,
-      notebook gọi tới.
-      -> `feat(preprocessing): project labels from task config`
+- [x] T1. `src/labels/`: registry `LABEL_SPACES` với `binary` và `full`; `neutral_policy`
+      (`drop`/`as_negative`/`as_positive`/`keep`), `not_mentioned` (`separate`/`as_class`);
+      hợp đồng ở `src/labels/base.py` gồm `check()` và `project()`.
+- [x] T2. Chiếu nhãn cho model: `src/labels/allowed_codes()`, `filter_label_map()` (bảng mã nhãn đưa
+      cho model), và `preprocessing.loader.project_multi_head()` trả `(nhãn, mask)` - ô neutral bị
+      loại thì mask 0 chứ không xoá cả dòng; `dropped_cells()` để ghi vào metrics.json.
 - [ ] T3. `src/evaluation/scorers/`: registry `SCORERS` gồm `accuracy`, `aspect_detection`, `prf`,
       `aggregate`, `confusion`; ghi `metrics.json` và `metrics.csv`.
       -> `feat(evaluation): add scorers registry`

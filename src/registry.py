@@ -44,6 +44,12 @@ CÁCH MỞ RỘNG
      `src/preprocessing/segmenters/base.py` (thêm file rồi đăng ký trong `SEGMENTERS`).
      Tuyệt đối KHÔNG nhét bước tách từ vào pipeline chung.
 
+6) Thêm một KHÔNG GIAN NHÃN mới (cách nhìn bài toán: chỉ hai nhãn, hay giữ đủ bốn trạng thái):
+   - Viết file trong `src/labels/`, ví dụ `three_way.py`, theo hợp đồng ở `src/labels/base.py`
+     (`NAME`, `DESCRIPTION`, `CODES`, `SEPARATE_NOT_MENTIONED`, `check()`, `project()`).
+   - Thêm một dòng vào `LABEL_SPACES` trong `src/labels/__init__.py`.
+   - Không sửa metric: metric đọc nhãn ĐÃ CHIẾU và `dropped_neutral` từ kết quả chiếu.
+
 Định dạng file kết quả do run_eda.py / run_pipeline.py ghi ra được mô tả ở
 `src/reporting/result.py`. build_report.py đọc lại file đó để vẽ báo cáo.
 """

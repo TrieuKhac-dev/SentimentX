@@ -10,7 +10,7 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
 
 ## 2. Trạng thái
 
-đang làm, xong T1
+xong
 
 ## 3. Task nhỏ (mỗi task một commit)
 

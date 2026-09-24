@@ -20,7 +20,7 @@ khía cạnh - dùng nhầm phiên bản là prompt mô tả sai bài toán mà 
 
 import json
 
-from src import config, utils, versioning
+from src import config, labels, utils, versioning
 
 
 def _require(path):
@@ -76,6 +76,45 @@ def to_multi_head_arrays(df, aspects=None):
     texts = df[config.TEXT_COLUMN].astype(str).tolist()
     labels = df[aspects].astype(int).to_numpy().tolist()
     return texts, labels
+
+
+def project_multi_head(matrix, projection):
+    """Chiếu ma trận nhãn (N×A) sang không gian nhãn của thí nghiệm. Trả về (labels, mask).
+
+    Vì sao trả về MASK chứ không xoá ô: với model mã hoá, mỗi ô là một bài toán con của cùng một
+    review. "Loại một ô" nghĩa là ô đó không được tính vào loss và không được chấm, chứ không phải
+    bỏ cả dòng - bỏ dòng thì mất luôn các khía cạnh khác của cùng review đó.
+
+    `projection` là kết quả của `src.labels.project` (hoặc dict có `neutral_policy` và `codes`):
+        neutral_policy drop          -> ô neutral: mask 0
+        neutral_policy as_*          -> ô neutral: đổi sang cực đã chọn, mask 1
+        neutral_policy keep          -> giữ nguyên, mask 1
+        mã không có trong `codes`    -> mask 0 (giữ mã để tra lại, nhưng không tính)
+
+    Tham số đặt tên `matrix` chứ không phải `labels`: `labels` là tên module của registry không
+    gian nhãn ở đầu file, đặt trùng tên thì hàm sẽ không gọi được module đó.
+    """
+    policy = projection["neutral_policy"]
+    codes = {int(code) for code in projection["codes"]}
+    out, mask = [], []
+    for row in matrix:
+        out_row, mask_row = [], []
+        for value in row:
+            code = int(value)
+            if code == labels.NEUTRAL and policy in ("as_negative", "as_positive"):
+                out_row.append(labels.NEGATIVE if policy == "as_negative" else labels.POSITIVE)
+                mask_row.append(1)
+            else:
+                out_row.append(code)
+                mask_row.append(1 if code in codes else 0)
+        out.append(out_row)
+        mask.append(mask_row)
+    return out, mask
+
+
+def dropped_cells(mask):
+    """Số ô bị loại khỏi tính toán, để ghi vào `metrics.json` cùng `dropped_neutral`."""
+    return sum(1 for row in mask for value in row if not value)
 
 
 def to_absa_records(split="train", aspects=None, version_id=None, dataset=None):
