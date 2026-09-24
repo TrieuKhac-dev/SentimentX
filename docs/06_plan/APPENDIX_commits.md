@@ -138,3 +138,18 @@ Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì c�
   câu trả lời "thư mục này không có gói `src`" đã bị nhớ từ lúc máy còn trống.
 - Mọi phép băm nội dung file phải chuẩn hoá kiểu xuống dòng. Windows ghi CRLF, Colab ghi LF, và mã
   phiên bản dữ liệu hai máy đã lệch nhau vì đúng chuyện đó.
+
+## Đợt sửa sau khi rà soát kế hoạch (25/09/2026)
+
+Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commit thực tế của đợt này:
+
+| Việc | Commit |
+| --- | --- |
+| Bỏ file `mlflow.db` (kho dữ liệu của máy chủ MLflow chạy tại chỗ) khỏi git, thêm quy tắc bỏ qua | `chore(git): stop tracking the local mlflow store` |
+| Test đường dẫn không còn phụ thuộc biến môi trường của máy đang chạy | `test(paths): keep the path tests independent of the shell overrides` |
+| Giải đường dẫn prompt/ví dụ MỘT LẦN lúc nạp, và hỗ trợ ô nhớ `{system_prompt}` | `fix(prompts): read the prompt side files once, and support the system block` |
+| Bảng tổng hợp `model_input` đọc đúng file số đo do `run_token_stats.py` ghi; tên file lấy từ `configs/paths.yaml` | `fix(reports): collect the token stats files into the model input table` |
+| `run.log` có nhãn `[CONFIG]`; `run_meta.json` có `task`, `overrides`, `data.roles/rows/eval_lock`, `env.device`; mã run MLflow ở dòng `[TRACK]` | `feat(tracking): put the config in use and the device into the run record` |
+| Sửa mâu thuẫn trong P4, task lặp trong P5, bảng scope; ghi việc chưa làm vào backlog | `docs(plan): fix the contradictions and record what was left undone` |
+| Bỏ dải `print("=" * 70)` ở 7 cửa vào dòng lệnh | `style(cli): drop the printed banner dividers` |
+| Ghim lại `exp001` vào bản code đã sửa (pin cũ không chạy được thí nghiệm này) | `chore(experiments): pin 5c99f38 so exp001 reads its prompt files` |
