@@ -116,6 +116,9 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P6 T4 | `feat(runtime): find the group's Drive folder by its marker, not its name` |
 | P5 | `feat(notebook): do the whole Colab setup in the bootstrap cell` |
 | P6 T5 | `docs(workflow): the colab runbook is now three steps` |
+| P6 T5 | `docs(plan): sync the phase status table` |
+| P6 T5 | `docs(workflow): the notebook does the colab setup itself` |
+| P6 T5 | `docs(readme): bring the front page to the current layout` |
 
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 
