@@ -559,6 +559,49 @@ def check_requires(result, version_id):
 # ---
 
 
+def list_experiments(model_id=None, method=None):
+    """Các thí nghiệm đang có, sắp theo (model, method, exp_id).
+
+    Một thư mục là một thí nghiệm khi có file `config.yaml`; thư mục rỗng hoặc mới tạo một nửa thì
+    không tính. Hàm này chỉ ĐỌC TÊN thư mục (không nạp config của từng thí nghiệm), vì việc dùng
+    của nó là chọn số `expNNN` kế tiếp và in danh sách cho người dùng xem.
+    """
+    found = []
+    root = paths.experiments_dir()
+    if not root.is_dir():
+        return found
+    for path in sorted(root.glob("*/*/*")):
+        if not path.is_dir():
+            continue
+        parts = (path.parent.parent.name, path.parent.name, path.name)
+        try:
+            has_config = config_path(*parts).is_file()
+        except ExperimentError:
+            has_config = False
+        if not has_config:
+            continue
+        if model_id and parts[0] != model_id:
+            continue
+        if method and parts[1] != method:
+            continue
+        found.append(parts)
+    return found
+
+
+def next_exp_id(model_id, method):
+    """Số `expNNN` kế tiếp của một (model, method): tiếp nối số LỚN NHẤT đã có.
+
+    Đọc số lớn nhất chứ không đếm số lượng: xoá một thí nghiệm ở giữa rồi tạo mới sẽ không đụng
+    vào số của thí nghiệm khác. Tên không theo dạng `expNNN` bị bỏ qua - không đoán số từ tên lạ.
+    """
+    highest = 0
+    for _model, _method, exp_id in list_experiments(model_id, method):
+        text = str(exp_id)
+        if text.startswith("exp") and text[3:].isdigit():
+            highest = max(highest, int(text[3:]))
+    return "exp{:03d}".format(highest + 1)
+
+
 def fingerprint(result, version_id):
     """Bộ ba quyết định một lần chạy có TRÙNG với lần đã chạy hay không.
 

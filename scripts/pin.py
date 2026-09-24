@@ -39,10 +39,11 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import experiments, paths, repo, utils
+from src import experiments, notebooks, paths, repo, utils
 
 NOTEBOOK = "notebook.ipynb"
-MARKER = "# --- BẢN CODE ĐÃ GHIM (do scripts/pin.py ghi; sửa tay sẽ bị ghi đè) ---"
+# Ô GHIM: định nghĩa nằm ở `src/notebooks.py`, để `scripts/new_experiment.py` dùng ĐÚNG cùng một ô.
+MARKER = notebooks.MARKER
 
 
 class PinError(Exception):
