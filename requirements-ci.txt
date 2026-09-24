@@ -1,0 +1,16 @@
+# Thư viện tối thiểu để CI (GitHub Actions) chạy được `scripts/ci_checks.py` và bộ test.
+#
+# Cài đặt: pip install -r requirements-ci.txt
+#
+# VÌ SAO NGẮN NHƯ VẬY
+# `src/` chỉ import 5 thư viện ngoài ở CẤP MODULE: pandas, numpy, PyYAML (và jinja2, plotly chỉ
+# trong `src/reporting/` để vẽ HTML). Mọi thứ nặng - torch, transformers, bitsandbytes, mlflow,
+# pyvi, vncorenlp - đều được import BÊN TRONG hàm, nên CI không cần cài và không được cài:
+# CI chỉ kiểm cấu trúc, không chạy model và không đọc dữ liệu (docs/00_workflow/03_ci.md).
+#
+# Muốn đổi danh sách này thì phải kiểm lại: thêm một import cấp module vào `src/` là CI đỏ ngay
+# ở bước cài đặt, và thông báo sẽ chỉ tên thư viện còn thiếu.
+
+pandas
+numpy
+PyYAML

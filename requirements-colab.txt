@@ -1,0 +1,30 @@
+# Thư viện cần THÊM trên Colab để chạy một thí nghiệm đã ghim.
+#
+# Cài đặt: pip install -r requirements-colab.txt
+#
+# KHÔNG GHI `torch` VÀO ĐÂY. Colab đã cài sẵn bản torch khớp CUDA của máy ảo; cài lại theo
+# `requirements.txt` (bản dành cho máy cá nhân Windows) có thể thay mất bản đó. Dấu hiệu đã cài đè:
+# `import torch; torch.cuda.is_available()` trả về False, hoặc preflight báo không thấy GPU.
+#
+# `py-vncorenlp`/`pyvi` cũng KHÔNG có ở đây: chúng chỉ dùng cho hướng encoder (PhoBERT/ViSoBERT).
+# Hướng Qwen3 (prompt / CoT) không tách từ, nên không cần Java.
+
+# --- Chạy Qwen3 bằng CHỈ DẪN (prompt / CoT) rồi chấm điểm ---
+transformers
+accelerate                # cho device_map="auto" khi VRAM thiếu
+bitsandbytes              # LƯỢNG HÓA 4-BIT lúc chạy - bắt buộc, model config khai quantization: 4bit
+
+# --- Ghi nhận lên DagsHub qua MLflow ---
+# Thiếu thư viện này lần chạy VẪN xong: `src/tracking/` coi ghi nhận là việc phụ và ghi lại lí do
+# vào `run.log` (xem docs/04_experiments/03_training_eval.md).
+mlflow
+
+# --- Colab đã có sẵn ba thư viện này; ghi ra để chạy ở môi trường khác cũng đúng ---
+pandas
+numpy
+PyYAML
+
+# --- Chỉ cần khi muốn sinh HTML báo cáo NGAY TRÊN Colab ---
+# Bình thường báo cáo sinh ở máy cá nhân, nơi đã copy kết quả nhẹ về.
+# plotly
+# jinja2

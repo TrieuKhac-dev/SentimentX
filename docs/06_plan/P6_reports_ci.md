@@ -10,7 +10,8 @@ và tài liệu đầy đủ cho cả nhóm.
 
 ## 2. Trạng thái
 
-xong T1, T2. Còn T3..T7.
+xong T1, T2, T4. Còn T3, T5, T6, T7. (T5 nhận thêm một file ngoài danh sách dự kiến:
+`00_workflow/07_colab.md` - xem T4/T5.)
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -47,8 +48,17 @@ xong T1, T2. Còn T3..T7.
       `fix(evaluation): sampling falls back to the model card, not to 1.0` vì cùng một lần commit.
 - [ ] T3. `.github/workflows/ci.yml` chạy khi push và pull request vào nhánh `experiment`.
       -> `ci: add github actions workflow for experiment branch`
-- [ ] T4. `requirements-ci.txt`, `requirements-colab.txt` (không cài lại torch).
+- [x] T4. `requirements-ci.txt`, `requirements-colab.txt` (không cài lại torch).
       -> `chore(deps): add ci colab and base requirements`
+      Danh sách KHÔNG đoán: quét `ast` các import ở CẤP MODULE của `src/` và `tests/` thì chỉ có
+      `pandas`, `numpy`, `PyYAML` (thêm `jinja2`, `plotly` riêng cho `src/reporting/`), còn `torch`,
+      `transformers`, `bitsandbytes`, `mlflow`, `pyvi`, `vncorenlp` đều được import BÊN TRONG hàm -
+      nên CI cài một file rất ngắn, và cũng không được cài nặng hơn thế. File Colab KHÔNG ghim
+      `torch` vì Colab đã có bản khớp CUDA.
+      Kèm theo: `docs/00_workflow/07_colab.md` - runbook chạy trên Colab, viết ra từ hai lần chạy
+      thật (mục 2 Drive cần gì, mục 4 thứ tự bắt buộc, mục 7 bảng tra lỗi). Người nhận notebook
+      không phải hỏi lại, và tài liệu ghi rõ VÌ SAO thứ tự đó chịu lực (mục 8) để lần sau không ai
+      "dọn dẹp cho gọn" rồi làm hỏng.
 - [ ] T5. Docs nhóm quy trình: `01_flow`, `02_rules`, `03_ci`, `04_terms`, `05_git_commits`, `06_conventions`.
       -> `docs(workflow): add workflow rules ci terms commits and conventions`
 - [ ] T6. Docs tham chiếu cấu hình: `05_config/01..07`.
