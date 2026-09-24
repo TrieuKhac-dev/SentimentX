@@ -10,12 +10,12 @@ mỗi ô là mã nhãn 0/1/2/3).
 Mọi dạng khác mà model cần đều được SINH TỪ bảng đó ngay tại đây:
     - to_multi_head_arrays() : (văn bản, ma trận nhãn) cho PhoBERT / ViSoBERT
     - to_absa_records()      : mẫu {"text", "labels"} cho Qwen3 (và ViTASA, khi có
-                               checkpoint — hiện đang gác, xem docs/04_experiments/
+                               checkpoint - hiện đang gác, xem docs/04_experiments/
                                04_backlog.md)
 
 `known_aspects()` và `load_label_map()` nhận `version_id`: nơi gọi PHẢI truyền đúng
 phiên bản đang xử lý (không để mặc định "bản mới nhất"), vì prompt của Qwen mô tả bộ
-khía cạnh — dùng nhầm phiên bản là prompt mô tả sai bài toán mà nhìn vào vẫn thấy hợp lí.
+khía cạnh - dùng nhầm phiên bản là prompt mô tả sai bài toán mà nhìn vào vẫn thấy hợp lí.
 """
 
 import json
@@ -64,8 +64,8 @@ def to_multi_head_arrays(df, aspects=None):
     """Tách DataFrame đã xử lý thành (danh sách văn bản, ma trận nhãn).
 
     Trả về:
-        texts  : list[str]         — độ dài N
-        labels : list[list[int]]   — N x số aspect, mỗi ô là 0/1/2/3
+        texts  : list[str]         - độ dài N
+        labels : list[list[int]]   - N x số aspect, mỗi ô là 0/1/2/3
     """
     aspects = aspects or known_aspects()
     texts = df[config.TEXT_COLUMN].astype(str).tolist()

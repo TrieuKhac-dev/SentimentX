@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Đo tokenizer THẬT của từng model trên dữ liệu ĐÃ XỬ LÝ (pha 3).
+"""Đo tokenizer THẬT của từng model trên dữ liệu ĐÃ XỬ LÝ (tiền xử lý cho model).
 
 Cách dùng:
     python run_token_stats.py
@@ -18,11 +18,11 @@ src/preprocessing/token_stats.py.
 Kết quả (trong thư mục theo phiên bản):
     data/reports/model_input/versions/<mã>/token_stats.csv
     data/reports/model_input/versions/<mã>/token_stats__prompt-X__seg-Y.csv  (khi đổi
-        prompt/bộ tách từ so với mặc định — KHÔNG ghi đè lên số liệu cũ)
+        prompt/bộ tách từ so với mặc định - KHÔNG ghi đè lên số liệu cũ)
 
 Chỉ cần thư viện `transformers` (không cần torch). Model nào không đo được sẽ được bỏ
 qua kèm lí do: PhoBERT cần một bộ tách từ (bộ chính chủ là RDRSegmenter/VnCoreNLP, cần
-Java — xem `--list-segmenters`).
+Java - xem `--list-segmenters`).
 """
 
 import argparse
@@ -59,7 +59,7 @@ def parse_args(argv=None):
     parser.add_argument(
         "--prompt", default=None,
         help="Tên prompt dùng cho Qwen3 (mặc định: prompt ghi trong "
-             "configs/models/qwen.yaml). Dùng để thử prompt mới mà không phải sửa "
+             "file cấu hình model). Dùng để thử prompt mới mà không phải sửa "
              "config.",
     )
     parser.add_argument(
@@ -95,7 +95,7 @@ def parse_max_length(values, model_keys):
 
     Kiểm tra ngay tại đây, trước khi tải dữ liệu (mỗi lần chạy tốn vài phút): tên model
     phải có thật, giá trị phải là số nguyên dương, và KHÔNG được vượt trần kiến trúc của
-    model (PhoBERT 258, ViSoBERT 514, Qwen 262.144) — vượt trần thì model sẽ cắt hoặc sai
+    model (PhoBERT 258, ViSoBERT 514, Qwen 262.144) - vượt trần thì model sẽ cắt hoặc sai
     vị trí mà bảng số liệu vẫn báo "0% bị cắt".
     """
     overrides = {}
@@ -165,7 +165,7 @@ def list_prompts():
 
     Có cả cột `số ví dụ` (kèm mã sha của FILE VÍ DỤ): bộ ví dụ few-shot là một biến thí
     nghiệm, mà prompt one-shot và two-shot dùng chung nội dung prompt nên cột `sha` của
-    prompt in ra sẽ GIỐNG nhau — chỉ cột này mới phân biệt được chúng.
+    prompt in ra sẽ GIỐNG nhau - chỉ cột này mới phân biệt được chúng.
     """
     keys = ("name", "sha", "kiểu", "số ví dụ", "ô nhớ", "file")
     print_table([[row[key] for key in keys] for row in prompts.describe_all()],
@@ -180,7 +180,7 @@ def list_prompts():
 def list_segmenters():
     """In tình trạng các bộ tách từ trên máy này.
 
-    Lệnh này KHÔNG khởi động JVM (chỉ kiểm tra file/thư viện), nên chạy rất nhanh —
+    Lệnh này KHÔNG khởi động JVM (chỉ kiểm tra file/thư viện), nên chạy rất nhanh -
     dùng để biết ngay còn thiếu gì trước khi chạy phép đo tốn vài phút.
     """
     keys = ("tên", "chính chủ", "dùng được", "gói", "phiên bản")
@@ -201,14 +201,14 @@ def _segmenter_label(spec):
         name, module = segmenters.resolve(spec)
     except segmenters.SegmenterError as exc:
         lines = [line for line in str(exc).strip().splitlines() if line.strip()]
-        return "chưa dùng được — {} (xem --list-segmenters)".format(
+        return "chưa dùng được - {} (xem --list-segmenters)".format(
             lines[0] if lines else exc)
 
     meta = module.info()
     java = ", {}".format(meta["java_version"]) if meta.get("java_version") else ""
     return "{} ({}{}), gói {} {}".format(
         name, "chính chủ" if module.OFFICIAL else "KHÔNG chính chủ", java,
-        meta.get("package") or "—", meta.get("version") or "?")
+        meta.get("package") or "-", meta.get("version") or "?")
 
 
 def print_config(prompt, segmenter_spec, max_length_overrides=None):
@@ -219,10 +219,10 @@ def print_config(prompt, segmenter_spec, max_length_overrides=None):
         prompt.name, prompt.where, prompt.sha))
     if prompt.multiline:
         print("               hội thoại nhiều lượt: {}".format(
-            " → ".join(name.upper() for name, _ in prompt.sections)))
+            " -> ".join(name.upper() for name, _ in prompt.sections)))
     examples = prompts.examples_info(prompt.name)
     if examples:
-        print("  ví dụ      : {} — {} ví dụ, sha {}".format(
+        print("  ví dụ      : {} - {} ví dụ, sha {}".format(
             examples["file"], examples["examples"],
             examples["sha"] or "THIẾU FILE (prompt cần {examples} mà chưa có file)"))
         if examples["note"]:
@@ -242,19 +242,19 @@ def build_tag(args, max_length_overrides=None, prompt=None):
     """Tên phụ cho file CSV: ghi rõ lần chạy này khác mặc định ở chỗ nào.
 
     Chỉ sinh tag khi có tham số KHÁC mặc định, để lần chạy thường vẫn ghi ra
-    `token_stats.csv` như trước — không đẻ thêm file cho cùng một việc.
+    `token_stats.csv` như trước - không đẻ thêm file cho cùng một việc.
 
     Quy tắc rõ ràng: **chỉ cờ dòng lệnh** (`--prompt`, `--segmenter`, `--max-length`) mới
     làm tên file có đuôi, vì đó là "chạy khác đi một lần". Còn sửa
     `configs/models/<model>.yaml` là **cấu hình của dự án** (giá trị đang dùng), nên vẫn
-    ghi vào file mặc định — nếu không, chỉ đổi một dòng YAML là file mặc định biến mất,
+    ghi vào file mặc định - nếu không, chỉ đổi một dòng YAML là file mặc định biến mất,
     khó tra cứu. Giá trị hiệu lực vẫn luôn được ghi lại: cột `max_length` trong CSV, dòng
     `max_length` ở banner, và khoá `limits` trong mục lục.
 
     NGOẠI LỆ duy nhất: `ex-<sha4>` của BỘ VÍ DỤ few-shot, và nó có mặt **kể cả khi chạy
     bằng config của dự án**. Lí do: hai bộ ví dụ (một ví dụ vs hai ví dụ) là hai thí
     nghiệm thật, trong khi `prompt_sha` của chúng GIỐNG nhau (prompt chỉ khác ở file ví
-    dụ) — ghi chung một file thì thí nghiệm sau xoá mất số liệu của thí nghiệm trước.
+    dụ) - ghi chung một file thì thí nghiệm sau xoá mất số liệu của thí nghiệm trước.
     """
     parts = []
     if args.prompt:
@@ -274,7 +274,7 @@ def main(argv=None):
     args = parse_args(argv)
 
     print("=" * 70)
-    print("TOKEN STATS — đo input THẬT của từng model (pha 3)")
+    print("TOKEN STATS - đo input THẬT của từng model (tiền xử lý cho model)")
     print("=" * 70)
 
     if args.list_prompts:
@@ -323,7 +323,7 @@ def main(argv=None):
 
     # KHÔNG có dòng nào nghĩa là KHÔNG đo được model nào (thiếu thư viện, thiếu Java, hoặc
     # một tiến trình cài đặt đang chạy giữa chừng...). Ghi một bảng rỗng lên file cũ là XOÁ
-    # MẤT số liệu cũ mà trong thư mục vẫn thấy file tồn tại — đúng loại mất mát im lặng mà
+    # MẤT số liệu cũ mà trong thư mục vẫn thấy file tồn tại - đúng loại mất mát im lặng mà
     # dự án đang cố tránh. Từ chối ghi, báo lỗi, và để nguyên số liệu cũ.
     if not rows:
         print("\n  LỖI: không đo được model nào nên KHÔNG ghi file và KHÔNG ghi mục lục")
@@ -344,8 +344,8 @@ def main(argv=None):
               "nhất):")
         for model, split, percent in cut:
             print("      {:<9} {:<6} {:.2f}% review bị cắt".format(model, split, percent))
-        print("      Cách xử lý: nâng ngưỡng cắt — sửa `max_length` trong "
-              "configs/models/<model>.yaml,")
+        print("      Cách xử lý: nâng ngưỡng cắt - sửa `max_length` trong "
+              "file cấu hình của model,")
         print("      hoặc chạy lại với --max-length <model>=<số> (xem trần của model ở "
               "banner phía trên).")
 

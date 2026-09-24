@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-"""Tách từ bằng RDRSegmenter trong VnCoreNLP — bộ CHÍNH CHỦ của PhoBERT.
+"""Tách từ bằng RDRSegmenter trong VnCoreNLP - bộ CHÍNH CHỦ của PhoBERT.
 
 Vì sao đây là bộ mặc định: PhoBERT được tiền huấn luyện trên văn bản đã tách từ bằng
 chính RDRSegmenter của VnCoreNLP (VinAI ghi rõ trong README của PhoBERT), nên dùng
 đúng bộ đó là cách duy nhất không tạo thêm khác biệt so với thiết kế gốc của model.
 
-CẦN JAVA — VÀ CÁCH DÒ JAVA
---------------------------
+CẦN JAVA - VÀ CÁCH DÒ JAVA
+---
 Gói `py-vncorenlp` gọi model Java qua **pyjnius (JNI)**, không phải qua lệnh `java`.
 Trên Windows, pyjnius chỉ tìm JVM ở hai biến môi trường `JDK_HOME` rồi `JAVA_HOME`,
-không thấy thì ném `Exception("Unable to find JAVA_HOME")` — một lỗi chung chung, dễ
+không thấy thì ném `Exception("Unable to find JAVA_HOME")` - một lỗi chung chung, dễ
 làm sập cả tiến trình đo. Vì vậy module này kiểm tra Java TRƯỚC và báo lỗi kèm đúng
 lệnh cần chạy (xem `_java_home()`), nhờ đó model thiếu Java chỉ bị BỎ QUA kèm lí do
 rõ ràng chứ không làm hỏng phép đo của các model khác.
 
 `py_vncorenlp.download_model()` KHÔNG dùng được trên Windows: nó gọi `wget` qua
-`os.system`. Trên Windows phải tải jar + model bằng PowerShell — xem
+`os.system`. Trên Windows phải tải jar + model bằng PowerShell - xem
 `scripts/setup_vncorenlp.ps1`.
 """
 
@@ -29,7 +29,7 @@ from src import config
 NAME = "vncorenlp"
 OFFICIAL = True
 DESCRIPTION = (
-    "RDRSegmenter trong VnCoreNLP — bộ tách từ CHÍNH CHỦ của PhoBERT "
+    "RDRSegmenter trong VnCoreNLP - bộ tách từ CHÍNH CHỦ của PhoBERT "
     "(VinAI dùng chính nó khi tiền huấn luyện). Cần Java 1.8+"
 )
 
@@ -44,9 +44,9 @@ MODEL_FILES = (
 # Bộ nhớ cấp cho JVM. RDRSegmenter rất nhẹ nên 1g là thừa sức (gói mặc định 2g).
 MAX_HEAP_SIZE = "-Xmx1g"
 
-# ---------------------------------------------------------------------
+# ---
 # Dấu '_' ở ĐẦU câu: dấu hiệu "nối tiếp từ trước" khi không có từ nào trước
-# ---------------------------------------------------------------------
+# ---
 # Quy ước output của VnCoreNLP (hàm segmentTokenizedString trong WordSegmenter.java):
 #     âm tiết MỞ ĐẦU một từ  -> in ra sau MỘT KHOẢNG TRẮNG   (" " + form)
 #     âm tiết NỐI TIẾP      -> in ra sau dấu "_"            ("_" + form)
@@ -54,7 +54,7 @@ MAX_HEAP_SIZE = "-Xmx1g"
 #
 # Nhưng khi chạy trên MỘT CÂU riêng lẻ, từ đầu tiên đôi khi bị gán nhãn "nối tiếp"
 # dù không có từ nào trước nó, sinh ra output như "_Son" (đo trên 3.000 review
-# cosmetics: 711 review có hiện tượng này — 23.7%). Dấu "_" đó không mang thông tin
+# cosmetics: 711 review có hiện tượng này - 23.7%). Dấu "_" đó không mang thông tin
 # gì: nó không nối với từ nào cả, chỉ khiến tokenizer nhìn thấy một ký tự mà văn bản
 # gốc không có.
 #
@@ -101,9 +101,9 @@ INSTALL_HINT = (
 _RDR = None
 
 
-# ---------------------------------------------------------------------
+# ---
 # Dò Java
-# ---------------------------------------------------------------------
+# ---
 
 
 def _jdk_candidates():
@@ -126,7 +126,7 @@ def _java_home():
     """Thư mục JDK/JRE dùng được, hoặc None nếu máy chưa cài Java.
 
     Điều kiện "dùng được" là có `bin/server/jvm.dll` (Windows) hoặc `bin/java`
-    (Linux/macOS) — pyjnius cần đúng thư viện này, không chỉ cần lệnh `java`.
+    (Linux/macOS) - pyjnius cần đúng thư viện này, không chỉ cần lệnh `java`.
     """
     for candidate in _jdk_candidates():
         if (candidate / "bin" / "server" / "jvm.dll").exists():
@@ -171,9 +171,9 @@ def _java_version(home):
     return None
 
 
-# ---------------------------------------------------------------------
+# ---
 # Dò model VnCoreNLP
-# ---------------------------------------------------------------------
+# ---
 
 
 def missing_files():
@@ -194,9 +194,9 @@ def _require_model():
         )
 
 
-# ---------------------------------------------------------------------
+# ---
 # Nạp và dùng
-# ---------------------------------------------------------------------
+# ---
 
 
 def _rdr():
@@ -265,7 +265,7 @@ def info():
         "java_home": str(home) if home else None,
         "java_version": _java_version(home) if home else None,
         "model_dir": MODEL_DIR.as_posix(),
-        # Có bỏ dấu '_' vô nghĩa ở đầu câu hay không — đây là một bước XỬ LÝ của dự án
+        # Có bỏ dấu '_' vô nghĩa ở đầu câu hay không - đây là một bước XỬ LÝ của dự án
         # (không phải của VnCoreNLP), nên phải ghi lại cùng số liệu.
         "strip_leading_boundary": STRIP_LEADING_BOUNDARY,
     }

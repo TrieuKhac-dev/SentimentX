@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""EDA 02 — Nhãn và khía cạnh.
+"""EDA 02 - Nhãn và khía cạnh.
 
 Đo lường theo cả 3 split (train / val / test): tỉ lệ review nhắc tới từng khía
 cạnh, phân bố nhãn trong số review có nhắc khía cạnh, số khía cạnh được nhắc
@@ -38,9 +38,9 @@ def run(context):
     labels = context["dataset"]["labels"]
     files = []
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Phân bố nhãn của từng aspect theo từng split
-    # -----------------------------------------------------------------
+# ---
     label_rows = []
     invalid_rows = []
     zero_aspect = {}
@@ -84,10 +84,10 @@ def run(context):
 
     # Mỗi split một khung riêng (xem charts._stacked_grid): trong một khung thì
     # đọc được phân bố nhãn giữa các khía cạnh, nhìn ngang thì so được cùng một
-    # khía cạnh giữa 3 split. Một biểu đồ duy nhất với nhãn "khía cạnh · split"
+    # khía cạnh giữa 3 split. Một biểu đồ duy nhất với nhãn "khía cạnh, split"
     # bắt người đọc tự tách lại nên khó xem.
     label_chart = {
-        "title": "Phân bố nhãn trong số review có nhắc khía cạnh — mỗi split một khung (%)",
+        "title": "Phân bố nhãn trong số review có nhắc khía cạnh - mỗi split một khung (%)",
         "kind": "stacked_grid",
         "barnorm": "percent",
         "x": list(aspects),
@@ -108,9 +108,9 @@ def run(context):
         "y_label": "tỉ lệ % số review của split",
     }
 
-    # -----------------------------------------------------------------
-    # 2. Số khía cạnh được nhắc tới trong một review — cả 3 split
-    # -----------------------------------------------------------------
+# ---
+    # 2. Số khía cạnh được nhắc tới trong một review - cả 3 split
+# ---
     per_review_rows = []
     per_review_share = {}     # % trên số review CÓ nhãn khía cạnh
     max_mentioned = 0
@@ -147,7 +147,7 @@ def run(context):
     #   có khía cạnh nào" ngay giữa biểu đồ đang nói về review CÓ nhãn.
     # Vì vậy trục hoành bắt đầu từ 1 và mẫu số là số review có nhãn khía cạnh.
     per_review_chart = {
-        "title": ("Số khía cạnh được nhắc trong một review — chỉ tính review có "
+        "title": ("Số khía cạnh được nhắc trong một review - chỉ tính review có "
                   "nhắc ít nhất 1 khía cạnh (%)"),
         "kind": "grouped_bar",
         "x": [str(k) for k in range(1, max_mentioned + 1)],
@@ -160,9 +160,9 @@ def run(context):
         "y_label": "tỉ lệ % số review có nhãn khía cạnh",
     }
 
-    # -----------------------------------------------------------------
+# ---
     # 3. Ma trận xuất hiện cùng nhau (co-occurrence) trên toàn bộ dữ liệu
-    # -----------------------------------------------------------------
+# ---
     co_counts = {(first, second): 0 for first in aspects for second in aspects}
     for name, df in splits.items():
         mentioned = _stripped(df, aspects) != ""
@@ -189,9 +189,9 @@ def run(context):
         "height": 460,
     }
 
-    # -----------------------------------------------------------------
+# ---
     # 4. Nhãn không hợp lệ
-    # -----------------------------------------------------------------
+# ---
     files.append(utils.rel(utils.write_csv(
         invalid_rows or [["-", "-", 0, "không có"]],
         ["split", "khía cạnh", "số nhãn sai", "giá trị sai gặp phải"],
@@ -200,7 +200,7 @@ def run(context):
 
     return {
         "id": "label_aspect",
-        "title": "EDA 02 — Nhãn và khía cạnh",
+        "title": "EDA 02 - Nhãn và khía cạnh",
         "cards": [
             {"label": "Số khía cạnh", "value": len(aspects)},
             {"label": "Số dòng không có nhãn khía cạnh nào (3 split)",

@@ -9,10 +9,10 @@ Cách dùng:
     python build_report.py --version cosmetics-v0.1.0-1a2b3c4d --plotlyjs cdn
 
 Kết quả (trong thư mục của phiên bản tương ứng):
-    report.html   — báo cáo duy nhất cho người đọc, mở được khi không có mạng
+    report.html   - báo cáo duy nhất cho người đọc, mở được khi không có mạng
 
 Chỉ định --dataset nghĩa là bạn đang xem một dataset cụ thể, nên công cụ mở
-luôn file HTML của các pha vừa vẽ bằng trình duyệt mặc định. Muốn tắt: --no-open.
+luôn file HTML của các nhóm vừa vẽ bằng trình duyệt mặc định. Muốn tắt: --no-open.
 Tên dataset phải trùng tên file configs/datasets/<tên>.yaml; gõ sai sẽ báo ngay
 kèm gợi ý tên gần đúng (thay vì báo "chưa có file kết quả" gây hiểu nhầm).
 
@@ -42,7 +42,7 @@ from src import dataset as dataset_config
 from src.reporting import render
 from src.reporting import result as result_io
 
-# Pha báo cáo -> thư mục gốc chứa báo cáo của pha đó
+# Nhóm báo cáo -> thư mục gốc chứa báo cáo của nhóm đó
 PHASE_DIRS = {
     "eda": config.EDA_REPORT_DIR,
     "pipeline": config.PIPELINE_REPORT_DIR,
@@ -66,7 +66,7 @@ def check_dataset(name):
 
     Lệnh này không tự chạy EDA / pipeline, nên nếu tên dataset gõ sai thì không
     có gì báo lỗi: hệ thống chỉ lọc thư mục phiên bản theo tên đó, không thấy gì
-    rồi kết luận "chưa có file kết quả" — dễ tưởng là lỗi ở khâu chạy. Kiểm tra
+    rồi kết luận "chưa có file kết quả" - dễ tưởng là lỗi ở khâu chạy. Kiểm tra
     sớm để chỉ đúng chỗ gõ sai và gợi ý tên gần đúng.
     """
     names = dataset_config.available()
@@ -88,7 +88,7 @@ def check_dataset(name):
 
 
 def has_runs(phase, dataset=None):
-    """Đã có phiên bản nào của pha này trên đĩa chưa (lọc theo dataset nếu có)."""
+    """Đã có phiên bản nào của nhóm này trên đĩa chưa (lọc theo dataset nếu có)."""
     if versioning.latest_version(PHASE_DIRS[phase], dataset=dataset):
         return True
     return versioning.latest_entry(dataset=dataset, phase=phase) is not None
@@ -104,7 +104,7 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         "--phase", choices=["eda", "pipeline", "all"], default="all",
-        help="Pha cần vẽ báo cáo (mặc định: all).",
+        help="Nhóm cần vẽ báo cáo (mặc định: all).",
     )
     parser.add_argument(
         "--version", default=None,
@@ -126,7 +126,7 @@ def parse_args(argv=None):
 
 
 def resolve_dir(base, phase, version=None, dataset=None):
-    """Thư mục chứa file kết quả của một pha.
+    """Thư mục chứa file kết quả của một nhóm.
 
     Thứ tự ưu tiên:
         1. Phiên bản chỉ định bằng --version.
@@ -149,13 +149,13 @@ def resolve_dir(base, phase, version=None, dataset=None):
 
 
 def build_one(phase, version, plotlyjs, dataset):
-    """Vẽ báo cáo của một pha. Trả về đường dẫn file HTML, hoặc None."""
+    """Vẽ báo cáo của một nhóm. Trả về đường dẫn file HTML, hoặc None."""
     directory = resolve_dir(PHASE_DIRS[phase], phase, version, dataset)
     path = result_io.result_path(directory, phase)
 
     if not path.exists():
         if not has_runs(phase, dataset):
-            print("  - {}: chưa có kết quả{} — pha này chưa chạy lần nào.".format(
+            print("  - {}: chưa có kết quả{} - nhóm này chưa chạy lần nào.".format(
                 phase, " cho dataset '{}'".format(dataset) if dataset else ""))
         else:
             print("  - {}: phiên bản này thiếu file kết quả ({})".format(
@@ -196,7 +196,7 @@ def list_versions():
         print("  (chưa có lần chạy nào)")
         return 0
 
-    header = ["phiên bản", "pha", "thời gian", "số dòng"]
+    header = ["phiên bản", "nhóm", "thời gian", "số dòng"]
     widths = [
         max(len(str(row[index])) for row in (rows + [header])) for index in range(4)
     ]
@@ -212,7 +212,7 @@ def main(argv=None):
     args = parse_args(argv)
 
     print("=" * 70)
-    print("BUILD REPORT — vẽ báo cáo từ file kết quả")
+    print("BUILD REPORT - vẽ báo cáo từ file kết quả")
     print("=" * 70)
 
     if args.list:

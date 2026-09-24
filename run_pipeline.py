@@ -50,7 +50,7 @@ def main(argv=None):
     args = parse_args(argv)
 
     print("=" * 70)
-    print("DATA PIPELINE — xử lý dữ liệu theo config")
+    print("DATA PIPELINE - xử lý dữ liệu theo config")
     print("=" * 70)
 
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
@@ -67,7 +67,7 @@ def main(argv=None):
 
     print("Dataset: {} (dữ liệu gốc: {})".format(
         ds["name"], utils.rel(ds["_raw_dir"])))
-    print("Config pipeline: {} — phiên bản v{}".format(
+    print("Config pipeline: {} - phiên bản v{}".format(
         utils.rel(cfg["_path"]), cfg.get("version", "unknown")))
     print("Mã phiên bản: {}".format(version_id))
 
@@ -95,7 +95,7 @@ def main(argv=None):
         "Mã phiên bản: {}".format(version_id),
         "Config: {}".format(utils.rel(cfg["_path"])),
         "Phiên bản pipeline: v{}".format(cfg.get("version", "unknown")),
-        "Số dòng vào: {} — Số dòng ra: {}".format(
+        "Số dòng vào: {} - Số dòng ra: {}".format(
             sum(original.values()) if original else 0, sum(final.values())),
         "Thư mục số liệu chi tiết: {}".format(utils.rel(out_dir)),
     ]
@@ -106,7 +106,7 @@ def main(argv=None):
         version_id=version_id,
         meta=meta,
         sections=sections,
-        title="Báo cáo Data Pipeline — ABSA tiếng Việt",
+        title="Báo cáo Data Pipeline - ABSA tiếng Việt",
         subtitle="Từ dữ liệu gốc đến dữ liệu sẵn sàng cho model",
     )
 
@@ -131,7 +131,7 @@ def main(argv=None):
     print("  - Dữ liệu     : {}".format(utils.rel(processed_dir)))
     print("  - File kết quả: {}".format(utils.rel(path)))
     print("  - Mục lục     : {}".format(utils.rel(versioning.manifest_path())))
-    print("\nBước tiếp theo — vẽ báo cáo:")
+    print("\nBước tiếp theo - vẽ báo cáo:")
     print("  python build_report.py --phase pipeline")
 
 

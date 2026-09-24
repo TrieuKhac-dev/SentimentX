@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Hợp đồng chung của mọi BỘ TÁCH TỪ tiếng Việt (word segmenter).
 
-PHÂN BIỆT RÕ: TÁCH TỪ ≠ TOKENIZER
----------------------------------
+PHÂN BIỆT RÕ: TÁCH TỪ KHÁC TOKENIZER
+---
     - Bộ tách từ (thư mục này): gộp các âm tiết của một TỪ tiếng Việt lại bằng
       dấu gạch dưới: "Đại học Quốc gia" -> "Đại_học Quốc_gia". Chạy TRƯỚC.
     - Tokenizer (PhobertTokenizer, XLMRobertaTokenizer...): chẻ văn bản thành
@@ -13,7 +13,7 @@ nên tách từ là bước bắt buộc; nhưng tokenizer của nó vẫn là t
 bộ tách từ không được kéo theo việc đổi tokenizer.
 
 MỘT BỘ TÁCH TỪ CHUẨN GỒM
-------------------------
+---
     NAME        tên ngắn, dùng ở dòng lệnh: `--segmenter <tên>`
     OFFICIAL    True nếu là bộ CHÍNH CHỦ của model (VinAI khuyến nghị cho PhoBERT)
     DESCRIPTION một dòng giải thích, in ra ở `--list-segmenters`
@@ -22,7 +22,7 @@ MỘT BỘ TÁCH TỪ CHUẨN GỒM
     segment(text) -> str           văn bản ĐÃ tách từ
 
 BỐN QUY ƯỚC BẮT BUỘC
---------------------
+---
 1. `segment()` trả về CHUỖI, không phải list. Các thư viện không thống nhất chuyện
    này (VnCoreNLP trả về list câu, pyvi trả về chuỗi), nên việc quy về chuỗi làm ở
    đây để phobert.py không phải biết đang dùng bộ nào.
@@ -31,7 +31,7 @@ BỐN QUY ƯỚC BẮT BUỘC
 3. Thiếu thư viện / thiếu Java / thiếu model => LỖI rõ ràng kèm cách cài
    (ImportError hoặc OSError). TUYỆT ĐỐI không lặng lẽ trả về văn bản nguyên bản:
    như vậy kết quả đo sẽ đúng nhưng lại là của bộ "none" mà không ai biết.
-4. `available()` chỉ KIỂM TRA (thư viện, Java, file model có mặt), KHÔNG nạp model —
+4. `available()` chỉ KIỂM TRA (thư viện, Java, file model có mặt), KHÔNG nạp model -
    để `--list-segmenters` chạy nhanh.
 
 Thêm bộ tách từ mới: tạo file trong thư mục này theo hợp đồng trên, rồi thêm vào

@@ -1,0 +1,41 @@
+# Thông tin của một phiên bản DỮ LIỆU GỐC.
+# File này được commit (dữ liệu gốc thì không), để biết bộ dữ liệu này từ đâu ra
+# và có còn nguyên vẹn hay không.
+#
+# Muốn kiểm lại: so sha256 trong file này với sha256 của file trên đĩa.
+# Xem docs/01_dataset/01_raw_data.md.
+
+name: cosmetics
+raw_version: v0.1.0
+schema: 1
+
+source:
+  # Bộ dữ liệu do đề tài cung cấp kèm theo, không tải từ một địa chỉ công khai.
+  name: "Đánh giá son môi trên Shopee"
+  url: ""
+  collected_at: ""
+  license: "chưa xác định"
+  notes: >
+    Bộ dữ liệu được cung cấp sẵn cùng đề tài. Công bố tham chiếu trong
+    data/reference_publication/ dùng 16.227 đánh giá son môi Shopee, nên số dòng ở đây
+    (trước khi làm sạch) nhiều hơn con số đó.
+
+# Với mỗi file: số byte, số dòng (kể cả dòng tiêu đề), sha256.
+# sha256 là căn cứ để phát hiện dữ liệu gốc bị sửa: sửa là phải tăng raw_version.
+files:
+  data_train.csv:
+    bytes: 1986585
+    lines: 19153
+    sha256: 2da5c6359a17d03b1c55591fe21d70c4d5ca8c54157ab79fd59c93e6599943c9
+  data_val.csv:
+    bytes: 245844
+    lines: 2367
+    sha256: 44eb0a11b19ecde43824e9a432c554fe134939280140d80ed135018ea60b8dcd
+  data_test.csv:
+    bytes: 250052
+    lines: 2411
+    sha256: 7e8ae8632e570725ae8967c1d34bb99f8d411896f7b5cab7181ef805ca810b24
+  full_data.csv:
+    bytes: 2482334
+    lines: 23929
+    sha256: 3bda8deecc84d94fff526ad092cadc1dc4a4487e6d1a8c54871e53da95ec780e

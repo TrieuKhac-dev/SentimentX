@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
-"""Chạy Qwen3 để SINH kết quả cho một prompt (pha 4) — chỉ suy luận, không huấn luyện.
+"""Chạy Qwen3 để SINH kết quả cho một prompt (đánh giá model) - chỉ suy luận, không huấn luyện.
 
 VÌ SAO KHÔNG HUẤN LUYỆN QWEN3
-----------------------------
-Qwen3-4B full fine-tune cần ~64–80 GB VRAM; riêng trọng số bf16 đã 8 GB, trong khi GPU của
+---
+Qwen3-4B full fine-tune cần ~64-80 GB VRAM; riêng trọng số bf16 đã 8 GB, trong khi GPU của
 máy này có 6 GB. Hướng đúng bản chất phép so sánh của dự án: Qwen3 dùng như model đa năng
 qua CHỈ DẪN (prompt / CoT), còn PhoBERT (135M) và ViSoBERT (~108M) thì fine-tune toàn bộ.
 Lượng hóa 4-bit ở đây là để model **VỪA VRAM khi suy luận**, không phải để huấn luyện.
 
 CÁC QUYẾT ĐỊNH KỸ THUẬT VÀ LÍ DO
---------------------------------
+---
 1. **Greedy (`do_sample=False`) là mặc định.** Kết quả phải TÁI LẬP được: chạy lại phải ra
    đúng câu trả lời đó. Model card của Qwen3-4B-Instruct-2507 khuyến nghị
    `Temperature=0.7, TopP=0.8, TopK=20` cho chất lượng cảm nhận, nhưng khi ĐO thì yếu tố
    tái lập quan trọng hơn; muốn đối chiếu thì chạy thêm với `--sample` (và khi đó phải ghi
    cả `seed`).
 2. **Cắt phần đuôi ở `max_length`** (mặc định 1280, lấy từ `qwen.limit()`): prompt CoT có
-   max 1.019 token/review nên 0% bị cắt. Với prompt chat, phần bị cắt là phần CUỐI — tức
+   max 1.019 token/review nên 0% bị cắt. Với prompt chat, phần bị cắt là phần CUỐI - tức
    chính yêu cầu định dạng đầu ra, nên ngưỡng này phải chọn bằng số đo (xem
-   docs/04_experiments/02_phase3_input.md §4.2).
+   docs/04_experiments/02_model_input.md, mục 4.2).
 3. **`padding_side = "left"`**: khi sinh theo lô, đầu ra của các câu dài ngắn khác nhau phải
    thẳng hàng về BÊN PHẢI để cắt phần đã sinh bằng `out[:, len(input):]`. Để mặc định
-   (right) thì phép cắt đó lấy nhầm chỗ và câu trả lời đọc ra là vô nghĩa — một lỗi im lặng
+   (right) thì phép cắt đó lấy nhầm chỗ và câu trả lời đọc ra là vô nghĩa - một lỗi im lặng
    rất dễ mắc khi chạy lô.
 4. **Đếm token sinh ra** để báo cáo chi phí đầu ra thật (khác hẳn số token của prompt).
 5. **Không tin vào model card về `<think>`**: bản 2507 là non-thinking theo tài liệu, nhưng
@@ -54,7 +54,7 @@ def settings(quant="auto", max_new_tokens=None, do_sample=False, temperature=Non
              top_p=None, top_k=None, seed=None):
     """Cấu hình sinh đang dùng, dạng dict để IN RA và GHI VÀO mục lục.
 
-    Trả về cả những giá trị KHÔNG dùng (ghi `None`) — nhờ vậy báo cáo luôn nói rõ là chạy
+    Trả về cả những giá trị KHÔNG dùng (ghi `None`) - nhờ vậy báo cáo luôn nói rõ là chạy
     greedy hay lấy mẫu, thay vì để người đọc đoán theo mặc định của thư viện.
     """
     return {
@@ -84,7 +84,7 @@ def _ensure_chat_template(tokenizer, model_name):
     """Bảo đảm tokenizer CÓ chat template, nạp lại từ đĩa nếu cần.
 
     VÌ SAO PHẢI KIỂM (lỗi đã gặp thật, mất khá nhiều thời gian để tìm): khi nạp tokenizer
-    từ thư mục cục bộ, `chat_template` có thể rỗng — và khi rỗng thì `apply_chat_template`
+    từ thư mục cục bộ, `chat_template` có thể rỗng - và khi rỗng thì `apply_chat_template`
     trả về chuỗi **RỖNG mà không báo lỗi**, rồi `model.generate` chết ở giữa với thông báo
     chẳng liên quan (`IndexError: attention_mask[:, -1] ... dimension of size 0`).
 
@@ -118,7 +118,7 @@ def _ensure_chat_template(tokenizer, model_name):
         raise RuntimeError(
             "Tokenizer của '{0}' KHÔNG có chat template, nên prompt sẽ rỗng và model sinh "
             "ra rác. Template thường nằm ở file 'chat_template.jinja' (phải có nội dung) "
-            "hoặc khoá 'chat_template' trong tokenizer_config.json — tải lại bằng:\n"
+            "hoặc khoá 'chat_template' trong tokenizer_config.json - tải lại bằng:\n"
             "    powershell -ExecutionPolicy Bypass -File scripts\\setup_qwen_model.ps1"
             .format(model_name))
     return tokenizer
@@ -169,7 +169,7 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
     Trả về (các dòng bảng, thông tin đọc kết quả, nhãn DỰ ĐOÁN, meta).
 
     Trả về cả `nhãn dự đoán` đã đọc sẵn (không phải đọc lại từ chuỗi JSON trong bảng) để
-    nơi chấm điểm dùng ĐÚNG kết quả mà bộ đọc đã phân tích — nếu không, việc chấm điểm và
+    nơi chấm điểm dùng ĐÚNG kết quả mà bộ đọc đã phân tích - nếu không, việc chấm điểm và
     việc báo cáo tỉ lệ đọc được có thể nói hai chuyện khác nhau.
     """
     generation = generation or settings()
@@ -284,12 +284,12 @@ def load(quant="auto", model_name=None):
         tokenizer = qwen.tokenizer()
     else:
         # Model khác (ví dụ chạy thử bằng model nhỏ cùng họ, hoặc model nạp từ thư mục cục
-        # bộ): lấy ĐÚNG tokenizer của model đó, vì chat template và bộ token có thể khác —
+        # bộ): lấy ĐÚNG tokenizer của model đó, vì chat template và bộ token có thể khác -
         # dùng tokenizer của model khác thì đường vào model không còn là đường thật.
         from transformers import AutoTokenizer
         tokenizer = AutoTokenizer.from_pretrained(model_name)
     # Ép module qwen dùng chính tokenizer này: nếu không, phần dựng prompt (chat template)
-    # vẫn đi tìm tokenizer mặc định trên Hugging Face — vừa thừa, vừa có thể lệch bản.
+    # vẫn đi tìm tokenizer mặc định trên Hugging Face - vừa thừa, vừa có thể lệch bản.
     _ensure_chat_template(tokenizer, model_name)
     qwen.use_tokenizer(tokenizer)
     # Xem quyết định (3) ở đầu file: bắt buộc để cắt đúng phần đã sinh khi chạy theo lô.

@@ -1,28 +1,28 @@
 # -*- coding: utf-8 -*-
-"""Chỉ số đánh giá cho bài toán ABSA (pha 4) — hàm THUẦN, không cần torch.
+"""Chỉ số đánh giá cho bài toán ABSA (đánh giá model) - hàm THUẦN, không cần torch.
 
 VÌ SAO CÁC CHỈ SỐ NÀY
----------------------
+---
 Bài toán có 7 khía cạnh, mỗi khía cạnh một nhãn 0/1/2/3 (0 = KHÔNG nhắc tới). Với model
 sinh, có hai câu hỏi khác nhau và phải tách ra:
 
     1. Model có NHẬN RA khía cạnh nào được nhắc tới hay không? (nhị phân 0 vs khác 0)
-       → đo bằng precision / recall / F1 của lớp "có nhắc tới".
+       -> đo bằng precision / recall / F1 của lớp "có nhắc tới".
     2. Khi đã nhận ra, model có chọn ĐÚNG mã cảm xúc không? (4 lớp)
-       → đo bằng độ chính xác trên các mẫu CÓ nhắc tới.
+       -> đo bằng độ chính xác trên các mẫu CÓ nhắc tới.
 
 Gộp hai câu hỏi làm một (chỉ báo accuracy) sẽ che mất kiểu lỗi thật của model 4B: nó
-thường "thấy" khía cạnh nhưng chọn sai sắc thái, hoặc ngược lại — bỏ qua khía cạnh nhưng
+thường "thấy" khía cạnh nhưng chọn sai sắc thái, hoặc ngược lại - bỏ qua khía cạnh nhưng
 đoán đúng các khía cạnh còn lại.
 
 Nhãn KHÔNG đọc được (JSON lỗi) bị tính là SAI, không được bỏ khỏi mẫu số: bỏ đi thì tỉ lệ
 lỗi định dạng trở thành một cách "nâng điểm" vô tình.
 
 Chỉ số tổng hợp
----------------
+---
     acc macro     : trung bình độ chính xác của 7 khía cạnh (mỗi khía cạnh một phiếu)
     acc micro     : đúng trên tổng số ô (7 ô/review)
-    khớp hoàn toàn: tỉ lệ review đoán đúng CẢ 7 khía cạnh — chỉ số khắt khe nhất
+    khớp hoàn toàn: tỉ lệ review đoán đúng CẢ 7 khía cạnh - chỉ số khắt khe nhất
     F1 nhắc (macro/micro): cho bài toán nhị phân "có nhắc tới khía cạnh này hay không"
 """
 
@@ -43,7 +43,7 @@ def _binary_counts(gold, pred, positive=0):
     Precision và Recall bị ĐỔI CHỖ cho nhau. Vì vậy `tests/test_metrics.py` giờ khoá đúng
     quy ước này bằng hai ca BẤT ĐỐI XỨNG (chỉ dương tính giả, và chỉ âm tính giả).
 
-    `pred` là None nghĩa là ô đó KHÔNG đọc được → coi như model không nêu khía cạnh nào.
+    `pred` là None nghĩa là ô đó KHÔNG đọc được -> coi như model không nêu khía cạnh nào.
     """
     tp = fp = fn = tn = 0
     for truth, guess in zip(gold, pred):

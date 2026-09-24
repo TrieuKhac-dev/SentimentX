@@ -6,8 +6,8 @@ Cách dùng:
     python run_eda.py --dataset cosmetics
 
 Kết quả (trong thư mục theo phiên bản: data/reports/eda/versions/<mã>/):
-    <mã>/eda_result.json   (đủ mọi phần — file build_report.py đọc lại)
-    <mã>/01_*.json …       (file kết quả riêng của từng phần)
+    <mã>/eda_result.json   (đủ mọi phần - file build_report.py đọc lại)
+    <mã>/01_*.json ...       (file kết quả riêng của từng phần)
     <mã>/*.csv             (bảng số liệu chi tiết của từng phần)
 
 Bước này KHÔNG sinh HTML. Muốn xem báo cáo, chạy tiếp:
@@ -47,7 +47,7 @@ def main(argv=None):
     args = parse_args(argv)
 
     print("=" * 70)
-    print("EDA — Khảo sát dữ liệu (chỉ đo lường, KHÔNG sửa dữ liệu)")
+    print("EDA - Khảo sát dữ liệu (chỉ đo lường, KHÔNG sửa dữ liệu)")
     print("=" * 70)
 
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
@@ -115,13 +115,13 @@ def main(argv=None):
         version_id=version_id,
         meta=meta,
         sections=sections,
-        title="Báo cáo EDA — ABSA tiếng Việt",
+        title="Báo cáo EDA - ABSA tiếng Việt",
         subtitle="Khảo sát dữ liệu của dataset '{}'".format(ds["name"]),
     )
 
     # Mỗi mục được ghi thêm một file JSON riêng (0X_<mục>.json) trong cùng thư
     # mục phiên bản. Báo cáo KHÔNG liệt kê từng file nữa: mục nào cũng có nhiều
-    # file nên danh sách rất dài mà không giúp gì — thay vào đó phần đầu báo cáo
+    # file nên danh sách rất dài mà không giúp gì - thay vào đó phần đầu báo cáo
     # ghi MỘT dòng "Thư mục số liệu chi tiết" để người đọc tự mở thư mục đó.
     section_paths = result_io.write_sections(payload, out_dir)
     path = result_io.write_result(payload, result_io.result_path(out_dir, "eda"))
@@ -144,7 +144,7 @@ def main(argv=None):
         ", ".join(result_io.section_filename(index, section["id"])
                   for index, section in enumerate(payload["sections"], start=1))))
     print("  - Mục lục  : {}".format(utils.rel(versioning.manifest_path())))
-    print("\nBước tiếp theo — vẽ báo cáo:")
+    print("\nBước tiếp theo - vẽ báo cáo:")
     print("  python build_report.py --phase eda")
 
 

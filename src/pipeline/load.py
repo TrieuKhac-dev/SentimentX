@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 1 — LOAD.
+"""Pipeline bước 1 - LOAD.
 
 Nạp dữ liệu gốc của dataset (theo khai báo trong configs/datasets/<tên>.yaml)
 và đưa về DẠNG CHUẨN NỘI BỘ:
@@ -65,7 +65,7 @@ def run(context):
 
     return {
         "id": "pipeline_load",
-        "title": "Step 1 — Load (đọc dữ liệu gốc)",
+        "title": "Step 1 - Load (đọc dữ liệu gốc)",
         "cards": [
             {"label": "Số dòng vào pipeline", "value": "{}".format(total)},
             {"label": "Số khía cạnh dùng trong config", "value": len(aspects)},

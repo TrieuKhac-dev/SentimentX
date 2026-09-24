@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Bộ đọc kết quả của model sinh (pha 4).
+"""Bộ đọc kết quả của model sinh (đánh giá model).
 
 VÌ SAO PHẢI CÓ MỘT MODULE RIÊNG, VÀ VÌ SAO NÓ PHẢI ĐƯỢC KIỂM BẰNG TEST
--------------------------------------------------------------------
+---
 Model sinh trả về VĂN BẢN, không trả về nhãn. Mọi chỉ số (F1, độ chính xác) đều đi qua
 hàm đọc này, nên một lỗi ở đây làm SAI TOÀN BỘ BẢNG ĐIỂM mà không có gì báo động: JSON
 đọc hụt một khía cạnh thì khía cạnh đó bị tính là "không nhắc tới", và điểm số trông vẫn
@@ -13,14 +13,14 @@ hợp lí. Vì vậy:
     - có test ở tests/test_parse.py (`python -m unittest discover -s tests`).
 
 HAI ĐỊNH DẠNG ĐẦU RA CẦN ĐỌC
-----------------------------
-    prompt một lượt : {"khoá": mã, ...}                     — đọc cả câu trả lời
+---
+    prompt một lượt : {"khoá": mã, ...}                     - đọc cả câu trả lời
     prompt CoT      : ... SUY LUẬN: ... KẾT QUẢ: {"khoá": mã, ...}
-                      — phải lấy khối SAU dấu "KẾT QUẢ:", nếu không sẽ đọc phải JSON nằm
+                      - phải lấy khối SAU dấu "KẾT QUẢ:", nếu không sẽ đọc phải JSON nằm
                         trong phần suy luận (nếu model có trích JSON ở giữa).
 
 Dấu "KẾT QUẢ:" là QUY ƯỚC CỦA DỰ ÁN (đặt trong configs/prompts/*.txt), không phải chuẩn
-của Qwen — nên bộ đọc nhận cả vài biến thể gõ thiếu dấu, và luôn có đường lui: không thấy
+của Qwen - nên bộ đọc nhận cả vài biến thể gõ thiếu dấu, và luôn có đường lui: không thấy
 dấu thì tìm object JSON CUỐI CÙNG trong câu trả lời, và GHI RÕ đã dùng đường lui nào.
 """
 
@@ -67,7 +67,7 @@ def json_objects(text):
     """Mọi object JSON CÂN BẰNG trong văn bản, theo thứ tự xuất hiện.
 
     Tự đếm ngoặc (không dùng regex) để chịu được ngoặc nhọn và dấu ngoặc kép nằm TRONG
-    chuỗi — ví dụ review có chứa dấu "{" hoặc "}". Đây là chỗ dễ sai nhất khi viết bằng
+    chuỗi - ví dụ review có chứa dấu "{" hoặc "}". Đây là chỗ dễ sai nhất khi viết bằng
     regex, nên phải làm bằng tay và có test.
     """
     objects = []
@@ -109,7 +109,7 @@ def has_reasoning(text):
 def parse_labels(answer, aspects, codes, require_all=None):
     """Đọc nhãn từ câu trả lời của model. Trả về (labels, info).
 
-    labels: dict {khía cạnh: mã}. Chỉ chứa khía cạnh ĐỌC ĐƯỢC — thiếu khía cạnh nào thì
+    labels: dict {khía cạnh: mã}. Chỉ chứa khía cạnh ĐỌC ĐƯỢC - thiếu khía cạnh nào thì
             `info["thiếu"]` ghi rõ, và nơi chấm điểm phải coi đó là SAI (không được điền 0
             hộ, vì điền 0 là biến lỗi định dạng thành một dự đoán "không nhắc tới").
     info  : {"valid", "reason", "kiểu đọc", "had_thinking", "has_reasoning", "thiếu", "lạ",

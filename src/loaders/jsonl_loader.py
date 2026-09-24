@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Đọc file JSONL — mỗi dòng là một object JSON.
+"""Đọc file JSONL - mỗi dòng là một object JSON.
 
 Ví dụ một dòng hợp lệ:
     {"data": "son này đẹp", "colour": "positive", "price": ""}

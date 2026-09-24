@@ -10,7 +10,7 @@ hoàn toàn không import plotly. Nhờ vậy:
     - Máy chưa cài plotly vẫn chạy được EDA/pipeline (báo cáo chỉ có bảng).
 
 MỘT ĐẶC TẢ BIỂU ĐỒ CÓ DẠNG
----------------------------
+---
     {"title": "Số dòng theo split", "kind": "bar",
      "x": ["train", "val", "test"], "y": [100, 20, 20]}
 
@@ -25,13 +25,13 @@ MỘT ĐẶC TẢ BIỂU ĐỒ CÓ DẠNG
     {"kind": "pie", "x": [...], "y": [...]}
 
 HAI QUY ƯỚC HIỂN THỊ (áp dụng cho MỌI biểu đồ)
-----------------------------------------------
+---
 1. Số phải hiện ĐỦ CHỮ SỐ, không dùng hậu tố SI của Plotly.
-   Plotly mặc định rút gọn số lớn thành "16.227k" — vừa khó đọc vừa dễ hiểu sai
+   Plotly mặc định rút gọn số lớn thành "16.227k" - vừa khó đọc vừa dễ hiểu sai
    (16.227k = 16 nghìn, còn "16.227" = mười sáu nghìn hai trăm hai mươi bảy).
    Vì vậy nhãn số luôn được truyền dưới dạng CHUỖI đã định dạng sẵn, và các
    trục số được đặt tickformat / hoverformat = "d" khi giá trị đủ lớn.
-2. Chú thích màu (legend) nằm DƯỚI biểu đồ, không nằm trên đỉnh — đặt ở đỉnh
+2. Chú thích màu (legend) nằm DƯỚI biểu đồ, không nằm trên đỉnh - đặt ở đỉnh
    thì nó dính sát tiêu đề và trông như một phần của tiêu đề.
 """
 
@@ -76,7 +76,7 @@ def number_text(value):
         0.0        -> "0"
 
     Nhãn số của biểu đồ luôn đi qua hàm này. Nếu truyền thẳng số cho Plotly,
-    nó tự rút gọn thành "16.227k" — đúng kiểu hiển thị mà dự án không dùng.
+    nó tự rút gọn thành "16.227k" - đúng kiểu hiển thị mà dự án không dùng.
     """
     if isinstance(value, bool):
         return str(value)
@@ -120,7 +120,7 @@ def _number_axis(fig, values, axis="y"):
     """Buộc trục số hiện ĐỦ CHỮ SỐ khi giá trị đủ lớn.
 
     Không đặt tickformat thì Plotly hiện "16.2k" cho 16227. Chỉ đặt khi mọi
-    giá trị đều là số nguyên — với tỉ lệ phần trăm (21.05) thì để mặc định.
+    giá trị đều là số nguyên - với tỉ lệ phần trăm (21.05) thì để mặc định.
     """
     numbers = [float(v) for v in values if isinstance(v, (int, float))]
     if not numbers:
@@ -155,7 +155,7 @@ def _bar(spec):
     ))
     # Với cột NGANG, Plotly đặt nhóm đầu tiên ở ĐÁY, nên dữ liệu đã sắp giảm
     # dần vẫn hiện như đang tăng dần khi đọc từ trên xuống. Đảo trục tung để
-    # giá trị lớn nhất nằm trên cùng — đúng thứ tự người đọc mong đợi.
+    # giá trị lớn nhất nằm trên cùng - đúng thứ tự người đọc mong đợi.
     if horizontal:
         fig.update_yaxes(autorange="reversed")
     _number_axis(fig, spec["y"], axis="x" if horizontal else "y")
@@ -185,7 +185,7 @@ def _stacked_bar(spec):
     """Các chuỗi số liệu xếp chồng lên nhau trên cùng một cột.
 
     Với "barnorm": "percent", mỗi cột được chuẩn hoá thành 100% và nhãn hiện
-    theo phần trăm — dùng để so sánh THÀNH PHẦN giữa các split có số dòng
+    theo phần trăm - dùng để so sánh THÀNH PHẦN giữa các split có số dòng
     khác nhau (train 12981 dòng so với val 1623 dòng).
     """
     series = spec["series"]
@@ -235,9 +235,9 @@ def _stacked_bar(spec):
 def _stacked_grid(spec):
     """Nhiều cột xếp chồng cạnh nhau, MỖI SPLIT MỘT KHUNG.
 
-    Nhãn dạng "aspect · split" trên một biểu đồ duy nhất khiến người đọc phải tự
+    Nhãn dạng "aspect, split" trên một biểu đồ duy nhất khiến người đọc phải tự
     tách lại: vừa muốn so các aspect trong cùng một split, vừa muốn so cùng một
-    aspect giữa các split — hai việc khác nhau trên cùng một hình.
+    aspect giữa các split - hai việc khác nhau trên cùng một hình.
 
     Cách vẽ ở đây: mỗi split là một khung riêng, chung trục tung và chung chú
     thích màu, nên:
@@ -307,7 +307,7 @@ def _heatmap(spec):
         textfont=dict(size=11),
         colorscale="Blues",
         showscale=False,
-        hovertemplate="%{y} — %{x}<br>%{text}<extra></extra>",
+        hovertemplate="%{y} - %{x}<br>%{text}<extra></extra>",
     ))
     # Hàng trên cùng là aspect đầu tiên, giống cách đọc một bảng.
     fig.update_yaxes(autorange="reversed")

@@ -19,9 +19,9 @@ import yaml
 
 from src import config
 
-# =====================================================================
+# ---
 # 1. ĐỌC / GHI FILE
-# =====================================================================
+# ---
 
 
 def read_csv(path):
@@ -73,9 +73,9 @@ def write_jsonl(records, path):
     return path
 
 
-# =====================================================================
+# ---
 # 2. CHUẨN HOÁ VĂN BẢN
-# =====================================================================
+# ---
 
 # Bảng nguyên âm tiếng Việt (đã bao gồm cả dạng có dấu) - dùng cho việc đoán từ
 VI_VOWELS = set(
@@ -118,12 +118,12 @@ def dedup_key(text, ignore_diacritics=False):
     """Tạo KHOÁ so trùng cho một review.
 
     QUAN TRỌNG: khoá này CHỈ dùng để phát hiện trùng lặp.
-    Nó KHÔNG BAO GIỜ thay thế văn bản gốc của review — đây KHÔNG phải bước
+    Nó KHÔNG BAO GIỜ thay thế văn bản gốc của review - đây KHÔNG phải bước
     Normalize. Bước Normalize chỉ sửa Unicode / khoảng trắng / ký tự lặp
     (xem src/pipeline/normalize.py) và KHÔNG bỏ dấu tiếng Việt.
 
     Các bước tạo khoá:
-        1. NFC  — gộp hai cách mã hoá dấu tiếng Việt về một dạng;
+        1. NFC  - gộp hai cách mã hoá dấu tiếng Việt về một dạng;
         2. lower
         3. gộp khoảng trắng / xuống dòng
         4. (tuỳ chọn) bỏ dấu tiếng Việt: "đẹp" -> "dep"
@@ -135,7 +135,7 @@ def dedup_key(text, ignore_diacritics=False):
     câu đó có cùng một khoá.
 
     `ignore_diacritics=False` (mặc định) giữ dấu tiếng Việt trong khoá, nên
-    "son dep" và "son đẹp" là HAI khoá khác nhau — dự án không bỏ dấu tiếng Việt
+    "son dep" và "son đẹp" là HAI khoá khác nhau - dự án không bỏ dấu tiếng Việt
     ở bất kỳ chỗ nào, kể cả trong khoá so trùng. Muốn thí nghiệm thì bật bằng
     `clean.deduplicate.ignore_diacritics: true` trong configs/pipeline.yaml.
     """
@@ -162,10 +162,10 @@ def diff_window(before, after, radius=30):
     hai ô trông giống hệt nhau và ví dụ trở nên vô nghĩa.
 
     Xuống dòng được hiện thành '⏎' để nhìn thấy được. Khi hai đoạn chỉ khác nhau
-    ở khoảng trắng, khoảng trắng được hiện thành '␣' — nếu để nguyên, trình duyệt
+    ở khoảng trắng, khoảng trắng được hiện thành '␣' - nếu để nguyên, trình duyệt
     sẽ gộp chúng lại và ví dụ trông như không có gì thay đổi.
 
-    Trả về (đoạn trước, đoạn sau), đã thêm '…' nếu bị cắt.
+    Trả về (đoạn trước, đoạn sau), đã thêm '...' nếu bị cắt.
     """
     limit = min(len(before), len(after))
     position = next((i for i in range(limit) if before[i] != after[i]), limit)
@@ -176,12 +176,12 @@ def diff_window(before, after, radius=30):
         snippet = text[start:stop]
         # Hiện rõ ký tự điều khiển: '\r' (kiểu xuống dòng Windows, CRLF) in thành
         # "\r" còn xuống dòng in thành '⏎'. Nếu chỉ in '⏎' cho cả hai thì phép
-        # chuẩn hoá "\r\n -> \n" — phép phổ biến nhất — sẽ trông như không đổi gì.
+        # chuẩn hoá "\r\n -> \n" - phép phổ biến nhất - sẽ trông như không đổi gì.
         snippet = snippet.replace("\r", "\\r").replace("\n", "⏎")
         if start > 0:
-            snippet = "…" + snippet
+            snippet = "..." + snippet
         if stop < len(text):
-            snippet = snippet + "…"
+            snippet = snippet + "..."
         return snippet
 
     before_snippet, after_snippet = _cut(before), _cut(after)
@@ -191,17 +191,17 @@ def diff_window(before, after, radius=30):
     return before_snippet, after_snippet
 
 
-# =====================================================================
+# ---
 # 3. PHÁT HIỆN ĐẶC ĐIỂM VĂN BẢN
-# =====================================================================
+# ---
 
-# ---------------------------------------------------------------------
-# EMOJI — bắt TRỌN CHUỖI emoji, không đếm từng điểm mã rời rạc
-# ---------------------------------------------------------------------
+# ---
+# EMOJI - bắt TRỌN CHUỖI emoji, không đếm từng điểm mã rời rạc
+# ---
 # Một emoji có thể gồm nhiều điểm mã: ký tự gốc + dấu biến thể (U+FE0F)
 # + tông màu da (U+1F3FB..U+1F3FF) + nối bằng ZWJ (U+200D).
 # Nếu đếm từng điểm mã rời thì "❤️" bị tính thành 2 emoji và "🏻" (tông màu
-# da) bị tính như một emoji riêng — sai hẳn. Danh sách điểm mã dưới đây là
+# da) bị tính như một emoji riêng - sai hẳn. Danh sách điểm mã dưới đây là
 # TOÀN BỘ dải emoji của Unicode, không phải danh sách chọn tay vài emoji.
 _EMOJI_BASES = (
     "\U0001F000-\U0001FAFF"   # mặt cười, đồ vật, trái tim...
@@ -227,7 +227,7 @@ def emoji_key(sequence):
     """Khoá gộp emoji giống nhau khi đếm.
 
     Bỏ dấu biến thể U+FE0F (chỉ ảnh hưởng cách hiển thị), nên "❤️" và "❤"
-    được tính chung một dòng — đúng với cảm nhận của người đọc báo cáo.
+    được tính chung một dòng - đúng với cảm nhận của người đọc báo cáo.
     """
     return sequence.replace(_EMOJI_VARIATION, "")
 
@@ -315,9 +315,9 @@ def is_code_like(text, patterns=None):
     return len(find_matches(text, patterns or config.CODE_PATTERNS)) > 0
 
 
-# ---------------------------------------------------------------------
-# TEENCODE / TỪ LẠ — TÌM TỪ DỮ LIỆU BẰNG QUY TẮC CẤU TRÚC
-# ---------------------------------------------------------------------
+# ---
+# TEENCODE / TỪ LẠ - TÌM TỪ DỮ LIỆU BẰNG QUY TẮC CẤU TRÚC
+# ---
 # Dùng cho ĐO LƯỜNG (EDA 03 liệt kê từ bị gắn cờ). Pipeline KHÔNG thay thế
 # teencode: văn bản giữ nguyên như người viết.
 #
@@ -327,10 +327,10 @@ def is_code_like(text, patterns=None):
 # bị bắt bằng quy tắc.
 #
 # QUY ƯỚC CHỐNG DƯƠNG TÍNH GIẢ (rất quan trọng khi đọc bảng EDA 03):
-# - Từ chứa chữ KHÔNG PHẢI chữ Latin (ký tự trang trí 𝐭, ᴗ, ω, chữ Hàn/Ả Rập…)
-#   được xếp riêng một lí do và KHÔNG bị xét các quy tắc còn lại — chúng không
+# - Từ chứa chữ KHÔNG PHẢI chữ Latin (ký tự trang trí 𝐭, ᴗ, ω, chữ Hàn/Ả Rập...)
+#   được xếp riêng một lí do và KHÔNG bị xét các quy tắc còn lại - chúng không
 #   phải "teencode tiếng Việt" nên không thể bị dán nhãn sai.
-# - "Một ký tự phụ âm" chỉ xét đúng các chữ cái Latin cơ bản (k, r, n, m, t…),
+# - "Một ký tự phụ âm" chỉ xét đúng các chữ cái Latin cơ bản (k, r, n, m, t...),
 #   không xét ký tự trang trí / chữ nước ngoài.
 # - Số thuần (2023) không bao giờ bị gắn cờ: quy tắc yêu cầu phải có chữ cái.
 # - Mọi từ tiếng Việt đều có nguyên âm, nên quy tắc "không có nguyên âm" không
@@ -340,19 +340,19 @@ VI_LETTERS = set(
     "pqrstuùúủũụưừứửữựvxyỳýỷỹỵ"
 )
 
-# Chữ cái Latin cơ bản (a–z) + "đ": dùng để nhận ra chữ của hệ chữ khác.
+# Chữ cái Latin cơ bản (a-z) + "đ": dùng để nhận ra chữ của hệ chữ khác.
 LATIN_BASIC = set("abcdefghijklmnopqrstuvwxyzđ")
 
-# Chữ Latin KHÔNG có trong bảng chữ cái tiếng Việt — thường là tiếng Anh / tên
+# Chữ Latin KHÔNG có trong bảng chữ cái tiếng Việt - thường là tiếng Anh / tên
 # thương hiệu (review, swatch, fenty...), không phải lỗi chính tả tiếng Việt.
 LETTERS_OUTSIDE_VN = set("fjwz")
 
 # Chữ cái được coi là "Latin" = chữ cái tiếng Việt (kể cả chữ có dấu) + f, j, w, z.
 # CHÚ Ý: phải gộp VI_LETTERS vào đây, nếu không thì mọi chữ có dấu ("à", "ẹ",
-# "ắ"...) sẽ bị xếp nhầm là "không phải chữ Latin" — đó là lỗi dương tính giả.
+# "ắ"...) sẽ bị xếp nhầm là "không phải chữ Latin" - đó là lỗi dương tính giả.
 LATIN_LETTERS = VI_LETTERS | LETTERS_OUTSIDE_VN
 
-# Phụ âm viết bằng chữ Latin cơ bản — dùng cho quy tắc "một ký tự phụ âm".
+# Phụ âm viết bằng chữ Latin cơ bản - dùng cho quy tắc "một ký tự phụ âm".
 # Viết tắt 1 chữ cái trong tiếng Việt luôn nằm trong tập này (k = không, r = rồi,
 # n, m, t, c, v, d, s, p, h...).
 ASCII_CONSONANTS = set("bcdfghjklmnpqrstvwxz")
@@ -404,14 +404,14 @@ def tokenize(text):
 
     Đây là phép ĐẾM TỪ dùng cho thống kê mô tả (EDA), KHÔNG phải tokenizer của
     model: mỗi model có tokenizer riêng (xem src/preprocessing/) và chỉ dùng nó
-    ở pha huấn luyện. Nhờ vậy EDA không phụ thuộc vào một model cụ thể.
+    ở bước huấn luyện. Nhờ vậy EDA không phụ thuộc vào một model cụ thể.
     """
     return re.findall(r"\w+", text.lower(), flags=re.UNICODE)
 
 
-# =====================================================================
+# ---
 # 4. THỐNG KÊ MÔ TẢ
-# =====================================================================
+# ---
 
 
 def length_stats(values, name="độ dài"):
@@ -441,9 +441,9 @@ def length_stats(values, name="độ dài"):
     }
 
 
-# =====================================================================
+# ---
 # 5. CẤU HÌNH PIPELINE
-# =====================================================================
+# ---
 
 
 def load_pipeline_config(path=None):

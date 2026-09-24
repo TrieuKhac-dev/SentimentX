@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Ghi và đọc FILE KẾT QUẢ (JSON) — cầu nối giữa "tính toán" và "trình bày".
+"""Ghi và đọc FILE KẾT QUẢ (JSON) - cầu nối giữa "tính toán" và "trình bày".
 
 Dự án tách thành 3 tầng độc lập:
 
@@ -15,7 +15,7 @@ Vì sao tách như vậy:
       giữa hai phiên bản, và không phụ thuộc vào thư viện vẽ.
 
 CẤU TRÚC MỘT FILE KẾT QUẢ
--------------------------
+---
 {
   "schema": 1,                     # phiên bản định dạng file kết quả
   "phase": "eda",                  # eda | pipeline
@@ -26,12 +26,12 @@ CẤU TRÚC MỘT FILE KẾT QUẢ
   "sections": [
     {
       "id":     "overview",
-      "title":  "EDA 01 — Tổng quan dữ liệu",
+      "title":  "EDA 01 - Tổng quan dữ liệu",
       "cards":  [{"label": ..., "value": ...}],
       "charts": [{"title": ..., "kind": "bar", "x": [...], "y": [...]}],
       "tables": [{"title": ..., "columns": [...], "rows": [[...]],
                   "num_columns": [chỉ số các cột cần canh phải]}],
-      "files":  ["data/reports/eda/.../01_overview.csv"]
+      "files":  ["<đường dẫn file CSV chi tiết>"]
     }
   ]
 }
@@ -54,12 +54,12 @@ RESULT_SCHEMA = 1
 SECTION_KEYS = ("id", "title", "cards", "charts", "tables", "files")
 
 # Một bảng trong "tables" là dict: title, columns, rows, num_columns (chỉ số các
-# cột căn phải) và tuỳ chọn "first": True — bảng đó được hiện ngay dưới phần thẻ
+# cột căn phải) và tuỳ chọn "first": True - bảng đó được hiện ngay dưới phần thẻ
 # số liệu, TRƯỚC mọi biểu đồ (dùng cho bảng cấu trúc file ở EDA 01).
 
 
 def result_filename(phase):
-    """Tên file kết quả của một pha: eda -> 'eda_result.json'."""
+    """Tên file kết quả của một nhóm: eda -> 'eda_result.json'."""
     return "{}_result.json".format(phase)
 
 

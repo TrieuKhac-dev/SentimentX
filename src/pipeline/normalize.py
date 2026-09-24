@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 4 — NORMALIZE.
+"""Pipeline bước 4 - NORMALIZE.
 
 Chuẩn hoá văn bản theo config (mỗi phép đều có thể BẬT/TẮT):
 - Chữ thường (tuỳ chọn; mặc định TẮT)
@@ -9,7 +9,7 @@ Chuẩn hoá văn bản theo config (mỗi phép đều có thể BẬT/TẮT):
 
 Bước này KHÔNG bỏ dấu tiếng Việt và KHÔNG thay teencode: nó chỉ chuẩn hoá hình
 thức văn bản, không đoán nghĩa. Việc bỏ dấu tiếng Việt chỉ xảy ra bên trong KHOÁ
-so trùng của bước Clean (`utils.dedup_key`) — khoá đó không bao giờ thay văn bản.
+so trùng của bước Clean (`utils.dedup_key`) - khoá đó không bao giờ thay văn bản.
 
 RÀNG BUỘC QUAN TRỌNG (invariant):
 Bước này chỉ được sửa CỘT VĂN BẢN. Nhãn phải giữ nguyên tuyệt đối.
@@ -161,7 +161,7 @@ def run(context):
 
     return {
         "id": "pipeline_normalize",
-        "title": "Step 4 — Normalize (chuẩn hoá văn bản)",
+        "title": "Step 4 - Normalize (chuẩn hoá văn bản)",
         "cards": [
             {"label": "Số review đã xét", "value": "{}".format(total)},
             {"label": "Số review bị thay đổi", "value": "{}".format(changed)},

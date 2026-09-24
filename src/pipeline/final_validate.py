@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 6 — FINAL VALIDATE (cổng chất lượng).
+"""Pipeline bước 6 - FINAL VALIDATE (cổng chất lượng).
 
 Đây KHÔNG phải EDA lần hai. Đây là bước kiểm tra cuối, trả lời câu hỏi:
 
     "Dữ liệu sau khi xử lý có còn hợp lệ để đưa cho model không?"
 
 Kiểm tra:
-1. Schema   — đủ cột, đúng tên cột, không thừa cột.
-2. Văn bản  — không có review rỗng.
-3. Nhãn     — không có giá trị lạ; nhãn không bị thay đổi so với lúc đầu.
-4. Văn bản chỉ đổi hình thức — mỗi dòng phải khớp ĐÚNG dòng gốc sau khi áp quy
+1. Schema   - đủ cột, đúng tên cột, không thừa cột.
+2. Văn bản  - không có review rỗng.
+3. Nhãn     - không có giá trị lạ; nhãn không bị thay đổi so với lúc đầu.
+4. Văn bản chỉ đổi hình thức - mỗi dòng phải khớp ĐÚNG dòng gốc sau khi áp quy
    tắc chuẩn hoá, chứng minh việc xoá trùng lặp / khoá so trùng (có bỏ dấu khi
    SO) không làm mất dấu tiếng Việt trong văn bản.
-5. Toàn vẹn — số dòng khớp giữa các bước.
+5. Toàn vẹn - số dòng khớp giữa các bước.
 """
 
 from src import config, dataset, utils
@@ -31,9 +31,9 @@ def run(context):
     checks = []          # [tên kiểm tra, kết quả, chi tiết]
     problems = []
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Schema
-    # -----------------------------------------------------------------
+# ---
     bad_schema = []
     for name, df in splits.items():
         missing = [c for c in expected if c not in df.columns]
@@ -47,9 +47,9 @@ def run(context):
     else:
         checks.append(["Schema", "ĐẠT", "cả {} split đều đủ cột".format(len(splits))])
 
-    # -----------------------------------------------------------------
+# ---
     # 2. Văn bản rỗng
-    # -----------------------------------------------------------------
+# ---
     empty_total = 0
     for df in splits.values():
         empty_total += int((df[config.TEXT_COLUMN].astype(str).str.strip() == "").sum())
@@ -59,9 +59,9 @@ def run(context):
     else:
         checks.append(["Văn bản", "ĐẠT", "không có review rỗng"])
 
-    # -----------------------------------------------------------------
+# ---
     # 3. Nhãn hợp lệ và nhãn không bị thay đổi
-    # -----------------------------------------------------------------
+# ---
     invalid_total = 0
     for df in splits.values():
         stripped = df[aspects].astype(str).apply(lambda col: col.str.strip())
@@ -90,16 +90,16 @@ def run(context):
         checks.append(["Nhãn không bị thay đổi", "LỖI",
                        "dấu vân tay nhãn KHÁC với lúc đầu"])
 
-    # -----------------------------------------------------------------
+# ---
     # 4. Văn bản chỉ được đổi HÌNH THỨC, không được mất dấu tiếng Việt
     #
     # Mỗi dòng được giữ lại phải khớp CHÍNH XÁC với dòng gốc của nó sau khi áp
-    # quy tắc chuẩn hoá (`normalize_steps` — đúng hàm mà bước Normalize dùng).
+    # quy tắc chuẩn hoá (`normalize_steps` - đúng hàm mà bước Normalize dùng).
     #
     # Nhờ phép kiểm này, câu hỏi "khoá so trùng có bỏ dấu tiếng Việt thì văn bản
     # có bị mất dấu không?" được trả lời bằng số liệu: khoá so trùng chỉ dùng để
     # SO, còn văn bản xuất ra vẫn đúng từng ký tự như bản gốc sau chuẩn hoá.
-    # -----------------------------------------------------------------
+# ---
     raw_texts = context.get("raw_texts") or {}
     kept_positions = context.get("kept_positions") or {}
     ncfg = context["config"]["normalize"]
@@ -132,9 +132,9 @@ def run(context):
             .format(compared),
         ])
 
-    # -----------------------------------------------------------------
+# ---
     # 5. Toàn vẹn số dòng
-    # -----------------------------------------------------------------
+# ---
     integrity_rows = []
     integrity_ok = True
     for name, df in splits.items():
@@ -146,9 +146,9 @@ def run(context):
     if not integrity_ok:
         problems.append("số dòng không khớp")
 
-    # -----------------------------------------------------------------
+# ---
     # 5. Báo cáo
-    # -----------------------------------------------------------------
+# ---
     total_rows = sum(len(df) for df in splits.values())
     files = [
         utils.rel(utils.write_json(
@@ -165,7 +165,7 @@ def run(context):
 
     return {
         "id": "pipeline_final_validate",
-        "title": "Step 6 — Final Validate (kiểm tra dữ liệu đầu ra)",
+        "title": "Step 6 - Final Validate (kiểm tra dữ liệu đầu ra)",
         "cards": [
             {"label": "Số hạng mục kiểm tra", "value": len(checks)},
             {"label": "Kết quả", "value": "ĐẠT" if not problems else "CÓ LỖI"},

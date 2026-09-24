@@ -2,7 +2,7 @@
 """Đăng ký các module EDA và các bước của Data Pipeline.
 
 CÁCH MỞ RỘNG
-============
+---
 1) Thêm một bước EDA mới:
    - Tạo file mới trong `src/eda/`, ví dụ `my_step.py`.
    - Trong file đó viết hàm `run(context) -> dict` trả về một section báo cáo
@@ -25,7 +25,7 @@ CÁCH MỞ RỘNG
    - Viết hàm dựng hình trong `src/reporting/charts.py` rồi đăng ký vào `_BUILDERS`.
    - Module EDA/pipeline chỉ cần khai báo `{"kind": "<tên mới>", ...}`.
 
-5) Thêm một MODEL mới cho pha 3:
+5) Thêm một MODEL mới cho tiền xử lý cho model:
    - Viết file trong `src/preprocessing/`, ví dụ `my_model.py`, cung cấp:
          MODEL_NAME    tên trên Hugging Face
          MAX_LENGTH    ngưỡng cắt input (tính bằng token)
@@ -57,9 +57,9 @@ from src.eda import (
     text_analysis,
 )
 
-# ---------------------------------------------------------------------
+# ---
 # Thứ tự chạy EDA = thứ tự xuất hiện trong báo cáo
-# ---------------------------------------------------------------------
+# ---
 EDA_MODULES = [
     overview,        # 01 - tổng quan
     label_aspect,    # 02 - nhãn & aspect
@@ -69,11 +69,11 @@ EDA_MODULES = [
 ]
 
 
-# ---------------------------------------------------------------------
+# ---
 # Thứ tự chạy Data Pipeline
 #
 # Dùng import muộn để khi chỉ chạy EDA thì không cần nạp các module pipeline.
-# ---------------------------------------------------------------------
+# ---
 
 
 def pipeline_steps():

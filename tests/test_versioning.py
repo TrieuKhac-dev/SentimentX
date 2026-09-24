@@ -4,7 +4,7 @@
 Chạy: python -m unittest discover -s tests
 
 Vì sao cần: mục lục là DẤU VẾT của mọi con số trong báo cáo. Một dòng bị mất hay một dòng
-trỏ tới file không còn tồn tại đều làm người đọc tin vào thứ không kiểm chứng được — và cả
+trỏ tới file không còn tồn tại đều làm người đọc tin vào thứ không kiểm chứng được - và cả
 hai lỗi đó đều không gây ra exception nào. Bộ test dùng manifest ở thư mục tạm, không đụng
 vào mục lục thật của dự án.
 """
@@ -28,7 +28,7 @@ class TestManifest(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_record_keeps_all_entries(self):
-        """Ghi nhiều lần chạy khác pha thì KHÔNG được làm mất dòng nào."""
+        """Ghi nhiều lần chạy khác nhóm thì KHÔNG được làm mất dòng nào."""
         versioning.record({"version_id": "v1", "phase": "eda"})
         versioning.record({"version_id": "v1", "phase": "model_input",
                            "report": "README.md"})
@@ -48,7 +48,7 @@ class TestManifest(unittest.TestCase):
         self.assertNotIn("data/reports/khong_ton_tai.csv", reports)
 
     def test_same_run_replaces_instead_of_duplicating(self):
-        """Cùng (phiên bản, pha, file báo cáo) là cùng một lần chạy → thay thế, không thêm."""
+        """Cùng (phiên bản, nhóm, file báo cáo) là cùng một lần chạy -> thay thế, không thêm."""
         versioning.record({"version_id": "v1", "phase": "qwen_eval",
                            "report": "README.md", "lần": 1})
         versioning.record({"version_id": "v1", "phase": "qwen_eval",

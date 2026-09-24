@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Tách từ bằng pyvi (ViTokenizer) — bộ tách từ LEGACY, KHÔNG chính chủ.
+"""Tách từ bằng pyvi (ViTokenizer) - bộ tách từ LEGACY, KHÔNG chính chủ.
 
 Vị trí của bộ này trong kiến trúc: đây là lựa chọn THAY THẾ được (kiến trúc cho
 phép thay bộ tách từ mà không sửa pipeline hay tokenizer), dùng khi máy chưa cài
-được Java — bộ chính chủ của PhoBERT là VnCoreNLP/RDRSegmenter (cần Java).
+được Java - bộ chính chủ của PhoBERT là VnCoreNLP/RDRSegmenter (cần Java).
 
 Vì sao KHÔNG dùng pyvi làm mặc định:
     - VinAI (tác giả PhoBERT) khuyến nghị đúng RDRSegmenter của VnCoreNLP, vì
@@ -17,7 +17,7 @@ Nên pyvi chỉ là phương án dự phòng: kết quả đo vẫn đúng nhưn
 NAME = "pyvi"
 OFFICIAL = False
 DESCRIPTION = (
-    "ViTokenizer của pyvi — bộ tách từ legacy, dùng khi chưa cài được Java "
+    "ViTokenizer của pyvi - bộ tách từ legacy, dùng khi chưa cài được Java "
     "(KHÔNG phải bộ VinAI khuyến nghị cho PhoBERT)"
 )
 INSTALL_HINT = (

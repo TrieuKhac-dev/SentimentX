@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Hợp đồng chung của mọi loader — đọc MỘT file nguồn thành DataFrame.
+"""Hợp đồng chung của mọi loader - đọc MỘT file nguồn thành DataFrame.
 
 MỘT LOADER CHUẨN GỒM ĐÚNG MỘT HÀM
----------------------------------
+---
     def read(path) -> pandas.DataFrame
 
 BỐN QUY ƯỚC BẮT BUỘC (phần còn lại của dự án dựa vào những điều này):
 
 1. Giữ NGUYÊN tên cột như trong file gốc. Việc đổi tên cột văn bản thành
-   "text" là do src/dataset.py làm, KHÔNG phải loader — vì mỗi dataset khai
+   "text" là do src/dataset.py làm, KHÔNG phải loader - vì mỗi dataset khai
    báo tên cột khác nhau ở khoá `text_column` trong configs/datasets/*.yaml.
 
 2. Ô trống giữ nguyên là chuỗi rỗng "", KHÔNG được biến thành NaN.
@@ -16,7 +16,7 @@ BỐN QUY ƯỚC BẮT BUỘC (phần còn lại của dự án dựa vào nhữ
    khác hoàn toàn với nhãn "neutral".
 
 3. Không sửa nội dung văn bản. Loader chỉ ĐỌC: không strip, không đổi
-   teencode, không xoá dòng trùng — những việc đó thuộc pipeline.
+   teencode, không xoá dòng trùng - những việc đó thuộc pipeline.
 
 4. Trả về DataFrame với mọi dòng đọc được; dòng lỗi thì báo lỗi rõ ràng kèm
    số dòng, không tự bỏ qua.
@@ -45,7 +45,7 @@ def _is_text_dtype(dtype):
     """Cột chứa chữ?
 
     pandas 3 dùng dtype `str`/`string` cho cột chữ, còn pandas 1.x/2.x dùng
-    `object` — hàm này nhận cả hai, và nhận cả object chứa dữ liệu hỗn hợp.
+    `object` - hàm này nhận cả hai, và nhận cả object chứa dữ liệu hỗn hợp.
     Cột số (int64, float64, bool...) được coi là KHÔNG phải cột chữ.
     """
     return pd.api.types.is_string_dtype(dtype)
@@ -54,7 +54,7 @@ def _is_text_dtype(dtype):
 def as_text_frame(frame):
     """Ép các cột CHỮ về dạng chuỗi, ô thiếu thành "" (xem quy ước 2).
 
-    Cột số được giữ nguyên — loader không quyết định kiểu dữ liệu của dữ liệu
+    Cột số được giữ nguyên - loader không quyết định kiểu dữ liệu của dữ liệu
     gốc; src/dataset.py mới là nơi ép mọi thứ về dạng chuẩn nội bộ.
     """
     for column in frame.columns:
@@ -66,7 +66,7 @@ def as_text_frame(frame):
 def as_string_frame(frame):
     """Ép MỌI cột về chuỗi, kể cả cột số.
 
-    Dùng cho định dạng không khai báo kiểu dữ liệu (JSONL) — ở đó một cột có
+    Dùng cho định dạng không khai báo kiểu dữ liệu (JSONL) - ở đó một cột có
     thể vừa chứa "positive" vừa chứa 1, nên phải đọc tất cả như chữ để giữ
     đúng quy ước ô trống = chuỗi rỗng, và để nhãn số 1 không thành "1.0".
     """

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Mã phiên bản cho mỗi lần chạy — để kết quả cũ KHÔNG bị ghi đè.
+"""Mã phiên bản cho mỗi lần chạy - để kết quả cũ KHÔNG bị ghi đè.
 
 MÃ PHIÊN BẢN (version_id) ĐƯỢC TÍNH TỪ
--------------------------------------
+---
     nội dung file cấu hình dataset  (configs/datasets/<tên>.yaml)
   + nội dung file cấu hình pipeline (configs/pipeline.yaml)
   + nội dung TẤT CẢ file dữ liệu gốc (data/raw/<tên>/**)
@@ -16,7 +16,7 @@ Kết quả là một chuỗi dạng:  cosmetics-v0.1.0-1a2b3c4d
     - Đổi dữ liệu gốc -> mã KHÁC (vì nội dung file gốc cũng được đưa vào hash).
 
 CÂY THƯ MỤC KẾT QUẢ
--------------------
+---
     data/processed/versions/<mã>/processed_train.csv, label_map.json, processing_log.json, ...
     data/reports/eda/versions/<mã>/eda_result.json, report.html, ...
     data/reports/pipeline/versions/<mã>/pipeline_result.json, report.html, ...
@@ -36,9 +36,9 @@ MANIFEST_SCHEMA = 1
 HASH_LENGTH = 8
 
 
-# ---------------------------------------------------------------------
+# ---
 # Tính mã phiên bản
-# ---------------------------------------------------------------------
+# ---
 
 
 def compute_id(dataset_cfg, pipeline_cfg=None):
@@ -83,9 +83,9 @@ def _file_bytes(path):
     return path.read_bytes() if path.exists() else b""
 
 
-# ---------------------------------------------------------------------
+# ---
 # Đường dẫn theo phiên bản
-# ---------------------------------------------------------------------
+# ---
 
 
 def versions_dir(base):
@@ -112,9 +112,9 @@ def latest_version(base, dataset=None):
     return max(candidates, key=lambda path: path.stat().st_mtime).name
 
 
-# ---------------------------------------------------------------------
+# ---
 # Mục lục các lần chạy (manifest)
-# ---------------------------------------------------------------------
+# ---
 
 
 def manifest_path():
@@ -137,14 +137,14 @@ def prune_missing(manifest=None):
 
     Vì sao cần: `record()` ghi dòng mới mà không kiểm file có thật hay không, nên xoá tay
     một file báo cáo (ví dụ dọn các lần chạy thử vài mẫu) để lại dòng mục lục trỏ vào khoảng
-    không. Người đọc mục lục sẽ tưởng số liệu đó vẫn tra được — đúng loại dấu vết sai cần
+    không. Người đọc mục lục sẽ tưởng số liệu đó vẫn tra được - đúng loại dấu vết sai cần
     tránh. Chạy lại hàm này cũng là cách dọn định kỳ.
     """
     manifest = manifest or read_manifest()
     kept, dropped = [], []
     for entry in manifest["entries"]:
         report = entry.get("report")
-        # Các pha cũ (EDA, pipeline) không truyền `report` → giữ nguyên, không suy diễn.
+        # Các nhóm cũ (EDA, pipeline) không truyền `report` -> giữ nguyên, không suy diễn.
         if report and not (config.ROOT_DIR / report).exists():
             dropped.append(report)
         else:
@@ -158,13 +158,13 @@ def prune_missing(manifest=None):
 def record(entry):
     """Ghi một lần chạy vào mục lục.
 
-    Khoá là bộ (mã phiên bản, pha, FILE BÁO CÁO): chạy lại cùng config và cùng dữ
+    Khoá là bộ (mã phiên bản, nhóm, FILE BÁO CÁO): chạy lại cùng config và cùng dữ
     liệu sẽ THAY THẾ dòng cũ thay vì sinh thêm dòng trùng.
 
     Vì sao khoá có cả file báo cáo: cùng một phiên bản dữ liệu có thể có NHIỀU lần đo
     (ví dụ `--prompt X` và `--segmenter Y` ghi ra file riêng để không ghi đè nhau).
-    Nếu khoá chỉ có (mã phiên bản, pha) thì lần đo sau sẽ xoá dấu vết của lần trước —
-    mục lục nói một đằng, thư mục phiên bản có nhiều file một nẻo. Các pha cũ (EDA,
+    Nếu khoá chỉ có (mã phiên bản, nhóm) thì lần đo sau sẽ xoá dấu vết của lần trước -
+    mục lục nói một đằng, thư mục phiên bản có nhiều file một nẻo. Các nhóm cũ (EDA,
     pipeline) không truyền `report` nên khoá của chúng vẫn như trước.
     """
 
@@ -182,11 +182,11 @@ def record(entry):
     manifest["entries"] = entries
     manifest["updated_at"] = entry["created_at"]
 
-    # Dọn luôn các dòng trỏ tới file đã bị xoá (xem `prune_missing`) — nhờ vậy mục lục không
+    # Dọn luôn các dòng trỏ tới file đã bị xoá (xem `prune_missing`) - nhờ vậy mục lục không
     # tích tụ dấu vết trỏ vào khoảng không qua các lần dọn thư mục báo cáo.
     # LƯU Ý: hàm này sửa `manifest` TẠI CHỖ và trả về danh sách dòng đã bỏ; đừng gán lại giá
     # trị trả về (đã từng viết `... and manifest["entries"]`, và khi không có gì bị dọn thì
-    # biểu thức đó trả về [] — xoá sạch mục lục).
+    # biểu thức đó trả về [] - xoá sạch mục lục).
     prune_missing(manifest)
 
     utils.write_json(manifest, manifest_path())
@@ -194,7 +194,7 @@ def record(entry):
 
 
 def entries(dataset=None, phase=None):
-    """Các lần chạy trong mục lục, lọc theo dataset và/hoặc pha báo cáo."""
+    """Các lần chạy trong mục lục, lọc theo dataset và/hoặc nhóm báo cáo."""
     return [
         entry for entry in read_manifest()["entries"]
         if (dataset is None or entry.get("dataset") == dataset)

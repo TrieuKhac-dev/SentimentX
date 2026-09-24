@@ -4,25 +4,25 @@
 Đây là NƠI DUY NHẤT quyết định "dự án có những bộ tách từ nào". Kiến trúc cố ý để bộ
 tách từ THAY ĐƯỢC: cùng pipeline, cùng tokenizer, chỉ đổi bước tách từ rồi đo lại.
 Nhờ vậy câu hỏi "tách từ có giúp không, giúp bao nhiêu" trả lời được bằng số đo thay
-vì bằng niềm tin — và cũng không phải viết lại code khi một bộ mới xuất hiện.
+vì bằng niềm tin - và cũng không phải viết lại code khi một bộ mới xuất hiện.
 
 THỨ TỰ MẶC ĐỊNH (khi chọn "auto")
---------------------------------
-    1. vncorenlp   CHÍNH CHỦ — RDRSegmenter, đúng bộ VinAI dùng tiền huấn luyện PhoBERT
+---
+    1. vncorenlp   CHÍNH CHỦ - RDRSegmenter, đúng bộ VinAI dùng tiền huấn luyện PhoBERT
     2. pyvi        dự phòng khi chưa cài được Java, KHÔNG chính chủ
 
 `underthesea` và `none` chỉ chạy khi chỉ định rõ `--segmenter <tên>`.
 
 Nguyên tắc quan trọng: "auto" KHÔNG bao giờ tự chọn một bộ không chính chủ. Máy chưa
-cài được bộ chính chủ thì báo lỗi kèm cách cài, chứ không lặng lẽ dùng bộ khác — số
+cài được bộ chính chủ thì báo lỗi kèm cách cài, chứ không lặng lẽ dùng bộ khác - số
 liệu đo bằng bộ khác là số liệu của một thí nghiệm khác, trộn vào là sai.
 
 THÊM MỘT BỘ MỚI
----------------
+---
 1. Tạo file trong thư mục này, ví dụ `bami.py`, theo HỢP ĐỒNG ghi ở base.py
    (NAME, OFFICIAL, DESCRIPTION, available(), info(), segment()).
 2. Import ở đây và thêm vào dict `SEGMENTERS`.
-3. Muốn nó được "auto" chọn thì thêm vào AUTO_ORDER — chỉ làm điều này khi bộ đó thật
+3. Muốn nó được "auto" chọn thì thêm vào AUTO_ORDER - chỉ làm điều này khi bộ đó thật
    sự là bộ chính chủ mà model mong đợi.
 """
 
@@ -84,7 +84,7 @@ def resolve(spec="auto"):
     """Chọn bộ tách từ thật sự sẽ dùng. Trả về (tên, module).
 
     `spec="auto"` (mặc định) thử theo AUTO_ORDER và KHÔNG tự chọn bộ không chính chủ.
-    Chỉ định đích danh thì bộ đó phải dùng được — nếu không, báo lỗi ngay thay vì
+    Chỉ định đích danh thì bộ đó phải dùng được - nếu không, báo lỗi ngay thay vì
     lặng lẽ quay về mặc định, vì như vậy số liệu sẽ thuộc về một thí nghiệm khác với
     điều người dùng yêu cầu.
     """
@@ -122,8 +122,8 @@ def status():
             "tên": name,
             "chính chủ": "có" if module.OFFICIAL else "không",
             "dùng được": "có" if ok else "không",
-            "gói": meta.get("package") or "—",
-            "phiên bản": meta.get("version") or "—",
+            "gói": meta.get("package") or "-",
+            "phiên bản": meta.get("version") or "-",
             "ghi chú": module.DESCRIPTION if ok else reason,
         })
     return rows

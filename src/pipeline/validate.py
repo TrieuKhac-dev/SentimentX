@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 2 — VALIDATE.
+"""Pipeline bước 2 - VALIDATE.
 
 Kiểm tra dữ liệu có thoả điều kiện để đi tiếp hay không:
 - Schema: đủ cột, đúng tên, không thừa cột.
@@ -32,9 +32,9 @@ def run(context):
         for column in columns:
             issues.append([name, "-", "thiếu cột aspect trong file gốc", column])
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Kiểm tra schema
-    # -----------------------------------------------------------------
+# ---
     for name, df in splits.items():
         missing = [c for c in expected if c not in df.columns]
         extra = [c for c in df.columns if c not in expected]
@@ -52,9 +52,9 @@ def run(context):
             for column in extra:
                 issues.append([name, "-", "thừa cột", column])
 
-    # -----------------------------------------------------------------
+# ---
     # 2. Kiểm tra nội dung
-    # -----------------------------------------------------------------
+# ---
     if vcfg["check_content"]:
         for name, df in splits.items():
             texts = df[config.TEXT_COLUMN].astype(str).tolist()
@@ -74,9 +74,9 @@ def run(context):
 
     context["validation_issues"] = issues
 
-    # -----------------------------------------------------------------
+# ---
     # 3. Ghi file chi tiết và tổng hợp
-    # -----------------------------------------------------------------
+# ---
     report_path = utils.write_csv(
         issues or [["-", "-", "không có lỗi", ""]],
         ["split", "dòng", "loại lỗi", "chi tiết"],
@@ -89,7 +89,7 @@ def run(context):
 
     return {
         "id": "pipeline_validate",
-        "title": "Step 2 — Validate (kiểm tra, không sửa)",
+        "title": "Step 2 - Validate (kiểm tra, không sửa)",
         "cards": [
             {"label": "Kết quả schema", "value": "OK" if schema_ok else "CÓ LỖI"},
             {"label": "Số lỗi nội dung", "value": len(issues)},

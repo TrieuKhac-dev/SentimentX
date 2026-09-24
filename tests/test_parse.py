@@ -4,7 +4,7 @@
 Chạy: python -m unittest discover -s tests
 
 Vì sao cần: mọi chỉ số của hướng LLM đều đi qua bộ đọc này. Nếu nó đọc hụt một khía cạnh
-mà không báo lỗi, khía cạnh đó bị tính là "không nhắc tới" và bảng điểm trông vẫn hợp lí —
+mà không báo lỗi, khía cạnh đó bị tính là "không nhắc tới" và bảng điểm trông vẫn hợp lí -
 đúng loại lỗi im lặng mà dự án đang cố tránh.
 """
 

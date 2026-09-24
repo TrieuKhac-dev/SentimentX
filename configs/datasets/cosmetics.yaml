@@ -11,7 +11,7 @@
 # Tên dataset (cũng là tên file cấu hình)
 name: cosmetics
 
-# Phiên bản của BỘ DỮ LIỆU GỐC. Tăng số này mỗi khi dữ liệu gốc thay đổi.
+# Phiên bản của DATASET (dữ liệu sau khi xử lý). Tăng khi đổi cách xử lý.
 # Mã phiên bản kết quả = <name>-v<version>-<8 ký tự hash của dữ liệu + config>.
 version: "0.1.0"
 
@@ -19,8 +19,9 @@ version: "0.1.0"
 # (muốn thêm định dạng khác: thêm một loader trong src/loaders/)
 format: csv
 
-# Thư mục chứa dữ liệu gốc (đường dẫn tính từ gốc dự án)
-raw_dir: data/raw/cosmetics
+# Phiên bản của BỘ DỮ LIỆU GỐC, tức thư mục data/raw/<name>/<raw_version>/.
+# Đường dẫn đầy đủ do src/paths.py suy ra, không khai trong file này.
+raw_version: v0.1.0
 
 # Tên cột chứa nội dung review trong file gốc
 text_column: data

@@ -6,7 +6,7 @@
 Nguyên tắc của dự án:
     - Số liệu chi tiết (CSV/JSON) do các module EDA/pipeline ghi ra.
     - Báo cáo cho người đọc do module NÀY sinh ra, và nó KHÔNG tự tính toán gì
-      thêm — mọi con số đều đọc từ file kết quả.
+      thêm - mọi con số đều đọc từ file kết quả.
     - Báo cáo chỉ trình bày SỐ LIỆU và BIỂU ĐỒ. Câu giải thích nằm trong docs/.
     - Chỉ có MỘT định dạng cho người đọc là HTML. Bản Markdown đã bỏ: nó lặp
       lại đúng bấy nhiêu số liệu mà không có biểu đồ, nên chỉ thêm một bản copy
@@ -30,9 +30,9 @@ TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
 PLOTLY_JS_FILENAME = "plotly.min.js"
 
 
-# ---------------------------------------------------------------------
+# ---
 # Chuẩn bị môi trường template
-# ---------------------------------------------------------------------
+# ---
 
 
 def _environment():
@@ -81,16 +81,16 @@ def _plotlyjs_tag(mode, out_dir, assets_dir):
     return '<script charset="utf-8" src="{}"></script>'.format(relative)
 
 
-# ---------------------------------------------------------------------
+# ---
 # HTML
-# ---------------------------------------------------------------------
+# ---
 
 
 def _chart_blocks(section):
     """Vẽ từng mô tả biểu đồ của một section thành HTML.
 
     Nếu một biểu đồ lỗi, phần còn lại của báo cáo vẫn được sinh bình thường
-    và lỗi được ghi rõ ngay tại chỗ — không im lặng bỏ qua.
+    và lỗi được ghi rõ ngay tại chỗ - không im lặng bỏ qua.
     """
     blocks = []
     for index, spec in enumerate(section.get("charts") or []):
@@ -127,10 +127,10 @@ def build_html(payload, out_dir, plotlyjs="local", assets_dir=None):
             # Hai khoá này là TUỲ CHỌN trong file kết quả; điền sẵn danh sách
             # rỗng để template không phải kiểm tra tồn tại.
             item.setdefault("num_columns", [])
-            # narrow_columns: các cột "hẹp" (aspect, split, mã nhãn...) — trình
+            # narrow_columns: các cột "hẹp" (aspect, split, mã nhãn...) - trình
             # duyệt co lại hết mức để nhường chỗ cho cột văn bản dài.
             item.setdefault("narrow_columns", [])
-            # pre_wrap_columns: các cột văn bản — giữ nguyên xuống dòng như trong
+            # pre_wrap_columns: các cột văn bản - giữ nguyên xuống dòng như trong
             # CSV, để copy một ô trong báo cáo dán đi tìm trong CSV là thấy.
             item.setdefault("pre_wrap_columns", [])
             tables.append(item)
@@ -151,9 +151,9 @@ def build_html(payload, out_dir, plotlyjs="local", assets_dir=None):
     )
 
 
-# ---------------------------------------------------------------------
+# ---
 # Ghi ra đĩa
-# ---------------------------------------------------------------------
+# ---
 
 
 def write_reports(payload, out_dir, plotlyjs="local", assets_dir=None):

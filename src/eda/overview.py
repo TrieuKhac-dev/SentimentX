@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""EDA 01 — Tổng quan dữ liệu.
+"""EDA 01 - Tổng quan dữ liệu.
 
 Đo lường theo cả 3 split (train / val / test): cấu trúc từng file gốc, ô trống
 theo từng cột, độ dài review theo số ký tự và số từ (p50 / p95 / p99).
@@ -50,9 +50,9 @@ def run(context):
     missing = context.get("missing_columns") or {}
     files = []
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Cấu trúc các file gốc
-    # -----------------------------------------------------------------
+# ---
     struct_rows = []
     for name, df in splits.items():
         absent = missing.get(name) or []
@@ -83,9 +83,9 @@ def run(context):
 
     total = sum(len(df) for df in splits.values())
 
-    # -----------------------------------------------------------------
-    # 2. Ô trống theo từng cột — cả 3 split
-    # -----------------------------------------------------------------
+# ---
+    # 2. Ô trống theo từng cột - cả 3 split
+# ---
     empty_rows = []
     for name, df in splits.items():
         for column in df.columns:
@@ -107,9 +107,9 @@ def run(context):
     # quyết định nào, còn phần đã có ý nghĩa (review không nhắc aspect nào, tỉ lệ
     # nhắc từng aspect) nằm ở EDA 02 nên không lặp lại ở đây.
 
-    # -----------------------------------------------------------------
-    # 3. Thống kê độ dài review — cả 3 split, theo ký tự và theo từ
-    # -----------------------------------------------------------------
+# ---
+    # 3. Thống kê độ dài review - cả 3 split, theo ký tự và theo từ
+# ---
     length_rows = []
     for name, df in splits.items():
         texts = df[config.TEXT_COLUMN].astype(str)
@@ -149,7 +149,7 @@ def run(context):
 
     return {
         "id": "overview",
-        "title": "EDA 01 — Tổng quan dữ liệu",
+        "title": "EDA 01 - Tổng quan dữ liệu",
         "cards": [
             {"label": "Số dòng (3 split)", "value": "{}".format(total)},
             {"label": "Số khía cạnh", "value": len(aspects)},

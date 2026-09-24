@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 3 — CLEAN.
+"""Pipeline bước 3 - CLEAN.
 
 Thực hiện POLICY đã chốt trong configs/pipeline.yaml:
 - Loại bản ghi không hợp lệ / nhiễu (rỗng, gibberish, quảng cáo...)
@@ -59,7 +59,7 @@ def _remove_eval_overlap(records, ignore_diacritics=False):
     Cách xử lý: GIỮ trong train, LOẠI khỏi val/test.
     Lý do: tập train cần dữ liệu để học; tập eval phải sạch mới đo đúng.
 
-    So trùng bằng KHOÁ so trùng (`utils.dedup_key`) — cùng khoá mà bước xử lý
+    So trùng bằng KHOÁ so trùng (`utils.dedup_key`) - cùng khoá mà bước xử lý
     trùng lặp dùng, nên hai chỗ luôn nhất quán. Khoá này bỏ dấu câu; dấu tiếng
     Việt CHỈ bị bỏ khi `ignore_diacritics=True` (mặc định false, nên "Son đẹp!"
     và "son dep" là hai review khác nhau).
@@ -142,9 +142,9 @@ def run(context):
     before_counts = {name: len(df) for name, df in splits.items()}
     records = _build_records(splits, context["dataset"]["aspects"])
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Loại bản ghi không hợp lệ / nhiễu
-    # -----------------------------------------------------------------
+# ---
     removed = []
     kept = []
     for rec in records:
@@ -156,9 +156,9 @@ def run(context):
 
     noise_removed = len(removed)
 
-    # -----------------------------------------------------------------
+# ---
     # 2. Xử lý rò rỉ dữ liệu giữa các split (nếu được bật)
-    # -----------------------------------------------------------------
+# ---
     leakage_removed = 0
     if ccfg.get("leakage", {}).get("remove_eval_overlap", False):
         kept, part_removed = _remove_eval_overlap(
@@ -166,13 +166,13 @@ def run(context):
         leakage_removed = len(part_removed)
         removed.extend(part_removed)
 
-    # -----------------------------------------------------------------
+# ---
     # 3. Xử lý trùng lặp (hai lượt: chính xác -> theo khoá so trùng)
     #
     # Tên gọi: lượt 2 KHÔNG phải bước Normalize. Nó so bằng `utils.dedup_key`
     # (bỏ hoa/thường, gộp khoảng trắng, bỏ dấu câu, và tuỳ config mà bỏ cả dấu
-    # tiếng Việt) — đây là quy tắc của KHOÁ, văn bản gốc không bị sửa.
-    # -----------------------------------------------------------------
+    # tiếng Việt) - đây là quy tắc của KHOÁ, văn bản gốc không bị sửa.
+# ---
     scope = dedup_cfg["scope"]
     policy = dedup_cfg["conflict_policy"]
     quarantine = []
@@ -206,9 +206,9 @@ def run(context):
         removed.extend(part_removed)
         quarantine.extend(part_quarantine)
 
-    # -----------------------------------------------------------------
+# ---
     # 4. Dựng lại các DataFrame đã làm sạch
-    # -----------------------------------------------------------------
+# ---
     kept_positions = {}
     for rec in kept:
         kept_positions.setdefault(rec["split"], []).append(rec["pos"])
@@ -222,9 +222,9 @@ def run(context):
     # chiếu văn bản sau pipeline với ĐÚNG dòng gốc của nó.
     context["kept_positions"] = kept_positions
 
-    # -----------------------------------------------------------------
+# ---
     # 5. Ghi lại các bản ghi bị loại và bị cách ly
-    # -----------------------------------------------------------------
+# ---
     removed_path = utils.write_csv(
         removed or [["-", "-", "không có", ""]],
         ["split", "dòng gốc", "lý do loại", "văn bản (rút gọn)"],
@@ -236,14 +236,14 @@ def run(context):
         out_dir / "quarantine_records.csv",
     )
 
-    # -----------------------------------------------------------------
+# ---
     # 6. Bảng và biểu đồ tổng hợp
     #
     # Mỗi dòng vào Clean kết thúc ở đúng MỘT trong ba nhóm: giữ lại, bị loại,
     # hoặc bị cách ly. Ba nhóm này cộng lại bằng số dòng vào, nên biểu đồ xếp
     # chồng dưới đây khớp với các thẻ số liệu (trước đây cột "đã bỏ" gộp cả
     # phần cách ly nên không cộng lại được).
-    # -----------------------------------------------------------------
+# ---
     quarantine_per_split = Counter(row[0] for row in quarantine)
     flow_rows = []
     for name in splits:
@@ -304,7 +304,7 @@ def run(context):
 
     return {
         "id": "pipeline_clean",
-        "title": "Step 3 — Clean (loại nhiễu, trùng lặp, cách ly xung đột)",
+        "title": "Step 3 - Clean (loại nhiễu, trùng lặp, cách ly xung đột)",
         "cards": [
             {"label": "Số dòng trước Clean", "value": "{}".format(total_before)},
             {"label": "Số dòng sau Clean", "value": "{}".format(total_after)},

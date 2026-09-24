@@ -84,7 +84,7 @@ class TestScore(unittest.TestCase):
         self.assertEqual(rows[0]["R nhắc"], 0.5)
 
     def test_macro_counts_over_prediction_as_lower_f1(self):
-        """F1 phải giảm khi model nêu thừa — kiểm bằng số, không kiểm bằng cảm giác.
+        """F1 phải giảm khi model nêu thừa - kiểm bằng số, không kiểm bằng cảm giác.
 
         Lưu ý: đoán ĐÚNG mã nhưng khác sắc thái (2 thay vì 1) KHÔNG làm giảm F1 "nhắc tới",
         vì phép đo này chỉ hỏi "có nhắc hay không". Muốn F1 giảm thì phải nêu thừa một khía

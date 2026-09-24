@@ -7,22 +7,22 @@ Cách dùng:
     python run_check_examples.py --max-overlap 5        # siết ngưỡng cảnh báo
 
 VÌ SAO CẦN PHÉP KIỂM NÀY
------------------------
+---
 Ví dụ few-shot nằm TRONG PROMPT, nghĩa là model ĐÃ NHÌN THẤY chúng. Nếu một ví dụ trùng
 với câu trong val/test thì điểm đánh giá bị thổi lên mà nhìn vào bảng điểm không thể biết
-— không có phép kiểm này thì đó là một giả định, không phải một sự thật đã đo. Ví dụ lấy
+- không có phép kiểm này thì đó là một giả định, không phải một sự thật đã đo. Ví dụ lấy
 TỪ DỮ LIỆU chỉ được phép lấy từ split train (lấy từ val/test là rò rỉ).
 
 KIỂM NHỮNG GÌ
--------------
+---
 1. Cấu trúc: mỗi ví dụ phải có dòng "Review:" và một khối "KẾT QUẢ:" chứa JSON hợp lệ.
 2. Nhãn  : khoá JSON phải ĐÚNG bằng bộ khía cạnh trong label_map.json, và mọi mã phải có
-           trong bảng nhãn — ví dụ sai khoá/mã là prompt dạy sai định dạng ngay từ đầu.
+           trong bảng nhãn - ví dụ sai khoá/mã là prompt dạy sai định dạng ngay từ đầu.
 3. Trùng lặp: câu ví dụ (so theo TỪ đã chuẩn hoá) đối chiếu CẢ 3 split đã xử lý:
    trùng nguyên câu, và cụm trùng dài nhất (mặc định dò tới 8 từ).
 
 Kết quả: mã thoát 1 khi có lỗi (cấu trúc/nhãn, hoặc ví dụ trùng nguyên câu trong val/test,
-hoặc cụm trùng ≥ --max-overlap trong val/test) để dùng được trong kiểm tra tự động.
+hoặc cụm trùng >= --max-overlap trong val/test) để dùng được trong kiểm tra tự động.
 """
 
 import argparse
@@ -96,7 +96,7 @@ def split_blocks(body):
 def parse_block(title, lines):
     """Lấy (câu review, object JSON kết quả) của MỘT ví dụ.
 
-    Trả về (None, None) khi không tìm thấy — nơi gọi báo lỗi cấu trúc. Phần JSON lấy đúng
+    Trả về (None, None) khi không tìm thấy - nơi gọi báo lỗi cấu trúc. Phần JSON lấy đúng
     dòng đầu tiên KHÔNG RỖNG sau dòng "KẾT QUẢ:" (đó là cách prompt yêu cầu model trả lời,
     nên ví dụ phải làm gương đúng như vậy).
     """
@@ -231,11 +231,11 @@ def check_prompt(name, label_map, index, max_overlap):
         )
 
         if exact and set(exact) & {"val", "test"}:
-            problems.append("{} / {}: RÒ RỈ — câu ví dụ có nguyên văn trong {}".format(
+            problems.append("{} / {}: RÒ RỈ - câu ví dụ có nguyên văn trong {}".format(
                 name, title, ", ".join(exact)))
             notes.append("RÒ RỈ")
         elif eval_gram >= max_overlap:
-            problems.append("{} / {}: RÒ RỈ — cụm {} từ trùng với val/test".format(
+            problems.append("{} / {}: RÒ RỈ - cụm {} từ trùng với val/test".format(
                 name, title, eval_gram))
             notes.append("RÒ RỈ")
         elif grams["train"] >= max_overlap or eval_gram:
@@ -245,10 +245,10 @@ def check_prompt(name, label_map, index, max_overlap):
 
         rows.append([
             name, title, len(tokens),
-            ", ".join(exact) or "—",
-            "{} từ".format(grams["train"]) if grams["train"] else "—",
-            "{} từ".format(eval_gram) if eval_gram else "—",
-            matched or "—",
+            ", ".join(exact) or "-",
+            "{} từ".format(grams["train"]) if grams["train"] else "-",
+            "{} từ".format(eval_gram) if eval_gram else "-",
+            matched or "-",
             "; ".join(notes) or "OK",
         ])
     return rows, problems, warnings
@@ -277,7 +277,7 @@ def main(argv=None):
     args = parse_args(argv)
 
     print("=" * 70)
-    print("KIỂM VÍ DỤ FEW-SHOT — cấu trúc, nhãn, rò rỉ với val/test")
+    print("KIỂM VÍ DỤ FEW-SHOT - cấu trúc, nhãn, rò rỉ với val/test")
     print("=" * 70)
 
     try:
@@ -299,7 +299,7 @@ def main(argv=None):
         names = [name for name in prompts.available()
                  if prompts.examples_info(name) is not None]
     if not names:
-        print("Không có prompt nào dùng ô nhớ {{examples}} — không có gì để kiểm.")
+        print("Không có prompt nào dùng ô nhớ {{examples}} - không có gì để kiểm.")
         return 0
 
     frames = {
@@ -318,7 +318,7 @@ def main(argv=None):
         info = prompts.examples_info(name)
         if info and info["note"]:
             print("Nguồn ví dụ của '{}': {}".format(name, info["note"].splitlines()[0]))
-            print("  ({} — {} ví dụ, sha {})".format(
+            print("  ({} - {} ví dụ, sha {})".format(
                 info["file"], info["examples"], info["sha"]))
         one_rows, one_problems, one_warnings = check_prompt(
             name, label_map, index, args.max_overlap)
@@ -334,7 +334,7 @@ def main(argv=None):
         for item in warnings:
             print("      {}".format(item))
     if problems:
-        print("\n  LỖI — phải sửa file ví dụ:")
+        print("\n  LỖI - phải sửa file ví dụ:")
         for item in problems:
             print("      {}".format(item))
         print("\n  Nguyên tắc: ví dụ lấy TỪ DỮ LIỆU chỉ được lấy từ split train (lấy từ")
@@ -342,7 +342,7 @@ def main(argv=None):
               "trùng val/test.".format(args.max_overlap))
         return 1
 
-    print("\nKết luận: {} ví dụ đã kiểm — không có lỗi cấu trúc/nhãn, không rò rỉ với "
+    print("\nKết luận: {} ví dụ đã kiểm - không có lỗi cấu trúc/nhãn, không rò rỉ với "
           "val/test.".format(len(rows)))
     return 0
 

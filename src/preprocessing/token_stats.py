@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Đo tokenizer THẬT của từng model trên dữ liệu đã xử lý (pha 3).
+"""Đo tokenizer THẬT của từng model trên dữ liệu đã xử lý (tiền xử lý cho model).
 
 VÌ SAO PHẢI ĐO Ở ĐÂY, KHÔNG PHẢI Ở EDA
---------------------------------------
+---
 EDA đếm TỪ (`utils.tokenize`) để khảo sát dữ liệu, còn model đọc SUBWORD của tokenizer
 riêng. Cùng một review có thể thành 20 token với model này và 60 token với model khác,
 và con số quyết định là bao nhiêu review vượt `max_length` (tức bị cắt mất phần đuôi).
-Chỉ tokenizer của chính model mới đo đúng được điều đó, nên phép đo nằm ở pha 3 — EDA
+Chỉ tokenizer của chính model mới đo đúng được điều đó, nên phép đo nằm ở tiền xử lý cho model - EDA
 không được phụ thuộc vào một model cụ thể.
 
 Chỉ cần thư viện `transformers` (KHÔNG cần torch), nên đo được trước khi huấn luyện.
@@ -14,10 +14,10 @@ Model nào chưa đo được (ví dụ PhoBERT thiếu Java để chạy bộ t
 BỎ QUA kèm lí do rõ ràng, không ghi số liệu sai.
 
 MỖI DÒNG SỐ LIỆU GHI RÕ CÁI GÌ ĐÃ SINH RA NÓ
---------------------------------------------
+---
 Bốn cột `tokenizer`, `segmenter`, `vocab`, `max_length` là phần TRUY VẾT. Cùng một
 review, đổi bộ tách từ hoặc đổi prompt là số token đổi, nên một bảng chỉ có model/split
-là không đủ để so sánh về sau. Riêng Qwen còn phụ thuộc prompt nào — tên prompt nằm
+là không đủ để so sánh về sau. Riêng Qwen còn phụ thuộc prompt nào - tên prompt nằm
 trong `info()` và trong tên file CSV khi chạy với `--prompt`/`--segmenter`.
 
 Bộ ví dụ few-shot là biến thí nghiệm THỨ HAI của Qwen và cũng phải truy vết được: cùng
@@ -34,7 +34,7 @@ from src.preprocessing import loader, phobert, qwen, segmenters, visobert
 def _word_count(texts, **kwargs):
     """Đếm "từ" cho model KHÔNG có bước tách từ riêng (ViSoBERT, Qwen).
 
-    Dùng utils.tokenize — cùng định nghĩa "từ" mà EDA dùng — để chỉ số "subword / từ"
+    Dùng utils.tokenize - cùng định nghĩa "từ" mà EDA dùng - để chỉ số "subword / từ"
     của các model so sánh được với nhau. Nhận thêm `**kwargs` (ví dụ `segmenter`) rồi bỏ
     qua, vì model này không tách từ.
     """
@@ -105,12 +105,12 @@ def limits(overrides=None):
 
     Hai cờ cuối phục vụ hai việc khác nhau:
 
-    - "khác mặc định": ngưỡng đang dùng không bằng hằng số trong module model → in ra để
+    - "khác mặc định": ngưỡng đang dùng không bằng hằng số trong module model -> in ra để
       người đọc biết con số này không phải mặc định của code.
     - "từ dòng lệnh": ngưỡng đến từ `--max-length`. CHỈ cờ dòng lệnh mới làm tên file kết
       quả có thêm `maxlen-...` (xem run_token_stats.build_tag), vì cờ dòng lệnh nghĩa là
       "chạy khác đi MỘT LẦN", còn sửa `configs/models/<model>.yaml` là CẤU HÌNH CỦA DỰ ÁN
-      nên vẫn ghi vào file mặc định — nếu không, chỉ đổi một dòng YAML là tên file mặc
+      nên vẫn ghi vào file mặc định - nếu không, chỉ đổi một dòng YAML là tên file mặc
       định biến mất, khó tra cứu.
     """
     result = []
@@ -138,7 +138,7 @@ METRIC_COLUMNS = tuple(COLUMNS[6:])
 # Giá trị hiển thị khi một chỉ số KHÔNG TÍNH ĐƯỢC. Ví dụ tokenizer của Qwen khai báo
 # `unk_token = null`, tức model không có token <unk> nào; in "0.00%" ở đây là nói dối
 # kiểu khác (0% ngụ ý "có đo và bằng 0"), nên ghi rõ là không áp dụng.
-NOT_APPLICABLE = "—"
+NOT_APPLICABLE = "-"
 
 
 
@@ -165,7 +165,7 @@ def _encode(spec, texts, context):
     rất hợp lí nhưng sai hết:
       1. Phải là list[list[int]], KHÔNG được là tensor đã pad (đo độ dài trên tensor đã
          pad thì mọi dòng đều "dài" bằng nhau).
-      2. Không được là trường hợp MỌI dòng đều dài ĐÚNG BẰNG `max_length` — dấu hiệu
+      2. Không được là trường hợp MỌI dòng đều dài ĐÚNG BẰNG `max_length` - dấu hiệu
          encode đang cắt sẵn dữ liệu.
     """
     rows = spec["encode"](texts, **_matching_kwargs(spec["encode"], context))
@@ -179,7 +179,7 @@ def _encode(spec, texts, context):
     limit = spec["max_length"]
     if len(lengths) > 1 and all(length == limit for length in lengths):
         raise ValueError(
-            "encode() của {} trả về MỌI dòng đều đúng {} token — gần như chắc chắn hàm "
+            "encode() của {} trả về MỌI dòng đều đúng {} token - gần như chắc chắn hàm "
             "encode đang bật truncation/padding sẵn (không đo được độ dài thật).".format(
                 spec["key"], limit)
         )
@@ -205,7 +205,7 @@ def position_limits():
 
     PHẢI đọc từ config của model vì `tokenizer.model_max_length` không đáng tin: với
     PhoBERT và ViSoBERT (tokenizer chậm của dòng RoBERTa/XLM-R), transformers trả về số
-    sentinel 1e30, tức "không khai báo giới hạn" — chỉ dựa vào đó thì phép kiểm
+    sentinel 1e30, tức "không khai báo giới hạn" - chỉ dựa vào đó thì phép kiểm
     `_check_max_length` bên dưới KHÔNG kiểm được gì cho 2 model này.
 
     Chỉ tải `config.json` (vài KB, đã có trong cache), KHÔNG tải trọng số.
@@ -239,7 +239,7 @@ def _check_max_length(spec, tokenizer):
     Thứ tự lấy giới hạn: `tokenizer.model_max_length` nếu là số cụ thể (Qwen khai báo
     1.010.000), nếu không thì `max_position_embeddings` trong config của model
     (PhoBERT 258, ViSoBERT 514). Nếu vượt, phần đuôi bị model cắt hoặc sai vị trí mà
-    bảng số liệu vẫn báo "0% bị cắt" — đúng loại lỗi im lặng cần chặn.
+    bảng số liệu vẫn báo "0% bị cắt" - đúng loại lỗi im lặng cần chặn.
     """
     supplied = getattr(tokenizer, "model_max_length", None)
     concrete = isinstance(supplied, int) and 0 < supplied < _SENTINEL_LIMIT
@@ -247,7 +247,7 @@ def _check_max_length(spec, tokenizer):
     if limit and spec["max_length"] > limit:
         raise ValueError(
             "MAX_LENGTH của {} ({}) lớn hơn giới hạn của model ({}). Phần vượt sẽ bị "
-            "model cắt hoặc sai vị trí mà bảng số liệu vẫn báo 0% bị cắt — sửa hằng số "
+            "model cắt hoặc sai vị trí mà bảng số liệu vẫn báo 0% bị cắt - sửa hằng số "
             "MAX_LENGTH trong module model, hoặc rút ngắn prompt.".format(
                 spec["key"], spec["max_length"], limit)
         )
@@ -284,7 +284,7 @@ def measure(spec, texts, context=None):
         "p99": stats["p99"],
         # `max` là con số THẬT SỰ quyết định `max_length` (không phải p99): muốn 0% bị cắt
         # thì ngưỡng phải >= max của MỌI split. Thiếu nó thì mỗi lần chọn ngưỡng lại phải
-        # viết script riêng — đã phải làm vậy một lần cho prompt CoT, và chính vì thế mà
+        # viết script riêng - đã phải làm vậy một lần cho prompt CoT, và chính vì thế mà
         # số liệu đó không được lưu lại cùng bảng.
         "max": stats["lớn nhất"],
         "% review > max_length":
@@ -313,7 +313,7 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
         rows    : danh sách dòng theo đúng thứ tự COLUMNS
         skipped : danh sách (model, lí do) cho model không đo được
         context : cấu hình đã dùng (phiên bản dữ liệu, prompt, bộ tách từ, ngưỡng cắt,
-                  thông tin từng model) để entrypoint ghi vào mục lục — đo mà không ghi
+                  thông tin từng model) để entrypoint ghi vào mục lục - đo mà không ghi
                   lại cấu hình thì lần sau đọc số liệu không biết nó thuộc về cái gì.
 
     `prompt_name` / `segmenter`: chỉ truyền khi muốn đo một cấu hình KHÁC mặc định
@@ -369,7 +369,7 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
     return rows, skipped, {
         "prompt": prompt_name,
         "prompt_sha": qwen.load_prompt(prompt_name).sha,
-        # Bộ ví dụ few-shot: sha riêng (xem prompts.examples_info) — prompt không dùng
+        # Bộ ví dụ few-shot: sha riêng (xem prompts.examples_info) - prompt không dùng
         # {examples} thì None.
         "examples": prompts.examples_info(prompt_name),
         "segmenter": _resolved_segmenter(segmenter),

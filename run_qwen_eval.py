@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Chạy Qwen3 bằng CHỈ DẪN (prompt một lượt / CoT) rồi chấm điểm (pha 4).
+"""Chạy Qwen3 bằng CHỈ DẪN (prompt một lượt / CoT) rồi chấm điểm (đánh giá model).
 
 Cách dùng:
     python run_qwen_eval.py --dataset cosmetics --split val
@@ -8,17 +8,17 @@ Cách dùng:
     python run_qwen_eval.py --split val --prompt qwen_absa_cot_v1 --limit 200 --sample
 
 VÌ SAO PHẢI CHẠY TRÊN VAL TRƯỚC
--------------------------------
+---
 `val` là tập để LỰA CHỌN (prompt nào, ngưỡng nào, bao nhiêu ví dụ). Chạy test từ đầu rồi
 chọn theo test là tự lừa mình: mọi con số trên test sau đó mất ý nghĩa so sánh. Vì vậy mặc
 định của script là `val`, và muốn chạy test phải gõ tay `--split test` (khi đó kết quả được
 ghi vào file riêng, không ghi đè kết quả val).
 
 VÌ SAO CÓ `--limit`
--------------------
+---
 Máy đang dùng có GPU 6 GB (phải lượng hóa 4-bit), nên một lượt val đầy đủ (1.524 review,
 prompt CoT sinh ~250 token/mẫu) tốn khoảng một giờ. `--limit N` chạy trên một TẬP CON chọn
-bằng `random.Random(seed)` (tái lập được), và tên file ghi rõ `n<N>` — không bao giờ lẫn
+bằng `random.Random(seed)` (tái lập được), và tên file ghi rõ `n<N>` - không bao giờ lẫn
 kết quả tập con với kết quả toàn tập.
 """
 
@@ -58,7 +58,7 @@ def parse_args(argv=None):
     parser.add_argument("--version", default=None,
                         help="Mã phiên bản dữ liệu đã xử lý (mặc định: bản mới nhất).")
     parser.add_argument("--split", default="val", choices=["val", "test", "train"],
-                        help="Tập để chạy. Mặc định 'val' — tập LỰA CHỌN, không phải test.")
+                        help="Tập để chạy. Mặc định 'val' - tập LỰA CHỌN, không phải test.")
     parser.add_argument("--prompt", default=None,
                         help="Tên prompt (mặc định: prompt ghi trong configs/models/qwen.yaml).")
     parser.add_argument("--model", default=None,
@@ -137,9 +137,9 @@ def print_config(prompt, examples, split, limit, total, max_length, generation, 
     print("  prompt      : {} ({}), sha {}".format(
         prompt.name, prompt.where, prompt.sha))
     print("  ví dụ       : {}".format(
-        "{} — {} ví dụ, sha {}".format(examples["file"], examples["examples"],
+        "{} - {} ví dụ, sha {}".format(examples["file"], examples["examples"],
                                        examples["sha"]) if examples else "không dùng"))
-    print("  tập dữ liệu : {} — {}{}".format(
+    print("  tập dữ liệu : {} - {}{}".format(
         split, limit if limit else total,
         " (TẬP CON ngẫu nhiên, seed ở mục lục)" if limit and limit < total else ""))
     print("  ngưỡng cắt  : {} token (max_length của Qwen)".format(max_length))
@@ -149,7 +149,7 @@ def print_config(prompt, examples, split, limit, total, max_length, generation, 
             generation["temperature"], generation["top_p"], generation["top_k"],
             generation["seed"])))
     print("  tối đa sinh : {} token/review".format(generation["max_new_tokens"]))
-    print("  model       : {} — {}, {}, {}".format(
+    print("  model       : {} - {}, {}, {}".format(
         model_info["model"], model_info.get("quant"),
         model_info.get("cách nạp"), model_info.get("thiết bị")))
     print()
@@ -159,7 +159,7 @@ def main(argv=None):
     args = parse_args(argv)
 
     print("=" * 70)
-    print("QWEN3 BẰNG CHỈ DẪN — chạy model rồi chấm điểm (pha 4)")
+    print("QWEN3 BẰNG CHỈ DẪN - chạy model rồi chấm điểm (đánh giá model)")
     print("=" * 70)
 
     try:
@@ -189,7 +189,7 @@ def main(argv=None):
     golds = [dict(zip(aspects, row)) for row in codes]
 
     # Tập con (nếu có): chọn bằng random CÓ SEED để tái lập được, và giữ lại chỉ số dòng
-    # gốc — không có nó thì không tra ngược được kết quả về review nào trong file dữ liệu.
+    # gốc - không có nó thì không tra ngược được kết quả về review nào trong file dữ liệu.
     row_index = list(range(len(texts)))
     if args.limit and args.limit < len(texts):
         row_index = sorted(random.Random(args.seed).sample(row_index, args.limit))
@@ -206,7 +206,7 @@ def main(argv=None):
 
     if args.split == "test":
         print("LƯU Ý: đang chạy trên TEST. Tập này chỉ dùng cho con số CUỐI CÙNG, sau khi đã")
-        print("       chốt prompt và ngưỡng trên val — chọn theo test là tự lừa mình.\n")
+        print("       chốt prompt và ngưỡng trên val - chọn theo test là tự lừa mình.\n")
 
     try:
         model, tokenizer, model_info = runner.load(args.quant, model_name=args.model)
@@ -312,7 +312,7 @@ def _write_all(args, ds, version_id, prompt, examples, generation, max_length,
     for kind, path in paths.items():
         print("  - {:<10} {}".format(kind, utils.rel(path)))
     print("  - {:<10} {}".format("mục lục", utils.rel(versioning.manifest_path())))
-    print("  (hậu tố tên file '{}' ghi rõ cấu hình — số liệu của lần chạy khác không bị "
+    print("  (hậu tố tên file '{}' ghi rõ cấu hình - số liệu của lần chạy khác không bị "
           "ghi đè)".format(tag))
     return 0
 

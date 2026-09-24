@@ -13,7 +13,7 @@ Chuỗi bước:
 mà **mô tả bài toán bằng lời** rồi để model sinh ra JSON.
 
 PROMPT NẰM Ở FILE, KHÔNG NẰM Ở ĐÂY
-----------------------------------
+---
 Nội dung prompt ở configs/prompts/<tên>.txt (cách nạp và kiểm tra: src/prompts.py);
 model dùng prompt nào do configs/models/qwen.yaml quyết định (src/model_config.py).
 Nhờ vậy đổi câu chỉ dẫn = thêm/sửa một file .txt rồi đổi một dòng YAML, không phải
@@ -29,13 +29,13 @@ MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507"
 # Tên file cấu hình trong configs/models/ (không cần đuôi .yaml)
 CONFIG_NAME = "qwen"
 
-# Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH — ghi đè được
+# Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH - ghi đè được
 # bằng `max_length` trong configs/models/qwen.yaml (để thử nghiệm) hoặc bằng
 # `--max-length` khi chạy; nơi ĐO (token_stats) và nơi DÙNG (build_inputs) đều đọc qua
-# `limit()` nên không thể lệch giữa lúc đo và lúc huấn luyện — lệch là mọi kết luận "có bị
+# `limit()` nên không thể lệch giữa lúc đo và lúc huấn luyện - lệch là mọi kết luận "có bị
 # cắt hay không" sai hết.
 # 1024 là lựa chọn của dự án (trần của Qwen3 là 262.144), đủ cho prompt một lượt (~230
-# token/review). SỐ ĐO cho prompt CoT + 2 ví dụ: 861 token/review, max 1.106 → muốn 0% bị
+# token/review). SỐ ĐO cho prompt CoT + 2 ví dụ: 861 token/review, max 1.106 -> muốn 0% bị
 # cắt thì đặt `max_length: 1280` trong configs/models/qwen.yaml.
 MAX_LENGTH = 1024
 
@@ -43,13 +43,13 @@ _TOKENIZER = None
 
 
 def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) — YAML của model > hằng số MAX_LENGTH."""
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - YAML của model > hằng số MAX_LENGTH."""
     return model_config.max_length(CONFIG_NAME, MAX_LENGTH)
 
 
-# ---------------------------------------------------------------------
+# ---
 # Prompt: dùng prompt nào, điền gì
-# ---------------------------------------------------------------------
+# ---
 
 
 def config():
@@ -58,7 +58,7 @@ def config():
 
 
 def prompt_name():
-    """Tên prompt đang dùng — dòng `prompt:` trong configs/models/qwen.yaml."""
+    """Tên prompt đang dùng - dòng `prompt:` trong configs/models/qwen.yaml."""
     return config()["prompt"]
 
 
@@ -72,7 +72,7 @@ def values(text, aspects=None, label_map=None, prompt=None):
 
     `aspects` và `label_map` mặc định lấy từ phiên bản dữ liệu MỚI NHẤT; nơi gọi
     (run_token_stats.py) truyền vào phiên bản cụ thể để prompt mô tả đúng bộ khía
-    cạnh của chính phiên bản đang đo — dùng nhầm phiên bản là prompt sai mà nhìn vào
+    cạnh của chính phiên bản đang đo - dùng nhầm phiên bản là prompt sai mà nhìn vào
     vẫn tưởng đúng.
 
     Chỉ tính những ô nhớ mà prompt THẬT SỰ dùng: prompt không có {example} thì không
@@ -102,7 +102,7 @@ def build_prompt(text, aspects=None, label_map=None, prompt_name=None):
 
     Dùng để xem/in ra prompt đang gửi cho model; KHÔNG dùng cho việc đo token, vì việc
     đó cần cả chat template (xem `encode`). Prompt nhiều lượt được in thành bản ghi có
-    nhãn vai (SYSTEM/USER/ASSISTANT) — xem `Prompt.transcript` để biết vì sao không in
+    nhãn vai (SYSTEM/USER/ASSISTANT) - xem `Prompt.transcript` để biết vì sao không in
     các dòng đánh dấu.
     """
     template = load_prompt(prompt_name)
@@ -113,7 +113,7 @@ def conversations(texts, aspects=None, label_map=None, prompt_name=None):
     """Bọc mỗi review thành hội thoại đúng dạng Qwen3 cần.
 
     Prompt một lượt (không có dòng đánh dấu) cho ra MỘT message người dùng như trước;
-    prompt có [SYSTEM]/[USER]/[ASSISTANT] cho ra hội thoại nhiều lượt (few-shot/CoT) —
+    prompt có [SYSTEM]/[USER]/[ASSISTANT] cho ra hội thoại nhiều lượt (few-shot/CoT) -
     hợp đồng file prompt ghi ở src/prompts.py.
     """
     template = load_prompt(prompt_name)
@@ -130,7 +130,7 @@ def use_tokenizer(found):
     Vì sao cần: đường vào model và đường vào tokenizer phải là MỘT. Khi chạy với model nạp
     từ thư mục cục bộ (`run_qwen_eval.py --model <thư mục>`), nếu prompt vẫn đi qua
     `tokenizer()` mặc định thì hai chuyện xấu xảy ra: (a) máy phải tải tokenizer từ HF dù
-    model đã có sẵn trên đĩa, (b) tokenizer có thể là của BẢN KHÁC với model đang chạy —
+    model đã có sẵn trên đĩa, (b) tokenizer có thể là của BẢN KHÁC với model đang chạy -
     chat template khác nhau thì phép so sánh mất ý nghĩa mà không có gì báo lỗi.
     """
     global _TOKENIZER
@@ -154,7 +154,7 @@ def tokenizer():
 
 
 def _check_encoded(rows):
-    """Chặn input RỖNG — dấu hiệu tokenizer không có chat template.
+    """Chặn input RỖNG - dấu hiệu tokenizer không có chat template.
 
     Nếu tokenizer thiếu chat template thì `apply_chat_template` trả về chuỗi RỖNG mà KHÔNG
     báo lỗi, và lỗi thật chỉ hiện ra ở tận `model.generate` với thông báo chẳng liên quan
@@ -168,7 +168,7 @@ def _check_encoded(rows):
     if empty:
         raise ValueError(
             "encode() cho ra input RỖNG ở {} mẫu (vị trí {}). Dấu hiệu tokenizer KHÔNG có "
-            "chat template — kiểm `tokenizer.chat_template`, và xem "
+            "chat template - kiểm `tokenizer.chat_template`, và xem "
             "src/evaluation/runner._ensure_chat_template để biết cách nạp từ file "
             "chat_template.jinja.".format(len(empty), empty[:5]))
     return rows
@@ -181,7 +181,7 @@ def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
     Không cần torch, nên dùng được cho việc ĐO độ dài input thật trước khi huấn
     luyện (xem src/preprocessing/token_stats.py). Kết quả là list[list[int]].
 
-    `add_generation_prompt` mặc định lấy từ configs/models/qwen.yaml — giá trị này
+    `add_generation_prompt` mặc định lấy từ configs/models/qwen.yaml - giá trị này
     phải GIỐNG giá trị lúc huấn luyện, nếu không số token đo được sẽ lệch đúng một
     lượt hội thoại.
     """
@@ -203,7 +203,7 @@ def build_inputs(texts, max_length=None, add_generation_prompt=None,
     định dạng hội thoại mà Qwen3 yêu cầu.
 
     `max_length` để None nghĩa là dùng ngưỡng ĐANG CÓ HIỆU LỰC (`limit()`: YAML của model
-    > hằng số MAX_LENGTH) — cũng đúng giá trị mà token_stats dùng để đo, nên hai bước
+    > hằng số MAX_LENGTH) - cũng đúng giá trị mà token_stats dùng để đo, nên hai bước
     không thể lệch nhau. Truyền số cụ thể khi muốn ép cho một lần gọi.
     """
     if add_generation_prompt is None:

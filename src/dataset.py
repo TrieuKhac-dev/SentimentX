@@ -6,7 +6,7 @@ hợp lệ, đường dẫn file) đều nằm trong configs/datasets/<tên>.yam
 Nhờ vậy: thêm dataset mới = thêm một file YAML, không sửa code EDA/pipeline.
 
 DẠNG CHUẨN NỘI BỘ
-------------------
+---
 Sau khi nạp, mọi DataFrame trong dự án đều có dạng:
     cột "text"  +  một cột cho mỗi aspect (nhãn để ở dạng CHUỖI)
 Ô trống ở cột aspect nghĩa là "aspect này không được nhắc tới" (null).
@@ -17,7 +17,7 @@ from pathlib import Path
 
 import yaml
 
-from src import config, loaders
+from src import config, loaders, paths
 
 DATASET_ERROR_HINT = (
     "Xem configs/datasets/cosmetics.yaml để biết các khoá cần có."
@@ -28,9 +28,9 @@ class DatasetError(Exception):
     """Lỗi cấu hình dataset (thiếu khoá, sai đường dẫn, định dạng chưa hỗ trợ)."""
 
 
-# ---------------------------------------------------------------------
+# ---
 # Danh sách và nội dung cấu hình
-# ---------------------------------------------------------------------
+# ---
 
 
 def available():
@@ -47,7 +47,7 @@ def default_name():
     if not names:
         raise DatasetError(
             "Chưa có file cấu hình dataset nào trong {}. Tạo một file "
-            "configs/datasets/<tên>.yaml trước. {}".format(
+            "<tên>.yaml ở đó trước. {}".format(
                 config.DATASET_CONFIG_DIR, DATASET_ERROR_HINT
             )
         )
@@ -100,20 +100,14 @@ def load_config(name=None):
     cfg["labels"] = list(cfg.get("labels") or [])
     cfg["drop_columns"] = list(cfg.get("drop_columns") or [])
     cfg["splits"] = dict(cfg.get("splits") or {})
-    cfg["raw_dir"] = str(cfg.get("raw_dir") or "data/raw/{}".format(cfg["name"]))
+    cfg["raw_version"] = str(cfg.get("raw_version") or "")
 
     cfg["_path"] = path
-    cfg["_raw_dir"] = _resolve(cfg["raw_dir"])
+    cfg["_raw_dir"] = paths.raw_dir(cfg["name"], cfg["raw_version"])
     cfg["_label_to_id"] = label_encoding(cfg)
 
     _check(cfg)
     return cfg
-
-
-def _resolve(relative_path):
-    """Đổi đường dẫn (tương đối so với gốc dự án hoặc tuyệt đối) thành Path."""
-    path = Path(relative_path)
-    return path if path.is_absolute() else (config.ROOT_DIR / path)
 
 
 def _check(cfg):
@@ -132,6 +126,11 @@ def _check(cfg):
         raise DatasetError(
             "Dataset '{}' chưa khai báo các file trong 'splits'. {}".format(
                 cfg["name"], DATASET_ERROR_HINT)
+        )
+    if not cfg["raw_version"]:
+        raise DatasetError(
+            "Dataset '{}' chưa khai báo 'raw_version'. Đây là tên thư mục dữ liệu gốc "
+            "trong {}.".format(cfg["name"], _display(paths.data("raw") / cfg["name"]))
         )
     loaders.get(cfg["format"])  # báo lỗi ngay nếu định dạng chưa được hỗ trợ
 
@@ -157,7 +156,8 @@ def describe(cfg):
     """Vài dòng thông tin về dataset, dùng cho phần đầu báo cáo."""
     return [
         "Dataset: {}".format(cfg["name"]),
-        "Phiên bản dữ liệu gốc: v{}".format(cfg.get("version", "?")),
+        "Phiên bản dataset: v{}".format(cfg.get("version", "?")),
+        "Phiên bản dữ liệu gốc: {}".format(cfg.get("raw_version", "?")),
         "Định dạng nguồn: {}".format(cfg["format"]),
         "Nguồn dữ liệu: {}".format(_display(cfg["_raw_dir"])),
         "Số khía cạnh khai báo trong config: {}".format(len(cfg["aspects"])),
@@ -171,9 +171,9 @@ def _display(path):
     except ValueError:
         return str(path)
 
-# ---------------------------------------------------------------------
+# ---
 # Nạp dữ liệu
-# ---------------------------------------------------------------------
+# ---
 
 
 def standardize(frame, cfg):
@@ -186,7 +186,7 @@ def standardize(frame, cfg):
     - Cột aspect thiếu trong file gốc được thêm vào với giá trị rỗng.
 
     Trả về (frame_mới, danh sách cột aspect bị thiếu).
-    Nội dung ô KHÔNG bị sửa (không strip, không đổi chữ) — việc đó thuộc pipeline.
+    Nội dung ô KHÔNG bị sửa (không strip, không đổi chữ) - việc đó thuộc pipeline.
     """
     text_column = cfg["text_column"]
     if text_column not in frame.columns:
@@ -223,7 +223,7 @@ def read_file(cfg, filename):
         raise FileNotFoundError(
             "Không tìm thấy file dữ liệu gốc: {}. Kiểm tra thư mục '{}' và các "
             "file khai báo trong {}.".format(
-                path, cfg["raw_dir"], _display(cfg["_path"])
+                path, _display(cfg["_raw_dir"]), _display(cfg["_path"])
             )
         )
     return loaders.read(path, cfg["format"])

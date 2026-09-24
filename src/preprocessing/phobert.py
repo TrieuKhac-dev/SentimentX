@@ -13,13 +13,13 @@ tách từ thì chất lượng sẽ giảm rõ rệt. Vì vậy bước này n�
 Data Pipeline chung.
 
 HAI VIỆC KHÁC NHAU, ĐỪNG LẪN
-----------------------------
+---
     TÁCH TỪ  (word segmentation): "Đại học Quốc gia" -> "Đại_học Quốc_gia"
     TOKENIZER (subword)         : cắt chuỗi đã tách từ thành các mảnh nhỏ
 
 Tokenizer của PhoBERT KHÔNG đổi trong mọi thí nghiệm; chỉ bộ tách từ là thay được
 (xem src/preprocessing/segmenters/). Bộ tách từ CHÍNH CHỦ là RDRSegmenter/VnCoreNLP
-— đúng bộ VinAI đã dùng để tiền huấn luyện PhoBERT — nên đó là mặc định ("auto").
+- đúng bộ VinAI đã dùng để tiền huấn luyện PhoBERT - nên đó là mặc định ("auto").
 """
 
 from functools import lru_cache
@@ -32,7 +32,7 @@ MODEL_NAME = "vinai/phobert-base-v2"
 # Tên file cấu hình trong configs/models/ (không cần đuôi .yaml)
 CONFIG_NAME = "phobert"
 
-# Ngưỡng cắt input, tính bằng TOKEN (kể cả 2 token đặc biệt). ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH —
+# Ngưỡng cắt input, tính bằng TOKEN (kể cả 2 token đặc biệt). ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH -
 # có thể ghi đè bằng `max_length` trong configs/models/phobert.yaml (để thử nghiệm) hoặc
 # bằng `--max-length` khi chạy; nơi đo (token_stats) và nơi dùng (build_inputs) đều đọc
 # qua `limit()` nên hai chỗ không thể lệch nhau.
@@ -44,7 +44,7 @@ MAX_LENGTH = 256
 #     "auto"        -> vncorenlp (chính chủ), nếu chưa cài được Java thì pyvi
 #     "vncorenlp"   -> bắt buộc dùng bộ chính chủ (báo lỗi nếu thiếu)
 #     "pyvi" / "underthesea" / "none" -> chỉ định đích danh (dùng cho đối chứng)
-# Đổi giá trị này KHÔNG làm đổi dữ liệu hay tokenizer — chỉ đổi bước tách từ, nên số
+# Đổi giá trị này KHÔNG làm đổi dữ liệu hay tokenizer - chỉ đổi bước tách từ, nên số
 # liệu đo được phải ghi rõ đã dùng bộ nào (cột `segmenter` trong token_stats.csv).
 SEGMENTER = "auto"
 
@@ -52,7 +52,7 @@ _TOKENIZER = None
 
 
 def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) — YAML của model > hằng số MAX_LENGTH."""
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - YAML của model > hằng số MAX_LENGTH."""
     return model_config.max_length(CONFIG_NAME, MAX_LENGTH)
 
 
@@ -111,7 +111,7 @@ def segment_all(texts, segmenter=None):
 
 
 def words(texts, segmenter=None):
-    """Tổng số ĐƠN VỊ sau khi tách từ — mẫu số của chỉ số "subword / từ".
+    """Tổng số ĐƠN VỊ sau khi tách từ - mẫu số của chỉ số "subword / từ".
 
     Đếm trên văn bản ĐÃ tách từ (không dùng utils.tokenize), vì mục đích của chỉ số
     này là "tokenizer chẻ mỗi từ thành bao nhiêu mảnh": mẫu số phải là đúng chuỗi đưa
@@ -138,7 +138,7 @@ def build_inputs(texts, max_length=None, segmenter=None):
     (dạng tensor của PyTorch).
 
     `max_length` để None nghĩa là dùng ngưỡng ĐANG CÓ HIỆU LỰC (`limit()`: YAML của model
-    > hằng số MAX_LENGTH) — cũng đúng giá trị mà token_stats dùng để đo, nên hai bước
+    > hằng số MAX_LENGTH) - cũng đúng giá trị mà token_stats dùng để đo, nên hai bước
     không thể lệch nhau. Truyền số cụ thể khi muốn ép cho một lần gọi.
     """
     if max_length is None:
@@ -156,7 +156,7 @@ def info(segmenter=None):
     """Thông tin để TRUY VẾT số liệu đo được: tokenizer, từ vựng, ngưỡng cắt, bộ tách từ.
 
     Bộ tách từ trả về tên + gói + phiên bản, vì cùng một review tách bằng VnCoreNLP và
-    bằng pyvi cho ra số token khác nhau — không ghi lại thì sau này không biết dòng số
+    bằng pyvi cho ra số token khác nhau - không ghi lại thì sau này không biết dòng số
     liệu nào thuộc thí nghiệm nào.
     """
     name = segmenters.resolve(SEGMENTER if segmenter is None else segmenter)[0]

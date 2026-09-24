@@ -2,15 +2,15 @@
 """Cấu hình riêng của từng model: configs/models/<tên>.yaml.
 
 VÌ SAO TÁCH KHỎI configs/pipeline.yaml
---------------------------------------
+---
 `pipeline.yaml` mô tả "ta xử lý DỮ LIỆU thế nào", và nội dung file đó được đưa vào
 hash để sinh MÃ PHIÊN BẢN DỮ LIỆU (src/versioning.py). Còn file ở đây mô tả "MODEL
-đọc dữ liệu thế nào" (dùng prompt nào, có chèn lượt assistant hay không) — đổi
+đọc dữ liệu thế nào" (dùng prompt nào, có chèn lượt assistant hay không) - đổi
 prompt không làm đổi một dòng dữ liệu nào, nên không được nằm trong hash đó. Để
 chung một file sẽ sinh ra những mã phiên bản mới vô nghĩa cho cùng một dataset.
 
 MỘT FILE GỒM NHỮNG GÌ
----------------------
+---
     prompt                : tên file trong configs/prompts/ (bắt buộc)
     add_generation_prompt : chèn lượt "assistant" rỗng ở cuối hội thoại (mặc định true)
 
@@ -18,7 +18,7 @@ Model nào không có file ở đây (PhoBERT, ViSoBERT) nghĩa là cấu hình 
 hằng số trong module tương ứng (tên model, `max_length`, bộ tách từ).
 
 Gõ sai TÊN KHOÁ là lỗi hay gặp (`promt:` thay vì `prompt:`), nên file này báo lỗi
-kèm gợi ý thay vì âm thầm bỏ qua — bỏ qua sẽ khiến prompt nằm lại ở mặc định mà
+kèm gợi ý thay vì âm thầm bỏ qua - bỏ qua sẽ khiến prompt nằm lại ở mặc định mà
 người dùng không biết.
 """
 
@@ -34,7 +34,7 @@ KNOWN_KEYS = ("prompt", "add_generation_prompt", "max_length")
 
 CONFIG_HINT = "Xem configs/models/qwen.yaml để biết các khoá cần có."
 
-# Khoá `max_length` là ngưỡng cắt input (số token) — xem ghi chú ở đầu file này và ở
+# Khoá `max_length` là ngưỡng cắt input (số token) - xem ghi chú ở đầu file này và ở
 # hàm max_length() phía dưới. Đây là chỗ để THỬ NGHIỆM mà không phải sửa code.
 
 
@@ -69,7 +69,7 @@ def load(name):
 
     File THIẾU là lỗi (không phải "dùng mặc định"): model gọi hàm này là model có
     cấu hình riêng, và thiếu file nghĩa là ta không biết nó đang chạy với prompt
-    nào — đo ra số liệu mà không biết prompt nào thì số liệu không dùng được.
+    nào - đo ra số liệu mà không biết prompt nào thì số liệu không dùng được.
     """
     path = config_path(name)
     if not path.exists():
@@ -99,7 +99,7 @@ def optional(name):
     """Đọc cấu hình NẾU CÓ file; không có file thì trả về {} (khác `load` là không bắt buộc).
 
     Nhờ vậy một model chỉ muốn ghi đè một khoá (ví dụ `max_length`) không phải tạo file
-    cấu hình đầy đủ — và PhoBERT / ViSoBERT (không có khoá `prompt`) vẫn dùng được cơ chế
+    cấu hình đầy đủ - và PhoBERT / ViSoBERT (không có khoá `prompt`) vẫn dùng được cơ chế
     này y như Qwen.
     """
     path = config_path(name)
@@ -144,7 +144,7 @@ def max_length(name, default):
     VÌ SAO cho thử ở YAML: `max_length` là một BIẾN THỰC NGHIỆM (đổi ngưỡng cắt là đổi
     input), mà hằng số trong code thì mỗi lần thử lại phải sửa code. Vì sao KHÔNG để ở
     configs/pipeline.yaml: file đó bị đưa vào hash sinh MÃ PHIÊN BẢN DỮ LIỆU, nên đổi
-    ngưỡng cắt sẽ đẻ ra mã phiên bản dữ liệu mới cho cùng một dataset — dữ liệu không đổi.
+    ngưỡng cắt sẽ đẻ ra mã phiên bản dữ liệu mới cho cùng một dataset - dữ liệu không đổi.
 
     Trả về cả NGUỒN vì một con số không rõ từ đâu ra là con số không kiểm tra được: nó
     được in khi chạy, ghi vào cột `max_length` của CSV và vào mục lục.

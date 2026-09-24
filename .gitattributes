@@ -4,4 +4,3 @@
 # Nếu Git tự đổi kiểu xuống dòng (LF <-> CRLF) thì cùng một file trên hai máy
 # sẽ cho ra hai mã phiên bản khác nhau, dù dữ liệu không hề thay đổi.
 data/** -text
-datasets/** -text

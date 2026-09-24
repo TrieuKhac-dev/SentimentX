@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 7 — EXPORT.
+"""Pipeline bước 7 - EXPORT.
 
 Ghi ra đĩa (thư mục kết quả của phiên bản hiện tại):
 - <data/processed>/versions/<mã phiên bản>/processed_train.csv, _val, _test
@@ -31,9 +31,9 @@ def run(context):
     written = []
     row_chart_data = []
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Bảng multi_head cho từng split
-    # -----------------------------------------------------------------
+# ---
     columns = [config.TEXT_COLUMN] + aspects
     for name, rows in transformed["rows_per_split"].items():
         path = utils.write_csv(
@@ -42,9 +42,9 @@ def run(context):
         written.append([path.name, len(rows), "multi_head (văn bản + mã nhãn)"])
         row_chart_data.append([name, len(rows)])
 
-    # -----------------------------------------------------------------
+# ---
     # 2. Bảng mã nhãn
-    # -----------------------------------------------------------------
+# ---
     utils.write_json(
         {
             "dataset": dataset_cfg["name"],
@@ -61,7 +61,7 @@ def run(context):
     written.append(["label_map.json", len(aspects) + len(dataset_cfg["labels"]),
                     "bảng mã nhãn, danh sách aspect"])
 
-    # -----------------------------------------------------------------
+# ---
     # 3. Mẫu ABSA dạng JSONL
     #
     # KHÔNG ghi ở đây nữa. Dạng JSONL chỉ là một cách TRÌNH BÀY khác của cùng
@@ -70,11 +70,11 @@ def run(context):
     #     from src.preprocessing import loader
     #     loader.to_absa_records("train")
     # Nhờ vậy pipeline chỉ xuất MỘT dạng dữ liệu duy nhất.
-    # -----------------------------------------------------------------
+# ---
 
-    # -----------------------------------------------------------------
+# ---
     # 4. Log truy vết
-    # -----------------------------------------------------------------
+# ---
     original = context.get("original_counts", {})
     final = {name: len(df) for name, df in context["splits"].items()}
 
@@ -105,7 +105,7 @@ def run(context):
 
     return {
         "id": "pipeline_export",
-        "title": "Step 7 — Export (ghi kết quả)",
+        "title": "Step 7 - Export (ghi kết quả)",
         "cards": [
             {"label": "Số file đã ghi", "value": len(written)},
             {"label": "Số dòng đầu ra", "value": "{}".format(sum(final.values()))},

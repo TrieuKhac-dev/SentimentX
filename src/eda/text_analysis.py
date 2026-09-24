@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""EDA 04 — Đặc điểm văn bản.
+"""EDA 04 - Đặc điểm văn bản.
 
 Đo lường: các từ hay gặp, cụm 2 từ (bigram) theo từng aspect, và tỉ lệ review
 viết có dấu / không dấu. Kích thước từ vựng và dấu câu chỉ ghi ra CSV.
@@ -16,7 +16,7 @@ from collections import Counter
 from src import config, utils
 
 # Một số từ rất phổ biến nhưng ít mang thông tin, loại ra để bảng dễ đọc.
-# Đây KHÔNG phải stopword dùng cho pipeline — pipeline không xoá stopword.
+# Đây KHÔNG phải stopword dùng cho pipeline - pipeline không xoá stopword.
 COMMON_WORDS = {
     "và", "là", "của", "có", "thì", "mà", "nên", "rất", "cũng", "được",
     "mình", "em", "nó", "này", "cho", "với", "nhưng", "không", "đã", "ở",
@@ -55,9 +55,9 @@ def run(context):
     aspects = cfg["aspects"]
     files = []
 
-    # -----------------------------------------------------------------
-    # 1. Kích thước từ vựng theo split — chỉ ghi ra CSV
-    # -----------------------------------------------------------------
+# ---
+    # 1. Kích thước từ vựng theo split - chỉ ghi ra CSV
+# ---
     tokens_by_split = {name: _all_tokens(splits, name) for name in splits}
     vocab_by_split = {name: set(tokens) for name, tokens in tokens_by_split.items()}
 
@@ -88,9 +88,9 @@ def run(context):
     # Bảng từ vựng chi tiết nằm ở CSV. Trên báo cáo chỉ giữ hai con số đã có thẻ
     # (số từ vựng, token/review) nên không dựng thêm bảng cho cùng số liệu đó.
 
-    # -----------------------------------------------------------------
-    # 2. Từ xuất hiện nhiều nhất — quét toàn bộ dữ liệu (cả 3 split)
-    # -----------------------------------------------------------------
+# ---
+    # 2. Từ xuất hiện nhiều nhất - quét toàn bộ dữ liệu (cả 3 split)
+# ---
     all_counter = Counter()
     for tokens in tokens_by_split.values():
         all_counter.update(tokens)
@@ -108,7 +108,7 @@ def run(context):
 
     top_word_chart = {
         # Từ quá phổ biến (và, là, của...) đã bị loại khỏi danh sách để bảng đọc
-        # được — nêu ngay trong tiêu đề để người đọc không thắc mắc vì sao thiếu.
+        # được - nêu ngay trong tiêu đề để người đọc không thắc mắc vì sao thiếu.
         "title": ("{} từ xuất hiện nhiều nhất, không tính các từ phổ biến như "
                   "'và', 'là', 'của' (3 split)").format(TOP_WORDS),
         "kind": "bar",
@@ -119,9 +119,9 @@ def run(context):
         "orientation": "h",
     }
 
-    # -----------------------------------------------------------------
-    # 3. Cụm 2 từ (bigram) đặc trưng cho từng aspect — toàn bộ dữ liệu
-    # -----------------------------------------------------------------
+# ---
+    # 3. Cụm 2 từ (bigram) đặc trưng cho từng aspect - toàn bộ dữ liệu
+# ---
     bigram_rows = []
     for aspect in aspects:
         counter = Counter()
@@ -158,9 +158,9 @@ def run(context):
         "narrow_columns": [1],
     }
 
-    # -----------------------------------------------------------------
-    # 4. Dấu câu — cả 3 split
-    # -----------------------------------------------------------------
+# ---
+    # 4. Dấu câu - cả 3 split
+# ---
     patterns = [(label, re.compile(re.escape(label))) for label in PUNCTUATION]
     punct_rows = []
     for name, df in splits.items():
@@ -180,9 +180,9 @@ def run(context):
         out_dir / "04_text_punctuation.csv",
     )))
 
-    # -----------------------------------------------------------------
-    # 5. Review có dấu / không dấu — cả 3 split
-    # -----------------------------------------------------------------
+# ---
+    # 5. Review có dấu / không dấu - cả 3 split
+# ---
     accent_rows = []
     accent_counts = {name: {} for name in splits}
     for name, df in splits.items():
@@ -227,11 +227,11 @@ def run(context):
 
     return {
         "id": "text_analysis",
-        "title": "EDA 04 — Đặc điểm văn bản",
+        "title": "EDA 04 - Đặc điểm văn bản",
         "cards": [
-            {"label": "Số từ vựng (số từ khác nhau) — train / val / test",
+            {"label": "Số từ vựng (số từ khác nhau) - train / val / test",
              "value": " / ".join("{}".format(row[5]) for row in vocab_rows)},
-            {"label": "Số từ / review (đếm từ, không phải subword) — train / val / test",
+            {"label": "Số từ / review (đếm từ, không phải subword) - train / val / test",
              "value": " / ".join("{}".format(row[4]) for row in vocab_rows)},
             {"label": "Số dòng không có chữ cái (3 split)",
              "value": "{}".format(no_letter_total)},

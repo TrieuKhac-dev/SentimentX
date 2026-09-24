@@ -4,7 +4,7 @@
 Đây là NƠI DUY NHẤT quyết định "file có đuôi/định dạng này thì đọc thế nào".
 
 THÊM MỘT ĐỊNH DẠNG MỚI
-----------------------
+---
 1. Tạo file mới trong src/loaders/, ví dụ `excel_loader.py`.
 2. Trong file đó viết hàm `read(path) -> pandas.DataFrame`, theo đúng HỢP ĐỒNG
    ghi trong src/loaders/base.py (giữ nguyên tên cột, ô trống = chuỗi rỗng).

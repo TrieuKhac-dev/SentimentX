@@ -12,7 +12,7 @@ hội ở dạng NGUYÊN BẢN, nên **KHÔNG cần tách từ tiếng Việt**.
 
 Đây chính là lý do phải tách "model preprocessing" khỏi pipeline chung: cùng một
 dataset sạch, nhưng PhoBERT cần tách từ còn ViSoBERT thì không. Vì vậy dòng số liệu
-của ViSoBERT luôn ghi `segmenter = none` — không phải "quên tách từ" mà là chủ ý, và
+của ViSoBERT luôn ghi `segmenter = none` - không phải "quên tách từ" mà là chủ ý, và
 cột đó giúp phân biệt hai trường hợp khi đọc lại số liệu.
 """
 
@@ -23,12 +23,12 @@ MODEL_NAME = "uitnlp/visobert"
 # Tên file cấu hình trong configs/models/ (không cần đuôi .yaml)
 CONFIG_NAME = "visobert"
 
-# Ngưỡng cắt input, tính bằng TOKEN. ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH — có thể ghi đè bằng
+# Ngưỡng cắt input, tính bằng TOKEN. ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH - có thể ghi đè bằng
 # `max_length` trong configs/models/visobert.yaml hoặc bằng `--max-length` khi chạy; nơi
 # đo (token_stats) và nơi dùng (build_inputs) đều đọc qua `limit()`.
 # LƯU Ý ĐỂ KHÔNG HIỂU SAI: 256 ở đây là LỰA CHỌN CỦA DỰ ÁN, không phải "khớp model".
 # Trần kiến trúc thật của ViSoBERT là 514 vị trí (`max_position_embeddings` trong
-# config.json của model) — tức còn rất nhiều dư địa. Chọn 256 vì review dài nhất trong
+# config.json của model) - tức còn rất nhiều dư địa. Chọn 256 vì review dài nhất trong
 # dữ liệu cosmetics chỉ 229 token: dư sức, mà bằng với PhoBERT (256) nên hai encoder có
 # cùng ngân sách input, so sánh mới công bằng.
 MAX_LENGTH = 256
@@ -41,7 +41,7 @@ _TOKENIZER = None
 
 
 def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) — YAML của model > hằng số MAX_LENGTH."""
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - YAML của model > hằng số MAX_LENGTH."""
     return model_config.max_length(CONFIG_NAME, MAX_LENGTH)
 
 
@@ -76,7 +76,7 @@ def build_inputs(texts, max_length=None):
     Trả về dict của tokenizer: {"input_ids": ..., "attention_mask": ...}
 
     `max_length` để None nghĩa là dùng ngưỡng ĐANG CÓ HIỆU LỰC (`limit()`: YAML của model
-    > hằng số MAX_LENGTH) — cũng đúng giá trị mà token_stats dùng để đo.
+    > hằng số MAX_LENGTH) - cũng đúng giá trị mà token_stats dùng để đo.
     """
     if max_length is None:
         max_length = limit()[0]

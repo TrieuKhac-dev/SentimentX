@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""EDA 05 — Quan hệ giữa các split và rò rỉ dữ liệu (leakage).
+"""EDA 05 - Quan hệ giữa các split và rò rỉ dữ liệu (leakage).
 
 Đo lường: review xuất hiện ở nhiều split, và các trường hợp cùng một review
 nhưng nhãn khác nhau giữa các split.
 
 Hai phép đo trùng lặp KHÁC NHAU, đừng so trực tiếp:
     - theo cặp split: số VĂN BẢN xuất hiện ở cả hai split của cặp;
-    - "dòng val/test trùng train": số DÒNG — đúng phép mà bước Clean dùng để
+    - "dòng val/test trùng train": số DÒNG - đúng phép mà bước Clean dùng để
       chống rò rỉ dữ liệu.
 
 Khoá so trùng đọc từ `clean.deduplicate.ignore_diacritics` của config pipeline,
@@ -43,9 +43,9 @@ def run(context):
     def _key(text):
         return utils.dedup_key(text, ignore_diacritics=ignore_diacritics)
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Đếm trùng lặp giữa các split
-    # -----------------------------------------------------------------
+# ---
     exact_map = defaultdict(set)   # văn bản gốc   -> tập split
     norm_map = defaultdict(set)    # khoá so trùng -> tập split
 
@@ -72,13 +72,13 @@ def run(context):
         out_dir / "05_split_duplicates.csv",
     )))
 
-    # Số DÒNG của val/test trùng với train — đây mới là con số quyết định policy
+    # Số DÒNG của val/test trùng với train - đây mới là con số quyết định policy
     # `clean.leakage.remove_eval_overlap` (loại khỏi val/test những dòng đã có
     # trong train). Cách đếm: lấy khoá chuẩn hoá của mọi dòng train, rồi xem mỗi
     # dòng val/test có khoá nằm trong tập đó hay không.
     # Khác với bảng "cặp split" ở trên: bảng đó đếm VĂN BẢN chung giữa hai split
     # bất kỳ (kể cả val ↔ test), còn hai con số dưới đây đếm DÒNG của val/test
-    # trùng với train — đúng phép mà pipeline thực hiện.
+    # trùng với train - đúng phép mà pipeline thực hiện.
     train_keys = {_key(text)
                   for text in splits["train"][config.TEXT_COLUMN].astype(str)}
     train_texts = set(splits["train"][config.TEXT_COLUMN].astype(str))
@@ -104,9 +104,9 @@ def run(context):
         "y_label": "số văn bản",
     }
 
-    # -----------------------------------------------------------------
-    # 2. Xung đột nhãn: cùng một review nhưng nhãn khác nhau — ghi ĐẦY ĐỦ
-    # -----------------------------------------------------------------
+# ---
+    # 2. Xung đột nhãn: cùng một review nhưng nhãn khác nhau - ghi ĐẦY ĐỦ
+# ---
     labels_by_key = defaultdict(lambda: defaultdict(set))
     splits_by_key = defaultdict(set)
     text_by_key = {}
@@ -118,7 +118,7 @@ def run(context):
             key = _key(text)
             splits_by_key[key].add(name)
             # Giữ NGUYÊN văn bản (kể cả xuống dòng) để báo cáo hiện đúng như
-            # trong CSV — nếu gộp xuống dòng thành khoảng trắng thì người đọc
+            # trong CSV - nếu gộp xuống dòng thành khoảng trắng thì người đọc
             # copy ô đó đi tìm trong CSV sẽ không thấy (bảng dùng `pre_wrap`).
             text_by_key.setdefault(key, text)
             for aspect in aspects:
@@ -164,7 +164,7 @@ def run(context):
     # Hai cách đếm trùng lặp khác nhau, ghi ra một file để tra cứu:
     #   - "văn bản ở từ 2 split trở lên": một VĂN BẢN bị đếm một lần, dù nó nằm
     #     ở 2 hay 3 split;
-    #   - "dòng val/test trùng train": đếm theo DÒNG và chỉ so với train — đúng
+    #   - "dòng val/test trùng train": đếm theo DÒNG và chỉ so với train - đúng
     #     phép mà Clean dùng để chống rò rỉ dữ liệu (leakage.remove_eval_overlap).
     totals_path = utils.write_csv(
         [
@@ -176,7 +176,7 @@ def run(context):
     )
 
     conflict_table = {
-        "title": ("Xung đột nhãn giữa các split — toàn bộ {} ô nhãn "
+        "title": ("Xung đột nhãn giữa các split - toàn bộ {} ô nhãn "
                   "(review × khía cạnh) bị xung đột").format(len(conflict_rows)),
         "columns": ["văn bản", "khía cạnh"] + list(SPLIT_ORDER),
         "rows": conflict_rows,
@@ -188,10 +188,10 @@ def run(context):
         "pre_wrap_columns": [0],
     }
 
-    # -----------------------------------------------------------------
-    # 3. So sánh phân bố nhãn giữa các split — chỉ ghi ra CSV để tra cứu
+# ---
+    # 3. So sánh phân bố nhãn giữa các split - chỉ ghi ra CSV để tra cứu
     #    (báo cáo đã trình bày phần này ở EDA 02, không lặp lại)
-    # -----------------------------------------------------------------
+# ---
     dist_rows = []
     for name, df in splits.items():
         stripped = df[aspects].astype(str).apply(lambda col: col.str.strip())
@@ -217,11 +217,11 @@ def run(context):
 
     return {
         "id": "split_leakage",
-        "title": "EDA 05 — Quan hệ giữa các split và rò rỉ dữ liệu",
+        "title": "EDA 05 - Quan hệ giữa các split và rò rỉ dữ liệu",
         "cards": [
-            {"label": "Số dòng val/test trùng train — chính xác",
+            {"label": "Số dòng val/test trùng train - chính xác",
              "value": "{}".format(leakage_exact)},
-            {"label": "Số dòng val/test trùng train — theo khoá so trùng",
+            {"label": "Số dòng val/test trùng train - theo khoá so trùng",
              "value": "{}".format(leakage_normalized)},
             {"label": "Số review bị xung đột nhãn giữa các split",
              "value": "{}".format(conflict_reviews)},

@@ -3,11 +3,11 @@ __pycache__/
 .ipynb_checkpoints/
 .vscode/
 
-# Bí mật: không bao giờ commit
+# Secret: không bao giờ commit
 .env
 .env.colab
 
-# Dữ liệu: bỏ qua theo ĐUÔI tệp, để metadata và report vẫn vào git
+# Dữ liệu: bỏ qua theo ĐUÔI file, để metadata và report vẫn vào git
 data/raw/**/*.csv
 data/raw/**/*.jsonl
 data/raw/**/*.parquet
@@ -15,7 +15,7 @@ data/raw/**/*.xlsx
 data/raw/**/*.zip
 data/processed/**/*.csv
 
-# Model tải về: bỏ qua nội dung, nhưng giữ tệp giải thích
+# Model tải về: bỏ qua nội dung, nhưng giữ file giải thích
 data/models/*
 !data/models/.gitkeep
 !data/models/README.md

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Pipeline bước 5 — TRANSFORM.
+"""Pipeline bước 5 - TRANSFORM.
 
 Chuyển dữ liệu đã sạch sang dạng mà model có thể dùng:
 
@@ -14,7 +14,7 @@ Chuyển dữ liệu đã sạch sang dạng mà model có thể dùng:
    {"split": ..., "text": ..., "labels": {"colour": "positive", ...}}
    Chỉ chứa các aspect THỰC SỰ được nhắc tới.
 
-Bước này KHÔNG đọc/ghi file — việc ghi do bước Export đảm nhiệm.
+Bước này KHÔNG đọc/ghi file - việc ghi do bước Export đảm nhiệm.
 """
 
 from collections import Counter
@@ -67,9 +67,9 @@ def run(context):
         "no_aspect_rows": no_aspect_rows,
     }
 
-    # -----------------------------------------------------------------
+# ---
     # Bảng và biểu đồ
-    # -----------------------------------------------------------------
+# ---
     map_rows = [[config.NULL_LABEL or "(ô trống)", label_to_id[config.NULL_LABEL]]]
     for label in dataset_cfg["labels"]:
         map_rows.append([label, label_to_id.get(label, -1)])
@@ -109,7 +109,7 @@ def run(context):
 
     return {
         "id": "pipeline_transform",
-        "title": "Step 5 — Transform (chuyển sang dạng ABSA)",
+        "title": "Step 5 - Transform (chuyển sang dạng ABSA)",
         "cards": [
             {"label": "Định dạng xuất", "value": tcfg["format"]},
             {"label": "Số bản ghi ABSA (mỗi dòng có nhãn khía cạnh)",

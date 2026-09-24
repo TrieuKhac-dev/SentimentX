@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""EDA 03 — Chất lượng dữ liệu và nhiễu.
+"""EDA 03 - Chất lượng dữ liệu và nhiễu.
 
 Đo lường (KHÔNG sửa) các nhóm nhiễu: review rỗng, trùng chính xác, trùng theo
 KHOÁ so trùng, ứng viên gibberish, emoji, ký tự lặp, teencode / từ lạ, dấu hiệu
@@ -11,7 +11,7 @@ configs/pipeline.yaml, nên khi đổi quy tắc so trùng thì số liệu EDA 
 ĐÚNG như pipeline (hai bên không lệch nhau).
 
 TEENCODE / TỪ LẠ CHỈ ĐƯỢC ĐO Ở ĐÂY. Pipeline KHÔNG loại bỏ, KHÔNG thay thế và
-KHÔNG viết lại teencode — không có bằng chứng khoa học nào để khẳng định một cách
+KHÔNG viết lại teencode - không có bằng chứng khoa học nào để khẳng định một cách
 viết lóng là "sai" và cần sửa, nên việc duy nhất làm được là đo và ghi lại. Bước
 Final Validate của pipeline chứng minh điều này bằng số liệu (hạng mục "Văn bản
 chỉ đổi hình thức").
@@ -56,7 +56,7 @@ EXAMPLE_GROUPS = (
 def _collect_metrics(texts, key_of):
     """Tính các chỉ số chất lượng cho một dãy văn bản.
 
-    `key_of` là khoá so trùng (xem `run`) — truyền vào để EDA và pipeline dùng
+    `key_of` là khoá so trùng (xem `run`) - truyền vào để EDA và pipeline dùng
     ĐÚNG cùng một quy tắc so trùng.
     """
     keys = texts.map(key_of)
@@ -97,9 +97,9 @@ def run(context):
     def _key(text):
         return utils.dedup_key(text, ignore_diacritics=ignore_diacritics)
 
-    # -----------------------------------------------------------------
+# ---
     # 1. Chỉ số chất lượng theo từng split
-    # -----------------------------------------------------------------
+# ---
     metric_rows = []
     per_split = {}
     token_counter = Counter()
@@ -142,13 +142,13 @@ def run(context):
         "num_columns": list(range(1, len(splits) + 2)),
     }
 
-    # -----------------------------------------------------------------
+# ---
     # 2. Teencode / từ lạ: quét toàn bộ token của cả 3 split
     #
     # Chỉ báo cáo ở mức TOKEN. Không báo cáo "số review có teencode" vì tỉ lệ
     # review dính chỉ tiêu này là ~44% (gần một nửa dữ liệu) nên không phân biệt
     # được gì; danh sách token mới là thông tin dùng được.
-    # -----------------------------------------------------------------
+# ---
     candidate_rows = []
     reason_tokens = Counter()
     reason_hits = Counter()
@@ -198,9 +198,9 @@ def run(context):
     )
 
     # KIỂM TRA DƯƠNG TÍNH GIẢ (ghi ra CSV, không lên báo cáo): trong AUDIT_TOP_WORDS
-    # từ phổ biến nhất của dữ liệu — chắc chắn là từ thật — có từ nào bị gắn cờ
+    # từ phổ biến nhất của dữ liệu - chắc chắn là từ thật - có từ nào bị gắn cờ
     # không? Với dữ liệu cosmetics: 13 từ, và cả 13 đều là viết tắt thật
-    # (k, mn, đc, mng, sp, kh, r, n, vs, ng, cx, m, t) → không có dương tính giả
+    # (k, mn, đc, mng, sp, kh, r, n, vs, ng, cx, m, t) -> không có dương tính giả
     # trên từ thông thường.
     common_flagged = []
     for token, count in token_counter.most_common(AUDIT_TOP_WORDS):
@@ -214,9 +214,9 @@ def run(context):
         out_dir / "03_quality_teencode_common_flagged.csv",
     )))
 
-    # -----------------------------------------------------------------
-    # 3. Emoji phổ biến nhất — quét cả 3 split
-    # -----------------------------------------------------------------
+# ---
+    # 3. Emoji phổ biến nhất - quét cả 3 split
+# ---
     emoji_top = emoji_counter.most_common(TOP_N)
 
     files.append(utils.rel(utils.write_csv(
@@ -235,9 +235,9 @@ def run(context):
         "orientation": "h",
     }
 
-    # -----------------------------------------------------------------
+# ---
     # 4. Ví dụ minh hoạ từng nhóm nhiễu: lấy mẫu ngẫu nhiên, cả 3 split
-    # -----------------------------------------------------------------
+# ---
     rng = random.Random(EXAMPLE_SEED)
     example_rows = []
     table_rows = []
@@ -267,7 +267,7 @@ def run(context):
 
     return {
         "id": "quality_noise",
-        "title": "EDA 03 — Chất lượng dữ liệu và nhiễu",
+        "title": "EDA 03 - Chất lượng dữ liệu và nhiễu",
         "cards": [
             {"label": "Số chỉ số chất lượng đang đo", "value": len(metric_labels)},
             {"label": "Emoji khác nhau (3 split)", "value": len(emoji_counter)},

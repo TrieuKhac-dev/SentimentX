@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tách từ bằng underthesea — bộ của BÊN THỨ BA, không chính chủ.
+"""Tách từ bằng underthesea - bộ của BÊN THỨ BA, không chính chủ.
 
 Có mặt ở đây để kiến trúc "thay được bộ tách từ" được kiểm chứng thật: cùng một
 pipeline, cùng một tokenizer, chỉ đổi bước tách từ rồi đo lại. Đây là lựa chọn dùng
@@ -15,7 +15,7 @@ với số liệu của bộ chính chủ.
 NAME = "underthesea"
 OFFICIAL = False
 DESCRIPTION = (
-    "underthesea.word_tokenize — bộ tách từ bên thứ ba, dùng để đối chứng "
+    "underthesea.word_tokenize - bộ tách từ bên thứ ba, dùng để đối chứng "
     "(KHÔNG phải bộ VinAI khuyến nghị cho PhoBERT)"
 )
 INSTALL_HINT = (

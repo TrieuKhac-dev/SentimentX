@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Chấm lại kết quả pha 4 từ FILE DỰ ĐOÁN đã lưu — không cần GPU, không chạy lại model.
+"""Chấm lại kết quả đánh giá model từ FILE DỰ ĐOÁN đã lưu - không cần GPU, không chạy lại model.
 
 Cách dùng:
     python run_rescore_eval.py                      # mọi cấu hình (n100) của phiên bản mới nhất
@@ -7,11 +7,11 @@ Cách dùng:
     python run_rescore_eval.py --all                # cả các tập con (n4, n8, ...) nếu còn
 
 VÌ SAO CÓ CÔNG CỤ NÀY
----------------------
+---
 File dự đoán lưu CẢ nhãn đúng và nhãn model đã trả lời, nên chấm điểm lại là phép tính
 thuần trên dữ liệu đã có: đổi cách chấm thì KHÔNG phải chạy lại 4 cấu hình (mỗi cấu hình
 10-15 phút GPU). Việc này đã dùng một lần thật: `metrics._binary_counts` bị hoán vị FP/FN,
-F1 không đổi (đối xứng) nên bảng điểm vẫn "trông hợp lí" — chỉ Precision/Recall đổi chỗ.
+F1 không đổi (đối xứng) nên bảng điểm vẫn "trông hợp lí" - chỉ Precision/Recall đổi chỗ.
 Nhờ chấm lại từ file, 3 cấu hình đã chạy được sửa số liệu trong vài giây thay vì chạy lại.
 
 Sau khi chấm lại, mục lục được cập nhật và ghi rõ `rescored` + lí do, để người đọc số liệu
@@ -50,7 +50,7 @@ NOTE = ("Chấm lại bằng metrics đã sửa (trước đó hai nhánh FP/FN 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Chấm lại kết quả pha 4 từ file dự đoán đã lưu (không cần GPU).")
+        description="Chấm lại kết quả đánh giá model từ file dự đoán đã lưu (không cần GPU).")
     parser.add_argument("--dataset", default=None, help="Tên dataset (mặc định: bản đầu tiên).")
     parser.add_argument("--version", default=None, help="Mã phiên bản dữ liệu đã xử lý.")
     parser.add_argument("--all", action="store_true",
@@ -96,7 +96,7 @@ def main(argv=None):
     version_id = args.version or versioning.compute_id(ds, config.PIPELINE_CONFIG_PATH)
     report_dir = versioning.version_dir(config.MODEL_EVAL_REPORT_DIR, version_id)
     if not report_dir.is_dir():
-        print("LỖI: chưa có {} — chạy run_qwen_eval.py trước.".format(
+        print("LỖI: chưa có {} - chạy run_qwen_eval.py trước.".format(
             utils.rel(report_dir)))
         return 2
 

@@ -2,7 +2,7 @@
 """Kho prompt nằm ở FILE VĂN BẢN: configs/prompts/<tên>.txt.
 
 VÌ SAO PROMPT NẰM Ở FILE, KHÔNG NẰM TRONG CODE
----------------------------------------------
+---
 Prompt là một BIẾN THỰC NGHIỆM: đổi câu chỉ dẫn có thể đổi kết quả, nên phải đổi
 được mà không phải sửa code. Mỗi prompt một file .txt để:
     - đọc / sửa / so sánh (diff) như văn bản, không phải lồng chuỗi trong Python;
@@ -13,10 +13,10 @@ Ngoài phần văn bản, file .txt KHÔNG chứa siêu dữ liệu: "model nào
 nào" do configs/models/<model>.yaml quyết định (xem src/model_config.py).
 
 HỢP ĐỒNG CỦA MỘT FILE PROMPT
-----------------------------
+---
 1. Văn bản thuần UTF-8, dùng các "ô nhớ" (placeholder) dạng {tên}:
 
-       {text}        nội dung review — BẮT BUỘC phải có
+       {text}        nội dung review - BẮT BUỘC phải có
        {aspects}     danh sách khía cạnh, cách nhau ", "
        {label_guide} bảng mã nhãn, sinh từ label_map.json của đúng phiên bản dữ liệu
        {example}     một object JSON mẫu (sinh tự động theo danh sách khía cạnh)
@@ -28,10 +28,10 @@ HỢP ĐỒNG CỦA MỘT FILE PROMPT
    ghi NGUỒN GỐC của ví dụ. Khối này bị CẮT trước khi chèn vào prompt, nên (a) model
    không bao giờ nhìn thấy nó, (b) sửa mỗi lời chú thích không làm đổi số token và không
    làm đổi mã `examples_sha`. Ví dụ lấy TỪ DỮ LIỆU chỉ được lấy từ split train (ví dụ nằm
-   trong prompt nghĩa là model đã nhìn thấy nó) — kiểm bằng `python run_check_examples.py`.
+   trong prompt nghĩa là model đã nhìn thấy nó) - kiểm bằng `python run_check_examples.py`.
 
 2. KHÔNG có dòng đánh dấu => cả file là MỘT message của người dùng (prompt một
-   lượt — dạng đang dùng của dự án).
+   lượt - dạng đang dùng của dự án).
 3. CÓ dòng đánh dấu => tách thành hội thoại NHIỀU LƯỢT, theo đúng thứ tự trong file:
 
        [SYSTEM]      chỉ dẫn hệ thống
@@ -40,7 +40,7 @@ HỢP ĐỒNG CỦA MỘT FILE PROMPT
 
    Dòng trống quanh mỗi mục được bỏ; mục rỗng bị bỏ qua.
 4. Sai ô nhớ, thiếu {text}, hoặc dòng đánh dấu lạ => báo LỖI ngay khi nạp, kèm
-   đường dẫn file và gợi ý — không chạy tiếp với một prompt sai.
+   đường dẫn file và gợi ý - không chạy tiếp với một prompt sai.
 
 Thêm prompt mới: tạo configs/prompts/<tên>.txt rồi ghi tên đó vào
 configs/models/<model>.yaml, hoặc chạy `python run_token_stats.py --prompt <tên>`.
@@ -65,7 +65,7 @@ SECTION_NAMES = ("system", "user", "assistant")
 _SECTION_RE = re.compile(r"^\[\s*([A-Za-z_]+)\s*\]$")
 
 # Dòng CHÚ THÍCH của dự án ở đầu file ví dụ few-shot (ghi nguồn gốc ví dụ). Những dòng
-# này KHÔNG được gửi cho model — xem `_split_examples_note`.
+# này KHÔNG được gửi cho model - xem `_split_examples_note`.
 _COMMENT_RE = re.compile(r"^\s*#")
 _COMMENT_CLEAN_RE = re.compile(r"^\s*#\s?")
 
@@ -92,9 +92,9 @@ class PromptError(Exception):
     """Lỗi file prompt: thiếu file, sai ô nhớ, sai dòng đánh dấu, thiếu giá trị."""
 
 
-# ---------------------------------------------------------------------
+# ---
 # Danh sách và đường dẫn
-# ---------------------------------------------------------------------
+# ---
 
 
 def available():
@@ -142,9 +142,9 @@ def _display(path):
         return str(path)
 
 
-# ---------------------------------------------------------------------
+# ---
 # Nạp và kiểm tra một file prompt
-# ---------------------------------------------------------------------
+# ---
 
 
 def _read_text(path):
@@ -152,7 +152,7 @@ def _read_text(path):
 
     Hai bước chuẩn hoá cuối là bắt buộc để prompt nằm ở file cho ra CHUỖI Y HỆT
     prompt cũ nằm trong code: trên Windows file dễ bị lưu bằng CRLF và dễ có thêm
-    một xuống dòng ở cuối — cả hai đều làm đổi số token đo được.
+    một xuống dòng ở cuối - cả hai đều làm đổi số token đo được.
     """
     with open(path, "r", encoding="utf-8") as handle:
         text = handle.read()
@@ -173,7 +173,7 @@ def _placeholders(text, where):
             name = field.split(".")[0].split("[")[0]
             if not name:
                 raise PromptError(
-                    "{}: có ô nhớ không có tên ({{}} hoặc {{0}}) — phải ghi rõ "
+                    "{}: có ô nhớ không có tên ({{}} hoặc {{0}}) - phải ghi rõ "
                     "tên, ví dụ {{text}}. {}".format(where, PROMPT_HINT)
                 )
             if name not in found:
@@ -213,7 +213,7 @@ def _split_sections(text, where):
             )
         if current is None and "".join(buffer).strip():
             raise PromptError(
-                "{}: có nội dung nằm TRƯỚC dòng đánh dấu '[SYSTEM]' đầu tiên — "
+                "{}: có nội dung nằm TRƯỚC dòng đánh dấu '[SYSTEM]' đầu tiên - "
                 "nội dung không thuộc mục nào như vậy là mập mờ, hãy đưa nó vào "
                 "một mục hoặc bỏ hết dòng đánh dấu để dùng prompt một "
                 "lượt.".format(where)
@@ -283,7 +283,7 @@ class Prompt:
         """Bản ĐỌC ĐƯỢC của prompt đã điền giá trị (để xem/in, không phải để gửi model).
 
         Prompt một lượt: trả về đúng chuỗi sẽ gửi. Prompt nhiều lượt: mỗi mục thành một
-        khối có nhãn vai, KHÔNG in các dòng đánh dấu `[SYSTEM]`/`[USER]` — đó là cú pháp
+        khối có nhãn vai, KHÔNG in các dòng đánh dấu `[SYSTEM]`/`[USER]` - đó là cú pháp
         của FILE, model không bao giờ thấy chúng, nên bản đọc được cũng không nên in ra
         (in ra sẽ khiến người đọc tưởng model nhận cả dòng `[USER]`).
         """
@@ -297,7 +297,7 @@ class Prompt:
     def messages(self, values):
         """Hội thoại đã điền giá trị: [{"role": ..., "content": ...}, ...].
 
-        Prompt một lượt trả về đúng MỘT message của người dùng — đây là dạng mọi
+        Prompt một lượt trả về đúng MỘT message của người dùng - đây là dạng mọi
         model của dự án đang dùng; prompt nhiều lượt (có dòng đánh dấu) trả về
         đủ các lượt theo thứ tự trong file.
         """
@@ -325,7 +325,7 @@ class Prompt:
         """Một dòng mô tả prompt, để in ra console (dùng cho --list-prompts)."""
         info = examples_info(self.name)
         if info is None:
-            shot = "—"
+            shot = "-"
         elif info["missing"]:
             shot = "THIẾU FILE ví dụ"
         else:
@@ -335,7 +335,7 @@ class Prompt:
             "file": self.where,
             "sha": self.sha,
             "kiểu": "nhiều lượt ({})".format(
-                " → ".join(name.upper() for name, _ in self.sections))
+                " -> ".join(name.upper() for name, _ in self.sections))
             if self.multiline else "một lượt",
             "ô nhớ": ", ".join("{" + item + "}" for item in self.placeholders),
             "số ví dụ": shot,
@@ -362,9 +362,9 @@ def render(name, values):
     return load(name).render(values)
 
 
-# ---------------------------------------------------------------------
+# ---
 # Giá trị cho các ô nhớ dùng chung
-# ---------------------------------------------------------------------
+# ---
 
 
 def label_guide(label_map=None):
@@ -387,7 +387,7 @@ def _split_examples_note(text):
 
     Quy tắc: chú thích là các dòng bắt đầu bằng "#" nằm LIỀN NHAU ở đầu file (dòng trống
     xen giữa được coi là thuộc khối chú thích). Gặp dòng đầu tiên không phải chú thích thì
-    phần còn lại là ví dụ — nhờ vậy dấu "#" xuất hiện trong NỘI DUNG ví dụ vẫn được giữ
+    phần còn lại là ví dụ - nhờ vậy dấu "#" xuất hiện trong NỘI DUNG ví dụ vẫn được giữ
     nguyên, không bị cắt oan.
     """
     lines = text.split("\n")
@@ -410,7 +410,7 @@ def examples_info(name):
 
     VÌ SAO CẦN `sha` RIÊNG CHO FILE VÍ DỤ: `Prompt.sha` chỉ tính nội dung file PROMPT,
     nên hai bộ ví dụ khác nhau (0/1/2 ví dụ) đi với cùng một prompt sẽ mang CÙNG một
-    `prompt_sha` — hai thí nghiệm khác nhau mà dấu vết giống nhau, đúng loại lỗi im lặng
+    `prompt_sha` - hai thí nghiệm khác nhau mà dấu vết giống nhau, đúng loại lỗi im lặng
     cần chặn. Mã ở đây tính trên phần ĐÃ CẮT chú thích, nên chỉ sửa lời chú thích thì mã
     (và tên file số liệu) không đổi.
     """
@@ -438,7 +438,7 @@ def examples_info(name):
 def examples(name):
     """Khối ví dụ few-shot của một prompt (file configs/prompts/examples/<tên>.txt).
 
-    Trả về phần HIỆU LỰC (đã cắt khối chú thích ở đầu file) — đây mới là phần đi vào
+    Trả về phần HIỆU LỰC (đã cắt khối chú thích ở đầu file) - đây mới là phần đi vào
     prompt. Xem `_split_examples_note`.
     """
     path = examples_path(name)
