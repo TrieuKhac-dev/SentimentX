@@ -25,6 +25,16 @@ TEST_MODEL = "zz-test-model"
 TEST_METHOD = "test-method"
 TEST_EXP = "exp001"
 
+# Nhóm test cần DỮ LIỆU THẬT (dataset đã xử lý trên đĩa). CI chạy trên bản clone sạch, mà dữ liệu
+# không nằm trong git (luật 20 của docs/00_workflow/02_rules.md), nên ở đó chúng tự bỏ qua thay vì
+# báo đỏ vì thiếu dữ liệu. Trên máy cá nhân - nơi có dữ liệu - chúng vẫn chạy đủ, vì bỏ qua im lặng
+# ở máy có dữ liệu là mất luôn phần kiểm quan trọng nhất của preflight.
+HAS_DATASET = versioning.processed_dir(
+    versioning.compute_id(dataset_module.load_config("cosmetics"))).is_dir()
+requires_dataset = unittest.skipUnless(
+    HAS_DATASET,
+    "cần dataset đã xử lý trên đĩa (CI không có dữ liệu, xem docs/00_workflow/03_ci.md)")
+
 MODEL_CONFIG = (
     "model_id: {}\n"
     "checkpoint: test/checkpoint\n"
@@ -98,6 +108,7 @@ class TestWritable(unittest.TestCase):
         self.assertIn("gốc", problems[0])
 
 
+@requires_dataset
 class TestEvalLock(PreflightCase):
     def test_unlocked_test_set_is_a_note_not_a_problem(self):
         problems, notes, info = [], [], {}
@@ -196,6 +207,7 @@ class TestStateAndRun(PreflightCase):
         self.assertEqual(mode, "NEW")
         self.assertEqual(problems, [])
 
+    @requires_dataset
     def test_full_run_returns_a_report(self):
         with tempfile.TemporaryDirectory() as folder:
             report = self.report(out_dir=Path(folder) / "run")
