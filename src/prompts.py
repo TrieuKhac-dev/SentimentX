@@ -50,6 +50,7 @@ import difflib
 import hashlib
 import re
 import string
+from pathlib import Path
 from functools import lru_cache
 
 from src import config
@@ -124,6 +125,33 @@ def prompt_path(name):
 def examples_path(name):
     """Đường dẫn file ví dụ few-shot của một prompt (tuỳ chọn, có thể không có)."""
     return config.PROMPT_DIR / "examples" / "{}.txt".format(name)
+
+
+def resolve(value, base_dir=None, examples=False):
+    """Đổi giá trị khai trong config thành (TÊN, ĐƯỜNG DẪN) của file prompt hoặc file ví dụ.
+
+    Tên TRẦN - không có dấu `/` và không có `.txt` - là tên trong thư viện dùng chung
+    (`configs/prompts/`). Còn lại là ĐƯỜNG DẪN: tính từ thư mục thí nghiệm trước, rồi tới gốc
+    repo, đúng như docs/05_config/06_experiment.md quy định.
+
+    Có hai dạng để một thí nghiệm dùng prompt: prompt riêng nằm cạnh notebook (`prompt.txt`) khi
+    nó chỉ dùng cho thí nghiệm đó, hoặc prompt trong thư viện chung khi nhiều thí nghiệm dùng
+    chung. Cả hai đi qua cùng một hàm này, nên không có hai cách nạp khác nhau.
+    """
+    text = str(value or "").strip()
+    if not text:
+        raise PromptError("Thiếu tên hoặc đường dẫn {}của prompt.".format(
+            "file ví dụ " if examples else ""))
+    bare = "/" not in text and "\\" not in text and not text.endswith(".txt")
+    if bare:
+        return text, (examples_path(text) if examples else prompt_path(text))
+    path = Path(text)
+    if not path.is_absolute():
+        candidate = (Path(base_dir) / text) if base_dir else None
+        path = candidate if candidate is not None and candidate.exists() else \
+            (config.ROOT_DIR / text)
+    return path.stem, path
+
 
 
 def suggest(name):
@@ -231,10 +259,14 @@ def _split_sections(text, where):
 class Prompt:
     """Một prompt đã nạp và đã kiểm tra."""
 
-    def __init__(self, name, path, text):
+    def __init__(self, name, path, text, examples=None):
         self.name = name
         self.path = path
         self.text = text
+        # Tên (hoặc đường dẫn) file VÍ DỤ few-shot đi cùng prompt này. Prompt nằm trong thư mục
+        # thí nghiệm thì file ví dụ cũng ở đó, nên phải mang theo giá trị đã khai trong config
+        # chứ không suy ra từ tên prompt (suy ra là nguồn sự thật thứ hai, lệch lúc nào không biết).
+        self.examples_value = self.name if examples is None else str(examples)
         self.sha = hashlib.sha1(text.encode("utf-8")).hexdigest()[:8]
         self.where = _display(path)
         self.placeholders = _placeholders(text, self.where)
@@ -323,7 +355,7 @@ class Prompt:
 
     def describe(self):
         """Một dòng mô tả prompt, để in ra console (dùng cho --list-prompts)."""
-        info = examples_info(self.name)
+        info = examples_info(self.examples_value) if "examples" in self.placeholders else None
         if info is None:
             shot = "-"
         elif info["missing"]:
@@ -343,18 +375,27 @@ class Prompt:
 
 
 @lru_cache(maxsize=None)
-def load(name):
-    """Nạp + kiểm tra một prompt, có nhớ kết quả (prompt không đổi trong một lần chạy)."""
-    name = str(name or "").strip()
-    path = prompt_path(name)
+def load(value, base_dir=None, examples=None):
+    """Nạp + kiểm tra một prompt, có nhớ kết quả (prompt không đổi trong một lần chạy).
+
+    `value` là TÊN trong thư viện dùng chung, hoặc ĐƯỜNG DẪN tới file prompt của thí nghiệm
+    (xem `resolve`). `examples` là giá trị khai ở khoá `examples` của thí nghiệm; để trống thì
+    lấy cùng tên với prompt, đúng như trước.
+    """
+    name, path = resolve(value, base_dir)
     if not path.exists():
+        if "/" in str(value) or "\\" in str(value):
+            raise PromptError(
+                "Không thấy file prompt {} (khai trong config của thí nghiệm). Đường dẫn tính từ "
+                "thư mục thí nghiệm trước, rồi tới gốc repo.".format(_display(path)))
         hint = suggest(name)
         raise PromptError(
             "Không tìm thấy prompt '{}' tại {}. Các prompt hiện có: {}. {}{}".format(
                 name, _display(path), ", ".join(available()) or "(trống)",
                 hint + " " if hint else "", PROMPT_HINT)
         )
-    return Prompt(name, path, _read_text(path))
+    return Prompt(name, path, _read_text(path),
+                  examples=value if examples is None else examples)
 
 
 def render(name, values):
@@ -405,8 +446,11 @@ def _count_examples(text):
     return sum(1 for line in text.split("\n") if _EXAMPLE_BLOCK_RE.match(line))
 
 
-def examples_info(name):
+def examples_info(value, base_dir=None):
     """Thông tin TRUY VẾT của file ví dụ few-shot, hoặc None nếu prompt không dùng.
+
+    `value` là giá trị khai ở khoá `examples` của thí nghiệm (tên trong thư viện, hoặc đường dẫn
+    tới file cạnh notebook).
 
     VÌ SAO CẦN `sha` RIÊNG CHO FILE VÍ DỤ: `Prompt.sha` chỉ tính nội dung file PROMPT,
     nên hai bộ ví dụ khác nhau (0/1/2 ví dụ) đi với cùng một prompt sẽ mang CÙNG một
@@ -414,11 +458,7 @@ def examples_info(name):
     cần chặn. Mã ở đây tính trên phần ĐÃ CẮT chú thích, nên chỉ sửa lời chú thích thì mã
     (và tên file số liệu) không đổi.
     """
-    prompt = load(name)
-    if "examples" not in prompt.placeholders:
-        return None
-
-    path = examples_path(name)
+    path = resolve(value, base_dir, examples=True)[1]
     if not path.exists():
         # Prompt cần ví dụ mà chưa có file: hiện rõ ở --list-prompts. Lỗi cứng sẽ được
         # báo khi thật sự dựng prompt (xem `examples`), để việc liệt kê không bị chặn.
@@ -435,19 +475,18 @@ def examples_info(name):
     }
 
 
-def examples(name):
-    """Khối ví dụ few-shot của một prompt (file configs/prompts/examples/<tên>.txt).
+def examples(value, base_dir=None):
+    """Khối ví dụ few-shot của một prompt (mặc định configs/prompts/examples/<tên>.txt).
 
-    Trả về phần HIỆU LỰC (đã cắt khối chú thích ở đầu file) - đây mới là phần đi vào
-    prompt. Xem `_split_examples_note`.
+    `value` là giá trị khai ở khoá `examples` của thí nghiệm. Trả về phần HIỆU LỰC (đã cắt khối
+    chú thích ở đầu file) - đây mới là phần đi vào prompt. Xem `_split_examples_note`.
     """
-    path = examples_path(name)
+    path = resolve(value, base_dir, examples=True)[1]
     if not path.exists():
         raise PromptError(
-            "Prompt '{}' cần ô nhớ {{examples}} nhưng chưa có file ví dụ {}. Tạo "
+            "Prompt cần ô nhớ {{examples}} nhưng chưa có file ví dụ {}. Tạo "
             "file đó (với prompt CoT, mỗi ví dụ nên gồm cả phần suy luận và JSON "
-            "kết quả), hoặc bỏ ô nhớ {{examples}} khỏi prompt.".format(
-                name, _display(path))
+            "kết quả), hoặc bỏ ô nhớ {{examples}} khỏi prompt.".format(_display(path))
         )
     _note, body = _split_examples_note(_read_text(path))
     return body

@@ -1,34 +1,36 @@
 # -*- coding: utf-8 -*-
-"""Chạy Qwen3 bằng CHỈ DẪN (prompt một lượt / CoT) rồi chấm điểm (đánh giá model).
+"""Cửa vào DÒNG LỆNH để chạy một thí nghiệm khi không mở notebook.
 
-Cách dùng:
-    python run_qwen_eval.py --list-scorers          # đang có chỉ số nào
-    python run_qwen_eval.py --dataset cosmetics --split val
-    python run_qwen_eval.py --split val --prompt absa_direct_v1
-    python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200
-    python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200 --sample
+ĐƯỜNG CHẠY CHÍNH LÀ NOTEBOOK (docs/00_workflow/01_flow.md): mỗi thí nghiệm được giao cho người
+nhận dưới dạng notebook, bấm Run all. File này chỉ là CỬA VÀO MỎNG cho lúc muốn chạy nhanh trên
+dòng lệnh - đo thử prompt trên vài chục mẫu, hay kiểm model có nạp được không.
 
-Một lần chạy ghi vào MỘT thư mục riêng (`<phiên bản>/<hậu tố cấu hình>/`): `predictions.csv`,
-`metrics.json`, `metrics.csv`, `mispredictions.csv`. Tên file cố định, đọc từ
-`configs/paths.yaml`; cấu hình nằm ở tên THƯ MỤC nên hai lần chạy không ghi đè nhau.
+VÌ SAO NÓ KHÔNG CHỨA LOGIC
+Nếu notebook gọi một script dòng lệnh thì hợp đồng giữa hai bên là TÊN CỜ DÒNG LỆNH: đổi tên cờ
+là hỏng notebook đã ghim (ghim rồi thì không được sửa), notebook chỉ nhận lại được mã thoát chứ
+không nhận được số liệu, và cả hai bên đều tự đọc config. Ở đây ngược lại: mọi bước nằm trong
+`src/experiment_run.py` (`plan` rồi `run`), notebook gọi thẳng hai hàm đó, còn file này chỉ đọc
+tham số dòng lệnh rồi gọi đúng hai hàm ấy. Một đường chạy, hai cửa vào.
 
-VÌ SAO PHẢI CHẠY TRÊN VAL TRƯỚC
----
-`val` là tập để LỰA CHỌN (prompt nào, ngưỡng nào, bao nhiêu ví dụ). Chạy test từ đầu rồi
-chọn theo test là tự lừa mình: mọi con số trên test sau đó mất ý nghĩa so sánh. Vì vậy mặc
-định của script là `val`, và muốn chạy test phải gõ tay `--split test` (khi đó kết quả được
-ghi vào file riêng, không ghi đè kết quả val).
+MỘT LẦN CHẠY GHI VÀO MỘT THƯ MỤC RIÊNG
+`<kết quả của thí nghiệm>/<mã phiên bản dữ liệu>/<hậu tố cấu hình>/`, trong đó hậu tố ghi rõ
+prompt, split, số mẫu, greedy hay lấy mẫu - nên hai lần chạy khác cấu hình không ghi đè nhau.
+Chạy KHÔNG nêu thí nghiệm thì kết quả đi vào `data/reports/model_eval/` và có dòng nhắc rằng nó
+không thuộc thí nghiệm nào.
 
-VÌ SAO CÓ `--limit`
----
-Máy đang dùng có GPU 6 GB (phải lượng hóa 4-bit), nên một lượt val đầy đủ (1.524 review,
-prompt CoT sinh ~250 token/mẫu) tốn khoảng một giờ. `--limit N` chạy trên một TẬP CON chọn
-bằng `random.Random(seed)` (tái lập được), và tên file ghi rõ `n<N>` - không bao giờ lẫn
-kết quả tập con với kết quả toàn tập.
+
+VÌ SAO MẶC ĐỊNH LÀ `val`
+`val` là tập để LỰA CHỌN (prompt nào, bao nhiêu ví dụ, ngưỡng nào). Chạy test từ đầu rồi chọn theo
+test là tự lừa mình: mọi con số trên test sau đó mất ý nghĩa so sánh. Vì vậy split do config của
+thí nghiệm quyết định (`data.roles.eval`), không phải do tham số dòng lệnh.
+
+CÁCH DÙNG
+    python run_qwen_eval.py --list-scorers
+    python run_qwen_eval.py --experiment qwen3-4b-instruct-2507/prompt-cot/exp001
+    python run_qwen_eval.py --prompt absa_cot_v1 --limit 200 --model Qwen/Qwen3-0.6B
 """
 
 import argparse
-import random
 import sys
 from pathlib import Path
 
@@ -42,482 +44,134 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, experiments, labels, model_config, paths, prompts, resume, runlog, runtime, tracking, utils, versioning
-from src.evaluation import records
-from src.tracking import run_meta
-from src.evaluation import metrics, runner, scorers
-from src.preprocessing import loader, qwen
-
-# Cột của file chỉ số do `src/evaluation/scorers/` quyết định (bảng dài: aspect, sentiment,
-# metric, value) - không khai lại ở đây, để không có hai nguồn sự thật cho cùng một bảng.
-
-# Cấu hình lấy mẫu theo khuyến nghị trong model card của Qwen3-4B-Instruct-2507
-# (Temperature=0.7, TopP=0.8, TopK=20). Chỉ dùng khi chạy `--sample`.
-CARD_SETTINGS = {"temperature": 0.7, "top_p": 0.8, "top_k": 20}
+from src import dataset, experiment_run, experiments, prompts, runtime, tracking, utils
+from src.evaluation import scorers
+from src.preprocessing import qwen
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Chạy Qwen3 bằng chỉ dẫn (prompt/CoT) trên một split rồi chấm điểm.")
+        description="Chạy một thí nghiệm Qwen3 bằng chỉ dẫn (prompt/CoT) rồi chấm điểm. "
+                    "Đường chạy chính là notebook của thí nghiệm; đây là cửa vào dòng lệnh.")
+    parser.add_argument("--experiment", default=None,
+                        help="Thí nghiệm dạng <model>/<method>/<expNNN> - dùng config của nó.")
+    parser.add_argument("--model-id", dest="model_id", default=None,
+                        help="Phần <model> khi không dùng --experiment.")
+    parser.add_argument("--method", default=None,
+                        help="Phần <method> khi không dùng --experiment.")
+    parser.add_argument("--exp-id", dest="exp_id", default=None,
+                        help="Phần <expNNN> khi không dùng --experiment.")
     parser.add_argument("--dataset", default=None,
-                        help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).")
+                        help="Tên dataset (mặc định: dataset khai trong config).")
     parser.add_argument("--version", default=None,
                         help="Mã phiên bản dữ liệu đã xử lý (mặc định: bản mới nhất).")
-    parser.add_argument("--split", default="val", choices=["val", "test", "train"],
-                        help="Tập để chạy. Mặc định 'val' - tập LỰA CHỌN, không phải test.")
+    parser.add_argument("--split", default=None, choices=["val", "test", "train"],
+                        help="Ghi đè split để chấm (mặc định: `data.roles.eval` của thí nghiệm).")
     parser.add_argument("--prompt", default=None,
-                        help="Tên prompt. Bắt buộc khi chạy: prompt thuộc config của thí "
-                             "nghiệm, không lấy từ config model.")
-    parser.add_argument("--list-scorers", dest="list_scorers", action="store_true",
-                        help="In các bộ chấm điểm đang có (registry SCORERS) rồi thoát.")
-    parser.add_argument("--list-trackers", dest="list_trackers", action="store_true",
-                        help="In các trình ghi nhận đang có (registry TRACKERS) rồi thoát.")
+                        help="Tên prompt trong thư viện dùng chung, hoặc đường dẫn tới file "
+                             "prompt cạnh notebook. Mặc định: khoá `prompt` của thí nghiệm.")
+    parser.add_argument("--examples", default=None,
+                        help="Ghi đè file ví dụ few-shot (tên trong thư viện, hoặc đường dẫn).")
+    parser.add_argument("--limit", type=int, default=None,
+                        help="Chỉ chạy N mẫu của tập con ngẫu nhiên (tái lập theo --seed).")
     parser.add_argument("--model", default=None,
-                        help="Ghi đè tên model trên Hugging Face (mặc định: "
-                             "Qwen/Qwen3-4B-Instruct-2507 trong src/preprocessing/qwen.py). "
-                             "Dùng để chạy thử đường ống bằng một model nhỏ cùng họ trước "
-                             "khi tải model 4B.")
-    parser.add_argument("--limit", type=int, default=0, metavar="N",
-                        help="Chạy trên một tập con N mẫu lấy NGẪU NHIÊN (dùng --seed để "
-                             "tái lập); 0 = cả split. Tên file ghi rõ n<N> để không lẫn "
-                             "với kết quả toàn tập.")
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Seed chọn tập con và lấy mẫu (ghi vào kết quả).")
+                        help="Ghi đè model HF (dùng để chạy thử với model nhỏ đã có sẵn).")
+    parser.add_argument("--quant", default="auto", choices=["auto", "4bit", "8bit", "none"],
+                        help="Cách nạp model. Mặc định 'auto' (4-bit khi có bitsandbytes).")
     parser.add_argument("--batch-size", dest="batch_size", type=int, default=4,
-                        help="Số review mỗi lô (mặc định 4; tăng lên nếu VRAM còn chỗ).")
-    parser.add_argument("--max-new-tokens", dest="max_new_tokens", type=int,
-                        default=runner.DEFAULT_MAX_NEW_TOKENS,
-                        help="Số token tối đa model được sinh cho mỗi review.")
+                        help="Số review mỗi lượt sinh. Mặc định 4 (vừa VRAM 6 GB).")
+    parser.add_argument("--max-new-tokens", dest="max_new_tokens", type=int, default=None,
+                        help="Trần số token sinh mỗi review (mặc định: 400).")
     parser.add_argument("--max-length", dest="max_length", type=int, default=None,
-                        help="Ngưỡng cắt input (mặc định: lấy từ qwen.limit()).")
-    parser.add_argument("--quant", default="auto", choices=["auto", "4bit", "bf16"],
-                        help="Cách nạp model: 4-bit (nhẹ VRAM) | bf16 | auto.")
+                        help="Trần số token đầu vào (mặc định: max_length của Qwen).")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Seed cho tập con và cho việc lấy mẫu. Mặc định 42.")
     parser.add_argument("--sample", action="store_true",
-                        help="Lấy mẫu theo khuyến nghị của model card (nhiệt độ 0.7, top_p "
-                             "0.8, top_k 20) thay vì greedy. Khi đó `seed` được ghi lại.")
+                        help="Lấy mẫu thay vì greedy (ghi đè `evaluation.decoding.mode`).")
     parser.add_argument("--new", action="store_true",
-                        help="Chạy lại TỪ ĐẦU dù thư mục này đã có kết quả; các khối cũ được "
-                             "chuyển sang thư mục con chứ không bị xoá.")
+                        help="Chạy lại từ đầu dù đã có kết quả (kết quả cũ được chuyển sang "
+                             "thư mục con, không bị xoá).")
     parser.add_argument("--quiet", action="store_true",
-                        help="Không in tiến độ từng lô (vẫn in bảng kết quả).")
+                        help="Không in tiến độ từng lượt sinh.")
+    parser.add_argument("--list-scorers", dest="list_scorers", action="store_true",
+                        help="In các bộ chấm điểm đang có rồi thoát.")
+    parser.add_argument("--list-trackers", dest="list_trackers", action="store_true",
+                        help="In các trình ghi nhận đang có rồi thoát.")
     return parser.parse_args(argv)
 
 
+def identity(args):
+    """Ba phần định danh thí nghiệm: (model, method, exp_id). Thiếu cả ba thì chạy NGOÀI thí nghiệm.
 
-def print_table(rows, columns):
-    """In bảng ra console, cột căn trái theo nội dung."""
-    if not rows:
-        print("  (không có số liệu)")
-        return
-    widths = [
-        max(len(str(value)) for value in [columns[index]] + [row[index] for row in rows])
-        for index in range(len(columns))
-    ]
-    def line(values):
-        return "  " + "  ".join(
-            "{:<{}}".format(str(values[index]), widths[index])
-            for index in range(len(columns)))
-    print(line(columns))
-    print("  " + "  ".join("-" * width for width in widths))
-    for row in rows:
-        print(line(row))
-
-
-def build_tag(prompt, split, limit, generation, quant, extra=None):
-    """Hậu tố tên file: ghi rõ lần chạy này là cấu hình nào.
-
-    Mọi thứ ảnh hưởng tới con số đều phải có trong tên file: prompt (+ sha của bộ ví dụ),
-    split, CỠ TẬP CON (`n200`), cách sinh (greedy/lấy mẫu) và mức lượng hóa. Nhờ vậy không
-    bao giờ lẫn kết quả của tập con với toàn tập, hay kết quả greedy với lấy mẫu.
+    Chạy ngoài vẫn hợp lệ (đo thử prompt), nhưng kết quả không thuộc thí nghiệm nào nên đi vào thư
+    mục đánh giá dùng chung - và `plan` sẽ nói rõ điều đó.
     """
-    parts = ["prompt-{}".format(prompt.name)]
-    info = prompts.examples_info(prompt.name)
-    if info and info["sha"]:
-        parts.append("ex-{}".format(info["sha"]))
-    parts.append(split)
-    if limit:
-        parts.append("n{}".format(limit))
-    parts.append("sample" if generation["do_sample"] else "greedy")
-    if quant and quant != "auto":
-        parts.append(quant)
-    if extra:
-        parts.append(extra)
-    return "__".join(parts)
-
-
-def print_config(prompt, examples, split, limit, total, max_length, generation, model_info):
-    """In cấu hình chạy, để người đọc biết bảng điểm dưới đây ứng với cái gì."""
-    print("Cấu hình chạy:")
-    print("  prompt      : {} ({}), sha {}".format(
-        prompt.name, prompt.where, prompt.sha))
-    print("  ví dụ       : {}".format(
-        "{} - {} ví dụ, sha {}".format(examples["file"], examples["examples"],
-                                       examples["sha"]) if examples else "không dùng"))
-    print("  tập dữ liệu : {} - {}{}".format(
-        split, limit if limit else total,
-        " (TẬP CON ngẫu nhiên, seed ở mục lục)" if limit and limit < total else ""))
-    print("  ngưỡng cắt  : {} token (max_length của Qwen)".format(max_length))
-    print("  sinh        : {}".format(
-        "greedy (tái lập)" if not generation["do_sample"] else
-        "lấy mẫu: temperature={}, top_p={}, top_k={}, seed={}".format(
-            generation["temperature"], generation["top_p"], generation["top_k"],
-            generation["seed"])))
-    print("  tối đa sinh : {} token/review".format(generation["max_new_tokens"]))
-    print("  model       : {} - {}, {}, {}".format(
-        model_info["model"], model_info.get("quant"),
-        model_info.get("cách nạp"), model_info.get("thiết bị")))
-    print()
-
-
-def task_settings():
-    """Cách nhìn bài toán đang dùng, lấy từ `configs/experiments/task.yaml`.
-
-    Không chép giá trị mặc định vào đây: chép thì sửa config mà kết quả không đổi, và người đọc
-    số liệu sẽ tưởng đang đo một bài toán khác với bài toán đã khai.
-    """
-    return experiments.shared("task")
-
-
-def evaluation_settings():
-    """Cách chấm điểm đang dùng, lấy từ `configs/experiments/evaluation.yaml`."""
-    return experiments.shared("evaluation")
-
-
-def tracking_settings():
-    """Cách ghi nhận đang dùng, lấy từ `configs/experiments/tracking.yaml`."""
-    return experiments.shared("tracking")
-
-
-def label_names(label_map):
-    """Bảng tên nhãn để in kết quả (mã -> tên). Khoá là số vì bảng đếm dùng mã bằng số."""
-    return {int(code): name for code, name in (label_map.get("id_to_label") or {}).items()}
-
-
-def input_files(ds, prompt):
-    """Các file ĐẦU VÀO của lần chạy, kèm vai, để `run_meta.json` tự mô tả được.
-
-    Vì sao phải ghi cả file cấu hình dữ liệu: một con số chỉ so được khi biết nó sinh ra từ code
-    nào, config nào và dữ liệu nào. Đường dẫn ở đây là đường dẫn TƯƠNG ĐỐI (xem `run_meta`).
-    """
-    shared = paths.cfg()["configs"]
-    layers = [(paths.config_path(shared["paths"]), tracking.run_meta.ROLE_PATHS),
-              (tracking.base.dagshub_path(), tracking.run_meta.ROLE_TRACKING)]
-    layers += [(experiments.shared_path(name), tracking.run_meta.ROLE_CONFIG)
-               for name in experiments.SHARED]
-    layers.append((model_config.config_path(qwen.CONFIG_NAME), tracking.run_meta.ROLE_MODEL))
-    layers.append((ds.get("_path"), tracking.run_meta.ROLE_DATASET))
-    layers.append((paths.config_path(shared["pipeline"],
-                                     "{}.yaml".format(ds.get("pipeline_version"))),
-                   tracking.run_meta.ROLE_PIPELINE))
-    layers.append((prompt_path(prompt.name), tracking.run_meta.ROLE_PROMPT))
-    layers.append((examples_path(prompt.name), tracking.run_meta.ROLE_EXAMPLES))
-    return tracking.run_meta.input_files(layers)
-
-
-def prompt_path(name):
-    """Đường dẫn file prompt trong thư viện dùng chung."""
-    return paths.config_path(paths.cfg()["configs"]["prompts"], "{}.txt".format(name))
-
-
-def examples_path(name):
-    """Đường dẫn file ví dụ few-shot của một prompt (có thể không tồn tại)."""
-    return paths.config_path(paths.cfg()["configs"]["prompts"], "examples",
-                             "{}.txt".format(name))
-
-
-def print_scores(scores):
-    """In các con số tổng hợp của từng bộ chấm. Bảng chi tiết in bằng `scorers.table`."""
-    for name, values in scores.items():
-        print("  {}".format(name))
-        for key, value in values.items():
-            if isinstance(value, dict):
-                flat = "  ".join("{}={}".format(inner, item) for inner, item in value.items()
-                                 if isinstance(item, (int, float, str)))
-                if flat:
-                    print("    {:<20} {}".format(key, flat))
-            else:
-                print("    {:<20} {}".format(key, value))
+    if args.experiment:
+        parts = [part for part in str(args.experiment).split("/") if part]
+        if len(parts) != 3:
+            raise ValueError("--experiment phải có dạng <model>/<method>/<expNNN>, ví dụ "
+                             "qwen3-4b-instruct-2507/prompt-cot/exp001")
+        return parts
+    values = [args.model_id, args.method, args.exp_id]
+    if any(values) and not all(values):
+        raise ValueError("Cần đủ cả ba phần định danh thí nghiệm: --model-id, --method, --exp-id "
+                         "(hoặc dùng --experiment).")
+    return values
 
 
 def main(argv=None):
     args = parse_args(argv)
-
-    # Nạp biến môi trường TRƯỚC mọi việc khác: `DAGSHUB_TOKEN` nằm ở Colab Secrets hoặc file
-    # `.env` (cả hai đều không được commit). Không nạp thì token có trong máy mà phần ghi nhận
-    # vẫn báo "thiếu token" - một lỗi im lặng rất khó đoán.
-    env = runtime.load_env()
 
     if args.list_scorers:
         print("Các bộ chấm điểm đang có (khai trong evaluation.scores):")
         for line in scorers.describe():
             print("  " + line)
         return 0
-
     if args.list_trackers:
         print("Các trình ghi nhận đang có (khai trong tracking.tracker):")
         for line in tracking.describe():
             print("  " + line)
         return 0
 
+    try:
+        model_id, method, exp_id = identity(args)
+    except ValueError as exc:
+        print("LỖI: {}".format(exc))
+        return 2
+
+    in_experiment = all([model_id, method, exp_id])
+    if not in_experiment and not args.prompt:
+        print("LỖI: chưa rõ prompt. Prompt là biến của thí nghiệm, không lấy từ config model. "
+              "Nêu --prompt (xem `python run_token_stats.py --list-prompts`) hoặc chỉ định "
+              "--experiment <model>/<method>/<expNNN>.")
+        return 2
+
     print("=" * 70)
     print("QWEN3 BẰNG CHỈ DẪN - chạy model rồi chấm điểm (đánh giá model)")
     print("=" * 70)
 
-    if not args.prompt:
-        print("LỖI: thiếu --prompt. Prompt thuộc config của thí nghiệm, không lấy từ config "
-              "model. Xem `run_token_stats.py --list-prompts` để biết đang có prompt nào.")
-        return 2
-
     try:
-        ds = dataset.load_config(args.dataset)
-        task = task_settings()
-        evaluation = evaluation_settings()
-        tracking_config = tracking_settings()
-        names = scorers.check(evaluation.get("scores"))
-        # Cấu hình đã hợp nhất của lần chạy. Chạy tay (chưa có thư mục thí nghiệm) nên chỉ hợp
-        # nhất các lớp dùng chung + lớp model; dấu vân tay của nó đi vào `run_meta.json` và là
-        # một trong ba điều kiện resume.
-        merged = experiments.load_shared(qwen.CONFIG_NAME)
-    except (dataset.DatasetError, experiments.ExperimentError, scorers.ScorerError) as exc:
-        print("LỖI: {}".format(exc))
-        return 2
-    version_id = args.version or versioning.compute_id(ds)
-
-    try:
-        prompt = qwen.load_prompt(args.prompt)
-    except prompts.PromptError as exc:
+        merged = (experiments.load(model_id, method, exp_id) if in_experiment
+                  else experiments.load_shared(qwen.CONFIG_NAME))
+        # Lập kế hoạch trước, chạy sau: bước này không cần GPU nên thiếu file hay sai tên split
+        # đều lộ ra trong vài giây, không phải sau khi đã nạp model.
+        plan = experiment_run.plan(
+            merged, dataset_name=args.dataset, model_id=model_id, method=method,
+            exp_id=exp_id, prompt=args.prompt, examples=args.examples, split=args.split,
+            limit=args.limit, version_id=args.version, quant=args.quant, new=args.new,
+            seed=args.seed, max_new_tokens=args.max_new_tokens, max_length=args.max_length,
+            batch_size=args.batch_size, model=args.model, sample=args.sample or None,
+            quiet=args.quiet)
+        result = experiment_run.run(plan)
+    except (dataset.DatasetError, experiments.ExperimentError, prompts.PromptError,
+            scorers.ScorerError, experiment_run.RunError, FileNotFoundError, ValueError) as exc:
         print("LỖI: {}".format(exc))
         return 2
 
-    try:
-        label_map = loader.load_label_map(version_id, dataset=ds["name"])
-        frame = loader.load_processed(args.split, version_id=version_id,
-                                      dataset=ds["name"])
-        # Lọc bảng mã nhãn theo không gian nhãn TRƯỚC khi đưa cho model: đưa một nhãn mà bài
-        # toán không dùng là mọi câu trả lời mang nhãn đó đều bị tính sai.
-        label_map = labels.filter_label_map(label_map, task["label_space"],
-                                            task["neutral_policy"])
-        aspects = labels.task_aspects(task, label_map["aspects"])
-    except (FileNotFoundError, experiments.ExperimentError, labels.base.LabelError) as exc:
-        print("LỖI: {}".format(exc))
+    if result.get("stopped"):
         return 2
-
-    texts = frame[config.TEXT_COLUMN].astype(str).tolist()
-    codes = frame[aspects].astype(int).to_numpy().tolist()
-    golds = [dict(zip(aspects, row)) for row in codes]
-
-    # Tập con (nếu có): chọn bằng random CÓ SEED để tái lập được, và giữ lại chỉ số dòng
-    # gốc - không có nó thì không tra ngược được kết quả về review nào trong file dữ liệu.
-    row_index = list(range(len(texts)))
-    if args.limit and args.limit < len(texts):
-        row_index = sorted(random.Random(args.seed).sample(row_index, args.limit))
-        texts = [texts[index] for index in row_index]
-        golds = [golds[index] for index in row_index]
-
-    generation = runner.settings(
-        quant=args.quant, max_new_tokens=args.max_new_tokens, do_sample=args.sample,
-        temperature=CARD_SETTINGS["temperature"] if args.sample else None,
-        top_p=CARD_SETTINGS["top_p"] if args.sample else None,
-        top_k=CARD_SETTINGS["top_k"] if args.sample else None,
-        seed=args.seed if args.sample else None)
-    max_length = args.max_length or qwen.limit()[0]
-
-    if args.split == "test":
-        print("LƯU Ý: đang chạy trên TEST. Tập này chỉ dùng cho con số CUỐI CÙNG, sau khi đã")
-        print("       chốt prompt và ngưỡng trên val - chọn theo test là tự lừa mình.\n")
-
-    # Một thư mục kết quả cho MỘT cấu hình chạy: log, chỉ số và bản ghi lần chạy nằm cạnh nhau.
-    # Dựng thư mục và mở log TRƯỚC khi nạp model - nạp model hỏng là trường hợp hay gặp nhất
-    # (thiếu bitsandbytes, hết VRAM), nên phải có chỗ ghi lại ngay.
-    tag = build_tag(prompt, args.split, args.limit, generation, args.quant)
-    out_dir = runner.run_dir(version_id, tag)
-    info = {
-        "dataset": ds["name"], "version_id": version_id, "split": args.split,
-        "prompt": prompt.name, "prompt_sha": prompt.sha,
-        "model": args.model or qwen.MODEL_NAME, "quant": args.quant,
-        "max_length": max_length, "generation": generation,
-        "subset": {"limit": args.limit, "seed": args.seed}, "n_samples": len(texts),
-        "env": env,
-    }
-
-    # Chạy mới hay chạy tiếp: quyết định ở MỘT chỗ (`src/resume.py`), dựa trên ba giá trị mà
-    # docs/00_workflow/02_rules.md mục 13 yêu cầu giống nhau.
-    repo = run_meta.repo_info(url=merged["config"].get("url"),
-                              branch=merged["config"].get("branch"))
-    config_sha256 = experiments.config_sha256(merged, prompt_text=prompt.text)
-    previous = run_meta.read(out_dir)
-    parts = resume.Parts(out_dir)
-    done_count = parts.count()
-    mode, reason = resume.decide(
-        previous, resume.fingerprint(config_sha256, version_id, repo["sha"]),
-        done_count, force_new=args.new)
-
-    if mode == resume.MODE_STOP:
-        print("DỪNG: {}".format(reason))
-        print("      Muốn chạy lại từ đầu thì thêm --new (kết quả cũ được chuyển sang thư mục "
-              "con, không bị xoá).")
-        return 2
-    if mode == resume.MODE_NEW and done_count:
-        stashed = parts.stash()
-        print("Chạy lại từ đầu: {} khối cũ được chuyển sang {}".format(
-            done_count, utils.rel(stashed)))
-        info["stashed"] = utils.rel(stashed)
-
-    # Mẫu đã chạy xong thì bỏ qua (chỉ khi chạy tiếp).
-    done = parts.keys() if mode == resume.MODE_RESUME else set()
-    if done:
-        keep = [position for position, index in enumerate(row_index)
-                if str(index) not in done]
-        texts = [texts[position] for position in keep]
-        golds = [golds[position] for position in keep]
-        row_index = [row_index[position] for position in keep]
-
-    with runlog.start(out_dir, mode=mode, info=info) as log:
-        # Dòng `[RUN] mode=...` do `runlog` ghi, nên `run.log` luôn nói rõ lần này là chạy mới hay
-        # chạy tiếp (điều kiện hoàn thành của P4).
-        log.step("vào việc: chế độ {} - {}".format(mode, reason))
-        if mode == resume.MODE_RESUME:
-            log.step("bỏ qua {} mẫu đã xong, còn {} mẫu phải chạy".format(
-                len(done), len(texts)))
-            if parts.torn:
-                log.warn("bỏ qua {} dòng viết dở trong các khối; mẫu đó sẽ được chạy lại".format(
-                    parts.torn))
-
-        # Bản ghi lần chạy: ghi NGAY từ đầu, để lần chạy hỏng vẫn còn dấu vết (đang ở attempt nào,
-        # với code và config nào). Chốt lại lúc đóng log; việc chốt chạy TRƯỚC phần ghi nhận nên
-        # bản được tải lên máy chủ là bản đã chốt.
-        record = run_meta.build(
-            out_dir, tag=tag,
-            experiment={"model": qwen.CONFIG_NAME, "method": None, "exp_id": None,
-                        "hf_model": info["model"]},
-            data={"dataset": ds["name"], "version": ds.get("version"), "ma": version_id},
-            repo=repo,
-            config={"sha256": config_sha256,
-                    "layers": merged["layers"], "sources": merged["sources"]},
-            files=input_files(ds, prompt),
-            env=run_meta.env_info(kind=runtime.env_name()),
-            note="chạy tiếp" if mode == resume.MODE_RESUME else None)
-        run_meta.write(out_dir, record)
-        log.on_close(run_meta.closer(record, out_dir, log=log))
-
-        # Mở phiên ghi nhận ngay từ đầu: lần chạy hỏng giữa chừng vẫn phải KẾT THÚC run trên máy
-        # chủ, nếu không thì trên DagsHub còn lại những run mãi ở trạng thái đang chạy và người
-        # xem không biết run nào thật sự xong. `on_close` bảo đảm việc đó.
-        session = tracking.begin(tracking_config, out_dir, info=info, log=log)
-        log.on_close(tracking.closer(session, log=log))
-
-        log.step("nạp model: {} (quant={})".format(info["model"], args.quant))
-        try:
-            model, tokenizer, model_info = runner.load(args.quant, model_name=args.model)
-        except (ImportError, RuntimeError, OSError) as exc:
-            # `requires` là thứ còn thiếu để chạy được, để lần sau không phải đoán.
-            log.error("Không nạp được model: {}".format(exc), exc=exc,
-                      context={"model": info["model"], "quant": args.quant},
-                      requires=["bitsandbytes + accelerate (lượng hóa 4-bit)",
-                                "VRAM trống đủ cho model 4B"])
-            print("LỖI: {}".format(exc))
-            return 2
-        log.step("đã nạp model: {}, {}".format(
-            model_info.get("quant"), model_info.get("cách nạp")), seconds=log.elapsed())
-
-        examples = prompts.examples_info(prompt.name)
-        print_config(prompt, examples, args.split, args.limit, len(texts), max_length,
-                     generation, model_info)
-        print("Đang sinh...")
-        log.step("bắt đầu sinh {} mẫu của split {} (batch {})".format(
-            len(texts), args.split, args.batch_size))
-
-        rows, _infos_new, _preds_new, meta = runner.run(
-            args.split, texts, golds, aspects, label_map, prompt.name, model, tokenizer,
-            batch_size=args.batch_size, max_length=max_length, generation=generation,
-            row_index=row_index, quiet=args.quiet, store=parts)
-        log.step("sinh xong {} mẫu mới".format(len(rows)), seconds=meta["giây"])
-
-        # Chấm trên TOÀN BỘ mẫu của split: mẫu đã xong từ lần chạy trước lấy trong các khối, mẫu
-        # vừa chạy lấy từ bộ nhớ. Nhờ vậy một lượt chạy bị ngắt rồi chạy tiếp vẫn cho điểm của cả
-        # split, không phải điểm của phần còn lại.
-        rows_all = records.merge(parts.records(), rows)
-        golds_all, preds_all, infos_all = records.to_arrays(rows_all, aspects)
-        read = metrics.read_rate(infos_all)
-        log.step("tổng {} mẫu ({} mẫu mới), đọc được {}% kết quả".format(
-            len(rows_all), len(rows), read["% đọc được"]))
-        samples = scorers.Samples.build(
-            aspects, golds_all, preds_all, task=task, labels=label_names(label_map),
-            sample_ids=[str(row[records.KEY_INDEX]) for row in rows_all],
-            meta={"split": args.split, "dataset": ds["name"], "version_id": version_id})
-        result = scorers.run_all(samples, names=names)
-        log.step("chấm xong {} chỉ số: {}".format(len(names), ", ".join(names)))
-        if samples.meta["dropped_neutral"]:
-            log.step("loại {} ô neutral theo neutral_policy={}".format(
-                samples.meta["dropped_neutral"], task["neutral_policy"]))
-
-        print("\nĐọc kết quả:")
-        for key, value in read.items():
-            if key != "lí do lỗi":
-                print("  {:<18}: {}".format(key, value))
-        for reason, count in read["lí do lỗi"].items():
-            print("      lỗi: {:<44} {}".format(reason, count))
-
-        print("\nSố theo khía cạnh và sắc thái:")
-        table_rows, table_columns = scorers.table(result["rows"])
-        print_table(table_rows, table_columns)
-        print("\nTổng hợp:")
-        print_scores(result["scores"])
-        print("\nChi phí lượt này: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
-            meta["token sinh TB"], meta["giây"], meta["token sinh/giây"]))
-        if done:
-            print("Dùng lại {} mẫu của lần chạy trước ({} mẫu chạy trong lượt này).".format(
-                len(done), len(rows)))
-
-        extra = dict(info)
-        extra.update({
-            "prompt_examples": examples,
-            "model_info": model_info,
-            "subset": {"limit": args.limit, "seed": args.seed,
-                       "how": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"},
-            "read_rate": read,
-            "cost": meta,
-            "scores_order": result["names"],
-            # Lượt này là chạy mới hay chạy tiếp, và dùng lại bao nhiêu mẫu. Người đọc
-            # `metrics.json` cần biết con số trước mặt có phải từ một lượt chạy liền mạch hay không.
-            "resume": {"mode": mode, "reason": reason,
-                       "reused": len(done), "new": len(rows)},
-        })
-        return _write_all(out_dir, tag, rows_all, samples, result, evaluation, extra, log,
-                          session, tracking_config)
-
-
-def _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log, session,
-               tracking_config):
-    """Ghi kết quả của lần chạy vào thư mục riêng của nó. Trả về mã thoát.
-
-    Thư mục riêng cho mỗi cấu hình nên tên file TRONG đó là tên cố định; cấu hình nằm ở tên thư
-    mục. Nhờ vậy không bao giờ ghi đè số liệu của lần chạy khác, và cũng không phải ghép tên file
-    từ cấu hình (ghép chuỗi là nguồn sự thật thứ hai, lệch lúc nào không biết).
-    """
-    save = dict(evaluation.get("save") or {})
-    shown = {}
-    if save.get("predictions", True):
-        shown[paths.pattern("predictions")] = runner.write(
-            rows, runner.PREDICTION_COLUMNS, out_dir)
-        log.step("ghi {} dòng dự đoán".format(len(rows)))
-    shown.update(scorers.write(out_dir, samples, names=result["names"],
-                               save_confusion=bool(save.get("confusion", True)),
-                               extra=extra))
-    log.step("đã ghi: {}".format(", ".join(sorted(shown))))
-
-    # Ghi nhận SAU khi file đã nằm trên đĩa: máy chủ hỏng thì kết quả vẫn còn. Danh sách file tải
-    # lên lấy từ `tracking.artifacts`, và chỉ lấy file đang có.
-    session.log_params(extra)
-    session.log_metrics(result["scores"])
-    session.log_artifacts(tracking.base.artifact_paths(out_dir, tracking_config.get("artifacts")))
-    log.step("ghi nhận: {} tham số, {} chỉ số, {} file".format(
-        len(session.params), len(session.metrics), len(session.artifacts)))
-
-    print("Hoàn tất. Đã ghi vào {}:".format(utils.rel(out_dir)))
-    for name, path in shown.items():
-        print("  - {:<18} {}".format(name, utils.rel(path)))
-    print("  (tên thư mục '{}' ghi rõ cấu hình của lần chạy này)".format(tag))
+    print("\nXong. Kết quả ở {} (chế độ {}).".format(utils.rel(result["out_dir"]),
+                                                     result["mode"]))
     return 0
 
 

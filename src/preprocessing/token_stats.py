@@ -365,7 +365,8 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
         "prompt_sha": qwen.load_prompt(prompt_name).sha,
         # Bộ ví dụ few-shot: sha riêng (xem prompts.examples_info) - prompt không dùng
         # {examples} thì None.
-        "examples": prompts.examples_info(prompt_name),
+        "examples": (prompts.examples_info(qwen.load_prompt(prompt_name).examples_value)
+                     if "examples" in qwen.load_prompt(prompt_name).placeholders else None),
         "segmenter": _resolved_segmenter(segmenter),
         "limits": {spec["key"]: {"value": spec["max_length"],
                                  "source": spec["max_length_source"]}

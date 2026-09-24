@@ -65,14 +65,36 @@ def default_add_generation_prompt():
     return bool(model_config.preprocess(CONFIG_NAME)["add_generation_prompt"])
 
 
-def load_prompt(name):
-    """Nạp prompt đã kiểm tra. Prompt thuộc THÍ NGHIỆM nên phải ghi rõ tên."""
-    if not name:
+_PROMPTS = {}
+
+
+def load_prompt(value, base_dir=None, examples=None):
+    """Nạp prompt đã kiểm tra. Prompt thuộc THÍ NGHIỆM nên phải ghi rõ tên hoặc đường dẫn.
+
+    Prompt trong thư viện dùng chung thì ghi tên (`absa_cot_v1`); prompt riêng của một thí nghiệm
+    thì ghi đường dẫn tính từ thư mục thí nghiệm (`prompt.txt`) - xem `prompts.resolve`.
+    """
+    if not value:
         raise ValueError(
-            "Thiếu tên prompt. Prompt nằm trong config của thí nghiệm, không lấy từ config "
-            "model; hãy truyền tên prompt, ví dụ 'absa_cot_v1'."
+            "Thiếu prompt. Prompt nằm trong config của thí nghiệm, không lấy từ config "
+            "model; hãy truyền tên prompt (ví dụ 'absa_cot_v1') hoặc đường dẫn tới file prompt "
+            "của thí nghiệm."
         )
-    return prompts.load(name)
+    cached = _PROMPTS.get(str(value))
+    return use_prompt(cached if cached is not None
+                      else prompts.load(value, base_dir, examples))
+
+
+def use_prompt(prompt):
+    """Ghi nhớ một prompt ĐÃ NẠP, để các bước sau dùng lại đúng nó.
+
+    VÌ SAO CẦN: các hàm dưới đây nhận `prompt_name` (một cái TÊN) chứ không nhận prompt, nên
+    prompt nằm trong thư mục thí nghiệm - vốn không có trong thư viện dùng chung - sẽ không tìm
+    lại được theo tên. Nạp một lần rồi ghi vào đây thì mọi bước sau dùng đúng prompt đó, thay vì
+    mỗi nơi tự ghép lại đường dẫn.
+    """
+    _PROMPTS[prompt.name] = prompt
+    return prompt
 
 
 def values(text, aspects=None, label_map=None, prompt=None):
@@ -101,7 +123,7 @@ def values(text, aspects=None, label_map=None, prompt=None):
             result["example"] = "{" + ", ".join(
                 '"{}": 0'.format(aspect) for aspect in aspects) + "}"
         if "examples" in needed:
-            result["examples"] = prompts.examples(prompt.name)
+            result["examples"] = prompts.examples(prompt.examples_value)
     return result
 
 
@@ -243,7 +265,8 @@ def info(prompt_name=None):
     found = tokenizer()
     template = load_prompt(prompt_name)
     value, source = limit()
-    examples = prompts.examples_info(template.name) or {}
+    examples = (prompts.examples_info(template.examples_value)
+                if "examples" in template.placeholders else None) or {}
     return {
         "tokenizer": type(found).__name__,
         "segmenter": "none",

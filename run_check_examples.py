@@ -169,14 +169,15 @@ def check_prompt(name, label_map, index, max_overlap):
     codes = {int(value) for value in label_map["label_to_id"].values()}
     rows, problems, warnings = [], [], []
 
-    info = prompts.examples_info(name)
-    if info is None:
+    prompt = prompts.load(name)
+    if "examples" not in prompt.placeholders:
         return rows, problems, warnings
+    info = prompts.examples_info(prompt.examples_value)
     if info["missing"]:
         return rows, ["{}: prompt cần {{examples}} mà chưa có file ví dụ {}".format(
             name, info["file"])], warnings
 
-    blocks = split_blocks(prompts.examples(name))
+    blocks = split_blocks(prompts.examples(prompt.examples_value))
     if not blocks:
         return rows, ["{}: file ví dụ {} không có khối '--- Ví dụ n ---' nào".format(
             name, info["file"])], warnings
@@ -297,7 +298,7 @@ def main(argv=None):
         names = [args.prompt]
     else:
         names = [name for name in prompts.available()
-                 if prompts.examples_info(name) is not None]
+                 if "examples" in prompts.load(name).placeholders]
     if not names:
         print("Không có prompt nào dùng ô nhớ {{examples}} - không có gì để kiểm.")
         return 0
@@ -315,7 +316,7 @@ def main(argv=None):
                "cụm trùng với val/test", "kết luận"]
     rows, problems, warnings = [], [], []
     for name in names:
-        info = prompts.examples_info(name)
+        info = prompts.examples_info(prompts.load(name).examples_value)
         if info and info["note"]:
             print("Nguồn ví dụ của '{}': {}".format(name, info["note"].splitlines()[0]))
             print("  ({} - {} ví dụ, sha {})".format(

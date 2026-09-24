@@ -89,9 +89,13 @@ class TestNotebookTemplate(unittest.TestCase):
         for name in ("REPO_URL", "REPO_BRANCH", "REPO_SHA", "EXP_DIR"):
             self.assertIn("{} = ".format(name), source)
 
-    def test_notebook_calls_the_real_cli_and_the_preflight(self):
+    def test_notebook_calls_the_library_and_the_preflight(self):
         text = json.dumps(notebook(), ensure_ascii=False)
-        self.assertIn("run_qwen_eval", text)
+        # Notebook gọi THƯ VIỆN (`src/experiment_run.py`), KHÔNG gọi script dòng lệnh: hợp đồng
+        # giữa notebook đã ghim và thí nghiệm không được là tên cờ dòng lệnh.
+        self.assertIn("experiment_run.plan", text)
+        self.assertIn("experiment_run.run", text)
+        self.assertNotIn("run_qwen_eval", text)
         self.assertIn("preflight.run", text)
         self.assertIn("repo.prepare", text)
         self.assertIn("runtime.load_env", text)

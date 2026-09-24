@@ -219,7 +219,8 @@ def print_config(prompt, segmenter_spec, max_length_overrides=None):
     if prompt.multiline:
         print("               hội thoại nhiều lượt: {}".format(
             " -> ".join(name.upper() for name, _ in prompt.sections)))
-    examples = prompts.examples_info(prompt.name)
+    examples = (prompts.examples_info(prompt.examples_value)
+                if "examples" in prompt.placeholders else None)
     if examples:
         print("  ví dụ      : {} - {} ví dụ, sha {}".format(
             examples["file"], examples["examples"],
@@ -258,7 +259,8 @@ def build_tag(args, max_length_overrides=None, prompt=None):
     parts = []
     if args.prompt:
         parts.append("prompt-{}".format(args.prompt))
-    info = prompts.examples_info(prompt.name) if prompt is not None else None
+    info = (prompts.examples_info(prompt.examples_value)
+            if prompt is not None and "examples" in prompt.placeholders else None)
     if info and info["sha"]:
         parts.append("ex-{}".format(info["sha"]))
     if args.segmenter:

@@ -28,7 +28,9 @@ chưa làm
       -> `feat(templates): add experiment and prompt templates`
       Notebook mẫu có 8 ô: tiêu đề, ô GHIM (do `pin.py` ghi), bootstrap (`repo.prepare` +
       `runtime.load_env` + tìm Drive), cấu hình đang dùng, preflight (dừng nếu có việc phải sửa),
-      chạy qua chính `run_qwen_eval.py`, kết quả nằm ở đâu, và ô kết thúc.
+      chạy qua chính `src/experiment_run.py` (`plan` rồi `run`) - notebook gọi THƯ VIỆN, không gọi
+      script dòng lệnh (`run_qwen_eval.py` chỉ là cửa vào mỏng cho lúc chạy nhanh trên dòng lệnh,
+      nó gọi đúng hai hàm đó), kết quả nằm ở đâu, và ô kết thúc.
       Kèm hai thứ mà bootstrap cần: `runtime.drive_dir()`/`drive_env_file()` (nhận Drive bằng FILE
       ĐÁNH DẤU, không đoán theo tên - MyDrive và Shared drives trông giống nhau), và `device_report`
       bắt thêm `OSError` khi nạp `torch` (torch cài hỏng thì báo thành việc phải sửa, không để
