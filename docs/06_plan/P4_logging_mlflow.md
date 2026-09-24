@@ -16,7 +16,8 @@ chưa làm
 
 - [x] T1. `src/labels/`: registry `LABEL_SPACES` với `binary` và `full`; `neutral_policy`
       (`drop`/`as_negative`/`as_positive`/`keep`), `not_mentioned` (`separate`/`as_class`);
-      hợp đồng ở `src/labels/base.py` gồm `check()` và `project()`.
+      hợp đồng ở `src/labels/base.py` gồm `check()` và `project()`. (Chung commit với T2, và
+      commit đó cũng mang phần cập nhật trạng thái P1-P3 của tài liệu kế hoạch.)
 - [x] T2. Chiếu nhãn cho model: `src/labels/allowed_codes()`, `filter_label_map()` (bảng mã nhãn đưa
       cho model), và `preprocessing.loader.project_multi_head()` trả `(nhãn, mask)` - ô neutral bị
       loại thì mask 0 chứ không xoá cả dòng; `dropped_cells()` để ghi vào metrics.json.
