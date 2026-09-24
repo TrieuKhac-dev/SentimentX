@@ -81,3 +81,25 @@
 | P7    | `feat(data): regenerate eda and pipeline reports`                         |
 | P7    | `feat(experiments): run baseline prompt experiments`                      |
 | P7    | `docs(experiments): record baseline results against reference`            |
+
+## Commit THỰC TẾ của đợt P4/P5/P6 (đọc khi cần tra nguồn gốc một thay đổi)
+
+Chạy thật thì phát sinh việc không có trong bảng dự kiến ở trên (lỗi chỉ lộ ra khi chạy model hoặc
+khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi lại đây.
+
+| Giai đoạn | Commit thực tế (mới nhất ở dưới) |
+| --- | --- |
+| P4/P5 | `refactor(evaluation): move the experiment loop into a library the notebook calls` |
+| P5 | `fix(prompts): never derive the examples file from a prompt path` |
+| P5 T6 | `feat(experiments): add scripts/new_experiment.py to scaffold an experiment` |
+| P5 T4 | `feat(experiments): create exp001 - Qwen3-4B CoT prompt, scored on val` |
+| P5 | `chore(experiments): pin commit fe180947 into the exp001 notebook` |
+| P5 | `fix(preflight): a bad prompt path becomes a reported problem, not a crash` |
+| P5 | `fix(evaluation): put an overridden model in the result folder name` |
+| P4 | `docs(plan): record the real interrupt-resume run and close P4, tick P5 tasks` |
+| P5 T3 | `fix(notebook): fetch the pinned commit before importing src` |
+| P6 T1 | `feat(reports): generate registry model input and metrics matrix reports` |
+| P6 T2 | `feat(ci): add repository checks script` |
+| P6 | `fix(reports): keep metric matrix columns unique` |
+| P6 | `fix(evaluation): sampling falls back to the model card, not to 1.0` (kèm phần truyền `root` cho các lệnh git của `checks`) |
+| P6 | `fix(run): stash old results when running, not when planning` |

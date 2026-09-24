@@ -34,4 +34,4 @@ prompt: prompt.txt
 # examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
 # system_prompt: ../../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
 # requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
-#   - ../../../data/models/Qwen3-0.6B
+#   - ../../../../data/models/Qwen3-0.6B      # đường dẫn cũng tính từ thư mục thí nghiệm trước

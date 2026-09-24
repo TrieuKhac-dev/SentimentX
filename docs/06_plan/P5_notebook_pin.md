@@ -57,18 +57,21 @@ lại toàn bộ - đó là lý do P5 chưa đóng hẳn.
       Làm T4 thì lộ ra và sửa hai lỗi thật: đường dẫn prompt trong config thiếu một cấp `../`
       (đúng loại lỗi preflight sinh ra để bắt), và `preflight.run()` để lỗi đó thoát ra thành
       traceback thay vì kể thành việc-phải-sửa.
-- [ ] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
+- [x] T5. Preflight: kiểm `requires` và `requires_extra`, mã phiên bản, `roles`, GPU và quantization,
+      Java khi cần, quyền ghi Drive, trạng thái FRESH hay RESUME.
+      -> `feat(preflight): check paths device and drive`
+      Làm TRƯỚC T3 để template notebook gọi được hàm đã có sẵn. Chạy thử trên máy thật: nhận ra
+      dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng), GPU
+      RTX 3050 6GB + torch 2.14.0+cu126 + bitsandbytes, cả hai gốc ghi được, trạng thái NEW - và
+      bắt được một LỖI THẬT: tôi đã so `data.version` (phiên bản file config dataset) với mã
+      phiên bản dữ liệu ĐÃ XỬ LÝ, hai thứ khác nhau, nên báo lỗi sai.
+- [x] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
       đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
       -> `feat(experiments): add scripts/new_experiment.py to scaffold an experiment`
       Kèm `src/notebooks.py` (một định nghĩa ô ghim dùng chung với `pin.py`, để hai công cụ không
       thể hiểu ô ghim khác nhau) và `experiments.list_experiments()`/`next_exp_id()` trong thư viện
       (chọn số kế tiếp theo số LỚN NHẤT đã có, nên xoá một thí nghiệm ở giữa không đụng số khác).
       Từ chối khi: thí nghiệm đã có, config model chưa có, nhánh ghim chưa lên remote.
-      Làm TRƯỚC T3 để template notebook gọi được hàm đã có sẵn. Chạy thử trên máy thật: nhận ra
-      dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng), GPU
-      RTX 3050 6GB + torch 2.14.0+cu126 + bitsandbytes, cả hai gốc ghi được, trạng thái NEW - và
-      bắt được một LỖI THẬT: tôi đã so `data.version` (phiên bản file config dataset) với mã
-      phiên bản dữ liệu ĐÃ XỬ LÝ, hai thứ khác nhau, nên báo lỗi sai.
 - [ ] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
       đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
       -> `feat(scripts): add new experiment scaffolder`

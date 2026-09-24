@@ -19,8 +19,8 @@
 | P2    | Versioning dữ liệu và guard              | `P2_versioning.md`     | xong       |
 | P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | xong       |
 | P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
-| P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | chưa làm   |
-| P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | chưa làm   |
+| P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | xong T1..T6 trên máy cá nhân; còn 2 mục DoD cần Colab thật (kéo sha, gốc kết quả trên Drive) |
+| P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | đang làm: xong T1, T2 |
 | P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | chưa làm   |
 | -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 

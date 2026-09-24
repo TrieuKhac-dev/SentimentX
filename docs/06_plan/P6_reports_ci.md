@@ -10,7 +10,7 @@ và tài liệu đầy đủ cho cả nhóm.
 
 ## 2. Trạng thái
 
-xong T1. Còn T2..T7.
+xong T1, T2. Còn T3..T7.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -40,6 +40,11 @@ xong T1. Còn T2..T7.
       kiểm từng cách ghi nhận bằng config tối thiểu, chỉ kiểm `mlflow` khi CÓ token).
       Chặn cả hai chiều: cây sạch thì im lặng, cây cố tình vi phạm thì báo đúng chỗ - và có một test
       khẳng định chính repo này đang sạch.
+      Khi rà lại thì thấy thêm một lỗi im lặng trong chính công cụ kiểm: các lệnh git ở kiểm tra
+      `REPO_SHA` không truyền gốc repo, mà `repo.run_git` mặc định chạy ở thư mục đang đứng - nên
+      chạy `ci_checks.py` từ thư mục khác là kiểm NHẦM repo mà vẫn báo "sạch". Đã sửa (truyền `root`
+      cho `object_exists`/`ref_exists`/`is_ancestor`) kèm test; phần sửa này nằm trong commit
+      `fix(evaluation): sampling falls back to the model card, not to 1.0` vì cùng một lần commit.
 - [ ] T3. `.github/workflows/ci.yml` chạy khi push và pull request vào nhánh `experiment`.
       -> `ci: add github actions workflow for experiment branch`
 - [ ] T4. `requirements-ci.txt`, `requirements-colab.txt` (không cài lại torch).
