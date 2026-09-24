@@ -18,33 +18,33 @@ caption{text-align:left;font-weight:600;padding:6px 0}
 <p>Sinh tự động bằng <code>python scripts/collect_reports.py</code>. Số liệu đọc lại từ file của từng lượt chạy; sơ đồ quan hệ nằm ở <code>metrics_matrix.md</code>.</p>
 <div class="scroll"><table>
 <caption>accuracy_by_aspect.csv</caption>
-<tr><th>aspect</th><th>absa_cot_v1 n1</th><th>absa_cot_v1 n4</th><th>COT+0-shot</th></tr>
-<tr><td>colour</td><td>100.0</td><td>100.0</td><td>94.12</td></tr>
-<tr><td>packing</td><td>100.0</td><td>100.0</td><td>100.0</td></tr>
-<tr><td>price</td><td>100.0</td><td>100.0</td><td>94.59</td></tr>
-<tr><td>shipping</td><td>0.0</td><td>75.0</td><td>98.25</td></tr>
-<tr><td>smell</td><td>0.0</td><td>75.0</td><td></td></tr>
-<tr><td>stayingpower</td><td>100.0</td><td>75.0</td><td>97.37</td></tr>
-<tr><td>texture</td><td>100.0</td><td>100.0</td><td>97.22</td></tr>
-<tr><td>aspect_detection</td><td>71.43</td><td>89.29</td><td>100.0</td></tr>
+<tr><th>aspect</th><th>absa_cot_v1 n4</th><th>COT+0-shot</th></tr>
+<tr><td>colour</td><td>100.0</td><td>94.12</td></tr>
+<tr><td>packing</td><td>100.0</td><td>100.0</td></tr>
+<tr><td>price</td><td>100.0</td><td>94.59</td></tr>
+<tr><td>shipping</td><td>75.0</td><td>98.25</td></tr>
+<tr><td>smell</td><td>75.0</td><td></td></tr>
+<tr><td>stayingpower</td><td>75.0</td><td>97.37</td></tr>
+<tr><td>texture</td><td>100.0</td><td>97.22</td></tr>
+<tr><td>aspect_detection</td><td>89.29</td><td>100.0</td></tr>
 </table></div>
 <div class="scroll"><table>
 <caption>prf_by_aspect_sentiment.csv</caption>
-<tr><th>aspect</th><th>sentiment</th><th>absa_cot_v1 n1 P</th><th>absa_cot_v1 n1 R</th><th>absa_cot_v1 n1 F1</th><th>absa_cot_v1 n4 P</th><th>absa_cot_v1 n4 R</th><th>absa_cot_v1 n4 F1</th><th>COT+0-shot P</th><th>COT+0-shot R</th><th>COT+0-shot F1</th></tr>
-<tr><td>colour</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.7778</td><td>1.0</td><td>0.875</td></tr>
-<tr><td>colour</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>0.971</td><td>0.9853</td></tr>
-<tr><td>packing</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.6667</td><td>1.0</td><td>0.8</td></tr>
-<tr><td>packing</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.9818</td><td>0.9908</td></tr>
-<tr><td>price</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
-<tr><td>price</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>0.9722</td><td>0.9859</td></tr>
-<tr><td>shipping</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.5</td><td>0.667</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
-<tr><td>shipping</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
-<tr><td>smell</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.6667</td><td>0.6667</td><td>0.6667</td></tr>
-<tr><td>smell</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.5</td><td>0.667</td><td>0.9706</td><td>0.9706</td><td>0.9706</td></tr>
-<tr><td>stayingpower</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
-<tr><td>stayingpower</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
-<tr><td>texture</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.7692</td><td>0.8696</td></tr>
-<tr><td>texture</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.9268</td><td>1.0</td><td>0.962</td></tr>
+<tr><th>aspect</th><th>sentiment</th><th>absa_cot_v1 n4 P</th><th>absa_cot_v1 n4 R</th><th>absa_cot_v1 n4 F1</th><th>COT+0-shot P</th><th>COT+0-shot R</th><th>COT+0-shot F1</th></tr>
+<tr><td>colour</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.7778</td><td>1.0</td><td>0.875</td></tr>
+<tr><td>colour</td><td>positive</td><td>1.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>0.971</td><td>0.9853</td></tr>
+<tr><td>packing</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.6667</td><td>1.0</td><td>0.8</td></tr>
+<tr><td>packing</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.9818</td><td>0.9908</td></tr>
+<tr><td>price</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td></tr>
+<tr><td>price</td><td>positive</td><td>1.0</td><td>1.0</td><td>1.0</td><td>1.0</td><td>0.9722</td><td>0.9859</td></tr>
+<tr><td>shipping</td><td>negative</td><td>1.0</td><td>0.5</td><td>0.667</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
+<tr><td>shipping</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
+<tr><td>smell</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.6667</td><td>0.6667</td><td>0.6667</td></tr>
+<tr><td>smell</td><td>positive</td><td>1.0</td><td>0.5</td><td>0.667</td><td>0.9706</td><td>0.9706</td><td>0.9706</td></tr>
+<tr><td>stayingpower</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
+<tr><td>stayingpower</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>1.0</td><td>1.0</td></tr>
+<tr><td>texture</td><td>negative</td><td>0.0</td><td>0.0</td><td>0.0</td><td>1.0</td><td>0.7692</td><td>0.8696</td></tr>
+<tr><td>texture</td><td>positive</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.9268</td><td>1.0</td><td>0.962</td></tr>
 </table></div>
 </body>
 </html>
