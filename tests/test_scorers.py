@@ -17,6 +17,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from src import utils
 from src.evaluation import scorers
 
 TASK = {"label_space": "binary", "neutral_policy": "drop", "not_mentioned": "separate"}
@@ -255,6 +256,94 @@ class TestWrite(unittest.TestCase):
             scorers.write(folder, samples, save_confusion=False)
             payload = json.loads((Path(folder) / "metrics.json").read_text(encoding="utf-8"))
             self.assertEqual(payload["tables"], {})
+
+
+class TestMetricsContract(unittest.TestCase):
+    """Các cam kết trong docs/04_experiments/metrics.md, kiểm từng cái một."""
+
+    def test_detection_accuracy_counts_both_classes(self):
+        gold = [{"texture": 1}, {"texture": 0}]
+        perfect = score("aspect_detection", gold, [{"texture": 1}, {"texture": 0}])
+        self.assertEqual(perfect["by_aspect"]["texture"]["accuracy"], 100.0)
+
+        # Nêu thừa một khía cạnh không được nhắc: 1 ô đúng / 2 ô.
+        wrong = score("aspect_detection", gold, [{"texture": 1}, {"texture": 2}])
+        self.assertEqual(wrong["by_aspect"]["texture"]["accuracy"], 50.0)
+
+    def test_detection_reports_macro_and_micro_together(self):
+        values = score("aspect_detection", [{"texture": 1, "price": 1}],
+                       [{"texture": 1, "price": 0}])
+        for key in ("accuracy", "precision", "recall", "f1"):
+            self.assertIn(key, values["macro"])
+            self.assertIn(key, values["micro"])
+        self.assertEqual(values["micro"]["tp"], 1)
+        self.assertEqual(values["micro"]["fn"], 1)
+        self.assertEqual(values["support"], {"mentioned": 2, "not_mentioned": 0})
+
+    def test_aggregate_has_macro_micro_and_exact_match(self):
+        gold = [{"texture": 1, "price": 0}, {"texture": 2, "price": 1}]
+        values = score("aggregate", gold, gold)
+        self.assertEqual(values["accuracy_macro"], 100.0)
+        self.assertEqual(values["accuracy_micro"], 100.0)
+        self.assertEqual(values["detection"]["macro"]["f1"], 1.0)
+        self.assertEqual(values["sentiment"]["macro"]["f1"], 1.0)
+        self.assertEqual(values["exact_match"], {"reviews": 2, "correct": 2, "percent": 100.0})
+
+    def test_when_mentioned_uses_only_mentioned_cells(self):
+        gold = [{"texture": 1}, {"texture": 0}, {"texture": 2}]
+        pred = [{"texture": 1}, {"texture": 0}, {"texture": 1}]
+        values = score("accuracy", gold, pred, aspects=["texture"])
+        self.assertEqual(values["when_mentioned_by_aspect"]["texture"], 50.0)
+        self.assertEqual(values["when_mentioned_micro"], 50.0)
+
+    def test_prf_macro_skips_class_without_support(self):
+        """Lớp không có ô nào trong tập đang chấm không được tính là 0 vào điểm macro."""
+        values = score("prf", [{"texture": 1}], [{"texture": 1}], aspects=["texture"])
+        self.assertEqual(values["by_aspect"]["texture"]["negative"]["support"], 0)
+        self.assertEqual(values["macro"]["f1"], 1.0)
+
+    def test_full_label_space_keeps_not_mentioned_as_a_class(self):
+        """Không gian `full`: mã 0 là một LỚP, nên nó có mặt trong bảng P/R/F1."""
+        task = {"label_space": "full", "neutral_policy": "keep", "not_mentioned": "as_class"}
+        gold = [{"texture": 1}, {"texture": 3}]
+        samples = build(gold, gold, aspects=["texture"], task=task)
+        self.assertEqual(samples.meta["dropped_neutral"], 0)
+        self.assertEqual(samples.sentiments(), [0, 1, 2, 3])
+        values = scorers.run_all(samples, names=["prf"])["scores"]["prf"]
+        self.assertEqual(sorted(values["by_aspect"]["texture"]),
+                         ["không nhắc", "negative", "neutral", "positive"])
+
+    def test_confusion_axis_lists_every_label(self):
+        values = score("confusion", [{"texture": 1}], [{"texture": 1}], aspects=["texture"])
+        self.assertEqual(values["labels"],
+                         ["không nhắc", "positive", "negative", "không đọc được"])
+
+    def test_metrics_csv_is_long_format(self):
+        gold = [{"texture": 1, "price": 0}, {"texture": 2, "price": 3}]
+        samples = build(gold, gold)
+        with tempfile.TemporaryDirectory() as folder:
+            scorers.write(folder, samples)
+            rows = utils.read_csv(Path(folder) / "metrics.csv")
+
+        self.assertEqual(list(rows.columns), scorers.CSV_COLUMNS)
+        found = {}
+        for _i, row in rows.iterrows():
+            found.setdefault((row["aspect"], row["sentiment"]), set()).add(row["metric"])
+            float(row["value"])            # cột `value` phải đọc được thành số
+        self.assertIn("accuracy", found[("texture", "all")])          # độ chính xác theo khía cạnh
+        self.assertIn("f1", found[("texture", "positive")])           # P/R/F1 theo sắc thái
+        self.assertIn("accuracy_macro", found[("all", "all")])        # con số tổng hợp
+        self.assertIn("exact_match", found[("all", "all")])
+
+    def test_mispredictions_list_only_wrong_cells(self):
+        gold = [{"texture": 1, "price": 0}, {"texture": 2, "price": 1}]
+        pred = [{"texture": 2, "price": 0}, {"texture": 2, "price": 1}]
+        samples = build(gold, pred, sample_ids=["r0", "r1"])
+        found = samples.mispredictions()
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0]["review"], "r0")
+        self.assertEqual((found[0]["aspect"], found[0]["gold"], found[0]["pred"]),
+                         ("texture", "positive", "negative"))
 
 
 if __name__ == "__main__":

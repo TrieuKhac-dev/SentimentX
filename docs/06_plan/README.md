@@ -18,7 +18,7 @@
 | P1    | Đường dẫn tập trung                      | `P1_paths.md`          | xong       |
 | P2    | Versioning dữ liệu và guard              | `P2_versioning.md`     | xong       |
 | P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | xong       |
-| P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | chưa làm   |
+| P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
 | P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | chưa làm   |
 | P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | chưa làm   |
 | P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | chưa làm   |

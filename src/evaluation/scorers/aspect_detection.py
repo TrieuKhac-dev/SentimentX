@@ -34,11 +34,14 @@ def run(samples):
         item = detection["by_aspect"][aspect]
         by_aspect[aspect] = {metric: item[metric] for metric in METRICS}
         by_aspect[aspect].update({"tp": item["tp"], "fp": item["fp"],
-                                  "fn": item["fn"], "tn": item["tn"]})
+                                  "fn": item["fn"], "tn": item["tn"],
+                                  "cells": item["cells"]})
 
+    # Giữ cả số đếm (tp/fp/fn/tn/cells) trong khối `micro`: báo cáo cần con số gốc, không chỉ
+    # các tỉ lệ đã chia - nhìn tỉ lệ mà không biết mẫu số thì không kiểm lại được.
     values = {
         "macro": {metric: detection["macro"][metric] for metric in METRICS},
-        "micro": {metric: detection["micro"][metric] for metric in METRICS},
+        "micro": dict(detection["micro"]),
         "support": detection["support"],
         "by_aspect": by_aspect,
     }

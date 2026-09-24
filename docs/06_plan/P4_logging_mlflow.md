@@ -10,7 +10,9 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-đang làm - T1..T8 xong (cổng MLflow đạt).
+xong (T1..T9). Còn MỘT mục của mục 4 phải kiểm bằng lượt chạy model thật: "ngắt giữa chừng rồi
+chạy lại" - cơ chế đã có và đã có test, nhưng chỉ một lượt chạy thật mới chứng minh được
+`run.log` ghi `[RUN] mode=RESUME` và tiếp tục từ mẫu đã dừng. Việc đó nằm ở P7 (chạy lại toàn bộ).
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -44,8 +46,12 @@ và resume được khi bị ngắt giữa chừng.
       Kiểm bằng test (17 ca mới: quyết định NEW/RESUME/STOP, dòng viết dở được đếm lại, khối cũ
       được chuyển sang thư mục con, điểm số dùng cả mẫu cũ). Phần "ngắt giữa chừng rồi chạy lại"
       trên máy thật cần một lượt chạy model nên kiểm ở P7 cùng lượt chạy lại toàn bộ.
-- [ ] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
+- [x] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
       -> `test(evaluation): add metric tests`
+      Kiểm từng cam kết một: độ chính xác của bài toán nhắc tới (cả hai lớp), macro/micro và khớp
+      hoàn toàn, `acc khi có nhắc`, điểm macro bỏ qua lớp không có ô nào, không gian `full` giữ mã
+      0 như một lớp, trục ma trận nhầm có đủ nhãn, `metrics.csv` đúng dạng bảng dài, và
+      `mispredictions.csv` chỉ có ô đoán sai.
 
 Việc sửa theo góp ý khi rà soát (header tài liệu đúng hai dòng, và đổi tên prompt dùng chung
 theo nội dung thay vì theo model) nằm chung một commit `623c053`, vì ba file tài liệu bị cả hai
