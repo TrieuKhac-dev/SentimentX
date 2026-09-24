@@ -12,6 +12,12 @@ __pycache__/
 mlflow.db
 mlruns/
 
+# Cache của Hugging Face (model, tokenizer tải về). Thư mục này LỌT VÀO REPO khi HF_HOME bị đặt
+# thành chuỗi rỗng: huggingface_hub ghép os.path.join("", "hub") thành đường dẫn tương đối.
+# `src/runtime.py` nay bỏ qua khoá để trống khi nạp file env; hai dòng dưới là lưới an toàn.
+hub/
+huggingface/
+
 # Dữ liệu: bỏ qua theo ĐUÔI file, vì dữ liệu không vào git.
 # Luật: docs/00_workflow/02_rules.md mục "Dữ liệu không vào git" (luật 20).
 # Nhưng metadata và report thì PHẢI vào git, nên ngay dưới đây có các dòng mở lại (dấu !)
