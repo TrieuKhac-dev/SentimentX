@@ -62,11 +62,6 @@ def mean(values):
 
 
 
-def ratio(part, total):
-    """Tỉ lệ 0..1 (3 chữ số). Mẫu số 0 thì trả 0.0."""
-    return round(part / total, 3) if total else 0.0
-
-
 def prf(tp, fp, fn):
     """Precision, Recall, F1. Không có gì để tìm (mẫu số 0) thì trả 0.0."""
     precision = tp / (tp + fp) if (tp + fp) else 0.0

@@ -17,10 +17,10 @@ DESCRIPTION = "Ma trận nhầm theo khía cạnh: đếm nhãn đúng so với 
 
 def run(samples):
     """Trả về bảng đếm của từng khía cạnh, và thứ tự nhãn để vẽ cho khớp nhau."""
-    labels = [samples.code_for(code) for code in samples.sentiments()]
-    if not samples.meta.get("separate_not_mentioned"):
-        labels = [samples.code_for(code) for code in samples.meta.get("codes") or []]
-    labels = labels + [base.UNREADABLE]
+    # Trục của ma trận phải liệt kê MỌI mã có thể xuất hiện: mã 0 ("không nhắc tới") cũng là một
+    # dòng đúng, và luôn có thêm cột "không đọc được". Thiếu một nhãn thì biểu đồ vẽ sai lệch.
+    labels = [samples.code_for(code) for code in samples.meta.get("codes") or []]
+    labels.append(base.UNREADABLE)
 
     return {
         "values": {
