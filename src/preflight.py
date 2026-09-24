@@ -226,9 +226,17 @@ def device_report(model_id, problems, notes, info):
         notes.append("GPU: {} ({:.1f} GB), torch {}".format(
             info["gpu"], info["vram_gb"], info["torch"]))
     else:
+        # Nói luôn TORCH đang là bản gì: trên Colab, "không thấy GPU" gần như luôn là một trong hai
+        # chuyện - phiên đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU. Hai chuyện đó cần
+        # hai cách sửa khác nhau, nên thông báo phải phân biệt được.
+        build = ("bản CPU" if not getattr(torch.version, "cuda", None)
+                 else "bản CUDA {}".format(torch.version.cuda))
         problems.append(
-            "Máy KHÔNG thấy GPU (`torch.cuda.is_available()` = False). Model 4B chạy trên CPU tính "
-            "bằng ngày; kiểm lại driver CUDA và bản torch có CUDA.")
+            "Máy KHÔNG thấy GPU (`torch.cuda.is_available()` = False). torch {} ({}), nên model 4B "
+            "chạy trên CPU tính bằng ngày. Trên Colab: Runtime > Change runtime type > T4 GPU rồi "
+            "Restart session; nếu `!nvidia-smi` CÓ GPU mà torch vẫn không thấy thì torch đã bị cài "
+            "đè bằng bản CPU - mở phiên mới thay vì cài lại torch.".format(
+                info["torch"], build))
 
     if quantization == "4bit":
         if quantization_problem:
