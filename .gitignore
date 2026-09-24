@@ -7,6 +7,11 @@ __pycache__/
 .env
 .env.colab
 
+# Máy chủ MLflow chạy tại chỗ (mlflow với địa chỉ mặc định) sinh ra kho dữ liệu này.
+# Là file của MÁY, không phải của dự án: mỗi lần chạy lại đổi nội dung.
+mlflow.db
+mlruns/
+
 # Dữ liệu: bỏ qua theo ĐUÔI file, vì dữ liệu không vào git.
 # Luật: docs/00_workflow/02_rules.md mục "Dữ liệu không vào git" (luật 20).
 # Nhưng metadata và report thì PHẢI vào git, nên ngay dưới đây có các dòng mở lại (dấu !)
