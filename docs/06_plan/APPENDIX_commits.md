@@ -25,7 +25,11 @@
 
 `repo`, `git`, `env`, `config`, `paths`, `datasets`, `versioning`, `experiments`, `labels`,
 `preprocessing`, `evaluation`, `tracking`, `mlflow`, `resume`, `templates`, `notebook`,
-`preflight`, `scripts`, `ci`, `docs`, `data`, `assets`
+`preflight`, `scripts`, `reports`, `cli`, `ci`, `deps`, `docs`, `data`, `assets`
+
+Scope mới thì thêm vào danh sách này ngay khi dùng lần đầu, để bảng dưới và lịch sử git không nói
+hai chuyện khác nhau. Bảng commit theo giai đoạn ở dưới là dự kiến; commit THỰC TẾ nằm ở mục cuối
+file, vì chạy thật thì phát sinh việc không có trong dự kiến.
 
 ## Danh sách commit theo giai đoạn
 

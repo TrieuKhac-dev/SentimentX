@@ -117,13 +117,13 @@ khác biệt thật sự chỉ hiện ra ở bước này.
   thay đổi (prompt, bộ tách từ) nên chưa chốt được metric để trình bày.
 - **`transformers` chưa ghim phiên bản:** `requirements.txt` để trôi nổi. Khi chốt kết
   quả cuối nên ghim, vì tokenizer có thể đổi giữa các bản và như vậy số token sẽ đổi.
-- **Test tự động mới có một phần:** `tests/` có 30 test cho bộ đọc kết quả và chỉ số
-  (`python -m unittest discover -s tests`) - đúng hai chỗ mà một lỗi sẽ làm sai toàn bộ điểm
-  số. Phần còn lại (loader, pipeline, token_stats, prompt) vẫn chỉ dựa vào entrypoint + kiểm
-  tra trong code (ví dụ `token_stats._encode` chặn encode bị pad/cắt). `runner.py` **không có
-  test** vì nó cần GPU + model 8 GB - bù lại, các quyết định ở đó (padding_side, chat
-  template, cắt phần đã sinh) đều được kiểm bằng script chạy thật trong quá trình làm.
-  Chưa có gì chạy test tự động mỗi lần sửa (không có CI).
+- **Test tự động mới có một phần:** `tests/` phủ bộ đọc kết quả, chỉ số, đường dẫn, cấu hình, ghim
+  code, prompt, resume, báo cáo (`python -m unittest discover -s tests`) - đúng những chỗ mà một lỗi
+  sẽ làm sai toàn bộ điểm số. CI chạy test này cùng 7 kiểm tra cấu trúc mỗi lần đẩy lên nhánh
+  `experiment` (xem [00_workflow/03_ci.md](../00_workflow/03_ci.md)), nên lỗi loại này không lọt qua
+  được nữa. `runner.py` **không có test** vì nó cần GPU + model 8 GB - bù lại, các quyết định ở đó
+  (padding_side, chat template, cắt phần đã sinh) đều được kiểm bằng script chạy thật trong quá
+  trình làm.
 - **Bài học về test (đã trả giá):** lỗi hoán vị FP/FN trong `metrics._binary_counts` lọt qua
   27 test đầu tiên vì các ca test lúc đó **đối xứng** (hoặc chỉ có một loại lỗi), mà F1 lại
   đối xứng nên không đổi. Nó chỉ lộ ra khi đối chiếu bảng điểm với **số đếm thô** (cấu hình
@@ -145,3 +145,19 @@ khác biệt thật sự chỉ hiện ra ở bước này.
   bỏ những dòng có `report` không còn tồn tại, và `record()` gọi hàm này mỗi lần ghi nên mục
   lục tự dọn (đã dùng để dọn 2 dòng trỏ tới các lần chạy thử `n4`/`n8`). Có test riêng:
   `tests/test_versioning.py` (4 ca, dùng manifest trong thư mục tạm, không đụng mục lục thật).
+
+## 6. Chưa làm so với kế hoạch refactor (ghi 25/09/2026)
+
+Rà lại toàn bộ kế hoạch trong `docs/06_plan/` so với code đang có. Những việc dưới đây là CHƯA LÀM
+hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tưởng đã xong.
+
+| Việc | Trạng thái | Ghi chú |
+| ---- | ---------- | ------- |
+| Máy kiểm "kết quả trước merge" (`valid`, `invalid_reason`, `comparable` trong `experiment_registry`) | chưa làm | Kế hoạch P6 nêu; cần `git rev-list --ancestry-path` so với `origin/experiment`. Cột hiện chưa có, nên bảng tổng hợp chưa nói được kết quả nào chạy trước khi merge |
+| `dataset_registry` có cột `parent` + changelog người đọc (`docs/01_dataset/changelog.md`) | chưa làm | Hiện có `dataset`, `version`, `ma`, `on_disk`, `splits`, `rows`, `eval_locked`, `aspects`, `raw_dir`, `config`; dòng dõi nằm trong khoá `parent` của file cấu hình |
+| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | làm khác | `kind` (`raw`/`dataset`) kiểm trong `src/dataset.py`; model sinh nạp ở `src/evaluation/runner.py`, model encoder ở `src/preprocessing/`. Chức năng tương đương, khác chỗ đặt |
+| `run_rescore_eval.py` và `config.MODEL_EVAL_REPORT_DIR` (kế hoạch ban đầu định bỏ) | giữ có chủ ý | Là đường chạy TAY: đo thử prompt, chấm lại từ file dự đoán khi không có GPU. Kết quả không thuộc thí nghiệm nào nên nằm ở `data/reports/model_eval/`; chạy trong thí nghiệm vẫn ghi vào `experiments/**/results/<mã>/` |
+| `nbstripout` cài trên từng máy | chưa cài | CI kiểm notebook sạch output ở kiểm tra 3, nên vẫn chặn được notebook kèm output |
+| `mlflow_tags` đủ 8 nhãn và `artifacts` có `plots` | làm gọn hơn | Hiện gắn `model`, `method`, `exp_id`; `sha` và `config_sha256` đã nằm trong `run_meta.json` (được tải lên làm artifact) nên tra được từ run |
+| Thư mục `data/reports/model_eval/**` | giữ có chủ ý | Là bằng chứng của lần chạy thật đã kiểm cơ chế resume (xem `docs/06_plan/P4_logging_mlflow.md`, T8) |
+

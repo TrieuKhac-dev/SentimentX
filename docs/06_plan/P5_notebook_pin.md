@@ -86,9 +86,6 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       thể hiểu ô ghim khác nhau) và `experiments.list_experiments()`/`next_exp_id()` trong thư viện
       (chọn số kế tiếp theo số LỚN NHẤT đã có, nên xoá một thí nghiệm ở giữa không đụng số khác).
       Từ chối khi: thí nghiệm đã có, config model chưa có, nhánh ghim chưa lên remote.
-- [ ] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
-      đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
-      -> `feat(scripts): add new experiment scaffolder`
 
 ## 4. Điều kiện hoàn thành (DoD)
 

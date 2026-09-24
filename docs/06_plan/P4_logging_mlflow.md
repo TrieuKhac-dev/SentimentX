@@ -32,6 +32,11 @@ tiết ở T8. Không còn mục nào phải chờ P7.
       -> `feat(tracking): add trackers registry`
 - [x] T6. `run_meta.json`: đủ trường, có `attempts[]`, `files[]` kèm `role`, không ghi đường dẫn tuyệt đối.
       -> `feat(tracking): write run metadata with attempts and provenance`
+      Bổ sung 25/09/2026 (rà soát lại kế hoạch E4): thêm `task` (không gian nhãn, cách xử lý neutral),
+      `overrides` (khoá bị lớp sau đè), `data.roles`, `data.rows` (số bản ghi từng vai),
+      `data.eval_lock`, và `env.device/gpu/vram_gb/quantization/libs`. Bảng ghi đè cũng được ghi vào
+      `run.log` nhãn `[CONFIG]`; mã run MLflow nằm ở dòng `[TRACK]` vì `run_meta.json` được chốt
+      trước khi run mở ra trên máy chủ.
 - [x] T7. MLflow lên DagsHub theo `configs/dagshub.yaml`; **chạy smoke run và xác nhận run xuất hiện**
       trên `https://dagshub.com/TrieuKhac-dev/SentimentX`; log lỗi không làm chết run.
       -> `feat(mlflow): configure dagshub remote and smoke test`
@@ -72,11 +77,12 @@ Việc sửa theo góp ý khi rà soát (header tài liệu đúng hai dòng, v�
 theo nội dung thay vì theo model) nằm chung một commit `623c053`, vì ba file tài liệu bị cả hai
 việc. Không phải một task của P4, ghi ở đây để tra lại nguồn gốc thay đổi.
 
-T7 đã có phần cấu hình và công cụ (`configs/dagshub.yaml`, `src/tracking/mlflow_tracker.py`,
-`scripts/smoke_tracking.py`), nhưng **cổng chưa chạy được**: cần `DAGSHUB_TOKEN` của chủ tài khoản
-DagsHub (`TrieuKhac-dev`) và cần mạng. Chưa có token thì `python scripts/smoke_tracking.py` in ra
-đúng hai việc còn thiếu (token, thư viện `mlflow`) và kết thúc với mã thoát 2 - đúng như thiết kế:
-ghi nhận hỏng không được làm hỏng lần chạy.
+Cách kiểm lại cổng này khi cần (ví dụ sau khi đổi tài khoản DagsHub): chạy
+`python scripts/smoke_tracking.py`, mở `https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow` và
+xác nhận run có nhãn `smoke=true` xuất hiện, rồi dọn bằng
+`python scripts/smoke_tracking.py --clean`. Thiếu `DAGSHUB_TOKEN` hoặc thiếu thư viện `mlflow` thì
+script in ra đúng hai việc còn thiếu và kết thúc với mã thoát 2 - ghi nhận hỏng không được làm hỏng
+lần chạy.
 
 ## 4. Điều kiện hoàn thành (DoD)
 
