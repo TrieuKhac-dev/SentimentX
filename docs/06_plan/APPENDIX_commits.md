@@ -153,3 +153,4 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Sửa mâu thuẫn trong P4, task lặp trong P5, bảng scope; ghi việc chưa làm vào backlog | `docs(plan): fix the contradictions and record what was left undone` |
 | Bỏ dải `print("=" * 70)` ở 7 cửa vào dòng lệnh | `style(cli): drop the printed banner dividers` |
 | Ghim lại `exp001` vào bản code đã sửa (pin cũ không chạy được thí nghiệm này) | `chore(experiments): pin 5c99f38 so exp001 reads its prompt files` |
+| Preflight báo thiếu `bitsandbytes` kể cả khi máy thiếu `torch` (đây là nguyên nhân CI đỏ) | `fix(preflight): name the missing pieces even when torch itself is missing` |

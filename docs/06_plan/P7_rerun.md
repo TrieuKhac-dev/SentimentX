@@ -44,17 +44,18 @@ GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn kho�
       `notebook-exp001.ipynb`, `HUONG_DAN.md`, `env/.env.colab.example`,
       `data/raw/cosmetics/v0.1.0/` (4 CSV + `raw_meta.yaml`), `data/processed/<mã>/` (train, val,
       test, label_map).
-      Notebook trong gói ghim `5c99f38` (commit chứa bản sửa đó nằm trên nhánh `experiment`), và
+      Notebook trong gói ghim BẢN CODE MỚI NHẤT đã rà soát: đọc bốn hằng số ở ô đầu notebook, và
+      `python scripts/ci_checks.py` kiểm sha đó tồn tại trong repo cùng nằm trên nhánh `experiment`;
       `preflight` chạy với hai gốc trỏ vào CHÍNH GÓI báo 0 việc phải sửa, chế độ NEW; `test.csv`
       trong gói vẫn là `e2558137...` với 1518 bản ghi, khớp số đã đo ở P2. Phần chỉ Colab kiểm được:
       mount Drive, bấm Allow, và GPU T4.
 
-      Vì sao phải ghim lại: bản ghim cũ (`67819b8`) không chạy được exp001 - prompt và file ví dụ
-      của thí nghiệm này khai bằng ĐƯỜNG DẪN, mà bộ dựng prompt khi đó giải đường dẫn theo thư mục
-      repo nên không thấy file ví dụ và dừng ở lô sinh đầu tiên, tức là SAU khi đã nạp model.
-      `5c99f38` giải hai file đó một lần, lúc nạp prompt. Đây đúng là loại lỗi chỉ lộ ra ở lượt chạy
-      đầu tiên của một thí nghiệm dùng prompt theo đường dẫn, nên đường chạy bằng TÊN prompt
-      (`--prompt absa_cot_v1`) không gặp.
+      Vì sao đã ghim lại hai lần: bản ghim đầu (`67819b8`) KHÔNG chạy được exp001 - prompt và file ví
+      dụ của thí nghiệm này khai bằng ĐƯỜNG DẪN, mà bộ dựng prompt khi đó giải đường dẫn theo thư mục
+      repo nên không thấy file ví dụ và dừng ở lô sinh đầu tiên, tức là SAU khi đã nạp model. Lần thứ
+      hai là để gói bàn giao chạy đúng bản code đã rà soát sau cùng (kể cả phần báo thiếu thư viện
+      của preflight). Lỗi đường dẫn là loại chỉ lộ ra ở lượt chạy đầu tiên của một thí nghiệm dùng
+      prompt theo đường dẫn, nên đường chạy bằng TÊN prompt (`--prompt absa_cot_v1`) không gặp.
 
 ## 4. Điều kiện hoàn thành (DoD)
 
