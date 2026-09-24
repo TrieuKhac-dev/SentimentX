@@ -22,7 +22,7 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 
 | Khoá             | Mẫu                                                                | Ví dụ                                         |
 | ---------------- | ------------------------------------------------------------------ | --------------------------------------------- |
-| `data_version`   | `{name}-ds{dataset_version}-pl{pipeline_version}-src{src}-{hash8}` | `cosmetics-ds0.3.0-pl0.2.0-src0.2.0-9c0d1e2f` |
+| `data_version`   | `{name}-ds{dataset_version}-pl{pipeline_version}-src{src}-{hash8}` với `{src}` là `<tên nguồn>@<phiên bản>` | `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f` |
 | `run_log`        | `run.log`                                                          |                                               |
 | `run_meta`       | `run_meta.json`                                                    |                                               |
 | `metrics_json`   | `metrics.json`                                                     |                                               |

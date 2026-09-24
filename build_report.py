@@ -2,19 +2,21 @@
 """Vẽ lại báo cáo từ FILE KẾT QUẢ (không chạy lại EDA / pipeline).
 
 Cách dùng:
-    python build_report.py                     # cả 2 báo cáo, phiên bản mới nhất
+    python build_report.py                     # cả 2 báo cáo, kết quả mới nhất
     python build_report.py --dataset cosmetics # 2 báo cáo + TỰ MỞ trình duyệt
     python build_report.py --phase eda         # chỉ báo cáo EDA
-    python build_report.py --list              # xem các phiên bản đã chạy
-    python build_report.py --version cosmetics-v0.1.0-1a2b3c4d --plotlyjs cdn
+    python build_report.py --list              # xem kết quả đang có trên đĩa
+    python build_report.py --version <mã> --plotlyjs cdn
 
-Kết quả (trong thư mục của phiên bản tương ứng):
-    report.html   - báo cáo duy nhất cho người đọc, mở được khi không có mạng
+Kết quả: `report.html` nằm ngay trong thư mục chứa file kết quả, nên mở được khi
+không có mạng:
+    data/raw/<name>/<raw_version>/eda/report.html      (EDA đo trên raw)
+    data/processed/<mã>/eda/report.html                (EDA đo trên dataset)
+    data/processed/<mã>/pipeline/report.html
 
-Chỉ định --dataset nghĩa là bạn đang xem một dataset cụ thể, nên công cụ mở
-luôn file HTML của các nhóm vừa vẽ bằng trình duyệt mặc định. Muốn tắt: --no-open.
-Tên dataset phải trùng tên file configs/datasets/<tên>.yaml; gõ sai sẽ báo ngay
-kèm gợi ý tên gần đúng (thay vì báo "chưa có file kết quả" gây hiểu nhầm).
+Chỉ định --dataset nghĩa là bạn đang xem một dataset cụ thể, nên công cụ mở luôn file
+HTML của các nhóm vừa vẽ bằng trình duyệt mặc định. Muốn tắt: --no-open.
+Gõ sai tên dataset sẽ báo ngay kèm gợi ý tên gần đúng.
 
 Lệnh này KHÔNG tính toán lại số liệu. Mọi con số đều đọc từ file
 eda_result.json / pipeline_result.json do run_eda.py / run_pipeline.py ghi ra.
@@ -36,17 +38,12 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, versioning
+from src import config, paths, versioning
 from src import dataset as dataset_config
 
 from src.reporting import render
 from src.reporting import result as result_io
 
-# Nhóm báo cáo -> thư mục gốc chứa báo cáo của nhóm đó
-PHASE_DIRS = {
-    "eda": config.EDA_REPORT_DIR,
-    "pipeline": config.PIPELINE_REPORT_DIR,
-}
 PHASE_LABELS = {
     "eda": "Báo cáo EDA (khảo sát dữ liệu)",
     "pipeline": "Báo cáo Data Pipeline (xử lý dữ liệu)",
@@ -71,9 +68,9 @@ def check_dataset(name):
     """
     names = dataset_config.available()
     if not names:
-        print("Chưa có file cấu hình dataset nào trong {}.".format(
+        print("Chưa có cấu hình dataset nào trong {}.".format(
             _rel(config.DATASET_CONFIG_DIR)))
-        print("Tạo configs/datasets/<tên>.yaml trước, rồi chạy lại.")
+        print("Tạo thư mục <tên>/<version>.yaml ở đó trước, rồi chạy lại.")
         return False
     if name in names:
         return True
@@ -87,11 +84,44 @@ def check_dataset(name):
     return False
 
 
-def has_runs(phase, dataset=None):
-    """Đã có phiên bản nào của nhóm này trên đĩa chưa (lọc theo dataset nếu có)."""
-    if versioning.latest_version(PHASE_DIRS[phase], dataset=dataset):
-        return True
-    return versioning.latest_entry(dataset=dataset, phase=phase) is not None
+def eda_dirs(dataset=None):
+    """Thư mục chứa kết quả EDA, mới nhất trước.
+
+    EDA ghi kết quả ngay cạnh thứ nó đo: `data/raw/<name>/<raw_version>/eda/` khi đo trên
+    raw, hoặc `data/processed/<mã>/eda/` khi đo trên dataset.
+    """
+    found = []
+    raw_root = paths.data("raw")
+    if raw_root.is_dir():
+        for name_dir in sorted(raw_root.iterdir()):
+            if not name_dir.is_dir() or (dataset and name_dir.name != dataset):
+                continue
+            for version_dir in sorted(name_dir.iterdir()):
+                candidate = version_dir / paths.pattern("eda_dir")
+                if candidate.is_dir():
+                    found.append(candidate)
+    for processed in versioning.dataset_dirs():
+        if dataset and not processed.name.startswith(str(dataset) + "-ds"):
+            continue
+        candidate = processed / paths.pattern("eda_dir")
+        if candidate.is_dir():
+            found.append(candidate)
+    return found
+
+
+def pipeline_dirs(dataset=None):
+    """Thư mục chứa kết quả pipeline, mới nhất trước."""
+    found = []
+    for processed in versioning.dataset_dirs():
+        if dataset and not processed.name.startswith(str(dataset) + "-ds"):
+            continue
+        found.append(versioning.pipeline_report_dir(processed.name))
+    return found
+
+
+def result_dirs(phase, dataset=None):
+    """Các thư mục đang có kết quả của một nhóm báo cáo."""
+    return eda_dirs(dataset) if phase == "eda" else pipeline_dirs(dataset)
 
 
 def parse_args(argv=None):
@@ -125,41 +155,45 @@ def parse_args(argv=None):
     return parser.parse_args(argv)
 
 
-def resolve_dir(base, phase, version=None, dataset=None):
+def resolve_dir(phase, version=None, dataset=None):
     """Thư mục chứa file kết quả của một nhóm.
 
-    Thứ tự ưu tiên:
-        1. Phiên bản chỉ định bằng --version.
-        2. Phiên bản mới nhất ghi trong data/processed/manifest.json.
-        3. Thư mục phiên bản mới nhất tìm được trên đĩa (khi chưa có mục lục).
+    Ưu tiên mã chỉ định bằng --version, rồi tới kết quả mới nhất trên đĩa.
+    Với EDA, `version` có thể là mã phiên bản dataset hoặc nhãn `raw_version`.
     """
     if version:
-        return versioning.version_dir(base, version)
+        if phase == "pipeline":
+            return versioning.pipeline_report_dir(version)
+        candidate = paths.processed(version) / paths.pattern("eda_dir")
+        if candidate.is_dir():
+            return candidate
+        raw_root = paths.data("raw")
+        if raw_root.is_dir():
+            for name_dir in sorted(raw_root.iterdir()):
+                candidate = name_dir / version / paths.pattern("eda_dir")
+                if candidate.is_dir():
+                    return candidate
+        return paths.processed(version) / paths.pattern("eda_dir")
 
-    entry = versioning.latest_entry(dataset=dataset, phase=phase)
-    if entry:
-        directory = versioning.version_dir(base, entry["version_id"])
-        if directory.is_dir():
-            return directory
-
-    latest = versioning.latest_version(base, dataset=dataset)
-    if latest:
-        return versioning.version_dir(base, latest)
-    return Path(base)
+    found = result_dirs(phase, dataset)
+    return found[0] if found else None
 
 
 def build_one(phase, version, plotlyjs, dataset):
     """Vẽ báo cáo của một nhóm. Trả về đường dẫn file HTML, hoặc None."""
-    directory = resolve_dir(PHASE_DIRS[phase], phase, version, dataset)
+    directory = resolve_dir(phase, version, dataset)
+
+    if directory is None:
+        print("  - {}: chưa có kết quả{} - nhóm này chưa chạy lần nào.".format(
+            phase, " cho dataset '{}'".format(dataset) if dataset else ""))
+        print("    Hãy chạy: python run_{}.py".format(phase))
+        return None
+
     path = result_io.result_path(directory, phase)
 
     if not path.exists():
-        if not has_runs(phase, dataset):
-            print("  - {}: chưa có kết quả{} - nhóm này chưa chạy lần nào.".format(
-                phase, " cho dataset '{}'".format(dataset) if dataset else ""))
-        else:
-            print("  - {}: phiên bản này thiếu file kết quả ({})".format(
-                phase, _rel(path)))
+        print("  - {}: thư mục này thiếu file kết quả ({})".format(
+            phase, _rel(path)))
         print("    Hãy chạy: python run_{}.py{}".format(
             phase, " --dataset {}".format(dataset) if dataset else ""))
         return None
@@ -189,22 +223,27 @@ def open_reports(paths):
 
 
 def list_versions():
-    """In mục lục các phiên bản đã chạy (data/processed/manifest.json)."""
-    print("Mục lục: {}".format(_rel(versioning.manifest_path())))
-    rows = versioning.summary_rows()
-    if not rows:
-        print("  (chưa có lần chạy nào)")
-        return 0
+    """In ra những gì đang có trên đĩa: dataset đã xử lý, kết quả EDA, kết quả pipeline."""
+    datasets = versioning.dataset_dirs()
+    if not datasets:
+        print("Chưa có dataset nào trong {}.".format(_rel(paths.data("processed"))))
+    else:
+        print("Dataset đã xử lý trong {}:".format(_rel(paths.data("processed"))))
+        for path in datasets:
+            log = versioning.read_processing_log(path.name)
+            after = (log.get("record_counts") or {}).get("after") or {}
+            total = sum(after.values()) if after else ""
+            print("  - {:<46} {}".format(path.name, "{} dòng".format(total) if total else ""))
 
-    header = ["phiên bản", "nhóm", "thời gian", "số dòng"]
-    widths = [
-        max(len(str(row[index])) for row in (rows + [header])) for index in range(4)
-    ]
-    print("  " + "  ".join(
-        "{:<{}}".format(header[index], widths[index]) for index in range(4)))
-    for row in rows:
-        print("  " + "  ".join(
-            "{:<{}}".format(str(row[index]), widths[index]) for index in range(4)))
+    eda = eda_dirs()
+    print("\nKết quả EDA ({}):".format(len(eda)))
+    for path in eda or []:
+        print("  - {}".format(_rel(path)))
+
+    pipeline = pipeline_dirs()
+    print("\nKết quả pipeline ({}):".format(len(pipeline)))
+    for path in pipeline or []:
+        print("  - {}".format(_rel(path)))
     return 0
 
 

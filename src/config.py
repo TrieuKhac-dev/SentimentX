@@ -31,15 +31,13 @@ MODEL_ASSETS_DIR = paths.data("models")    # tài nguyên của model (vd: model
 
 CONFIG_DIR = paths.configs_dir()
 DATASET_CONFIG_DIR = paths.config_path("datasets")
-PIPELINE_CONFIG_PATH = paths.config_path("pipeline.yaml")
 MODEL_CONFIG_DIR = paths.config_path("models")   # "model đọc dữ liệu thế nào"
 PROMPT_DIR = paths.config_path("prompts")        # nội dung prompt, mỗi prompt một file .txt
 
-# CÒN LẠI TỪ CẤU TRÚC CŨ, sẽ bỏ khi chuyển xong:
-#   EDA_REPORT_DIR, PIPELINE_REPORT_DIR  -> P2 (kết quả EDA và pipeline ghi cạnh dữ liệu của chúng)
-#   MODEL_EVAL_REPORT_DIR                -> P4 (kết quả đánh giá ghi vào thư mục thí nghiệm)
-EDA_REPORT_DIR = REPORT_DIR / "eda"
-PIPELINE_REPORT_DIR = REPORT_DIR / "pipeline"
+# Đường dẫn file config pipeline KHÔNG còn ở đây: mỗi phiên bản là một file riêng, lấy qua
+# utils.pipeline_config_path() theo `pipeline_version` khai trong file dataset.
+
+# CÒN LẠI TỪ CẤU TRÚC CŨ, sẽ bỏ ở P4 khi kết quả đánh giá chuyển vào thư mục thí nghiệm:
 MODEL_EVAL_REPORT_DIR = REPORT_DIR / "model_eval"
 
 # Tên file kết quả do run_eda.py / run_pipeline.py ghi ra

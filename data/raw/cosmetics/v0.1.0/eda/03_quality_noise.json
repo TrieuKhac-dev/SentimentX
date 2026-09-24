@@ -1,0 +1,418 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "generated_at": "24/09/2026 16:51",
+  "section": {
+    "id": "quality_noise",
+    "title": "EDA 03 - Chất lượng dữ liệu và nhiễu",
+    "cards": [
+      {
+        "label": "Số chỉ số chất lượng đang đo",
+        "value": 9
+      },
+      {
+        "label": "Emoji khác nhau (3 split)",
+        "value": 342
+      },
+      {
+        "label": "Từ bị gắn cờ xuất hiện từ 3 lần (3 split)",
+        "value": 384
+      }
+    ],
+    "charts": [
+      {
+        "title": "Emoji phổ biến nhất (3 split)",
+        "kind": "bar",
+        "x": [
+          "❤",
+          "🥰",
+          "😍",
+          "👍",
+          "😘",
+          "😊",
+          "💯",
+          "👌",
+          "♥",
+          "😁",
+          "😂",
+          "👍🏻",
+          "🤣",
+          "🥲",
+          "🤩",
+          "💕",
+          "😚",
+          "☺",
+          "🤗",
+          "😀"
+        ],
+        "y": [
+          2279,
+          1978,
+          1385,
+          780,
+          558,
+          291,
+          291,
+          271,
+          256,
+          245,
+          211,
+          204,
+          184,
+          176,
+          173,
+          169,
+          161,
+          144,
+          130,
+          127
+        ],
+        "x_label": "emoji",
+        "y_label": "số lần xuất hiện",
+        "orientation": "h"
+      }
+    ],
+    "tables": [
+      {
+        "title": "Chỉ số chất lượng theo split",
+        "columns": [
+          "chỉ số",
+          "train",
+          "val",
+          "test",
+          "tổng 3 split"
+        ],
+        "rows": [
+          [
+            "review rỗng",
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            "trùng chính xác",
+            184,
+            22,
+            15,
+            221
+          ],
+          [
+            "trùng theo khoá so trùng",
+            242,
+            29,
+            20,
+            291
+          ],
+          [
+            "ứng viên gibberish",
+            388,
+            39,
+            60,
+            487
+          ],
+          [
+            "có emoji",
+            1931,
+            233,
+            222,
+            2386
+          ],
+          [
+            "chỉ emoji / dấu câu",
+            25,
+            3,
+            3,
+            31
+          ],
+          [
+            "có ký tự lặp",
+            3604,
+            452,
+            461,
+            4517
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            59,
+            11,
+            8,
+            78
+          ],
+          [
+            "có dấu hiệu code / HTML",
+            1,
+            0,
+            0,
+            1
+          ]
+        ],
+        "num_columns": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "title": "Top 20 từ bị gắn cờ teencode / từ lạ, xuất hiện từ 3 lần (3 split)",
+        "columns": [
+          "từ",
+          "số lần",
+          "lí do bị gắn cờ"
+        ],
+        "rows": [
+          [
+            "k",
+            1498,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "mn",
+            916,
+            "không có nguyên âm"
+          ],
+          [
+            "đc",
+            730,
+            "không có nguyên âm"
+          ],
+          [
+            "mng",
+            373,
+            "không có nguyên âm"
+          ],
+          [
+            "sp",
+            365,
+            "không có nguyên âm"
+          ],
+          [
+            "kh",
+            315,
+            "không có nguyên âm"
+          ],
+          [
+            "r",
+            303,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "n",
+            299,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "vs",
+            272,
+            "không có nguyên âm"
+          ],
+          [
+            "ng",
+            249,
+            "không có nguyên âm"
+          ],
+          [
+            "cx",
+            188,
+            "không có nguyên âm"
+          ],
+          [
+            "m",
+            181,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "t",
+            170,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "mk",
+            164,
+            "không có nguyên âm"
+          ],
+          [
+            "dc",
+            149,
+            "không có nguyên âm"
+          ],
+          [
+            "j",
+            122,
+            "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z) + một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "c",
+            111,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "v",
+            108,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "ncl",
+            99,
+            "không có nguyên âm"
+          ],
+          [
+            "review",
+            96,
+            "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)"
+          ]
+        ],
+        "num_columns": [
+          1
+        ]
+      },
+      {
+        "title": "Các quy tắc gắn cờ và quy mô mỗi quy tắc (3 split)",
+        "columns": [
+          "lí do bị gắn cờ",
+          "số từ khác nhau",
+          "tổng số lần xuất hiện"
+        ],
+        "rows": [
+          [
+            "chữ không phải chữ Latin (ký tự trang trí / tiếng nước ngoài)",
+            217,
+            277
+          ],
+          [
+            "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)",
+            2736,
+            3707
+          ],
+          [
+            "trộn chữ và số",
+            584,
+            1354
+          ],
+          [
+            "một ký tự phụ âm",
+            20,
+            3266
+          ],
+          [
+            "không có nguyên âm",
+            1768,
+            11547
+          ]
+        ],
+        "num_columns": [
+          1,
+          2
+        ]
+      },
+      {
+        "title": "Ví dụ minh hoạ theo nhóm nhiễu (mỗi split 1 ví dụ, lấy ngẫu nhiên)",
+        "columns": [
+          "nhóm nhiễu",
+          "split",
+          "dòng trong file",
+          "ví dụ"
+        ],
+        "rows": [
+          [
+            "ứng viên gibberish",
+            "train",
+            554,
+            "hhshshsbdbdbdhjdjdjdndndndndndndbdbdbdbdbdbdbdbdbdbdbd"
+          ],
+          [
+            "ứng viên gibberish",
+            "val",
+            502,
+            "Dvdvvsg sgnsgnagbwgbafbwynafbwgbwsgnsgnwgbafbwgnawgnwt"
+          ],
+          [
+            "ứng viên gibberish",
+            "test",
+            484,
+            "Uuhuhhuuuuuuuuuuuuuuu"
+          ],
+          [
+            "chỉ emoji / dấu câu",
+            "train",
+            1321,
+            "👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️"
+          ],
+          [
+            "chỉ emoji / dấu câu",
+            "val",
+            374,
+            "😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍"
+          ],
+          [
+            "chỉ emoji / dấu câu",
+            "test",
+            965,
+            ".................................................."
+          ],
+          [
+            "có ký tự lặp",
+            "train",
+            4658,
+            "Ưngggg Nhà tài trợ không chỉ quản lý về hình ảnh thương hiệu tại sự kiện mà còn liên quan đến vấn đề pháp lý, độc quyền "
+          ],
+          [
+            "có ký tự lặp",
+            "val",
+            429,
+            "Đẹp lên màu chuẩn thích thật sự ákkk. Giao nhanh đóng giis cẩn thận❤️❤️❤️"
+          ],
+          [
+            "có ký tự lặp",
+            "test",
+            986,
+            "Hàng về rất nhanh sản phẩm ok 👌👌👌👌👌 nếu ưng ý thì sẽ ủng hộ shop dài dài 👍👍👍👍👍👍👍👍👍👍👏👏👏👏👏👏👏👏👏👍👍👍👏👍👍👏👏👍👍"
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            "train",
+            3460,
+            "Mình thích màu này cực luôn ấy. Chưa thấy dòng nào có màu giống vậy. Màu kiểu cam cam nâu nâu í mọi người. Không cam quá"
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            "val",
+            83,
+            "Nốt hôm nay! TRÚNG ĐT Samsung Galaxy S20 (trị giá: 17.490.000đ), cơ hội cho TB may mắn soạn Q5 gửi 999. NHẬN NGAY 700MB/"
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            "test",
+            84,
+            "[TB] CHÚC MỪNG NĂM MỚI 2022. VIETTEL TẶNG 20% GIÁ TRỊ TẤT CẢ THẺ NẠP trong ngày 01/01. Tiền KM sử dụng nội mạng đến "
+          ],
+          [
+            "có dấu hiệu code / HTML",
+            "train",
+            10734,
+            "Bộ 3 nam thần của &quot;Phố trong làng&quot; ngoài đời: Người từng là &quot;bạn trai&quot; Minh Hằng, người có vợ vừa nổ"
+          ]
+        ],
+        "num_columns": [
+          2
+        ],
+        "narrow_columns": [
+          2
+        ],
+        "pre_wrap_columns": [
+          3
+        ]
+      }
+    ],
+    "files": [
+      "data/raw/cosmetics/v0.1.0/eda/03_quality_metrics.csv",
+      "data/raw/cosmetics/v0.1.0/eda/03_quality_teencode_candidates.csv",
+      "data/raw/cosmetics/v0.1.0/eda/03_quality_teencode_common_flagged.csv",
+      "data/raw/cosmetics/v0.1.0/eda/03_quality_emoji.csv",
+      "data/raw/cosmetics/v0.1.0/eda/03_quality_examples.csv"
+    ]
+  }
+}

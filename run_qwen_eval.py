@@ -167,7 +167,7 @@ def main(argv=None):
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = args.version or versioning.compute_id(ds, config.PIPELINE_CONFIG_PATH)
+    version_id = args.version or versioning.compute_id(ds)
 
     try:
         prompt = qwen.load_prompt(args.prompt)
@@ -278,40 +278,9 @@ def _write_all(args, ds, version_id, prompt, examples, generation, max_length,
     }, summary_path)
     paths["tổng hợp"] = summary_path
 
-    versioning.record({
-        "version_id": version_id,
-        "dataset": ds["name"],
-        "phase": "qwen_eval",
-        "data_version": ds.get("version"),
-        "dataset_config": utils.rel(ds["_path"]),
-        "report_dir": utils.rel(paths["dự đoán"].parent),
-        "report": utils.rel(paths["dự đoán"]),
-        "metrics_report": utils.rel(paths["chỉ số"]),
-        "summary_report": utils.rel(paths["tổng hợp"]),
-        "prompt": prompt.name,
-        "prompt_sha": prompt.sha,
-        # Bộ ví dụ few-shot: prompt_sha KHÔNG đổi khi đổi số ví dụ (xem src/prompts.py).
-        "prompt_examples": (examples or {}).get("file"),
-        "prompt_examples_sha": (examples or {}).get("sha"),
-        "prompt_examples_count": (examples or {}).get("examples"),
-        "split": args.split,
-        "limit": args.limit,
-        "seed": args.seed,
-        "model": model_info["model"],
-        "quant": model_info.get("quant"),
-        "load": model_info.get("cách nạp"),
-        "device": model_info.get("thiết bị"),
-        "generation": generation,
-        "max_length": max_length,
-        "read": read,
-        "metrics": summary,
-        "cost": meta,
-    })
-
-    print("\nHoàn tất. Đã ghi:")
+    print("Hoàn tất. Đã ghi:")
     for kind, path in paths.items():
         print("  - {:<10} {}".format(kind, utils.rel(path)))
-    print("  - {:<10} {}".format("mục lục", utils.rel(versioning.manifest_path())))
     print("  (hậu tố tên file '{}' ghi rõ cấu hình - số liệu của lần chạy khác không bị "
           "ghi đè)".format(tag))
     return 0

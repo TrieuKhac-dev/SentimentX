@@ -93,8 +93,8 @@ def main(argv=None):
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = args.version or versioning.compute_id(ds, config.PIPELINE_CONFIG_PATH)
-    report_dir = versioning.version_dir(config.MODEL_EVAL_REPORT_DIR, version_id)
+    version_id = args.version or versioning.compute_id(ds)
+    report_dir = config.MODEL_EVAL_REPORT_DIR / version_id
     if not report_dir.is_dir():
         print("LỖI: chưa có {} - chạy run_qwen_eval.py trước.".format(
             utils.rel(report_dir)))
@@ -138,20 +138,8 @@ def main(argv=None):
         utils.write_json(stored, summary_path)
         updated[utils.rel(path)] = {"metrics": summary, "read": read}
 
-    manifest = versioning.read_manifest()
-    touched = 0
-    for entry in manifest["entries"]:
-        if entry.get("phase") != "qwen_eval":
-            continue
-        if entry.get("report") in updated:
-            entry["metrics"] = updated[entry["report"]]["metrics"]
-            entry["read"] = updated[entry["report"]]["read"]
-            entry["rescored"] = args.note
-            touched += 1
-    utils.write_json(manifest, versioning.manifest_path())
-
-    print("\nĐã ghi lại metrics + summary cho {} cấu hình và cập nhật {} dòng mục lục."
-          .format(len(updated), touched))
+    print("\nĐã ghi lại metrics + summary cho {} cấu hình."
+          .format(len(updated)))
     print("Ghi chú chấm lại: {}".format(args.note))
     return 0
 

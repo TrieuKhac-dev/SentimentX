@@ -60,10 +60,10 @@ def main(argv=None):
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    cfg = utils.load_pipeline_config()
+    cfg = utils.load_pipeline_config(ds.get("pipeline_version"))
     version_id = versioning.compute_id(ds, cfg)
-    processed_dir = versioning.version_dir(config.PROCESSED_DIR, version_id)
-    out_dir = versioning.version_dir(config.PIPELINE_REPORT_DIR, version_id)
+    processed_dir = versioning.processed_dir(version_id)
+    out_dir = versioning.pipeline_report_dir(version_id)
 
     print("Dataset: {} (dữ liệu gốc: {})".format(
         ds["name"], utils.rel(ds["_raw_dir"])))
@@ -94,7 +94,7 @@ def main(argv=None):
     meta = dataset.describe(ds) + [
         "Mã phiên bản: {}".format(version_id),
         "Config: {}".format(utils.rel(cfg["_path"])),
-        "Phiên bản pipeline: v{}".format(cfg.get("version", "unknown")),
+        "Phiên bản pipeline: {}".format(cfg.get("version", "unknown")),
         "Số dòng vào: {} - Số dòng ra: {}".format(
             sum(original.values()) if original else 0, sum(final.values())),
         "Thư mục số liệu chi tiết: {}".format(utils.rel(out_dir)),
@@ -113,26 +113,12 @@ def main(argv=None):
     path = result_io.write_result(
         payload, result_io.result_path(out_dir, "pipeline"))
 
-    versioning.record({
-        "version_id": version_id,
-        "dataset": ds["name"],
-        "phase": "pipeline",
-        "data_version": ds.get("version"),
-        "pipeline_version": cfg.get("version", "unknown"),
-        "dataset_config": utils.rel(ds["_path"]),
-        "pipeline_config": utils.rel(cfg["_path"]),
-        "processed_dir": utils.rel(processed_dir),
-        "report_dir": utils.rel(out_dir),
-        "records": "{} -> {} dòng".format(
-            sum(original.values()) if original else 0, sum(final.values())),
-    })
-
     print("\nHoàn tất. Đã ghi:")
-    print("  - Dữ liệu     : {}".format(utils.rel(processed_dir)))
+    print("  - Dataset     : {}".format(utils.rel(processed_dir)))
     print("  - File kết quả: {}".format(utils.rel(path)))
-    print("  - Mục lục     : {}".format(utils.rel(versioning.manifest_path())))
+    print("  - Báo cáo     : {}".format(utils.rel(out_dir)))
     print("\nBước tiếp theo - vẽ báo cáo:")
-    print("  python build_report.py --phase pipeline")
+    print("  python build_report.py --phase pipeline --version {}".format(version_id))
 
 
 if __name__ == "__main__":

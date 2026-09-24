@@ -114,7 +114,7 @@ chi tiết: [03_config.md mục 3](03_config.md).
 ### Xử lý rò rỉ dữ liệu (`steps.clean.leakage.remove_eval_overlap`)
 
 EDA 05 phát hiện có review xuất hiện ở **cả train và val/test** (18 cặp trùng chính
-xác giữa train ↔ val, 18 cặp giữa train ↔ test). Nếu để nguyên, điểm đánh giá model
+xác giữa train và val, 18 cặp giữa train và test). Nếu để nguyên, điểm đánh giá model
 sẽ **cao giả tạo** vì model đã thấy trước dữ liệu đó.
 
 Cách xử lý: **giữ trong train, loại khỏi val/test**. Lý do:
@@ -151,7 +151,7 @@ không bị chạm, xem [04_invariants.md mục 1](04_invariants.md)); các file
 tự **giữ lại** (không phải số ký tự bị xoá): `max = 2` biến `đẹppppp` thành `đẹpp`,
 `max = 3` thành `đẹppp`. Đặt `1` là mạnh nhất (mọi dãy lặp còn 1 ký tự).
 
-> ⚠️ Bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
+>  Bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
 > nguyên như người viết. Dự án cũng không bỏ dấu ở bất kỳ chỗ nào khác - khoá so trùng
 > của bước Clean (`steps.clean.deduplicate.ignore_diacritics`) đang để `false`, và dù có bật
 > thì khoá đó cũng chỉ dùng để _so_, không sửa văn bản.
@@ -228,7 +228,7 @@ cạnh **thực sự được nhắc tới**:
 **Vì sao số bản ghi ABSA nhỏ hơn số dòng?** Vì một phần dữ liệu **không có nhãn khía
 cạnh nào** (mọi ô = `0`) - xem [02_eda/02_metrics.md mục 11](../02_eda/02_metrics.md).
 Trên cosmetics: 15344 dòng -> **13213** bản ghi ABSA, tức 2131 dòng không sinh bản ghi
-nào. Những dòng đó **vẫn được giữ** trong `processed_*.csv` (để bảng đủ số dòng và
+nào. Những dòng đó **vẫn được giữ** trong `train.csv`, `val.csv`, `test.csv` (để bảng đủ số dòng và
 truy vết được), chỉ không xuất hiện trong dạng ABSA.
 
 Chi tiết định dạng đầu ra và ví dụ đầy đủ: [05_output.md](05_output.md).
@@ -261,8 +261,7 @@ Vào: `context["splits"]` cuối cùng + `label_map` + config đã dùng.
 Làm: ghi dữ liệu đã xử lý và mọi thứ cần để truy vết về sau, rồi ghi phiên bản vào
 mục lục.
 Ra (trong `data/processed/<mã>/`): `train.csv`, `val.csv`, `test.csv`,
-`label_map.json`, `processing_log.json`; và một dòng mới trong
-`data/processed/manifest.json`.
+`label_map.json`, `processing_log.json`.
 
 `processing_log.json` **nằm cùng thư mục với dataset mà nó mô tả**, nên chép riêng
 thư mục phiên bản đi đâu vẫn giữ đủ dấu vết về cấu hình đã tạo ra nó. Chi tiết từng

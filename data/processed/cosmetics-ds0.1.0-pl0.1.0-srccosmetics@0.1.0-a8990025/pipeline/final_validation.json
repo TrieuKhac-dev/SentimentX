@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "kiểm tra": "Schema",
+      "kết quả": "ĐẠT",
+      "chi tiết": "cả 3 split đều đủ cột"
+    },
+    {
+      "kiểm tra": "Văn bản",
+      "kết quả": "ĐẠT",
+      "chi tiết": "không có review rỗng"
+    },
+    {
+      "kiểm tra": "Nhãn hợp lệ",
+      "kết quả": "ĐẠT",
+      "chi tiết": "mọi nhãn thuộc 3 giá trị hợp lệ"
+    },
+    {
+      "kiểm tra": "Nhãn không bị thay đổi",
+      "kết quả": "ĐẠT",
+      "chi tiết": "dấu vân tay nhãn trùng khớp với lúc đầu"
+    },
+    {
+      "kiểm tra": "Văn bản chỉ đổi hình thức",
+      "kết quả": "ĐẠT",
+      "chi tiết": "15344 dòng khớp đúng dòng gốc sau chuẩn hoá (không mất dấu tiếng Việt)"
+    }
+  ],
+  "problems": [],
+  "total_rows": 15344,
+  "passed": true
+}

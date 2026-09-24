@@ -44,7 +44,7 @@ dòng tiêu đề). Muốn mở đúng dòng đó trong Excel: cộng thêm 1 ch
 Ngưỡng nhận diện nằm trong `src/config.py` và `src/pipeline/clean.py`, không phải
 một chuẩn học thuật: một review bị coi là gibberish khi **>= 50% token "không giống
 từ"**, trong đó token bị coi bất thường nếu (dài hơn 2 ký tự và không có nguyên âm)
-hoặc (dài từ 15 ký tự); token ≤ 2 ký tự luôn được coi là bình thường, và review
+hoặc (dài từ 15 ký tự); token <= 2 ký tự luôn được coi là bình thường, và review
 CHỈ toàn emoji được miễn (emoji là tín hiệu cảm xúc thật).
 
 Vì sao vẫn dùng: đo trên dữ liệu gốc `cosmetics` cho thấy nhóm này chiếm **3,00%**
@@ -68,7 +68,7 @@ so, mà so **khoá so trùng** do `utils.dedup_key()` tạo. Khoá này đi qua 
 5. thay mọi ký tự **không phải chữ/số** (dấu câu, emoji) bằng khoảng trắng;
 6. gộp khoảng trắng lần nữa.
 
-> ⚠️ **Đừng lẫn hai chữ "chuẩn hoá" trong dự án:**
+>  **Đừng lẫn hai chữ "chuẩn hoá" trong dự án:**
 >
 > |                   | Bước Normalize (Step 4)                                        | Khoá so trùng (`dedup_key`)                                                                             |
 > | ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -105,7 +105,7 @@ một quy tắc.
 **Bằng chứng khoá này KHÔNG hề bỏ dấu trong dữ liệu** (câu hỏi rất dễ lo): bước
 Final Validate có hạng mục **"Văn bản chỉ đổi hình thức"** - nó lấy từng dòng được
 giữ lại, áp lại đúng quy tắc chuẩn hoá lên dòng gốc, rồi so với văn bản trong
-`processed_*.csv`. Trên cosmetics: **ĐẠT - 15344/15344 dòng khớp đúng dòng gốc sau
+`train.csv`, `val.csv`, `test.csv`. Trên cosmetics: **ĐẠT - 15344/15344 dòng khớp đúng dòng gốc sau
 chuẩn hoá (không mất dấu tiếng Việt)**. Nghĩa là khoá so trùng chỉ dùng để **so**;
 văn bản xuất ra không mất một dấu nào. Chi tiết phép kiểm:
 [04_invariants.md mục 2](../03_pipeline/04_invariants.md).
@@ -195,7 +195,7 @@ khác nhau, giúp đọc bảng top từ mà biết phần nào là dương tín
 >   không có phép loại bỏ / thay thế / viết lại teencode, cũng không có phép bỏ dấu
 >   tiếng Việt;
 > - bước Final Validate **chứng minh** điều đó bằng số liệu: hạng mục "Văn bản chỉ
->   đổi hình thức" đối chiếu từng ký tự của `processed_*.csv` với dòng gốc - nếu có
+>   đổi hình thức" đối chiếu từng ký tự của `train.csv`, `val.csv`, `test.csv` với dòng gốc - nếu có
 >   từ nào bị viết lại, hạng mục này báo LỖI ngay
 >   ([04_invariants.md mục 2](../03_pipeline/04_invariants.md));
 > - bảng cấu hình ở Step 4 in thẳng hai dòng "thay teencode ... **Không**" và "bỏ dấu
@@ -252,11 +252,11 @@ Cách báo cáo trình bày nhóm này (để không gây hiểu nhầm):
 - nêu bằng **một thẻ số liệu riêng**: "Số dòng không có nhãn khía cạnh nào (3 split)";
 - biểu đồ "Số khía cạnh được nhắc trong một review" **chỉ vẽ từ 1 trở lên** và lấy
   mẫu số là số review **có nhãn** - nhờ vậy người đọc thấy đúng hình dạng phân bố,
-  không bị một cột "0 khía cạnh ≈ 17%" nằm ngay giữa biểu đồ nói về review có nhãn;
+  không bị một cột "0 khía cạnh khoảng 17%" nằm ngay giữa biểu đồ nói về review có nhãn;
 - bản CSV giữ đủ mọi giá trị 0...7, kèm **hai** tỉ lệ (trên toàn split và trên số
   review có nhãn) để tra cứu lại.
 
-Liên hệ với pipeline: những dòng này vẫn được giữ trong `processed_*.csv` (dạng
+Liên hệ với pipeline: những dòng này vẫn được giữ trong `train.csv`, `val.csv`, `test.csv` (dạng
 multi_head với mọi ô = 0) để truy vết, nhưng **không sinh bản ghi ABSA** nào - đó là
 lí do số bản ghi ABSA (13213 trên cosmetics) nhỏ hơn số dòng dữ liệu (15344).
 Xem [03_pipeline/02_steps.md mục 5](../03_pipeline/02_steps.md).
@@ -267,22 +267,22 @@ Hai con số này hay bị đem so với nhau, nhưng chúng đo hai thứ khác
 
 | Cách đếm                                                                                | Đơn vị  | Phạm vi          | Ở đâu                                                |
 | --------------------------------------------------------------------------------------- | ------- | ---------------- | ---------------------------------------------------- |
-| số **văn bản** xuất hiện ở cả hai split của cặp (`train↔val`, `train↔test`, `val↔test`) | văn bản | mọi cặp split    | biểu đồ EDA 05 + `05_split_duplicates.csv`           |
+| số **văn bản** xuất hiện ở cả hai split của cặp (`train và val`, `train và test`, `val và test`) | văn bản | mọi cặp split    | biểu đồ EDA 05 + `05_split_duplicates.csv`           |
 | số **dòng** của val/test trùng train                                                    | dòng    | chỉ so với train | thẻ số liệu EDA 05 + `05_split_duplicate_totals.csv` |
 
-Con số ① **không cộng lại ra** tổng số văn bản bị trùng: một văn bản nằm ở cả 3 split
+Con số (1) **không cộng lại ra** tổng số văn bản bị trùng: một văn bản nằm ở cả 3 split
 bị đếm ở cả 3 cặp, nên tổng theo cặp lớn hơn số văn bản thật sự bị trùng. Trên
 cosmetics, chuỗi "trùng chính xác" có 18 + 18 + 5 = 41 theo cặp nhưng chỉ **31** văn
 bản bị trùng; chuỗi "trùng theo khoá so trùng" có 23 + 22 + 9 = 54 theo cặp nhưng chỉ
 **38** văn bản bị trùng. File `05_split_duplicate_totals.csv` ghi cả hai cách đếm để
 đối chiếu.
 
-Con số ② chính là phép mà bước Clean thực hiện khi
+Con số (2) chính là phép mà bước Clean thực hiện khi
 `steps.clean.leakage.remove_eval_overlap = true`: lấy khoá so trùng của **train**, rồi
 loại khỏi val/test mọi dòng có khoá đó. Vì vậy khi so EDA với pipeline, hãy so với
-con số ② - và lưu ý Clean **xoá nhiễu TRƯỚC rồi mới xử lý rò rỉ**, nên số dòng bị
-loại vì rò rỉ trong báo cáo pipeline luôn **nhỏ hơn hoặc bằng** con số ② của EDA
-(cosmetics: EDA ② = 91 dòng, pipeline loại 84 vì 7 dòng trong số đó đã bị loại từ
+con số (2) - và lưu ý Clean **xoá nhiễu TRƯỚC rồi mới xử lý rò rỉ**, nên số dòng bị
+loại vì rò rỉ trong báo cáo pipeline luôn **nhỏ hơn hoặc bằng** con số (2) của EDA
+(cosmetics: EDA (2) = 91 dòng, pipeline loại 84 vì 7 dòng trong số đó đã bị loại từ
 bước xoá nhiễu).
 
 ## 13. Xung đột nhãn - "review" và "ô nhãn" là hai con số khác nhau

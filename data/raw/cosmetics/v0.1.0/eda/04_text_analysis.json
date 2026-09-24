@@ -1,0 +1,178 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "generated_at": "24/09/2026 16:51",
+  "section": {
+    "id": "text_analysis",
+    "title": "EDA 04 - Đặc điểm văn bản",
+    "cards": [
+      {
+        "label": "Số từ vựng (số từ khác nhau) - train / val / test",
+        "value": "10365 / 2867 / 2984"
+      },
+      {
+        "label": "Số từ / review (đếm từ, không phải subword) - train / val / test",
+        "value": "21.05 / 20.89 / 21.31"
+      },
+      {
+        "label": "Số dòng không có chữ cái (3 split)",
+        "value": "36"
+      }
+    ],
+    "charts": [
+      {
+        "title": "25 từ xuất hiện nhiều nhất, không tính các từ phổ biến như 'và', 'là', 'của' (3 split)",
+        "kind": "bar",
+        "x": [
+          "son",
+          "màu",
+          "đẹp",
+          "hàng",
+          "chất",
+          "giao",
+          "mua",
+          "lắm",
+          "nhanh",
+          "gói",
+          "xinh",
+          "shop",
+          "hơi",
+          "môi",
+          "nha",
+          "đóng",
+          "giá",
+          "sản",
+          "mùi",
+          "thơm",
+          "phẩm",
+          "lâu",
+          "luôn",
+          "mịn",
+          "ạ"
+        ],
+        "y": [
+          11840,
+          10609,
+          7366,
+          6820,
+          5043,
+          4857,
+          4516,
+          4149,
+          3395,
+          3002,
+          2991,
+          2982,
+          2894,
+          2719,
+          2654,
+          2587,
+          2363,
+          2293,
+          2260,
+          2255,
+          2214,
+          2153,
+          2107,
+          2073,
+          2025
+        ],
+        "x_label": "từ",
+        "y_label": "số lần xuất hiện",
+        "orientation": "h"
+      },
+      {
+        "title": "Review viết có dấu / không dấu, theo split (số review và tỉ lệ %)",
+        "kind": "stacked_bar",
+        "barnorm": "percent",
+        "label_mode": "count_and_percent",
+        "x": [
+          "train",
+          "val",
+          "test"
+        ],
+        "series": {
+          "Có dấu tiếng Việt": [
+            12467,
+            1565,
+            1556
+          ],
+          "Viết không dấu": [
+            485,
+            54,
+            64
+          ],
+          "Không có chữ cái (emoji / số / ký hiệu)": [
+            29,
+            4,
+            3
+          ]
+        },
+        "y_label": "tỉ lệ % số review",
+        "height": 430
+      }
+    ],
+    "tables": [
+      {
+        "title": "5 cụm 2 từ hay gặp nhất trong các review có nhắc từng khía cạnh (3 split)",
+        "columns": [
+          "khía cạnh",
+          "số review nhắc khía cạnh (3 split)",
+          "5 cụm 2 từ hay gặp nhất"
+        ],
+        "rows": [
+          [
+            "stayingpower",
+            2779,
+            "bền màu (973), độ bền (934), kết cấu (820), công dụng (788), giao hàng (488)"
+          ],
+          [
+            "texture",
+            4887,
+            "chất son (1713), bền màu (863), kết cấu (851), độ bền (844), giao hàng (811)"
+          ],
+          [
+            "smell",
+            2911,
+            "mùi thơm (636), giao hàng (555), chất son (518), màu đẹp (430), có mùi (413)"
+          ],
+          [
+            "price",
+            3286,
+            "giao hàng (652), chất lượng (577), với giá (540), nên mua (512), chất son (447)"
+          ],
+          [
+            "colour",
+            7519,
+            "màu đẹp (1621), giao hàng (1484), màu son (1210), lên màu (1195), chất son (1102)"
+          ],
+          [
+            "shipping",
+            5469,
+            "giao hàng (3351), hàng nhanh (1676), đóng gói (1437), hơi lâu (1005), sản phẩm (996)"
+          ],
+          [
+            "packing",
+            3052,
+            "đóng gói (2336), giao hàng (1240), cẩn thận (1229), sản phẩm (931), hàng nhanh (759)"
+          ]
+        ],
+        "num_columns": [
+          1
+        ],
+        "narrow_columns": [
+          1
+        ]
+      }
+    ],
+    "files": [
+      "data/raw/cosmetics/v0.1.0/eda/04_text_vocabulary.csv",
+      "data/raw/cosmetics/v0.1.0/eda/04_text_top_words.csv",
+      "data/raw/cosmetics/v0.1.0/eda/04_text_bigrams_by_aspect.csv",
+      "data/raw/cosmetics/v0.1.0/eda/04_text_punctuation.csv",
+      "data/raw/cosmetics/v0.1.0/eda/04_text_accent.csv"
+    ]
+  }
+}

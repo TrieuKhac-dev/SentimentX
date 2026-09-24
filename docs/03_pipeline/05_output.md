@@ -2,7 +2,7 @@
 
 ## 1. Vì sao là CSV, không phải Parquet
 
-Đầu ra là **CSV** (`processed_{split}.csv`). Đã cân nhắc dùng Parquet nhưng chọn CSV
+Đầu ra là **CSV** (`{split}.csv`). Đã cân nhắc dùng Parquet nhưng chọn CSV
 vì: dữ liệu chỉ ~16k dòng nên tốc độ đọc/ghi không phải vấn đề; CSV mở được bằng
 Excel để kiểm tra bằng mắt; và `git diff` đọc được từng dòng khi dữ liệu gốc thay đổi.
 
@@ -55,7 +55,7 @@ dòng: [02_steps.md mục 5](02_steps.md).
 ```json
 {
   "dataset": "cosmetics",
-  "version_id": "cosmetics-v0.1.0-b37ecfce",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34",
   "aspects": ["stayingpower", "..."],
   "labels": ["positive", "negative", "neutral"],
   "label_to_id": { "": 0, "positive": 1, "negative": 2, "neutral": 3 },
@@ -73,7 +73,6 @@ quen thuộc giữ nguyên mã - xem [01_dataset/03_new_dataset.md](../01_datase
 | File                                                  | Nội dung                                                                                  |
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `data/processed/<mã>/processing_log.json`             | config đã dùng + số liệu chính của lần chạy. Nằm **cùng thư mục** với dataset mà nó mô tả |
-| `data/processed/manifest.json`                        | mục lục mọi phiên bản đã chạy (dùng để tìm phiên bản mới nhất)                            |
 | `data/processed/<mã>/pipeline/removed_records.csv`    | dòng bị loại, kèm lí do + văn bản                                                         |
 | `data/processed/<mã>/pipeline/quarantine_records.csv` | dòng bị cách ly vì xung đột nhãn                                                          |
 | `data/processed/<mã>/pipeline/validation_report.csv`  | lỗi phát hiện ở Step 2 (chỉ ghi nhận)                                                     |

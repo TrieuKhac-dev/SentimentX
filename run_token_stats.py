@@ -309,10 +309,10 @@ def main(argv=None):
         print("LỖI: {}".format(exc))
         return 2
     version_id = args.version or versioning.compute_id(
-        ds, config.PIPELINE_CONFIG_PATH)
+        ds)
     print("Dataset: {} (phiên bản dữ liệu: {})".format(ds["name"], version_id))
     print("Nguồn dữ liệu: {}\n".format(
-        utils.rel(versioning.processed_dir(version_id, dataset=ds["name"]))))
+        utils.rel(versioning.processed_dir(version_id))))
     print_config(prompt, args.segmenter, max_length_overrides)
 
     rows, skipped, context = token_stats.run(
@@ -363,36 +363,12 @@ def main(argv=None):
 
     tag = build_tag(args, max_length_overrides, prompt)
     path = token_stats.write(rows, version_id, tag=tag)
-    versioning.record({
-        "version_id": version_id,
-        "dataset": ds["name"],
-        "phase": "model_input",
-        "data_version": ds.get("version"),
-        "dataset_config": utils.rel(ds["_path"]),
-        "report_dir": utils.rel(path.parent),
-        "report": utils.rel(path),
-        "prompt": context["prompt"],
-        "prompt_sha": context["prompt_sha"],
-        # Bộ ví dụ few-shot (None nếu prompt không dùng {examples}): cần cho truy vết vì
-        # prompt_sha không đổi khi đổi số ví dụ.
-        "prompt_examples": (context["examples"] or {}).get("file"),
-        "prompt_examples_sha": (context["examples"] or {}).get("sha"),
-        "prompt_examples_count": (context["examples"] or {}).get("examples"),
-        "segmenter": context["segmenter"] or "không có bộ nào dùng được",
-        "limits": context["limits"],
-        "max_length": {key: info["value"]
-                       for key, info in context["limits"].items()},
-        "records": "{} model × {} split".format(
-            len({row[0] for row in rows}), len(token_stats.SPLITS)),
-        "skipped": {name: reason for name, reason in skipped},
-    })
 
-    print("\nHoàn tất. Đã ghi số liệu:")
+    print("Hoàn tất. Đã ghi số liệu:")
     print("  - {}".format(utils.rel(path)))
     if tag:
         print("    (tên file có đuôi '{}' vì lần chạy này khác cấu hình mặc định, "
               "nên KHÔNG ghi đè số liệu cũ)".format(tag))
-    print("  - Mục lục  : {}".format(utils.rel(versioning.manifest_path())))
     return 0
 
 

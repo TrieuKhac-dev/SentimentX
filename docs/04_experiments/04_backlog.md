@@ -52,7 +52,7 @@ token, và chạy model để biết chất lượng.
   `qwen_absa_v1` (một lượt, 0 ví dụ), `qwen_absa_cot_zeroshot_v1` (0 ví dụ) ,
   `qwen_absa_cot_1shot_v1` (1 ví dụ), `qwen_absa_cot_v1` (2 ví dụ).
 - **Chi phí input đã đo** (train): 229,50 -> 376,50 -> 681,50 -> 950,50 token/review. Mỗi ví
-  dụ ≈ 287-305 token; prompt CoT dài nhất cần 1.195 token -> ngưỡng 1280 giữ 0% bị cắt ở
+  dụ khoảng 287-305 token; prompt CoT dài nhất cần 1.195 token -> ngưỡng 1280 giữ 0% bị cắt ở
   mọi split. Bảng đầy đủ ở [02_model_input.md mục 4.2](02_model_input.md).
 - **Sửa một lỗi định dạng trong prompt CoT:** phần mô tả schema cũ viết
   `{"khía cạnh": mã, ...}` - JSON KHÔNG hợp lệ và mâu thuẫn với chính các ví dụ ngay trên

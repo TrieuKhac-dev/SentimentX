@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "generated_at": "24/09/2026 16:51",
+  "section": {
+    "id": "overview",
+    "title": "EDA 01 - Tổng quan dữ liệu",
+    "cards": [
+      {
+        "label": "Số dòng (3 split)",
+        "value": "16227"
+      },
+      {
+        "label": "Số khía cạnh",
+        "value": 7
+      },
+      {
+        "label": "Train / Val / Test",
+        "value": "12981/1623/1623"
+      }
+    ],
+    "charts": [
+      {
+        "title": "Phân bố độ dài review theo khoảng (%)",
+        "kind": "grouped_bar",
+        "x": [
+          "0-50",
+          "51-100",
+          "101-200",
+          "201-400",
+          "401-800",
+          "trên 800"
+        ],
+        "series": {
+          "train": [
+            3.73,
+            64.41,
+            25.39,
+            6.44,
+            0.03,
+            0.0
+          ],
+          "val": [
+            2.77,
+            65.8,
+            25.63,
+            5.79,
+            0.0,
+            0.0
+          ],
+          "test": [
+            3.39,
+            63.71,
+            24.89,
+            8.01,
+            0.0,
+            0.0
+          ]
+        },
+        "x_label": "số ký tự",
+        "y_label": "tỉ lệ %"
+      }
+    ],
+    "tables": [
+      {
+        "title": "Cấu trúc các file dữ liệu",
+        "columns": [
+          "split",
+          "tệp gốc",
+          "số dòng",
+          "số cột",
+          "cột văn bản",
+          "số cột khía cạnh",
+          "cột khía cạnh bị thiếu"
+        ],
+        "rows": [
+          [
+            "train",
+            "data_train.csv",
+            12981,
+            8,
+            "data",
+            7,
+            "-"
+          ],
+          [
+            "val",
+            "data_val.csv",
+            1623,
+            8,
+            "data",
+            7,
+            "-"
+          ],
+          [
+            "test",
+            "data_test.csv",
+            1623,
+            8,
+            "data",
+            7,
+            "-"
+          ],
+          [
+            "(file gộp)",
+            "full_data.csv",
+            16227,
+            8,
+            "data",
+            7,
+            "-"
+          ]
+        ],
+        "num_columns": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "first": true
+      }
+    ],
+    "files": [
+      "data/raw/cosmetics/v0.1.0/eda/01_overview_structure.csv",
+      "data/raw/cosmetics/v0.1.0/eda/01_overview_empty.csv",
+      "data/raw/cosmetics/v0.1.0/eda/01_overview_length.csv"
+    ]
+  }
+}

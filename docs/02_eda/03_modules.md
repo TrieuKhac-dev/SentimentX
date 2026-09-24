@@ -104,7 +104,7 @@ dấu (cần chuẩn hoá) không?
 
 ## 5. EDA 05 - Quan hệ giữa các split (`src/eda/split_leakage.py`)
 
-Đo: trùng lặp giữa train ↔ val ↔ test (chính xác và theo khoá so trùng) và **xung
+Đo: trùng lặp giữa train và val và test (chính xác và theo khoá so trùng) và **xung
 đột nhãn** (cùng một review nhưng nhãn khác nhau).
 
 Ghi ra: `05_split_leakage.json`, `05_split_duplicates.csv`,

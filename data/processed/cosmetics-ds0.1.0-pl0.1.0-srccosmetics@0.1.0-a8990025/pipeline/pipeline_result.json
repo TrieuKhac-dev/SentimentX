@@ -1,0 +1,835 @@
+{
+  "schema": 1,
+  "phase": "pipeline",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "title": "Báo cáo Data Pipeline - ABSA tiếng Việt",
+  "subtitle": "Từ dữ liệu gốc đến dữ liệu sẵn sàng cho model",
+  "generated_at": "24/09/2026 16:50",
+  "meta": [
+    "Dataset: cosmetics (phiên bản v0.1.0)",
+    "Pipeline dùng để tạo dataset: v0.1.0",
+    "Định dạng nguồn: csv",
+    "Cột văn bản trong file gốc: data",
+    "Số khía cạnh khai báo trong config: 7",
+    "Nguồn raw: data/raw/cosmetics/v0.1.0 (v0.1.0)",
+    "Mã phiên bản: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+    "Config: configs/pipeline/v0.1.0.yaml",
+    "Phiên bản pipeline: v0.1.0",
+    "Số dòng vào: 16227 - Số dòng ra: 15344",
+    "Thư mục số liệu chi tiết: data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline"
+  ],
+  "sections": [
+    {
+      "id": "pipeline_load",
+      "title": "Step 1 - Load (đọc dữ liệu gốc)",
+      "cards": [
+        {
+          "label": "Số dòng vào pipeline",
+          "value": "16227"
+        },
+        {
+          "label": "Số khía cạnh dùng trong config",
+          "value": 7
+        },
+        {
+          "label": "Cột bị bỏ khi nạp (drop_columns)",
+          "value": "others"
+        },
+        {
+          "label": "Số cột khía cạnh bị thiếu (đã tự thêm ô trống)",
+          "value": 0
+        }
+      ],
+      "charts": [],
+      "tables": [
+        {
+          "title": "Số dòng đọc được",
+          "columns": [
+            "split",
+            "tệp gốc",
+            "số dòng",
+            "số cột",
+            "số cột khía cạnh"
+          ],
+          "rows": [
+            [
+              "train",
+              "data_train.csv",
+              12981,
+              8,
+              7
+            ],
+            [
+              "val",
+              "data_val.csv",
+              1623,
+              8,
+              7
+            ],
+            [
+              "test",
+              "data_test.csv",
+              1623,
+              8,
+              7
+            ]
+          ],
+          "num_columns": [
+            2,
+            3,
+            4
+          ],
+          "first": true
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": "pipeline_validate",
+      "title": "Step 2 - Validate (kiểm tra, không sửa)",
+      "cards": [
+        {
+          "label": "Kết quả schema",
+          "value": "OK"
+        },
+        {
+          "label": "Số lỗi nội dung",
+          "value": 0
+        },
+        {
+          "label": "Bật kiểm tra schema",
+          "value": "Bật"
+        },
+        {
+          "label": "Bật kiểm tra nội dung",
+          "value": "Bật"
+        }
+      ],
+      "charts": [],
+      "tables": [
+        {
+          "title": "Kiểm tra schema: so dữ liệu đã nạp với khai báo trong config dataset",
+          "columns": [
+            "split",
+            "số cột",
+            "cột thiếu so với config",
+            "cột thừa so với config",
+            "kết quả"
+          ],
+          "rows": [
+            [
+              "train",
+              8,
+              "-",
+              "-",
+              "OK"
+            ],
+            [
+              "val",
+              8,
+              "-",
+              "-",
+              "OK"
+            ],
+            [
+              "test",
+              8,
+              "-",
+              "-",
+              "OK"
+            ]
+          ],
+          "num_columns": [
+            1
+          ]
+        },
+        {
+          "title": "Số lỗi theo loại",
+          "columns": [
+            "loại lỗi",
+            "số lượng"
+          ],
+          "rows": [],
+          "num_columns": [
+            1
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/validation_report.csv"
+      ]
+    },
+    {
+      "id": "pipeline_clean",
+      "title": "Step 3 - Clean (loại nhiễu, trùng lặp, cách ly xung đột)",
+      "cards": [
+        {
+          "label": "Số dòng trước Clean",
+          "value": "16227"
+        },
+        {
+          "label": "Số dòng sau Clean",
+          "value": "15344"
+        },
+        {
+          "label": "Số dòng bị loại",
+          "value": "840"
+        },
+        {
+          "label": "Số dòng bị cách ly (xung đột nhãn)",
+          "value": "43"
+        },
+        {
+          "label": "Loại do nhiễu (rỗng / vô nghĩa / quảng cáo / code)",
+          "value": 566
+        },
+        {
+          "label": "Loại do rò rỉ dữ liệu (val, test trùng train)",
+          "value": 84
+        },
+        {
+          "label": "Loại do trùng chính xác",
+          "value": 144
+        },
+        {
+          "label": "Loại do trùng theo khoá so trùng",
+          "value": 46
+        }
+      ],
+      "charts": [
+        {
+          "title": "Số dòng trước và sau Clean, tách theo kết quả xử lý",
+          "kind": "stacked_bar",
+          "x": [
+            "train",
+            "val",
+            "test",
+            "Tổng"
+          ],
+          "series": {
+            "sau Clean (giữ lại)": [
+              12302,
+              1524,
+              1518,
+              15344
+            ],
+            "bị loại": [
+              636,
+              99,
+              105,
+              840
+            ],
+            "cách ly (xung đột nhãn)": [
+              43,
+              0,
+              0,
+              43
+            ]
+          },
+          "y_label": "số dòng"
+        },
+        {
+          "title": "Số dòng bị loại theo lý do (không tính phần cách ly)",
+          "kind": "bar",
+          "x": [
+            "chuỗi ký tự vô nghĩa (gibberish)",
+            "trùng lặp chính xác",
+            "rò rỉ dữ liệu (review đã có trong train)",
+            "quảng cáo / tin nhắn nhà mạng",
+            "trùng lặp theo khoá so trùng",
+            "chứa mã HTML / SQL / code"
+          ],
+          "y": [
+            487,
+            144,
+            84,
+            78,
+            46,
+            1
+          ],
+          "x_label": "lý do",
+          "y_label": "số dòng",
+          "orientation": "h"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Thiết lập Clean đang áp dụng",
+          "columns": [
+            "thiết lập",
+            "giá trị"
+          ],
+          "rows": [
+            [
+              "phạm vi so trùng",
+              "within_split"
+            ],
+            [
+              "cách xử lý xung đột nhãn",
+              "quarantine"
+            ],
+            [
+              "remove_empty (loại review rỗng)",
+              "Bật"
+            ],
+            [
+              "remove_gibberish (loại chuỗi vô nghĩa)",
+              "Bật"
+            ],
+            [
+              "remove_ads (loại quảng cáo)",
+              "Bật"
+            ],
+            [
+              "remove_code (loại mã HTML / SQL / code)",
+              "Bật"
+            ],
+            [
+              "deduplicate.exact (loại trùng chính xác)",
+              "Bật"
+            ],
+            [
+              "deduplicate.normalized (loại trùng theo khoá so trùng)",
+              "Bật"
+            ],
+            [
+              "deduplicate.ignore_diacritics (khoá bỏ dấu tiếng Việt)",
+              "Tắt"
+            ],
+            [
+              "leakage.remove_eval_overlap (loại val/test trùng train)",
+              "Bật"
+            ]
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/removed_records.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/quarantine_records.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/clean_flow.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/clean_reasons.csv"
+      ]
+    },
+    {
+      "id": "pipeline_normalize",
+      "title": "Step 4 - Normalize (chuẩn hoá văn bản)",
+      "cards": [
+        {
+          "label": "Số review đã xét",
+          "value": "15344"
+        },
+        {
+          "label": "Số review bị thay đổi",
+          "value": "2321"
+        },
+        {
+          "label": "Nhãn có bị bước này thay đổi?",
+          "value": "Không"
+        },
+        {
+          "label": "Số review thành rỗng sau chuẩn hoá",
+          "value": 0
+        }
+      ],
+      "charts": [
+        {
+          "title": "Số review bị thay đổi bởi từng phép chuẩn hoá",
+          "kind": "grouped_bar",
+          "x": [
+            "train",
+            "val",
+            "test"
+          ],
+          "series": {
+            "unicode (NFC)": [
+              69,
+              7,
+              14
+            ],
+            "khoảng trắng": [
+              1814,
+              221,
+              223
+            ]
+          },
+          "y_label": "số review"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Cấu hình chuẩn hoá đang áp dụng",
+          "columns": [
+            "thiết lập",
+            "giá trị"
+          ],
+          "rows": [
+            [
+              "lowercase (chuyển về chữ thường)",
+              "Tắt"
+            ],
+            [
+              "unicode (chuẩn hoá Unicode NFC)",
+              "Bật"
+            ],
+            [
+              "whitespace (chuẩn hoá khoảng trắng)",
+              "Bật"
+            ],
+            [
+              "repeated_chars (rút gọn ký tự lặp)",
+              "Tắt"
+            ],
+            [
+              "repeated_chars_max (số lần ký tự được giữ lại)",
+              2
+            ]
+          ]
+        },
+        {
+          "title": "Số review có thay đổi, theo split",
+          "columns": [
+            "split",
+            "số review",
+            "bị thay đổi",
+            "tỉ lệ bị thay đổi %"
+          ],
+          "rows": [
+            [
+              "train",
+              12302,
+              1863,
+              15.14
+            ],
+            [
+              "val",
+              1524,
+              224,
+              14.7
+            ],
+            [
+              "test",
+              1518,
+              234,
+              15.42
+            ]
+          ],
+          "num_columns": [
+            1,
+            2,
+            3
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/normalize_samples.csv"
+      ]
+    },
+    {
+      "id": "pipeline_transform",
+      "title": "Step 5 - Transform (chuyển sang dạng ABSA)",
+      "cards": [
+        {
+          "label": "Định dạng xuất",
+          "value": "multi_head"
+        },
+        {
+          "label": "Số bản ghi ABSA (mỗi dòng có nhãn khía cạnh)",
+          "value": "13213"
+        },
+        {
+          "label": "Số dòng không có nhãn khía cạnh nào (không sinh bản ghi)",
+          "value": 2131
+        },
+        {
+          "label": "Số ô nhãn có giá trị lạ",
+          "value": 0
+        }
+      ],
+      "charts": [
+        {
+          "title": "Số dòng có / không có nhãn khía cạnh, theo split",
+          "kind": "grouped_bar",
+          "x": [
+            "train",
+            "val",
+            "test"
+          ],
+          "series": {
+            "có ít nhất 1 nhãn khía cạnh": [
+              10594,
+              1327,
+              1292
+            ],
+            "không có nhãn khía cạnh nào": [
+              1708,
+              197,
+              226
+            ]
+          },
+          "y_label": "số dòng"
+        },
+        {
+          "title": "Số ô nhãn theo mã (toàn bộ dữ liệu)",
+          "kind": "bar",
+          "x": [
+            "(ô trống)",
+            "positive",
+            "negative",
+            "neutral"
+          ],
+          "y": [
+            77695,
+            23150,
+            4644,
+            1919
+          ],
+          "x_label": "mã nhãn",
+          "y_label": "số ô"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Bảng mã nhãn (dạng multi_head: mỗi khía cạnh một cột, ô là mã nhãn)",
+          "columns": [
+            "nhãn",
+            "mã số"
+          ],
+          "rows": [
+            [
+              "(ô trống)",
+              0
+            ],
+            [
+              "positive",
+              1
+            ],
+            [
+              "negative",
+              2
+            ],
+            [
+              "neutral",
+              3
+            ]
+          ],
+          "num_columns": [
+            1
+          ]
+        },
+        {
+          "title": "Số dòng theo split",
+          "columns": [
+            "split",
+            "số dòng",
+            "có ít nhất 1 nhãn khía cạnh",
+            "không có nhãn khía cạnh nào"
+          ],
+          "rows": [
+            [
+              "train",
+              12302,
+              10594,
+              1708
+            ],
+            [
+              "val",
+              1524,
+              1327,
+              197
+            ],
+            [
+              "test",
+              1518,
+              1292,
+              226
+            ]
+          ],
+          "num_columns": [
+            1,
+            2,
+            3
+          ]
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": "pipeline_final_validate",
+      "title": "Step 6 - Final Validate (kiểm tra dữ liệu đầu ra)",
+      "cards": [
+        {
+          "label": "Số hạng mục kiểm tra",
+          "value": 5
+        },
+        {
+          "label": "Kết quả",
+          "value": "ĐẠT"
+        },
+        {
+          "label": "Số dòng đầu ra",
+          "value": "15344"
+        },
+        {
+          "label": "Số vấn đề",
+          "value": 0
+        }
+      ],
+      "charts": [
+        {
+          "title": "Toàn vẹn số dòng giữa split và dữ liệu chuyển đổi",
+          "kind": "grouped_bar",
+          "x": [
+            "train",
+            "val",
+            "test"
+          ],
+          "series": {
+            "số dòng trong split": [
+              12302,
+              1524,
+              1518
+            ],
+            "số dòng sau transform": [
+              12302,
+              1524,
+              1518
+            ]
+          },
+          "y_label": "số dòng"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Kết quả kiểm tra cuối",
+          "columns": [
+            "kiểm tra",
+            "kết quả",
+            "chi tiết"
+          ],
+          "rows": [
+            [
+              "Schema",
+              "ĐẠT",
+              "cả 3 split đều đủ cột"
+            ],
+            [
+              "Văn bản",
+              "ĐẠT",
+              "không có review rỗng"
+            ],
+            [
+              "Nhãn hợp lệ",
+              "ĐẠT",
+              "mọi nhãn thuộc 3 giá trị hợp lệ"
+            ],
+            [
+              "Nhãn không bị thay đổi",
+              "ĐẠT",
+              "dấu vân tay nhãn trùng khớp với lúc đầu"
+            ],
+            [
+              "Văn bản chỉ đổi hình thức",
+              "ĐẠT",
+              "15344 dòng khớp đúng dòng gốc sau chuẩn hoá (không mất dấu tiếng Việt)"
+            ]
+          ]
+        },
+        {
+          "title": "Toàn vẹn số dòng",
+          "columns": [
+            "split",
+            "số dòng trong split",
+            "số dòng sau transform",
+            "kết quả"
+          ],
+          "rows": [
+            [
+              "train",
+              12302,
+              12302,
+              "ĐẠT"
+            ],
+            [
+              "val",
+              1524,
+              1524,
+              "ĐẠT"
+            ],
+            [
+              "test",
+              1518,
+              1518,
+              "ĐẠT"
+            ]
+          ],
+          "num_columns": [
+            1,
+            2
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/final_validation.json"
+      ]
+    },
+    {
+      "id": "pipeline_export",
+      "title": "Step 7 - Export (ghi kết quả)",
+      "cards": [
+        {
+          "label": "Số file đã ghi",
+          "value": 4
+        },
+        {
+          "label": "Số dòng đầu ra",
+          "value": "15344"
+        },
+        {
+          "label": "Phiên bản pipeline",
+          "value": "v0.1.0"
+        }
+      ],
+      "charts": [
+        {
+          "title": "Số dòng ghi ra theo split",
+          "kind": "bar",
+          "x": [
+            "train",
+            "val",
+            "test"
+          ],
+          "y": [
+            12302,
+            1524,
+            1518
+          ],
+          "y_label": "số dòng"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Các file đã ghi",
+          "columns": [
+            "file",
+            "số dòng / mục",
+            "định dạng"
+          ],
+          "rows": [
+            [
+              "train.csv",
+              12302,
+              "multi_head (văn bản + mã nhãn)"
+            ],
+            [
+              "val.csv",
+              1524,
+              "multi_head (văn bản + mã nhãn)"
+            ],
+            [
+              "test.csv",
+              1518,
+              "multi_head (văn bản + mã nhãn)"
+            ],
+            [
+              "label_map.json",
+              10,
+              "bảng mã nhãn, danh sách aspect"
+            ]
+          ],
+          "num_columns": [
+            1
+          ]
+        },
+        {
+          "title": "Cấu hình đã dùng cho lần chạy này",
+          "columns": [
+            "thiết lập",
+            "giá trị"
+          ],
+          "rows": [
+            [
+              "version",
+              "v0.1.0"
+            ],
+            [
+              "validate.check_schema",
+              "Bật"
+            ],
+            [
+              "validate.check_content",
+              "Bật"
+            ],
+            [
+              "clean.remove_empty",
+              "Bật"
+            ],
+            [
+              "clean.remove_gibberish",
+              "Bật"
+            ],
+            [
+              "clean.remove_ads",
+              "Bật"
+            ],
+            [
+              "clean.remove_code",
+              "Bật"
+            ],
+            [
+              "clean.deduplicate.exact",
+              "Bật"
+            ],
+            [
+              "clean.deduplicate.normalized",
+              "Bật"
+            ],
+            [
+              "clean.deduplicate.ignore_diacritics",
+              "Tắt"
+            ],
+            [
+              "clean.deduplicate.scope",
+              "within_split"
+            ],
+            [
+              "clean.deduplicate.conflict_policy",
+              "quarantine"
+            ],
+            [
+              "clean.leakage.remove_eval_overlap",
+              "Bật"
+            ],
+            [
+              "normalize.lowercase",
+              "Tắt"
+            ],
+            [
+              "normalize.unicode",
+              "Bật"
+            ],
+            [
+              "normalize.whitespace",
+              "Bật"
+            ],
+            [
+              "normalize.repeated_chars",
+              "Tắt"
+            ],
+            [
+              "transform.format",
+              "multi_head"
+            ],
+            [
+              "thresholds.repeated_chars_max",
+              2
+            ]
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/processing_log.json"
+      ]
+    }
+  ]
+}

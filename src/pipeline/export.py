@@ -1,22 +1,37 @@
 # -*- coding: utf-8 -*-
 """Pipeline bước 7 - EXPORT.
 
-Ghi ra đĩa (thư mục kết quả của phiên bản hiện tại):
-- <data/processed>/versions/<mã phiên bản>/processed_train.csv, _val, _test
+Ghi ra đĩa:
+- data/processed/<mã>/train.csv, val.csv, test.csv
   (dạng multi_head: cột văn bản + một cột cho mỗi aspect, chứa mã nhãn)
-- <data/processed>/versions/<mã phiên bản>/label_map.json  (aspect + mã nhãn)
-- <data/processed>/versions/<mã phiên bản>/processing_log.json
-  (config + số liệu để truy vết: nằm CÙNG thư mục với dataset mà nó mô tả,
-  nên chép riêng thư mục phiên bản đi đâu vẫn giữ đủ dấu vết)
+- data/processed/<mã>/label_map.json     (aspect + mã nhãn)
+- data/processed/<mã>/processing_log.json
+  (dấu vết đầy đủ: mã phiên bản, sha256 của hai file cấu hình và của mọi file dữ liệu nguồn,
+  số dòng từng bước. Nằm CÙNG thư mục với dataset mà nó mô tả, nên chép riêng thư mục đó đi
+  đâu vẫn giữ đủ dấu vết. Đây cũng là căn cứ cho guard bất biến.)
 
-Pipeline chỉ xuất MỘT dạng dữ liệu (bảng multi_head). Dạng JSONL cho model
-sinh được tạo khi cần, xem src/preprocessing/loader.py.
+Pipeline chỉ xuất MỘT dạng dữ liệu (bảng multi_head). Dạng JSONL cho model sinh được tạo khi
+cần, xem src/preprocessing/loader.py.
 
-Báo cáo HTML do build_report.py sinh ra từ file kết quả,
-vì chỉ ở đó mới có đầy đủ số liệu của tất cả các bước.
+Báo cáo HTML do build_report.py sinh ra từ file kết quả, vì chỉ ở đó mới có đầy đủ số liệu của
+tất cả các bước.
 """
 
-from src import config, utils
+from src import config, utils, versioning
+
+
+def _source_log(dataset_cfg, source):
+    """Một nguồn kèm sha256 từng file dữ liệu. Guard bất biến đọc lại các giá trị này."""
+    return {
+        "kind": source["kind"],
+        "name": source["name"],
+        "version": source["version"],
+        "dir": utils.rel(source["dir"]),
+        "files": [
+            {"name": path.name, "sha256": versioning.file_sha256(path)}
+            for path in versioning.source_files(dataset_cfg, source)
+        ],
+    }
 
 
 def run(context):
@@ -37,7 +52,7 @@ def run(context):
     columns = [config.TEXT_COLUMN] + aspects
     for name, rows in transformed["rows_per_split"].items():
         path = utils.write_csv(
-            rows, columns, processed_dir / "processed_{}.csv".format(name)
+            rows, columns, processed_dir / "{}.csv".format(name)
         )
         written.append([path.name, len(rows), "multi_head (văn bản + mã nhãn)"])
         row_chart_data.append([name, len(rows)])
@@ -78,17 +93,25 @@ def run(context):
     original = context.get("original_counts", {})
     final = {name: len(df) for name, df in context["splits"].items()}
 
-    config_path = cfg.get("_path")
-    try:
-        config_path_display = config_path.relative_to(config.ROOT_DIR).as_posix()
-    except (AttributeError, ValueError):
-        config_path_display = str(config_path)
-
     log_path = utils.write_json(
         {
-            "pipeline_version": cfg.get("version", "unknown"),
-            "config_file": config_path_display,
-            "config": {k: v for k, v in cfg.items() if not k.startswith("_")},
+            "schema": 1,
+            "version_id": context.get("version_id", ""),
+            "dataset": {
+                "name": dataset_cfg["name"],
+                "version": dataset_cfg.get("version"),
+                "config": utils.rel(dataset_cfg["_path"]),
+                "config_sha256": versioning.file_sha256(dataset_cfg["_path"]),
+                "sources": [_source_log(dataset_cfg, source)
+                            for source in dataset_cfg.get("_sources") or []],
+            },
+            "pipeline": {
+                "version": cfg.get("version"),
+                "config": utils.rel(cfg["_path"]),
+                "config_sha256": versioning.file_sha256(cfg["_path"]),
+                "settings": {key: value for key, value in cfg.items()
+                             if not key.startswith("_")},
+            },
             "record_counts": {
                 "before": original,
                 "after": final,

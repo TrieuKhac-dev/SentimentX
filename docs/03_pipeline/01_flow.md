@@ -118,11 +118,10 @@ Kết quả:
 | `data/processed/<mã>/train.csv` ...           | dữ liệu đã xử lý                   |
 | `data/processed/<mã>/label_map.json`                  | danh sách khía cạnh + mã nhãn      |
 | `data/processed/<mã>/processing_log.json`             | config + số liệu để truy vết       |
-| `data/processed/manifest.json`                        | mục lục mọi phiên bản đã chạy      |
 | `data/processed/<mã>/pipeline/removed_records.csv`    | danh sách dòng bị loại             |
 | `data/processed/<mã>/pipeline/quarantine_records.csv` | danh sách dòng bị cách ly          |
 
-`<mã>` là mã phiên bản (ví dụ `cosmetics-v0.1.0-b37ecfce`), được tính từ nội dung
+`<mã>` là mã phiên bản (ví dụ `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34`), được tính từ nội dung
 config và nội dung dữ liệu gốc. **Mỗi lần đổi config hoặc đổi dữ liệu sẽ ra một
 thư mục mới, nên kết quả cũ không bao giờ bị ghi đè.**
 

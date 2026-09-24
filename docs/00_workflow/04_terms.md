@@ -34,7 +34,7 @@ Nếu gặp tài liệu cũ ghi "xử lý dữ liệu" hay "tiền xử lý cho 
 
 | Tên                  | Là gì                                                                                                                                                                     | Nằm ở đâu                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| mã phiên bản dữ liệu | Chuỗi định danh một phiên bản dataset, dạng `<name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>`, ví dụ `cosmetics-ds0.3.0-pl0.2.0-src0.2.0-9c0d1e2f` | Tên thư mục `data/processed/<mã>/` và trường `data.ma` trong `run_meta.json` |
+| mã phiên bản dữ liệu | Chuỗi định danh một phiên bản dataset, dạng `<name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>`, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f` | Tên thư mục `data/processed/<mã>/` và trường `data.ma` trong `run_meta.json` |
 | `config_sha256`      | Dấu vân tay của config đã hợp nhất, cộng văn bản prompt đã hợp nhất. Đổi config hoặc đổi câu chữ prompt thì dấu vân tay đổi                                               | Trường `config_sha256` trong `run_meta.json`                                 |
 
 ## Từ khoá

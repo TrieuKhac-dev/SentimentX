@@ -26,7 +26,7 @@ Bộ tách từ (word segmentation) nằm ở một gói riêng, THAY ĐƯỢC:
     segmenters/   các bộ tách từ có thể chọn (chính chủ: VnCoreNLP/RDRSegmenter)
                   Dùng: python run_token_stats.py --segmenter <tên>
                   Xem: python run_token_stats.py --list-segmenters
-Tách từ ≠ tokenizer: đổi bộ tách từ KHÔNG làm đổi tokenizer, nên câu hỏi "tách từ có
+Tách từ KHÁC tokenizer: đổi bộ tách từ KHÔNG làm đổi tokenizer, nên câu hỏi "tách từ có
 giúp không" trả lời được bằng số đo. Hợp đồng của một bộ tách từ ở segmenters/base.py.
 
 token_stats.py là phép đo đầu tiên của tiền xử lý cho model và chỉ cần `transformers`, nên chạy

@@ -35,7 +35,7 @@ chiếu từng dòng (hạng mục "Văn bản chỉ đổi hình thức" ở St
 
 1. Bước Load giữ lại **văn bản gốc** của từng dòng (đúng thứ tự gốc).
 2. Bước Clean giữ lại **vị trí gốc** của những dòng được giữ.
-3. Bước Final Validate lấy từng dòng trong `processed_*.csv`, áp lại đúng quy tắc
+3. Bước Final Validate lấy từng dòng trong `train.csv`, `val.csv`, `test.csv`, áp lại đúng quy tắc
    chuẩn hoá (`normalize_steps` - cùng hàm mà bước Normalize dùng) lên dòng gốc
    tương ứng, rồi so **từng ký tự**.
 

@@ -28,7 +28,7 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, registry, utils, versioning
+from src import dataset, paths, registry, utils, versioning
 from src.reporting import result as result_io
 
 
@@ -57,8 +57,8 @@ def main(argv=None):
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = versioning.compute_id(ds, config.PIPELINE_CONFIG_PATH)
-    out_dir = versioning.version_dir(config.EDA_REPORT_DIR, version_id)
+    version_id = versioning.compute_id(ds)
+    out_dir = ds["_raw_dir"] / paths.pattern("eda_dir")
 
     print("Dataset: {} (cấu hình: {})".format(ds["name"], utils.rel(ds["_path"])))
     print("Đang đọc dữ liệu gốc từ: {}".format(utils.rel(ds["_raw_dir"])))
@@ -126,24 +126,13 @@ def main(argv=None):
     section_paths = result_io.write_sections(payload, out_dir)
     path = result_io.write_result(payload, result_io.result_path(out_dir, "eda"))
 
-    versioning.record({
-        "version_id": version_id,
-        "dataset": ds["name"],
-        "phase": "eda",
-        "data_version": ds.get("version"),
-        "dataset_config": utils.rel(ds["_path"]),
-        "report_dir": utils.rel(out_dir),
-        "records": "{} dòng (train+val+test)".format(
-            sum(len(df) for df in splits.values())),
-    })
-
     print("\nHoàn tất. Đã ghi file kết quả:")
     print("  - {}".format(utils.rel(path)))
     print("  - {} file JSON riêng cho từng phần: {}".format(
         len(section_paths),
         ", ".join(result_io.section_filename(index, section["id"])
                   for index, section in enumerate(payload["sections"], start=1))))
-    print("  - Mục lục  : {}".format(utils.rel(versioning.manifest_path())))
+    print("  - Thư mục : {}".format(utils.rel(out_dir)))
     print("\nBước tiếp theo - vẽ báo cáo:")
     print("  python build_report.py --phase eda")
 

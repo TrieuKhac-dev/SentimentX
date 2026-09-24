@@ -232,7 +232,7 @@ def file_name(tag=None, kind="predictions"):
 
 def write(rows, columns, version_id, tag=None, kind="predictions"):
     """Ghi bảng ra CSV theo phiên bản dữ liệu. Trả về đường dẫn file."""
-    out_dir = versioning.version_dir(config.MODEL_EVAL_REPORT_DIR, version_id)
+    out_dir = config.MODEL_EVAL_REPORT_DIR / version_id
     return utils.write_csv(rows, columns, out_dir / file_name(tag, kind))
 
 

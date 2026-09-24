@@ -29,9 +29,9 @@ Mỗi model cần một dạng input **khác nhau**:
 ```
 PROCESSED DATA (data/processed)
         |
-        ├── PhoBERT   : tách từ tiếng Việt  ->  tokenizer  ->  input_ids + attention_mask
-        ├── ViSoBERT  :                        tokenizer  ->  input_ids + attention_mask
-        └── Qwen3     : prompt chỉ dẫn      ->  chat template  ->  tokenizer
+        +-- PhoBERT   : tách từ tiếng Việt  ->  tokenizer  ->  input_ids + attention_mask
+        +-- ViSoBERT  :                        tokenizer  ->  input_ids + attention_mask
+        \-- Qwen3     : prompt chỉ dẫn      ->  chat template  ->  tokenizer
                           (nội dung prompt ở configs/prompts/<tên>.txt)
 ```
 

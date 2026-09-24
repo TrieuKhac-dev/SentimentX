@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "dataset": {
+    "name": "cosmetics",
+    "version": "v0.1.0",
+    "config": "configs/datasets/cosmetics/v0.1.0.yaml",
+    "config_sha256": "eb37ec52c6b46e627ab048fa515742fcc518d711af931587ba96598ec0644a7b",
+    "sources": [
+      {
+        "kind": "raw",
+        "name": "cosmetics",
+        "version": "v0.1.0",
+        "dir": "data/raw/cosmetics/v0.1.0",
+        "files": [
+          {
+            "name": "data_train.csv",
+            "sha256": "2da5c6359a17d03b1c55591fe21d70c4d5ca8c54157ab79fd59c93e6599943c9"
+          },
+          {
+            "name": "data_val.csv",
+            "sha256": "44eb0a11b19ecde43824e9a432c554fe134939280140d80ed135018ea60b8dcd"
+          },
+          {
+            "name": "data_test.csv",
+            "sha256": "7e8ae8632e570725ae8967c1d34bb99f8d411896f7b5cab7181ef805ca810b24"
+          },
+          {
+            "name": "full_data.csv",
+            "sha256": "3bda8deecc84d94fff526ad092cadc1dc4a4487e6d1a8c54871e53da95ec780e"
+          }
+        ]
+      }
+    ]
+  },
+  "pipeline": {
+    "version": "v0.1.0",
+    "config": "configs/pipeline/v0.1.0.yaml",
+    "config_sha256": "5562c4e8dc9a544d4e4cf0346557cbb2c68c208c6bfe10f003666bc397889261",
+    "settings": {
+      "version": "v0.1.0",
+      "parent": null,
+      "notes": "Bản đầu tiên. Bật loại nhiễu (rỗng, gibberish, quảng cáo, code), so trùng và xử lý rò rỉ train/val/test. Giữ nguyên chữ hoa và ký tự lặp vì đó là tín hiệu của người viết.\n",
+      "steps": {
+        "validate": {
+          "check_schema": true,
+          "check_content": true
+        },
+        "clean": {
+          "remove_empty": true,
+          "remove_gibberish": true,
+          "remove_ads": true,
+          "remove_code": true,
+          "deduplicate": {
+            "exact": true,
+            "normalized": true,
+            "ignore_diacritics": false,
+            "scope": "within_split",
+            "conflict_policy": "quarantine"
+          },
+          "leakage": {
+            "remove_eval_overlap": true
+          }
+        },
+        "normalize": {
+          "lowercase": false,
+          "unicode": true,
+          "whitespace": true,
+          "repeated_chars": false
+        },
+        "transform": {
+          "format": "multi_head"
+        }
+      },
+      "thresholds": {
+        "repeated_chars_max": 2
+      }
+    }
+  },
+  "record_counts": {
+    "before": {
+      "train": 12981,
+      "val": 1623,
+      "test": 1623
+    },
+    "after": {
+      "train": 12302,
+      "val": 1524,
+      "test": 1518
+    },
+    "removed_total": 883
+  },
+  "number_of_validation_issues": 0,
+  "number_of_json_records": 13213,
+  "outputs": [
+    "train.csv",
+    "val.csv",
+    "test.csv",
+    "label_map.json"
+  ]
+}

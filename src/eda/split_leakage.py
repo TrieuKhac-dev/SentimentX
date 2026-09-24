@@ -77,7 +77,7 @@ def run(context):
     # trong train). Cách đếm: lấy khoá chuẩn hoá của mọi dòng train, rồi xem mỗi
     # dòng val/test có khoá nằm trong tập đó hay không.
     # Khác với bảng "cặp split" ở trên: bảng đó đếm VĂN BẢN chung giữa hai split
-    # bất kỳ (kể cả val ↔ test), còn hai con số dưới đây đếm DÒNG của val/test
+    # bất kỳ (kể cả val và test), còn hai con số dưới đây đếm DÒNG của val/test
     # trùng với train - đúng phép mà pipeline thực hiện.
     train_keys = {_key(text)
                   for text in splits["train"][config.TEXT_COLUMN].astype(str)}

@@ -7,10 +7,9 @@
 - Cấu hình được **ghi lại nguyên vẹn** vào `processing_log.json` mỗi lần chạy, và in
   thành bảng "Cấu hình đã dùng cho lần chạy này" ở cuối báo cáo pipeline - nên luôn
   truy vết được một phiên bản dữ liệu được tạo ra bằng cấu hình nào.
-- Nếu file thiếu một khoá, `src/utils.py::load_pipeline_config` bổ sung giá trị mặc
-  định theo nguyên tắc **an toàn nhất = tắt biến đổi**; riêng
-  `steps.clean.deduplicate.ignore_diacritics` dự phòng là `false` để đúng chính sách
-  "không bỏ dấu tiếng Việt ở bất kỳ chỗ nào" của dự án.
+- Nếu file thiếu một bước bắt buộc, `src/utils.py::load_pipeline_config` **báo lỗi kèm tên
+  file**, KHÔNG tự điền giá trị mặc định: điền mặc định là che mất lỗi cấu hình, người chạy sẽ
+  tưởng một bước đã bật trong khi thực ra nó chưa từng được khai.
 - Trạng thái **đang chạy** (bảng tóm tắt) nằm ở [01_flow.md mục 3](01_flow.md). File này
   giải thích chi tiết từng khoá.
 
@@ -66,7 +65,7 @@ chưa".
 | `steps.normalize.repeated_chars`     | `false`  | rút gọn `đẹppppp` -> `đẹpp`. **Mặc định TẮT** vì ký tự lặp mang cảm xúc                                                                                                                                  |
 | thresholds.repeated_chars_max`` | `2`      | số lần ký tự được giữ lại                                                                                                                                                                               |
 
-> ⚠️ Bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
+> **Lưu ý:** bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
 > nguyên như người viết. Không có khoá nào trong file này điều khiển việc bỏ dấu /
 > viết lại teencode - đó là chủ ý, không phải thiếu sót
 > ([04_invariants.md mục 3](04_invariants.md)).
@@ -91,38 +90,40 @@ ví dụ: [05_output.md](05_output.md).
 
 ```yaml
 # Lần 1 - config A
-normalize:
-  repeated_chars: false
+steps:
+  normalize:
+    repeated_chars: false
 ```
 
 ```bash
-python run_pipeline.py      # -> data/processed/cosmetics-v0.1.0-<hash A>/
+python run_pipeline.py      # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash A>/
 ```
 
 ```yaml
 # Lần 2 - config B
-normalize:
-  repeated_chars: true
+steps:
+  normalize:
+    repeated_chars: true
 ```
 
 ```bash
-python run_pipeline.py      # -> data/processed/cosmetics-v0.1.0-<hash B>/
+python run_pipeline.py      # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash B>/
 ```
 
 Hai phiên bản dataset **cùng tồn tại**, không đè lên nhau:
 
 ```bash
-python build_report.py --list          # xem tất cả phiên bản đã chạy
+python build_report.py --list          # xem dataset và kết quả đang có trên đĩa
 ```
 
 Rồi huấn luyện model trên hai phiên bản và so kết quả. Vì mỗi phiên bản có
 `processing_log.json` ghi lại toàn bộ config, ta luôn chứng minh được sự khác biệt
 đến từ phép biến đổi nào - đúng yêu cầu của một khóa luận.
 
-> **Lưu ý thực hành:** tăng `version` trong `pipeline.yaml` (hoặc trong
+> **Lưu ý thực hành:** tạo file phiên bản mới (`configs/pipeline/<version>.yaml` hoặc
 > `configs/datasets/<name>/<version>.yaml`) khi thay đổi cấu hình quan trọng, để tên phiên bản
-> dễ đọc hơn (mã hash vẫn luôn khác nhau kể cả khi bạn quên tăng). Không cần copy
-> thư mục `data/processed/` bằng tay nữa.
+> dễ đọc hơn (mã hash vẫn luôn khác nhau kể cả khi bạn quên tăng). Không cần copy thư mục
+> `data/processed/` bằng tay nữa.
 
 Xem thêm: [04_experiments/03_training_eval.md](../04_experiments/03_training_eval.md) mục 3
 

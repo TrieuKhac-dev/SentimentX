@@ -408,6 +408,6 @@ def file_name(tag=None):
 
 def write(rows, version_id, tag=None):
     """Ghi bảng số liệu ra CSV theo phiên bản. Trả về đường dẫn file."""
-    out_dir = versioning.version_dir(config.MODEL_INPUT_REPORT_DIR, version_id)
+    out_dir = config.MODEL_INPUT_REPORT_DIR / version_id
     return utils.write_csv(rows, COLUMNS, out_dir / file_name(tag))
 

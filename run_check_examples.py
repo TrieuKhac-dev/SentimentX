@@ -285,7 +285,7 @@ def main(argv=None):
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = args.version or versioning.compute_id(ds, config.PIPELINE_CONFIG_PATH)
+    version_id = args.version or versioning.compute_id(ds)
 
     try:
         label_map = loader.load_label_map(version_id, dataset=ds["name"])

@@ -4,26 +4,26 @@
 
 ```
 configs/
-├── prompts/<tên>.txt        NỘI DUNG prompt (sửa được không cần đụng code)
-├── prompts/examples/<tên>.txt  khối ví dụ few-shot (tuỳ chọn, khi prompt dùng {examples})
-└── models/<tên>.yaml        model dùng prompt nào (mặc định: qwen.yaml)
++-- prompts/<tên>.txt        NỘI DUNG prompt (sửa được không cần đụng code)
++-- prompts/examples/<tên>.txt  khối ví dụ few-shot (tuỳ chọn, khi prompt dùng {examples})
+\-- models/<tên>.yaml        model dùng prompt nào (mặc định: qwen.yaml)
 
 src/
-├── prompts.py               nạp + KIỂM TRA file prompt (ô nhớ, dòng đánh dấu, sha)
-├── model_config.py          đọc configs/models/<tên>.yaml
-└── preprocessing/
-    ├── loader.py            ĐỌC dữ liệu đã xử lý (mọi model dùng chung)
-    ├── phobert.py           tách từ + tokenizer
-    ├── visobert.py          tokenizer (không tách từ)
-    ├── qwen.py              prompt + chat template + tokenizer
-    ├── vitasa.py            gác lại - xem [04_backlog.md](04_backlog.md) mục 1
-    ├── token_stats.py       ĐO độ dài input thật (chạy: run_token_stats.py)
-    └── segmenters/          các BỘ TÁCH TỪ có thể thay thế cho nhau
-        ├── base.py          hợp đồng của một bộ tách từ
-        ├── vncorenlp.py     RDRSegmenter - bộ CHÍNH CHỦ của PhoBERT (cần Java)
-        ├── pyvi.py          bộ legacy (dự phòng khi chưa cài được Java)
-        ├── underthesea.py   bộ bên thứ ba (đối chứng)
-        └── none.py          không tách từ (baseline)
++-- prompts.py               nạp + KIỂM TRA file prompt (ô nhớ, dòng đánh dấu, sha)
++-- model_config.py          đọc configs/models/<tên>.yaml
+\-- preprocessing/
+    +-- loader.py            ĐỌC dữ liệu đã xử lý (mọi model dùng chung)
+    +-- phobert.py           tách từ + tokenizer
+    +-- visobert.py          tokenizer (không tách từ)
+    +-- qwen.py              prompt + chat template + tokenizer
+    +-- vitasa.py            gác lại - xem [04_backlog.md](04_backlog.md) mục 1
+    +-- token_stats.py       ĐO độ dài input thật (chạy: run_token_stats.py)
+    \-- segmenters/          các BỘ TÁCH TỪ có thể thay thế cho nhau
+        +-- base.py          hợp đồng của một bộ tách từ
+        +-- vncorenlp.py     RDRSegmenter - bộ CHÍNH CHỦ của PhoBERT (cần Java)
+        +-- pyvi.py          bộ legacy (dự phòng khi chưa cài được Java)
+        +-- underthesea.py   bộ bên thứ ba (đối chứng)
+        \-- none.py          không tách từ (baseline)
 ```
 
 `loader.py` là cửa vào duy nhất: nó đọc bảng multi_head trong
@@ -51,7 +51,7 @@ python run_token_stats.py --prompt qwen_absa_v1    # đo một prompt khác mặ
 | Prompt ở file `.txt`, không phải chuỗi trong Python | Sửa/so sánh (diff) như văn bản; giữ nguyên dấu ba nháy, xuống dòng, ngoặc nhọn |
 | Tên prompt ở `configs/models/*.yaml`, **không** ở `configs/pipeline/v0.1.0.yaml` | `pipeline.yaml` được đưa vào hash để sinh **mã phiên bản dữ liệu**, nên để prompt ở đó sẽ đẻ ra mã phiên bản mới vô nghĩa cho cùng một dataset |
 | File `.txt` không chứa siêu dữ liệu | Một nguồn sự thật cho "prompt nào đang dùng"; tên file + sha được in ra và ghi vào mục lục |
-| Sai ô nhớ / thiếu `{text}` / dòng đánh dấu lạ ⇒ **lỗi ngay khi nạp** | Chạy 15.000 review bằng một prompt sai là mất một buổi; thà dừng ở giây đầu |
+| Sai ô nhớ / thiếu `{text}` / dòng đánh dấu lạ -> **lỗi ngay khi nạp** | Chạy 15.000 review bằng một prompt sai là mất một buổi; thà dừng ở giây đầu |
 
 Các ô nhớ được phép dùng: `{text}` (bắt buộc), `{aspects}`, `{label_guide}`,
 `{example}`, `{examples}`. Prompt một lượt là mặc định; prompt nhiều lượt (few-shot) dùng
@@ -65,7 +65,7 @@ theo.
 | Điều | Chi tiết |
 |------|----------|
 | File ở đâu | `configs/prompts/examples/<tên prompt>.txt` - **tên file phải trùng tên prompt**, vì đường dẫn được suy ra từ tên prompt |
-| Bắt buộc không | Không. Prompt không dùng `{examples}` thì không cần file. Prompt dùng mà thiếu file ⇒ **lỗi ngay khi nạp**, kèm đường dẫn đang mong đợi |
+| Bắt buộc không | Không. Prompt không dùng `{examples}` thì không cần file. Prompt dùng mà thiếu file -> **lỗi ngay khi nạp**, kèm đường dẫn đang mong đợi |
 | Nội dung gửi cho model | Mỗi khối `--- Ví dụ n ---` gồm câu review, chuỗi suy luận và dòng `KẾT QUẢ:` với JSON **hợp lệ** (khoá thật, mã thật) |
 | Chú thích nguồn gốc | File **được phép** mở đầu bằng các dòng `#` để ghi nguồn ví dụ (viết tay hay lấy từ split nào). Khối này bị **cắt trước khi chèn vào prompt** (xem `prompts._split_examples_note`), nên model không thấy, và sửa mỗi lời chú thích thì số token không đổi |
 | `{example}` khác `{examples}` | `{example}` = MỘT object JSON mẫu sinh tự động theo danh sách khía cạnh; `{examples}` = khối ví dụ đọc từ file |
@@ -196,7 +196,7 @@ Ba chốt an toàn đi kèm:
 | `subword / từ` | một "từ" bị chẻ thành bao nhiêu mảnh - càng cao thì input càng dài và tốn tính toán |
 
 
-Số liệu đã đo cho dataset `cosmetics` (split `train`, phiên bản `cosmetics-v0.1.0-b37ecfce`,
+Số liệu đã đo cho dataset `cosmetics` (split `train`, phiên bản `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34`,
 bộ tách từ `vncorenlp`, prompt `qwen_absa_v1`; bản đầy đủ cả 3 split nằm trong
 `token_stats.csv`. Cấu hình có thể đã đổi, hãy chạy lại lệnh trên để lấy số của phiên
 bản đang dùng):
@@ -283,7 +283,7 @@ Ba điều đọc ra từ bảng này:
    (gấp 4,1 lần). Chưa hết: model còn phải SINH phần suy luận - theo định dạng trong file
    ví dụ là khoảng 210 token cho mỗi câu trả lời (xem `configs/prompts/examples/`). Cột
    trong bảng này chỉ nói phần INPUT.
-2. **Mỗi ví dụ ≈ 287-305 token, và chi phí cộng thẳng:** 376,50 (0 ví dụ) -> 681,50 (1) ->
+2. **Mỗi ví dụ khoảng 287-305 token, và chi phí cộng thẳng:** 376,50 (0 ví dụ) -> 681,50 (1) ->
    950,50 (2). Đó là lí do "số ví dụ" là một biến thực nghiệm đáng thử: phương án 0 ví dụ rẻ
    hơn một nửa so với 2 ví dụ mà vẫn giữ phần suy luận.
 3. Prompt CoT dài nhất cần **1.195 token** ở train (val 1.102, test 1.045) nên **ngưỡng
@@ -353,8 +353,8 @@ terminal đang mở sẽ chưa thấy `JAVA_HOME` mới; dự án tự tìm JDK 
 ## 6. Đưa dữ liệu vào model
 
 Mọi model đọc **cùng một nguồn**: `data/processed/<mã>/`. Thư viện
-`src/preprocessing/loader.py` tự tìm phiên bản mới nhất (theo
-`data/processed/manifest.json`), hoặc bạn chỉ định rõ mã phiên bản:
+`src/preprocessing/loader.py` tự tìm phiên bản mới nhất trên đĩa (thư mục mới nhất
+trong `data/processed/`), hoặc bạn chỉ định rõ mã phiên bản:
 
 ```python
 from src.preprocessing import loader
@@ -364,7 +364,7 @@ texts, labels = loader.to_multi_head_arrays(loader.load_processed("train"))
 
 # Một phiên bản cụ thể (để đối chiếu kết quả giữa các cấu hình)
 texts_b, labels_b = loader.to_multi_head_arrays(
-    loader.load_processed("train", version_id="cosmetics-v0.1.0-3e7b7157")
+    loader.load_processed("train", version_id="cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34")
 )
 
 # Cho model sinh (Qwen3; ViTASA khi có checkpoint)

@@ -1,39 +1,39 @@
 # -*- coding: utf-8 -*-
-"""Mã phiên bản cho mỗi lần chạy - để kết quả cũ KHÔNG bị ghi đè.
+"""Mã phiên bản dữ liệu và đường dẫn kết quả của một phiên bản.
 
-MÃ PHIÊN BẢN (version_id) ĐƯỢC TÍNH TỪ
----
-    nội dung file cấu hình dataset  (configs/datasets/<tên>.yaml)
-  + nội dung file cấu hình pipeline (configs/pipeline.yaml)
-  + nội dung TẤT CẢ file dữ liệu gốc (data/raw/<tên>/**)
+MÃ PHIÊN BẢN
+    <name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>
 
-Kết quả là một chuỗi dạng:  cosmetics-v0.1.0-1a2b3c4d
+Ví dụ: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-3f9a1c2d
 
-Ý nghĩa:
-    - Cùng dữ liệu + cùng config  -> cùng mã -> chạy lại cho ra đúng kết quả cũ.
-    - Đổi config (ví dụ bật repeated_chars) -> mã KHÁC -> phiên bản mới,
-      kết quả cũ vẫn còn nguyên để so sánh.
-    - Đổi dữ liệu gốc -> mã KHÁC (vì nội dung file gốc cũng được đưa vào hash).
+    ds<version>             phiên bản dataset, lấy từ file cấu hình dataset
+    pl<pipeline_version>    phiên bản pipeline dùng để tạo dataset
+    src<nguồn>@<phiên bản>  từng nguồn; nhiều nguồn thì nối bằng dấu +
+    <hash8>                 8 ký tự đầu của băm: nội dung hai file cấu hình và nội dung mọi
+                            file dữ liệu của các nguồn
 
-CÂY THƯ MỤC KẾT QUẢ
----
-    data/processed/versions/<mã>/processed_train.csv, label_map.json, processing_log.json, ...
-    data/reports/eda/versions/<mã>/eda_result.json, report.html, ...
-    data/reports/pipeline/versions/<mã>/pipeline_result.json, report.html, ...
-    data/processed/manifest.json      <- mục lục của mọi phiên bản đã chạy
+VÌ SAO BĂM CẢ NỘI DUNG FILE
+Cùng đường dẫn nhưng khác nội dung là hai bộ dữ liệu khác nhau, nên phải ra hai mã khác nhau.
+Nhờ vậy chạy lại cùng cấu hình và cùng dữ liệu cho ra đúng kết quả cũ, còn đổi cấu hình hoặc đổi
+dữ liệu thì kết quả cũ vẫn còn nguyên để so sánh.
+
+CÂY KẾT QUẢ CỦA MỘT PHIÊN BẢN
+    data/processed/<mã>/train.csv, val.csv, test.csv, label_map.json, processing_log.json
+    data/processed/<mã>/pipeline/   báo cáo của lần chạy pipeline
+    data/raw/<name>/<raw_version>/eda/ hoặc data/processed/<mã>/eda/   kết quả EDA
 """
 
 import hashlib
 import json
-from datetime import datetime
 from pathlib import Path
 
-from src import config, utils
-
-MANIFEST_SCHEMA = 1
+from src import paths, utils
 
 # Số ký tự hash dùng trong mã phiên bản (đủ để không trùng trên thực tế)
 HASH_LENGTH = 8
+
+# Tên ba file dữ liệu của một dataset đã xử lý. Dùng khi một nguồn là dataset khác.
+DATASET_FILES = ("train.csv", "val.csv", "test.csv")
 
 
 # ---
@@ -42,28 +42,62 @@ HASH_LENGTH = 8
 
 
 def compute_id(dataset_cfg, pipeline_cfg=None):
-    """Tính mã phiên bản từ config + nội dung dữ liệu gốc.
+    """Tính mã phiên bản từ cấu hình và nội dung dữ liệu của các nguồn.
 
-    `pipeline_cfg` có thể là dict cấu hình pipeline hoặc đường dẫn file.
+    Không truyền `pipeline_cfg` thì nạp file pipeline ghi ở `pipeline_version` của dataset.
     """
-    digest = hashlib.sha1()
+    if pipeline_cfg is None:
+        pipeline_cfg = utils.load_pipeline_config(dataset_cfg.get("pipeline_version"))
 
+    digest = hashlib.sha1()
     digest.update(b"dataset:")
     digest.update(_file_bytes(dataset_cfg.get("_path")))
-
     digest.update(b"pipeline:")
     digest.update(_file_bytes(_config_path(pipeline_cfg)))
-
-    digest.update(b"raw:")
-    for path in sorted(Path(dataset_cfg["_raw_dir"]).rglob("*")):
-        if path.is_file():
-            name = path.relative_to(dataset_cfg["_raw_dir"]).as_posix()
+    digest.update(b"sources:")
+    for source in dataset_cfg.get("_sources") or []:
+        for path in source_files(dataset_cfg, source):
+            name = path.relative_to(source["dir"]).as_posix()
             digest.update(name.encode("utf-8"))
             digest.update(path.read_bytes())
 
-    name = str(dataset_cfg.get("name", "dataset"))
-    data_version = str(dataset_cfg.get("version", "0.0.0"))
-    return "{}-v{}-{}".format(name, data_version, digest.hexdigest()[:HASH_LENGTH])
+    sources = "+".join(
+        "{}@{}".format(source.get("name"), _label(source.get("version")))
+        for source in dataset_cfg.get("_sources") or []
+    )
+    return "{}-ds{}-pl{}-src{}-{}".format(
+        dataset_cfg.get("name", "dataset"),
+        _label(dataset_cfg.get("version")),
+        _label(dataset_cfg.get("pipeline_version")),
+        sources or "khong_nguon",
+        digest.hexdigest()[:HASH_LENGTH],
+    )
+
+
+def _label(value):
+    """Bỏ chữ 'v' ở đầu nhãn phiên bản cho gọn trong mã."""
+    text = str(value or "")
+    return text[1:] if text.startswith("v") else text
+
+
+def source_files(dataset_cfg, source):
+    """Các file dữ liệu của một nguồn, theo thứ tự tên.
+
+    Nguồn `raw` chỉ lấy đúng file khai trong `splits` và `full`, không lấy cả thư mục: trong
+    thư mục còn `raw_meta.yaml` và kết quả EDA, không phải dữ liệu.
+    """
+    if source.get("kind") == "dataset":
+        names = list(DATASET_FILES)
+    else:
+        names = list((dataset_cfg.get("splits") or {}).values())
+        if dataset_cfg.get("full"):
+            names.append(dataset_cfg["full"])
+    files = []
+    for name in names:
+        path = Path(source["dir"]) / str(name)
+        if path.exists():
+            files.append(path)
+    return files
 
 
 def _config_path(value):
@@ -88,154 +122,58 @@ def _file_bytes(path):
 # ---
 
 
-def versions_dir(base):
-    """Thư mục chứa tất cả phiên bản của một loại kết quả."""
-    return Path(base) / "versions"
+def processed_dir(version_id):
+    """Thư mục dataset của một phiên bản: `data/processed/<mã>/`."""
+    if not version_id:
+        raise ValueError("Thiếu mã phiên bản dữ liệu.")
+    return paths.processed(version_id)
 
 
-def version_dir(base, version_id):
-    """Thư mục kết quả của MỘT phiên bản (tự tạo khi cần)."""
-    return versions_dir(base) / version_id
+def pipeline_report_dir(version_id):
+    """Thư mục báo cáo pipeline, nằm trong thư mục dataset."""
+    return processed_dir(version_id) / paths.pattern("pipeline_dir")
 
 
-def latest_version(base, dataset=None):
-    """Mã phiên bản mới nhất có thư mục trong `base` (lọc theo dataset nếu có)."""
-    directory = versions_dir(base)
-    if not directory.is_dir():
-        return None
-    candidates = [
-        path for path in directory.iterdir()
-        if path.is_dir() and (dataset is None or path.name.startswith(dataset + "-"))
-    ]
-    if not candidates:
-        return None
-    return max(candidates, key=lambda path: path.stat().st_mtime).name
+def processing_log_path(version_id):
+    return processed_dir(version_id) / paths.pattern("processing_log")
 
 
-# ---
-# Mục lục các lần chạy (manifest)
-# ---
-
-
-def manifest_path():
-    return config.PROCESSED_DIR / "manifest.json"
-
-
-def read_manifest():
-    """Đọc mục lục. Trả về dict rỗng nếu chưa có lần chạy nào."""
-    path = manifest_path()
+def read_processing_log(version_id):
+    """Đọc `processing_log.json` của một phiên bản; trả về dict rỗng nếu chưa có."""
+    path = processing_log_path(version_id)
     if not path.exists():
-        return {"schema": MANIFEST_SCHEMA, "entries": []}
+        return {}
     with open(path, "r", encoding="utf-8") as handle:
-        manifest = json.load(handle)
-    manifest.setdefault("entries", [])
-    return manifest
+        return json.load(handle) or {}
 
 
-def prune_missing(manifest=None):
-    """Bỏ khỏi mục lục những dòng trỏ tới file báo cáo KHÔNG CÒN TỒN TẠI.
-
-    Vì sao cần: `record()` ghi dòng mới mà không kiểm file có thật hay không, nên xoá tay
-    một file báo cáo (ví dụ dọn các lần chạy thử vài mẫu) để lại dòng mục lục trỏ vào khoảng
-    không. Người đọc mục lục sẽ tưởng số liệu đó vẫn tra được - đúng loại dấu vết sai cần
-    tránh. Chạy lại hàm này cũng là cách dọn định kỳ.
-    """
-    manifest = manifest or read_manifest()
-    kept, dropped = [], []
-    for entry in manifest["entries"]:
-        report = entry.get("report")
-        # Các nhóm cũ (EDA, pipeline) không truyền `report` -> giữ nguyên, không suy diễn.
-        if report and not (config.ROOT_DIR / report).exists():
-            dropped.append(report)
-        else:
-            kept.append(entry)
-    manifest["entries"] = kept
-    if dropped:
-        utils.write_json(manifest, manifest_path())
-    return dropped
-
-
-def record(entry):
-    """Ghi một lần chạy vào mục lục.
-
-    Khoá là bộ (mã phiên bản, nhóm, FILE BÁO CÁO): chạy lại cùng config và cùng dữ
-    liệu sẽ THAY THẾ dòng cũ thay vì sinh thêm dòng trùng.
-
-    Vì sao khoá có cả file báo cáo: cùng một phiên bản dữ liệu có thể có NHIỀU lần đo
-    (ví dụ `--prompt X` và `--segmenter Y` ghi ra file riêng để không ghi đè nhau).
-    Nếu khoá chỉ có (mã phiên bản, nhóm) thì lần đo sau sẽ xoá dấu vết của lần trước -
-    mục lục nói một đằng, thư mục phiên bản có nhiều file một nẻo. Các nhóm cũ (EDA,
-    pipeline) không truyền `report` nên khoá của chúng vẫn như trước.
-    """
-
-    def _same_run(existing):
-        return (existing.get("version_id") == entry.get("version_id")
-                and existing.get("phase") == entry.get("phase")
-                and existing.get("report") == entry.get("report"))
-
-    manifest = read_manifest()
-    entry = dict(entry)
-    entry.setdefault("created_at", datetime.now().strftime("%d/%m/%Y %H:%M"))
-
-    entries = [existing for existing in manifest["entries"] if not _same_run(existing)]
-    entries.append(entry)
-    manifest["entries"] = entries
-    manifest["updated_at"] = entry["created_at"]
-
-    # Dọn luôn các dòng trỏ tới file đã bị xoá (xem `prune_missing`) - nhờ vậy mục lục không
-    # tích tụ dấu vết trỏ vào khoảng không qua các lần dọn thư mục báo cáo.
-    # LƯU Ý: hàm này sửa `manifest` TẠI CHỖ và trả về danh sách dòng đã bỏ; đừng gán lại giá
-    # trị trả về (đã từng viết `... and manifest["entries"]`, và khi không có gì bị dọn thì
-    # biểu thức đó trả về [] - xoá sạch mục lục).
-    prune_missing(manifest)
-
-    utils.write_json(manifest, manifest_path())
-    return manifest_path()
-
-
-def entries(dataset=None, phase=None):
-    """Các lần chạy trong mục lục, lọc theo dataset và/hoặc nhóm báo cáo."""
-    return [
-        entry for entry in read_manifest()["entries"]
-        if (dataset is None or entry.get("dataset") == dataset)
-        and (phase is None or entry.get("phase") == phase)
+def dataset_dirs():
+    """Các phiên bản dataset đang có trên đĩa, mới nhất trước theo thời gian sửa."""
+    root = paths.data("processed")
+    if not root.is_dir():
+        return []
+    found = [
+        path for path in root.iterdir()
+        if path.is_dir() and not path.name.startswith(".")
     ]
+    return sorted(found, key=lambda path: path.stat().st_mtime, reverse=True)
 
 
-def latest_entry(dataset=None, phase=None):
-    """Lần chạy mới nhất trong mục lục."""
-    matches = entries(dataset=dataset, phase=phase)
-    return matches[-1] if matches else None
+def latest_dataset(dataset=None):
+    """Mã phiên bản dataset mới nhất trên đĩa; lọc theo tên dataset nếu có."""
+    for path in dataset_dirs():
+        if dataset is None or path.name.startswith(str(dataset) + "-ds"):
+            return path.name
+    return None
 
 
-def processed_dir(version_id=None, dataset=None):
-    """Thư mục chứa dữ liệu đã xử lý của một phiên bản.
-
-    Không truyền gì -> lấy phiên bản mới nhất của dataset trong mục lục.
-    Báo lỗi rõ ràng nếu chưa có lần chạy nào.
-    """
-    if not version_id:
-        entry = latest_entry(dataset=dataset, phase="pipeline")
-        version_id = entry["version_id"] if entry else latest_version(
-            config.PROCESSED_DIR, dataset=dataset)
-
-    if not version_id:
-        raise FileNotFoundError(
-            "Chưa có phiên bản dữ liệu nào trong {}. Hãy chạy "
-            "'python run_pipeline.py' trước.".format(
-                utils.rel(config.PROCESSED_DIR))
-        )
-    return version_dir(config.PROCESSED_DIR, version_id)
+def file_sha256(path):
+    """sha256 của một file. Dùng cho guard bất biến và cho `eval_lock`."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
-def summary_rows(limit=20):
-    """Vài dòng mô tả các phiên bản gần nhất, để in ra console."""
-    return [
-        [
-            entry.get("version_id", "?"),
-            entry.get("phase", "?"),
-            entry.get("created_at", "?"),
-            entry.get("records", ""),
-        ]
-        for entry in read_manifest()["entries"][-limit:]
-    ]
+

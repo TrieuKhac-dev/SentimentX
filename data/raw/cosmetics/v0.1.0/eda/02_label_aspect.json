@@ -1,0 +1,328 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "generated_at": "24/09/2026 16:51",
+  "section": {
+    "id": "label_aspect",
+    "title": "EDA 02 - Nhãn và khía cạnh",
+    "cards": [
+      {
+        "label": "Số khía cạnh",
+        "value": 7
+      },
+      {
+        "label": "Số dòng không có nhãn khía cạnh nào (3 split)",
+        "value": "2884"
+      },
+      {
+        "label": "Số nhãn không hợp lệ (3 split)",
+        "value": 0
+      }
+    ],
+    "charts": [
+      {
+        "title": "Phân bố nhãn trong số review có nhắc khía cạnh - mỗi split một khung (%)",
+        "kind": "stacked_grid",
+        "barnorm": "percent",
+        "x": [
+          "stayingpower",
+          "texture",
+          "smell",
+          "price",
+          "colour",
+          "shipping",
+          "packing"
+        ],
+        "series_order": [
+          "positive",
+          "negative",
+          "neutral"
+        ],
+        "facets": [
+          {
+            "title": "train",
+            "series": {
+              "positive": [
+                1237,
+                2880,
+                1851,
+                2598,
+                5045,
+                2741,
+                2342
+              ],
+              "negative": [
+                754,
+                636,
+                340,
+                15,
+                555,
+                1330,
+                85
+              ],
+              "neutral": [
+                247,
+                428,
+                101,
+                22,
+                438,
+                280,
+                15
+              ]
+            }
+          },
+          {
+            "title": "val",
+            "series": {
+              "positive": [
+                143,
+                319,
+                238,
+                319,
+                648,
+                360,
+                309
+              ],
+              "negative": [
+                90,
+                77,
+                52,
+                0,
+                53,
+                188,
+                6
+              ],
+              "neutral": [
+                31,
+                54,
+                13,
+                4,
+                53,
+                36,
+                1
+              ]
+            }
+          },
+          {
+            "title": "test",
+            "series": {
+              "positive": [
+                141,
+                346,
+                252,
+                321,
+                622,
+                334,
+                282
+              ],
+              "negative": [
+                96,
+                83,
+                48,
+                6,
+                54,
+                174,
+                10
+              ],
+              "neutral": [
+                40,
+                64,
+                16,
+                1,
+                51,
+                26,
+                2
+              ]
+            }
+          }
+        ],
+        "y_label": "tỉ lệ % số review nhắc khía cạnh đó",
+        "height": 470
+      },
+      {
+        "title": "Tỉ lệ review nhắc tới từng khía cạnh theo split (%)",
+        "kind": "grouped_bar",
+        "x": [
+          "stayingpower",
+          "texture",
+          "smell",
+          "price",
+          "colour",
+          "shipping",
+          "packing"
+        ],
+        "series": {
+          "train": [
+            17.24,
+            30.38,
+            17.66,
+            20.3,
+            46.51,
+            33.52,
+            18.81
+          ],
+          "val": [
+            16.27,
+            27.73,
+            18.67,
+            19.9,
+            46.46,
+            35.98,
+            19.47
+          ],
+          "test": [
+            17.07,
+            30.38,
+            19.47,
+            20.21,
+            44.79,
+            32.9,
+            18.11
+          ]
+        },
+        "y_label": "tỉ lệ % số review của split"
+      },
+      {
+        "title": "Số khía cạnh được nhắc trong một review - chỉ tính review có nhắc ít nhất 1 khía cạnh (%)",
+        "kind": "grouped_bar",
+        "x": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "series": {
+          "train": [
+            27.59,
+            35.63,
+            24.87,
+            9.26,
+            2.28,
+            0.34,
+            0.04
+          ],
+          "val": [
+            29.73,
+            33.88,
+            24.48,
+            9.54,
+            1.85,
+            0.52,
+            0.0
+          ],
+          "test": [
+            26.77,
+            35.7,
+            25.32,
+            9.38,
+            2.21,
+            0.53,
+            0.08
+          ]
+        },
+        "x_label": "số khía cạnh được nhắc",
+        "y_label": "tỉ lệ % số review có nhãn khía cạnh"
+      },
+      {
+        "title": "Số review nhắc tới cả hai khía cạnh (3 split)",
+        "kind": "heatmap",
+        "x": [
+          "stayingpower",
+          "texture",
+          "smell",
+          "price",
+          "colour",
+          "shipping",
+          "packing"
+        ],
+        "y": [
+          "stayingpower",
+          "texture",
+          "smell",
+          "price",
+          "colour",
+          "shipping",
+          "packing"
+        ],
+        "z": [
+          [
+            2779,
+            1767,
+            665,
+            638,
+            1727,
+            775,
+            340
+          ],
+          [
+            1767,
+            4887,
+            1366,
+            1195,
+            2947,
+            1347,
+            662
+          ],
+          [
+            665,
+            1366,
+            2911,
+            689,
+            1747,
+            904,
+            455
+          ],
+          [
+            638,
+            1195,
+            689,
+            3286,
+            1683,
+            1125,
+            507
+          ],
+          [
+            1727,
+            2947,
+            1747,
+            1683,
+            7519,
+            2416,
+            1233
+          ],
+          [
+            775,
+            1347,
+            904,
+            1125,
+            2416,
+            5469,
+            1771
+          ],
+          [
+            340,
+            662,
+            455,
+            507,
+            1233,
+            1771,
+            3052
+          ]
+        ],
+        "height": 460
+      }
+    ],
+    "tables": [],
+    "files": [
+      "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_distribution.csv",
+      "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_per_review.csv",
+      "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_cooccurrence.csv",
+      "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_invalid.csv"
+    ]
+  }
+}

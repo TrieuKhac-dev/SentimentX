@@ -36,7 +36,7 @@
 13. Resume chỉ hợp lệ khi ba giá trị sau **đều không đổi**. Cả ba đều nằm trong
     `results/<mã>/run_meta.json`:
     - `config_sha256`: dấu vân tay của config đã hợp nhất và văn bản prompt đã hợp nhất.
-    - `data.ma`: mã phiên bản dữ liệu, ví dụ `cosmetics-ds0.3.0-pl0.2.0-src0.2.0-9c0d1e2f`.
+    - `data.ma`: mã phiên bản dữ liệu, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f`.
     - `repo.sha`: commit đã ghim trong notebook.
 14. Code đổi thì **không resume**: chạy lại từ đầu và ghi thành một `attempt` mới.
 

@@ -34,12 +34,17 @@ def _require(path):
 
 
 def data_dir(version_id=None, dataset=None):
-    """Thư mục dữ liệu đã xử lý.
+    """Thư mục dữ liệu đã xử lý của một phiên bản.
 
-    Không truyền gì -> lấy phiên bản mới nhất của dataset trong mục lục
-    (data/processed/manifest.json).
+    Không truyền gì thì lấy phiên bản dataset mới nhất đang có trên đĩa.
     """
-    return versioning.processed_dir(version_id=version_id, dataset=dataset)
+    version_id = version_id or versioning.latest_dataset(dataset)
+    if not version_id:
+        raise FileNotFoundError(
+            "Chưa có dataset nào trong {}. Hãy chạy 'python run_pipeline.py' trước.".format(
+                utils.rel(config.PROCESSED_DIR))
+        )
+    return versioning.processed_dir(version_id)
 
 
 def load_label_map(version_id=None, dataset=None):
@@ -56,7 +61,7 @@ def known_aspects(version_id=None, dataset=None):
 
 def load_processed(split="train", version_id=None, dataset=None):
     """Đọc bảng multi_head đã xử lý: cột văn bản + các cột aspect chứa mã nhãn."""
-    path = data_dir(version_id, dataset) / "processed_{}.csv".format(split)
+    path = data_dir(version_id, dataset) / "{}.csv".format(split)
     return utils.read_csv(_require(path))
 
 

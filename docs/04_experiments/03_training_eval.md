@@ -150,7 +150,7 @@ Bốn điều đọc ra từ bảng này:
 
 1. **CoT KHÔNG thắng rõ.** Bốn cấu hình nằm trong khoảng 89,29-91,43 điểm acc macro. Với
    100 review × 7 khía cạnh = 700 ô, mỗi ô đúng/sai làm acc macro đổi ~0,14 điểm, nên chênh
-   lệch lớn nhất (2,14 điểm ≈ 15 ô) là **quá nhỏ để kết luận**. Nói "CoT tốt hơn" từ bảng
+   lệch lớn nhất (2,14 điểm khoảng 15 ô) là **quá nhỏ để kết luận**. Nói "CoT tốt hơn" từ bảng
    này là nói quá.
 2. **Chi phí thì khác hẳn.** CoT sinh 217-233 token/review so với **46** của prompt một lượt
    (gấp 4,7-5,1 lần), cộng thêm input gấp 1,6-4,2 lần, và tốn 5,4-7,1 lần thời gian (104 s

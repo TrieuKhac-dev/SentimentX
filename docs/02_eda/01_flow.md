@@ -118,7 +118,7 @@ Cách mở báo cáo cũ, hoặc danh sách phiên bản đã chạy:
 
 ```bash
 python build_report.py --list                       # xem mọi phiên bản
-python build_report.py --version cosmetics-v0.1.0-b37ecfce --phase eda
+python build_report.py --version cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34 --phase eda
 ```
 
 > Mã phiên bản đổi mỗi khi **config hoặc dữ liệu gốc** đổi (mã hash tính từ cả
@@ -131,7 +131,7 @@ Nếu gõ sai tên dataset, `run_eda.py` dừng ngay với dòng `LỖI: ...` k�
 ## 5. EDA liên hệ với Pipeline như thế nào
 
 ```
-EDA  ──►  phát hiện vấn đề  ──►  quyết định policy  ──►  DATA PIPELINE
+EDA  ->  phát hiện vấn đề  ->  quyết định policy  ->  DATA PIPELINE
 ```
 
 Ví dụ cụ thể:
@@ -146,7 +146,7 @@ Ví dụ cụ thể:
 | 1 dòng có dấu hiệu code / HTML trong train (1 trên 3 split)                   | Bật `remove_code: true` (loại 1 dòng)                                                                                    |
 | 3604 dòng có ký tự lặp trong train                                            | `repeated_chars: false` (giữ, vì mang cảm xúc) - bật chỉ để thực nghiệm                                                  |
 | **68 dòng val/test trùng train (91 theo khoá so trùng)**                      | Bật `steps.clean.leakage.remove_eval_overlap: true`                                                                            |
-| 2884 dòng không có nhãn khía cạnh nào (3 split)                               | Giữ lại trong `processed_*.csv` nhưng không sinh bản ghi ABSA                                                            |
+| 2884 dòng không có nhãn khía cạnh nào (3 split)                               | Giữ lại trong `train.csv`, `val.csv`, `test.csv` nhưng không sinh bản ghi ABSA                                                            |
 | Teencode / từ lạ: token hay gặp nhất là `k`, `mn`, `đc`, `mng`, `sp`, `vs`... | **Không thay** - giữ nguyên văn bản gốc, chỉ ghi nhận để phân tích                                                       |
 
 > Hai con số ở dòng "rò rỉ dữ liệu" và dòng ở pipeline (84 dòng bị loại) **không
@@ -172,7 +172,7 @@ Pipeline chỉ giữ lại những gì **thực sự làm thay đổi dữ liệ
 Có thể hình dung sai thành:
 
 ```
-Raw -> EDA -> Pipeline -> EDA   ← cách này rối
+Raw -> EDA -> Pipeline -> EDA   <- cách này rối
 ```
 
 Cách đúng là **ba nhóm việc độc lập**:
