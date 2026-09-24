@@ -156,3 +156,5 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Preflight báo thiếu `bitsandbytes` kể cả khi máy thiếu `torch` (đây là nguyên nhân CI đỏ) | `fix(preflight): name the missing pieces even when torch itself is missing` |
 | Cây Drive trong tài liệu khớp gói bàn giao: thêm `README.md`, `notebooks/<model>/<method>/expNNN.ipynb`, `processing_log.json`, `raw_meta.yaml`, và cảnh báo hai khoá gốc trong `.env.colab` | `docs(workflow): the Drive tree is the one the package carries` |
 | Ghi lại cây mới của gói bàn giao (16 file) và vì sao phải ghim lại | `docs(plan): record the handover layout` |
+| Đọc tệp env chịu được BOM, và ghi tệp env gửi kèm bằng UTF-8 có BOM (chữ tiếng Việt trong tệp cũ đã bị hỏng do vòng `Get-Content`/`Set-Content` của PowerShell 5.1) | `fix(runtime): read env files tolerantly of a byte order mark` + `docs(workflow): the shipped env file carries a BOM, and say why` |
+| Ghim lại `exp001` (bản code đọc env an toàn với BOM) | `chore(experiments): pin d9a705f so the handover reads its env file safely` |
