@@ -35,6 +35,8 @@ SHARED = ("repo", "task", "evaluation", "training", "tracking")
 # Nhãn lớp dùng trong `sources` và trong bảng ghi đè.
 MODEL_LAYER = "model"
 EXPERIMENT_LAYER = "experiment"
+# Khối `task` của model được áp SAU tất cả các lớp, nên có nhãn riêng.
+MODEL_TASK_LAYER = "model.task"
 
 
 class ExperimentError(Exception):
@@ -77,6 +79,12 @@ def load(model_id, method, exp_id):
         data = _read(label, path, model_id)
         _merge_into(config, history, sources, data, label)
 
+    # Khối `task` của model là RÀNG BUỘC của model ("model này chỉ làm 2 nhãn"), nên áp SAU cùng
+    # chứ không theo thứ tự lớp: `configs/experiments/task.yaml` không ghi đè được nó.
+    task_override = model_config.task_override(model_id)
+    if task_override:
+        _merge_into(config, history, sources, task_override, MODEL_TASK_LAYER)
+
     return {
         "model_id": model_id,
         "method": method,
@@ -91,9 +99,15 @@ def load(model_id, method, exp_id):
 
 
 def _read(label, path, model_id):
-    """Nội dung một lớp. Riêng lớp model đi qua `model_config` để được kiểm tra đầy đủ."""
+    """Nội dung một lớp. Riêng lớp model đi qua `model_config` để được kiểm tra đầy đủ.
+
+    Khối `task` của lớp model KHÔNG được trả về ở đây: nó là ràng buộc của model nên phải áp
+    SAU tất cả các lớp (xem `load` và docs/05_config/04_models.md).
+    """
     if label == MODEL_LAYER:
-        return model_config.load(model_id)
+        data = dict(model_config.load(model_id))
+        data.pop("task", None)
+        return data
     if not path.exists():
         raise ExperimentError(
             "Thiếu file cấu hình của lớp '{}': {}.".format(label, utils.rel(path)))
@@ -109,20 +123,33 @@ def _merge_into(target, history, sources, data, label, prefix=""):
     """Đè `data` lên `target`, ghi lại lịch sử giá trị của từng khoá lá.
 
     Khoá bắt đầu bằng `_` bị bỏ qua: đó là khoá nội bộ của module đọc file (ví dụ `_path`).
+
+    Đổi KIỂU ở cùng một khoá (giá trị vô hướng thành nhóm khoá, hoặc ngược lại) là LỖI, không
+    phải ghi đè: hầu như luôn là hai lớp vô tình dùng trùng tên, và lớp sau sẽ xoá mất dữ liệu
+    của lớp trước mà không ai biết. Đã gặp thật: `checkpoint` (tên model trên Hugging Face ở
+    lớp model) trùng với nhóm `checkpoint` của chính sách lưu.
     """
     for key, value in data.items():
         if str(key).startswith("_"):
             continue
-        name = "{}.{}".format(prefix, key) if prefix else str(key)
+        name = _key(prefix, key)
+        node = target.get(key)
         if isinstance(value, dict):
-            node = target.get(key)
-            # Lớp trước có thể đã đặt giá trị vô hướng ở đúng khoá này: thay bằng nhóm khoá mới
-            # thay vì báo lỗi, vì hợp nhất chỉ có nghĩa "lớp sau thắng".
-            if not isinstance(node, dict):
+            if node is not None and not isinstance(node, dict):
+                raise ExperimentError(
+                    "Lớp '{}' khai nhóm khoá '{}' nhưng lớp trước đã đặt nó là giá trị {!r}. "
+                    "Đây là hai lớp trùng tên khoá, không phải ghi đè.".format(
+                        label, name, node))
+            if node is None:
                 node = {}
                 target[key] = node
             _merge_into(node, history, sources, value, label, name)
         else:
+            if isinstance(node, dict):
+                raise ExperimentError(
+                    "Lớp '{}' đặt giá trị {!r} cho khoá '{}' nhưng lớp trước đã khai nó là một "
+                    "nhóm khoá. Đây là hai lớp trùng tên khoá, không phải ghi đè.".format(
+                        label, value, name))
             target[key] = value
             history.setdefault(name, []).append((label, value))
             sources[name] = label
@@ -306,3 +333,123 @@ def _read_prompt_file(path, label):
             "{} thiếu ô nhớ {{text}}, nên prompt không dùng được cho review nào.".format(
                 utils.rel(path)))
     return text
+
+
+# ---
+# Kiểm tra cấu hình đã hợp nhất
+# ---
+
+# Khoá hợp lệ trong cấu hình đã hợp nhất (đường dẫn dạng dấu chấm). Danh sách này là HỢP ĐỒNG:
+# khoá không có ở đây nghĩa là gõ sai tên khoá, hoặc ghi sai đường dẫn (ví dụ `evaluation: {n: 200}`
+# tạo khoá `evaluation.n` mà không chỗ nào đọc, trong khi `n` vẫn giữ giá trị cũ).
+KNOWN_KEYS = (
+    # lớp model
+    "model_id", "checkpoint", "config_version",
+    "preprocess.max_length", "preprocess.add_generation_prompt", "preprocess.segmenter",
+    "inference.dtype", "inference.quantization", "inference.batch_size",
+    # lớp repo
+    "url", "branch", "allowed_branches",
+    # lớp task (task.yaml, và cùng tên đó khi model ghi đè)
+    "label_space", "neutral_policy", "not_mentioned", "aspects",
+    # lớp evaluation
+    "n", "decoding.mode", "decoding.temperature", "decoding.top_p",
+    "scores", "group_by",
+    "save.predictions", "save.plots", "save.confusion",
+    # lớp training
+    "enabled",
+    "lora.r", "lora.alpha", "lora.dropout", "lora.target_modules",
+    "lr", "batch", "epochs", "grad_accum", "weight_decay",
+    "checkpoints.every_n_steps", "checkpoints.keep_last_k", "checkpoints.save_last",
+    "checkpoints.save_best", "checkpoints.delete_intermediate",
+    # lớp tracking
+    "tracker", "experiment", "artifacts",
+    # lớp config thí nghiệm
+    "exp_id", "parent", "model", "method",
+    "data.dataset", "data.version",
+    "prompt", "examples", "system_prompt", "requires_extra",
+)
+
+# Nhóm khoá mà tên con do người dùng đặt, không kiểm được.
+FREE_GROUPS = ("mlflow_tags",)
+
+# Vai bắt buộc của một thí nghiệm, và vai bắt buộc khi có huấn luyện.
+ALWAYS_ROLES = ("eval",)
+TRAINING_ROLES = ("train", "val")
+ALL_ROLES = ("train", "val", "eval")
+
+
+def check(result, dataset_cfg=None):
+    """Kiểm tra cấu hình đã hợp nhất. Báo lỗi MỘT LẦN với đầy đủ các vấn đề tìm được.
+
+    Bốn lỗi im lặng cần chặn:
+        1. Khoá lạ: gõ sai tên, hoặc ghi sai đường dẫn nên giá trị không có tác dụng.
+        2. Thiếu `data.roles`: vai nào dùng split nào phải khai rõ, không kế thừa.
+        3. `data.dataset` không phải một dataset duy nhất.
+        4. Vai trỏ vào split không có trong file phiên bản dataset, hoặc `eval` trỏ vào `train`
+           (rò rỉ dữ liệu).
+    """
+    config = result["config"] or {}
+    data = config.get("data") or {}
+    problems = []
+
+    for name in sorted(flatten(config)):
+        if name in KNOWN_KEYS or name.split(".")[0] in FREE_GROUPS:
+            continue
+        # Vai dùng split nào: tên vai cố định, nên `data.roles.trian` vẫn bị bắt là khoá lạ.
+        if name.startswith("data.roles.") and name[len("data.roles."):] in ALL_ROLES:
+            continue
+        problems.append("khoá lạ '{}' (không nhóm nào đọc khoá này)".format(name))
+
+    dataset = data.get("dataset")
+    if not dataset:
+        problems.append("thiếu 'data.dataset'")
+    elif not isinstance(dataset, str):
+        problems.append(
+            "'data.dataset' phải là MỘT tên dataset, đang là {!r}".format(dataset))
+
+    roles = data.get("roles")
+    if not isinstance(roles, dict) or not roles:
+        problems.append(
+            "thiếu 'data.roles' (mỗi vai phải khai rõ dùng split nào, không kế thừa)")
+        roles = {}
+    else:
+        for role in ALWAYS_ROLES:
+            if role not in roles:
+                problems.append("'data.roles' phải có vai '{}'".format(role))
+        if roles.get("eval") == "train":
+            problems.append("'data.roles.eval' trỏ vào 'train' - đó là rò rỉ dữ liệu")
+        if config.get("enabled"):
+            for role in TRAINING_ROLES:
+                if role not in roles:
+                    problems.append(
+                        "training.enabled: true nên 'data.roles' phải có vai '{}'".format(role))
+
+    splits = _splits_of(data, dataset, dataset_cfg)
+    if isinstance(splits, dict):
+        for role in sorted(roles):
+            if roles[role] not in splits:
+                problems.append(
+                    "'data.roles.{}' là {!r} nhưng file phiên bản dataset không có split đó "
+                    "(đang có: {})".format(
+                        role, roles[role], ", ".join(sorted(splits)) or "không có"))
+
+    if problems:
+        raise ExperimentError(
+            "Cấu hình thí nghiệm {}/{}/{} có {} vấn đề:\n  - {}".format(
+                result["model_id"], result["method"], result["exp_id"],
+                len(problems), "\n  - ".join(problems)))
+    return result
+
+
+def _splits_of(data, dataset, dataset_cfg):
+    """`splits` của file phiên bản dataset mà thí nghiệm trỏ tới; None nếu không đọc được."""
+    if not dataset or not isinstance(dataset, str):
+        return None
+    if dataset_cfg is not None:
+        return dataset_cfg.get("splits") or {}
+    from src import dataset as dataset_module
+    try:
+        return dataset_module.load_config(
+            dataset, data.get("version")).get("splits") or {}
+    except dataset_module.DatasetError as exc:
+        raise ExperimentError("Không đọc được file phiên bản dataset: {}".format(exc))

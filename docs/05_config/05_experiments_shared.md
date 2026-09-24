@@ -44,11 +44,14 @@ Pipeline giữ nguyên bốn trạng thái.
 | `enabled`                                                     | `true` với thí nghiệm LoRA hoặc QLoRA. Khi `true`, `roles` bắt buộc có `train` và `val` |
 | `lora.r`, `lora.alpha`, `lora.dropout`, `lora.target_modules` | tham số LoRA                                                                            |
 | `lr`, `batch`, `epochs`, `grad_accum`, `weight_decay`         | tham số huấn luyện. `weight_decay` là weight decay thật                                 |
-| `checkpoint.every_n_steps`                                    | lưu checkpoint mỗi bao nhiêu bước                                                       |
-| `checkpoint.keep_last_k`                                      | giữ bao nhiêu checkpoint gần nhất để resume; cũ hơn thì xoá                             |
-| `checkpoint.save_last`                                        | lưu `model/last` đủ để chạy tiếp                                                        |
-| `checkpoint.save_best`                                        | lưu `model/best` theo chỉ số trên `val`                                                 |
-| `checkpoint.delete_intermediate`                              | xoá ngay các `checkpoint-*` trung gian sau mỗi lần lưu, để tiết kiệm Drive              |
+| `checkpoints.every_n_steps`                                   | lưu checkpoint mỗi bao nhiêu bước                                                       |
+| `checkpoints.keep_last_k`                                     | giữ bao nhiêu checkpoint gần nhất để resume; cũ hơn thì xoá                             |
+| `checkpoints.save_last`                                       | lưu `model/last` đủ để chạy tiếp                                                        |
+| `checkpoints.save_best`                                       | lưu `model/best` theo chỉ số trên `val`                                                 |
+| `checkpoints.delete_intermediate`                             | xoá ngay các `checkpoint-*` trung gian sau mỗi lần lưu, để tiết kiệm Drive              |
+
+Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là tên model trên Hugging Face
+ở lớp `configs/models/<model_id>.yaml`; trùng tên thì lớp sau đè mất lớp trước mà không báo gì.
 
 ## tracking.yaml - ghi nhận kết quả
 

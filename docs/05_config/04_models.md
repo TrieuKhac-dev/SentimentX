@@ -34,7 +34,7 @@ inference:
 | định danh  | `model_id`                         | tên dùng cho mọi đường dẫn và nhãn MLflow; trùng tên file                                 |
 | định danh  | `checkpoint`                       | tên model trên Hugging Face, để đối chiếu tránh nhầm model                                |
 | định danh  | `config_version`                   | tăng mỗi khi sửa file này                                                                 |
-| bài toán   | `task.*`                           | ghi đè `configs/experiments/task.yaml` khi model này cần khác, ví dụ model chỉ làm 2 nhãn |
+| bài toán   | `task.*`                           | ràng buộc của model, **áp sau tất cả các lớp**: `configs/experiments/task.yaml` không ghi đè được, vì đó là giới hạn của chính model (ví dụ model chỉ làm 2 nhãn) |
 | tiền xử lý | `preprocess.max_length`            | ngưỡng cắt input theo token                                                               |
 | tiền xử lý | `preprocess.add_generation_prompt` | chèn lượt trợ lý rỗng cho model chỉ dẫn                                                   |
 | tiền xử lý | `preprocess.segmenter`             | bộ tách từ, chỉ model cần tách từ mới khai                                                |

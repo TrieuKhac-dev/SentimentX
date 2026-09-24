@@ -26,9 +26,11 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
 - [x] T3. `config_sha256`: băm JSON chuẩn hoá của config đã hợp nhất, cộng văn bản prompt đã hợp
       nhất (`prompt_merged` = khối hệ thống + file prompt + file ví dụ). Chuẩn hoá: khoá sắp xếp,
       mọi danh sách coi là tập hợp và sắp xếp, trừ danh sách khai trong `canonical.ordered_lists`.
-- [ ] T4. Kiểm tra: `roles` bắt buộc khai; một dataset duy nhất; `splits` phải có trong file dataset version;
-      chặn `eval` trỏ vào `train`.
-      -> `feat(experiments): validate roles single dataset and leakage`
+- [x] T4. Kiểm tra trong `src/experiments.py::check()`: khoá lạ (gõ sai tên hoặc ghi sai đường
+      dẫn), `roles` bắt buộc khai, một dataset duy nhất, vai phải trỏ vào split có thật trong file
+      phiên bản dataset, và chặn `eval` trỏ vào `train`. Kèm theo: hợp nhất báo LỖI khi hai lớp
+      dùng cùng tên khoá với hai kiểu khác nhau (đã gặp thật: `checkpoint`), và khối `task` của
+      lớp model được áp SAU tất cả các lớp vì nó là ràng buộc của model.
 - [ ] T5. Sinh danh sách `requires` từ dataset version, mã phiên bản và `roles`; cộng `requires_extra`.
       -> `feat(experiments): derive required paths`
 - [ ] T6. Guard trùng: so `(config_sha256, mã, exp_id)` với mọi `run_meta.json` đã có.

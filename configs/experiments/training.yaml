@@ -20,7 +20,10 @@ epochs: 3
 grad_accum: 4
 weight_decay: 0.01
 
-checkpoint:
+# Chính sách lưu checkpoint. Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là
+# tên model trên Hugging Face ở lớp configs/models/<model_id>.yaml - trùng tên thì lớp sau đè
+# mất lớp trước mà không báo gì.
+checkpoints:
   every_n_steps: 100
   # Giữ ít checkpoint để khỏi đầy Drive; cũ hơn thì xoá.
   keep_last_k: 2
