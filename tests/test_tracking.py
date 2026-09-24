@@ -8,6 +8,7 @@ dòng `[WARN]`/`[TRACK]` trong `run.log`, chứ không phải một ngoại lệ
 Chạy: python -m unittest discover -s tests
 """
 
+import importlib.util
 import json
 import os
 import tempfile
@@ -41,7 +42,11 @@ class TestRegistry(unittest.TestCase):
             tracking.check(config, dagshub)
         message = str(caught.exception)
         self.assertIn("SENTIMENTX_TEST_TOKEN_KHONG_CO", message)
-        self.assertIn("pip install mlflow", message)
+        # Thư viện `mlflow` có thể đã được cài (khi đó không còn việc này để báo).
+        if importlib.util.find_spec("mlflow") is None:
+            self.assertIn("pip install mlflow", message)
+        else:
+            self.assertNotIn("pip install mlflow", message)
 
     def test_describe_mentions_every_tracker(self):
         lines = "\n".join(tracking.describe())

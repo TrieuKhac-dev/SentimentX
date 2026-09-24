@@ -45,6 +45,59 @@ def check(config, dagshub):
     return True
 
 
+def connect(config, dagshub):
+    """Đặt cách kết nối rồi trả về module `mlflow` đã trỏ đúng máy chủ và experiment.
+
+    Dùng cho `begin()` và cho việc tra cứu/xoá run (script dọn run smoke). Gộp một chỗ để hai
+    đường không thể cấu hình lệch nhau.
+    """
+    import mlflow
+
+    uri = str(dagshub["mlflow_uri"])
+    # Đặt ở os.environ để chính thư viện mlflow dùng, giống cách cấu hình thủ công trong
+    # 07_env.md; setdefault để không đè lên biến người dùng đã đặt.
+    os.environ.setdefault("MLFLOW_TRACKING_URI", uri)
+    os.environ.setdefault("MLFLOW_TRACKING_USERNAME", str(dagshub.get("owner") or ""))
+    os.environ.setdefault("MLFLOW_TRACKING_PASSWORD", base.token(dagshub))
+    mlflow.set_tracking_uri(uri)
+    mlflow.set_experiment(str(config["experiment"]))
+    return mlflow
+
+
+def runs_with_tag(config, dagshub, key="smoke", value="true"):
+    """Các run mang một nhãn nhất định. Dùng để tìm run kiểm tra trước khi xoá.
+
+    Trả về danh sách run; máy chủ hỏng thì trả về danh sách rỗng kèm một dòng giải thích, để chỗ
+    gọi in ra được chứ không phải bắt ngoại lệ.
+    """
+    try:
+        mlflow = connect(config, dagshub)
+        experiment = mlflow.get_experiment_by_name(str(config["experiment"]))
+        if experiment is None:
+            return [], "chưa có experiment '{}' trên máy chủ".format(config["experiment"])
+        found = mlflow.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            filter_string="tags.`{}` = '{}'".format(key, value))
+        return list(found.iterrows()), ""
+    except Exception as exc:  # noqa: BLE001 - công cụ dọn dẹp, không làm chết việc khác
+        return [], "{}: {}".format(type(exc).__name__, exc)
+
+
+def delete_runs(rows):
+    """Xoá các run (dạng dòng của `search_runs`). Trả về (số xoá được, danh sách lỗi)."""
+    import mlflow
+
+    deleted, problems = 0, []
+    for _index, row in rows:
+        run_id = row.get("run_id")
+        try:
+            mlflow.delete_run(str(run_id))
+            deleted += 1
+        except Exception as exc:  # noqa: BLE001
+            problems.append("{}: {}: {}".format(run_id, type(exc).__name__, exc))
+    return deleted, problems
+
+
 class _Session(base.Session):
     NAME = NAME
 
@@ -87,19 +140,7 @@ def begin(config, dagshub, out_dir, info=None, log=None):
         return base.Session(active=False, reason=str(exc))
 
     try:
-        import mlflow
-    except ImportError as exc:  # pragma: no cover - `check` đã bắt trường hợp này
-        return base.Session(active=False, reason="thiếu mlflow: {}".format(exc))
-
-    try:
-        uri = str(dagshub["mlflow_uri"])
-        # Đặt ở os.environ để chính thư viện mlflow dùng, giống cách cấu hình thủ công trong
-        # 07_env.md; setdefault để không đè lên biến người dùng đã đặt.
-        os.environ.setdefault("MLFLOW_TRACKING_URI", uri)
-        os.environ.setdefault("MLFLOW_TRACKING_USERNAME", str(dagshub.get("owner") or ""))
-        os.environ.setdefault("MLFLOW_TRACKING_PASSWORD", base.token(dagshub))
-        mlflow.set_tracking_uri(uri)
-        mlflow.set_experiment(str(config["experiment"]))
+        mlflow = connect(config, dagshub)
         run = mlflow.start_run(
             run_name=Path(out_dir).name,
             tags=base.resolve_tags(config.get("mlflow_tags"), info))
@@ -109,5 +150,5 @@ def begin(config, dagshub, out_dir, info=None, log=None):
         return base.Session(active=False, reason=str(exc))
 
     if log is not None:
-        log.step("đã mở run trên MLflow: {}".format(uri))
-    return _Session(mlflow, uri, run)
+        log.step("đã mở run trên MLflow: {}".format(dagshub["mlflow_uri"]))
+    return _Session(mlflow, str(dagshub["mlflow_uri"]), run)

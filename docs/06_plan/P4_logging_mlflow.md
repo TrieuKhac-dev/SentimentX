@@ -10,7 +10,7 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-đang làm - T1, T2, T3, T4, T5, T6 xong.
+đang làm - T1, T2, T3, T4, T5, T6, T7 xong (cổng MLflow đạt).
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -30,9 +30,14 @@ và resume được khi bị ngắt giữa chừng.
       -> `feat(tracking): add trackers registry`
 - [x] T6. `run_meta.json`: đủ trường, có `attempts[]`, `files[]` kèm `role`, không ghi đường dẫn tuyệt đối.
       -> `feat(tracking): write run metadata with attempts and provenance`
-- [ ] T7. MLflow lên DagsHub theo `configs/dagshub.yaml`; **chạy smoke run và xác nhận run xuất hiện**
+- [x] T7. MLflow lên DagsHub theo `configs/dagshub.yaml`; **chạy smoke run và xác nhận run xuất hiện**
       trên `https://dagshub.com/TrieuKhac-dev/SentimentX`; log lỗi không làm chết run.
       -> `feat(mlflow): configure dagshub remote and smoke test`
+      Cổng ĐẠT ngày 24/09/2026: run smoke xuất hiện trong experiment `sentimentx-absa` ở
+      `https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow` (địa chỉ có đuôi `.mlflow`, khác trang
+      repo - trang repo chỉ hiện dữ liệu của DagsHub nên nhìn như rỗng). Các run kiểm tra đều được
+      gắn nhãn `smoke=true` và dọn bằng `python scripts/smoke_tracking.py --clean`, nên mục
+      Experiments chỉ còn kết quả thật.
 - [ ] T8. Resume: ghi kết quả theo khối `predictions/part_*.jsonl`, chạy lại thì bỏ qua mẫu đã xử lý;
       điều kiện resume là `config_sha256` + mã phiên bản + `repo.sha` đều không đổi.
       -> `feat(resume): chunk predictions and resume by sample`

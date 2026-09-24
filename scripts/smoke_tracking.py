@@ -11,6 +11,10 @@ CÁCH DÙNG
     python scripts/smoke_tracking.py                  # theo configs/experiments/tracking.yaml
     python scripts/smoke_tracking.py --tracker none   # thử không ghi đi đâu (kiểm script)
     python scripts/smoke_tracking.py --keep           # giữ thư mục kết quả để xem file
+    python scripts/smoke_tracking.py --clean          # XOÁ các run kiểm tra đã ghi
+
+Run giả được gắn nhãn `smoke=true`, nên `--clean` tìm được đúng chúng và không đụng tới run thật.
+Kiểm cổng xong thì chạy `--clean` để mục Experiments chỉ còn kết quả thật.
 
 ĐỌC KẾT QUẢ
     KẾT LUẬN: ĐẠT   -> phiên ghi nhận hoạt động, không có ghi chú hỏng (mã thoát 0)
@@ -55,6 +59,10 @@ def parse_args(argv=None):
                         help="Ghi đè tên experiment trên máy chủ.")
     parser.add_argument("--keep", action="store_true",
                         help="Giữ thư mục kết quả của run giả để xem file bên trong.")
+    parser.add_argument("--clean", action="store_true",
+                        help="Xoá các run đã gắn nhãn smoke=true trên máy chủ rồi thoát.")
+    parser.add_argument("--delete", nargs="+", metavar="RUN_ID",
+                        help="Xoá run theo mã, cho run cũ chưa kịp gắn nhãn smoke, rồi thoát.")
     return parser.parse_args(argv)
 
 
@@ -73,6 +81,40 @@ def status_of(notes, active):
     return True, "; ".join(notes) or "không có ghi chú"
 
 
+def clean(config, dagshub):
+    """Xoá các run kiểm tra đã ghi lên máy chủ. Trả về mã thoát."""
+    from src.tracking import mlflow_tracker
+
+    rows, problem = mlflow_tracker.runs_with_tag(config, dagshub)
+    if problem:
+        print("Không tra được danh sách run: {}".format(problem))
+        return 2
+    if not rows:
+        print("Không còn run kiểm tra nào (nhãn smoke=true).")
+        return 0
+
+    print("Sẽ xoá {} run kiểm tra:".format(len(rows)))
+    for _index, row in rows:
+        print("  - {}  {}".format(row.get("run_id"), row.get("tags.mlflow.runName")))
+    deleted, problems = mlflow_tracker.delete_runs(rows)
+    print("\nĐã xoá {} run.".format(deleted))
+    for item in problems:
+        print("  lỗi: {}".format(item))
+    return 0 if not problems else 2
+
+
+def delete(config, dagshub, run_ids):
+    """Xoá run theo mã. Dùng cho run cũ chưa kịp gắn nhãn `smoke`."""
+    from src.tracking import mlflow_tracker
+
+    rows = [(None, {"run_id": str(run_id)}) for run_id in run_ids]
+    deleted, problems = mlflow_tracker.delete_runs(rows)
+    print("Đã xoá {} / {} run.".format(deleted, len(rows)))
+    for item in problems:
+        print("  lỗi: {}".format(item))
+    return 0 if not problems else 2
+
+
 def main(argv=None):
     args = parse_args(argv)
     env = runtime.load_env()
@@ -80,7 +122,9 @@ def main(argv=None):
     print("SMOKE - kiểm cổng ghi nhận (run giả, không cần GPU/model/dữ liệu)")
     print("=" * 70)
     print("Máy đang chạy : {}".format(env["env"]))
-    print("Biến môi trường: có {} | thiếu {}".format(
+    # Trên máy cá nhân, danh sách biến BẮT BUỘC rỗng (MLflow không bắt buộc), nên dòng dưới chỉ
+    # nói về biến bắt buộc. Biến của tracker được kiểm riêng ở dòng "Token".
+    print("Biến bắt buộc : có {} | thiếu {}".format(
         ", ".join(env["found"]) or "không có", ", ".join(env["missing"]) or "không thiếu"))
     for path in env["files"]:
         print("  đọc từ      : {}".format(path))
@@ -99,9 +143,22 @@ def main(argv=None):
         config["tracker"] = args.tracker
     if args.experiment_name:
         config["experiment"] = args.experiment_name
+    # Nhãn để lần sau tìm và xoá được đúng run kiểm tra; vẫn giữ các nhãn đã khai trong config.
+    tags = dict(config.get("mlflow_tags") or {})
+    tags["smoke"] = "true"
+    config["mlflow_tags"] = tags
+
+    if args.clean:
+        return clean(config, dagshub)
+    if args.delete:
+        return delete(config, dagshub, args.delete)
+
     print("Tracker       : {} (experiment '{}')".format(
         config.get("tracker"), config.get("experiment")))
     print("Máy chủ MLflow: {}".format(dagshub.get("mlflow_uri")))
+    token_name = dagshub.get("token_env") or "DAGSHUB_TOKEN"
+    print("Token         : {} {}".format(
+        token_name, "có" if tracking_base.token(dagshub) else "THIẾU"))
 
     # Kiểm TRƯỚC khi chạy: thiếu gì thì nói rõ thiếu gì và cần làm gì, thay vì để lỗi hiện ra
     # dưới dạng một ngoại lệ khó hiểu.
