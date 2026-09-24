@@ -45,8 +45,12 @@ Nếu không muốn dùng lệnh: vẫn có thể copy tay `templates/experiment
 3. Chạy thử trên máy cá nhân: mở `notebook.ipynb` và chạy toàn bộ.
 4. Merge nhánh riêng vào nhánh `experiment` và giải quyết mọi xung đột ở bước này.
 5. Ghim bản code: `python scripts/pin.py <model>/<method>/<expNNN>`.
-6. `git push` và gửi file notebook cho giảng viên.
-7. Giảng viên: mount Drive, mở notebook, bấm Run all.
+6. `git push`, rồi gửi **thư mục Drive đã chuẩn bị**: dữ liệu (gốc và đã xử lý), file notebook, và
+   `.env.colab` nếu có token. Cách dựng và gửi thư mục: `docs/00_workflow/07_colab.md`.
+7. Giảng viên: mở notebook và bấm **Run all**. Ô bootstrap tự mount Drive, tự tìm thư mục nhóm (nhận
+   ra bằng file đánh dấu `.sentimentx_root`, KHÔNG cần biết tên thư mục), tự đặt hai gốc đường dẫn và
+   tự cài gói máy ảo còn thiếu. Việc duy nhất phải làm tay là bấm **Allow** khi Colab hỏi quyền truy
+   cập Drive - việc Google không cho tự động hoá.
 8. Xem kết quả:
    - Trên DagsHub: xem ngay, không cần copy gì.
    - Trên máy cá nhân: phải copy thư mục kết quả từ Drive về repo trước,
@@ -72,7 +76,9 @@ mới `import src`. Nhờ vậy:
 
 Trước khi ghi, `pin.py` còn kiểm **cây làm việc phải sạch ngoài file notebook**: commit ghim chỉ
 được đổi đúng một file. Sau khi ghim thì không sửa `experiments/**/expNNN/**` nữa cho tới khi
-giảng viên chạy xong (P5, mục rủi ro).
+giảng viên chạy xong (P5, mục rủi ro). Hệ quả cần nhớ: sửa code thì phải **ghim lại**, và từ lúc giao
+notebook (P7 T5) thư mục thí nghiệm **đóng băng** - mọi thay đổi sau đó đều phải đi qua một lần ghim
+mới, nếu không notebook của người nhận vẫn chạy bản cũ.
 
 ## Ba điều quan trọng nhất
 
