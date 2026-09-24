@@ -156,14 +156,24 @@ def drive_env_file(folder=None, candidates=None):
 
 
 def _apply_file(path):
-    """Đọc file dạng KEY=VALUE. Bỏ qua dòng trống và dòng bắt đầu bằng `#`."""
+    """Đọc file dạng KEY=VALUE. Bỏ qua dòng trống, dòng chú thích, và khoá để TRỐNG giá trị.
+
+    VÌ SAO KHOA ĐỂ TRỐNG PHẢI BỊ BỎ QUA: file mẫu của dự án có những dòng như `HF_HOME=` để trống.
+    Đặt biến thành chuỗi rỗng thì thư viện bên dưới không hiểu là "chưa cấu hình": `huggingface_hub`
+    ghép `os.path.join("", "hub")` thành thư mục `hub` TƯƠNG ĐỐI, và tải model vào ngay trong repo
+    (đã gặp thật: 6,3 GB cache nằm trong cây làm việc). Khoá để trống nghĩa là "không đặt", đúng quy
+    ước của `src/paths.py` với hai gốc đường dẫn.
+    """
     with open(path, "r", encoding="utf-8") as handle:
         for line in handle:
             line = line.strip()
             if not line or line.startswith("#") or "=" not in line:
                 continue
             key, _, value = line.partition("=")
-            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+            value = value.strip().strip('"').strip("'")
+            if not value:
+                continue
+            os.environ.setdefault(key.strip(), value)
 
 
 def _from_colab_secrets():

@@ -36,6 +36,11 @@ env chỉ cần khi muốn chỉ đích danh thư mục, ghi đè đường dẫ
 
 Notebook in ra bảng biến nào có, biến nào thiếu. Chỉ in **tên biến**, không in giá trị.
 
+**Khoá để TRỐNG bị bỏ qua** (coi như không đặt biến), không phải đặt thành chuỗi rỗng. Lý do có ca
+thật: `.env` mẫu để `HF_HOME=` trống, biến bị đặt thành `""`, và `huggingface_hub` ghép
+`os.path.join("", "hub")` thành thư mục `hub` **tương đối** rồi tải model vào ngay trong repo. Cùng
+quy ước này đã có ở `src/paths.py` cho hai gốc đường dẫn.
+
 ## Kết nối DagsHub
 
 File `configs/dagshub.yaml` giữ phần hạ tầng, không chứa token:

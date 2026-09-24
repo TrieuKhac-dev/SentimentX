@@ -46,6 +46,27 @@ class TestEnvironment(unittest.TestCase):
                 os.environ.pop("SENTIMENTX_TEST_BIEN", None)
 
 
+    def test_load_env_ignores_empty_values(self):
+        """Khoá để trống nghĩa là "không đặt".
+
+        Ca thật: `.env` có `HF_HOME=` để trống, biến bị đặt thành chuỗi rỗng, và `huggingface_hub`
+        ghép `os.path.join("", "hub")` thành thư mục `hub` NGAY TRONG REPO rồi tải 6,3 GB model vào
+        cây làm việc. Đặt chuỗi rỗng không phải là "không cấu hình" đối với thư viện bên dưới.
+        """
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / ".env.colab"
+            path.write_text("SENTIMENTX_TEST_RONG=\nSENTIMENTX_TEST_CO=that\n", encoding="utf-8")
+            for name in ("SENTIMENTX_TEST_RONG", "SENTIMENTX_TEST_CO"):
+                os.environ.pop(name, None)
+            try:
+                runtime.load_env(colab_env_file=str(path))
+                self.assertIsNone(os.environ.get("SENTIMENTX_TEST_RONG"))
+                self.assertEqual(os.environ.get("SENTIMENTX_TEST_CO"), "that")
+            finally:
+                for name in ("SENTIMENTX_TEST_RONG", "SENTIMENTX_TEST_CO"):
+                    os.environ.pop(name, None)
+
+
 class TestDriveDir(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
