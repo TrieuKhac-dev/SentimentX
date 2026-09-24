@@ -79,6 +79,38 @@ class TestDriveDir(unittest.TestCase):
     def test_none_when_drive_is_not_mounted(self):
         self.assertIsNone(runtime.drive_dir(folder="nhom", candidates=self.candidates()))
 
+    def test_finds_the_folder_when_its_name_is_unknown(self):
+        """Người nhận notebook chỉ copy thư mục của nhóm vào Drive - tên có thể khác.
+
+        Đây là đường đi chính của bản giao: bắt người chạy khai đúng tên thư mục là bắt họ làm một
+        việc mà máy làm được, và tên thật thường là "SentimentX (1)" sau khi copy.
+        """
+        other = self.root / "MyDrive" / "SentimentX (1)"
+        other.mkdir(parents=True)
+        (other / MARKER).write_text("", encoding="utf-8")
+        found = runtime.drive_dir(folder="", candidates=self.candidates())
+        self.assertEqual(found, other)
+
+    def test_the_search_never_picks_a_folder_without_the_marker(self):
+        (self.root / "MyDrive" / "TaiLieu").mkdir(parents=True)
+        (self.root / "MyDrive" / "TaiLieu" / "data").mkdir()
+        self.assertIsNone(runtime.drive_dir(folder="", candidates=self.candidates()))
+
+    def test_the_search_prefers_the_folder_that_looks_prepared(self):
+        for name in ("b", "a"):
+            folder = self.root / "MyDrive" / name
+            folder.mkdir(parents=True)
+            (folder / MARKER).write_text("", encoding="utf-8")
+        (self.root / "MyDrive" / "b" / "data").mkdir()
+        self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()),
+                         self.root / "MyDrive" / "b")
+
+    def test_the_search_also_looks_inside_a_shared_drive(self):
+        other = self.root / "Shareddrives" / "Khoa CNTT"
+        other.mkdir(parents=True)
+        (other / MARKER).write_text("", encoding="utf-8")
+        self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), other)
+
     def test_env_file_path_inside_the_drive(self):
         self.mine.mkdir(parents=True)
         (self.mine / MARKER).write_text("", encoding="utf-8")

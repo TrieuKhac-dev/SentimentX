@@ -82,6 +82,11 @@ def drive_dir(folder=None, candidates=None):
 
     KHÔNG tự mount Drive: việc mount là của người chạy notebook (docs/00_workflow/01_flow.md).
 
+    Không khớp theo tên thì TÌM một cấp trong các gốc của những đường dẫn đã khai (`MyDrive`,
+    `Shareddrives`): người nhận notebook chỉ việc copy thư mục của nhóm vào Drive của mình, tên có
+    thể là "SentimentX (1)" hoặc do giảng viên đặt - bắt họ khai đúng tên là bắt làm việc máy làm được.
+    Vẫn nhận ra bằng `.sentimentx_root` chứ không bằng tên, nên không thể nhầm sang thư mục người khác.
+
     Trả về `Path` hoặc None (chưa mount, hoặc chưa có thư mục nào khớp).
     """
     from src import paths
@@ -101,7 +106,42 @@ def drive_dir(folder=None, candidates=None):
         if marker and not (candidate / marker).exists():
             continue
         return candidate
-    return None
+    return _search_for_marker(places, marker)
+
+
+def _search_for_marker(places, marker):
+    """Tìm thư mục có FILE ĐÁNH DẤU trong các gốc của `places`, không cần biết tên trước.
+
+    Quét ĐÚNG MỘT cấp: `/content/drive/MyDrive/<tên bất kỳ>/.sentimentx_root`. Nhiều thư mục cùng
+    có dấu thì chọn thư mục CÓ `data/` (dấu hiệu thư mục đã được chuẩn bị để chạy), còn lại lấy theo
+    thứ tự tên - để kết quả không phụ thuộc thứ tự đọc đĩa.
+    """
+    if not marker:
+        return None
+    roots = []
+    for place in places:
+        # Dùng `Path` chứ không cắt chuỗi theo "/": trên Windows đường dẫn dùng "\", cắt theo "/" thì
+        # không ra gốc nào và phép tìm im lặng không chạy - đúng lỗi mà ba test dưới đây bắt được.
+        pattern = Path(str(place))
+        if "{" not in pattern.name:
+            continue
+        root = pattern.parent
+        if root not in roots:
+            roots.append(root)
+    found = []
+    for root in roots:
+        if not root.is_dir():
+            continue
+        for child in sorted(root.iterdir()):
+            if child.is_dir() and (child / marker).exists() and child not in found:
+                found.append(child)
+    if not found:
+        return None
+    for child in found:
+        if (child / "data").is_dir():
+            return child
+    return found[0]
+
 
 
 def drive_env_file(folder=None, candidates=None):
