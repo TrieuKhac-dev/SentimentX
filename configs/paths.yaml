@@ -1,0 +1,73 @@
+# Cấu hình ĐƯỜNG DẪN của dự án. Đây là nguồn duy nhất.
+#
+# Đổi cấu trúc thư mục thì sửa file này, không phải đi tìm từng chỗ viết cứng.
+# Giới hạn: .gitignore và .gitattributes không đọc được YAML, nên vẫn phải sửa tay hai file đó.
+
+version: 1
+
+roots:
+  data: data
+  configs: configs
+  experiments: experiments
+  templates: templates
+  docs: docs
+
+# Giá trị ở đây tính TƯƠNG ĐỐI so với gốc của nhóm: nhóm `data` tính từ gốc dữ liệu,
+# nhóm `configs` tính từ thư mục configs. Nhờ vậy ghi đè gốc bằng biến môi trường vẫn đúng.
+data:
+  raw: raw
+  processed: processed
+  models: models
+  reports: reports
+  assets: assets
+  reference_publication: reference_publication
+
+reports:
+  dataset_registry: reports/dataset_registry
+  experiment_registry: reports/experiment_registry
+  model_input: reports/model_input
+  metrics_matrix: reports/metrics_matrix
+
+configs:
+  datasets: datasets
+  models: models
+  prompts: prompts
+  pipeline: pipeline
+  experiment: experiments
+  paths: paths.yaml
+  dagshub: dagshub.yaml
+
+# Mẫu tên thư mục và file kết quả. Đổi tên ở đây, không sửa code.
+patterns:
+  data_version: "{name}-ds{dataset_version}-pl{pipeline_version}-src{src}-{hash8}"
+  run_log: "run.log"
+  run_meta: "run_meta.json"
+  metrics_json: "metrics.json"
+  metrics_csv: "metrics.csv"
+  errors: "errors.json"
+  predictions: "predictions.csv"
+  mispredictions: "mispredictions.csv"
+  model_input: "model_input.csv"
+  plots: "plots"
+  ckpt_last: "model/last"
+  ckpt_best: "model/best"
+  pred_parts: "predictions/part_{n:04d}.jsonl"
+  raw_meta: "raw_meta.yaml"
+  eda_dir: "eda"
+  pipeline_dir: "pipeline"
+  processing_log: "processing_log.json"
+  label_map: "label_map.json"
+  run_meta_dir: "results"
+
+colab:
+  # Thử lần lượt khi mount Drive; {folder} là tên folder giảng viên cấp.
+  drive_candidates:
+    - "/content/drive/MyDrive/{folder}"
+    - "/content/drive/Shareddrives/{folder}"
+  folder_marker: ".sentimentx_root"
+  env_file: "env/.env.colab"
+
+canonical:
+  # Danh sách nào có thứ tự có nghĩa khi băm cấu hình.
+  # Mặc định mọi danh sách đều được coi là tập hợp và được sắp xếp trước khi băm.
+  ordered_lists: []

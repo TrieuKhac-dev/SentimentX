@@ -1,0 +1,100 @@
+# -*- coding: utf-8 -*-
+"""Máy đang chạy là Colab hay máy cá nhân, và nạp biến môi trường.
+
+VÌ SAO CẦN BIẾT ĐANG Ở ĐÂU
+Một số việc chỉ làm trên Colab: mount Drive, đổi gốc đường dẫn sang Drive, cài
+thư viện. Trên máy cá nhân thì không làm những việc đó.
+
+THỨ TỰ NẠP BIẾN MÔI TRƯỜNG
+    1. Colab Secrets, nếu giảng viên tự đặt
+    2. file `<Drive>/env/.env.colab`
+    3. biến môi trường đang có
+    4. file `.env` ở máy cá nhân
+
+Giá trị nào gặp trước thì được dùng trước. Hàm trả về danh sách tên biến đã có và
+còn thiếu, để notebook in ra. Không bao giờ in giá trị, vì đó là secret.
+"""
+
+import os
+import sys
+
+ENV_NAME = "SENTIMENTX_ENV"
+
+# Biến notebook cần, dùng để kiểm và in ra khi thiếu.
+REQUIRED_ON_COLAB = ("DAGSHUB_TOKEN",)
+REQUIRED_ON_LOCAL = ()
+
+
+def is_colab():
+    """True nếu đang chạy trong Google Colab."""
+    if "google.colab" in sys.modules:
+        return True
+    return bool(os.environ.get("COLAB_RELEASE_TAG") or os.environ.get("COLAB_GPU"))
+
+
+def env_name():
+    """`colab` hoặc `local`, để ghi vào log và `run_meta.json`."""
+    value = os.environ.get(ENV_NAME, "").strip().lower()
+    if value in ("colab", "local"):
+        return value
+    return "colab" if is_colab() else "local"
+
+
+def load_env(colab_env_file=None):
+    """Nạp biến môi trường theo thứ tự ở trên.
+
+    `colab_env_file` là đường dẫn file env trên Drive, ví dụ
+    `<Drive>/env/.env.colab`. Bỏ qua nếu không truyền.
+    Trả về dict: `{"found": [...], "missing": [...], "files": [...]}`.
+    """
+    files = []
+    if is_colab():
+        for name, value in _from_colab_secrets().items():
+            os.environ.setdefault(name, value)
+    if colab_env_file:
+        path = str(colab_env_file)
+        if os.path.isfile(path):
+            _apply_file(path)
+            files.append(path)
+    if os.path.isfile(_local_env_path()):
+        _apply_file(_local_env_path())
+        files.append(_local_env_path())
+
+    required = REQUIRED_ON_COLAB if env_name() == "colab" else REQUIRED_ON_LOCAL
+    found = [name for name in required if os.environ.get(name)]
+    missing = [name for name in required if not os.environ.get(name)]
+    return {"found": found, "missing": missing, "files": files, "env": env_name()}
+
+
+def _local_env_path():
+    """File `.env` ở gốc repo, không phụ thuộc thư mục đang đứng."""
+    from src import paths
+    return str(paths.root() / ".env")
+
+
+def _apply_file(path):
+    """Đọc file dạng KEY=VALUE. Bỏ qua dòng trống và dòng bắt đầu bằng `#`."""
+    with open(path, "r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+def _from_colab_secrets():
+    """Đọc Colab Secrets. Trả về dict rỗng nếu không ở Colab hoặc không có gì."""
+    try:
+        from google.colab import userdata  # type: ignore
+    except Exception:
+        return {}
+    secrets = {}
+    for name in ("DAGSHUB_TOKEN", "HF_TOKEN"):
+        try:
+            value = userdata.get(name)
+        except Exception:
+            value = None
+        if value:
+            secrets[name] = str(value)
+    return secrets
