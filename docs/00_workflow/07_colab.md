@@ -116,10 +116,10 @@ Upload hai file zip bằng file explorer của Colab (kéo vào `/content`), r�
 !unzip -o /content/sentimentx-processed.zip -d /content/drive/MyDrive/SentimentX/data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484
 ```
 
-Không có `sentimentx-processed.zip` thì tạo dữ liệu đã xử lý ngay trên Colab:
+Không có `sentimentx-processed.zip` thì tạo dữ liệu đã xử lý ngay trên Colab (pipeline chỉ cần
+`pandas`, `numpy`, `PyYAML` - Colab đã có sẵn, không phải cài thêm gì):
 
 ```python
-!pip install -q -r /content/SentimentX/requirements-colab.txt
 !cd /content/SentimentX && python run_pipeline.py --dataset cosmetics --version v0.1.0
 ```
 
@@ -128,6 +128,10 @@ Không có `sentimentx-processed.zip` thì tạo dữ liệu đã xử lý ngay 
 ```python
 !pip install -q -r /content/SentimentX/requirements-colab.txt
 ```
+
+Lệnh này đọc file trong **bản clone** (đang ở đúng commit đã ghim), nên file phải có ở commit đó.
+Đổi code mà không ghim lại thì notebook kéo về bản cũ và lệnh này báo không có file - đó là dấu hiệu
+phải chạy lại `python scripts/pin.py` ở máy cá nhân.
 
 ⚠️ Không chạy `pip install -r requirements.txt` trên Colab: file đó ghim cả `torch` cho máy
 cá nhân Windows, có thể thay bản torch mà Colab đang dùng và làm hỏng CUDA.
