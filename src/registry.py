@@ -58,6 +58,13 @@ CÁCH MỞ RỘNG
    - Thêm một dòng vào `LABEL_SPACES` trong `src/labels/__init__.py`.
    - Không sửa metric: metric đọc nhãn ĐÃ CHIẾU và `dropped_neutral` từ kết quả chiếu.
 
+8) Thêm một TRÌNH GHI NHẬN mới (ví dụ ghi lên một máy chủ khác, hoặc ghi vào Google Sheet):
+   - Viết file trong `src/tracking/`, ví dụ `sheet.py`, theo hợp đồng ở `src/tracking/base.py`
+     (`NAME`, `DESCRIPTION`, `begin(config, dagshub, out_dir, info, log) -> Session`).
+   - Thêm một dòng vào `TRACKERS` trong `src/tracking/__init__.py`.
+   - Ghi nhận KHÔNG BAO GIỜ được ném ra ngoài: máy chủ hỏng thì thành dòng `[WARN]`, còn file kết
+     quả vẫn phải nguyên. Xem quy tắc ở đầu `src/tracking/base.py`.
+
 Định dạng file kết quả do run_eda.py / run_pipeline.py ghi ra được mô tả ở
 `src/reporting/result.py`. build_report.py đọc lại file đó để vẽ báo cáo.
 """

@@ -95,6 +95,7 @@ class RunLog:
         self.info = dict(info or {})
         self.errors = []
         self.warnings = []
+        self._closers = []
         self.started = datetime.now()
         self.path = log_path(self.out_dir)
         self.out_dir.mkdir(parents=True, exist_ok=True)
@@ -207,14 +208,34 @@ class RunLog:
         }
 
     def close(self):
-        """Ghi `errors.json` nếu có lỗi, rồi đóng log. Gọi lại lần nữa không sao."""
+        """Ghi `errors.json` nếu có lỗi, rồi đóng log. Gọi lại lần nữa không sao.
+
+        Việc đã đăng ký bằng `on_close` được chạy TRƯỚC khi file đóng, nên chúng vẫn ghi được
+        dòng `[TRACK]`/`[WARN]` cuối cùng. `ok=False` nghĩa là lần chạy đã có lỗi.
+        """
         if self._handle.closed:
             return None
+        ok = not self.errors
+        for callback in self._closers:
+            try:
+                callback(ok=ok)
+            except Exception as exc:  # noqa: BLE001 - đang đóng log, không được ném
+                self.line("WARN", "việc lúc đóng log hỏng: {}: {}".format(
+                    type(exc).__name__, exc))
         payload = self.payload() if self.errors else None
         if payload is not None:
             utils.write_json(payload, errors_path(self.out_dir))
         self._handle.close()
         return payload
+
+    def on_close(self, callback):
+        """Đăng ký một hàm chạy lúc đóng log: `callback(ok=...)`.
+
+        Dùng cho việc PHẢI xong dù lần chạy thành công hay hỏng, ví dụ kết thúc phiên ghi nhận
+        lên máy chủ (xem `src/tracking/`). Hàm được gọi bằng từ khoá `ok` nên chỉ cần nhận `ok`.
+        """
+        self._closers.append(callback)
+        return callback
 
     def __enter__(self):
         return self

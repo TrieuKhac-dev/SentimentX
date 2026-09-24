@@ -42,7 +42,7 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, experiments, labels, paths, prompts, runlog, utils, versioning
+from src import config, dataset, experiments, labels, paths, prompts, runlog, tracking, utils, versioning
 from src.evaluation import metrics, runner, scorers
 from src.preprocessing import loader, qwen
 
@@ -68,6 +68,8 @@ def parse_args(argv=None):
                              "nghiệm, không lấy từ config model.")
     parser.add_argument("--list-scorers", dest="list_scorers", action="store_true",
                         help="In các bộ chấm điểm đang có (registry SCORERS) rồi thoát.")
+    parser.add_argument("--list-trackers", dest="list_trackers", action="store_true",
+                        help="In các trình ghi nhận đang có (registry TRACKERS) rồi thoát.")
     parser.add_argument("--model", default=None,
                         help="Ghi đè tên model trên Hugging Face (mặc định: "
                              "Qwen/Qwen3-4B-Instruct-2507 trong src/preprocessing/qwen.py). "
@@ -176,6 +178,11 @@ def evaluation_settings():
     return experiments.shared("evaluation")
 
 
+def tracking_settings():
+    """Cách ghi nhận đang dùng, lấy từ `configs/experiments/tracking.yaml`."""
+    return experiments.shared("tracking")
+
+
 def label_names(label_map):
     """Bảng tên nhãn để in kết quả (mã -> tên). Khoá là số vì bảng đếm dùng mã bằng số."""
     return {int(code): name for code, name in (label_map.get("id_to_label") or {}).items()}
@@ -204,6 +211,12 @@ def main(argv=None):
             print("  " + line)
         return 0
 
+    if args.list_trackers:
+        print("Các trình ghi nhận đang có (khai trong tracking.tracker):")
+        for line in tracking.describe():
+            print("  " + line)
+        return 0
+
     print("=" * 70)
     print("QWEN3 BẰNG CHỈ DẪN - chạy model rồi chấm điểm (đánh giá model)")
     print("=" * 70)
@@ -217,6 +230,7 @@ def main(argv=None):
         ds = dataset.load_config(args.dataset)
         task = task_settings()
         evaluation = evaluation_settings()
+        tracking_config = tracking_settings()
         names = scorers.check(evaluation.get("scores"))
     except (dataset.DatasetError, experiments.ExperimentError, scorers.ScorerError) as exc:
         print("LỖI: {}".format(exc))
@@ -280,6 +294,12 @@ def main(argv=None):
     }
 
     with runlog.start(out_dir, mode="NEW", info=info) as log:
+        # Mở phiên ghi nhận ngay từ đầu: lần chạy hỏng giữa chừng vẫn phải KẾT THÚC run trên máy
+        # chủ, nếu không thì trên DagsHub còn lại những run mãi ở trạng thái đang chạy và người
+        # xem không biết run nào thật sự xong. `on_close` bảo đảm việc đó.
+        session = tracking.begin(tracking_config, out_dir, info=info, log=log)
+        log.on_close(tracking.closer(session, log=log))
+
         log.step("nạp model: {} (quant={})".format(info["model"], args.quant))
         try:
             model, tokenizer, model_info = runner.load(args.quant, model_name=args.model)
@@ -345,10 +365,12 @@ def main(argv=None):
             "cost": meta,
             "scores_order": result["names"],
         })
-        return _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log)
+        return _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log,
+                          session, tracking_config)
 
 
-def _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log):
+def _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log, session,
+               tracking_config):
     """Ghi kết quả của lần chạy vào thư mục riêng của nó. Trả về mã thoát.
 
     Thư mục riêng cho mỗi cấu hình nên tên file TRONG đó là tên cố định; cấu hình nằm ở tên thư
@@ -365,6 +387,14 @@ def _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log):
                                save_confusion=bool(save.get("confusion", True)),
                                extra=extra))
     log.step("đã ghi: {}".format(", ".join(sorted(shown))))
+
+    # Ghi nhận SAU khi file đã nằm trên đĩa: máy chủ hỏng thì kết quả vẫn còn. Danh sách file tải
+    # lên lấy từ `tracking.artifacts`, và chỉ lấy file đang có.
+    session.log_params(extra)
+    session.log_metrics(result["scores"])
+    session.log_artifacts(tracking.base.artifact_paths(out_dir, tracking_config.get("artifacts")))
+    log.step("ghi nhận: {} tham số, {} chỉ số, {} file".format(
+        len(session.params), len(session.metrics), len(session.artifacts)))
 
     print("Hoàn tất. Đã ghi vào {}:".format(utils.rel(out_dir)))
     for name, path in shown.items():

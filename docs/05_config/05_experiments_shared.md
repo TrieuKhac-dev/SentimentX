@@ -61,3 +61,16 @@ Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là
 | `experiment`  | tên experiment trên máy chủ MLflow                                                                   |
 | `mlflow_tags` | nhãn của run trên DagsHub, không phải git tag. Giá trị `auto` nghĩa là notebook tự lấy từ `run_meta` |
 | `artifacts`   | danh sách file nhỏ được tải lên; không tải checkpoint                                                |
+
+Ba trình ghi nhận đang có (registry `TRACKERS` ở `src/tracking/`):
+
+| Tên          | Làm gì                                                                |
+| ------------ | --------------------------------------------------------------------- |
+| `mlflow`     | ghi lên máy chủ MLflow của DagsHub (địa chỉ ở `configs/dagshub.yaml`) |
+| `local_json` | ghi bản ghi JSON trong nhóm report `experiment_registry`              |
+| `none`       | không ghi đi đâu cả - lựa chọn hợp lệ khi chạy thử trên máy cá nhân   |
+
+Ghi nhận là việc PHỤ. Máy chủ hỏng, token hết hạn hay mạng đứt đều chỉ thành dòng
+`[WARN]`/`[TRACK]` trong `run.log`, còn `metrics.json` vẫn nằm nguyên trong thư mục kết quả: file
+được ghi xuống đĩa TRƯỚC khi gọi máy chủ. Thiếu thư viện `mlflow` cũng vậy - lần chạy vẫn xong.
+Muốn biết trước thì gọi `tracking.check()` (preflight của notebook dùng hàm này).

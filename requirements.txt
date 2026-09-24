@@ -46,3 +46,10 @@ py-vncorenlp
 # Bộ tách từ LEGACY, chỉ dùng khi chưa cài được Java (--segmenter pyvi).
 pyvi
 
+# --- Pha 4: ghi nhận kết quả lên MLflow của DagsHub ---
+# Chỉ cần `mlflow`; địa chỉ máy chủ nằm ở configs/dagshub.yaml, token nằm ở .env hoặc Colab
+# Secrets (xem docs/05_config/07_env.md). Không cần gói `dagshub`.
+# Thiếu thư viện này thì lần chạy VẪN xong: `src/tracking/` coi ghi nhận là việc phụ và ghi lại
+# lí do vào run.log.
+mlflow
+
