@@ -10,32 +10,39 @@ prompt không làm đổi một dòng dữ liệu nào, nên không được n�
 chung một file sẽ sinh ra những mã phiên bản mới vô nghĩa cho cùng một dataset.
 
 MỘT FILE GỒM NHỮNG GÌ
----
-    prompt                : tên file trong configs/prompts/ (bắt buộc)
-    add_generation_prompt : chèn lượt "assistant" rỗng ở cuối hội thoại (mặc định true)
+    model_id      : tên dùng cho mọi đường dẫn và nhãn MLflow; phải trùng tên file
+    checkpoint    : tên model trên Hugging Face, để đối chiếu tránh nhầm model
+    config_version: tăng mỗi khi sửa file
+    task.*        : ghi đè `configs/experiments/task.yaml` khi model này cần khác
+    preprocess.*  : ngưỡng cắt input, chèn lượt trợ lý, bộ tách từ
+    inference.*   : kiểu số, lượng hoá, kích thước lô
 
-Model nào không có file ở đây (PhoBERT, ViSoBERT) nghĩa là cấu hình của nó chỉ gồm
-hằng số trong module tương ứng (tên model, `max_length`, bộ tách từ).
+KHÔNG CÓ GÌ THUỘC RIÊNG MỘT THÍ NGHIỆM
+`prompt`, `examples`, `roles`, `dataset` nằm trong config của thí nghiệm. File này cũng KHÔNG
+nằm trong hash sinh MÃ PHIÊN BẢN DỮ LIỆU: đổi prompt hay kiểu số không làm đổi một dòng dữ
+liệu nào, nên để chung sẽ đẻ ra những mã phiên bản vô nghĩa cho cùng một dataset.
 
-Gõ sai TÊN KHOÁ là lỗi hay gặp (`promt:` thay vì `prompt:`), nên file này báo lỗi
-kèm gợi ý thay vì âm thầm bỏ qua - bỏ qua sẽ khiến prompt nằm lại ở mặc định mà
-người dùng không biết.
+Gõ sai TÊN KHOÁ là lỗi hay gặp (`promt:` thay vì `prompt:`), nên file này báo lỗi kèm gợi ý
+thay vì âm thầm bỏ qua - bỏ qua sẽ khiến cấu hình nằm lại ở giá trị cũ mà người dùng không biết.
+
+GIỚI HẠN ĐÃ BIẾT
+Chưa kiểm `checkpoint` có khớp với model thật trên Hugging Face; việc đó cần mạng nên để
+notebook làm khi nạp model (xem docs/06_plan/P5_notebook_pin.md).
 """
 
 import difflib
-from functools import lru_cache
 
 import yaml
 
 from src import config
 
 # Khoá được phép dùng trong configs/models/<tên>.yaml
-KNOWN_KEYS = ("prompt", "add_generation_prompt", "max_length")
+KNOWN_KEYS = ("model_id", "checkpoint", "config_version", "task", "preprocess", "inference")
 
-CONFIG_HINT = "Xem configs/models/qwen.yaml để biết các khoá cần có."
+# Khoá bắt buộc phải có.
+REQUIRED_KEYS = ("model_id", "checkpoint", "config_version", "preprocess")
 
-# Khoá `max_length` là ngưỡng cắt input (số token) - xem ghi chú ở đầu file này và ở
-# hàm max_length() phía dưới. Đây là chỗ để THỬ NGHIỆM mà không phải sửa code.
+CONFIG_HINT = "Xem configs/models/qwen3-4b-instruct-2507.yaml để biết các khoá cần có."
 
 
 class ModelConfigError(Exception):
@@ -63,48 +70,19 @@ def config_path(name):
     return config.MODEL_CONFIG_DIR / "{}.yaml".format(name)
 
 
-@lru_cache(maxsize=None)
 def load(name):
-    """Đọc + kiểm tra cấu hình của một model (BẮT BUỘC có file). Báo lỗi rõ nếu thiếu.
+    """Đọc và kiểm tra cấu hình của một model. Báo lỗi rõ nếu thiếu file hoặc thiếu khoá.
 
-    File THIẾU là lỗi (không phải "dùng mặc định"): model gọi hàm này là model có
-    cấu hình riêng, và thiếu file nghĩa là ta không biết nó đang chạy với prompt
-    nào - đo ra số liệu mà không biết prompt nào thì số liệu không dùng được.
+    File THIẾU là lỗi (không phải "dùng mặc định"): model nào có file ở đây là model đã chốt
+    cấu hình, nên thiếu file nghĩa là ta không biết nó đang chạy với ngưỡng cắt nào.
     """
     path = config_path(name)
     if not path.exists():
-        hint = suggest(name)
         raise ModelConfigError(
-            "Không tìm thấy cấu hình model '{}' tại {}. Các model có cấu hình: "
-            "{}. {}{}".format(
+            "Không tìm thấy cấu hình model '{}' tại {}. Các model có cấu hình: {}. {}{}".format(
                 name, _display(path), ", ".join(available()) or "(trống)",
-                hint + " " if hint else "", CONFIG_HINT)
+                suggest(name) + " " if suggest(name) else "", CONFIG_HINT)
         )
-
-    cfg = dict(optional(name))
-    if not str(cfg.get("prompt") or "").strip():
-        raise ModelConfigError(
-            "{}: thiếu khoá 'prompt' (tên file prompt trong configs/prompts/). "
-            "Ví dụ:\n    prompt: {}".format(
-                _display(path), _first_prompt_name())
-        )
-
-    cfg["add_generation_prompt"] = bool(cfg.get("add_generation_prompt", True))
-    cfg["_path"] = path
-    return cfg
-
-
-@lru_cache(maxsize=None)
-def optional(name):
-    """Đọc cấu hình NẾU CÓ file; không có file thì trả về {} (khác `load` là không bắt buộc).
-
-    Nhờ vậy một model chỉ muốn ghi đè một khoá (ví dụ `max_length`) không phải tạo file
-    cấu hình đầy đủ - và PhoBERT / ViSoBERT (không có khoá `prompt`) vẫn dùng được cơ chế
-    này y như Qwen.
-    """
-    path = config_path(name)
-    if not path.exists():
-        return {}
 
     with open(path, "r", encoding="utf-8") as handle:
         cfg = yaml.safe_load(handle) or {}
@@ -124,47 +102,73 @@ def optional(name):
                 ", ".join(KNOWN_KEYS))
         )
 
-    value = cfg.get("max_length")
-    if value is not None and (isinstance(value, bool)
-                              or not isinstance(value, int) or value <= 0):
+    missing = [key for key in REQUIRED_KEYS if cfg.get(key) in (None, {}, "")]
+    if missing:
         raise ModelConfigError(
-            "{}: 'max_length' phải là số nguyên dương (đang là {!r}). Đơn vị là TOKEN, "
-            "tính cả token đặc biệt và cả prompt.".format(_display(path), value)
+            "{}: thiếu khoá bắt buộc: {}. {}".format(
+                _display(path), ", ".join(missing), CONFIG_HINT)
         )
+    if str(cfg["model_id"]) != path.stem:
+        raise ModelConfigError(
+            "{}: 'model_id' là {!r} nhưng tên file là {!r}, hai giá trị này phải trùng nhau.".format(
+                _display(path), cfg["model_id"], path.stem)
+        )
+    if not isinstance(cfg["preprocess"], dict):
+        raise ModelConfigError(
+            "{}: 'preprocess' phải là một nhóm khoá, ví dụ 'preprocess: {{max_length: 1280}}'.".format(
+                _display(path))
+        )
+
+    value = cfg["preprocess"].get("max_length")
+    if value is None:
+        raise ModelConfigError(
+            "{}: thiếu 'preprocess.max_length' (ngưỡng cắt input, đơn vị TOKEN).".format(
+                _display(path))
+        )
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ModelConfigError(
+            "{}: 'preprocess.max_length' phải là số nguyên dương (đang là {!r}).".format(
+                _display(path), value)
+        )
+
+    cfg = dict(cfg)
+    cfg["_path"] = path
     return cfg
 
 
-def max_length(name, default):
+def preprocess(name):
+    """Nhóm `preprocess` của một model (đã kiểm ở `load`)."""
+    return dict(load(name)["preprocess"])
+
+
+def inference(name):
+    """Nhóm `inference` của một model; rỗng nếu model không khai."""
+    return dict(load(name).get("inference") or {})
+
+
+def task_override(name):
+    """Nhóm `task` của một model: phần ghi đè lên `configs/experiments/task.yaml`."""
+    return dict(load(name).get("task") or {})
+
+
+def max_length(name):
     """Ngưỡng cắt đang dùng cho một model: (giá trị, nguồn hiển thị được).
 
-    Thứ tự áp dụng: khoá `max_length` trong configs/models/<tên>.yaml > hằng số `default`
-    của module model. (`--max-length` trên dòng lệnh đứng TRÊN cả hai, xử lý ở
-    src/preprocessing/token_stats.py.)
+    Chỉ có MỘT nguồn là `preprocess.max_length` của file cấu hình; không có giá trị mặc định
+    trong code, vì mặc định trong code là thứ âm thầm khác với thứ đang chạy. Nơi ĐO
+    (`token_stats`) và nơi DÙNG (`build_inputs`) đều đọc qua đây nên không thể lệch nhau -
+    lệch là mọi kết luận "input có bị cắt hay không" sai hết.
 
-    VÌ SAO cho thử ở YAML: `max_length` là một BIẾN THỰC NGHIỆM (đổi ngưỡng cắt là đổi
-    input), mà hằng số trong code thì mỗi lần thử lại phải sửa code. Vì sao KHÔNG để ở
-    configs/pipeline.yaml: file đó bị đưa vào hash sinh MÃ PHIÊN BẢN DỮ LIỆU, nên đổi
-    ngưỡng cắt sẽ đẻ ra mã phiên bản dữ liệu mới cho cùng một dataset - dữ liệu không đổi.
-
-    Trả về cả NGUỒN vì một con số không rõ từ đâu ra là con số không kiểm tra được: nó
-    được in khi chạy, ghi vào cột `max_length` của CSV và vào mục lục.
+    Trả về cả NGUỒN vì một con số không rõ từ đâu ra là con số không kiểm tra được: nó được
+    in khi chạy và ghi vào cột `max_length` của file số liệu.
     """
-    value = optional(name).get("max_length")
-    if value:
-        return int(value), _display(config_path(name))
-    return int(default), "hằng số MAX_LENGTH trong module model"
+    value = preprocess(name)["max_length"]
+    return int(value), _display(config_path(name))
 
 
-def prompt_name(name):
-    """Tiện dụng: tên prompt mà một model đang dùng."""
-    return load(name)["prompt"]
-
-
-def _first_prompt_name():
-    """Tên prompt đầu tiên đang có, để điền vào thông báo lỗi cho dễ hình dung."""
-    from src import prompts
-    names = prompts.available()
-    return names[0] if names else "qwen_absa_v1"
+def checkpoint(name):
+    """Tên model trên Hugging Face, để đối chiếu tránh nhầm model."""
+    return load(name)["checkpoint"]
 
 
 def _display(path):

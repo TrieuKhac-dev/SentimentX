@@ -20,18 +20,15 @@ from src import model_config
 
 MODEL_NAME = "uitnlp/visobert"
 
-# Tên file cấu hình trong configs/models/ (không cần đuôi .yaml)
+# Tên file cấu hình trong configs/models/ (không cần đuôi .yaml); phải trùng `model_id`
+# khai trong file đó.
 CONFIG_NAME = "visobert"
 
-# Ngưỡng cắt input, tính bằng TOKEN. ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH - có thể ghi đè bằng
-# `max_length` trong configs/models/visobert.yaml hoặc bằng `--max-length` khi chạy; nơi
-# đo (token_stats) và nơi dùng (build_inputs) đều đọc qua `limit()`.
-# LƯU Ý ĐỂ KHÔNG HIỂU SAI: 256 ở đây là LỰA CHỌN CỦA DỰ ÁN, không phải "khớp model".
-# Trần kiến trúc thật của ViSoBERT là 514 vị trí (`max_position_embeddings` trong
-# config.json của model) - tức còn rất nhiều dư địa. Chọn 256 vì review dài nhất trong
-# dữ liệu cosmetics chỉ 229 token: dư sức, mà bằng với PhoBERT (256) nên hai encoder có
-# cùng ngân sách input, so sánh mới công bằng.
-MAX_LENGTH = 256
+# Ngưỡng cắt input KHÔNG có hằng số ở đây nữa: nó là `preprocess.max_length` trong
+# configs/models/visobert.yaml = 256, và đó là LỰA CHỌN CỦA DỰ ÁN chứ không phải "khớp
+# model" (trần kiến trúc thật của ViSoBERT là 514 vị trí, còn rất nhiều dư địa). Lý do chọn
+# 256: review dài nhất trong dữ liệu cosmetics chỉ 229 token, và bằng PhoBERT (256) nên hai
+# encoder có cùng ngân sách input, so sánh mới công bằng.
 
 # ViSoBERT đọc văn bản nguyên bản; ghi hằng số ở đây để cột truy vết của số liệu nói
 # rõ "không tách từ" là CHỦ Ý, chứ không phải thiếu cấu hình.
@@ -41,8 +38,8 @@ _TOKENIZER = None
 
 
 def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - YAML của model > hằng số MAX_LENGTH."""
-    return model_config.max_length(CONFIG_NAME, MAX_LENGTH)
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - đọc từ configs/models/visobert.yaml."""
+    return model_config.max_length(CONFIG_NAME)
 
 
 

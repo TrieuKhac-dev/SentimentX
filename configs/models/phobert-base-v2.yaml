@@ -1,0 +1,13 @@
+# Cấu hình dùng chung của PhoBERT-base-v2. Xem docs/05_config/04_models.md.
+
+model_id: phobert-base-v2
+checkpoint: vinai/phobert-base-v2
+config_version: 1
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN (kể cả 2 token đặc biệt <s> và </s>).
+  # Trần kiến trúc của PhoBERT là 258 vị trí (`max_position_embeddings` của model), nên đặt
+  # cao hơn sẽ bị chặn ngay khi chạy.
+  max_length: 256
+  # Bộ tách từ chính chủ của PhoBERT; đổi bộ tách từ KHÔNG làm đổi tokenizer.
+  segmenter: vncorenlp

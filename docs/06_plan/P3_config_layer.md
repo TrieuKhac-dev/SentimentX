@@ -16,10 +16,10 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
 
 - [x] T1. Thêm config dùng chung: `configs/experiments/repo.yaml`, `task.yaml`, `evaluation.yaml`,
       `training.yaml`, `tracking.yaml`.
-- [ ] T1b. Chuẩn hoá `configs/models/<model_id>.yaml` theo cấu trúc mới (`model_id`, `checkpoint`,
+- [x] T1b. Chuẩn hoá `configs/models/<model_id>.yaml` theo cấu trúc mới (`model_id`, `checkpoint`,
       `config_version`, `task.*`, `preprocess.*`, `inference.*`), đổi tên file theo `model_id`;
-      cập nhật `src/model_config.py` và các module đang đọc khoá cũ.
-      -> `refactor(config): restructure model configs by model id`
+      cập nhật `src/model_config.py` và các module đang đọc khoá cũ. Thêm `qwen3-0.6b.yaml`.
+      Prompt không còn nằm trong config model: `--prompt` là bắt buộc khi đo/chạy Qwen3.
 - [ ] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá,
       in bảng ghi đè.
       -> `feat(experiments): merge config layers with per-key source tracking`

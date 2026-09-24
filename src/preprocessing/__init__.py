@@ -20,7 +20,7 @@ Các file:
 
 Nội dung thay đổi được KHÔNG nằm trong Python:
     configs/prompts/<tên>.txt   nội dung prompt  (nạp/kiểm tra: src/prompts.py)
-    configs/models/<tên>.yaml   model dùng prompt nào (đọc: src/model_config.py)
+    configs/models/<model_id>.yaml  ngưỡng cắt input, cách nạp model (đọc: src/model_config.py)
 
 Bộ tách từ (word segmentation) nằm ở một gói riêng, THAY ĐƯỢC:
     segmenters/   các bộ tách từ có thể chọn (chính chủ: VnCoreNLP/RDRSegmenter)

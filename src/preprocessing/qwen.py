@@ -15,7 +15,7 @@ mà **mô tả bài toán bằng lời** rồi để model sinh ra JSON.
 PROMPT NẰM Ở FILE, KHÔNG NẰM Ở ĐÂY
 ---
 Nội dung prompt ở configs/prompts/<tên>.txt (cách nạp và kiểm tra: src/prompts.py);
-model dùng prompt nào do configs/models/qwen.yaml quyết định (src/model_config.py).
+model dùng cấu hình nào do configs/models/<model_id>.yaml quyết định (src/model_config.py);
 Nhờ vậy đổi câu chỉ dẫn = thêm/sửa một file .txt rồi đổi một dòng YAML, không phải
 sửa code; và vì prompt KHÔNG nằm trong configs/pipeline.yaml nên đổi prompt không
 làm sinh ra mã phiên bản dữ liệu mới (xem src/versioning.py).
@@ -26,45 +26,53 @@ from src.preprocessing import loader
 
 MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507"
 
-# Tên file cấu hình trong configs/models/ (không cần đuôi .yaml)
-CONFIG_NAME = "qwen"
+# Tên file cấu hình trong configs/models/ (không cần đuôi .yaml); phải trùng `model_id`
+# khai trong file đó. Bản 0.6B dùng cùng module này nhưng có file cấu hình riêng
+# (configs/models/qwen3-0.6b.yaml).
+CONFIG_NAME = "qwen3-4b-instruct-2507"
 
-# Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH - ghi đè được
-# bằng `max_length` trong configs/models/qwen.yaml (để thử nghiệm) hoặc bằng
-# `--max-length` khi chạy; nơi ĐO (token_stats) và nơi DÙNG (build_inputs) đều đọc qua
-# `limit()` nên không thể lệch giữa lúc đo và lúc huấn luyện - lệch là mọi kết luận "có bị
-# cắt hay không" sai hết.
-# 1024 là lựa chọn của dự án (trần của Qwen3 là 262.144), đủ cho prompt một lượt (~230
-# token/review). SỐ ĐO cho prompt CoT + 2 ví dụ: 861 token/review, max 1.106 -> muốn 0% bị
-# cắt thì đặt `max_length: 1280` trong configs/models/qwen.yaml.
-MAX_LENGTH = 1024
+# Ngưỡng cắt input KHÔNG có hằng số ở đây nữa: nó là `preprocess.max_length` trong
+# configs/models/qwen3-4b-instruct-2507.yaml = 1280. SỐ ĐO để chọn số đó: prompt CoT + 2 ví
+# dụ few-shot tốn 861 token/review, review dài nhất 1.106 token, nên ngưỡng 1024 làm
+# 4/12.302 mẫu train bị cắt mất phần đuôi - mà với prompt dạng chat, phần cuối chính là yêu
+# cầu định dạng đầu ra. Nơi ĐO (token_stats) và nơi DÙNG (build_inputs) đều đọc qua `limit()`
+# nên không thể lệch; lệch là mọi kết luận "input có bị cắt hay không" sai hết.
 
 _TOKENIZER = None
 
 
 def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - YAML của model > hằng số MAX_LENGTH."""
-    return model_config.max_length(CONFIG_NAME, MAX_LENGTH)
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - đọc từ file cấu hình của model."""
+    return model_config.max_length(CONFIG_NAME)
 
 
 # ---
-# Prompt: dùng prompt nào, điền gì
+# Prompt: prompt thuộc thí nghiệm, KHÔNG thuộc model
 # ---
 
 
 def config():
-    """Cấu hình model (configs/models/qwen.yaml): dùng prompt nào, chèn lượt assistant?"""
+    """Cấu hình dùng chung của model (configs/models/<CONFIG_NAME>.yaml)."""
     return model_config.load(CONFIG_NAME)
 
 
-def prompt_name():
-    """Tên prompt đang dùng - dòng `prompt:` trong configs/models/qwen.yaml."""
-    return config()["prompt"]
+def default_add_generation_prompt():
+    """Giá trị mặc định của `add_generation_prompt`, lấy từ config của model.
+
+    Đặt tên có `default_` vì trong `encode()`/`build_inputs()` còn một THAM SỐ cùng tên; gọi
+    trùng tên sẽ bị che và không gọi được hàm.
+    """
+    return bool(model_config.preprocess(CONFIG_NAME)["add_generation_prompt"])
 
 
-def load_prompt(name=None):
-    """Nạp prompt đã kiểm tra (mặc định: prompt trong config của model)."""
-    return prompts.load(name or prompt_name())
+def load_prompt(name):
+    """Nạp prompt đã kiểm tra. Prompt thuộc THÍ NGHIỆM nên phải ghi rõ tên."""
+    if not name:
+        raise ValueError(
+            "Thiếu tên prompt. Prompt nằm trong config của thí nghiệm, không lấy từ config "
+            "model; hãy truyền tên prompt, ví dụ 'qwen_absa_cot_v1'."
+        )
+    return prompts.load(name)
 
 
 def values(text, aspects=None, label_map=None, prompt=None):
@@ -181,12 +189,12 @@ def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
     Không cần torch, nên dùng được cho việc ĐO độ dài input thật trước khi huấn
     luyện (xem src/preprocessing/token_stats.py). Kết quả là list[list[int]].
 
-    `add_generation_prompt` mặc định lấy từ configs/models/qwen.yaml - giá trị này
-    phải GIỐNG giá trị lúc huấn luyện, nếu không số token đo được sẽ lệch đúng một
-    lượt hội thoại.
+    `add_generation_prompt` mặc định lấy từ `preprocess.add_generation_prompt` của config model
+    - giá trị này phải GIỐNG giá trị lúc huấn luyện, nếu không số token đo được sẽ lệch đúng
+    một lượt hội thoại.
     """
     if add_generation_prompt is None:
-        add_generation_prompt = config()["add_generation_prompt"]
+        add_generation_prompt = default_add_generation_prompt()
     return _check_encoded(tokenizer().apply_chat_template(
         conversations(texts, aspects, label_map, prompt_name),
         tokenize=True,
@@ -207,7 +215,7 @@ def build_inputs(texts, max_length=None, add_generation_prompt=None,
     không thể lệch nhau. Truyền số cụ thể khi muốn ép cho một lần gọi.
     """
     if add_generation_prompt is None:
-        add_generation_prompt = config()["add_generation_prompt"]
+        add_generation_prompt = default_add_generation_prompt()
     if max_length is None:
         max_length = limit()[0]
     return tokenizer().apply_chat_template(

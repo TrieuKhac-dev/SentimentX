@@ -28,7 +28,8 @@ CÁCH MỞ RỘNG
 5) Thêm một MODEL mới cho tiền xử lý cho model:
    - Viết file trong `src/preprocessing/`, ví dụ `my_model.py`, cung cấp:
          MODEL_NAME    tên trên Hugging Face
-         MAX_LENGTH    ngưỡng cắt input (tính bằng token)
+         CONFIG_NAME   tên file cấu hình trong configs/models/; `limit()` đọc
+                       `preprocess.max_length` từ file đó (xem src/model_config.py)
          tokenizer()   nạp tokenizer một lần
          encode()      -> list[list[int]] CHƯA pad, CHƯA cắt
          info()        -> dict ghi lại tokenizer / từ vựng / ngưỡng cắt / bộ tách từ
@@ -36,11 +37,9 @@ CÁCH MỞ RỘNG
      `encode()` KHÔNG được pad/cắt: token_stats đo độ dài thật dựa vào đó, và có kiểm
      tra để phát hiện việc pad/cắt lẫn vào.
    - Thêm một dict vào `MODELS` trong `src/preprocessing/token_stats.py`.
-   - Nếu model cần PROMPT riêng: tạo `configs/prompts/<tên>.txt`, tạo
-     `configs/models/<tên>.yaml` trỏ tới prompt đó, rồi đọc cấu hình bằng
-     `src/model_config.py` (xem `src/preprocessing/qwen.py`). Prompt KHÔNG được để
-     trong `configs/pipeline.yaml`, vì file đó bị đưa vào hash sinh mã phiên bản dữ
-     liệu (xem `src/versioning.py`).
+   - Thêm `configs/models/<model_id>.yaml` với `model_id` trùng tên file.
+   - Prompt KHÔNG khai ở đây: prompt thuộc config của thí nghiệm, vì cùng một model có thể
+     chạy nhiều prompt khác nhau.
    - Nếu model cần một BỘ TÁCH TỪ mới: xem hợp đồng ở
      `src/preprocessing/segmenters/base.py` (thêm file rồi đăng ký trong `SEGMENTERS`).
      Tuyệt đối KHÔNG nhét bước tách từ vào pipeline chung.

@@ -19,7 +19,7 @@ viết thêm code chỉ là suy đoán, không phải tái lập.
 **Làm tiếp từ đâu:** khi repo có checkpoint -> viết `src/preprocessing/vitasa.py` theo
 đúng định dạng đầu vào của nó (khung đã có: `to_absa_tuples`, `to_label_ids`,
 `describe_format`), rồi thêm một dict vào `MODELS` trong `src/preprocessing/token_stats.py`
-(`MODEL_NAME`, `MAX_LENGTH`, `tokenizer`, `encode`, `words`, `info`) để đo được độ dài
+(`MODEL_NAME`, `tokenizer`, `encode`, `words`, `info`) để đo được độ dài
 input như 3 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
 
 ## 2. Chạy Qwen3 theo hướng CHỈ DẪN (prompt + CoT) - chưa làm

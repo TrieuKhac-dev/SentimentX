@@ -6,11 +6,11 @@
 configs/
 +-- prompts/<tên>.txt        NỘI DUNG prompt (sửa được không cần đụng code)
 +-- prompts/examples/<tên>.txt  khối ví dụ few-shot (tuỳ chọn, khi prompt dùng {examples})
-\-- models/<tên>.yaml        model dùng prompt nào (mặc định: qwen.yaml)
+\-- models/<model_id>.yaml   ngưỡng cắt input, cách nạp model (mặc định: qwen3-4b-instruct-2507.yaml)
 
 src/
 +-- prompts.py               nạp + KIỂM TRA file prompt (ô nhớ, dòng đánh dấu, sha)
-+-- model_config.py          đọc configs/models/<tên>.yaml
++-- model_config.py          đọc configs/models/<model_id>.yaml
 \-- preprocessing/
     +-- loader.py            ĐỌC dữ liệu đã xử lý (mọi model dùng chung)
     +-- phobert.py           tách từ + tokenizer
@@ -38,8 +38,8 @@ chứ không âm thầm dùng một thứ khác.
 ## 2. Prompt nằm ở FILE, không nằm trong code
 
 Câu chỉ dẫn gửi cho Qwen3 là một **biến thực nghiệm**: cùng một dữ liệu, đổi câu chỉ dẫn
-là đổi kết quả. Vì vậy nội dung prompt nằm ở `configs/prompts/<tên>.txt`, còn model dùng
-prompt nào do `configs/models/qwen.yaml` quyết định.
+là đổi kết quả. Vì vậy nội dung prompt nằm ở `configs/prompts/<tên>.txt`, còn thí nghiệm
+nào dùng prompt nào do config của chính thí nghiệm quyết định (khoá `prompt`).
 
 ```bash
 python run_token_stats.py --list-prompts          # đang có prompt nào, sha nào
@@ -136,28 +136,27 @@ Chỉ cần `transformers` (không cần torch), nên đo được trước khi 
 nào chưa đo được sẽ bị bỏ qua kèm lí do, không ghi số liệu sai. Tên dataset sai thì
 lệnh dừng ngay với gợi ý tên gần đúng (mã thoát `2`), giống các entrypoint khác.
 
-Ngưỡng cắt `max_length` là **hằng số `MAX_LENGTH` trong module của từng model**
-(`phobert.MAX_LENGTH`, `visobert.MAX_LENGTH`, `qwen.MAX_LENGTH`), không phải khoá cấu
-hình và cũng không chép lại trong `token_stats.py`: chép lại là có ngày lệch với lúc
-huấn luyện, và lệch ở đây thì mọi kết luận "input có bị cắt hay không" đều sai.
+Ngưỡng cắt `max_length` là một **khoá cấu hình**, không phải hằng số trong code: mỗi model
+khai `preprocess.max_length` trong `configs/models/<model_id>.yaml`. Không chép lại con số
+này ở chỗ nào khác, vì chép lại là có ngày lệch với lúc huấn luyện, và lệch ở đây thì mọi
+kết luận "input có bị cắt hay không" đều sai.
 
-Ngưỡng cắt `max_length` đọc theo thứ tự **trên xuống** - cả ba đường đi qua đúng một hàm
+Ngưỡng cắt `max_length` đọc theo thứ tự **trên xuống** - cả hai đường đi qua đúng một hàm
 (`token_stats.effective_limit`), nên con số dùng để ĐO và con số dùng để CẮT khi huấn luyện
 (`build_inputs` mặc định lấy cùng giá trị) không thể lệch nhau:
 
 | # | Nguồn | Dùng khi nào | Đổi có làm bẩn version dữ liệu? |
 |---|-------|--------------|--------------------------------|
 | 1 | `--max-length 128` hoặc `--max-length qwen=1280` | thử nhanh một lần, không phải sửa file | không |
-| 2 | `max_length` trong `configs/models/<model>.yaml` | cấu hình thí nghiệm | **không** - file này KHÔNG nằm trong hash sinh mã phiên bản dữ liệu |
-| 3 | hằng số `MAX_LENGTH` trong module model | giá trị mặc định | không |
+| 2 | `preprocess.max_length` trong `configs/models/<model_id>.yaml` | cấu hình của dự án | **không** - file này KHÔNG nằm trong hash sinh mã phiên bản dữ liệu |
 
 Khi chạy, ngưỡng hiệu lực được in ra kèm **nguồn** và **trần của model**:
 
 ```
   max_length :
-      phobert      256 token   nguồn: configs/models/phobert.yaml   trần model: 258
-      visobert     256 token   nguồn: configs/models/visobert.yaml  trần model: 514
-      qwen        1280 token   nguồn: configs/models/qwen.yaml   (KHÁC mặc định)   trần model: 262144
+      phobert      256 token   nguồn: configs/models/phobert-base-v2.yaml   trần model: 258
+      visobert     256 token   nguồn: configs/models/visobert.yaml          trần model: 514
+      qwen        1280 token   nguồn: configs/models/qwen3-4b-instruct-2507.yaml   trần model: 262144
 ```
 
 Ba chốt an toàn đi kèm:
@@ -166,9 +165,9 @@ Ba chốt an toàn đi kèm:
    là bị chặn ngay, kèm gợi ý dùng `--max-length <model>=<số>`.
 2. **Cờ dòng lệnh thì tên file có thêm `maxlen-<model>-<số>`** (ví dụ
    `token_stats__prompt-qwen_absa_cot_v1__maxlen-qwen-1024.csv`) -> chạy thử một giá trị
-   khác không ghi đè lên số liệu của cấu hình chính. Ngược lại, sửa `max_length` trong
-   `configs/models/<model>.yaml` là đổi **cấu hình của dự án**, nên vẫn ghi vào file mặc
-   định (`token_stats.csv`) - nếu không, chỉ đổi một dòng YAML là file mặc định biến mất,
+   khác không ghi đè lên số liệu của cấu hình chính. Ngược lại, sửa `preprocess.max_length`
+   trong `configs/models/<model_id>.yaml` là đổi **cấu hình của dự án**, nên vẫn ghi vào file
+   mặc định (`token_stats.csv`) - nếu không, chỉ đổi một dòng YAML là file mặc định biến mất,
    khó tra cứu. Giá trị hiệu lực thì **luôn** được ghi lại ở ba nơi: cột `max_length` trong
    CSV, dòng `max_length` ở banner, và khoá `limits` trong mục lục.
 3. **Có review bị cắt thì in cảnh báo** nêu rõ model / split / tỉ lệ, thay vì để nó lặng lẽ
@@ -180,7 +179,7 @@ Ba chốt an toàn đi kèm:
 |-------|----------------------|---------------|------------------|
 | PhoBERT | 256 | **258** vị trí (`max_position_embeddings`) | Bảng chính chủ của PhoBERT ghi "Max length 256"; 258 = 256 + 2 token đặc biệt |
 | ViSoBERT | 256 | **514** vị trí | **Lựa chọn của dự án** (review dài nhất 229 token) - không phải "khớp model"; đặt bằng PhoBERT để hai encoder cùng ngân sách input |
-| Qwen3-4B | **1280** | 262.144 vị trí (và `model_max_length` = 1.010.000) | **Lựa chọn của dự án**, ghi ở `configs/models/qwen.yaml`: prompt CoT cần tới 1.106 token, nên 1024 làm cắt mất 4 mẫu train; 1280 cho 0% bị cắt ở mọi split. Hằng số mặc định trong code (khi YAML không ghi khoá) là 1024 |
+| Qwen3-4B | **1280** | 262.144 vị trí (và `model_max_length` = 1.010.000) | **Lựa chọn của dự án**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`: prompt CoT cần tới 1.106 token, nên 1024 làm cắt mất 4 mẫu train; 1280 cho 0% bị cắt ở mọi split |
 
 
 | Cột | Nghĩa |
@@ -296,7 +295,7 @@ Vì vậy có hai lựa chọn ngưỡng cắt, **cả hai đều có số liệ
 
 | Ngưỡng cắt | File | Ảnh hưởng thật |
 |-----------|------|----------------|
-| 1280 (**đang dùng**, ghi ở `configs/models/qwen.yaml`) | `token_stats__prompt-qwen_absa_cot_v1__ex-c513f5a6.csv` | 0 mẫu bị cắt ở **mọi** split |
+| 1280 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | `token_stats__prompt-qwen_absa_cot_v1__ex-c513f5a6.csv` | 0 mẫu bị cắt ở **mọi** split |
 | 1024 (phương án đã cân nhắc, giữ lại để đối chiếu) | `...__ex-c513f5a6__maxlen-qwen-1024.csv` (chạy bằng `--max-length qwen=1024`) | 82/12.302 mẫu **train** mất phần đuôi (0,67%); val 0,59%; test 0,53% |
 
 **Quyết định:** dùng **1280** - số liệu ở cột `% review > max_length` khi đó bằng 0 ở mọi

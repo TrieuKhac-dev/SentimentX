@@ -180,7 +180,7 @@ Bốn điều đọc ra từ bảng này:
 
 | Việc                                              | Bắt đầu từ đâu                                                                               |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Huấn luyện PhoBERT (× 4 bộ tách từ) và ViSoBERT   | chưa có script; dùng `loader.to_multi_head_arrays()` với `max_length` của từng module model  |
+| Huấn luyện PhoBERT (× 4 bộ tách từ) và ViSoBERT   | chưa có script; dùng `loader.to_multi_head_arrays()` với `preprocess.max_length` của từng model trong `configs/models/`  |
 | Tăng `--limit` lên 300-500 cho hai cấu hình chính | `python run_qwen_eval.py --split val --limit 300 ...` (khoảng 5-35 phút tuỳ prompt)          |
 | Đo dao động                                       | `--sample --seed <n>` vài lần; cấu hình lấy đúng khuyến nghị của model card (0.7 / 0.8 / 20) |
 | Self-consistency (lấy mẫu nhiều lần rồi bỏ phiếu) | hạ tầng đã có: chạy `--sample` nhiều seed rồi bỏ phiếu theo từng ô                           |

@@ -1,0 +1,17 @@
+# Cấu hình dùng chung của Qwen3-0.6B: bản nhỏ, dùng để chạy nhanh và chạy được trên CPU.
+# Cùng họ tokenizer với bản 4B nên ngưỡng cắt giống nhau.
+# Xem docs/05_config/04_models.md.
+
+model_id: qwen3-0.6b
+checkpoint: Qwen/Qwen3-0.6B
+config_version: 1
+
+preprocess:
+  max_length: 1280
+  add_generation_prompt: true
+
+inference:
+  dtype: float32
+  # Không lượng hoá: bản 0.6B chạy được trên CPU nên không cần.
+  quantization: null
+  batch_size: 4

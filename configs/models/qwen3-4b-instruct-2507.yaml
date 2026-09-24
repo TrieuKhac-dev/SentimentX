@@ -1,0 +1,25 @@
+# Cấu hình dùng chung của Qwen3-4B-Instruct-2507: mọi thứ không thuộc riêng một thí nghiệm.
+# Prompt, examples, roles và dataset nằm trong config của thí nghiệm.
+# Xem docs/05_config/04_models.md.
+
+model_id: qwen3-4b-instruct-2507
+checkpoint: Qwen/Qwen3-4B-Instruct-2507
+
+# Tăng số này mỗi khi sửa file.
+config_version: 1
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). 1280 vì SỐ ĐO: prompt CoT + 2 ví dụ
+  # few-shot tốn 861 token/review, review dài nhất 1.106 token. Ở ngưỡng 1024 thì 4/12.302
+  # mẫu train bị cắt mất phần đuôi - mà với prompt dạng chat, phần cuối chính là yêu cầu
+  # định dạng đầu ra, nên mẫu đó mất luôn chỉ dẫn. 1280 giữ 0% bị cắt ở mọi split, và không
+  # tốn thêm gì đáng kể. Trần của model là 262.144 vị trí nên còn nhiều dư địa.
+  max_length: 1280
+  # Bắt buộc với Qwen3 ở chế độ chỉ dẫn: chèn lượt "assistant" rỗng để model bắt đầu sinh.
+  add_generation_prompt: true
+
+inference:
+  dtype: bfloat16
+  # Máy đang dùng có 6 GB VRAM nên phải lượng hoá 4-bit.
+  quantization: 4bit
+  batch_size: 8

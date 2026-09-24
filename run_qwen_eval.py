@@ -59,8 +59,9 @@ def parse_args(argv=None):
                         help="Mã phiên bản dữ liệu đã xử lý (mặc định: bản mới nhất).")
     parser.add_argument("--split", default="val", choices=["val", "test", "train"],
                         help="Tập để chạy. Mặc định 'val' - tập LỰA CHỌN, không phải test.")
-    parser.add_argument("--prompt", default=None,
-                        help="Tên prompt (mặc định: prompt ghi trong configs/models/qwen.yaml).")
+    parser.add_argument("--prompt", required=True,
+                        help="Tên prompt. Bắt buộc: prompt thuộc config của thí nghiệm, "
+                             "không lấy từ config model.")
     parser.add_argument("--model", default=None,
                         help="Ghi đè tên model trên Hugging Face (mặc định: "
                              "Qwen/Qwen3-4B-Instruct-2507 trong src/preprocessing/qwen.py). "

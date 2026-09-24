@@ -58,9 +58,8 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         "--prompt", default=None,
-        help="Tên prompt dùng cho Qwen3 (mặc định: prompt ghi trong "
-             "file cấu hình model). Dùng để thử prompt mới mà không phải sửa "
-             "config.",
+        help="Tên prompt dùng cho Qwen3. Bắt buộc khi ĐO: prompt thuộc config của thí "
+             "nghiệm, không lấy từ config model. Các lệnh --list-* không cần tham số này.",
     )
     parser.add_argument(
         "--segmenter", default=None,
@@ -72,8 +71,8 @@ def parse_args(argv=None):
         metavar="N|MODEL=N",
         help="Ghi đè ngưỡng cắt input cho một lần chạy. Dạng 'N' (áp cho mọi model, "
              "báo lỗi nếu vượt trần của model nào) hoặc 'qwen=1280' (chỉ model đó; lặp "
-             "lại được nhiều lần). Ngưỡng mặc định: configs/models/<model>.yaml, còn "
-             "không thì hằng số MAX_LENGTH trong module model.",
+             "lại được nhiều lần). Ngưỡng mặc định: preprocess.max_length trong file "
+             "cấu hình của model (configs/models/<model_id>.yaml).",
     )
     parser.add_argument(
         "--list-prompts", action="store_true",
@@ -170,8 +169,8 @@ def list_prompts():
     keys = ("name", "sha", "kiểu", "số ví dụ", "ô nhớ", "file")
     print_table([[row[key] for key in keys] for row in prompts.describe_all()],
                 ["prompt", "sha", "kiểu", "số ví dụ", "ô nhớ", "file"])
-    print("\nPrompt đang dùng ghi ở configs/models/qwen.yaml. Muốn thử prompt khác "
-          "trong một lần chạy: --prompt <tên>.")
+    print("Bắt buộc ghi rõ prompt khi đo: --prompt <tên>. Prompt thuộc config của thí nghiệm, "
+          "không lấy từ config model.")
     print("Số ví dụ là biến thí nghiệm ĐỔI ĐƯỢC mà không phải sửa prompt: bỏ/thêm khối "
           "'--- Ví dụ n ---' trong configs/prompts/examples/<tên>.txt.")
     return 0
@@ -231,9 +230,9 @@ def print_config(prompt, segmenter_spec, max_length_overrides=None):
     print("  bộ tách từ : {}".format(_segmenter_label(segmenter_spec)))
     print("               (chỉ PhoBERT dùng; ViSoBERT và Qwen đọc văn bản nguyên bản)")
     print("  max_length :")
-    for key, value, source, differs, _from_cli in token_stats.limits(max_length_overrides):
-        print("      {:<9}{:>7} token   nguồn: {}{}   trần model: {}".format(
-            key, value, source, "  (KHÁC mặc định)" if differs else "",
+    for key, value, source, _from_cli in token_stats.limits(max_length_overrides):
+        print("      {:<9}{:>7} token   nguồn: {}   trần model: {}".format(
+            key, value, source,
             ceilings.get(key) or "không rõ"))
     print()
 
@@ -264,7 +263,7 @@ def build_tag(args, max_length_overrides=None, prompt=None):
         parts.append("ex-{}".format(info["sha"]))
     if args.segmenter:
         parts.append("seg-{}".format(args.segmenter))
-    for key, value, _source, _differs, from_cli in token_stats.limits(max_length_overrides):
+    for key, value, _source, from_cli in token_stats.limits(max_length_overrides):
         if from_cli:
             parts.append("maxlen-{}-{}".format(key, value))
     return "__".join(parts) or None
@@ -285,6 +284,10 @@ def main(argv=None):
     # Tham số sai phải dừng NGAY, trước khi tải dữ liệu và tokenizer (mỗi lần chạy tốn
     # vài phút), và gõ sai tên là lỗi hay gặp nhất. In một dòng gọn kèm gợi ý thay vì để
     # traceback che mất thông báo.
+    if not args.prompt:
+        print("LỖI: thiếu --prompt. Prompt thuộc config của thí nghiệm nên phải ghi rõ; "
+              "chạy `--list-prompts` để xem các prompt đang có.")
+        return 2
     try:
         prompt = qwen.load_prompt(args.prompt)
     except prompts.PromptError as exc:

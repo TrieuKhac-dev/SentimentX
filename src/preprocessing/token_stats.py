@@ -42,15 +42,14 @@ def _word_count(texts, **kwargs):
 
 
 # Tokenizer thật của từng model. Ngưỡng cắt KHÔNG ghi số ở đây mà trỏ tới `limit()` của
-# module model, và `limit()` đọc theo thứ tự: configs/models/<model>.yaml > hằng số
-# MAX_LENGTH. `--max-length` khi chạy đứng trên cả hai (xem `effective_limit`). Nhờ vậy
-# con số dùng để ĐO và con số dùng để CẮT lúc huấn luyện (`build_inputs`) luôn là một.
+# module model, và `limit()` đọc `preprocess.max_length` trong configs/models/<model_id>.yaml.
+# `--max-length` khi chạy đứng trên giá trị đó (xem `effective_limit`). Nhờ vậy con số dùng để
+# ĐO và con số dùng để CẮT lúc huấn luyện (`build_inputs`) luôn là một.
 MODELS = (
     {
         "key": "phobert",
         "model_name": phobert.MODEL_NAME,
         "limit": phobert.limit,
-        "default_max_length": phobert.MAX_LENGTH,
         "encode": phobert.encode,
         "words": phobert.words,
         "tokenizer": phobert.tokenizer,
@@ -60,7 +59,6 @@ MODELS = (
         "key": "visobert",
         "model_name": visobert.MODEL_NAME,
         "limit": visobert.limit,
-        "default_max_length": visobert.MAX_LENGTH,
         "encode": visobert.encode,
         "words": _word_count,
         "tokenizer": visobert.tokenizer,
@@ -70,7 +68,6 @@ MODELS = (
         "key": "qwen",
         "model_name": qwen.MODEL_NAME,
         "limit": qwen.limit,
-        "default_max_length": qwen.MAX_LENGTH,
         "encode": qwen.encode,
         "words": _word_count,
         "tokenizer": qwen.tokenizer,
@@ -84,14 +81,13 @@ def effective_limit(spec, overrides=None):
 
     Thứ tự áp dụng, trên xuống:
 
-        1. `--max-length` khi chạy            -> thử nhanh, không phải sửa file
-        2. `max_length` trong configs/models/<model>.yaml -> cấu hình thí nghiệm
-        3. hằng số MAX_LENGTH trong module model          -> giá trị mặc định
+        1. `--max-length` khi chạy                        -> thử nhanh, không phải sửa file
+        2. `preprocess.max_length` trong configs/models/<model_id>.yaml  -> giá trị của dự án
 
-    Cả ba đường đều đi qua ĐÂY, nên con số dùng để đo (`token_stats`) và con số dùng để
-    cắt lúc huấn luyện/chạy model (`build_inputs`) không thể lệch nhau. Nguồn được giữ
-    lại để IN RA và GHI VÀO số liệu: một ngưỡng cắt không rõ từ đâu ra thì đọc bảng số
-    liệu xong vẫn không biết nó thuộc thí nghiệm nào.
+    Không còn tầng "hằng số trong code": ngưỡng cắt chỉ có một nguồn là file cấu hình, nên
+    con số dùng để đo (`token_stats`) và con số dùng để cắt lúc chạy/huấn luyện
+    (`build_inputs`) không thể lệch nhau. Nguồn được giữ lại để IN RA và GHI VÀO số liệu: một
+    ngưỡng cắt không rõ từ đâu ra thì đọc bảng số liệu xong vẫn không biết nó thuộc thí nghiệm nào.
     """
     override = (overrides or {}).get(spec["key"])
     if override:
@@ -101,23 +97,17 @@ def effective_limit(spec, overrides=None):
 
 
 def limits(overrides=None):
-    """Danh sách (model, ngưỡng cắt, nguồn, KHÁC mặc định?, TỪ DÒNG LỆNH?) cho mọi model.
+    """Danh sách (model, ngưỡng cắt, nguồn, TỪ DÒNG LỆNH?) cho mọi model.
 
-    Hai cờ cuối phục vụ hai việc khác nhau:
-
-    - "khác mặc định": ngưỡng đang dùng không bằng hằng số trong module model -> in ra để
-      người đọc biết con số này không phải mặc định của code.
-    - "từ dòng lệnh": ngưỡng đến từ `--max-length`. CHỈ cờ dòng lệnh mới làm tên file kết
-      quả có thêm `maxlen-...` (xem run_token_stats.build_tag), vì cờ dòng lệnh nghĩa là
-      "chạy khác đi MỘT LẦN", còn sửa `configs/models/<model>.yaml` là CẤU HÌNH CỦA DỰ ÁN
-      nên vẫn ghi vào file mặc định - nếu không, chỉ đổi một dòng YAML là tên file mặc
-      định biến mất, khó tra cứu.
+    Cờ cuối chỉ dùng cho một việc: ngưỡng đến từ `--max-length` thì tên file kết quả có thêm
+    `maxlen-...` (xem run_token_stats.build_tag), vì cờ dòng lệnh nghĩa là "chạy khác đi MỘT
+    LẦN", còn sửa `configs/models/<model_id>.yaml` là CẤU HÌNH CỦA DỰ ÁN nên vẫn ghi vào file
+    mặc định - nếu không, chỉ đổi một dòng YAML là tên file mặc định biến mất, khó tra cứu.
     """
     result = []
     for spec in MODELS:
         value, source, from_cli = effective_limit(spec, overrides)
-        differs = int(value) != int(spec["default_max_length"])
-        result.append((spec["key"], value, source, differs, from_cli))
+        result.append((spec["key"], value, source, from_cli))
     return result
 
 SPLITS = ("train", "val", "test")
@@ -316,13 +306,13 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
                   thông tin từng model) để entrypoint ghi vào mục lục - đo mà không ghi
                   lại cấu hình thì lần sau đọc số liệu không biết nó thuộc về cái gì.
 
-    `prompt_name` / `segmenter`: chỉ truyền khi muốn đo một cấu hình KHÁC mặc định
-    (`--prompt`, `--segmenter`). Truyền None nghĩa là "dùng mặc định của chính model",
-    nên giá trị được chuyển tiếp xuống model thay vì tự quyết ở đây.
+    `prompt_name`: BẮT BUỘC. Prompt thuộc config của thí nghiệm, không lấy từ config model, nên
+    nơi gọi phải nói rõ đang đo prompt nào (`run_token_stats.py --prompt`).
+    `segmenter`: chỉ truyền khi muốn đo một cấu hình KHÁC mặc định (`--segmenter`).
 
     `max_length`: dict {tên model: số token} để ghi đè NGƯỠNG CẮT cho một lần chạy
-    (`--max-length`). Ngưỡng hiệu lực = CLI > configs/models/<model>.yaml > hằng số của
-    module model, xem `effective_limit`.
+    (`--max-length`). Ngưỡng hiệu lực = CLI > preprocess.max_length trong
+    configs/models/<model_id>.yaml, xem `effective_limit`.
     """
     # Ngưỡng cắt được chốt MỘT LẦN cho cả lần chạy, rồi truyền xuống `measure` qua spec.
     # Nhờ vậy trong cùng một lần chạy, con số đem đi đo luôn đúng bằng con số đã ghi vào
@@ -340,7 +330,11 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
     # prompt của Qwen mô tả bộ khía cạnh, nên dùng nhầm phiên bản là prompt mô tả sai
     # bài toán mà nhìn vào thì vẫn thấy hợp lí.
     label_map = loader.load_label_map(version_id, dataset=dataset)
-    prompt_name = prompt_name or qwen.prompt_name()
+    if not prompt_name:
+        raise ValueError(
+            "Thiếu prompt_name. Prompt nằm trong config của thí nghiệm nên phải truyền vào "
+            "(run_token_stats.py: --prompt <tên>)."
+        )
 
     measure_context = {
         "dataset": dataset,

@@ -29,16 +29,14 @@ from src.preprocessing import segmenters
 
 MODEL_NAME = "vinai/phobert-base-v2"
 
-# Tên file cấu hình trong configs/models/ (không cần đuôi .yaml)
-CONFIG_NAME = "phobert"
+# Tên file cấu hình trong configs/models/ (không cần đuôi .yaml); phải trùng `model_id`
+# khai trong file đó.
+CONFIG_NAME = "phobert-base-v2"
 
-# Ngưỡng cắt input, tính bằng TOKEN (kể cả 2 token đặc biệt). ĐÂY LÀ GIÁ TRỊ MẶC ĐỊNH -
-# có thể ghi đè bằng `max_length` trong configs/models/phobert.yaml (để thử nghiệm) hoặc
-# bằng `--max-length` khi chạy; nơi đo (token_stats) và nơi dùng (build_inputs) đều đọc
-# qua `limit()` nên hai chỗ không thể lệch nhau.
-# 256 là "Max length" trong bảng chính chủ của PhoBERT (README của VinAI); trần kiến trúc
-# là `max_position_embeddings: 258` trong config.json (258 = 256 + 2 token đặc biệt).
-MAX_LENGTH = 256
+# Ngưỡng cắt input KHÔNG có hằng số ở đây nữa: nó là `preprocess.max_length` trong
+# configs/models/phobert-base-v2.yaml = 256, bằng "Max length" trong bảng chính chủ của
+# PhoBERT (trần kiến trúc là `max_position_embeddings: 258`, tức 256 + 2 token đặc biệt).
+# Nơi ĐO (token_stats) và nơi DÙNG (build_inputs) đều đọc qua `limit()` nên không thể lệch.
 
 # Bộ tách từ dùng cho model này:
 #     "auto"        -> vncorenlp (chính chủ), nếu chưa cài được Java thì pyvi
@@ -52,8 +50,8 @@ _TOKENIZER = None
 
 
 def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - YAML của model > hằng số MAX_LENGTH."""
-    return model_config.max_length(CONFIG_NAME, MAX_LENGTH)
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - đọc từ configs/models/phobert-base-v2.yaml."""
+    return model_config.max_length(CONFIG_NAME)
 
 
 def segmenter(segmenter=None):

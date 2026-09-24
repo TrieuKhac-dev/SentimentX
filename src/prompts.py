@@ -9,8 +9,8 @@ Prompt là một BIẾN THỰC NGHIỆM: đổi câu chỉ dẫn có thể đổ
     - giữ NGUYÊN VĂN cả dấu ba nháy, xuống dòng, dấu ngoặc nhọn;
     - truy vết được đã dùng prompt nào (tên file + mã sha in vào báo cáo).
 
-Ngoài phần văn bản, file .txt KHÔNG chứa siêu dữ liệu: "model nào dùng prompt
-nào" do configs/models/<model>.yaml quyết định (xem src/model_config.py).
+Ngoài phần văn bản, file .txt KHÔNG chứa siêu dữ liệu: "thí nghiệm nào dùng prompt nào" do
+config của thí nghiệm quyết định (khoá `prompt`, xem docs/05_config/06_experiment.md).
 
 HỢP ĐỒNG CỦA MỘT FILE PROMPT
 ---
@@ -42,8 +42,8 @@ HỢP ĐỒNG CỦA MỘT FILE PROMPT
 4. Sai ô nhớ, thiếu {text}, hoặc dòng đánh dấu lạ => báo LỖI ngay khi nạp, kèm
    đường dẫn file và gợi ý - không chạy tiếp với một prompt sai.
 
-Thêm prompt mới: tạo configs/prompts/<tên>.txt rồi ghi tên đó vào
-configs/models/<model>.yaml, hoặc chạy `python run_token_stats.py --prompt <tên>`.
+Thêm prompt mới: tạo `configs/prompts/<tên>.txt` rồi ghi tên đó vào config của thí nghiệm
+(khoá `prompt`), hoặc chạy `python run_token_stats.py --prompt <tên>` để đo thử.
 """
 
 import difflib
