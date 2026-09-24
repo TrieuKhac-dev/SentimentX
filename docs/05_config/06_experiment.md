@@ -36,9 +36,14 @@ requires_extra: []
 | `data.version`   | phiên bản dataset, trỏ tới `configs/datasets/<name>/<version>.yaml`                          |
 | `data.roles`     | **bắt buộc khai**, không kế thừa: mỗi vai dùng split nào của chính dataset đó                |
 | `prompt`         | đường dẫn file prompt: tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là bốn cấp) |
-| `examples`       | đường dẫn file ví dụ few-shot                                                                |
-| `system_prompt`  | đường dẫn file chứa khối `[SYSTEM]`; bắt buộc nếu prompt dùng ô nhớ `{system_prompt}`        |
+| `examples`       | đường dẫn file ví dụ few-shot, bắt buộc khi prompt dùng ô nhớ `{examples}`                   |
+| `system_prompt`  | đường dẫn khối chỉ dẫn hệ thống dùng chung, bắt buộc khi prompt dùng ô nhớ `{system_prompt}`. File nhận cả hai cách viết: chỉ có câu hệ thống, hoặc có mục `[SYSTEM]` |
 | `requires_extra` | danh sách đường dẫn bổ sung mà notebook phải kiểm, cho thứ máy không suy ra được             |
+
+`prompt`, `examples`, `system_prompt` đều nhận TÊN TRẦN (không dấu `/`, không `.txt`) để lấy file
+trong thư viện dùng chung: `configs/prompts/<tên>.txt`, `configs/prompts/examples/<tên>.txt`,
+`configs/prompts/system/<tên>.txt`. Muốn dùng chung một khối hệ thống cho nhiều prompt thì viết câu
+hệ thống một lần ở `configs/prompts/system/<tên>.txt` rồi cho các prompt cùng trỏ vào đó.
 
 ## Quy tắc vai
 

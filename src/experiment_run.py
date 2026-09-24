@@ -122,7 +122,7 @@ def label_names(label_map):
     return {int(code): name for code, name in (label_map.get("id_to_label") or {}).items()}
 
 
-def input_files(ds, prompt_path, model_id, examples_path=None):
+def input_files(ds, prompt_path, model_id, examples_path=None, system_path=None):
     """File ĐẦU VÀO của lần chạy, kèm vai, để `run_meta.json` tự mô tả được.
 
     Vì sao phải ghi cả file cấu hình dữ liệu: một con số chỉ so được khi biết nó sinh ra từ code
@@ -140,6 +140,7 @@ def input_files(ds, prompt_path, model_id, examples_path=None):
                     run_meta.ROLE_PIPELINE))
     entries.append((prompt_path, run_meta.ROLE_PROMPT))
     entries.append((examples_path, run_meta.ROLE_EXAMPLES))
+    entries.append((system_path, run_meta.ROLE_SYSTEM))
     return run_meta.input_files(entries)
 
 
@@ -188,6 +189,7 @@ def print_config(plan_data, model_info):
     """In cấu hình của lần chạy TRƯỚC khi sinh, để nhìn là biết đang đo cái gì."""
     prompt = plan_data["prompt"]
     examples = plan_data["examples"]
+    system = plan_data.get("system")
     print("Cấu hình chạy:")
     print("  thí nghiệm  : {}".format(
         "{}/{}/{}".format(plan_data["model_id"], plan_data["method"], plan_data["exp_id"])
@@ -196,6 +198,8 @@ def print_config(plan_data, model_info):
     print("  ví dụ       : {}".format(
         "{} - {} ví dụ, sha {}".format(examples["file"], examples["examples"],
                                        examples["sha"]) if examples else "không dùng"))
+    print("  hệ thống    : {}".format(
+        "{} (sha {})".format(system["file"], system["sha"]) if system else "không dùng"))
     print("  tập dữ liệu : {} - {}{}".format(
         plan_data["split"], plan_data["limit"] or plan_data["total"],
         " (TẬP CON ngẫu nhiên, seed {})".format(plan_data["seed"])
@@ -254,11 +258,17 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
 
     # Prompt: tên trong thư viện dùng chung, hoặc đường dẫn tới file cạnh notebook. Nạp xong thì
     # đăng ký luôn (`qwen.load_prompt`), vì các bước sau chỉ truyền được một cái TÊN.
+    # Prompt: tên trong thư viện dùng chung, hoặc đường dẫn tới file cạnh notebook. Nạp xong thì
+    # đăng ký luôn (`qwen.load_prompt`), vì các bước sau chỉ truyền được một cái TÊN.
     prompt_value = prompt or config_data.get("prompt")
     examples_value = examples if examples is not None else config_data.get("examples")
-    prompt_obj = qwen.load_prompt(prompt_value, base_dir=exp_dir, examples=examples_value)
-    examples_info = (prompts.examples_info(prompt_obj.examples_value, base_dir=exp_dir)
-                     if "examples" in prompt_obj.placeholders else None)
+    system_value = config_data.get("system_prompt")
+    prompt_obj = qwen.load_prompt(prompt_value, base_dir=exp_dir, examples=examples_value,
+                                  system=system_value)
+    # Thông tin truy vết đọc từ CHÍNH prompt đã nạp (đường dẫn đã giải xong), không giải lại từ
+    # config: hai chỗ giải đường dẫn là hai chỗ có thể lệch nhau.
+    examples_info = prompt_obj.examples_info()
+    system_info = prompt_obj.system_info()
 
     label_map = loader.load_label_map(version_id, dataset=ds["name"])
     frame = loader.load_processed(split, version_id=version_id, dataset=ds["name"])
@@ -340,6 +350,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "exp_id": exp_id, "exp_dir": exp_dir, "inside": inside, "dataset": ds,
         "version_id": version_id, "split": split, "limit": limit, "seed": seed,
         "total": len(frame), "prompt": prompt_obj, "examples": examples_info,
+        "system": system_info,
         "label_map": label_map, "labels": label_names(label_map), "aspects": aspects,
         "texts": texts, "golds": golds, "row_index": row_index, "generation": generation,
         "sampled": sampled, "max_length": max_length, "model": model, "quant": quant,
@@ -349,8 +360,8 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "parts": parts, "skip": skip,
         "files": input_files(
             ds, prompt_obj.path, model_id,
-            prompts.resolve(prompt_obj.examples_value, exp_dir, examples=True)[1]
-            if prompt_obj.examples_value else None),
+            prompt_obj.examples_path if prompt_obj.examples_value else None,
+            prompt_obj.system_path if prompt_obj.system_value else None),
     }
 
 

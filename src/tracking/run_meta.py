@@ -47,6 +47,7 @@ ROLE_DATASET = "dataset"
 ROLE_PIPELINE = "pipeline"
 ROLE_PROMPT = "prompt"
 ROLE_EXAMPLES = "examples"
+ROLE_SYSTEM = "system"
 ROLE_TRACKING = "tracking"
 
 STATUS_RUNNING = "RUNNING"

@@ -68,11 +68,15 @@ def default_add_generation_prompt():
 _PROMPTS = {}
 
 
-def load_prompt(value, base_dir=None, examples=None):
+def load_prompt(value, base_dir=None, examples=None, system=None):
     """Nạp prompt đã kiểm tra. Prompt thuộc THÍ NGHIỆM nên phải ghi rõ tên hoặc đường dẫn.
 
     Prompt trong thư viện dùng chung thì ghi tên (`absa_cot_v1`); prompt riêng của một thí nghiệm
     thì ghi đường dẫn tính từ thư mục thí nghiệm (`prompt.txt`) - xem `prompts.resolve`.
+
+    Khoá nhớ của `prompts.load` gồm CẢ `base_dir`, `examples` và `system`: cùng một tên prompt
+    nhưng hai thí nghiệm khai file ví dụ hoặc khối hệ thống khác nhau là hai cấu hình khác nhau,
+    nhớ theo tên không thôi thì thí nghiệm thứ hai dùng nhầm cấu hình của thí nghiệm thứ nhất.
     """
     if not value:
         raise ValueError(
@@ -80,9 +84,14 @@ def load_prompt(value, base_dir=None, examples=None):
             "model; hãy truyền tên prompt (ví dụ 'absa_cot_v1') hoặc đường dẫn tới file prompt "
             "của thí nghiệm."
         )
-    cached = _PROMPTS.get(str(value))
-    return use_prompt(cached if cached is not None
-                      else prompts.load(value, base_dir, examples))
+    # Các bước sau chỉ còn cầm một cái TÊN prompt, nên prompt đã nạp được tra theo "sổ" này. Chỉ
+    # tra khi nơi gọi KHÔNG khai gì thêm: có `base_dir`/`examples`/`system` nghĩa là đang nạp một
+    # cấu hình cụ thể, phải nạp đúng cấu hình đó.
+    if base_dir is None and examples is None and system is None:
+        found = _PROMPTS.get(str(value))
+        if found is not None:
+            return found
+    return use_prompt(prompts.load(value, base_dir, examples, system))
 
 
 def use_prompt(prompt):
@@ -92,6 +101,9 @@ def use_prompt(prompt):
     prompt nằm trong thư mục thí nghiệm - vốn không có trong thư viện dùng chung - sẽ không tìm
     lại được theo tên. Nạp một lần rồi ghi vào đây thì mọi bước sau dùng đúng prompt đó, thay vì
     mỗi nơi tự ghép lại đường dẫn.
+
+    Prompt mang theo ĐƯỜNG DẪN ĐÃ GIẢI của file ví dụ và khối hệ thống, nên bước sau dựng prompt
+    được mà không cần biết thư mục thí nghiệm ở đâu.
     """
     _PROMPTS[prompt.name] = prompt
     return prompt
@@ -123,7 +135,11 @@ def values(text, aspects=None, label_map=None, prompt=None):
             result["example"] = "{" + ", ".join(
                 '"{}": 0'.format(aspect) for aspect in aspects) + "}"
         if "examples" in needed:
-            result["examples"] = prompts.examples(prompt.examples_value)
+            # Đọc theo đường dẫn prompt ĐÃ GIẢI lúc nạp: các bước sau chỉ còn biết TÊN prompt nên
+            # không tự giải lại đường dẫn được (xem prompts.Prompt.examples_text).
+            result["examples"] = prompt.examples_text()
+    if "system_prompt" in needed:
+        result["system_prompt"] = prompt.system_text()
     return result
 
 
@@ -261,12 +277,13 @@ def info(prompt_name=None):
     few-shot là một phần của cấu hình thí nghiệm: cùng một prompt mà đi với 0/1/2 ví dụ là
     ba thí nghiệm khác nhau, trong khi `prompt_sha` của cả ba lại GIỐNG NHAU (nó chỉ tính
     nội dung file prompt). Không ghi mã của file ví dụ thì ba thí nghiệm mang cùng dấu vết.
+    Khối hệ thống dùng chung cũng vậy, nên nó có `system_sha` riêng.
     """
     found = tokenizer()
     template = load_prompt(prompt_name)
     value, source = limit()
-    examples = (prompts.examples_info(template.examples_value)
-                if "examples" in template.placeholders else None) or {}
+    examples = template.examples_info() or {}
+    system = template.system_info() or {}
     return {
         "tokenizer": type(found).__name__,
         "segmenter": "none",
@@ -277,6 +294,8 @@ def info(prompt_name=None):
         "examples": examples.get("file"),
         "examples_sha": examples.get("sha"),
         "examples_count": examples.get("examples") or None,
+        "system": system.get("file"),
+        "system_sha": system.get("sha"),
         "max_length": value,
         "max_length_source": source,
     }

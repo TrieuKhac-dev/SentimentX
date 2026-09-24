@@ -16,11 +16,14 @@ HỢP ĐỒNG CỦA MỘT FILE PROMPT
 ---
 1. Văn bản thuần UTF-8, dùng các "ô nhớ" (placeholder) dạng {tên}:
 
-       {text}        nội dung review - BẮT BUỘC phải có
-       {aspects}     danh sách khía cạnh, cách nhau ", "
-       {label_guide} bảng mã nhãn, sinh từ label_map.json của đúng phiên bản dữ liệu
-       {example}     một object JSON mẫu (sinh tự động theo danh sách khía cạnh)
-       {examples}    khối ví dụ few-shot, đọc từ configs/prompts/examples/<tên>.txt
+       {text}          nội dung review - BẮT BUỘC phải có
+       {aspects}       danh sách khía cạnh, cách nhau ", "
+       {label_guide}   bảng mã nhãn, sinh từ label_map.json của đúng phiên bản dữ liệu
+       {example}       một object JSON mẫu (sinh tự động theo danh sách khía cạnh)
+       {examples}      khối ví dụ few-shot, đọc từ configs/prompts/examples/<tên>.txt
+       {system_prompt} khối chỉ dẫn hệ thống dùng chung cho nhiều prompt, đọc từ
+                       configs/prompts/system/<tên>.txt; prompt dùng ô nhớ này thì
+                       config của thí nghiệm PHẢI khai khoá `system_prompt`
 
    Cần in dấu ngoặc nhọn thật thì viết {{ và }} (chuẩn của str.format).
 
@@ -56,7 +59,7 @@ from functools import lru_cache
 from src import config, utils
 
 # Ô nhớ được phép dùng trong file prompt
-PLACEHOLDERS = ("text", "aspects", "label_guide", "example", "examples")
+PLACEHOLDERS = ("text", "aspects", "label_guide", "example", "examples", "system_prompt")
 
 # Ô nhớ bắt buộc: thiếu {text} thì prompt không dùng được cho review nào
 REQUIRED_PLACEHOLDERS = ("text",)
@@ -127,12 +130,22 @@ def examples_path(name):
     return config.PROMPT_DIR / "examples" / "{}.txt".format(name)
 
 
-def resolve(value, base_dir=None, examples=False):
-    """Đổi giá trị khai trong config thành (TÊN, ĐƯỜNG DẪN) của file prompt hoặc file ví dụ.
+def system_path(name):
+    """Đường dẫn khối chỉ dẫn hệ thống dùng chung (tuỳ chọn, có thể không có).
+
+    Tách khỏi file prompt để NHIỀU prompt cùng dùng một câu hệ thống: sửa một chỗ, mọi prompt
+    đổi theo. Prompt nào cần thì khai ô nhớ {system_prompt} và khoá `system_prompt` trong config
+    của thí nghiệm.
+    """
+    return config.PROMPT_DIR / "system" / "{}.txt".format(name)
+
+
+def resolve(value, base_dir=None, examples=False, system=False):
+    """Đổi giá trị khai trong config thành (TÊN, ĐƯỜNG DẪN) của file prompt, ví dụ, hoặc hệ thống.
 
     Tên TRẦN - không có dấu `/` và không có `.txt` - là tên trong thư viện dùng chung
-    (`configs/prompts/`). Còn lại là ĐƯỜNG DẪN: tính từ thư mục thí nghiệm trước, rồi tới gốc
-    repo, đúng như docs/05_config/06_experiment.md quy định.
+    (`configs/prompts/`, thêm `examples/` hoặc `system/` tuỳ `examples`/`system`). Còn lại là ĐƯỜNG
+    DẪN: tính từ thư mục thí nghiệm trước, rồi tới gốc repo, đúng như docs/05_config/06_experiment.md.
 
     Có hai dạng để một thí nghiệm dùng prompt: prompt riêng nằm cạnh notebook (`prompt.txt`) khi
     nó chỉ dùng cho thí nghiệm đó, hoặc prompt trong thư viện chung khi nhiều thí nghiệm dùng
@@ -141,12 +154,15 @@ def resolve(value, base_dir=None, examples=False):
     text = str(value or "").strip()
     if not text:
         raise PromptError(
-            "Thiếu giá trị khai cho {}của prompt: nêu tên trong thư viện dùng chung, hoặc đường "
+            "Thiếu giá trị khai cho {} của prompt: nêu tên trong thư viện dùng chung, hoặc đường "
             "dẫn tới file. Prompt cần ô nhớ {{examples}} thì phải khai khoá `examples` trong "
             "config của thí nghiệm (xem docs/05_config/06_experiment.md).".format(
+                "KHỐI HỆ THỐNG" if system else
                 "FILE VÍ DỤ few-shot" if examples else "prompt"))
     bare = "/" not in text and "\\" not in text and not text.endswith(".txt")
     if bare:
+        if system:
+            return text, system_path(text)
         return text, (examples_path(text) if examples else prompt_path(text))
     path = Path(text)
     if not path.is_absolute():
@@ -262,7 +278,7 @@ def _split_sections(text, where):
 class Prompt:
     """Một prompt đã nạp và đã kiểm tra."""
 
-    def __init__(self, name, path, text, examples=None):
+    def __init__(self, name, path, text, examples=None, system=None, base_dir=None):
         self.name = name
         self.path = path
         self.text = text
@@ -271,6 +287,15 @@ class Prompt:
         # chứ không suy ra từ tên prompt (suy ra là nguồn sự thật thứ hai, lệch lúc nào không biết).
         # None nghĩa là CHƯA khai: prompt cần {examples} thì lỗi ngay, prompt không cần thì bỏ qua.
         self.examples_value = str(examples) if examples is not None else None
+        # Khối hệ thống dùng chung (khoá `system_prompt`), cùng cách khai như file ví dụ.
+        self.system_value = str(system) if system is not None else None
+        # GIẢI ĐƯỜNG DẪN NGAY TẠI ĐÂY, một lần. Đường dẫn trong config tính từ thư mục thí nghiệm,
+        # mà các bước sau chỉ còn cầm một cái TÊN prompt (`build_inputs(prompt_name=...)`), nên nếu
+        # để tới lúc dựng prompt mới giải thì `base_dir` đã mất và file không tìm thấy.
+        self.examples_path = (resolve(self.examples_value, base_dir, examples=True)[1]
+                              if self.examples_value else None)
+        self.system_path = (resolve(self.system_value, base_dir, system=True)[1]
+                            if self.system_value else None)
         self.sha = hashlib.sha1(utils.normalize_text(text).encode("utf-8")).hexdigest()[:8]
         self.where = _display(path)
         self.placeholders = _placeholders(text, self.where)
@@ -296,6 +321,48 @@ class Prompt:
                     " Có phải bạn muốn {{{}}}?".format(hint[0]) if hint else "",
                     ", ".join("{" + item + "}" for item in PLACEHOLDERS))
             )
+
+    # -- file đi kèm: ví dụ few-shot và khối hệ thống -------------------
+
+    def examples_text(self):
+        """Khối ví dụ few-shot đã cắt chú thích, dùng cho ô nhớ `{examples}`.
+
+        Đọc từ đường dẫn đã giải lúc nạp (`self.examples_path`), nên KHÔNG cần `base_dir` nữa -
+        đó là điều kiện để các bước sau (chỉ còn biết tên prompt) vẫn dựng được prompt.
+        """
+        if not self.examples_value:
+            raise PromptError(
+                "Prompt {} cần ô nhớ {{examples}} nhưng config của thí nghiệm CHƯA khai khoá "
+                "`examples`. Xem docs/05_config/06_experiment.md.".format(self.where))
+        return _examples_from_path(self.examples_path)
+
+    def examples_info(self):
+        """Thông tin truy vết của file ví dụ (hoặc None nếu prompt không dùng ô nhớ này)."""
+        if "examples" not in self.placeholders:
+            return None
+        if not self.examples_value:
+            raise PromptError(
+                "Prompt {} cần ô nhớ {{examples}} nhưng config của thí nghiệm CHƯA khai khoá "
+                "`examples`.".format(self.where))
+        return info_of_path(self.examples_path, self.examples_value)
+
+    def system_text(self):
+        """Khối chỉ dẫn hệ thống, dùng cho ô nhớ `{system_prompt}`."""
+        if not self.system_value:
+            raise PromptError(
+                "Prompt {} cần ô nhớ {{system_prompt}} nhưng config của thí nghiệm CHƯA khai khoá "
+                "`system_prompt`. Xem docs/05_config/06_experiment.md.".format(self.where))
+        return _system_from_path(self.system_path)
+
+    def system_info(self):
+        """Thông tin truy vết của khối hệ thống (hoặc None nếu prompt không dùng ô nhớ này)."""
+        if "system_prompt" not in self.placeholders:
+            return None
+        if not self.system_value:
+            raise PromptError(
+                "Prompt {} cần ô nhớ {{system_prompt}} nhưng config của thí nghiệm CHƯA khai khoá "
+                "`system_prompt`.".format(self.where))
+        return info_of_path(self.system_path, self.system_value)
 
     # -- dùng prompt ----------------------------------------------------
 
@@ -359,14 +426,14 @@ class Prompt:
 
     def describe(self):
         """Một dòng mô tả prompt, để in ra console (dùng cho --list-prompts)."""
-        info = (examples_info(self.examples_value) if self.examples_value
-                and "examples" in self.placeholders else None)
+        info = self.examples_info() if "examples" in self.placeholders else None
         if info is None:
             shot = "-"
         elif info["missing"]:
             shot = "THIẾU FILE ví dụ"
         else:
             shot = "{} ví dụ (sha {})".format(info["examples"], info["sha"])
+        system = self.system_info() if "system_prompt" in self.placeholders else None
         return {
             "name": self.name,
             "file": self.where,
@@ -376,16 +443,23 @@ class Prompt:
             if self.multiline else "một lượt",
             "ô nhớ": ", ".join("{" + item + "}" for item in self.placeholders),
             "số ví dụ": shot,
+            "khối hệ thống": ("THIẾU FILE hệ thống" if system["missing"]
+                              else "{} (sha {})".format(system["file"], system["sha"]))
+            if system else "-",
         }
 
 
 @lru_cache(maxsize=None)
-def load(value, base_dir=None, examples=None):
+def load(value, base_dir=None, examples=None, system=None):
     """Nạp + kiểm tra một prompt, có nhớ kết quả (prompt không đổi trong một lần chạy).
 
     `value` là TÊN trong thư viện dùng chung, hoặc ĐƯỜNG DẪN tới file prompt của thí nghiệm
     (xem `resolve`). `examples` là giá trị khai ở khoá `examples` của thí nghiệm; để trống thì
-    lấy cùng tên với prompt, đúng như trước.
+    lấy cùng tên với prompt, đúng như trước. `system` là giá trị khai ở khoá `system_prompt`.
+
+    `base_dir` là thư mục THÍ NGHIỆM: mọi đường dẫn trong config tính từ đó trước, rồi mới tới gốc
+    repo. Prompt đã giải xong đường dẫn của file ví dụ và file hệ thống, nên các bước sau không cần
+    `base_dir` nữa.
     """
     name, path = resolve(value, base_dir)
     if not path.exists():
@@ -407,7 +481,8 @@ def load(value, base_dir=None, examples=None):
         bare = ("/" not in str(value) and "\\" not in str(value)
                 and not str(value).endswith(".txt"))
         examples = value if bare else None
-    return Prompt(name, path, _read_text(path), examples=examples)
+    return Prompt(name, path, _read_text(path), examples=examples, system=system,
+                  base_dir=base_dir)
 
 
 def render(name, values):
@@ -458,6 +533,26 @@ def _count_examples(text):
     return sum(1 for line in text.split("\n") if _EXAMPLE_BLOCK_RE.match(line))
 
 
+def info_of_path(path, value=None):
+    """Thông tin truy vết của MỘT file đi kèm prompt (ví dụ few-shot hoặc khối hệ thống).
+
+    Dùng chung cho cả hai loại file, nên chúng không thể bị mô tả lệch nhau. `value` chỉ để nói rõ
+    trong thông báo lỗi người dùng đã khai gì.
+    """
+    if not path.exists():
+        return {"file": _display(path), "value": value, "sha": None, "examples": 0,
+                "note": "", "missing": True}
+    note, body = _split_examples_note(_read_text(path))
+    return {
+        "file": _display(path),
+        "value": value,
+        "sha": hashlib.sha1(utils.normalize_text(body).encode("utf-8")).hexdigest()[:8],
+        "examples": _count_examples(body),
+        "note": note,
+        "missing": False,
+    }
+
+
 def examples_info(value, base_dir=None):
     """Thông tin TRUY VẾT của file ví dụ few-shot, hoặc None nếu prompt không dùng.
 
@@ -470,30 +565,11 @@ def examples_info(value, base_dir=None):
     cần chặn. Mã ở đây tính trên phần ĐÃ CẮT chú thích, nên chỉ sửa lời chú thích thì mã
     (và tên file số liệu) không đổi.
     """
-    path = resolve(value, base_dir, examples=True)[1]
-    if not path.exists():
-        # Prompt cần ví dụ mà chưa có file: hiện rõ ở --list-prompts. Lỗi cứng sẽ được
-        # báo khi thật sự dựng prompt (xem `examples`), để việc liệt kê không bị chặn.
-        return {"file": _display(path), "sha": None, "examples": 0, "note": "",
-                "missing": True}
-
-    note, body = _split_examples_note(_read_text(path))
-    return {
-        "file": _display(path),
-        "sha": hashlib.sha1(utils.normalize_text(body).encode("utf-8")).hexdigest()[:8],
-        "examples": _count_examples(body),
-        "note": note,
-        "missing": False,
-    }
+    return info_of_path(resolve(value, base_dir, examples=True)[1], value)
 
 
-def examples(value, base_dir=None):
-    """Khối ví dụ few-shot của một prompt (mặc định configs/prompts/examples/<tên>.txt).
-
-    `value` là giá trị khai ở khoá `examples` của thí nghiệm. Trả về phần HIỆU LỰC (đã cắt khối
-    chú thích ở đầu file) - đây mới là phần đi vào prompt. Xem `_split_examples_note`.
-    """
-    path = resolve(value, base_dir, examples=True)[1]
+def _examples_from_path(path):
+    """Phần HIỆU LỰC của file ví dụ (đã cắt khối chú thích ở đầu file)."""
     if not path.exists():
         raise PromptError(
             "Prompt cần ô nhớ {{examples}} nhưng chưa có file ví dụ {}. Tạo "
@@ -502,6 +578,49 @@ def examples(value, base_dir=None):
         )
     _note, body = _split_examples_note(_read_text(path))
     return body
+
+
+def examples(value, base_dir=None):
+    """Khối ví dụ few-shot của một prompt (mặc định configs/prompts/examples/<tên>.txt).
+
+    `value` là giá trị khai ở khoá `examples` của thí nghiệm. Trả về phần HIỆU LỰC (đã cắt khối
+    chú thích ở đầu file) - đây mới là phần đi vào prompt. Xem `_split_examples_note`.
+    """
+    return _examples_from_path(resolve(value, base_dir, examples=True)[1])
+
+
+def _system_from_path(path):
+    """Nội dung khối chỉ dẫn hệ thống gửi cho model.
+
+    Nhận CẢ HAI cách viết cho tiện: file chỉ chứa câu hệ thống (như `templates/prompt/system.txt`),
+    hoặc file có mục `[SYSTEM]` như một file prompt nhiều lượt. Có dòng đánh dấu thì lấy đúng mục
+    hệ thống - người viết không phải nhớ file hệ thống phải trống định dạng.
+    """
+    if not path.exists():
+        raise PromptError(
+            "Prompt cần ô nhớ {{system_prompt}} nhưng chưa có file khối hệ thống {}. Tạo file đó "
+            "(nội dung là câu gửi cho model; xem templates/prompt/system.txt), hoặc bỏ ô nhớ "
+            "{{system_prompt}} khỏi prompt.".format(_display(path))
+        )
+    text = _read_text(path)
+    sections = _split_sections(text, _display(path))
+    if sections is None:
+        return text.strip()
+    for name, content in sections:
+        if name == "system":
+            return content.strip()
+    raise PromptError(
+        "{} có dòng đánh dấu mục nhưng KHÔNG có mục [SYSTEM], nên không lấy được khối hệ thống."
+        .format(_display(path))
+    )
+
+
+def system(value, base_dir=None):
+    """Khối chỉ dẫn hệ thống của một prompt (mặc định configs/prompts/system/<tên>.txt).
+
+    `value` là giá trị khai ở khoá `system_prompt` của thí nghiệm.
+    """
+    return _system_from_path(resolve(value, base_dir, system=True)[1])
 
 
 def describe_all():
