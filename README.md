@@ -73,6 +73,11 @@ pip install -r requirements.txt
 Gồm `pandas`, `numpy`, `PyYAML` (xử lý dữ liệu) và `plotly`, `jinja2` (sinh báo cáo).
 Riêng dataset dùng định dạng Parquet thì cài thêm `pyarrow`.
 
+Ba file requirements, mỗi nơi một việc: `requirements.txt` cho máy cá nhân, `requirements-colab.txt`
+cho Colab (**KHÔNG** cài lại `torch`: Colab đã có bản khớp CUDA của nó) và `requirements-ci.txt` cho
+CI (rất ngắn, vì CI không chạy model và không đọc dữ liệu). Lý do từng dòng và cách chạy trên Colab:
+`docs/00_workflow/07_colab.md`.
+
 ### Riêng pha 3 (đo input thật của model): cần thêm JAVA
 
 Bộ tách từ **chính chủ** của PhoBERT (RDRSegmenter, nằm trong VnCoreNLP) là một chương
@@ -93,7 +98,7 @@ Kiểm tra: `python run_token_stats.py --list-segmenters` — dòng `vncorenlp` 
 `--segmenter pyvi` (`pip install pyvi`), nhưng phải ghi rõ đã dùng bộ nào vì số liệu
 của hai bộ không so sánh ngang nhau được. Chi tiết (vì sao cài bằng ZIP thay vì `winget`,
 vì sao không dùng `py_vncorenlp.download_model`): xem
-[docs/04_experiments/02_phase3_input.md §5](docs/04_experiments/02_phase3_input.md).
+[docs/04_experiments/02_model_input.md §5](docs/04_experiments/02_model_input.md).
 
 
 ### Riêng pha 4 (chạy Qwen3 bằng chỉ dẫn): cần `torch` bản CUDA
@@ -199,66 +204,97 @@ ghi ở config của chính thí nghiệm đó, không ghi ở `configs/models/`
 
 
 
-`--dataset cosmetics` là mặc định nên có thể bỏ qua. Tên dataset phải trùng tên
-file `configs/datasets/<tên>.yaml`; gõ sai (ví dụ `consmetics`) thì lệnh dừng ngay
-và in ra tên đúng, không đi tìm file kết quả.
+`--dataset cosmetics` là mặc định nên có thể bỏ qua, nhưng **`--version` thì bắt buộc**: mỗi phiên bản
+dataset cho ra một bộ dữ liệu khác nhau. Tên dataset trùng tên thư mục `configs/datasets/<tên>/`;
+gõ sai (ví dụ `consmetics`) thì lệnh dừng ngay và in ra tên đúng, không đi tìm file kết quả.
 
-Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo phiên bản**:
+Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phiên bản**:
 
 | Muốn xem gì | Mở file |
 |-------------|---------|
-| Báo cáo EDA | `data/processed/<mã>/eda/report.html` (dữ liệu gốc: `data/raw/<tên>/<phiên bản>/eda/`) |
+| Báo cáo EDA | `data/processed/<mã>/eda/report.html` (đo trên dữ liệu gốc: `data/raw/<tên>/<phiên bản>/eda/`) |
 | Báo cáo Pipeline | `data/processed/<mã>/pipeline/report.html` |
 | Dataset đã xử lý | `data/processed/<mã>/train.csv` (kèm `val.csv`, `test.csv`, `label_map.json`) |
 | Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats.csv` |
-| Chạy Qwen3 + điểm số | `data/reports/model_eval/<mã>/<hậu tố cấu hình>/` (gồm `predictions.csv`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
-| Danh sách phiên bản | `python build_report.py --list` |
+| Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<mã>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
+| Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
 
-Mã phiên bản có dạng `cosmetics-v0.1.0-e6ffefe4`, được tính từ **nội dung
-config + nội dung dữ liệu gốc**. Đổi config hoặc đổi dữ liệu ⇒ mã mới ⇒ **kết quả
-cũ không bị ghi đè**. Báo cáo cho người đọc chỉ có **một** định dạng là HTML
-(bản Markdown đã bỏ vì chỉ lặp lại số liệu mà không có biểu đồ): chạy
-`build_report.py --dataset cosmetics` thì hai file `report.html` (EDA + Pipeline)
-được mở luôn bằng trình duyệt mặc định — thêm `--no-open` nếu không muốn mở.
+Mã phiên bản có dạng `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484`: đọc ra được phiên bản
+dataset, phiên bản pipeline, nguồn, và 8 ký tự băm của **nội dung config + nội dung dữ liệu gốc**.
+Đổi config hoặc đổi dữ liệu ⇒ mã mới ⇒ **kết quả cũ không bị ghi đè**. Phép băm bỏ qua kiểu xuống
+dòng (CRLF/LF), nên cùng một bộ dữ liệu cho ra cùng một mã trên Windows và trên Colab.
+`build_report.py` vẽ HTML cho EDA và pipeline (mở luôn bằng trình duyệt, thêm `--no-open` nếu không
+muốn); bảng tổng hợp thì có cả `csv` để máy đọc, `html` để người đọc và `md` chứa sơ đồ Mermaid.
 
 ## 5. Cấu trúc thư mục
 
 ```
 SentimentX/
-├── data/
-│   ├── raw/<tên>/      # dữ liệu GỐC, mỗi dataset một thư mục — không bao giờ sửa
-│   ├── processed/
-│   │   ├── manifest.json       # mục lục mọi phiên bản đã chạy
-│   │   └── versions/<mã>/      # processed_train.csv, label_map.json, processing_log.json
-│   └── reports/
-│       ├── assets/             # plotly.min.js (để HTML mở được offline)
-│       ├── eda/versions/<mã>/      # eda_result.json, 0X_*.json, *.csv, report.html
-│       ├── pipeline/versions/<mã>/ # pipeline_result.json, report.html, ...
-│       └── model_input/versions/<mã>/  # token_stats.csv (đo input thật, pha 3)
+├── data/                       # KHÔNG vào git, trừ metadata và bảng chi tiết (luật 20)
+│   ├── raw/<tên>/<phiên bản>/  # dữ liệu GỐC + raw_meta.yaml + eda/ (kết quả đo, KHÔNG sửa dữ liệu)
+│   ├── processed/<mã>/         # dữ liệu đã xử lý: train.csv, val.csv, test.csv, label_map.json,
+│   │   │                       # processing_log.json (dấu vết của lần chạy pipeline)
+│   │   ├── eda/                # kết quả EDA đo trên dữ liệu ĐÃ xử lý
+│   │   └── pipeline/           # bảng chi tiết từng bước + report.html
+│   ├── models/                 # model tải về (bỏ qua nội dung, giữ README)
+│   ├── reports/                # bảng tổng hợp sinh tự động: 4 nhóm, xem scripts/collect_reports.py
+│   └── reference_publication/  # số liệu công bố tham chiếu, để so kết quả
+├── configs/
+│   ├── paths.yaml              # NGUỒN DUY NHẤT của đường dẫn và mẫu tên file
+│   ├── dagshub.yaml            # hạ tầng MLflow/DagsHub (KHÔNG chứa token)
+│   ├── datasets/<tên>/<phiên bản>.yaml    # schema dataset; file phiên bản là BẤT BIẾN
+│   ├── pipeline/<phiên bản>.yaml          # bật/tắt từng phép biến đổi (độc lập dataset)
+│   ├── models/<tên>.yaml                  # model chạy thế nào: dtype, lượng hoá, batch, max_length
+│   ├── experiments/{repo,task,evaluation,training,tracking}.yaml   # dùng chung cho mọi thí nghiệm
+│   └── prompts/<tên>.txt + prompts/examples/<tên>.txt              # nội dung prompt và ví dụ
+├── experiments/<model>/<method>/<expNNN>/  # ĐỊNH NGHĨA thí nghiệm: config.yaml, notebook.ipynb,
+│                                           # README.md; kết quả chạy ở results/<mã dữ liệu>/
+├── templates/                  # bản mẫu để tạo thí nghiệm mới (scripts/new_experiment.py dùng)
 ├── src/
-│   ├── config.py       # hằng số kỹ thuật: đường dẫn, mã nhãn, ngưỡng
-│   ├── dataset.py      # đọc cấu hình dataset, đưa dữ liệu về dạng chuẩn nội bộ
-│   ├── versioning.py   # tính mã phiên bản + ghi mục lục
-│   ├── prompts.py      # nạp + KIỂM TRA file prompt (configs/prompts/<tên>.txt)
-│   ├── model_config.py # model dùng prompt nào (configs/models/<tên>.yaml)
-│   ├── loaders/        # đọc csv / jsonl / parquet (thêm định dạng mới ở đây)
-│   ├── registry.py     # đăng ký bước EDA / pipeline (điểm mở rộng)
-│   ├── utils.py        # hàm dùng chung
-│   ├── reporting/      # result.py (file kết quả), charts.py (Plotly), render.py + templates/
-│   ├── eda/            # 5 module EDA
-│   ├── pipeline/       # 7 bước pipeline
-│   └── preprocessing/  # PHA 3: input riêng cho từng model, các bộ tách từ, đo input thật
+│   ├── paths.py                # API đường dẫn, đọc configs/paths.yaml
+│   ├── runtime.py              # máy đang chạy (colab/local), nạp biến môi trường, tìm thư mục Drive
+│   ├── repo.py                 # kéo ĐÚNG commit đã ghim rồi kiểm lại
+│   ├── notebooks.py            # đọc/ghi notebook và ô GHIM (dùng chung với scripts/pin.py)
+│   ├── experiments.py          # hợp nhất các tầng config + dấu vân tay cấu hình
+│   ├── model_config.py         # đọc config model
+│   ├── dataset.py              # đọc config dataset, đưa dữ liệu về dạng chuẩn nội bộ
+│   ├── versioning.py           # mã phiên bản dữ liệu, guard bất biến, đường dẫn theo phiên bản
+│   ├── preflight.py            # kiểm TRƯỚC khi chạy: dữ liệu, GPU, quyền ghi, NEW hay RESUME
+│   ├── experiment_run.py       # vòng chạy thí nghiệm: plan() không cần GPU -> run()
+│   ├── resume.py               # dừng hay đi tiếp theo các khối predictions/part_*.jsonl
+│   ├── reports.py              # sinh bảng tổng hợp (4 nhóm)
+│   ├── checks.py               # các kiểm tra cấu trúc cho CI
+│   ├── runlog.py               # ghi run.log theo dòng, không đệm
+│   ├── prompts.py              # nạp + KIỂM TRA file prompt
+│   ├── labels/                 # bảng mã nhãn
+│   ├── loaders/                # đọc csv / jsonl / parquet (thêm định dạng mới ở đây)
+│   ├── registry.py             # đăng ký bước EDA / pipeline (điểm mở rộng)
+│   ├── reporting/              # result.py (file kết quả), charts.py (Plotly), render.py + templates/
+│   ├── eda/                    # 5 module EDA
+│   ├── pipeline/               # 7 bước pipeline
+│   ├── evaluation/             # chấm điểm: records, metrics, scorers/ (5 cách chấm)
+│   ├── tracking/               # ghi nhận: mlflow/DagsHub, local_json, run_meta.json
+│   └── preprocessing/          # PHA 3: input riêng cho từng model, bộ tách từ, đo input thật
 ├── configs/
 │   ├── pipeline.yaml           # bật/tắt từng phép biến đổi (độc lập dataset)
 │   ├── datasets/cosmetics.yaml # schema của dataset
 │   ├── prompts/<tên>.txt       # NỘI DUNG prompt cho model sinh (sửa không cần đụng code)
 │   └── models/<tên>.yaml       # model dùng prompt nào (mặc định: qwen.yaml)
-├── scripts/            # cài đặt tái lập được: setup_java.ps1 (JDK 17), setup_vncorenlp.ps1
-├── docs/               # tài liệu chi tiết: README.md (mục lục) + 01_dataset/, 02_eda/, 03_pipeline/, 04_experiments/
-├── run_eda.py          # tính + ghi file kết quả (KHÔNG vẽ báo cáo)
-├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo)
-├── run_token_stats.py  # (pha 3) đo input thật của từng tokenizer → token_stats.csv
-└── build_report.py     # đọc file kết quả → Plotly + Jinja2 → HTML (mở luôn)
+├── scripts/            # cửa vào dòng lệnh: pin.py (ghim commit vào notebook), new_experiment.py
+│                       # (tạo expNNN), collect_reports.py (bảng tổng hợp), ci_checks.py (kiểm tra
+│                       # cấu trúc), setup_java.ps1 + setup_vncorenlp.ps1 (cài đặt tái lập được)
+├── docs/               # tài liệu: README.md (mục lục) + 00_workflow/, 01_dataset/, 02_eda/,
+│                       # 03_pipeline/, 04_experiments/, 05_config/, 06_plan/
+├── tests/              # test chạy bằng `unittest`, không cần GPU
+├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo)
+├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC ghi rõ --version
+├── run_token_stats.py  # (pha 3) đo input thật của từng tokenizer -> token_stats.csv
+├── run_qwen_eval.py    # chạy một thí nghiệm ngoài notebook (cửa vào mỏng, gọi cùng thư viện)
+├── run_rescore_eval.py # chấm lại kết quả đã dự đoán, không chạy model lại
+├── build_report.py     # đọc file kết quả -> Plotly + Jinja2 -> HTML (mở luôn)
+├── requirements.txt        # máy cá nhân (torch cài riêng, xem §3)
+├── requirements-ci.txt     # CI: rất ngắn, vì CI không chạy model và không đọc dữ liệu
+└── requirements-colab.txt  # Colab: KHÔNG ghim torch (Colab đã có bản khớp CUDA)
 ```
 
 ## 6. Quy ước về báo cáo
@@ -285,25 +321,29 @@ Vì `build_report.py` đọc lại file kết quả, bạn có thể sửa giao 
 
 ## 7. Thêm một dataset mới
 
-Không cần sửa code EDA, pipeline hay báo cáo — chỉ thêm dữ liệu và một file cấu hình:
+Không cần sửa code EDA, pipeline hay báo cáo — chỉ thêm dữ liệu và một file cấu hình **phiên bản**:
 
 ```bash
-# 1) Đặt dữ liệu gốc vào một thư mục riêng
-mkdir data/raw/newdata
-#    copy data_train.csv, data_val.csv, data_test.csv vào đó
+# 1) Đặt dữ liệu gốc vào thư mục riêng, kèm raw_meta.yaml (ghi nguồn, ngày nhận, cách tải)
+mkdir data/raw/newdata/v0.1.0
+#    copy data_train.csv, data_val.csv, data_test.csv, full_data.csv vào đó
 
-# 2) Tạo cấu hình từ mẫu có sẵn rồi sửa: name, format, raw_dir,
-#    text_column, aspects, labels, splits
-copy configs\datasets\cosmetics.yaml configs\datasets\newdata.yaml
+# 2) Tạo cấu hình từ mẫu rồi sửa: name, version, format, splits, schema
+mkdir configs/datasets/newdata
+copy configs\datasets\cosmetics\v0.1.0.yaml configs\datasets\newdata\v0.1.0.yaml
 
-# 3) Chạy như bình thường
-python run_eda.py --dataset newdata
-python run_pipeline.py --dataset newdata
-python build_report.py --dataset newdata
+# 3) Chạy như bình thường - mỗi bước phải ghi rõ phiên bản
+python run_eda.py --dataset newdata --raw-version v0.1.0
+python run_pipeline.py --dataset newdata --version v0.1.0
+python build_report.py --dataset newdata --version <mã in ra ở bước 2>
+python scripts/collect_reports.py
 ```
 
-Trong cấu hình dataset có khoá `version`. **Tăng số này mỗi khi dữ liệu gốc thay
-đổi**, để phiên bản mới được đặt tên rõ ràng (ví dụ `newdata-v0.2.0-1a2b3c4d`).
+Trong cấu hình dataset có khoá `version`. **Tạo FILE MỚI khi dữ liệu gốc thay đổi** (ví dụ
+`v0.2.0.yaml`), **không sửa file đã dùng**: nội dung file phiên bản đi vào mã phiên bản dữ liệu, nên
+sửa tại chỗ là hai định nghĩa khác nhau mang cùng một nhãn và kết quả cũ không còn tra được. Guard
+(`versioning.guard_versions`) sẽ chặn nếu bạn sửa file phiên bản đã dùng - chi tiết ở
+`docs/06_plan/P2_versioning.md`.
 
 Hai trường hợp đặc biệt:
 
@@ -318,10 +358,36 @@ Bắt đầu từ **[docs/README.md](docs/README.md)** — có mục lục đầ
 
 | Nhóm tài liệu | Nội dung |
 |----------|----------|
+| [docs/00_workflow/](docs/00_workflow/) | Luồng làm việc, luật bắt buộc, CI, thuật ngữ, quy ước commit/code, **cách chạy trên Colab** |
 | [docs/01_dataset/](docs/01_dataset/) | Dữ liệu gốc: file, encoding, schema, ý nghĩa nhãn, cách thêm dataset mới |
 | [docs/02_eda/](docs/02_eda/) | EDA: luồng + công tắc đang áp dụng, cách tính từng chỉ số, chi tiết 5 module, quy ước báo cáo |
 | [docs/03_pipeline/](docs/03_pipeline/) | Pipeline: luồng 7 bước + cấu hình đang bật/tắt, chi tiết từng bước, cấu hình, bất biến, đầu ra |
 | [docs/04_experiments/](docs/04_experiments/) | Kế hoạch thực nghiệm 3 model (ViTASA gác lại), bộ tách từ, đo input thật, chỉ số đánh giá, và **việc chưa làm** |
+| [docs/05_config/](docs/05_config/) | Từng file config (đường dẫn, dataset, model, pipeline, thí nghiệm, biến môi trường) |
+| [docs/06_plan/](docs/06_plan/) | Kế hoạch triển khai P0..P7, điều kiện hoàn thành từng giai đoạn, và bảng toàn bộ commit |
 
 Mỗi nhóm có **một file luồng riêng** (`01_flow.md`) ghi luồng tổng quát, cấu hình
 đang bật/tắt và đường dẫn tới file chi tiết từng bước.
+
+## 9. Chạy một thí nghiệm và giao cho giảng viên
+
+```bash
+# 1) Tạo thí nghiệm mới (tự chọn expNNN kế tiếp, từ chối nếu nhánh chưa có origin/experiment)
+python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --title "CoT 1 shot"
+
+# 2) Viết config.yaml của thí nghiệm, rồi chạy thử ở MÁY CÁ NHÂN: mở notebook.ipynb và bấm Run all
+
+# 3) Ghim bản code vào notebook (phải push lên nhánh experiment trước)
+git push origin experiment
+python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001
+```
+
+Giao cho giảng viên: dựng **thư mục Drive** gồm dữ liệu (gốc + đã xử lý), file notebook và
+`.env.colab` nếu có token, rồi gửi hướng dẫn. Người nhận chỉ việc **mở notebook, bấm Run all và bấm
+Allow** khi Colab hỏi quyền truy cập Drive - ô bootstrap tự mount Drive, tự tìm thư mục nhóm (bằng
+file đánh dấu, không cần biết tên), tự đặt gốc dữ liệu/kết quả và tự cài gói còn thiếu. Chi tiết:
+`docs/00_workflow/07_colab.md`.
+
+Xem kết quả: DagsHub xem ngay (không phải copy gì); muốn đưa vào git thì copy **phần nhẹ** từ Drive về
+(`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) rồi chạy
+`python scripts/collect_reports.py`. Toàn bộ vòng bàn giao: `docs/06_plan/P7_rerun.md`.
