@@ -105,5 +105,70 @@ class TestNotebookTemplate(unittest.TestCase):
         self.assertIn("SystemExit", text)
 
 
+class TestBootstrap(unittest.TestCase):
+    """Ô bootstrap phải KÉO mã nguồn trước khi `import src`.
+
+    Đây là lỗi thật gặp khi chạy notebook trên Colab lần đầu: `from src import ...` chạy trong khi
+    `src/` chưa tồn tại (máy mới chưa có mã nguồn) -> `ModuleNotFoundError: No module named 'src'`.
+    Người nhận không tự sửa được vì notebook đã ghim, nên thứ tự này phải bị test chặn.
+    """
+
+    def bootstrap_source(self, path):
+        """Nguồn ô bootstrap (ô có `def repo_root`) của một notebook."""
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        for cell in data["cells"]:
+            if cell.get("cell_type") != "code":
+                continue
+            source = cell.get("source") or []
+            source = source if isinstance(source, str) else "".join(source)
+            if "def repo_root" in source:
+                return source
+        self.fail("{}: không có ô bootstrap".format(path))
+
+    def assert_fetch_first(self, source, label):
+        """Trong ô bootstrap: kéo mã nguồn phải chạy TRƯỚC `from src import`, và đúng thứ tự git.
+
+        Bỏ dòng chú thích trước khi tìm, vì lời giải thích có nhắc tới chính những thứ này.
+        """
+        lines = [line for line in source.splitlines() if not line.lstrip().startswith("#")]
+
+        def first(needle):
+            for index, line in enumerate(lines):
+                if needle in line:
+                    return index
+            return None
+
+        clone = first('git("clone"')
+        fetch = first('"fetch"')
+        checkout = first('"checkout"')
+        imported = first("from src import")
+        for name, index in (("clone", clone), ("fetch", fetch), ("checkout", checkout),
+                            ("import src", imported)):
+            self.assertIsNotNone(index, "{}: thiếu bước {}".format(label, name))
+        self.assertLess(clone, fetch, "{}: clone trước fetch".format(label))
+        self.assertLess(fetch, checkout, "{}: fetch trước checkout".format(label))
+        for name, index in (("clone", clone), ("fetch", fetch), ("checkout", checkout)):
+            self.assertLess(index, imported,
+                            "{}: kéo mã nguồn ({}) phải chạy TRƯỚC `import src`".format(label, name))
+
+    def test_template_fetches_before_importing_src(self):
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assert_fetch_first(source, "notebook mẫu")
+        self.assertIn("--filter=blob:none", source)
+        # Phải kéo ĐÚNG COMMIT ĐÃ GHIM, không phải nhánh mặc định: mã nguồn nằm trên nhánh
+        # `experiment`, nên `git clone` trần có thể không có `src/` nào cả.
+        self.assertIn("--no-checkout", source)
+        self.assertIn('"checkout", "--detach", REPO_SHA', source)
+        self.assertIn("repo.prepare", source)
+
+    def test_every_experiment_notebook_fetches_before_importing_src(self):
+        found = sorted((paths.root() / "experiments").rglob("notebook.ipynb"))
+        self.assertTrue(found, "chưa có notebook thí nghiệm nào để kiểm")
+        for path in found:
+            with self.subTest(notebook=str(path)):
+                self.assert_fetch_first(self.bootstrap_source(path), path.name)
+
+
 if __name__ == "__main__":
     unittest.main()

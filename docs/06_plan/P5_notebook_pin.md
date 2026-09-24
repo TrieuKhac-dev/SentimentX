@@ -37,6 +37,15 @@ lại toàn bộ - đó là lý do P5 chưa đóng hẳn.
       ĐÁNH DẤU, không đoán theo tên - MyDrive và Shared drives trông giống nhau), và `device_report`
       bắt thêm `OSError` khi nạp `torch` (torch cài hỏng thì báo thành việc phải sửa, không để
       ngoại lệ hệ điều hành làm dừng notebook).
+      Ô BOOTSTRAP phải kéo mã nguồn TRƯỚC khi `import src`, và kéo ĐÚNG COMMIT ĐÃ GHIM chứ không
+      phải nhánh mặc định: lần chạy notebook trên Colab (24/09/2026) lộ ra
+      `ModuleNotFoundError: No module named 'src'` vì notebook `import src` trong khi máy chưa có
+      mã nguồn; còn `git clone` trần thì lấy nhánh MẶC ĐỊNH, mà mã nguồn nằm trên nhánh `experiment`.
+      Đã kiểm lại bằng cách kéo vào một thư mục TRỐNG từ remote thật
+      (`clone --filter=blob:none --no-checkout` -> `fetch --depth 1 origin <sha>` ->
+      `checkout --detach <sha>`): có `src/`, và `repo.prepare()` báo "dùng bản code đang có",
+      trên nhánh, không cảnh báo. Test khoá thứ tự này cho cả notebook mẫu và mọi notebook
+      thí nghiệm (`tests/test_templates.py::TestBootstrap`).
 - [x] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
       -> `feat(experiments): create exp001 - Qwen3-4B CoT prompt, scored on val`
