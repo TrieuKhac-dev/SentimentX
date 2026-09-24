@@ -43,6 +43,27 @@ class TestRecords(unittest.TestCase):
         payload.update(kwargs)
         return run_meta.build(self.out_dir, **payload)
 
+    def test_task_and_overrides_are_recorded(self):
+        """Bài toán đang giải và khoá bị đè: máy khác đọc file là biết, không phải mở log."""
+        payload = self.build(task={"label_space": "binary", "neutral_policy": "drop",
+                                   "not_mentioned": "separate"},
+                             overrides=[["n", 100, 200, "experiment"]])
+        self.assertEqual(payload["task"]["label_space"], "binary")
+        self.assertEqual(payload["overrides"], [["n", 100, 200, "experiment"]])
+
+    def test_mac_dinh_cua_hai_khoa_moi_la_rong(self):
+        payload = self.build()
+        self.assertEqual(payload["task"], {})
+        self.assertEqual(payload["overrides"], [])
+
+    def test_device_info_keeps_what_was_read_and_leaves_the_rest_empty(self):
+        info = run_meta.device_info({"thiết bị": "cuda:0", "quant": "4-bit nf4", "torch": "2.14.0"},
+                                    quant="4bit")
+        self.assertEqual(info["device"], "cuda:0")
+        self.assertEqual(info["quantization"], "4bit")
+        self.assertEqual(info["libs"], {"torch": "2.14.0"})
+        self.assertIsNone(info["vram_gb"])
+
     def test_new_record_starts_one_attempt(self):
         payload = self.build()
         attempts = payload["attempts"]

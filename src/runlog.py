@@ -45,7 +45,10 @@ from pathlib import Path
 from src import paths, utils
 
 # Các mục được phép. Mục lạ là lỗi lập trình, không phải lỗi lúc chạy.
-TAGS = ("RUN", "STEP", "WARN", "ERROR", "TRACK")
+# `CONFIG` là cấu hình ĐANG dùng: khoá nào bị lớp nào đè, và giá trị hiệu lực của các khoá quyết
+# định kết quả. Bảng đó cũng được in ra màn hình, nhưng notebook nộp cho giảng viên không giữ
+# output, nên muốn tra lại thì phải có trong file.
+TAGS = ("RUN", "CONFIG", "STEP", "WARN", "ERROR", "TRACK")
 
 
 def now():
@@ -134,6 +137,10 @@ class RunLog:
         if seconds is not None:
             message = "{} | {:.1f} giây".format(message, float(seconds))
         return self.line("STEP", message)
+
+    def config(self, message):
+        """Cấu hình hiệu lực hoặc một khoá bị lớp sau đè (bảng ghi đè)."""
+        return self.line("CONFIG", message)
 
     def track(self, message):
         """Ghi nhận kết quả lên máy chủ MLflow: thành công hay thất bại."""

@@ -117,13 +117,35 @@ def env_info(kind=None, extra=None):
     return info
 
 
+def device_info(model=None, quant=None):
+    """Thiết bị, mức lượng hoá và thư viện đã chạy: đọc từ `model_info` của bước nạp model.
+
+    Chỉ ghi thứ ĐỌC ĐƯỢC: thiếu khoá thì để trống chứ không đoán, vì đây là phần truy vết của một
+    phép đo (cùng cấu hình chạy bf16 và 4-bit là hai phép đo khác nhau).
+    """
+    model = dict(model or {})
+    return {
+        "device": model.get("thiết bị"),
+        "gpu": model.get("gpu"),
+        "vram_gb": model.get("vram_gb"),
+        "quantization": quant or model.get("quant"),
+        "libs": {name: version for name, version in (("torch", model.get("torch")),
+                                                     ("transformers", model.get("transformers")))
+                 if version},
+    }
+
+
 def build(out_dir, tag=None, experiment=None, data=None, repo=None, config=None,
-          files=None, env=None, note=None, previous=None):
+          files=None, env=None, note=None, previous=None, task=None, overrides=None):
     """Dựng nội dung `run_meta.json` cho một lần chạy, kèm attempt đầu tiên.
 
     `previous` là bản ghi cũ (kết quả của `read`). Chạy lại vào cùng thư mục thì các attempt cũ
     được GIỮ LẠI và thêm attempt mới - đó là cách phân biệt "lần thứ ba" với "lần đầu", và là
     thông tin mà quyết định resume cần.
+
+    `task` và `overrides` là phần TRUY VẾT của cấu hình: bài toán đang giải (không gian nhãn, cách
+    xử lý neutral) và những khoá bị lớp sau đè. Bảng ghi đè cũng nằm trong `run.log` (nhãn
+    `[CONFIG]`); để ở đây nữa thì máy khác đọc file là biết ngay, không phải mở log.
     """
     payload = {
         "version": SCHEMA_VERSION,
@@ -135,6 +157,8 @@ def build(out_dir, tag=None, experiment=None, data=None, repo=None, config=None,
         "data": dict(data or {}),
         "repo": dict(repo or {}),
         "config": dict(config or {}),
+        "task": dict(task or {}),
+        "overrides": [list(item) for item in (overrides or [])],
         "env": dict(env or {}),
         "attempts": list((previous or {}).get("attempts") or []),
         "files": list(files or []),

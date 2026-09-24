@@ -41,6 +41,14 @@ class TestRunLog(unittest.TestCase):
         self.assertTrue(any(line.startswith("[RUN] mode=RESUME")
                             for line in self.log_text().splitlines()))
 
+    def test_config_lines_are_tagged(self):
+        """Bảng ghi đè phải nằm trong FILE: notebook gửi đi đã bị làm sạch output."""
+        self.assertIn("CONFIG", runlog.TAGS)
+        with runlog.start(self.out_dir) as log:
+            log.config("đè eval.n: 100 <- 200")
+        self.assertTrue(any(line.startswith("[CONFIG] ")
+                            for line in self.log_text().splitlines()))
+
     def test_no_errors_file_without_error(self):
         with runlog.start(self.out_dir) as log:
             log.step("chạy bình thường")

@@ -107,6 +107,11 @@ class _Session(base.Session):
         self.uri = uri
         self.run = run
 
+    def run_id(self):
+        """Mã run trên máy chủ, hoặc chuỗi rỗng nếu thư viện không cho biết."""
+        info = getattr(self.run, "info", None)
+        return str(getattr(info, "run_id", "") or "")
+
     def close(self, ok=True):
         """Gửi tham số, chỉ số, file rồi kết thúc run. Gửi hỏng thì ghi lại vào `notes`."""
         mlflow = self.module
@@ -118,8 +123,11 @@ class _Session(base.Session):
             for path in self.artifacts:
                 mlflow.log_artifact(str(path))
             mlflow.end_run(status="FINISHED" if ok else "FAILED")
-            self.note("đã ghi lên {}: {} tham số, {} chỉ số, {} file".format(
-                self.uri, len(self.params), len(self.metrics), len(self.artifacts)))
+            # Mã run nằm trong DÒNG LOG, không nằm trong `run_meta.json`: bản ghi đó được chốt
+            # TRƯỚC khi run mở ra (để bản tải lên máy chủ là bản đã chốt), nên nó không thể chứa
+            # mã của chính run. Muốn mở lại run thì tra dòng này.
+            self.note("đã ghi lên {}: run {} ({} tham số, {} chỉ số, {} file)".format(
+                self.uri, self.run_id(), len(self.params), len(self.metrics), len(self.artifacts)))
         except Exception as exc:  # noqa: BLE001 - ghi nhận không được làm chết lần chạy
             self.note("ghi lên MLflow hỏng ({}: {}) - kết quả vẫn nằm trong thư mục kết quả".format(
                 type(exc).__name__, exc))

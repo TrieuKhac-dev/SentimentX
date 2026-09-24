@@ -22,7 +22,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import config, dataset, experiment_run, experiments, paths, prompts, resume
+from src import config, dataset, experiment_run, experiments, paths, prompts, resume, runlog
 from src.preprocessing import qwen
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -108,6 +108,22 @@ class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
         outside, flag = experiment_run.out_dir_of("v1", "tag")
         self.assertFalse(flag)
         self.assertEqual(outside, config.MODEL_EVAL_REPORT_DIR / "v1" / "tag")
+
+    def test_log_config_ghi_bang_de_va_gia_tri_hieu_luc(self):
+        """Bảng ghi đè phải vào FILE: notebook gửi cho giảng viên đã bị làm sạch output."""
+        plan = {"config": {"label_space": "binary", "neutral_policy": "drop",
+                           "not_mentioned": "separate"},
+                "merged": {"overrides": [["n", 100, 200, "experiment"]]},
+                "model_id": "qwen3-4b-instruct-2507", "method": "prompt-cot", "exp_id": "exp001",
+                "version_id": "cosmetics-ds0.1.0", "split": "val", "limit": 200,
+                "prompt": prompts.load("absa_cot_v1"), "examples": None, "sampled": False}
+        with tempfile.TemporaryDirectory() as tmp:
+            with runlog.start(Path(tmp) / "tag") as log:
+                experiment_run.log_config(plan, log)
+            text = (Path(tmp) / "tag" / "run.log").read_text(encoding="utf-8")
+        self.assertIn("[CONFIG] đè n: 100 <- 200", text)
+        self.assertIn("label_space=binary", text)
+        self.assertIn("prompt: absa_cot_v1", text)
 
     def test_doi_ten_nhan_theo_ma_so(self):
         names = experiment_run.label_names({"id_to_label": {0: "không", 1: "có"}})

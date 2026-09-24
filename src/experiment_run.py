@@ -144,6 +144,41 @@ def input_files(ds, prompt_path, model_id, examples_path=None, system_path=None)
     return run_meta.input_files(entries)
 
 
+def merged_task(config_data):
+    """Ba khoá định nghĩa BÀI TOÁN đang giải, để ghi vào bản ghi lần chạy.
+
+    Tách ra thành hàm vì `run_meta.json` và `metrics.json` phải nói cùng một chuyện: đổi không
+    gian nhãn là đổi bài toán, không phải đổi cách trình bày, nên bản ghi phải nói rõ.
+    """
+    return {name: config_data.get(name)
+            for name in ("label_space", "neutral_policy", "not_mentioned")}
+
+
+def log_config(plan_data, log):
+    """Ghi bảng GHI ĐÈ và giá trị hiệu lực vào `run.log` với nhãn `[CONFIG]`.
+
+    Vì sao phải nằm trong FILE: bảng này cũng được in ra màn hình, nhưng notebook gửi cho người
+    nhận không giữ output (CI bắt buộc sạch output), nên mất bản in là mất dấu vết "khoá này do
+    lớp cấu hình nào đặt".
+    """
+    config_data = plan_data["config"]
+    merged = plan_data.get("merged") or {}
+    log.config("thí nghiệm: {}/{}/{} | dữ liệu: {} | split chấm: {} | n: {}".format(
+        plan_data["model_id"] or "-", plan_data["method"] or "-", plan_data["exp_id"] or "-",
+        plan_data["version_id"], plan_data["split"], plan_data["limit"] or "cả split"))
+    for name, before, after, layer in merged.get("overrides") or []:
+        log.config("đè {}: {} <- {}".format(name, before, after))
+    if not merged.get("overrides"):
+        log.config("không có khoá nào bị lớp sau đè")
+    task = merged_task(config_data)
+    log.config("bài toán: label_space={} neutral_policy={} not_mentioned={}".format(
+        task["label_space"], task["neutral_policy"], task["not_mentioned"]))
+    log.config("prompt: {} (sha {}) | ví dụ: {} | sinh: {}".format(
+        plan_data["prompt"].name, plan_data["prompt"].sha,
+        (plan_data["examples"] or {}).get("sha") or "không dùng",
+        "greedy" if not plan_data["sampled"] else "lấy mẫu"))
+
+
 def out_dir_of(version_id, tag, model_id=None, method=None, exp_id=None):
     """Thư mục kết quả của lần chạy, và cho biết có nằm TRONG thí nghiệm không.
 
@@ -345,6 +380,21 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         row_index = [row_index[position] for position in keep]
         info["n_samples"] = len(texts)
 
+    # Số bản ghi của TỪNG vai, và dấu vân tay tập đánh giá: hai thứ người đọc bản ghi cần biết để
+    # hiểu con số trước mặt. Đếm bằng `preflight.count_rows` (đếm BẢN GHI, không đếm dòng - review
+    # trong dữ liệu này có xuống dòng bên trong ô được trích dẫn), nhập muộn để cấp module của file
+    # này không phụ thuộc preflight.
+    from src import preflight
+    roles = dict((config_data.get("data") or {}).get("roles") or {})
+    rows_by_role = {}
+    for role, name in sorted(roles.items()):
+        path = paths.processed(version_id) / "{}.csv".format(name)
+        if path.is_file():
+            rows_by_role[role] = preflight.count_rows(path)
+    lock = dict(ds.get("eval_lock") or {})
+    eval_lock = {"enforce": bool(lock.get("enforce", False)),
+                 "declared": (lock.get("test") or {}).get("sha256")}
+
     return {
         "config": config_data, "merged": merged, "model_id": model_id, "method": method,
         "exp_id": exp_id, "exp_dir": exp_dir, "inside": inside, "dataset": ds,
@@ -357,7 +407,8 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "names": names, "stash_count": info.get("stash_count", 0),
         "batch_size": batch_size, "quiet": quiet, "tag": tag, "out_dir": out_dir, "info": info,
         "repo": repo, "config_sha256": config_sha256, "mode": mode, "reason": reason,
-        "parts": parts, "skip": skip,
+        "parts": parts, "skip": skip, "roles": roles, "rows_by_role": rows_by_role,
+        "eval_lock": eval_lock,
         "files": input_files(
             ds, prompt_obj.path, model_id,
             prompt_obj.examples_path if prompt_obj.examples_value else None,
@@ -405,11 +456,16 @@ def run(plan_data, log=None):
                         "exp_id": plan_data["exp_id"]},
             data={"dataset": plan_data["dataset"]["name"],
                   "version": plan_data["dataset"].get("version"),
-                  "ma": plan_data["version_id"]},
+                  "ma": plan_data["version_id"],
+                  "roles": dict(plan_data["roles"]),
+                  "rows": dict(plan_data["rows_by_role"]),
+                  "eval_lock": dict(plan_data["eval_lock"])},
             repo=plan_data["repo"],
             config={"sha256": plan_data["config_sha256"],
                     "layers": plan_data["merged"]["layers"],
                     "sources": plan_data["merged"]["sources"]},
+            task=merged_task(config_data),
+            overrides=plan_data["merged"]["overrides"],
             files=plan_data["files"],
             env=run_meta.env_info(kind=runtime.env_name()),
             note="chạy tiếp" if mode == resume.MODE_RESUME else None)
@@ -421,6 +477,10 @@ def run(plan_data, log=None):
         # xem không biết run nào thật sự xong. `on_close` bảo đảm việc đó.
         session = tracking.begin(config_data, out_dir, info=info, log=log)
         log.on_close(tracking.closer(session, log=log))
+
+        # Cấu hình ĐANG dùng vào log TRƯỚC khi nạp model: đây là thứ người đọc cần khi lần chạy
+        # hỏng giữa chừng, mà bảng in ra màn hình thì notebook không giữ lại.
+        log_config(plan_data, log)
 
         log.step("nạp model: {} (quant={})".format(info["model"], plan_data["quant"]))
         try:
@@ -435,6 +495,12 @@ def run(plan_data, log=None):
             raise RunError("Không nạp được model: {}".format(exc))
         log.step("đã nạp model: {}, {}".format(
             model_info.get("quant"), model_info.get("cách nạp")), seconds=log.elapsed())
+
+        # Máy và lượng hoá chỉ biết được SAU khi nạp model, nên bổ sung vào bản ghi rồi ghi lại.
+        # Không có hai thứ này thì không tra được vì sao cùng một cấu hình mà hai máy cho số khác
+        # nhau (4-bit so với bf16 là hai phép đo khác nhau).
+        record["env"].update(run_meta.device_info(model_info, quant=plan_data["quant"]))
+        run_meta.write(out_dir, record)
 
         print_config(plan_data, model_info)
         print("Đang sinh...")
