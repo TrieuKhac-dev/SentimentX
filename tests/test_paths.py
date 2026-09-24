@@ -15,7 +15,20 @@ from src import paths
 
 
 class TestDefaultPaths(unittest.TestCase):
-    """Đường dẫn khi không có gì ghi đè."""
+    """Đường dẫn khi không có gì ghi đè.
+
+    Máy đang chạy có thể đặt sẵn hai biến ghi đè gốc đường dẫn (`SENTIMENTX_DATA_ROOT`,
+    `SENTIMENTX_RESULTS_ROOT` - dùng khi chạy trên Colab). Có chúng thì các phép so với đường dẫn
+    MẶC ĐỊNH ở đây sẽ sai dù code không sai, nên nhóm test này bỏ chúng trong lúc chạy và trả lại
+    nguyên trạng sau khi xong.
+    """
+
+    def setUp(self):
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        for name in (paths.ENV_DATA_ROOT, paths.ENV_RESULTS_ROOT):
+            os.environ.pop(name, None)
 
     def test_root_contains_paths_config(self):
         self.assertTrue((paths.root() / "configs" / "paths.yaml").is_file())

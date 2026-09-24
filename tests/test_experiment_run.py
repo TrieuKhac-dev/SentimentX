@@ -15,6 +15,7 @@ Ba điều được khoá ở đây:
 Chạy: python -m unittest discover -s tests
 """
 
+import os
 import shutil
 import tempfile
 import unittest
@@ -27,7 +28,23 @@ from src.preprocessing import qwen
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class HelpersTest(unittest.TestCase):
+class NoRootOverrideMixin:
+    """Bỏ ghi đè gốc đường dẫn của MÁY đang chạy trong lúc test.
+
+    `plan()` và `out_dir_of()` đọc gốc kết quả, nên máy nào đặt sẵn `SENTIMENTX_RESULTS_ROOT`
+    (biến dùng khi chạy trên Colab) thì các phép so với đường dẫn dựng từ repo sẽ sai dù code
+    không sai. Bỏ hai biến đó trong lúc chạy test và trả lại nguyên trạng sau khi xong.
+    """
+
+    def setUp(self):
+        patcher = mock.patch.dict(os.environ)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        for name in (paths.ENV_DATA_ROOT, paths.ENV_RESULTS_ROOT):
+            os.environ.pop(name, None)
+
+
+class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
     """Các hàm thuần: đọc config, dựng tên thư mục, chọn chỗ ghi kết quả."""
 
     def test_split_lay_tu_vai_eval(self):
@@ -150,7 +167,7 @@ class ExamplesDefaultTest(unittest.TestCase):
             shutil.rmtree(str(tmp), ignore_errors=True)
 
 
-class PlanTest(unittest.TestCase):
+class PlanTest(NoRootOverrideMixin, unittest.TestCase):
     """Lập kế hoạch cho một lần chạy thật (không cần GPU)."""
 
     @classmethod
