@@ -42,7 +42,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, experiments, labels, paths, prompts, runlog, tracking, utils, versioning
+from src import config, dataset, experiments, labels, model_config, paths, prompts, runlog, runtime, tracking, utils, versioning
+from src.tracking import run_meta
 from src.evaluation import metrics, runner, scorers
 from src.preprocessing import loader, qwen
 
@@ -188,6 +189,38 @@ def label_names(label_map):
     return {int(code): name for code, name in (label_map.get("id_to_label") or {}).items()}
 
 
+def input_files(ds, prompt):
+    """Các file ĐẦU VÀO của lần chạy, kèm vai, để `run_meta.json` tự mô tả được.
+
+    Vì sao phải ghi cả file cấu hình dữ liệu: một con số chỉ so được khi biết nó sinh ra từ code
+    nào, config nào và dữ liệu nào. Đường dẫn ở đây là đường dẫn TƯƠNG ĐỐI (xem `run_meta`).
+    """
+    shared = paths.cfg()["configs"]
+    layers = [(paths.config_path(shared["paths"]), tracking.run_meta.ROLE_PATHS),
+              (tracking.base.dagshub_path(), tracking.run_meta.ROLE_TRACKING)]
+    layers += [(experiments.shared_path(name), tracking.run_meta.ROLE_CONFIG)
+               for name in experiments.SHARED]
+    layers.append((model_config.config_path(qwen.CONFIG_NAME), tracking.run_meta.ROLE_MODEL))
+    layers.append((ds.get("_path"), tracking.run_meta.ROLE_DATASET))
+    layers.append((paths.config_path(shared["pipeline"],
+                                     "{}.yaml".format(ds.get("pipeline_version"))),
+                   tracking.run_meta.ROLE_PIPELINE))
+    layers.append((prompt_path(prompt.name), tracking.run_meta.ROLE_PROMPT))
+    layers.append((examples_path(prompt.name), tracking.run_meta.ROLE_EXAMPLES))
+    return tracking.run_meta.input_files(layers)
+
+
+def prompt_path(name):
+    """Đường dẫn file prompt trong thư viện dùng chung."""
+    return paths.config_path(paths.cfg()["configs"]["prompts"], "{}.txt".format(name))
+
+
+def examples_path(name):
+    """Đường dẫn file ví dụ few-shot của một prompt (có thể không tồn tại)."""
+    return paths.config_path(paths.cfg()["configs"]["prompts"], "examples",
+                             "{}.txt".format(name))
+
+
 def print_scores(scores):
     """In các con số tổng hợp của từng bộ chấm. Bảng chi tiết in bằng `scorers.table`."""
     for name, values in scores.items():
@@ -232,6 +265,10 @@ def main(argv=None):
         evaluation = evaluation_settings()
         tracking_config = tracking_settings()
         names = scorers.check(evaluation.get("scores"))
+        # Cấu hình đã hợp nhất của lần chạy. Chạy tay (chưa có thư mục thí nghiệm) nên chỉ hợp
+        # nhất các lớp dùng chung + lớp model; dấu vân tay của nó đi vào `run_meta.json` và là
+        # một trong ba điều kiện resume.
+        merged = experiments.load_shared(qwen.CONFIG_NAME)
     except (dataset.DatasetError, experiments.ExperimentError, scorers.ScorerError) as exc:
         print("LỖI: {}".format(exc))
         return 2
@@ -294,6 +331,23 @@ def main(argv=None):
     }
 
     with runlog.start(out_dir, mode="NEW", info=info) as log:
+        # Bản ghi lần chạy: ghi NGAY từ đầu, để lần chạy hỏng vẫn còn dấu vết (đang ở attempt nào,
+        # với code và config nào). Chốt lại lúc đóng log; việc chốt chạy TRƯỚC phần ghi nhận nên
+        # bản được tải lên máy chủ là bản đã chốt.
+        record = run_meta.build(
+            out_dir, tag=tag,
+            experiment={"model": qwen.CONFIG_NAME, "method": None, "exp_id": None,
+                        "hf_model": info["model"]},
+            data={"dataset": ds["name"], "version": ds.get("version"), "ma": version_id},
+            repo=run_meta.repo_info(url=merged["config"].get("url"),
+                                    branch=merged["config"].get("branch")),
+            config={"sha256": experiments.config_sha256(merged, prompt_text=prompt.text),
+                    "layers": merged["layers"], "sources": merged["sources"]},
+            files=input_files(ds, prompt),
+            env=run_meta.env_info(kind=runtime.env_name()))
+        run_meta.write(out_dir, record)
+        log.on_close(run_meta.closer(record, out_dir, log=log))
+
         # Mở phiên ghi nhận ngay từ đầu: lần chạy hỏng giữa chừng vẫn phải KẾT THÚC run trên máy
         # chủ, nếu không thì trên DagsHub còn lại những run mãi ở trạng thái đang chạy và người
         # xem không biết run nào thật sự xong. `on_close` bảo đảm việc đó.

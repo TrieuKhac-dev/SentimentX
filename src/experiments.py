@@ -93,15 +93,35 @@ def load(model_id, method, exp_id):
         history   : {khoá: [(nhãn lớp, giá trị), ...]} - toàn bộ lịch sử, để tra khi cần
         dir       : thư mục thí nghiệm
     """
-    layers = layer_files(model_id, method, exp_id)
+    return _merge_layers(layer_files(model_id, method, exp_id), model_id,
+                         method=method, exp_id=exp_id)
+
+
+def load_shared(model_id=None):
+    """Hợp nhất các lớp ĐANG CÓ khi chưa có thư mục thí nghiệm.
+
+    Dùng cho công cụ chạy tay (`run_qwen_eval.py`): nó chạy MỘT model với MỘT prompt, chưa gắn
+    với `expNNN` nào. Có thư mục thí nghiệm rồi thì dùng `load()`.
+
+    Không thay thế được `load()`: thiếu lớp thí nghiệm nghĩa là thiếu `data.roles` và thiếu prompt
+    của thí nghiệm, nên bản ghi lần chạy phải nói rõ đang chạy bằng cấu hình dùng chung.
+    """
+    layers = []
+    if model_id:
+        layers.append((MODEL_LAYER, model_config.config_path(model_id)))
+    layers.extend((name, shared_path(name)) for name in SHARED)
+    return _merge_layers(layers, model_id)
+
+
+def _merge_layers(layers, model_id, method=None, exp_id=None):
+    """Hợp nhất một danh sách lớp. Dùng chung cho `load` và `load_shared`."""
     config, history, sources = {}, {}, {}
     for label, path in layers:
-        data = _read(label, path, model_id)
-        _merge_into(config, history, sources, data, label)
+        _merge_into(config, history, sources, _read(label, path, model_id), label)
 
     # Khối `task` của model là RÀNG BUỘC của model ("model này chỉ làm 2 nhãn"), nên áp SAU cùng
     # chứ không theo thứ tự lớp: `configs/experiments/task.yaml` không ghi đè được nó.
-    task_override = model_config.task_override(model_id)
+    task_override = model_config.task_override(model_id) if model_id else None
     if task_override:
         _merge_into(config, history, sources, task_override, MODEL_TASK_LAYER)
 
@@ -109,7 +129,8 @@ def load(model_id, method, exp_id):
         "model_id": model_id,
         "method": method,
         "exp_id": exp_id,
-        "dir": experiment_dir(model_id, method, exp_id),
+        "dir": (experiment_dir(model_id, method, exp_id)
+                if model_id and method and exp_id else None),
         "config": config,
         "sources": sources,
         "overrides": _overrides(history),
@@ -247,12 +268,15 @@ def _value(value):
 # ---
 
 
-def config_sha256(result):
+def config_sha256(result, prompt_text=None):
     """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT và VĂN BẢN PROMPT ĐÃ HỢP NHẤT.
 
     Vì sao băm cả văn bản prompt: prompt là một phần của thí nghiệm, mà nội dung nó nằm ở file
     riêng chứ không nằm trong config hợp nhất. Không băm thì hai thí nghiệm khác prompt sẽ mang
     cùng một dấu vân tay.
+
+    `prompt_text`: dùng khi văn bản prompt KHÔNG lấy được từ thư mục thí nghiệm - công cụ chạy tay
+    dùng prompt ở thư viện dùng chung (`configs/prompts/`).
 
     Ba giá trị quyết định resume (xem docs/00_workflow/02_rules.md): `config_sha256`, mã phiên
     bản dữ liệu, và commit đã ghim. Hàm này tính giá trị thứ nhất.
@@ -261,7 +285,8 @@ def config_sha256(result):
     digest.update(b"config:")
     digest.update(canonical_bytes(result["config"]))
     digest.update(b"prompt:")
-    digest.update(prompt_merged(result).encode("utf-8"))
+    text = prompt_text if prompt_text is not None else prompt_merged(result)
+    digest.update(text.encode("utf-8"))
     return digest.hexdigest()
 
 

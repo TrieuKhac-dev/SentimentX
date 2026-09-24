@@ -90,6 +90,14 @@ Hai quy tắc không được vi phạm:
 
 Xem `src/runlog.py` để biết cách gọi, và `docs/04_experiments/metrics.md` cho phần chỉ số.
 
+`run_meta.json` là bản ghi của lần chạy: `run` (trạng thái, lúc bắt đầu/kết thúc), `experiment`
+(model, method, exp_id), `data` (dataset, `ma` là mã phiên bản dữ liệu, `roles`), `repo` (nhánh và
+`sha` là commit đã ghim), `config.sha256`, `env` (colab hay local), `attempts[]` và `files[]`.
+Mỗi phần tử của `attempts[]` là MỘT lần chạy vào thư mục này, mang `sha`, `config_sha256`, `data`
+của chính lần đó - nhìn là biết hai lần có so được với nhau hay không. Ba giá trị quyết định
+resume nằm ở `config.sha256`, `data.ma` và `repo.sha` (xem [02_rules.md](02_rules.md) mục 13).
+Mọi đường dẫn trong file đều TÍNH TỪ GỐC REPO, vì thư mục kết quả bị đem từ máy này sang máy khác.
+
 ## Khi có lỗi
 
 | Hiện tượng                      | Xem ở đâu                               |

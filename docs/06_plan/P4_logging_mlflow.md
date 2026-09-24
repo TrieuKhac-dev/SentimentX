@@ -10,7 +10,7 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-đang làm - T1, T2, T3, T4, T5 xong.
+đang làm - T1, T2, T3, T4, T5, T6 xong.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -28,7 +28,7 @@ và resume được khi bị ngắt giữa chừng.
       -> `feat(runlog): write run log and error file only on failure`
 - [x] T5. `src/tracking/`: registry `TRACKERS` gồm `mlflow`, `local_json`, `none`.
       -> `feat(tracking): add trackers registry`
-- [ ] T6. `run_meta.json`: đủ trường, có `attempts[]`, `files[]` kèm `role`, không ghi đường dẫn tuyệt đối.
+- [x] T6. `run_meta.json`: đủ trường, có `attempts[]`, `files[]` kèm `role`, không ghi đường dẫn tuyệt đối.
       -> `feat(tracking): write run metadata with attempts and provenance`
 - [ ] T7. MLflow lên DagsHub theo `configs/dagshub.yaml`; **chạy smoke run và xác nhận run xuất hiện**
       trên `https://dagshub.com/TrieuKhac-dev/SentimentX`; log lỗi không làm chết run.
