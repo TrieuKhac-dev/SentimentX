@@ -24,43 +24,74 @@ Cách code tìm Drive (`src/runtime.py`): thử `/content/drive/MyDrive/{folder}
 ```
 MyDrive/SentimentX/                                    ← thư mục gốc trên Drive, tên tùy ý
 ├── .sentimentx_root                                   ← FILE RỖNG, bắt buộc
-├── env/.env.colab                                     ← biến môi trường (KHÔNG commit, chứa token)
+├── README.md                                          ← hướng dẫn người chạy (nhóm đặt sẵn)
+├── env/.env.colab                                     ← biến môi trường + token DagsHub (KHÔNG commit)
+├── env/.env.colab.example                             ← bản mẫu để tham chiếu
+├── notebooks/<model_id>/<method>/expNNN.ipynb         ← notebook người chạy mở
 ├── data/
 │   ├── raw/cosmetics/v0.1.0/data_train.csv
 │   ├── raw/cosmetics/v0.1.0/data_val.csv
 │   ├── raw/cosmetics/v0.1.0/data_test.csv
 │   ├── raw/cosmetics/v0.1.0/full_data.csv
+│   ├── raw/cosmetics/v0.1.0/raw_meta.yaml
 │   └── processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/
-│         train.csv, val.csv, test.csv, label_map.json
-└── experiments/                                       ← để TRỐNG, code tự tạo và ghi kết quả vào
+│         train.csv, val.csv, test.csv, label_map.json, processing_log.json
+└── experiments/<model_id>/<method>/expNNN/
+    ├── README.md                                      ← thí nghiệm này hỏi gì
+    └── results/<mã>/                                  ← để TRỐNG, code tự tạo và ghi kết quả vào
 ```
+
+Cây này chỉ KHÁC cây `data/` và `experiments/` trong repo ở những mục cố ý không lên Drive:
+
+| Không lên Drive | Vì sao |
+| --- | --- |
+| `src/`, `configs/` | code; notebook tự kéo ĐÚNG commit đã ghim về `/content/SentimentX` |
+| `data/processed/<mã>/pipeline/`, `eda/` | báo cáo của lần chạy, đã nằm trong git; lượt chạy không cần |
+| `data/processed/<mã>/model_input/` | chỉ để xem lại số đo, không cần cho lượt chạy |
+| `results/<mã>/model/`, `predictions/`, `plots/` | phần nặng, tự sinh khi chạy; `.gitignore` chặn sẵn khi copy về |
+
+`processing_log.json` thì CÓ trên Drive: nó là metadata của phiên bản dữ liệu, và cây Drive phải
+phản ánh đúng bộ dữ liệu đã dùng (luật 20 vẫn cấm commit nó ở dạng dữ liệu, nhưng file này vẫn được
+theo dõi trong git ở `data/processed/<mã>/`).
 
 **Dữ liệu GỐC là bắt buộc**, không chỉ dữ liệu đã xử lý: mã phiên bản dữ liệu được băm từ nội dung
 file gốc, nên thiếu raw thì Colab tính ra một mã khác và preflight báo thiếu dataset. Dữ liệu không
 nằm trong git (luật 20 của `docs/00_workflow/02_rules.md`), nên bản clone sạch chỉ có `raw_meta.yaml`.
 
-**`env/.env.colab`** - KHÔNG bắt buộc. Notebook tự đặt hai gốc đường dẫn từ thư mục Drive tìm được,
-nên một lượt chạy bình thường không cần file này. Chỉ cần khi muốn chỉ đích danh thư mục, ghi đè
-đường dẫn, hoặc giữ token DagsHub trong file (nhóm sao chép `.env.colab.example` rồi điền):
+**`env/.env.colab`** - nhóm đặt sẵn trong gói bàn giao. Nội dung gồm token DagsHub, `SENTIMENTX_ENV`
+và `HF_HOME`; **hai khoá gốc đường dẫn để nguyên dạng chú thích**:
 
 ```
-SENTIMENTX_DATA_ROOT=/content/drive/MyDrive/SentimentX/data
-SENTIMENTX_RESULTS_ROOT=/content/drive/MyDrive/SentimentX/experiments
+DAGSHUB_TOKEN=<token DagsHub>
 SENTIMENTX_ENV=colab
 HF_HOME=/content/hf_cache
-DAGSHUB_TOKEN=<token DagsHub>
+
+# SENTIMENTX_DATA_ROOT=/content/drive/MyDrive/<tên thư mục nhóm>/data
+# SENTIMENTX_RESULTS_ROOT=/content/drive/MyDrive/<tên thư mục nhóm>/experiments
 ```
+
+VÌ SAO HAI KHOÁ GỐC PHẢI ĐỂ TRỐNG: ô bootstrap nạp file này TRƯỚC (`runtime.load_env`), rồi mới tự
+đặt hai gốc theo thư mục Drive mà nó tìm được. `src/runtime.py::_apply_file` dùng `os.environ.setdefault`,
+nên khoá nào CÓ trong file - kể cả để trống - sẽ **thắng** giá trị notebook tự dò. Khai một tên thư mục
+trong file là tự trói notebook vào tên đó; sai tên thì dữ liệu và kết quả rơi vào máy ảo (mất khi hết
+phiên), đúng triệu chứng `Gốc dữ liệu : /content/SentimentX/data` ở mục 7. Chỉ bỏ chú thích hai dòng
+đó khi thật sự muốn chỉ đích danh thư mục.
 
 - Dùng Shared drive thì thay bằng `/content/drive/Shareddrives/<tên>/...`.
 - `DAGSHUB_TOKEN` để trống cũng chạy được: thiếu token thì phần ghi MLflow tự hạ cấp thành ghi chú
-  trong `run.log`, không làm hỏng lượt chạy.
+  trong `run.log`, không làm hỏng lượt chạy. Colab Secrets được đọc TRƯỚC file này, nên muốn dùng
+  token riêng thì thêm `DAGSHUB_TOKEN` vào Secrets là đủ.
 - `HF_HOME` **không** để trên Drive: model 4B tải về Drive rất chậm. Cần bản gốc: `.env.colab.example`.
+- File này KHÔNG được commit (`.gitignore` chặn). Gói bàn giao chứa nó là có chủ ý, để người chạy
+  không phải điền gì; gửi qua kênh riêng và đổi token sau khi kết thúc đồ án (luật 17 đến 19).
 
 ## 3. Nhóm chuẩn bị thư mục trên Drive (làm một lần, rồi chia sẻ)
 
-Việc này là của **nhóm làm dự án**, không phải của người chạy notebook. Thư mục phải có những gì ở
-mục 2: file đánh dấu, dữ liệu gốc, dữ liệu đã xử lý. Đưa lên bằng cách mở Drive, tạo thư mục, rồi
-kéo 4 file CSV vào `data/raw/cosmetics/v0.1.0/` và thư mục đã xử lý vào `data/processed/<mã>/`.
+Việc này là của **nhóm làm dự án**, không phải của người chạy notebook. Thư mục phải có đúng những gì
+ở mục 2: file đánh dấu, `README.md` hướng dẫn, hai file env, notebook ở `notebooks/<model>/<method>/`,
+`README.md` của thí nghiệm, dữ liệu gốc (4 CSV **và** `raw_meta.yaml`), dữ liệu đã xử lý (train, val,
+test, `label_map.json`, `processing_log.json`). Đưa lên bằng cách mở Drive, tạo thư mục, rồi kéo từng
+thư mục vào đúng chỗ.
 
 File `.sentimentx_root` phải tạo bằng code (web Drive không tạo được tên bắt đầu bằng dấu chấm). Sau
 khi đã mount Drive trong Colab:
@@ -79,7 +110,8 @@ Không cần nén, không cần `.env.colab`, không cần khai tên thư mục:
 1. **Copy** thư mục nhóm đã chuẩn bị **và file `notebook.ipynb`** vào Drive của mình. Ngay cả khi
    `config.yaml` không được copy theo thì cũng không sao: định nghĩa thí nghiệm nằm trong bản code
    mà ô bootstrap kéo về, không nằm cạnh file notebook.
-2. **Mở notebook** từ Drive (Colab: `File > Open notebook > Google Drive`) rồi bấm **Run all**.
+2. **Mở notebook** từ Drive (Colab: `File > Open notebook > Google Drive`), đường dẫn
+   `notebooks/<model_id>/<method>/expNNN.ipynb`, rồi bấm **Run all**.
 3. Khi Colab hỏi quyền truy cập Drive, bấm **Allow** - một lần cho mỗi phiên. Đây là việc duy nhất
    Google không cho tự động hoá.
 

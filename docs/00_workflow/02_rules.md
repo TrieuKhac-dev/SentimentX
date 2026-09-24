@@ -57,3 +57,6 @@
 
 20. `data/raw`, `data/processed`, `data/models` không commit.
     Nhưng `raw_meta.yaml`, `processing_log.json`, `label_map.json`, `pipeline/`, `eda/` thì **phải commit**.
+    Trên Drive của người chạy, `data/processed/<mã>/` mang đúng bộ file mà lượt chạy cần: train, val,
+    test, `label_map.json` và `processing_log.json`; những mục cố ý không lên Drive được liệt kê ở
+    `docs/00_workflow/07_colab.md` mục 2.
