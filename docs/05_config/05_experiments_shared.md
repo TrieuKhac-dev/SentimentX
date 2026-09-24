@@ -30,7 +30,7 @@ Pipeline giữ nguyên bốn trạng thái.
 | Khoá               | Ý nghĩa                                                                                                     |
 | ------------------ | ----------------------------------------------------------------------------------------------------------- |
 | `n`                | số mẫu dùng để chấm; `null` nghĩa là toàn bộ split                                                          |
-| `decoding`         | cách sinh văn bản: `greedy` chọn token xác suất cao nhất nên tất định; `sample` có `temperature` và `top_p` |
+| `decoding`         | cách sinh văn bản: `greedy` chọn token xác suất cao nhất nên tất định; `sample` lấy `temperature`/`top_p`, và để `null` nghĩa là dùng khuyến nghị trong model card (`CARD_SETTINGS` của `src/experiment_run.py`) |
 | `scores`           | danh sách tên chỉ số cần tính; tên phải có trong registry `SCORERS`, thiếu tên thì báo lỗi                  |
 | `group_by`         | chiều phân rã bảng chỉ số, ví dụ theo `aspect` và `sentiment`                                               |
 | `save.predictions` | ghi `predictions.csv` hay không                                                                             |

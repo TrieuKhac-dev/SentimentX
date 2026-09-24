@@ -308,12 +308,16 @@ def experiment_configs(root=None):
 
 
 def pinned_shas(root=None):
-    """`REPO_SHA` trong notebook thí nghiệm: đúng dạng sha, có thật trong repo, và nằm trên nhánh ghim."""
+    """`REPO_SHA` trong notebook thí nghiệm: đúng dạng sha, có thật trong repo, và nằm trên nhánh ghim.
+
+    Mọi lệnh git đều nhận `root`: `checks.run(root=...)` có thể kiểm một gốc khác thư mục đang đứng,
+    mà git thì mặc định chạy ở thư mục đang đứng - thiếu `root` là kiểm nhầm repo.
+    """
     found = []
     settings = experiments.shared("repo")
     branch = settings.get("branch")
     ref = "origin/{}".format(branch)
-    has_ref = bool(branch) and repo.ref_exists(ref)
+    has_ref = bool(branch) and repo.ref_exists(ref, root)
     for model_id, method, exp_id in experiments.list_experiments():
         label = "{}/{}/{}".format(model_id, method, exp_id)
         path = paths.experiment_dir(model_id, method, exp_id) / "notebook.ipynb"
@@ -330,11 +334,11 @@ def pinned_shas(root=None):
         if not SHA_PATTERN.match(sha):
             found.append("{}: REPO_SHA không phải sha 40 ký tự hex: {!r}".format(label, sha))
             continue
-        if not repo.object_exists(sha):
+        if not repo.object_exists(sha, root):
             found.append("{}: repo không có commit {} - sha sai, hoặc commit chưa được đẩy lên"
                          .format(label, sha[:12]))
             continue
-        if has_ref and not repo.is_ancestor(sha, ref):
+        if has_ref and not repo.is_ancestor(sha, ref, root):
             found.append("{}: commit {} chưa nằm trên {} - kết quả chạy ra không dùng được cho tới "
                          "khi đẩy lên nhánh".format(label, sha[:12], ref))
     return found

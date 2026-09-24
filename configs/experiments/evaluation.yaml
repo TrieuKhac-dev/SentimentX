@@ -5,10 +5,15 @@ n: null
 
 # Cách sinh văn bản. greedy: chọn token xác suất cao nhất nên tất định.
 # sample: lấy theo temperature và top_p.
+#
+# Hai giá trị dưới đây để null nghĩa là CHƯA KHAI: chạy ở chế độ sample thì dùng đúng khuyến nghị
+# trong model card của Qwen3 (temperature 0.7, top_p 0.8, top_k 20 - `CARD_SETTINGS` trong
+# src/experiment_run.py). Khai số cụ thể ở đây là ĐÈ lên khuyến nghị đó, nên chỉ khai khi có lý do,
+# và ghi lý do ngay cạnh.
 decoding:
   mode: greedy
-  temperature: 1.0
-  top_p: 1.0
+  temperature: null
+  top_p: null
 
 # Tên chỉ số cần tính. Mỗi tên phải có trong registry SCORERS, thiếu tên thì báo lỗi.
 scores:

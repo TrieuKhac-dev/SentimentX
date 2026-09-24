@@ -50,6 +50,21 @@ class HelpersTest(unittest.TestCase):
                                                               "temperature": 0.2}})
         self.assertEqual(settings["temperature"], 0.2)
 
+    def test_config_de_trong_thi_lay_khuyen_nghi_cua_model_card(self):
+        # `configs/experiments/evaluation.yaml` để null cho temperature/top_p (chưa khai). Chạy ở
+        # chế độ sample thì phải dùng ĐÚNG khuyến nghị model card: 1.0 không phải một lựa chọn của
+        # dự án, nó là giá trị "không đè gì" và làm mất luôn khuyến nghị.
+        settings, sampled = experiment_run.settings_of(
+            {"decoding": {"mode": "sample", "temperature": None, "top_p": None}})
+        self.assertTrue(sampled)
+        self.assertEqual(settings["temperature"], experiment_run.CARD_SETTINGS["temperature"])
+        self.assertEqual(settings["top_p"], experiment_run.CARD_SETTINGS["top_p"])
+        # Còn khi config khai số cụ thể thì config thắng - đó là chỗ để ghi lý do đè.
+        settings, _ = experiment_run.settings_of(
+            {"decoding": {"mode": "sample", "temperature": 0.2, "top_p": 0.9}})
+        self.assertEqual(settings["temperature"], 0.2)
+        self.assertEqual(settings["top_p"], 0.9)
+
     def test_tag_ghi_ro_cau_hinh(self):
         greedy = experiment_run.build_tag("absa_cot_v1", "val", 200, False, None)
         self.assertEqual(greedy, "prompt-absa_cot_v1__val__n200__greedy")

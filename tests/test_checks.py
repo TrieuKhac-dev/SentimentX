@@ -123,6 +123,35 @@ class PinnedTest(unittest.TestCase):
         self.assertEqual(checks.pinned_value(source, "REPO_SHA"), sha)
         self.assertIsNone(checks.pinned_value(source, "KHONG_CO"))
 
+    def test_moi_lenh_git_deu_nhan_root(self):
+        """`checks.run(root=...)` phải kiểm repo ở ĐÚNG gốc đó, không phải thư mục đang đứng.
+
+        `repo.run_git` chạy git theo thư mục hiện hành khi không được truyền `cwd`, nên thiếu `root`
+        là kiểm nhầm repo - mà lỗi đó im lặng: kết quả vẫn ra "sạch".
+        """
+        root = Path(tempfile.mkdtemp(prefix="sentimentx-root-"))
+        self.addCleanup(shutil.rmtree, str(root), ignore_errors=True)
+        directory = root / "model-x" / "prompt-cot" / "exp001"
+        directory.mkdir(parents=True)
+        source = "{}\nREPO_SHA = '{}'\n".format(checks.notebooks.MARKER, "a" * 40)
+        (directory / "notebook.ipynb").write_text(
+            json.dumps({"cells": [{"cell_type": "code", "source": source}],
+                        "nbformat": 4, "nbformat_minor": 5}, ensure_ascii=False),
+            encoding="utf-8")
+        with mock.patch.object(checks.experiments, "list_experiments",
+                               return_value=[("model-x", "prompt-cot", "exp001")]), \
+                mock.patch.object(checks.paths, "experiment_dir", return_value=directory), \
+                mock.patch.object(checks.experiments, "shared",
+                                  return_value={"branch": "experiment"}), \
+                mock.patch.object(checks.repo, "ref_exists", return_value=True) as ref_exists, \
+                mock.patch.object(checks.repo, "object_exists", return_value=True) as object_exists, \
+                mock.patch.object(checks.repo, "is_ancestor", return_value=True) as is_ancestor:
+            found = checks.pinned_shas(root)
+        self.assertEqual(found, [])
+        for call, name in ((ref_exists, "ref_exists"), (object_exists, "object_exists"),
+                           (is_ancestor, "is_ancestor")):
+            self.assertIn(root, call.call_args[0], "{}: thiếu root".format(name))
+
     def test_chua_ghim_hoac_sha_sai_dang_thi_bao(self):
         root = Path(tempfile.mkdtemp(prefix="sentimentx-pinned-"))
         self.addCleanup(shutil.rmtree, str(root), ignore_errors=True)
