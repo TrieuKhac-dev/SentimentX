@@ -43,7 +43,7 @@ Kết quả trên cosmetics: **ĐẠT - 15344/15344 dòng khớp đúng dòng g�
 Vì phép so là từng ký tự, kết luận rút ra được:
 
 - **Văn bản không mất một dấu tiếng Việt nào**, và khoá so trùng cũng vậy: config đang
-  để `clean.deduplicate.ignore_diacritics: false`, nên bỏ dấu không xảy ra ở **bất kỳ
+  để `steps.clean.deduplicate.ignore_diacritics: false`, nên bỏ dấu không xảy ra ở **bất kỳ
   chỗ nào** trong dự án;
 - bước xoá trùng lặp / xử lý rò rỉ **chỉ bỏ dòng**, không sửa chữ của dòng được giữ;
 - nếu ai đó thêm một phép "bỏ dấu" vào `normalize_steps`, hạng mục này **lập tức

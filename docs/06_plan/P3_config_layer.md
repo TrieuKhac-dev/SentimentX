@@ -3,7 +3,7 @@
 > Đọc file này khi: tạo hoặc sửa cấu hình của một thí nghiệm.
 > Liên quan: `docs/05_config/05_experiments_shared.md`, `docs/05_config/06_experiment.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Cấu hình thí nghiệm được hợp nhất từ 7 lớp, biết rõ mỗi khoá đến từ file nào,
 có dấu vết để tra cứu, và chặn được các lỗi im lặng (thiếu vai, rò rỉ dữ liệu, trùng thí nghiệm).

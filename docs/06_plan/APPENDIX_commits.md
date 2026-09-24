@@ -27,9 +27,9 @@
 `preprocessing`, `evaluation`, `tracking`, `mlflow`, `resume`, `templates`, `notebook`,
 `preflight`, `scripts`, `ci`, `docs`, `data`, `assets`
 
-## Danh sách commit theo phase
+## Danh sách commit theo giai đoạn
 
-| Phase | Commit                                                                    |
+| Giai đoạn | Commit                                                                    |
 | ----- | ------------------------------------------------------------------------- |
 | P0    | `chore(repo): scaffold refactored project tree`                           |
 | P0    | `chore(assets): move shared plotly asset into data/assets`                |

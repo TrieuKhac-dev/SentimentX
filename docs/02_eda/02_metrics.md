@@ -52,7 +52,7 @@ Vì sao vẫn dùng: đo trên dữ liệu gốc `cosmetics` cho thấy nhóm n�
 chuỗi gõ bàn phím (`Obdhsjdbdhdjdjdjsgs...`, `Hy...jjjjjjjj`), tức nó lọc đúng thứ cần
 lọc. Các ngưỡng là chọn tay, nên trong báo cáo chỉ số này xuất hiện **một dòng**
 trong bảng "Chỉ số chất lượng theo split"; bật/tắt bằng
-`clean.remove_gibberish` trong `configs/pipeline/v0.1.0.yaml`, và mọi dòng bị loại đều được
+`steps.clean.remove_gibberish` trong `configs/pipeline/v0.1.0.yaml`, và mọi dòng bị loại đều được
 ghi lại ở `removed_records.csv`.
 
 ## 5. "Trùng theo KHOÁ so trùng" - và nó KHÁC bước Normalize thế nào
@@ -93,7 +93,7 @@ dòng ở train và 296 dòng trên 3 split - bỏ dấu chỉ loại **thêm 5 
 lại gộp cả những cặp câu chỉ giống nhau sau khi bỏ dấu.
 
 Kết luận: dự án **không bỏ dấu tiếng Việt ở bất kỳ chỗ nào**, kể cả trong khoá so
-trùng - nên `clean.deduplicate.ignore_diacritics` trong `configs/pipeline/v0.1.0.yaml` để
+trùng - nên `steps.clean.deduplicate.ignore_diacritics` trong `configs/pipeline/v0.1.0.yaml` để
 `false`. Đây vẫn là config thật: đổi giá trị thì **cả EDA lẫn pipeline** đổi theo -
 EDA 03 và EDA 05 đọc chính khoá đó từ config, nên hai bên không bao giờ lệch nhau.
 Báo cáo pipeline có một dòng "deduplicate.ignore_diacritics" trong bảng "Thiết lập
@@ -115,7 +115,7 @@ văn bản xuất ra không mất một dấu nào. Chi tiết phép kiểm:
 Đếm số review có **một ký tự lặp liên tiếp từ 3 lần trở lên** (`đẹppppp`, `ok.....`).
 Mốc 3 là chọn tay (`config.REPEATED_CHAR_MIN`) vì lặp 2 lần xuất hiện trong từ tiếng
 Việt bình thường. Chỉ số này chỉ để **đo**: cấu hình hiện tại
-`normalize.repeated_chars: false` vì ký tự lặp mang thông tin cảm xúc (`đẹppppp`
+`steps.normalize.repeated_chars: false` vì ký tự lặp mang thông tin cảm xúc (`đẹppppp`
 khác `đẹp`); muốn thí nghiệm thì bật và chạy lại pipeline để ra phiên bản mới.
 
 ## 7. Dấu hiệu quảng cáo và dấu hiệu code / HTML
@@ -125,7 +125,7 @@ khác `đẹp`); muốn thí nghiệm thì bật và chạy lại pipeline để
 `http(s)://`, `www.`, `bit.ly`, `lh 198`, `tổng đài`, `soạn <X> gửi`. Đây là
 **danh sách gõ tay** các dấu hiệu gặp trong dữ liệu, không phải một bộ phân loại học
 máy: nó chỉ bắt được những dạng đã thấy và có thể bỏ sót quảng cáo viết theo cách
-khác. Config: `clean.remove_ads`; mọi dòng bị loại đều nằm trong
+khác. Config: `steps.clean.remove_ads`; mọi dòng bị loại đều nằm trong
 `removed_records.csv` để kiểm lại bằng tay.
 
 **Code / HTML / SQL** - review bị dán từ nơi khác (mã trang web, câu lệnh) cũng là
@@ -141,7 +141,7 @@ dùng trong câu bình thường **không** bị tính là code - ví dụ `=>` 
 nhóm "dán từ nơi khác" là URL có tham số, đã bị `AD_PATTERNS` bắt trước, nên chúng
 nằm ở dòng "có dấu hiệu quảng cáo".)
 
-Vì con số rất nhỏ và luật đã viết chặt, config `clean.remove_code` **đang BẬT**:
+Vì con số rất nhỏ và luật đã viết chặt, config `steps.clean.remove_code` **đang BẬT**:
 dòng có `&quot;` đó bị loại ở bước Clean (nằm trong `removed_records.csv` với lí do
 "chứa mã HTML / SQL / code"). Muốn kiểm chứng bằng mắt: bảng "Ví dụ minh hoạ theo
 nhóm nhiễu" có một dòng cho nhóm "có dấu hiệu code / HTML".
@@ -278,7 +278,7 @@ bản bị trùng; chuỗi "trùng theo khoá so trùng" có 23 + 22 + 9 = 54 th
 đối chiếu.
 
 Con số ② chính là phép mà bước Clean thực hiện khi
-`clean.leakage.remove_eval_overlap = true`: lấy khoá so trùng của **train**, rồi
+`steps.clean.leakage.remove_eval_overlap = true`: lấy khoá so trùng của **train**, rồi
 loại khỏi val/test mọi dòng có khoá đó. Vì vậy khi so EDA với pipeline, hãy so với
 con số ② - và lưu ý Clean **xoá nhiễu TRƯỚC rồi mới xử lý rò rỉ**, nên số dòng bị
 loại vì rò rỉ trong báo cáo pipeline luôn **nhỏ hơn hoặc bằng** con số ② của EDA

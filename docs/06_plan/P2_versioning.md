@@ -3,7 +3,7 @@
 > Đọc file này khi: tạo phiên bản dữ liệu mới, hoặc sửa cách tính mã phiên bản.
 > Liên quan: `docs/05_config/02_pipeline.md`, `docs/05_config/03_datasets.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Dữ liệu có phiên bản rõ ràng: raw, dataset, pipeline đều có mã; file phiên bản là bất biến và có guard.
 Mã phiên bản dữ liệu đủ để tra ngược: nguồn nào, pipeline nào, nội dung nào.

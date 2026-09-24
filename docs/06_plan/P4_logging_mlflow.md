@@ -3,7 +3,7 @@
 > Đọc file này khi: chạy thí nghiệm, xem log, hoặc gặp lỗi khi log lên DagsHub.
 > Liên quan: `docs/05_config/05_experiments_shared.md`, `docs/00_workflow/02_rules.md`, `docs/04_experiments/metrics.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Mỗi lần chạy có log và dấu vết đầy đủ, chỉ số tính theo đúng công bố, kết quả lên DagsHub,
 và resume được khi bị ngắt giữa chừng.

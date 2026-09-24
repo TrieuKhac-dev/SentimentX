@@ -3,7 +3,7 @@
 > Đọc file này khi: tạo thí nghiệm mới, ghim bản code, hoặc giao notebook cho giảng viên.
 > Liên quan: `docs/00_workflow/01_flow.md`, `docs/05_config/06_experiment.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Notebook chạy được cả trên Colab và trên máy cá nhân, luôn kéo đúng bản code đã ghim,
 và có công cụ tạo thí nghiệm mới nhanh, chính xác, không xung đột.

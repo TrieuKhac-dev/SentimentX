@@ -3,7 +3,7 @@
 > Đọc file này khi: sinh bảng tổng hợp, hoặc khi CI báo đỏ.
 > Liên quan: `docs/00_workflow/03_ci.md`, `docs/05_config/*`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Có bảng tổng hợp sinh tự động, có CI chặn lỗi cấu trúc trên nhánh `experiment`,
 và tài liệu đầy đủ cho cả nhóm.

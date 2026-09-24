@@ -3,7 +3,7 @@
 > Đọc file này khi: bắt đầu sinh kết quả chính thức cho báo cáo.
 > Liên quan: `docs/04_experiments/metrics.md`, `docs/04_experiments/reference_publication.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Sinh lại toàn bộ dữ liệu và kết quả từ đầu theo cấu trúc mới, so được trực tiếp với công bố tham chiếu,
 và có một vòng bàn giao hoàn chỉnh cho giảng viên.

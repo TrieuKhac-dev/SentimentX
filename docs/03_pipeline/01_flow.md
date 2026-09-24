@@ -49,24 +49,24 @@ nghiệm: [03_config.md](03_config.md)):
 
 | Bước | Khoá                                  | Đang chạy      | Nghĩa ngắn                                                                  |
 | ---- | ------------------------------------- | -------------- | --------------------------------------------------------------------------- |
-| 2    | `validate.check_schema`               | **Bật**        | kiểm tra đủ cột, đúng tên cột                                               |
-| 2    | `validate.check_content`              | **Bật**        | kiểm tra review rỗng, nhãn lạ                                               |
-| 3    | `clean.remove_empty`                  | **Bật**        | loại review rỗng                                                            |
-| 3    | `clean.remove_gibberish`              | **Bật**        | loại chuỗi ký tự vô nghĩa                                                   |
-| 3    | `clean.remove_ads`                    | **Bật**        | loại quảng cáo / tin nhắn nhà mạng                                          |
-| 3    | `clean.remove_code`                   | **Bật**        | loại dòng chứa mã HTML / SQL / code (rất nhỏ: 1 dòng)                       |
-| 3    | `clean.deduplicate.exact`             | **Bật**        | loại trùng lặp chính xác                                                    |
-| 3    | `clean.deduplicate.normalized`        | **Bật**        | loại trùng theo **khoá so trùng** (không phải bước Normalize)               |
-| 3    | `clean.deduplicate.ignore_diacritics` | **Tắt**        | khoá so trùng **giữ dấu** tiếng Việt (`son dep` khác `son đẹp`)                |
-| 3    | `clean.deduplicate.scope`             | `within_split` | so trùng trong từng split (`global` là phương án thực nghiệm)               |
-| 3    | `clean.deduplicate.conflict_policy`   | `quarantine`   | cùng văn bản nhưng nhãn khác nhau -> cách ly, không tự chọn                  |
-| 3    | `clean.leakage.remove_eval_overlap`   | **Bật**        | loại khỏi val/test những review đã có trong train                           |
-| 4    | `normalize.lowercase`                 | **Tắt**        | giữ hoa/thường (tokenizer subword phân biệt, và chữ hoa có thể là tín hiệu) |
-| 4    | `normalize.unicode`                   | **Bật**        | NFC                                                                         |
-| 4    | `normalize.whitespace`                | **Bật**        | chuẩn hoá khoảng trắng / xuống dòng                                         |
-| 4    | `normalize.repeated_chars`            | **Tắt**        | **không** rút gọn `đẹppppp` -> `đẹpp` (ký tự lặp mang cảm xúc)               |
-| 4    | `normalize.repeated_chars_max`        | `2`            | chỉ có tác dụng khi `repeated_chars: true`                                  |
-| 5    | `transform.format`                    | `multi_head`   | dạng dữ liệu đầu ra duy nhất                                                |
+| 2    | `steps.validate.check_schema`               | **Bật**        | kiểm tra đủ cột, đúng tên cột                                               |
+| 2    | `steps.validate.check_content`              | **Bật**        | kiểm tra review rỗng, nhãn lạ                                               |
+| 3    | `steps.clean.remove_empty`                  | **Bật**        | loại review rỗng                                                            |
+| 3    | `steps.clean.remove_gibberish`              | **Bật**        | loại chuỗi ký tự vô nghĩa                                                   |
+| 3    | `steps.clean.remove_ads`                    | **Bật**        | loại quảng cáo / tin nhắn nhà mạng                                          |
+| 3    | `steps.clean.remove_code`                   | **Bật**        | loại dòng chứa mã HTML / SQL / code (rất nhỏ: 1 dòng)                       |
+| 3    | `steps.clean.deduplicate.exact`             | **Bật**        | loại trùng lặp chính xác                                                    |
+| 3    | `steps.clean.deduplicate.normalized`        | **Bật**        | loại trùng theo **khoá so trùng** (không phải bước Normalize)               |
+| 3    | `steps.clean.deduplicate.ignore_diacritics` | **Tắt**        | khoá so trùng **giữ dấu** tiếng Việt (`son dep` khác `son đẹp`)                |
+| 3    | `steps.clean.deduplicate.scope`             | `within_split` | so trùng trong từng split (`global` là phương án thực nghiệm)               |
+| 3    | `steps.clean.deduplicate.conflict_policy`   | `quarantine`   | cùng văn bản nhưng nhãn khác nhau -> cách ly, không tự chọn                  |
+| 3    | `steps.clean.leakage.remove_eval_overlap`   | **Bật**        | loại khỏi val/test những review đã có trong train                           |
+| 4    | `steps.normalize.lowercase`                 | **Tắt**        | giữ hoa/thường (tokenizer subword phân biệt, và chữ hoa có thể là tín hiệu) |
+| 4    | `steps.normalize.unicode`                   | **Bật**        | NFC                                                                         |
+| 4    | `steps.normalize.whitespace`                | **Bật**        | chuẩn hoá khoảng trắng / xuống dòng                                         |
+| 4    | `steps.normalize.repeated_chars`            | **Tắt**        | **không** rút gọn `đẹppppp` -> `đẹpp` (ký tự lặp mang cảm xúc)               |
+| 4    | thresholds.repeated_chars_max``        | `2`            | chỉ có tác dụng khi `repeated_chars: true`                                  |
+| 5    | `steps.transform.format`                    | `multi_head`   | dạng dữ liệu đầu ra duy nhất                                                |
 
 Tóm lại, pipeline hiện chỉ **sửa văn bản** bằng bốn phép - `lowercase`, `unicode`,
 `whitespace`, `repeated_chars` (ba phép cuối bật theo config) - và **hai phép cuối
@@ -166,7 +166,7 @@ chứng minh bằng số liệu ở Step 6 ([04_invariants.md](04_invariants.md)
 - **không viết lại teencode** - không có config nào cho việc này trong
   `configs/pipeline/v0.1.0.yaml`; việc nhận diện teencode chỉ để ĐO (EDA 03);
 - **không bỏ dấu tiếng Việt**, kể cả trong khoá so trùng
-  (`clean.deduplicate.ignore_diacritics: false`);
+  (`steps.clean.deduplicate.ignore_diacritics: false`);
 - **không chạm vào cột nhãn** - chứng minh bằng dấu vân tay nhãn trước/sau bước
   Normalize.
 

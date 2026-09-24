@@ -9,7 +9,7 @@
   truy vết được một phiên bản dữ liệu được tạo ra bằng cấu hình nào.
 - Nếu file thiếu một khoá, `src/utils.py::load_pipeline_config` bổ sung giá trị mặc
   định theo nguyên tắc **an toàn nhất = tắt biến đổi**; riêng
-  `clean.deduplicate.ignore_diacritics` dự phòng là `false` để đúng chính sách
+  `steps.clean.deduplicate.ignore_diacritics` dự phòng là `false` để đúng chính sách
   "không bỏ dấu tiếng Việt ở bất kỳ chỗ nào" của dự án.
 - Trạng thái **đang chạy** (bảng tóm tắt) nằm ở [01_flow.md mục 3](01_flow.md). File này
   giải thích chi tiết từng khoá.
@@ -21,8 +21,8 @@ trị gốc vẫn nguyên trong `processing_log.json`.
 
 | Khoá                     | Mặc định | Ý nghĩa                       |
 | ------------------------ | -------- | ----------------------------- |
-| `validate.check_schema`  | `true`   | kiểm tra đủ cột, đúng tên cột |
-| `validate.check_content` | `true`   | kiểm tra review rỗng, nhãn lạ |
+| `steps.validate.check_schema`  | `true`   | kiểm tra đủ cột, đúng tên cột |
+| `steps.validate.check_content` | `true`   | kiểm tra review rỗng, nhãn lạ |
 
 Bước này chỉ ghi nhận lỗi, không sửa dữ liệu - chi tiết ở
 [02_steps.md mục 2](02_steps.md).
@@ -31,16 +31,16 @@ Bước này chỉ ghi nhận lỗi, không sửa dữ liệu - chi tiết ở
 
 | Khoá                                  | Mặc định       | Ý nghĩa                                                                                                                                                                                                                                                     |
 | ------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `clean.remove_empty`                  | `true`         | loại review rỗng                                                                                                                                                                                                                                            |
-| `clean.remove_gibberish`              | `true`         | loại chuỗi ký tự vô nghĩa                                                                                                                                                                                                                                   |
-| `clean.remove_ads`                    | `true`         | loại quảng cáo / tin nhắn nhà mạng                                                                                                                                                                                                                          |
-| `clean.remove_code`                   | `true`         | loại dòng chứa mã HTML / SQL / code (nhóm rất nhỏ, luật đã viết chặt)                                                                                                                                                                                       |
-| `clean.deduplicate.exact`             | `true`         | loại trùng lặp chính xác                                                                                                                                                                                                                                    |
-| `clean.deduplicate.normalized`        | `true`         | loại trùng lặp **theo khoá so trùng** (bỏ hoa/thường, dấu câu, gộp khoảng trắng) - không phải bước Normalize                                                                                                                                                |
-| `clean.deduplicate.ignore_diacritics` | `false`        | khoá so trùng có bỏ dấu tiếng Việt hay không ("son dep" = "son đẹp"). **Giữ ở `false`**: dự án không bỏ dấu tiếng Việt ở bất kỳ chỗ nào - đo trên cosmetics, bật lên chỉ loại thêm 5 dòng (0,03%) mà lại gộp cả những cặp câu chỉ giống nhau sau khi bỏ dấu |
-| `clean.deduplicate.scope`             | `within_split` | phạm vi so trùng: `within_split` hoặc `global`                                                                                                                                                                                                              |
-| `clean.deduplicate.conflict_policy`   | `quarantine`   | cùng review nhưng nhãn khác nhau thì làm gì                                                                                                                                                                                                                 |
-| `clean.leakage.remove_eval_overlap`   | `true`         | loại khỏi val/test những review đã có trong train (chống rò rỉ dữ liệu)                                                                                                                                                                                     |
+| `steps.clean.remove_empty`                  | `true`         | loại review rỗng                                                                                                                                                                                                                                            |
+| `steps.clean.remove_gibberish`              | `true`         | loại chuỗi ký tự vô nghĩa                                                                                                                                                                                                                                   |
+| `steps.clean.remove_ads`                    | `true`         | loại quảng cáo / tin nhắn nhà mạng                                                                                                                                                                                                                          |
+| `steps.clean.remove_code`                   | `true`         | loại dòng chứa mã HTML / SQL / code (nhóm rất nhỏ, luật đã viết chặt)                                                                                                                                                                                       |
+| `steps.clean.deduplicate.exact`             | `true`         | loại trùng lặp chính xác                                                                                                                                                                                                                                    |
+| `steps.clean.deduplicate.normalized`        | `true`         | loại trùng lặp **theo khoá so trùng** (bỏ hoa/thường, dấu câu, gộp khoảng trắng) - không phải bước Normalize                                                                                                                                                |
+| `steps.clean.deduplicate.ignore_diacritics` | `false`        | khoá so trùng có bỏ dấu tiếng Việt hay không ("son dep" = "son đẹp"). **Giữ ở `false`**: dự án không bỏ dấu tiếng Việt ở bất kỳ chỗ nào - đo trên cosmetics, bật lên chỉ loại thêm 5 dòng (0,03%) mà lại gộp cả những cặp câu chỉ giống nhau sau khi bỏ dấu |
+| `steps.clean.deduplicate.scope`             | `within_split` | phạm vi so trùng: `within_split` hoặc `global`                                                                                                                                                                                                              |
+| `steps.clean.deduplicate.conflict_policy`   | `quarantine`   | cùng review nhưng nhãn khác nhau thì làm gì                                                                                                                                                                                                                 |
+| `steps.clean.leakage.remove_eval_overlap`   | `true`         | loại khỏi val/test những review đã có trong train (chống rò rỉ dữ liệu)                                                                                                                                                                                     |
 
 **Về `conflict_policy`:**
 
@@ -60,11 +60,11 @@ chưa".
 
 | Khoá                           | Mặc định | Ý nghĩa                                                                                                                                                                                                 |
 | ------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `normalize.lowercase`          | `false`  | chuyển hết về chữ thường. **Mặc định TẮT**: 89,45% review có chữ hoa (phần lớn chỉ là chữ đầu câu) và tokenizer subword phân biệt hoa/thường, nên giữ nguyên giúp model còn dùng được tín hiệu viết hoa |
-| `normalize.unicode`            | `true`   | chuẩn hoá Unicode (NFC)                                                                                                                                                                                 |
-| `normalize.whitespace`         | `true`   | chuẩn hoá khoảng trắng / xuống dòng                                                                                                                                                                     |
-| `normalize.repeated_chars`     | `false`  | rút gọn `đẹppppp` -> `đẹpp`. **Mặc định TẮT** vì ký tự lặp mang cảm xúc                                                                                                                                  |
-| `normalize.repeated_chars_max` | `2`      | số lần ký tự được giữ lại                                                                                                                                                                               |
+| `steps.normalize.lowercase`          | `false`  | chuyển hết về chữ thường. **Mặc định TẮT**: 89,45% review có chữ hoa (phần lớn chỉ là chữ đầu câu) và tokenizer subword phân biệt hoa/thường, nên giữ nguyên giúp model còn dùng được tín hiệu viết hoa |
+| `steps.normalize.unicode`            | `true`   | chuẩn hoá Unicode (NFC)                                                                                                                                                                                 |
+| `steps.normalize.whitespace`         | `true`   | chuẩn hoá khoảng trắng / xuống dòng                                                                                                                                                                     |
+| `steps.normalize.repeated_chars`     | `false`  | rút gọn `đẹppppp` -> `đẹpp`. **Mặc định TẮT** vì ký tự lặp mang cảm xúc                                                                                                                                  |
+| thresholds.repeated_chars_max`` | `2`      | số lần ký tự được giữ lại                                                                                                                                                                               |
 
 > ⚠️ Bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
 > nguyên như người viết. Không có khoá nào trong file này điều khiển việc bỏ dấu /
@@ -78,7 +78,7 @@ hoá": [02_steps.md mục 4](02_steps.md).
 
 | Khoá               | Mặc định     | Ý nghĩa                   |
 | ------------------ | ------------ | ------------------------- |
-| `transform.format` | `multi_head` | định dạng dữ liệu xuất ra |
+| `steps.transform.format` | `multi_head` | định dạng dữ liệu xuất ra |
 
 Pipeline **chỉ xuất một dạng dữ liệu**; dạng JSONL cho model sinh (Qwen3 / ViTASA)
 được sinh khi cần từ chính bảng đó (`src/preprocessing/loader.py`). Bảng mã nhãn và

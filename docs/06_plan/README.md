@@ -5,14 +5,14 @@
 
 ## Cách dùng
 
-- Mỗi phase là một file. Trong mỗi file, mục **3. Task nhỏ** là danh sách task có checkbox.
+- Mỗi giai đoạn là một file. Trong mỗi file, mục **3. Task nhỏ** là danh sách task có checkbox.
 - Một task = **một commit** (Conventional Commits, tiếng Anh). Commit message ghi ngay cạnh task.
 - Trạng thái ghi ở **mục 2** của từng file: `chưa làm` / `đang làm` / `xong`.
-- Chỉ chuyển phase khi mục **4. Điều kiện hoàn thành (DoD)** đã đạt.
+- Chỉ chuyển giai đoạn khi mục **4. Điều kiện hoàn thành (DoD)** đã đạt.
 
 ## Trạng thái tổng
 
-| Phase | Nội dung                                 | File                   | Trạng thái |
+| Giai đoạn | Nội dung                                 | File                   | Trạng thái |
 | ----- | ---------------------------------------- | ---------------------- | ---------- |
 | P0    | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md`     | xong       |
 | P1    | Đường dẫn tập trung                      | `P1_paths.md`          | chưa làm   |
@@ -33,7 +33,7 @@ Trước khi làm bất cứ việc gì phụ thuộc MLflow, phải đạt **c�
 
 Không đạt thì dừng, báo cáo và đưa giải pháp, không triển khai tiếp phần phụ thuộc MLflow.
 
-## Quy ước chung cho mọi phase
+## Quy ước chung cho mọi giai đoạn
 
 - Không hardcode đường dẫn và giá trị: đọc từ `configs/paths.yaml` và `configs/**`.
 - Không đặt giá trị mặc định trong code: thiếu khoá thì báo lỗi rõ kèm danh sách file đã đọc.

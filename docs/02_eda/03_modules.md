@@ -67,7 +67,7 @@ Ghi ra: `03_quality_noise.json`, `03_*.csv`, trong đó có
 `03_quality_teencode_common_flagged.csv` (300 từ phổ biến nhất bị gắn cờ - phép tự
 kiểm dương tính giả).
 
-Khoá so trùng được đọc từ `clean.deduplicate.ignore_diacritics` trong
+Khoá so trùng được đọc từ `steps.clean.deduplicate.ignore_diacritics` trong
 `configs/pipeline/v0.1.0.yaml`, nên khi đổi quy tắc so trùng thì số liệu EDA đổi theo
 đúng như pipeline ([02_metrics.md mục 5](02_metrics.md)). Cách phát hiện từng nhóm nhiễu:
 [02_metrics.md](02_metrics.md) mục 4 (gibberish), mục 5 (khoá so trùng), mục 6 (ký tự lặp), mục 7

@@ -3,7 +3,7 @@
 > Đọc file này khi: sửa hoặc thêm đường dẫn trong dự án.
 > Liên quan: `docs/05_config/01_paths.md`, `docs/00_workflow/02_rules.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Mọi đường dẫn của dự án lấy từ một nguồn duy nhất là `configs/paths.yaml`, qua `src/paths.py`.
 Đổi cấu trúc thư mục thì chỉ sửa một file cấu hình.

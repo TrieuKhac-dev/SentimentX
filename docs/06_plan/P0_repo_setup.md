@@ -3,7 +3,7 @@
 > Đọc file này khi: làm bước đầu tiên của dự án.
 > Liên quan: `docs/06_plan/README.md`, `docs/00_workflow/01_flow.md`, `docs/00_workflow/02_rules.md`
 
-## 1. Mục tiêu phase
+## 1. Mục tiêu giai đoạn
 
 Có một repo sạch ở `SentimentX/SentimentX/` với cấu trúc mới, commit đầu tiên không chứa dữ liệu,
 và hai nhánh `main` + `experiment` trên GitHub.
@@ -46,4 +46,4 @@ xong
 
 ## 6. Phụ thuộc
 
-Không. Đây là phase đầu tiên.
+Không. Đây là giai đoạn đầu tiên.

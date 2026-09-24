@@ -17,7 +17,7 @@ sẽ mang cùng một nhãn phiên bản, và kết quả cũ không còn tra đ
 | `version`    | nhãn phiên bản, trùng tên file                                           |
 | `parent`     | phiên bản trước đó, `null` nếu là bản đầu                                |
 | `notes`      | vì sao có phiên bản này                                                  |
-| `steps`      | bật tắt từng bước xử lý, ví dụ `clean.deduplicate`, `normalize.teencode` |
+| `steps`      | bật tắt từng bước xử lý, ví dụ `steps.clean.deduplicate`, `steps.normalize.teencode` |
 | `thresholds` | ngưỡng dùng trong các bước                                               |
 
 ## Luật

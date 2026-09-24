@@ -41,7 +41,7 @@ rỗng, nhãn nằm ngoài danh sách hợp lệ).
 Ra: `validation_report.csv` (từng lỗi) + bảng "Số lỗi theo loại" trên báo cáo.
 
 Bước này **chỉ ghi nhận, không sửa** - mọi lỗi nằm trong `validation_report.csv`.
-Bật/tắt bằng `validate.check_schema` và `validate.check_content`
+Bật/tắt bằng `steps.validate.check_schema` và `steps.validate.check_content`
 ([03_config.md mục 2](03_config.md)).
 
 ### Cách đọc bảng "Kiểm tra schema"
@@ -60,7 +60,7 @@ khai báo sai `aspects`, bảng sẽ hiện ngay cột thiếu / thừa thay vì
 
 ## 3. Step 3 - Clean (`src/pipeline/clean.py`)
 
-Vào: `context["splits"]` sau Validate + các khoá `clean.*` trong config.
+Vào: `context["splits"]` sau Validate + các khoá `steps.clean.*` trong config.
 Làm: **loại bỏ và cách ly bản ghi**, theo đúng thứ tự dưới đây (thứ tự quan trọng -
 xem ghi chú ở cuối mục).
 Ra: `context["splits"]` đã lọc; `removed_records.csv` (dòng bị loại, kèm lí do và
@@ -111,7 +111,7 @@ nhiều lần với nhãn khác nhau - EDA 05 đã liệt kê đúng những ô 
 Giá trị khác của khoá này là `keep_first` (giữ bản ghi đầu tiên, bỏ phần còn lại);
 chi tiết: [03_config.md mục 3](03_config.md).
 
-### Xử lý rò rỉ dữ liệu (`clean.leakage.remove_eval_overlap`)
+### Xử lý rò rỉ dữ liệu (`steps.clean.leakage.remove_eval_overlap`)
 
 EDA 05 phát hiện có review xuất hiện ở **cả train và val/test** (18 cặp trùng chính
 xác giữa train ↔ val, 18 cặp giữa train ↔ test). Nếu để nguyên, điểm đánh giá model
@@ -131,7 +131,7 @@ bước này (cosmetics: EDA đếm 91 dòng, pipeline loại 84 dòng). Chi ti�
 
 ## 4. Step 4 - Normalize (`src/pipeline/normalize.py`)
 
-Vào: `context["splits"]` sau Clean + các khoá `normalize.*`.
+Vào: `context["splits"]` sau Clean + các khoá `steps.normalize.*`.
 Làm: **sửa hình thức văn bản** bằng bốn phép dưới đây, theo đúng thứ tự này, phép nào
 được bật thì chạy:
 Ra: `context["splits"]` với cột `text` đã chuẩn hoá (chỉ cột `text` bị sửa - nhãn
@@ -153,7 +153,7 @@ tự **giữ lại** (không phải số ký tự bị xoá): `max = 2` biến `
 
 > ⚠️ Bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
 > nguyên như người viết. Dự án cũng không bỏ dấu ở bất kỳ chỗ nào khác - khoá so trùng
-> của bước Clean (`clean.deduplicate.ignore_diacritics`) đang để `false`, và dù có bật
+> của bước Clean (`steps.clean.deduplicate.ignore_diacritics`) đang để `false`, và dù có bật
 > thì khoá đó cũng chỉ dùng để _so_, không sửa văn bản.
 
 **Phép nào ảnh hưởng tới bao nhiêu review?** Báo cáo vẽ biểu đồ "Số review bị thay
@@ -185,7 +185,7 @@ mục "Văn bản chỉ đổi hình thức" ở Step 6 sẽ **báo LỖI ngay**
 
 ## 5. Step 5 - Transform (`src/pipeline/transform.py`)
 
-Vào: `context["splits"]` sau Normalize + khoá `transform.format`.
+Vào: `context["splits"]` sau Normalize + khoá `steps.transform.format`.
 Làm: chuyển nhãn chữ sang **mã số** và sinh hai dạng dữ liệu: bảng multi_head (để
 huấn luyện và để Export ghi ra đĩa) và bản ghi ABSA (dạng dùng cho model sinh và để
 đọc bằng mắt).
