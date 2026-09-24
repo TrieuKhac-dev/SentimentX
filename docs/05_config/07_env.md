@@ -1,7 +1,8 @@
 # 05.07. Biến môi trường và secret
 
 > Đọc file này khi: cấu hình máy cá nhân, hoặc chuẩn bị file env để gửi giảng viên.
-> Liên quan: `docs/00_workflow/02_rules.md`, `docs/05_config/01_paths.md`
+> Liên quan: `docs/00_workflow/07_colab.md` (thứ tự các bước trên Colab),
+> `docs/00_workflow/02_rules.md`, `docs/05_config/01_paths.md`
 
 ## Các file env
 

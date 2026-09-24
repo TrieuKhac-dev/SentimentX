@@ -1,7 +1,7 @@
 # 01. Luồng làm việc
 
 > Đọc file này khi: mới vào nhóm, hoặc không nhớ bước tiếp theo là gì.
-> Liên quan: `docs/00_workflow/02_rules.md`, `docs/06_plan/README.md`
+> Liên quan: `docs/00_workflow/02_rules.md`, `docs/00_workflow/07_colab.md`, `docs/06_plan/README.md`
 
 ## Vai trò các thành phần
 

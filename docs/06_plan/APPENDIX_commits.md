@@ -111,6 +111,8 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P7 T1 | `feat(preflight): report missing raw data first, with a runnable command` |
 | P5 | `fix(notebooks): bootstrap must survive a second run, and stay in sync with the template` |
 | P7 T1 | `chore(data): rebuild the dataset under the corrected version id` |
+| P6 T4 | `chore(deps): add ci colab and base requirements` |
+| P6 T5 | `docs(workflow): add the colab runbook` |
 
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 
