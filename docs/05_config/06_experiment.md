@@ -12,9 +12,10 @@ exp_id: exp001
 parent: null
 model: qwen3-4b-instruct-2507
 method: prompt-cot
+notes: "CoT 1 shot, chấm trên val"
 data:
   dataset: cosmetics
-  version: v0.3.0
+  version: v0.1.0
   roles: { train: train, val: val, eval: test }
 prompt: prompt.txt
 examples: examples.txt
@@ -30,10 +31,11 @@ requires_extra: []
 | `parent`         | thí nghiệm gốc, ghi bằng đường dẫn đầy đủ `<model>/<method>/<expNNN>`; `null` nếu là bản gốc |
 | `model`          | `model_id`, trỏ tới `configs/models/<model_id>.yaml`                                         |
 | `method`         | tên phương pháp, cũng là tên thư mục cha                                                     |
+| `notes`          | một dòng mô tả thí nghiệm khác gì các thí nghiệm khác; `--title` của `new_experiment.py` điền vào đây |
 | `data.dataset`   | **một** dataset duy nhất. Không được khai danh sách                                          |
 | `data.version`   | phiên bản dataset, trỏ tới `configs/datasets/<name>/<version>.yaml`                          |
 | `data.roles`     | **bắt buộc khai**, không kế thừa: mỗi vai dùng split nào của chính dataset đó                |
-| `prompt`         | đường dẫn file prompt, tính từ gốc repo                                                      |
+| `prompt`         | đường dẫn file prompt: tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là bốn cấp) |
 | `examples`       | đường dẫn file ví dụ few-shot                                                                |
 | `system_prompt`  | đường dẫn file chứa khối `[SYSTEM]`; bắt buộc nếu prompt dùng ô nhớ `{system_prompt}`        |
 | `requires_extra` | danh sách đường dẫn bổ sung mà notebook phải kiểm, cho thứ máy không suy ra được             |
@@ -82,5 +84,7 @@ lạ trong cấu hình đã hợp nhất.
 
 ## Tạo thí nghiệm mới
 
-Dùng `python scripts/new_experiment.py --model ... --method ...`. Công cụ này tự chọn số `expNNN`
-kế tiếp từ trạng thái đã hợp nhất, nên không thể trùng số với thí nghiệm trước.
+Dùng `python scripts/new_experiment.py --model ... --method ... --title "mô tả ngắn"`. Công cụ này tự
+chọn số `expNNN` kế tiếp từ trạng thái đã hợp nhất, nên không thể trùng số với thí nghiệm trước;
+`--title` điền vào `notes` của `config.yaml`. Đổi tiêu đề sau khi đã tạo cũng được - sửa thẳng dòng
+`notes` trong file config.

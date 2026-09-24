@@ -10,8 +10,7 @@ và tài liệu đầy đủ cho cả nhóm.
 
 ## 2. Trạng thái
 
-xong T1..T4. Còn T5–T7: nội dung đã có trên đĩa, đang soát để tick. (T5 nhận thêm một file ngoài
-danh sách dự kiến: `00_workflow/07_colab.md` - xem T4/T5.)
+xong T1..T7. Giai đoạn này đóng lại ở đây; việc còn lại của dự án nằm ở P7.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -71,13 +70,29 @@ danh sách dự kiến: `00_workflow/07_colab.md` - xem T4/T5.)
       cấp trong `MyDrive`/`Shareddrives`, ưu tiên thư mục có `data/`), và ô bootstrap tự mount Drive,
       tự đặt hai gốc, tự cài gói còn thiếu. Runbook còn ba bước: copy thư mục + notebook, mở notebook,
       bấm Run all (và bấm Allow khi Colab hỏi quyền Drive - việc duy nhất Google không cho tự động).
-- [ ] T5. Docs nhóm quy trình: `01_flow`, `02_rules`, `03_ci`, `04_terms`, `05_git_commits`, `06_conventions`.
+- [x] T5. Docs nhóm quy trình: `01_flow`, `02_rules`, `03_ci`, `04_terms`, `05_git_commits`, `06_conventions`.
       -> `docs(workflow): add workflow rules ci terms commits and conventions`
-- [ ] T6. Docs tham chiếu cấu hình: `05_config/01..07`.
+      Soát lại (25/09/2026) bằng máy trước, đọc sau: mọi link trong `README.md` và `docs/**/*.md` tồn
+      tại (kiểm tra 7 của CI nay khoá điều này), mọi lệnh `python <script> ...` trỏ tới script có thật
+      với tham số có thật, mọi đường dẫn tương đối trong `src/` tồn tại. Nội dung khớp code hiện tại:
+      luật 20 khớp `.gitignore`, luật 11 khớp `eval_lock`, luật 16 khớp runbook. Ba việc phát hiện và
+      đã sửa: `01_flow` bước 6-7 còn tả cơ chế cũ (giảng viên tự mount Drive), README gốc còn cây thư
+      mục trước P1-P3 kèm một link chết, và `--title` được tài liệu hướng dẫn nhưng script chưa có.
+- [x] T6. Docs tham chiếu cấu hình: `05_config/01..07`.
       -> `docs(config): add configuration reference`
-- [ ] T7. Docs đánh giá: `04_experiments/metrics.md`, `04_experiments/reference_publication.md`;
+      Soát cùng lượt: 7 file đều tồn tại và có nội dung thật (33-86 dòng). Đối chiếu code:
+      `CARD_SETTINGS` đúng ở `src/experiment_run.py`, năm scorer đúng tên module trong
+      `src/evaluation/scorers/`, `TRACKERS` đúng ba trình ghi nhận, thứ tự hợp nhất bảy lớp đúng.
+      Sửa một lỗi thật: `06_experiment.md` ghi `prompt` "tính từ gốc repo", trong khi
+      `experiments.requires` tính từ THƯ MỤC THÍ NGHIỆM trước rồi tới gốc repo - đúng loại lỗi làm
+      config đúng mà vẫn thiếu file.
+- [x] T7. Docs đánh giá: `04_experiments/metrics.md`, `04_experiments/reference_publication.md`;
       cập nhật `docs/README.md` làm mục lục duy nhất.
       -> `docs(experiments): add metrics and reference publication pages`
+      Soát cùng lượt: hai file khớp code (năm cách chấm đúng tên module, `metrics.csv` đúng bảng dài
+      `aspect,sentiment,metric,value`, `metrics_matrix` đúng hai bảng có cột `reference`).
+      `docs/README.md` nay liệt kê đủ bảy nhóm tài liệu - trước đó bảng thiếu hẳn `00_workflow`,
+      `05_config`, `06_plan`, và thiếu trang `07_colab.md`.
 
 ## 4. Điều kiện hoàn thành (DoD)
 
