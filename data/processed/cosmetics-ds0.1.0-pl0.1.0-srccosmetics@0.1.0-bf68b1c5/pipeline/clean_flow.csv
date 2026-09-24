@@ -1,0 +1,5 @@
+﻿split,số dòng trước Clean,sau Clean,bị loại,cách ly
+train,12981,12302,636,43
+val,1623,1524,99,0
+test,1623,1518,105,0
+Tổng,16227,15344,840,43

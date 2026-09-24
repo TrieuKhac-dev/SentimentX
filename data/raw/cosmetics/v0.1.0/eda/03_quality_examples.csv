@@ -1,0 +1,44 @@
+﻿nhóm nhiễu,split,dòng trong file,ví dụ
+ứng viên gibberish,train,554,hhshshsbdbdbdhjdjdjdndndndndndndbdbdbdbdbdbdbdbdbdbdbd
+ứng viên gibberish,train,4315,Qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqkejdhekdisgbdxigwksohhewhhwyqekpod bxohqb tcn.  Dqqojbcp qgccnvqpjnkwq
+ứng viên gibberish,train,4493,公共交通機関を利用することのデメリットはありますか？
+ứng viên gibberish,val,502,Dvdvvsg sgnsgnagbwgbafbwynafbwgbwsgnsgnwgbafbwgnawgnwt
+ứng viên gibberish,val,765,Xvvvcvvggfggggggghggghhhhhhggbbbbhgggggghgghhgyjhhajzndnndnxnc.xnxnxnxnxnnx
+ứng viên gibberish,val,1398,Xinhhhhhhhhhhh hhhhhhhh hhhhhhhh hhhhhhhh hhhhhhhh hhhhhhhh
+ứng viên gibberish,test,484,Uuhuhhuuuuuuuuuuuuuuu
+ứng viên gibberish,test,691,tuyệtttttttttttttttttttttttttttttttttttttttttttttt
+ứng viên gibberish,test,1076,Đẹppppppppppppppppppppppppppppppppppppppp😞😞😞😞😞😞😞😞😞
+chỉ emoji / dấu câu,train,1321,👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️
+chỉ emoji / dấu câu,train,3143,........................................................................
+chỉ emoji / dấu câu,train,10400,😿😷😿😷🤒 😵😁🥴💩🤝🙄🤔😵🤢😵😿😵😂🤒😿🙀🤷😷🙀☺🤢🤢🤔😵🤔😷🙏🤢🙏🤝🙏😏🤔😵😟🤔🙀🤒😿🤒😿😷😿😷🤒 😵😁🥴💩🤝🙄🤔😵🤢😵😿😵😂🤒😿🙀🤷😷🙀☺🤢🤢🤔😵🤔😷🙏🤢🙏🤝🙏😏🤔😵😟🤔🙀🤒😿🤒😿😷😿😷🤒 😵😁🥴💩🤝🙄🤔😵🤢😵😿😵😂🤒😿🙀🤷😷🙀☺🤢🤢
+chỉ emoji / dấu câu,val,374,😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍
+chỉ emoji / dấu câu,val,445,✨
+chỉ emoji / dấu câu,val,793,...................................................
+chỉ emoji / dấu câu,test,965,..................................................
+chỉ emoji / dấu câu,test,995,"............................,......................."
+chỉ emoji / dấu câu,test,1329,"…………………………………….,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+có ký tự lặp,train,4658,"Ưngggg Nhà tài trợ không chỉ quản lý về hình ảnh thương hiệu tại sự kiện mà còn liên quan đến vấn đề pháp lý, độc quyền "
+có ký tự lặp,train,6515,"Mua rất n lần và ưng ý nên mua chỗ uy tín như mall này . Fake sợ lắm , 5 sao nha 💋💋💋💋💋"
+có ký tự lặp,train,11229,"Mướt lắm nhaaaaa, son lên màu đẹp nhưng không được lì đâu ạ….."
+có ký tự lặp,val,429,Đẹp lên màu chuẩn thích thật sự ákkk. Giao nhanh đóng giis cẩn thận❤️❤️❤️
+có ký tự lặp,val,1027,"Chưa dùng chưa biết tn
+Djfoofjvkfjgvggggffcdkdkqkkwieewwrrreftrwdr"
+có ký tự lặp,val,1485,"Aww lên màu oce lắmmmmmm
+Sẽ ủng hộ shop ạaaaa
+Shipper dthw lắm ạaaaa"
+có ký tự lặp,test,986,Hàng về rất nhanh sản phẩm ok 👌👌👌👌👌 nếu ưng ý thì sẽ ủng hộ shop dài dài 👍👍👍👍👍👍👍👍👍👍👏👏👏👏👏👏👏👏👏👍👍👍👏👍👍👏👏👍👍
+có ký tự lặp,test,1074,"Màu 403 thiên về nâu đất, khó thấy được tông đỏ. Màu 504 thì xinh xỉu, ko kén da. Chất son khô nhanh, nên dưỡng môi kỹ t"
+có ký tự lặp,test,1532,"Son siêuuu đẹp luôn. Màu son đẹp lm,hình như ko có mùi,khá giống trong hình. Vỏ son mùi khá nồng,nhưng nếu để ngoài chắc"
+có dấu hiệu quảng cáo,train,3460,Mình thích màu này cực luôn ấy. Chưa thấy dòng nào có màu giống vậy. Màu kiểu cam cam nâu nâu í mọi người. Không cam quá
+có dấu hiệu quảng cáo,train,11891,"Bạn ơi, đăng ký App MBBank để có ngay 30.000VND và cơ hội kiếm thêm hàng chục triệu đồng khi giới thiệu bạn bè - Miễn ph"
+có dấu hiệu quảng cáo,train,12369,"Có chị nào sang Hàn xong bị rụng tóc mà dùng combo này tóc đỡ rụng chưa ạ?
+
+Link mua dầu gội: https://coupa.ng/cbn229
+Li"
+có dấu hiệu quảng cáo,val,83,"Nốt hôm nay! TRÚNG ĐT Samsung Galaxy S20 (trị giá: 17.490.000đ), cơ hội cho TB may mắn soạn Q5 gửi 999. NHẬN NGAY 700MB/"
+có dấu hiệu quảng cáo,val,903,"DUY NHAT HOM NAY 30/10, ViettelPay tang Ban Voucher 35.000d nap dien thoai Viettel MIEN PHI. Mo app hom nay, mot CHAM na"
+có dấu hiệu quảng cáo,val,1443,[TB] Ưu đãi HOT! Tặng 50% điểm Viettel++ với thẻ nạp/thanh toán dịch vụ viễn thông lần đầu tiên trong 2 ngày 25/12/2021 
+có dấu hiệu quảng cáo,test,84,[TB] CHÚC MỪNG NĂM MỚI 2022. VIETTEL TẶNG 20% GIÁ TRỊ TẤT CẢ THẺ NẠP trong ngày 01/01. Tiền KM sử dụng nội mạng đến 
+có dấu hiệu quảng cáo,test,563,"Màu khá ổn, [TB] CHUNG TAY CHONG DICH VA CHIA SE KHO KHAN voi Khach hang bi anh huong boi Covid-19, Viettel kinh tang Qu"
+có dấu hiệu quảng cáo,test,1401,Nhưng e ko dùng scripts được kohttps://www.lazada.vn/products/mien-phi-van-chuyendep-mua-thu-dong-cho-nguoi-lon-giay-man
+có dấu hiệu code / HTML,train,10734,"Bộ 3 nam thần của &quot;Phố trong làng&quot; ngoài đời: Người từng là &quot;bạn trai&quot; Minh Hằng, người có vợ vừa nổ"

@@ -7,13 +7,22 @@ __pycache__/
 .env
 .env.colab
 
-# Dữ liệu: bỏ qua theo ĐUÔI file, để metadata và report vẫn vào git
+# Dữ liệu: bỏ qua theo ĐUÔI file, vì dữ liệu không vào git.
+# Luật: docs/00_workflow/02_rules.md mục "Dữ liệu không vào git" (luật 20).
+# Nhưng metadata và report thì PHẢI vào git, nên ngay dưới đây có các dòng mở lại (dấu !)
+# cho bảng chi tiết của `eda/` và `pipeline/`.
 data/raw/**/*.csv
 data/raw/**/*.jsonl
 data/raw/**/*.parquet
 data/raw/**/*.xlsx
 data/raw/**/*.zip
 data/processed/**/*.csv
+
+# Mở lại BÁO CÁO (không phải dữ liệu): bảng chi tiết là bằng chứng cho từng con số trong
+# report.html. Đổi luật này thì phải sửa cả luật 20 và check 2 của CI.
+!data/raw/*/*/eda/*.csv
+!data/processed/*/eda/*.csv
+!data/processed/*/pipeline/*.csv
 
 # Model tải về: bỏ qua nội dung, nhưng giữ file giải thích
 data/models/*

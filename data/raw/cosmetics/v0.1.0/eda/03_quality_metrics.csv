@@ -1,0 +1,28 @@
+﻿split,chỉ số,số lượng,tỉ lệ %
+train,review rỗng,0,0.0
+train,trùng chính xác,184,1.42
+train,trùng theo khoá so trùng,242,1.86
+train,ứng viên gibberish,388,2.99
+train,có emoji,1931,14.88
+train,chỉ emoji / dấu câu,25,0.19
+train,có ký tự lặp,3604,27.76
+train,có dấu hiệu quảng cáo,59,0.45
+train,có dấu hiệu code / HTML,1,0.01
+val,review rỗng,0,0.0
+val,trùng chính xác,22,1.36
+val,trùng theo khoá so trùng,29,1.79
+val,ứng viên gibberish,39,2.4
+val,có emoji,233,14.36
+val,chỉ emoji / dấu câu,3,0.18
+val,có ký tự lặp,452,27.85
+val,có dấu hiệu quảng cáo,11,0.68
+val,có dấu hiệu code / HTML,0,0.0
+test,review rỗng,0,0.0
+test,trùng chính xác,15,0.92
+test,trùng theo khoá so trùng,20,1.23
+test,ứng viên gibberish,60,3.7
+test,có emoji,222,13.68
+test,chỉ emoji / dấu câu,3,0.18
+test,có ký tự lặp,461,28.4
+test,có dấu hiệu quảng cáo,8,0.49
+test,có dấu hiệu code / HTML,0,0.0

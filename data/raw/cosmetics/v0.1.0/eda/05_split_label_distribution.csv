@@ -1,0 +1,22 @@
+﻿split,khía cạnh,positive %,negative %,neutral %,không nhắc tới %
+train,stayingpower,9.53,5.81,1.9,82.76
+train,texture,22.19,4.9,3.3,69.62
+train,smell,14.26,2.62,0.78,82.34
+train,price,20.01,0.12,0.17,79.7
+train,colour,38.86,4.28,3.37,53.49
+train,shipping,21.12,10.25,2.16,66.48
+train,packing,18.04,0.65,0.12,81.19
+val,stayingpower,8.81,5.55,1.91,83.73
+val,texture,19.65,4.74,3.33,72.27
+val,smell,14.66,3.2,0.8,81.33
+val,price,19.65,0.0,0.25,80.1
+val,colour,39.93,3.27,3.27,53.54
+val,shipping,22.18,11.58,2.22,64.02
+val,packing,19.04,0.37,0.06,80.53
+test,stayingpower,8.69,5.91,2.46,82.93
+test,texture,21.32,5.11,3.94,69.62
+test,smell,15.53,2.96,0.99,80.53
+test,price,19.78,0.37,0.06,79.79
+test,colour,38.32,3.33,3.14,55.21
+test,shipping,20.58,10.72,1.6,67.1
+test,packing,17.38,0.62,0.12,81.89

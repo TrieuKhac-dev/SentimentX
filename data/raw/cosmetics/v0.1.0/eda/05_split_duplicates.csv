@@ -1,0 +1,4 @@
+﻿cặp split,số văn bản trùng chính xác,số văn bản trùng theo khoá so trùng
+train <-> val,18,23
+train <-> test,18,22
+val <-> test,5,9

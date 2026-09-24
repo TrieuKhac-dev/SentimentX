@@ -1,0 +1,5 @@
+﻿split,tệp gốc,số dòng,số cột,cột văn bản,số cột khía cạnh,cột khía cạnh bị thiếu
+train,data_train.csv,12981,8,data,7,-
+val,data_val.csv,1623,8,data,7,-
+test,data_test.csv,1623,8,data,7,-
+(file gộp),full_data.csv,16227,8,data,7,-
