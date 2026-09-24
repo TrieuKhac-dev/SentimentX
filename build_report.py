@@ -250,9 +250,7 @@ def list_versions():
 def main(argv=None):
     args = parse_args(argv)
 
-    print("=" * 70)
     print("BUILD REPORT - vẽ báo cáo từ file kết quả")
-    print("=" * 70)
 
     if args.list:
         return list_versions()

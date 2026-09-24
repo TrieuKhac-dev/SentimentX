@@ -111,9 +111,7 @@ def load_processed(name, version_id):
 def main(argv=None):
     args = parse_args(argv)
 
-    print("=" * 70)
     print("EDA - Khảo sát dữ liệu (chỉ đo lường, KHÔNG sửa dữ liệu)")
-    print("=" * 70)
 
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
     # (kèm gợi ý tên đúng) thay vì để traceback che mất thông báo.

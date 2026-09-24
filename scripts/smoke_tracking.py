@@ -118,9 +118,7 @@ def delete(config, dagshub, run_ids):
 def main(argv=None):
     args = parse_args(argv)
     env = runtime.load_env()
-    print("=" * 70)
     print("SMOKE - kiểm cổng ghi nhận (run giả, không cần GPU/model/dữ liệu)")
-    print("=" * 70)
     print("Máy đang chạy : {}".format(env["env"]))
     # Trên máy cá nhân, danh sách biến BẮT BUỘC rỗng (MLflow không bắt buộc), nên dòng dưới chỉ
     # nói về biến bắt buộc. Biến của tracker được kiểm riêng ở dòng "Token".

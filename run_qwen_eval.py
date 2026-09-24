@@ -146,9 +146,7 @@ def main(argv=None):
               "--experiment <model>/<method>/<expNNN>.")
         return 2
 
-    print("=" * 70)
     print("QWEN3 BẰNG CHỈ DẪN - chạy model rồi chấm điểm (đánh giá model)")
-    print("=" * 70)
 
     try:
         merged = (experiments.load(model_id, method, exp_id) if in_experiment

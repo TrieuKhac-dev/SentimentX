@@ -277,9 +277,7 @@ def print_table(rows, columns):
 def main(argv=None):
     args = parse_args(argv)
 
-    print("=" * 70)
     print("KIỂM VÍ DỤ FEW-SHOT - cấu trúc, nhãn, rò rỉ với val/test")
-    print("=" * 70)
 
     try:
         ds = dataset.load_config(args.dataset)

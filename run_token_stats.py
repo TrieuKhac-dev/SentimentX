@@ -274,9 +274,7 @@ def build_tag(args, max_length_overrides=None, prompt=None):
 def main(argv=None):
     args = parse_args(argv)
 
-    print("=" * 70)
     print("TOKEN STATS - đo input THẬT của từng model (tiền xử lý cho model)")
-    print("=" * 70)
 
     if args.list_prompts:
         return list_prompts()

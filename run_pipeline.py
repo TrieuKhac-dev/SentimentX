@@ -54,9 +54,7 @@ def parse_args(argv=None):
 def main(argv=None):
     args = parse_args(argv)
 
-    print("=" * 70)
     print("DATA PIPELINE - xử lý dữ liệu theo config")
-    print("=" * 70)
 
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
     # (kèm gợi ý tên đúng) thay vì để traceback che mất thông báo.
