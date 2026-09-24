@@ -2,8 +2,8 @@
   "schema": 1,
   "phase": "eda",
   "dataset": "cosmetics",
-  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
-  "generated_at": "24/09/2026 16:51",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
+  "generated_at": "24/09/2026 17:03",
   "section": {
     "id": "label_aspect",
     "title": "EDA 02 - Nhãn và khía cạnh",

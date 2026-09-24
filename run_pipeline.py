@@ -43,6 +43,11 @@ def parse_args(argv=None):
         "--dataset", default=None,
         help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).",
     )
+    parser.add_argument(
+        "--version", required=True,
+        help="Phiên bản dataset cần dùng, tức tên file trong configs/datasets/<tên>/. "
+             "Bắt buộc ghi rõ: mỗi phiên bản cho ra một bộ dữ liệu khác nhau.",
+    )
     return parser.parse_args(argv)
 
 
@@ -56,11 +61,16 @@ def main(argv=None):
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
     # (kèm gợi ý tên đúng) thay vì để traceback che mất thông báo.
     try:
-        ds = dataset.load_config(args.dataset)
+        ds = dataset.load_config(args.dataset, args.version)
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
     cfg = utils.load_pipeline_config(ds.get("pipeline_version"))
+    try:
+        versioning.guard_versions(ds, cfg)
+    except versioning.VersionError as exc:
+        print("LỖI: {}".format(exc))
+        return 2
     version_id = versioning.compute_id(ds, cfg)
     processed_dir = versioning.processed_dir(version_id)
     out_dir = versioning.pipeline_report_dir(version_id)

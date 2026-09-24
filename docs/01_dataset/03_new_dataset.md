@@ -5,7 +5,7 @@ Xem hướng dẫn đầy đủ ở [README, mục 7](../README.md). Tóm tắt:
 1. Đặt dữ liệu gốc vào `data/raw/<tên>/` (mỗi dataset một thư mục riêng).
 2. Copy `configs/datasets/cosmetics/v0.1.0.yaml` thành `configs/datasets/<name>/<version>.yaml`
    rồi sửa: `name`, `format`, `raw_dir`, `text_column`, `aspects`, `labels`, `splits`.
-3. Chạy `python run_eda.py --dataset <tên>` (và `run_pipeline.py`, `build_report.py`
+3. Chạy `python run_eda.py --dataset <tên> --raw-version <phiên bản raw>` (và `run_pipeline.py`, `build_report.py`
    tương tự).
 
 **Tên dataset phải trùng tên file YAML.** Nếu gõ sai tên, công cụ dừng ngay với

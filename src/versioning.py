@@ -41,6 +41,10 @@ DATASET_FILES = ("train.csv", "val.csv", "test.csv")
 # ---
 
 
+class VersionError(Exception):
+    """Lỗi liên quan tới phiên bản dữ liệu (file phiên bản bị sửa, thiếu phiên bản...)."""
+
+
 def compute_id(dataset_cfg, pipeline_cfg=None):
     """Tính mã phiên bản từ cấu hình và nội dung dữ liệu của các nguồn.
 
@@ -174,6 +178,50 @@ def file_sha256(path):
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def guard_versions(dataset_cfg=None, pipeline_cfg=None):
+    """Chặn việc sửa file phiên bản đã dùng.
+
+    Mọi `processing_log.json` đã ghi đều giữ sha256 của hai file cấu hình tại thời điểm chạy.
+    Nếu file trên đĩa hiện khác giá trị đó thì file đã bị sửa SAU khi dùng, và kết quả cũ
+    không còn dựng lại được từ chính file đó nữa. Đây là lỗi im lặng nguy hiểm nhất của cách
+    đánh phiên bản theo nội dung, nên phải chặn chứ không chỉ cảnh báo.
+    """
+    watched = []
+    for kind, cfg in (("dataset", dataset_cfg), ("pipeline", pipeline_cfg)):
+        path = (cfg or {}).get("_path")
+        if path:
+            watched.append((kind, Path(path)))
+    if not watched:
+        return []
+
+    problems = []
+    for directory in dataset_dirs():
+        log = read_processing_log(directory.name)
+        if not log:
+            continue
+        for kind, path in watched:
+            stored_block = log.get(kind) or {}
+            stored = stored_block.get("config_sha256")
+            # Chỉ so với log của ĐÚNG file đó, không so với file khác cùng loại.
+            if not stored or stored_block.get("config") != utils.rel(path):
+                continue
+            current = file_sha256(path)
+            if current != stored:
+                problems.append(
+                    "{}: {} đã bị sửa sau khi dùng (sha256 hiện tại {}, lúc chạy {}).".format(
+                        directory.name, utils.rel(path), current[:8], stored[:8]))
+
+    if problems:
+        raise VersionError(
+            "File phiên bản đã dùng thì không được sửa:\n  - {}\n"
+            "Hãy tạo file phiên bản mới (copy rồi sửa, và đổi cả tên file), rồi chạy lại: "
+            "kết quả cũ phải tra được từ đúng file đã tạo ra nó. Nếu lần chạy trước chỉ là chạy "
+            "thử thì xoá thư mục kết quả cũ của mã đó rồi chạy lại.".format(
+                "\n  - ".join(problems))
+        )
+    return problems
 
 
 

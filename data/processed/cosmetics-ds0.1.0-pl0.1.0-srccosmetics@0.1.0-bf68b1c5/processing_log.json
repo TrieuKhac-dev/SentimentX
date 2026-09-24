@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
   "dataset": {
     "name": "cosmetics",
     "version": "v0.1.0",
     "config": "configs/datasets/cosmetics/v0.1.0.yaml",
-    "config_sha256": "eb37ec52c6b46e627ab048fa515742fcc518d711af931587ba96598ec0644a7b",
+    "config_sha256": "deb4b8153c10da8a79f2b871fbd5b6e502c47821c3b9be30c61d96d5167b6725",
     "sources": [
       {
         "kind": "raw",
@@ -97,5 +97,15 @@
     "val.csv",
     "test.csv",
     "label_map.json"
-  ]
+  ],
+  "eval_lock": {
+    "enforce": true,
+    "declared_sha256": null,
+    "measured": {
+      "file": "test.csv",
+      "sha256": "64dbf812e362ea7120e9f350e9145f2b784c30f636c099070d311dc6c66b503b",
+      "rows": 1518
+    },
+    "match": true
+  }
 }

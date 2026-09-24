@@ -96,7 +96,7 @@ steps:
 ```
 
 ```bash
-python run_pipeline.py      # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash A>/
+python run_pipeline.py --dataset cosmetics --version v0.1.0    # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash A>/
 ```
 
 ```yaml
@@ -107,7 +107,7 @@ steps:
 ```
 
 ```bash
-python run_pipeline.py      # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash B>/
+python run_pipeline.py --dataset cosmetics --version v0.1.0    # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash B>/
 ```
 
 Hai phiên bản dataset **cùng tồn tại**, không đè lên nhau:

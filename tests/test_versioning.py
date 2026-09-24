@@ -10,6 +10,7 @@ gây exception nào mà vẫn làm mất dấu vết:
 Test dùng thư mục tạm, không đụng vào dữ liệu thật của dự án.
 """
 
+import json
 import os
 import re
 import tempfile
@@ -17,7 +18,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import versioning
+from src import utils, versioning
 
 ID_PATTERN = re.compile(
     r"^cosmetics-ds0\.1\.0-pl0\.1\.0-srccosmetics@0\.1\.0-[0-9a-f]{8}$")
@@ -138,6 +139,42 @@ class TestPathsOnDisk(unittest.TestCase):
         self.assertEqual(
             versioning.file_sha256(path),
             "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+
+
+class TestGuard(unittest.TestCase):
+    """File phiên bản đã dùng thì không được sửa (guard bất biến)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        patcher = mock.patch.dict(os.environ, {"SENTIMENTX_DATA_ROOT": self.tmp.name})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+        self.config = Path(self.tmp.name) / "v0.1.0.yaml"
+        self.config.write_text("version: v0.1.0\n", encoding="utf-8")
+        self.name = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34"
+        directory = Path(self.tmp.name) / "processed" / self.name
+        directory.mkdir(parents=True)
+        (directory / "processing_log.json").write_text(json.dumps({
+            "dataset": {"config": utils.rel(self.config),
+                        "config_sha256": versioning.file_sha256(self.config)},
+        }), encoding="utf-8")
+
+    def test_unchanged_config_passes(self):
+        self.assertEqual(versioning.guard_versions({"_path": self.config}), [])
+
+    def test_changed_config_raises_with_instruction(self):
+        self.config.write_text("version: v0.1.0\nnotes: sua sau khi dung\n", encoding="utf-8")
+        with self.assertRaises(versioning.VersionError) as caught:
+            versioning.guard_versions({"_path": self.config})
+        self.assertIn(self.name, str(caught.exception))
+        self.assertIn("phiên bản mới", str(caught.exception))
+
+    def test_config_never_used_is_not_guarded(self):
+        other = Path(self.tmp.name) / "khac.yaml"
+        other.write_text("x: 1\n", encoding="utf-8")
+        self.assertEqual(versioning.guard_versions({"_path": other}), [])
 
 
 if __name__ == "__main__":

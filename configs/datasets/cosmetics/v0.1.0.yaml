@@ -64,8 +64,9 @@ parent: null
 notes: "Bản đầu tiên: dữ liệu gốc v0.1.0 đi qua pipeline v0.1.0."
 
 # Chốt tập đánh giá để kết quả so được với công bố tham chiếu.
-# `sha256` và `rows` chưa biết trước khi chạy pipeline lần đầu: điền ngay sau lần chạy đó,
-# rồi đóng băng. Lệch nghĩa là test đã bị thay đổi, không còn so được với công bố.
+# Điền sha256 và rows khi TẠO PHIÊN BẢN KẾ TIẾP: giá trị đo được in ra ở cuối lần chạy
+# pipeline. Không điền vào file này sau khi đã chạy, vì file phiên bản đã dùng là bất biến.
+# Lệch nghĩa là test đã bị thay đổi, không còn so được với công bố.
 eval_lock:
   enforce: true
   test:

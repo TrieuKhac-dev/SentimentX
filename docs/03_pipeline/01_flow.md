@@ -104,7 +104,7 @@ Pipeline cũng tách thành hai việc: **tính** và **vẽ**.
 
 ```bash
 # 1) Xử lý dữ liệu và ghi dataset + file kết quả
-python run_pipeline.py --dataset cosmetics
+python run_pipeline.py --dataset cosmetics --version v0.1.0
 
 # 2) Vẽ báo cáo từ số liệu đã ghi
 python build_report.py --phase pipeline --dataset cosmetics

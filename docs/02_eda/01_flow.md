@@ -25,7 +25,7 @@ data/raw/<name>/<raw_version>/data_train.csv, data_val.csv, data_test.csv   (ch�
         |  src/dataset.py + src/loaders/  : đọc bằng utf-8-sig, bỏ cột `drop_columns`,
         |                                   đổi tên cột văn bản thành `text`
         ->
-run_eda.py --dataset <tên>
+run_eda.py --dataset <tên> --raw-version <phiên bản raw>
         |   • đọc config: configs/datasets/<name>/<version>.yaml + configs/pipeline/v0.1.0.yaml
         |   • tính mã phiên bản (src/versioning.py) -> thư mục phiên bản
         |   • lần lượt gọi 5 module theo src/registry.py::EDA_MODULES, mỗi module
@@ -91,7 +91,7 @@ EDA tách thành hai việc: **tính** và **vẽ**.
 
 ```bash
 # 1) Tính toán và ghi số liệu (không sinh HTML)
-python run_eda.py --dataset cosmetics
+python run_eda.py --dataset cosmetics --raw-version v0.1.0
 
 # 2) Vẽ báo cáo từ số liệu đã ghi
 python build_report.py --phase eda --dataset cosmetics

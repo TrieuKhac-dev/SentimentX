@@ -28,7 +28,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import dataset, paths, registry, utils, versioning
+from src import config, dataset, paths, registry, utils, versioning
+from src.preprocessing import loader
 from src.reporting import result as result_io
 
 
@@ -40,7 +41,71 @@ def parse_args(argv=None):
         "--dataset", default=None,
         help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).",
     )
+    parser.add_argument(
+        "--raw-version", default=None,
+        help="Đo trên dữ liệu gốc: data/raw/<tên>/<phiên bản>/. Bắt buộc ghi rõ một trong "
+             "hai nơi đo, vì kết quả nằm cạnh thứ được đo.",
+    )
+    parser.add_argument(
+        "--version", default=None,
+        help="Đo trên dataset đã xử lý: data/processed/<mã>/.",
+    )
     return parser.parse_args(argv)
+
+
+def load_raw(name, raw_version):
+    """Đọc dữ liệu gốc của một phiên bản raw cụ thể.
+
+    Phiên bản khai trong file dataset là bản MẶC ĐỊNH; hàm này cho đo một phiên bản gốc khác
+    mà không phải sửa file cấu hình, để so được hai bản dữ liệu gốc.
+    """
+    directory = paths.raw_dir(name, raw_version)
+    if not directory.is_dir():
+        siblings = sorted(path.name for path in directory.parent.iterdir()) \
+            if directory.parent.is_dir() else []
+        raise dataset.DatasetError(
+            "Không có dữ liệu gốc ở {}. Các phiên bản hiện có: {}.".format(
+                utils.rel(directory), ", ".join(siblings) or "(chưa có)"))
+    cfg = dataset.load_config(name)
+    cfg["raw_version"] = raw_version
+    cfg["_raw_dir"] = directory
+    cfg["_sources"] = [{"kind": "raw", "name": cfg["name"], "version": raw_version,
+                        "dir": directory}]
+    splits, missing = dataset.load_splits(cfg)
+    full, _ = dataset.load_full(cfg)
+    return cfg, splits, full, missing
+
+
+def load_processed(name, version_id):
+    """Đọc dataset đã xử lý, đổi mã nhãn về nhãn chữ để EDA đọc được như dữ liệu gốc."""
+    directory = versioning.processed_dir(version_id)
+    if not directory.is_dir():
+        raise dataset.DatasetError(
+            "Chưa có dataset ở {}. Hãy chạy run_pipeline.py trước.".format(
+                utils.rel(directory)))
+    label_map = loader.load_label_map(version_id)
+    id_to_label = {int(code): label for code, label in label_map["id_to_label"].items()}
+    aspects = list(label_map["aspects"])
+    splits = {}
+    for split in ("train", "val", "test"):
+        frame = loader.load_processed(split, version_id=version_id)
+        for aspect in aspects:
+            frame[aspect] = frame[aspect].map(lambda code: id_to_label.get(int(code), ""))
+        splits[split] = frame[[config.TEXT_COLUMN] + aspects]
+
+    # Dùng cấu hình dataset thật để có đủ schema cho các module EDA, chỉ đổi chỗ đọc file: ba
+    # split nằm trong thư mục dataset chứ không nằm trong thư mục dữ liệu gốc.
+    log = versioning.read_processing_log(version_id)
+    config_version = (log.get("dataset") or {}).get("version")
+    cfg = dataset.load_config(name, config_version)
+    cfg["pipeline_version"] = ((log.get("pipeline") or {}).get("version")
+                               or cfg.get("pipeline_version"))
+    cfg["_path"] = versioning.processing_log_path(version_id)
+    cfg["_raw_dir"] = directory
+    cfg["_sources"] = []
+    cfg["splits"] = {split: "{}.csv".format(split) for split in ("train", "val", "test")}
+    cfg["full"] = None
+    return cfg, splits, None, {}
 
 
 def main(argv=None):
@@ -52,20 +117,33 @@ def main(argv=None):
 
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
     # (kèm gợi ý tên đúng) thay vì để traceback che mất thông báo.
+    if bool(args.raw_version) == bool(args.version):
+        print("LỖI: chọn đúng MỘT nơi đo: --raw-version <phiên bản> (đo dữ liệu gốc) "
+              "hoặc --version <mã> (đo dataset đã xử lý).")
+        return 2
+
     try:
-        ds = dataset.load_config(args.dataset)
-    except dataset.DatasetError as exc:
+        if args.version:
+            ds, splits, full, missing = load_processed(args.dataset, args.version)
+            version_id = args.version
+            out_dir = versioning.processed_dir(version_id) / paths.pattern("eda_dir")
+            where = "dataset đã xử lý"
+        else:
+            name = args.dataset or dataset.default_name()
+            ds, splits, full, missing = load_raw(name, args.raw_version)
+            pipeline_cfg = utils.load_pipeline_config(ds.get("pipeline_version"))
+            versioning.guard_versions(ds, pipeline_cfg)
+            version_id = versioning.compute_id(ds, pipeline_cfg)
+            out_dir = ds["_raw_dir"] / paths.pattern("eda_dir")
+            where = "dữ liệu gốc"
+    except (dataset.DatasetError, versioning.VersionError) as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = versioning.compute_id(ds)
-    out_dir = ds["_raw_dir"] / paths.pattern("eda_dir")
 
     print("Dataset: {} (cấu hình: {})".format(ds["name"], utils.rel(ds["_path"])))
-    print("Đang đọc dữ liệu gốc từ: {}".format(utils.rel(ds["_raw_dir"])))
+    print("Đang đọc {} từ: {}".format(where, utils.rel(ds["_raw_dir"])))
     print("Mã phiên bản: {}".format(version_id))
 
-    splits, missing = dataset.load_splits(ds)
-    full, _ = dataset.load_full(ds)
     for name, df in splits.items():
         print("  - {:5s}: {:>6,} dòng x {} cột".format(name, len(df), len(df.columns)))
     if full is not None:

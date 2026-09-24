@@ -2,10 +2,10 @@
   "schema": 1,
   "phase": "eda",
   "dataset": "cosmetics",
-  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
   "title": "Báo cáo EDA - ABSA tiếng Việt",
   "subtitle": "Khảo sát dữ liệu của dataset 'cosmetics'",
-  "generated_at": "24/09/2026 16:51",
+  "generated_at": "24/09/2026 17:03",
   "meta": [
     "Dataset: cosmetics (phiên bản v0.1.0)",
     "Pipeline dùng để tạo dataset: v0.1.0",
@@ -13,7 +13,7 @@
     "Cột văn bản trong file gốc: data",
     "Số khía cạnh khai báo trong config: 7",
     "Nguồn raw: data/raw/cosmetics/v0.1.0 (v0.1.0)",
-    "Mã phiên bản: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+    "Mã phiên bản: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
     "File gốc đã đọc: data_train.csv, data_val.csv, data_test.csv",
     "Cột khía cạnh khai báo trong config nhưng thiếu ở file gốc: 0 (không file nào thiếu)",
     "Thư mục số liệu chi tiết: data/raw/cosmetics/v0.1.0/eda"

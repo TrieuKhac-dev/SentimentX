@@ -39,7 +39,7 @@ Ghi chú khi làm, khác kế hoạch ban đầu:
 - Đổi một dòng trong `configs/paths.yaml` thì mọi nơi dùng đường dẫn đó đổi theo.
 - Không còn đường dẫn dạng `data/...` viết cứng trong `src/` và các `run_*.py`
   (kiểm bằng tìm kiếm chuỗi).
-- Chạy được `python run_eda.py --dataset cosmetics --version v0.1.0` sau khi P2 xong.
+- Chạy được `python run_eda.py --dataset cosmetics --raw-version v0.1.0` sau khi P2 xong.
 
 ## 5. Rủi ro / lưu ý
 

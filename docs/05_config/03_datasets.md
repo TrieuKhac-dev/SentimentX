@@ -56,10 +56,13 @@ eval_lock:
 
 Chốt tập đánh giá để kết quả so được với công bố tham chiếu:
 
-- Pipeline phải xuất ra `test.csv` có `sha256` khớp giá trị trong `eval_lock`, nếu lệch thì báo lỗi.
+- Pipeline kiểm `test.csv` vừa ghi có `sha256` khớp giá trị trong `eval_lock`, nếu lệch thì báo lỗi.
 - Mọi biến đổi văn bản chỉ áp cho train và val.
 - Nếu muốn thử biến đổi cả test thì đặt `eval_lock.enforce: false`; kết quả sẽ bị đánh dấu
   `comparable: false` và không dùng để so với công bố.
+- Lần chạy đầu chưa biết `sha256`, nên file phiên bản để `null`; cuối lần chạy pipeline in ra
+  giá trị vừa đo, và giá trị đó được chốt khi **tạo phiên bản dataset kế tiếp** - không điền
+  vào file đang dùng, vì file phiên bản đã dùng là bất biến (guard sẽ chặn).
 
 ## Luật bất biến
 

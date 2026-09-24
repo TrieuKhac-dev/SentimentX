@@ -2,10 +2,10 @@
   "schema": 1,
   "phase": "pipeline",
   "dataset": "cosmetics",
-  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
   "title": "Báo cáo Data Pipeline - ABSA tiếng Việt",
   "subtitle": "Từ dữ liệu gốc đến dữ liệu sẵn sàng cho model",
-  "generated_at": "24/09/2026 16:50",
+  "generated_at": "24/09/2026 17:02",
   "meta": [
     "Dataset: cosmetics (phiên bản v0.1.0)",
     "Pipeline dùng để tạo dataset: v0.1.0",
@@ -13,11 +13,11 @@
     "Cột văn bản trong file gốc: data",
     "Số khía cạnh khai báo trong config: 7",
     "Nguồn raw: data/raw/cosmetics/v0.1.0 (v0.1.0)",
-    "Mã phiên bản: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025",
+    "Mã phiên bản: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
     "Config: configs/pipeline/v0.1.0.yaml",
     "Phiên bản pipeline: v0.1.0",
     "Số dòng vào: 16227 - Số dòng ra: 15344",
-    "Thư mục số liệu chi tiết: data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline"
+    "Thư mục số liệu chi tiết: data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline"
   ],
   "sections": [
     {
@@ -157,7 +157,7 @@
         }
       ],
       "files": [
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/validation_report.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/validation_report.csv"
       ]
     },
     {
@@ -305,10 +305,10 @@
         }
       ],
       "files": [
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/removed_records.csv",
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/quarantine_records.csv",
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/clean_flow.csv",
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/clean_reasons.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/removed_records.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/quarantine_records.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/clean_flow.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/clean_reasons.csv"
       ]
     },
     {
@@ -422,7 +422,7 @@
         }
       ],
       "files": [
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/normalize_samples.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/normalize_samples.csv"
       ]
     },
     {
@@ -670,7 +670,7 @@
         }
       ],
       "files": [
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/pipeline/final_validation.json"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/pipeline/final_validation.json"
       ]
     },
     {
@@ -688,6 +688,10 @@
         {
           "label": "Phiên bản pipeline",
           "value": "v0.1.0"
+        },
+        {
+          "label": "test.csv khớp eval_lock",
+          "value": "Đạt"
         }
       ],
       "charts": [
@@ -828,7 +832,7 @@
         }
       ],
       "files": [
-        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-a8990025/processing_log.json"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/processing_log.json"
       ]
     }
   ]
