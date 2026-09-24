@@ -103,3 +103,19 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P6 | `fix(reports): keep metric matrix columns unique` |
 | P6 | `fix(evaluation): sampling falls back to the model card, not to 1.0` (kèm phần truyền `root` cho các lệnh git của `checks`) |
 | P6 | `fix(run): stash old results when running, not when planning` |
+| P6 | `chore(ci): list the checks in one place, drop the one-sample smoke run` |
+| P6 | `chore(ci): catch tracked scratch files in check 2, drop the one that slipped in` |
+| P6 | `fix(checks): check 2 must not die when git cannot list files` |
+| P5 | `chore(experiments): pin commit 8e79c0d into the exp001 notebook` |
+| P7 T1 (sớm) | `fix(hashing): make file digests independent of line endings` |
+| P7 T1 | `feat(preflight): report missing raw data first, with a runnable command` |
+| P5 | `fix(notebooks): bootstrap must survive a second run, and stay in sync with the template` |
+| P7 T1 | `chore(data): rebuild the dataset under the corrected version id` |
+
+Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
+
+- Thứ tự trong ô bootstrap là chịu lực: kéo mã nguồn TRƯỚC khi `import src`, và kéo đúng commit đã
+  ghim. Sau khi kéo xong còn phải xoá bộ nhớ đệm import của kernel (`sys.path_importer_cache`), vì
+  câu trả lời "thư mục này không có gói `src`" đã bị nhớ từ lúc máy còn trống.
+- Mọi phép băm nội dung file phải chuẩn hoá kiểu xuống dòng. Windows ghi CRLF, Colab ghi LF, và mã
+  phiên bản dữ liệu hai máy đã lệch nhau vì đúng chuyện đó.

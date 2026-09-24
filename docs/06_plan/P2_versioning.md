@@ -39,6 +39,16 @@ Ghi chú khi làm:
   hiện vẫn được commit; việc chọn nhóm report nào commit là việc của P6.
 - Guard chặn cả trường hợp sửa một dòng chú thích trong file phiên bản đã dùng. Đó là chủ ý:
   nội dung file đi vào mã phiên bản, nên mọi thay đổi đều làm kết quả cũ không còn tra được.
+- **Kiểu xuống dòng KHÔNG được đi vào phép băm** (sửa 25/09/2026). Mã phiên bản băm nội dung file,
+  mà Windows lưu CRLF còn Linux/Colab lưu LF, nên cùng một bộ dữ liệu cho ra hai mã khác nhau:
+  notebook ghim chạy trên Colab xin `...-2d9fc48b` trong khi máy cá nhân đã tạo `...-bf68b1c5`. Hai
+  máy không thống nhất được mã của cùng một bộ dữ liệu thì kết quả không so được với nhau, mà đó
+  chính là việc `eval_lock` sinh ra để làm. Từ nay `utils.digest_bytes` bỏ BOM và đưa CRLF/CR về LF
+  trước khi băm, cho cả `compute_id`, `file_sha256`, `prompt_sha` và `config_sha256`; file nhị phân
+  (có byte NUL, hoặc không giải mã được theo UTF-8) vẫn băm nguyên từng byte.
+  Hệ quả một lần: mã phiên bản đổi, nên `data/processed/...-bf68b1c5` đã bị xoá và dựng lại thành
+  `...-e0ccc484`. Giá trị `eval_lock` đo được ở lần chạy này là `e2558137...` (1518 dòng), chốt vào
+  phiên bản dataset kế tiếp ở P7.
 
 ## 4. Điều kiện hoàn thành (DoD)
 

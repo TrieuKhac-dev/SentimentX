@@ -10,9 +10,11 @@ và có công cụ tạo thí nghiệm mới nhanh, chính xác, không xung đ�
 
 ## 2. Trạng thái
 
-xong (T1..T6) trên máy cá nhân. Hai mục của mục 4 cần Colab THẬT (kéo code theo sha trên Colab, và
-gốc kết quả nằm trên Drive vì máy cá nhân không mô phỏng được Drive) sẽ kiểm ở P7 cùng lượt chạy
-lại toàn bộ - đó là lý do P5 chưa đóng hẳn.
+xong (T1..T6) trên máy cá nhân. Ba mục của mục 4: "kéo code theo sha trên Colab" đã có bằng chứng
+thật (hai lần chạy Colab, lần thứ hai in `fetch -> 0`, `checkout -> 0` và `repo.prepare()` xác nhận
+đúng commit trên nhánh), "gốc kết quả nằm trên Drive" thì CHƯA: lần chạy đó không mount Drive nên
+preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn; phần còn lại kiểm ở P7 cùng lượt chạy
+đầy đủ.
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -46,6 +48,17 @@ lại toàn bộ - đó là lý do P5 chưa đóng hẳn.
       `checkout --detach <sha>`): có `src/`, và `repo.prepare()` báo "dùng bản code đang có",
       trên nhánh, không cảnh báo. Test khoá thứ tự này cho cả notebook mẫu và mọi notebook
       thí nghiệm (`tests/test_templates.py::TestBootstrap`).
+      **Lần chạy Colab thật thứ hai (25/09/2026, exp001, commit 8e79c0d)** xác nhận phần kéo code:
+      `fetch -> 0`, `checkout -> 0`, `repo.prepare()` báo "dùng bản code đang có | trên nhánh |
+      8e79c0d5". Hai việc còn lại lộ ra trong cùng lần chạy đó, đều đã sửa:
+      (a) `git clone` vào thư mục `/content/SentimentX` còn sót từ lần chạy trước in mã thoát 128
+      (`destination path ... already exists and is not an empty directory`) - dòng lỗi đỏ làm người
+      đọc tưởng hỏng, nên bootstrap nay kiểm thư mục đã là git repo chưa rồi mới kéo, và DỪNG kèm
+      cách sửa nếu thư mục có sẵn mà không phải repo;
+      (b) mã phiên bản dữ liệu hai máy lệch nhau (`...-2d9fc48b` trên Colab so với `...-bf68b1c5` ở
+      máy cá nhân) vì băm thẳng byte, xem `docs/06_plan/P2_versioning.md`.
+      Điều còn thiếu của P5 là gốc kết quả trên Drive: lần chạy trên không thấy Drive (chưa mount),
+      nên preflight dừng ở việc thiếu dữ liệu.
 - [x] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
       -> `feat(experiments): create exp001 - Qwen3-4B CoT prompt, scored on val`
