@@ -80,6 +80,18 @@ class GitignoreTest(unittest.TestCase):
         self._write("\n".join(list(checks.REQUIRED_IGNORES) + ["data/reports/x/**"]))
         self.assertEqual(checks.gitignore_rules(self.root), [])
 
+    def test_file_tam_bi_git_theo_doi_thi_bao(self):
+        """File tạm của một lần chạy tay lọt vào git là rác trong diff - đã xảy ra hai lần."""
+        self._write("\n".join(list(checks.REQUIRED_IGNORES) + ["data/reports/x/**"]))
+        with mock.patch.object(checks, "tracked_files",
+                               return_value=["_ut.txt", "_m24.txt", "src/__init__.py",
+                                             "src/reports.py"]):
+            found = checks.gitignore_rules(self.root)
+        self.assertEqual(len(found), 2, found)
+        self.assertIn("_ut.txt", found[0])
+        # `__init__.py` bắt đầu bằng HAI gạch dưới: file thật, không được báo.
+        self.assertFalse(any("__init__" in item for item in found))
+
     def test_thieu_file_gitignore_thi_bao_loi_ro(self):
         with self.assertRaises(checks.CheckError):
             checks.gitignore_rules(self.root)

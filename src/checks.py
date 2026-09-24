@@ -47,6 +47,9 @@ ALLOWED_DATA_PARTS = ("/pipeline/", "/eda/")
 # `.gitignore` phải bỏ qua dữ liệu nặng và KHÔNG được bỏ qua metadata/report. Ghi theo từng phần vì
 # test `test_sources_have_no_hardcoded_paths` cấm mọi chuỗi đường dẫn viết cứng trong `src/`.
 _DATA = "data" + "/"
+
+# File tạm của người làm việc có đuôi này - xem `_scratch_files`.
+SCRATCH_SUFFIXES = (".txt", ".py", ".log", ".json")
 REQUIRED_IGNORES = (_DATA + "raw", _DATA + "processed", _DATA + "models",
                     "experiments/**/results")
 FORBIDDEN_IGNORES = (_DATA + "reference_publication", _DATA + "assets", _DATA + "reports")
@@ -131,7 +134,12 @@ def data_tracked(root):
 
 
 def gitignore_rules(root):
-    """`.gitignore` thiếu quy tắc bỏ qua dữ liệu, hoặc bỏ qua nhầm metadata/report."""
+    """`.gitignore` thiếu quy tắc bỏ qua dữ liệu, bỏ qua nhầm metadata/report, hoặc có file tạm lọt vào git.
+
+    Phần file tạm thêm vào sau khi chính tôi để lọt hai lần: file tạm đặt tên bằng MỘT dấu gạch dưới
+    ở đầu (`_ut.txt`, `_m24.txt`) là rác của một lần chạy tay, mà `git add -A` thì không phân biệt.
+    Tên bắt đầu bằng HAI gạch dưới (`__init__.py`) là file thật, không được báo.
+    """
     path = Path(root) / ".gitignore"
     if not path.is_file():
         raise CheckError("Thiếu .gitignore ở gốc repo.")
@@ -145,6 +153,19 @@ def gitignore_rules(root):
         if any(rule.rstrip("/") == pattern for rule in rules):
             found.append("đang bỏ qua cả {!r} - metadata và report PHẢI được theo dõi.".format(
                 pattern))
+    for item in _scratch_files(tracked_files(root)):
+        found.append("{} (file tạm bị git theo dõi; bỏ bằng `git rm --cached {}`)".format(
+            item, item))
+    return found
+
+
+def _scratch_files(paths):
+    """File tạm của người làm việc: tên bắt đầu bằng MỘT dấu `_` và có đuôi văn bản/mã."""
+    found = []
+    for path in paths:
+        name = str(path).rsplit("/", 1)[-1]
+        if name.startswith("_") and not name.startswith("__") and name.endswith(SCRATCH_SUFFIXES):
+            found.append(path)
     return found
 
 
