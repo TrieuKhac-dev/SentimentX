@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
   "dataset": {
     "name": "cosmetics",
     "version": "v0.1.0",
     "config": "configs/datasets/cosmetics/v0.1.0.yaml",
-    "config_sha256": "deb4b8153c10da8a79f2b871fbd5b6e502c47821c3b9be30c61d96d5167b6725",
+    "config_sha256": "e40c156bcad52b0295acfef1a9850a71bcd91874ff7d77e17fc472654a550f68",
     "sources": [
       {
         "kind": "raw",
@@ -15,19 +15,19 @@
         "files": [
           {
             "name": "data_train.csv",
-            "sha256": "2da5c6359a17d03b1c55591fe21d70c4d5ca8c54157ab79fd59c93e6599943c9"
+            "sha256": "53486079c41a902e2de87bac98da1ae68cd9d5881685bfa59391c5a3e0037944"
           },
           {
             "name": "data_val.csv",
-            "sha256": "44eb0a11b19ecde43824e9a432c554fe134939280140d80ed135018ea60b8dcd"
+            "sha256": "6d8c959fb7c44b5ad08bc9c19e48d641474ac9480b857dcea3ececd8d00dd1f7"
           },
           {
             "name": "data_test.csv",
-            "sha256": "7e8ae8632e570725ae8967c1d34bb99f8d411896f7b5cab7181ef805ca810b24"
+            "sha256": "4c6157503647c7d2df0a03f57d3fd4a1b1d9b5f69cb59706a472891317b0fbdf"
           },
           {
             "name": "full_data.csv",
-            "sha256": "3bda8deecc84d94fff526ad092cadc1dc4a4487e6d1a8c54871e53da95ec780e"
+            "sha256": "edaa772264be7ce4804027e2f159380a0546f7ffa0bf879d5b46effbc59eb5ca"
           }
         ]
       }
@@ -36,7 +36,7 @@
   "pipeline": {
     "version": "v0.1.0",
     "config": "configs/pipeline/v0.1.0.yaml",
-    "config_sha256": "5562c4e8dc9a544d4e4cf0346557cbb2c68c208c6bfe10f003666bc397889261",
+    "config_sha256": "54731c64e4eef01bd65fd142e2956cfbde91a5b7d09e613eb1f3a7d9044b6b53",
     "settings": {
       "version": "v0.1.0",
       "parent": null,
@@ -103,7 +103,7 @@
     "declared_sha256": null,
     "measured": {
       "file": "test.csv",
-      "sha256": "64dbf812e362ea7120e9f350e9145f2b784c30f636c099070d311dc6c66b503b",
+      "sha256": "e25581375bf4573a5781df6a6b004474ab043f97e9a2462a3c62209594a6c67e",
       "rows": 1518
     },
     "match": true
