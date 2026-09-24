@@ -186,6 +186,26 @@ class TestBootstrap(unittest.TestCase):
         # Thư mục có sẵn mà KHÔNG phải repo thì phải DỪNG kèm cách sửa, không kéo đè lên dữ liệu lạ.
         self.assertIn("rm -rf", source)
 
+    def test_bootstrap_does_the_whole_colab_setup_itself(self):
+        """Ô bootstrap tự mount Drive, tự đặt gốc, tự cài gói thiếu - người chạy chỉ bấm Run all.
+
+        Đây là yêu cầu của thiết kế bàn giao: "copy thư mục vào Drive rồi bấm Run all". Mỗi bước bị
+        chuyển ra thành thao tác tay là một bước sẽ bị bỏ qua hoặc làm sai thứ tự, nên chúng bị khoá ở đây.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("drive.mount", source)
+        self.assertIn("SENTIMENTX_DATA_ROOT", source)
+        self.assertIn("SENTIMENTX_RESULTS_ROOT", source)
+        self.assertIn("find_spec", source)
+        lines = [line for line in source.splitlines() if not line.lstrip().startswith("#")]
+        mount = next(index for index, line in enumerate(lines) if "drive.mount" in line)
+        lookup = next(index for index, line in enumerate(lines)
+                      if "runtime.drive_dir()" in line)
+        self.assertLess(mount, lookup, "mount Drive phải chạy TRƯỚC khi tìm thư mục nhóm")
+        # Cài đặt chỉ trên Colab, và phải là `pip install`, không phải lệnh nào khác.
+        self.assertIn("IN_COLAB", source)
+        self.assertIn('"-m", "pip", "install"', source)
+
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
 
