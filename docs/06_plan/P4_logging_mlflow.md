@@ -43,6 +43,12 @@ Việc sửa theo góp ý khi rà soát (header tài liệu đúng hai dòng, v�
 theo nội dung thay vì theo model) nằm chung một commit `623c053`, vì ba file tài liệu bị cả hai
 việc. Không phải một task của P4, ghi ở đây để tra lại nguồn gốc thay đổi.
 
+T7 đã có phần cấu hình và công cụ (`configs/dagshub.yaml`, `src/tracking/mlflow_tracker.py`,
+`scripts/smoke_tracking.py`), nhưng **cổng chưa chạy được**: cần `DAGSHUB_TOKEN` của chủ tài khoản
+DagsHub (`TrieuKhac-dev`) và cần mạng. Chưa có token thì `python scripts/smoke_tracking.py` in ra
+đúng hai việc còn thiếu (token, thư viện `mlflow`) và kết thúc với mã thoát 2 - đúng như thiết kế:
+ghi nhận hỏng không được làm hỏng lần chạy.
+
 ## 4. Điều kiện hoàn thành (DoD)
 
 - Cổng MLflow đạt: run smoke xuất hiện trên DagsHub.

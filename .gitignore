@@ -30,7 +30,17 @@ data/models/*
 !data/models/README.md
 
 # Kết quả thí nghiệm: chỉ commit phần nhẹ
+# Thư mục tạm và thư mục chạy thử: không bao giờ commit.
+experiments/_smoke/**
+experiments/**/_tmp/**
+
+# Kết quả nặng thì không commit; file nhỏ (metrics.json, metrics.csv, run_meta.json, run.log)
+# vẫn được theo dõi vì đó là bằng chứng của lần chạy.
 experiments/**/results/**/predictions.csv
 experiments/**/results/**/predictions/
 experiments/**/results/**/plots/
 experiments/**/results/**/model/
+
+# Mục lục do tracker `local_json` sinh ra: là chỉ mục, không phải bằng chứng. Bằng chứng nằm ở
+# `run_meta.json` và `metrics.json` TRONG thư mục kết quả của từng lần chạy.
+data/reports/experiment_registry/**

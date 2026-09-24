@@ -238,6 +238,11 @@ def print_scores(scores):
 def main(argv=None):
     args = parse_args(argv)
 
+    # Nạp biến môi trường TRƯỚC mọi việc khác: `DAGSHUB_TOKEN` nằm ở Colab Secrets hoặc file
+    # `.env` (cả hai đều không được commit). Không nạp thì token có trong máy mà phần ghi nhận
+    # vẫn báo "thiếu token" - một lỗi im lặng rất khó đoán.
+    env = runtime.load_env()
+
     if args.list_scorers:
         print("Các bộ chấm điểm đang có (khai trong evaluation.scores):")
         for line in scorers.describe():
@@ -328,6 +333,7 @@ def main(argv=None):
         "model": args.model or qwen.MODEL_NAME, "quant": args.quant,
         "max_length": max_length, "generation": generation,
         "subset": {"limit": args.limit, "seed": args.seed}, "n_samples": len(texts),
+        "env": env,
     }
 
     with runlog.start(out_dir, mode="NEW", info=info) as log:
