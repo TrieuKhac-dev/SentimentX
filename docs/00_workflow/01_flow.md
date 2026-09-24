@@ -98,6 +98,28 @@ của chính lần đó - nhìn là biết hai lần có so được với nhau 
 resume nằm ở `config.sha256`, `data.ma` và `repo.sha` (xem [02_rules.md](02_rules.md) mục 13).
 Mọi đường dẫn trong file đều TÍNH TỪ GỐC REPO, vì thư mục kết quả bị đem từ máy này sang máy khác.
 
+## Chạy tiếp sau khi bị ngắt
+
+Kết quả dự đoán được ghi theo KHỐI ngay khi từng lô xong: `predictions/part_0001.jsonl`, ... Ngắt
+giữa chừng (đứt mạng, Colab hết thời gian, Ctrl+C) thì mất tối đa khối đang viết. Chạy lại đúng
+lệnh cũ sẽ tự nhận ra và đi tiếp:
+
+| Trong `run.log`    | Nghĩa là                                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------------------- |
+| `[RUN] mode=NEW`   | chưa có gì để đi tiếp: chạy từ đầu                                                                 |
+| `[RUN] mode=RESUME` | có kết quả dở, và ba giá trị bên dưới chưa đổi: chỉ chạy những mẫu còn thiếu                        |
+
+Ba giá trị quyết định resume (xem [02_rules.md](02_rules.md) mục 13): `config_sha256`,
+`data.ma` (mã phiên bản dữ liệu) và `repo.sha`. Lệch MỘT giá trị là kết quả cũ không còn so được
+với kết quả mới, nên phải chạy lại từ đầu và ghi thành attempt mới (mục 14) - nhưng kết quả cũ
+KHÔNG bị xoá: các khối dở được chuyển vào `predictions/_bo-qua-<lúc>/`. Lần chạy trước đã XONG với
+đúng ba giá trị đó thì script DỪNG và báo, tránh chạy lại vô ích; muốn chạy lại thật thì thêm
+`--new`.
+
+Điểm số của một lượt chạy tiếp luôn là điểm của CẢ split (mẫu cũ đọc từ các khối, mẫu mới đọc từ
+bộ nhớ), không phải điểm của phần còn lại. `metrics.json` ghi lại `resume.mode`, `resume.reused`
+và `resume.new` để người đọc biết con số trước mặt sinh ra từ lượt chạy liền mạch hay không.
+
 ## Khi có lỗi
 
 | Hiện tượng                      | Xem ở đâu                               |

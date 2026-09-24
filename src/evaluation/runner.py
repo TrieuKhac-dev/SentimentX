@@ -36,15 +36,12 @@ import time
 from pathlib import Path
 
 from src import config, paths, utils
-from src.evaluation import metrics, parse
+from src.evaluation import metrics, parse, records
 from src.preprocessing import qwen
 
-# Cột của bảng kết quả (cũng là cột file CSV dự đoán)
-PREDICTION_COLUMNS = [
-    "chỉ số", "split", "prompt", "kiểu đọc", "đọc được", "lí do",
-    "text", "nhãn đúng", "nhãn đoán",
-    "token sinh", "giây", "có suy luận", "có <think>", "câu trả lời",
-]
+# Cột của bảng dự đoán: định nghĩa ở `records.py` để chỗ ghi CSV, chỗ ghi khối `part_*.jsonl` và
+# chỗ chấm lại từ file dùng CÙNG một tên cột.
+PREDICTION_COLUMNS = records.COLUMNS
 
 # Cấu hình sinh mặc định
 DEFAULT_MAX_NEW_TOKENS = 400
@@ -161,7 +158,8 @@ def generate(inputs, model, tokenizer, generation):
 
 
 def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
-        batch_size=4, max_length=None, generation=None, row_index=None, quiet=False):
+        batch_size=4, max_length=None, generation=None, row_index=None, quiet=False,
+        store=None):
     """Sinh + đọc kết quả cho cả một split (hoặc một tập con).
 
     `golds` là list[dict {khía cạnh: mã đúng}]; `row_index` là chỉ số dòng gốc trong file
@@ -171,6 +169,10 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
     Trả về cả `nhãn dự đoán` đã đọc sẵn (không phải đọc lại từ chuỗi JSON trong bảng) để
     nơi chấm điểm dùng ĐÚNG kết quả mà bộ đọc đã phân tích - nếu không, việc chấm điểm và
     việc báo cáo tỉ lệ đọc được có thể nói hai chuyện khác nhau.
+
+    `store` (tuỳ chọn) là `src.resume.Parts`: mỗi lô xong được ghi xuống đĩa NGAY, nên bị ngắt
+    giữa chừng thì lần chạy sau biết mẫu nào đã xong. Không truyền thì kết quả chỉ nằm trong bộ
+    nhớ cho tới lúc ghi file cuối cùng.
     """
     generation = generation or settings()
     aspects = list(aspects)
@@ -185,6 +187,7 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
                                    label_map=label_map, prompt_name=prompt_name)
         answers, lengths, seconds = generate(inputs, model, tokenizer, generation)
 
+        batch_rows = []
         for offset, answer in enumerate(answers):
             position = start + offset
             labels, info = parse.parse_labels(answer, aspects, codes)
@@ -192,7 +195,7 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
             preds.append(labels or None)
             total_tokens += lengths[offset]
             total_items += 1
-            rows.append([
+            batch_rows.append([
                 (row_index[position] if row_index else position), split, prompt_name,
                 info["kiểu đọc"], "có" if info["valid"] else "KHÔNG", info["reason"],
                 texts[position], _as_json(golds[position]), _as_json(labels),
@@ -201,6 +204,10 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
                 "có" if info["had_thinking"] else "không",
                 answer.strip(),
             ])
+        rows.extend(batch_rows)
+        if store is not None:
+            # Ghi NGAY sau mỗi lô: đây là thứ khiến việc chạy tiếp trở nên rẻ.
+            store.append(batch_rows, PREDICTION_COLUMNS)
         total_seconds += seconds
         if not quiet:
             print("    lô {}/{}: {} câu | {:.1f} giây | {:.1f} token sinh/giây".format(

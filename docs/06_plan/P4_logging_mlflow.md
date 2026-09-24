@@ -10,7 +10,7 @@ và resume được khi bị ngắt giữa chừng.
 
 ## 2. Trạng thái
 
-đang làm - T1, T2, T3, T4, T5, T6, T7 xong (cổng MLflow đạt).
+đang làm - T1..T8 xong (cổng MLflow đạt).
 
 ## 3. Task nhỏ (mỗi task một commit)
 
@@ -38,9 +38,12 @@ và resume được khi bị ngắt giữa chừng.
       repo - trang repo chỉ hiện dữ liệu của DagsHub nên nhìn như rỗng). Các run kiểm tra đều được
       gắn nhãn `smoke=true` và dọn bằng `python scripts/smoke_tracking.py --clean`, nên mục
       Experiments chỉ còn kết quả thật.
-- [ ] T8. Resume: ghi kết quả theo khối `predictions/part_*.jsonl`, chạy lại thì bỏ qua mẫu đã xử lý;
+- [x] T8. Resume: ghi kết quả theo khối `predictions/part_*.jsonl`, chạy lại thì bỏ qua mẫu đã xử lý;
       điều kiện resume là `config_sha256` + mã phiên bản + `repo.sha` đều không đổi.
       -> `feat(resume): chunk predictions and resume by sample`
+      Kiểm bằng test (17 ca mới: quyết định NEW/RESUME/STOP, dòng viết dở được đếm lại, khối cũ
+      được chuyển sang thư mục con, điểm số dùng cả mẫu cũ). Phần "ngắt giữa chừng rồi chạy lại"
+      trên máy thật cần một lượt chạy model nên kiểm ở P7 cùng lượt chạy lại toàn bộ.
 - [ ] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
       -> `test(evaluation): add metric tests`
 

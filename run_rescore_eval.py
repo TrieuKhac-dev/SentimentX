@@ -36,7 +36,7 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 from src import config, dataset, experiments, paths, utils, versioning
-from src.evaluation import metrics, scorers
+from src.evaluation import metrics, records, scorers
 from src.preprocessing import loader
 
 NOTE = ("Chấm lại bằng cách chấm hiện hành (trước đó hai nhánh FP/FN bị hoán vị nên cột "
@@ -66,29 +66,15 @@ def read_rows(path):
 def rebuild(rows, aspects, task, label_map):
     """Dựng lại `scorers.Samples` từ file dự đoán: nhãn đúng, nhãn đoán, thông tin đọc.
 
-    Dùng ĐÚNG đường đi của lúc chấm điểm chính (`scorers.Samples.build`), nên chấm lại cho ra
-    cùng một cách tính; nếu khác thì đó là do `task`/`evaluation` đã đổi, không phải do hai
-    đường tính khác nhau.
+    Dùng chung `src/evaluation/records.py` với đường chấm điểm chính (`run_qwen_eval.py`), nên
+    chấm lại cho ra cùng một cách tính; khác số thì là do `task`/`evaluation` đã đổi, không phải
+    do hai đường tính khác nhau.
     """
-    golds, preds, infos = [], [], []
-    for row in rows:
-        gold = {aspect: int(json.loads(row["nhãn đúng"]).get(aspect, 0))
-                for aspect in aspects}
-        guess = {name: int(value) for name, value in json.loads(row["nhãn đoán"]).items()}
-        valid = row["đọc được"] == "có"
-        golds.append(gold)
-        preds.append(guess if valid else None)
-        infos.append({
-            "valid": valid,
-            "reason": row["lí do"],
-            "has_reasoning": row["có suy luận"] == "có",
-            "had_thinking": row["có <think>"] == "có",
-            "thiếu": [aspect for aspect in aspects if aspect not in guess],
-        })
+    golds, preds, infos = records.to_arrays(rows, aspects)
     samples = scorers.Samples.build(
         aspects, golds, preds, task=task, labels=label_names(label_map),
-        sample_ids=[str(row["chỉ số"]) for row in rows],
-        meta={"split": rows[0]["split"] if rows else None})
+        sample_ids=[records.key_of(row) for row in rows],
+        meta={"split": rows[0].get("split") if rows else None})
     return samples, infos
 
 

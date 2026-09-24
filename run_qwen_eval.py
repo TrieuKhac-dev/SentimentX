@@ -42,7 +42,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, experiments, labels, model_config, paths, prompts, runlog, runtime, tracking, utils, versioning
+from src import config, dataset, experiments, labels, model_config, paths, prompts, resume, runlog, runtime, tracking, utils, versioning
+from src.evaluation import records
 from src.tracking import run_meta
 from src.evaluation import metrics, runner, scorers
 from src.preprocessing import loader, qwen
@@ -94,6 +95,9 @@ def parse_args(argv=None):
     parser.add_argument("--sample", action="store_true",
                         help="Lấy mẫu theo khuyến nghị của model card (nhiệt độ 0.7, top_p "
                              "0.8, top_k 20) thay vì greedy. Khi đó `seed` được ghi lại.")
+    parser.add_argument("--new", action="store_true",
+                        help="Chạy lại TỪ ĐẦU dù thư mục này đã có kết quả; các khối cũ được "
+                             "chuyển sang thư mục con chứ không bị xoá.")
     parser.add_argument("--quiet", action="store_true",
                         help="Không in tiến độ từng lô (vẫn in bảng kết quả).")
     return parser.parse_args(argv)
@@ -336,7 +340,49 @@ def main(argv=None):
         "env": env,
     }
 
-    with runlog.start(out_dir, mode="NEW", info=info) as log:
+    # Chạy mới hay chạy tiếp: quyết định ở MỘT chỗ (`src/resume.py`), dựa trên ba giá trị mà
+    # docs/00_workflow/02_rules.md mục 13 yêu cầu giống nhau.
+    repo = run_meta.repo_info(url=merged["config"].get("url"),
+                              branch=merged["config"].get("branch"))
+    config_sha256 = experiments.config_sha256(merged, prompt_text=prompt.text)
+    previous = run_meta.read(out_dir)
+    parts = resume.Parts(out_dir)
+    done_count = parts.count()
+    mode, reason = resume.decide(
+        previous, resume.fingerprint(config_sha256, version_id, repo["sha"]),
+        done_count, force_new=args.new)
+
+    if mode == resume.MODE_STOP:
+        print("DỪNG: {}".format(reason))
+        print("      Muốn chạy lại từ đầu thì thêm --new (kết quả cũ được chuyển sang thư mục "
+              "con, không bị xoá).")
+        return 2
+    if mode == resume.MODE_NEW and done_count:
+        stashed = parts.stash()
+        print("Chạy lại từ đầu: {} khối cũ được chuyển sang {}".format(
+            done_count, utils.rel(stashed)))
+        info["stashed"] = utils.rel(stashed)
+
+    # Mẫu đã chạy xong thì bỏ qua (chỉ khi chạy tiếp).
+    done = parts.keys() if mode == resume.MODE_RESUME else set()
+    if done:
+        keep = [position for position, index in enumerate(row_index)
+                if str(index) not in done]
+        texts = [texts[position] for position in keep]
+        golds = [golds[position] for position in keep]
+        row_index = [row_index[position] for position in keep]
+
+    with runlog.start(out_dir, mode=mode, info=info) as log:
+        # Dòng `[RUN] mode=...` do `runlog` ghi, nên `run.log` luôn nói rõ lần này là chạy mới hay
+        # chạy tiếp (điều kiện hoàn thành của P4).
+        log.step("vào việc: chế độ {} - {}".format(mode, reason))
+        if mode == resume.MODE_RESUME:
+            log.step("bỏ qua {} mẫu đã xong, còn {} mẫu phải chạy".format(
+                len(done), len(texts)))
+            if parts.torn:
+                log.warn("bỏ qua {} dòng viết dở trong các khối; mẫu đó sẽ được chạy lại".format(
+                    parts.torn))
+
         # Bản ghi lần chạy: ghi NGAY từ đầu, để lần chạy hỏng vẫn còn dấu vết (đang ở attempt nào,
         # với code và config nào). Chốt lại lúc đóng log; việc chốt chạy TRƯỚC phần ghi nhận nên
         # bản được tải lên máy chủ là bản đã chốt.
@@ -345,12 +391,12 @@ def main(argv=None):
             experiment={"model": qwen.CONFIG_NAME, "method": None, "exp_id": None,
                         "hf_model": info["model"]},
             data={"dataset": ds["name"], "version": ds.get("version"), "ma": version_id},
-            repo=run_meta.repo_info(url=merged["config"].get("url"),
-                                    branch=merged["config"].get("branch")),
-            config={"sha256": experiments.config_sha256(merged, prompt_text=prompt.text),
+            repo=repo,
+            config={"sha256": config_sha256,
                     "layers": merged["layers"], "sources": merged["sources"]},
             files=input_files(ds, prompt),
-            env=run_meta.env_info(kind=runtime.env_name()))
+            env=run_meta.env_info(kind=runtime.env_name()),
+            note="chạy tiếp" if mode == resume.MODE_RESUME else None)
         run_meta.write(out_dir, record)
         log.on_close(run_meta.closer(record, out_dir, log=log))
 
@@ -381,18 +427,23 @@ def main(argv=None):
         log.step("bắt đầu sinh {} mẫu của split {} (batch {})".format(
             len(texts), args.split, args.batch_size))
 
-        rows, infos, preds, meta = runner.run(
+        rows, _infos_new, _preds_new, meta = runner.run(
             args.split, texts, golds, aspects, label_map, prompt.name, model, tokenizer,
             batch_size=args.batch_size, max_length=max_length, generation=generation,
-            row_index=row_index, quiet=args.quiet)
-        log.step("sinh xong {} mẫu".format(len(rows)), seconds=meta["giây"])
+            row_index=row_index, quiet=args.quiet, store=parts)
+        log.step("sinh xong {} mẫu mới".format(len(rows)), seconds=meta["giây"])
 
-        read = metrics.read_rate(infos)
-        log.step("đọc được {}% kết quả ({} mẫu không đọc được)".format(
-            read["% đọc được"], read["tổng"] - read["đọc được"]))
+        # Chấm trên TOÀN BỘ mẫu của split: mẫu đã xong từ lần chạy trước lấy trong các khối, mẫu
+        # vừa chạy lấy từ bộ nhớ. Nhờ vậy một lượt chạy bị ngắt rồi chạy tiếp vẫn cho điểm của cả
+        # split, không phải điểm của phần còn lại.
+        rows_all = records.merge(parts.records(), rows)
+        golds_all, preds_all, infos_all = records.to_arrays(rows_all, aspects)
+        read = metrics.read_rate(infos_all)
+        log.step("tổng {} mẫu ({} mẫu mới), đọc được {}% kết quả".format(
+            len(rows_all), len(rows), read["% đọc được"]))
         samples = scorers.Samples.build(
-            aspects, golds, preds, task=task, labels=label_names(label_map),
-            sample_ids=[str(index) for index in row_index],
+            aspects, golds_all, preds_all, task=task, labels=label_names(label_map),
+            sample_ids=[str(row[records.KEY_INDEX]) for row in rows_all],
             meta={"split": args.split, "dataset": ds["name"], "version_id": version_id})
         result = scorers.run_all(samples, names=names)
         log.step("chấm xong {} chỉ số: {}".format(len(names), ", ".join(names)))
@@ -412,8 +463,11 @@ def main(argv=None):
         print_table(table_rows, table_columns)
         print("\nTổng hợp:")
         print_scores(result["scores"])
-        print("\nChi phí: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
+        print("\nChi phí lượt này: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
             meta["token sinh TB"], meta["giây"], meta["token sinh/giây"]))
+        if done:
+            print("Dùng lại {} mẫu của lần chạy trước ({} mẫu chạy trong lượt này).".format(
+                len(done), len(rows)))
 
         extra = dict(info)
         extra.update({
@@ -424,8 +478,12 @@ def main(argv=None):
             "read_rate": read,
             "cost": meta,
             "scores_order": result["names"],
+            # Lượt này là chạy mới hay chạy tiếp, và dùng lại bao nhiêu mẫu. Người đọc
+            # `metrics.json` cần biết con số trước mặt có phải từ một lượt chạy liền mạch hay không.
+            "resume": {"mode": mode, "reason": reason,
+                       "reused": len(done), "new": len(rows)},
         })
-        return _write_all(out_dir, tag, rows, samples, result, evaluation, extra, log,
+        return _write_all(out_dir, tag, rows_all, samples, result, evaluation, extra, log,
                           session, tracking_config)
 
 
