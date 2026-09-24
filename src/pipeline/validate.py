@@ -16,7 +16,7 @@ from src import config, dataset, utils
 
 def run(context):
     cfg = context["config"]
-    vcfg = cfg["validate"]
+    vcfg = cfg["steps"]["validate"]
     splits = context["splits"]
     out_dir = context["out_dir"]
     dataset_cfg = context["dataset"]

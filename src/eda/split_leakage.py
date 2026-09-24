@@ -37,7 +37,7 @@ def run(context):
 
     # Quy tắc của KHOÁ so trùng: đọc từ config pipeline để EDA và bước Clean dùng
     # đúng một quy tắc (khi tắt `ignore_diacritics`, khoá giữ dấu tiếng Việt).
-    dedup_cfg = utils.load_pipeline_config()["clean"]["deduplicate"]
+    dedup_cfg = utils.load_pipeline_config()["steps"]["clean"]["deduplicate"]
     ignore_diacritics = bool(dedup_cfg.get("ignore_diacritics", False))
 
     def _key(text):

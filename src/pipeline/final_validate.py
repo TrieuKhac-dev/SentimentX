@@ -102,7 +102,8 @@ def run(context):
 # ---
     raw_texts = context.get("raw_texts") or {}
     kept_positions = context.get("kept_positions") or {}
-    ncfg = context["config"]["normalize"]
+    ncfg = context["config"]["steps"]["normalize"]
+    max_repeat = int(context["config"]["thresholds"]["repeated_chars_max"])
     compared = 0
     text_mismatches = []
     for name, df in splits.items():
@@ -114,7 +115,7 @@ def run(context):
                 "{}: thiếu dữ liệu gốc để đối chiếu".format(name))
             continue
         for index, position in enumerate(positions):
-            expected, _ = normalize_steps(originals[position], ncfg)
+            expected, _ = normalize_steps(originals[position], ncfg, max_repeat)
             compared += 1
             if expected != texts_now[index] and len(text_mismatches) < 5:
                 text_mismatches.append(

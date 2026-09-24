@@ -1,0 +1,58 @@
+# Phiên bản 1 của cách xử lý dữ liệu.
+#
+# File này BẤT BIẾN: nội dung của nó đi vào mã phiên bản dữ liệu, nên sửa tại chỗ sẽ làm hai
+# định nghĩa khác nhau mang cùng một nhãn và kết quả cũ không còn tra được. Muốn đổi thì tạo
+# file mới, ví dụ configs/pipeline/v0.2.0.yaml. Xem docs/05_config/02_pipeline.md.
+
+version: v0.1.0
+
+# Phiên bản trước đó; null nghĩa là bản đầu tiên.
+parent: null
+
+notes: >
+  Bản đầu tiên. Bật loại nhiễu (rỗng, gibberish, quảng cáo, code), so trùng và xử lý rò rỉ
+  train/val/test. Giữ nguyên chữ hoa và ký tự lặp vì đó là tín hiệu của người viết.
+
+# Bật/tắt từng bước. true = có biến đổi, false = giữ nguyên.
+steps:
+  # Chỉ kiểm tra, không sửa dữ liệu.
+  validate:
+    check_schema: true
+    check_content: true
+
+  clean:
+    remove_empty: true
+    remove_gibberish: true
+    remove_ads: true
+    # Nhóm review dán từ nơi khác rất nhỏ (1 dòng trên 16.227) và luật đã viết chặt để
+    # không bắt oan câu văn bình thường.
+    remove_code: true
+    deduplicate:
+      exact: true
+      # Khoá so trùng bỏ dấu câu và gộp khoảng trắng, KHÔNG bỏ dấu tiếng Việt.
+      normalized: true
+      # Giữ false: dự án không bỏ dấu tiếng Việt ở bất kỳ chỗ nào, kể cả trong khoá so
+      # trùng. Hệ quả: "son dep" và "son đẹp" là hai review khác nhau, đúng với dữ liệu.
+      ignore_diacritics: false
+      scope: within_split
+      # Cùng một review nhưng nhãn khác nhau: đưa tất cả ra khỏi tập để xem xét tay.
+      conflict_policy: quarantine
+    # Review xuất hiện ở cả train và val/test làm điểm đánh giá đẹp giả tạo.
+    leakage:
+      remove_eval_overlap: true
+
+  normalize:
+    # Giữ false: tokenizer phân biệt hoa thường nên giữ nguyên giúp model còn tín hiệu.
+    lowercase: false
+    unicode: true
+    whitespace: true
+    # Giữ false vì ký tự lặp mang thông tin cảm xúc, ví dụ "đẹppppp".
+    repeated_chars: false
+
+  transform:
+    # Pipeline chỉ xuất dạng này. Dạng JSONL cho model sinh được sinh khi cần từ bảng này.
+    format: multi_head
+
+# Ngưỡng dùng trong các bước.
+thresholds:
+  repeated_chars_max: 2

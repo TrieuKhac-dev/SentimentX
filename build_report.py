@@ -231,7 +231,7 @@ def main(argv=None):
 
     written = []
     for phase in phases:
-        print("\nPha: {}".format(phase))
+        print("\nNhóm: {}".format(phase))
         html_path = build_one(phase, args.version, args.plotlyjs, args.dataset)
         if html_path:
             written.append(html_path)

@@ -36,7 +36,7 @@ def labels_signature(splits, aspects):
     return digest.hexdigest()
 
 
-def normalize_steps(text, ncfg):
+def normalize_steps(text, ncfg, max_repeat):
     """Áp dụng lần lượt các phép chuẩn hoá đang BẬT.
 
     Trả về (văn bản mới, danh sách tên phép ĐÃ THỰC SỰ làm thay đổi văn bản).
@@ -64,7 +64,7 @@ def normalize_steps(text, ncfg):
             changed.append("khoảng trắng")
         result = step
     if ncfg["repeated_chars"]:
-        step = utils.collapse_repeated_chars(result, int(ncfg["repeated_chars_max"]))
+        step = utils.collapse_repeated_chars(result, int(max_repeat))
         if step != result:
             changed.append("ký tự lặp")
         result = step
@@ -72,7 +72,8 @@ def normalize_steps(text, ncfg):
 
 def run(context):
     cfg = context["config"]
-    ncfg = cfg["normalize"]
+    ncfg = cfg["steps"]["normalize"]
+    max_repeat = int(cfg["thresholds"]["repeated_chars_max"])
     splits = context["splits"]
     out_dir = context["out_dir"]
     aspects = context["dataset"]["aspects"]
@@ -107,7 +108,7 @@ def run(context):
             changed_by_method[label][name] = 0
         for index, text in enumerate(texts):
             total += 1
-            new_text, methods = normalize_steps(text, ncfg)
+            new_text, methods = normalize_steps(text, ncfg, max_repeat)
             for label in methods:
                 changed_by_method[label][name] += 1
             if new_text != text:
@@ -143,7 +144,7 @@ def run(context):
         ["whitespace (chuẩn hoá khoảng trắng)", utils.on_off(ncfg["whitespace"])],
         ["repeated_chars (rút gọn ký tự lặp)", utils.on_off(ncfg["repeated_chars"])],
         ["repeated_chars_max (số lần ký tự được giữ lại)",
-         ncfg["repeated_chars_max"]],
+         max_repeat],
     ]
 
     # Biểu đồ chỉ vẽ các phép ĐANG BẬT, nên đổi config là biểu đồ đổi theo.

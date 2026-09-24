@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from src import config
+from src import config, paths
 
 # ---
 # 1. ĐỌC / GHI FILE
@@ -446,47 +446,47 @@ def length_stats(values, name="độ dài"):
 # ---
 
 
-def load_pipeline_config(path=None):
-    """Đọc configs/pipeline.yaml.
+PIPELINE_STEPS = ("validate", "clean", "normalize", "transform")
 
-    Trả về dict cấu hình. Nếu thiếu khoá nào, hàm sẽ bổ sung giá trị mặc định
-    (an toàn nhất = tắt biến đổi) để pipeline không bị lỗi.
+
+def load_pipeline_config(version=None):
+    """Đọc `configs/pipeline/<version>.yaml`.
+
+    Không truyền `version` thì lấy bản mới nhất theo tên file.
+
+    Thiếu bước bắt buộc thì BÁO LỖI kèm tên file, không tự điền giá trị mặc định: điền mặc
+    định là che mất lỗi cấu hình, người chạy sẽ tưởng một bước đã bật trong khi thực ra nó
+    chưa từng được khai.
     """
-    path = Path(path) if path else (config.CONFIG_DIR / "pipeline.yaml")
-    with open(path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f) or {}
+    path = pipeline_config_path(version)
+    with open(path, "r", encoding="utf-8") as handle:
+        cfg = yaml.safe_load(handle) or {}
 
-    cfg.setdefault("version", "unknown")
-    cfg.setdefault("validate", {})
-    cfg["validate"].setdefault("check_schema", True)
-    cfg["validate"].setdefault("check_content", True)
-
-    cfg.setdefault("clean", {})
-    cfg["clean"].setdefault("remove_empty", True)
-    cfg["clean"].setdefault("remove_gibberish", False)
-    cfg["clean"].setdefault("remove_ads", False)
-    cfg["clean"].setdefault("remove_code", False)
-    cfg["clean"].setdefault("deduplicate", {})
-    cfg["clean"]["deduplicate"].setdefault("exact", True)
-    cfg["clean"]["deduplicate"].setdefault("normalized", False)
-    cfg["clean"]["deduplicate"].setdefault("ignore_diacritics", False)
-    cfg["clean"]["deduplicate"].setdefault("scope", "within_split")
-    cfg["clean"]["deduplicate"].setdefault("conflict_policy", "quarantine")
-    cfg["clean"].setdefault("leakage", {})
-    cfg["clean"]["leakage"].setdefault("remove_eval_overlap", False)
-
-    cfg.setdefault("normalize", {})
-    cfg["normalize"].setdefault("lowercase", False)
-    cfg["normalize"].setdefault("unicode", True)
-    cfg["normalize"].setdefault("whitespace", True)
-    cfg["normalize"].setdefault("repeated_chars", False)
-    cfg["normalize"].setdefault("repeated_chars_max", 2)
-
-    cfg.setdefault("transform", {})
-    cfg["transform"].setdefault("format", "multi_head")
-
+    steps = cfg.get("steps") or {}
+    missing = [name for name in PIPELINE_STEPS if name not in steps]
+    if missing:
+        raise ValueError(
+            "{} thiếu các bước bắt buộc trong khoá 'steps': {}.".format(
+                rel(path), ", ".join(missing))
+        )
+    cfg["steps"] = steps
+    cfg.setdefault("version", path.stem)
+    cfg.setdefault("thresholds", {})
     cfg["_path"] = path
     return cfg
+
+
+def pipeline_config_path(version=None):
+    """Đường dẫn file cấu hình pipeline; không truyền `version` thì lấy bản mới nhất."""
+    directory = paths.config_path("pipeline")
+    if version:
+        return directory / "{}.yaml".format(version)
+    files = sorted(directory.glob("*.yaml"))
+    if not files:
+        raise FileNotFoundError(
+            "Chưa có file cấu hình pipeline nào trong {}.".format(rel(directory))
+        )
+    return files[-1]
 
 
 def on_off(value):
@@ -515,6 +515,8 @@ def config_to_rows(cfg):
             else:
                 rows.append([name, on_off(value)])
 
-    for section in ("validate", "clean", "normalize", "transform"):
-        _walk("", {section: cfg.get(section, {})})
+    for section, node in (cfg.get("steps") or {}).items():
+        _walk("", {section: node})
+    for key, value in (cfg.get("thresholds") or {}).items():
+        rows.append(["thresholds.{}".format(key), on_off(value)])
     return rows

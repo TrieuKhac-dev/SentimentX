@@ -67,7 +67,7 @@ def main(argv=None):
 
     print("Dataset: {} (dữ liệu gốc: {})".format(
         ds["name"], utils.rel(ds["_raw_dir"])))
-    print("Config pipeline: {} - phiên bản v{}".format(
+    print("Config pipeline: {} - phiên bản {}".format(
         utils.rel(cfg["_path"]), cfg.get("version", "unknown")))
     print("Mã phiên bản: {}".format(version_id))
 

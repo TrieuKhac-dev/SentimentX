@@ -132,7 +132,7 @@ def _dedup_pass(records, key_of, policy, reason_label):
 
 def run(context):
     cfg = context["config"]
-    ccfg = cfg["clean"]
+    ccfg = cfg["steps"]["clean"]
     dedup_cfg = ccfg["deduplicate"]
     # Quy tắc của KHOÁ so trùng (dùng cho cả xử lý trùng lặp và xử lý rò rỉ).
     ignore_diacritics = bool(dedup_cfg.get("ignore_diacritics", False))

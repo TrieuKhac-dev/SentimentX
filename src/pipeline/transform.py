@@ -30,7 +30,7 @@ def _label_id(value, label_to_id):
 
 
 def run(context):
-    tcfg = context["config"]["transform"]
+    tcfg = context["config"]["steps"]["transform"]
     splits = context["splits"]
     dataset_cfg = context["dataset"]
     aspects = dataset_cfg["aspects"]
