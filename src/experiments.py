@@ -286,7 +286,10 @@ def config_sha256(result, prompt_text=None):
     digest.update(canonical_bytes(result["config"]))
     digest.update(b"prompt:")
     text = prompt_text if prompt_text is not None else prompt_merged(result)
-    digest.update(text.encode("utf-8"))
+    # Chuẩn hoá kiểu xuống dòng trước khi băm: văn bản prompt đọc từ file nên trên Windows là CRLF
+    # còn trên Colab là LF. Không chuẩn hoá thì cùng một cấu hình, hai máy cho hai dấu vân tay khác
+    # nhau, và người đọc báo cáo tưởng đó là hai thí nghiệm khác nhau (xem `utils.normalize_text`).
+    digest.update(utils.normalize_text(text).encode("utf-8"))
     return digest.hexdigest()
 
 

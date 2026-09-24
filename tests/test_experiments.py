@@ -159,6 +159,18 @@ class TestFingerprint(ExperimentCase):
         result["config"]["lora"]["target_modules"] = reversed_modules
         self.assertEqual(first, experiments.config_sha256(result))
 
+    def test_line_endings_do_not_change_sha(self):
+        """Văn bản prompt trên Windows là CRLF, trên Colab là LF: cùng cấu hình phải cùng dấu vân tay.
+
+        Không chuẩn hoá thì báo cáo của hai máy mang hai `config_sha256` khác nhau, và người đọc
+        tưởng đó là hai thí nghiệm.
+        """
+        result = self.load()
+        text = experiments.prompt_merged(result)
+        self.assertEqual(
+            experiments.config_sha256(result, prompt_text=text.replace("\n", "\r\n")),
+            experiments.config_sha256(result, prompt_text=text))
+
     def test_prompt_merged_has_all_three_parts(self):
         result = self.load(extra="examples: examples.txt\n")
         (self.exp_dir / "examples.txt").write_text("--- Vi du 1 ---\n{aspest}\n", encoding="utf-8")

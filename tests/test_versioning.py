@@ -10,6 +10,7 @@ gây exception nào mà vẫn làm mất dấu vết:
 Test dùng thư mục tạm, không đụng vào dữ liệu thật của dự án.
 """
 
+import hashlib
 import json
 import os
 import re
@@ -78,6 +79,23 @@ class TestComputeId(unittest.TestCase):
         self.pipeline_config.write_text("version: v0.1.0\nnotes: x\n", encoding="utf-8")
         self.assertNotEqual(before, self.compute())
 
+    def test_id_unchanged_when_line_endings_change(self):
+        """CRLF (Windows) và LF (Linux/Colab) là CÙNG một dữ liệu, phải ra cùng một mã.
+
+        Lỗi thật: notebook ghim chạy trên Colab xin `...-2d9fc48b` còn máy cá nhân đã tạo
+        `...-bf68b1c5` - chỉ vì kiểu xuống dòng khác nhau, nên hai máy không đời nào khớp kết quả.
+        """
+        before = self.compute()
+        (self.raw / "train.csv").write_bytes(b"text,a\r\nhay,positive\r\n")
+        (self.raw / "full.csv").write_bytes(b"text,a\r\nhay,positive\r\n")
+        self.dataset_config.write_bytes(b"name: cosmetics\r\nversion: v0.1.0\r\n")
+        self.assertEqual(before, self.compute())
+
+    def test_id_unchanged_when_a_bom_is_added(self):
+        before = self.compute()
+        (self.raw / "train.csv").write_bytes(b"\xef\xbb\xbftext,a\nhay,positive\n")
+        self.assertEqual(before, self.compute())
+
     def test_id_ignores_files_not_declared_as_data(self):
         before = self.compute()
         (self.raw / "raw_meta.yaml").write_text("name: cosmetics\nnotes: khác\n", encoding="utf-8")
@@ -132,6 +150,21 @@ class TestPathsOnDisk(unittest.TestCase):
         self.assertEqual(versioning.latest_dataset("cosmetics"), self.name)
         self.assertTrue(versioning.latest_dataset())
         self.assertEqual(len(versioning.dataset_dirs()), 2)
+
+    def test_file_sha256_ignores_line_endings(self):
+        """`eval_lock.test.sha256` ghi ở máy Windows rồi đem so trên Colab Linux."""
+        path = Path(self.tmp.name) / "b.txt"
+        path.write_bytes(b"mot\nhai\n")
+        one = versioning.file_sha256(path)
+        path.write_bytes(b"mot\r\nhai\r\n")
+        self.assertEqual(one, versioning.file_sha256(path))
+
+    def test_file_sha256_of_a_binary_file_keeps_every_byte(self):
+        """File nhị phân KHÔNG được chuẩn hoá: trong nó `\\r` là dữ liệu, không phải xuống dòng."""
+        path = Path(self.tmp.name) / "b.bin"
+        path.write_bytes(b"\x00\x01mot\r\ntmp")
+        self.assertEqual(versioning.file_sha256(path),
+                         hashlib.sha256(b"\x00\x01mot\r\ntmp").hexdigest())
 
     def test_file_sha256_matches_known_value(self):
         path = Path(self.tmp.name) / "a.txt"

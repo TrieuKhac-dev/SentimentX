@@ -53,7 +53,7 @@ import string
 from pathlib import Path
 from functools import lru_cache
 
-from src import config
+from src import config, utils
 
 # Ô nhớ được phép dùng trong file prompt
 PLACEHOLDERS = ("text", "aspects", "label_guide", "example", "examples")
@@ -271,7 +271,7 @@ class Prompt:
         # chứ không suy ra từ tên prompt (suy ra là nguồn sự thật thứ hai, lệch lúc nào không biết).
         # None nghĩa là CHƯA khai: prompt cần {examples} thì lỗi ngay, prompt không cần thì bỏ qua.
         self.examples_value = str(examples) if examples is not None else None
-        self.sha = hashlib.sha1(text.encode("utf-8")).hexdigest()[:8]
+        self.sha = hashlib.sha1(utils.normalize_text(text).encode("utf-8")).hexdigest()[:8]
         self.where = _display(path)
         self.placeholders = _placeholders(text, self.where)
         self.sections = _split_sections(text, self.where)
@@ -480,7 +480,7 @@ def examples_info(value, base_dir=None):
     note, body = _split_examples_note(_read_text(path))
     return {
         "file": _display(path),
-        "sha": hashlib.sha1(body.encode("utf-8")).hexdigest()[:8],
+        "sha": hashlib.sha1(utils.normalize_text(body).encode("utf-8")).hexdigest()[:8],
         "examples": _count_examples(body),
         "note": note,
         "missing": False,

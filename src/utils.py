@@ -20,6 +20,46 @@ import yaml
 from src import config, paths
 
 # ---
+# 0. BĂM NỘI DUNG FILE
+# ---
+
+
+def normalize_text(text):
+    """Văn bản đã chuẩn hoá để băm: bỏ BOM, đưa mọi kiểu xuống dòng về `\\n`.
+
+    VÌ SAO PHẢI CHUẨN HOÁ KIỂU XUỐNG DÒNG
+    Cùng một file, Windows lưu CRLF còn Linux/Colab lưu LF. Băm thẳng từng byte thì hai máy ra hai
+    mã khác nhau dù nội dung không đổi, và đó là lỗi đã gặp thật: notebook ghim chạy trên Colab xin
+    mã phiên bản dữ liệu `...-2d9fc48b` trong khi máy cá nhân đã tạo `...-bf68b1c5`, nên kết quả hai
+    máy không đời nào khớp nhau.
+
+    `.gitattributes` (`data/** -text`) chỉ cấm git đổi kiểu xuống dòng khi checkout; nó không giúp
+    gì khi tệp được TẢI LÊN Colab từ máy Windows. Vì vậy phép chuẩn hoá phải nằm ở chỗ mọi phép băm
+    đi qua, không phải ở từng nơi gọi.
+    """
+    if text.startswith("\ufeff"):
+        text = text[1:]
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def digest_bytes(path):
+    """Nội dung file để BĂM: file văn bản chuẩn hoá kiểu xuống dòng, file nhị phân giữ nguyên byte.
+
+    Nhận ra file nhị phân bằng byte NUL hoặc bằng việc không giải mã được theo UTF-8 (ảnh, zip,
+    parquet, xlsx). Những file đó KHÔNG được chuẩn hoá: trong chúng, `\\r` là một byte dữ liệu chứ
+    không phải ký tự xuống dòng, sửa nó là làm hỏng nghĩa của phép băm.
+    """
+    raw = Path(path).read_bytes()
+    if b"\x00" in raw:
+        return raw
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return raw
+    return normalize_text(text).encode("utf-8")
+
+
+# ---
 # 1. ĐỌC / GHI FILE
 # ---
 

@@ -63,7 +63,7 @@ def compute_id(dataset_cfg, pipeline_cfg=None):
         for path in source_files(dataset_cfg, source):
             name = path.relative_to(source["dir"]).as_posix()
             digest.update(name.encode("utf-8"))
-            digest.update(path.read_bytes())
+            digest.update(utils.digest_bytes(path))
 
     sources = "+".join(
         "{}@{}".format(source.get("name"), _label(source.get("version")))
@@ -114,11 +114,14 @@ def _config_path(value):
 
 
 def _file_bytes(path):
-    """Nội dung file cấu hình; file thiếu được coi là rỗng."""
+    """Nội dung file cấu hình để băm; file thiếu được coi là rỗng.
+
+    Đi qua `utils.digest_bytes` để hai máy khác hệ điều hành ra cùng một mã (xem hàm đó).
+    """
     if not path:
         return b""
     path = Path(path)
-    return path.read_bytes() if path.exists() else b""
+    return utils.digest_bytes(path) if path.exists() else b""
 
 
 # ---
@@ -172,11 +175,15 @@ def latest_dataset(dataset=None):
 
 
 def file_sha256(path):
-    """sha256 của một file. Dùng cho guard bất biến và cho `eval_lock`."""
+    """sha256 của một file, dùng cho guard bất biến và cho `eval_lock`.
+
+    Băm qua `utils.digest_bytes`, tức file văn bản được chuẩn hoá kiểu xuống dòng trước khi băm. Cần
+    như vậy vì `eval_lock.test.sha256` được ghi vào file config dataset ở một máy rồi ĐEM SO ở máy
+    khác (máy cá nhân Windows ghi, Colab Linux đối chiếu): băm thẳng byte thì hai máy luôn lệch nhau
+    và tập test bị coi là đã bị đổi.
+    """
     digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
+    digest.update(utils.digest_bytes(path))
     return digest.hexdigest()
 
 
