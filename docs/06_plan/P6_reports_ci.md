@@ -29,9 +29,17 @@ xong T1. Còn T2..T7.
       của dự án, còn độ chính xác thì cả hai bên đều theo phần trăm. Hai lỗi thật đã bắt được khi
       chạy: script quên truyền bảng công bố vào `build()` (mất cột đối chiếu), và phép đổi thang
       đo không chạy vì giá trị đọc từ CSV là chuỗi.
-- [ ] T2. `scripts/ci_checks.py`: sáu kiểm tra (không có dữ liệu bị git theo dõi, `.gitignore` đúng,
+- [x] T2. `scripts/ci_checks.py`: sáu kiểm tra (không có dữ liệu bị git theo dõi, `.gitignore` đúng,
       notebook sạch output, mọi registry hợp lệ, mọi config thí nghiệm hợp lệ, `REPO_SHA` hợp lệ và tồn tại).
       -> `feat(ci): add repository checks script`
+      Thư viện là `src/checks.py`, script chỉ là cửa vào mỏng (mã thoát 0/1 để CI đọc được). Không
+      chạy model, không đọc `data/`, không gọi mạng - đúng như mục "CI không làm gì" của 03_ci.md.
+      Chạy thật: 6/6 sạch trên cây hiện tại. Lần chạy đầu bắt được hai việc thật: `data/models/README.md`
+      bị coi là dữ liệu (README trong `data/` là metadata, đã thêm vào danh sách cho phép và vào bảng
+      của 03_ci.md), và phần kiểm `tracking` đòi `DAGSHUB_TOKEN` trong khi CI không giữ secret (nay
+      kiểm từng cách ghi nhận bằng config tối thiểu, chỉ kiểm `mlflow` khi CÓ token).
+      Chặn cả hai chiều: cây sạch thì im lặng, cây cố tình vi phạm thì báo đúng chỗ - và có một test
+      khẳng định chính repo này đang sạch.
 - [ ] T3. `.github/workflows/ci.yml` chạy khi push và pull request vào nhánh `experiment`.
       -> `ci: add github actions workflow for experiment branch`
 - [ ] T4. `requirements-ci.txt`, `requirements-colab.txt` (không cài lại torch).

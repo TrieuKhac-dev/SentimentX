@@ -90,6 +90,18 @@ def ref_exists(ref, root=None):
     return code == 0
 
 
+def object_exists(sha, root=None):
+    """Repo có commit với mã này không (đã fetch về chưa, hay sha gõ sai).
+
+    Dùng `cat-file -e` nên trả lời được cả khi commit không nằm trên nhánh nào đang có - đó đúng là
+    câu hỏi của CI: sha đã ghim có THẬT trong repo không.
+    """
+    if not sha:
+        return False
+    code, _output = run_git(["cat-file", "-e", "{}^{{commit}}".format(sha)], cwd=root)
+    return code == 0
+
+
 def plans(url, sha):
     """Các cách kéo code, theo thứ tự rẻ tới đắt.
 
