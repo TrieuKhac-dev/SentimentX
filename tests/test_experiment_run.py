@@ -56,6 +56,17 @@ class HelpersTest(unittest.TestCase):
         full = experiment_run.build_tag("absa_cot_v1", "test", 0, True, "4bit")
         self.assertEqual(full, "prompt-absa_cot_v1__test__sample__4bit")
 
+    def test_tag_ghi_them_model_khi_chay_bang_model_khac(self):
+        # Chạy thử bằng model nhỏ mà tên thư mục không nhắc gì thì lần chạy THẬT sau đó sẽ thấy
+        # "đã chạy xong" và dừng - nên model phải vào tên thư mục.
+        config_data = {"checkpoint": "Qwen/Qwen3-4B-Instruct-2507"}
+        self.assertIsNone(experiment_run.model_tag("Qwen/Qwen3-4B-Instruct-2507", config_data))
+        self.assertIsNone(experiment_run.model_tag(None, config_data))
+        self.assertEqual(experiment_run.model_tag("data/models/Qwen3-0.6B", config_data),
+                         "Qwen3-0.6B")
+        tagged = experiment_run.build_tag("absa_cot_v1", "val", 4, False, None, "Qwen3-0.6B")
+        self.assertEqual(tagged, "prompt-absa_cot_v1__val__n4__greedy__Qwen3-0.6B")
+
     def test_ket_qua_trong_thi_nghiem_di_vao_thu_muc_thi_nghiem(self):
         inside, flag = experiment_run.out_dir_of("v1", "tag", "model", "method", "exp001")
         self.assertTrue(flag)

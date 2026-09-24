@@ -72,11 +72,14 @@ def settings_of(config_data, do_sample=None):
     return settings, sampled
 
 
-def build_tag(prompt_name, split, limit, sampled, quant):
+def build_tag(prompt_name, split, limit, sampled, quant, model=None):
     """Tên thư mục kết quả của MỘT cấu hình chạy.
 
     Cấu hình nằm ở TÊN THƯ MỤC nên tên file bên trong là tên cố định, và hai lần chạy khác cấu
-    hình không bao giờ ghi đè nhau.
+    hình không bao giờ ghi đè nhau. `model` chỉ được ghi khi nó KHÁC checkpoint trong config (tức
+    là khi có người truyền `--model <thứ khác>`, ví dụ chạy thử bằng model nhỏ): không ghi thì hai
+    lần chạy khác model mà cùng cấu hình sẽ tranh nhau một thư mục, và lần thứ hai bị coi là "đã
+    chạy xong" - một lỗi im lặng rất khó thấy.
     """
     parts = ["prompt-{}".format(prompt_name), str(split)]
     if limit:
@@ -84,7 +87,20 @@ def build_tag(prompt_name, split, limit, sampled, quant):
     parts.append("sample" if sampled else "greedy")
     if quant:
         parts.append(str(quant))
+    if model:
+        parts.append(str(model))
     return "__".join(parts)
+
+
+def model_tag(model, config_data):
+    """Phần tên model để đưa vào tên thư mục: rỗng nếu trùng checkpoint của config.
+
+    Model truyền vào có thể là id HF (`Qwen/Qwen3-0.6B`) hoặc thư mục cục bộ (`data/models/Qwen3-0.6B`),
+    nên chỉ lấy đoạn cuối cho tên thư mục ngắn và đọc được.
+    """
+    if not model or str(model) == str(config_data.get("checkpoint") or ""):
+        return None
+    return str(model).replace("\\", "/").strip("/").split("/")[-1] or None
 
 
 def inside_experiment(exp_dir, value):
@@ -276,7 +292,8 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     max_length = max_length or qwen.limit()[0]
 
     tag = build_tag(prompt_obj.name, split, limit, sampled,
-                    quant if quant and quant != "auto" else None)
+                    quant if quant and quant != "auto" else None,
+                    model_tag(model, config_data))
     out_dir, inside = out_dir_of(version_id, tag, model_id, method, exp_id)
     if not inside:
         print("LƯU Ý: chạy NGOÀI thí nghiệm nên kết quả đi vào {} (không thuộc thí nghiệm nào). "
