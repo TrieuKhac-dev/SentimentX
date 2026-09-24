@@ -23,9 +23,10 @@ sách. Lỗi thiếu đường dẫn còn được ghi vào `errors.json` mục 
 """
 
 import importlib.util
+from pathlib import Path
 
 from src import dataset as dataset_module
-from src import experiments, model_config, paths, resume, utils, versioning
+from src import experiments, model_config, paths, resume, runtime, utils, versioning
 from src.preprocessing import segmenters
 from src.tracking import run_meta
 
@@ -77,9 +78,65 @@ def version_report(ds, version_id, want_version, problems, notes, info):
         notes.append("dataset: {}".format(utils.rel(folder)))
     else:
         problems.append(
-            "Chưa có dataset đã xử lý ở {} - chạy `python run_pipeline.py` trước.".format(
-                utils.rel(folder)))
+            "Chưa có dataset đã xử lý ở {}. Tạo bằng: {}".format(
+                utils.rel(folder), pipeline_command(ds)))
     return info["version_id"]
+
+
+def pipeline_command(ds):
+    """Lệnh tạo dữ liệu đã xử lý, in đủ tham số để COPY DÁN LÀ CHẠY ĐƯỢC.
+
+    `run_pipeline.py` bắt buộc có `--version` (mỗi phiên bản cho ra một bộ dữ liệu khác nhau), nên
+    lời khuyên thiếu tham số là lời khuyên chạy ra lỗi ngay. Đã gặp trên Colab: preflight in
+    "chạy `python run_pipeline.py` trước", người chạy dán vào và nhận `error: the following
+    arguments are required: --version`.
+    """
+    name = (ds or {}).get("name") or "<tên dataset>"
+    version = (ds or {}).get("version") or "<phiên bản>"
+    return "`python run_pipeline.py --dataset {} --version {}`".format(name, version)
+
+
+def _raw_paths(ds):
+    """Các file dữ liệu gốc mà config dataset khai, KỂ CẢ file chưa có trên đĩa."""
+    names = [str(name) for name in ((ds or {}).get("splits") or {}).values()]
+    if (ds or {}).get("full"):
+        names.append(str(ds["full"]))
+    found = []
+    for source in (ds or {}).get("_sources") or []:
+        if source.get("kind") == "raw":
+            found.extend(Path(source["dir"]) / name for name in names)
+    return found
+
+
+def raw_source_report(ds, problems, notes, info):
+    """Dữ liệu GỐC của nguồn `raw` phải có đủ trước khi chạy pipeline.
+
+    Vì sao kể riêng chứ không gộp vào việc "chạy pipeline trước": thiếu dữ liệu gốc thì lời khuyên
+    đó vô dụng, pipeline có chạy cũng hỏng. Đây cũng là việc hay gặp nhất trên Colab, vì dữ liệu gốc
+    KHÔNG nằm trong git (luật 20): người chạy phải đưa nó lên (mount Drive, hoặc tải tay), không có
+    lệnh nào tự tải hộ.
+
+    Việc này được chèn lên ĐẦU danh sách: nó là nguyên nhân gốc, còn "chưa có dataset đã xử lý" và
+    "thiếu tập đánh giá" chỉ là hệ quả - đọc theo thứ tự ngược thì người sửa đi sai đường.
+    """
+    declared = _raw_paths(ds)
+    info["raw_missing"] = []
+    if not declared:
+        return None
+    missing = [path for path in declared if not path.exists()]
+    info["raw_missing"] = [utils.rel(path) for path in missing]
+    if not missing:
+        notes.append("dữ liệu gốc: đủ ({} file)".format(len(declared)))
+        return None
+    if runtime.is_colab():
+        remedy = ("Trên Colab dữ liệu gốc KHÔNG nằm trong git: mount Drive hoặc tải thư mục dữ liệu "
+                  "lên, rồi chạy {}.".format(pipeline_command(ds)))
+    else:
+        remedy = "Có dữ liệu gốc rồi thì chạy {}.".format(pipeline_command(ds))
+    problems.insert(0, "Thiếu {} file dữ liệu GỐC của dataset {}:\n      {}\n      {}".format(
+        len(missing), (ds or {}).get("name") or "?",
+        "\n      ".join(info["raw_missing"]), remedy))
+    return info["raw_missing"]
 
 
 def eval_lock_report(ds, version_id, problems, notes, info):
@@ -214,12 +271,20 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, force_new
         ds = _collect(problems, notes, "config dataset",
                       dataset_module.load_config, data["dataset"])
 
+    # 2b. Dữ liệu GỐC của nguồn `raw`. Kể TRƯỚC mọi việc khác: thiếu nó là nguyên nhân gốc, còn
+    # "chưa có dataset đã xử lý" và "thiếu tập đánh giá" chỉ là hệ quả của cùng một thiếu sót.
+    if ds is not None:
+        raw_source_report(ds, problems, notes, info)
+
     # 3. Đường dẫn thí nghiệm cần: dữ liệu từng vai, bảng mã nhãn, prompt, `requires_extra`.
     missing = []
     if version_id:
         rows = _collect(problems, notes, "đường dẫn",
                         experiments.requires, result, version_id) or []
         missing = [row["display"] for row in rows if not row["path"].exists()]
+        # File dữ liệu gốc còn thiếu cũng được ghi vào `errors.json` mục `requires`: người đọc log
+        # cần thấy đủ danh sách những gì phải có, không chỉ những gì thí nghiệm trỏ tới.
+        missing += info.get("raw_missing") or []
         if missing:
             problems.append("Thiếu {} đường dẫn mà thí nghiệm cần:\n      {}".format(
                 len(missing), "\n      ".join(missing)))

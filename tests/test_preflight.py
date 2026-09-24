@@ -230,6 +230,60 @@ class TestStateAndRun(PreflightCase):
                 self.assertEqual(checked["problems"], [])
 
 
+class TestRawSource(unittest.TestCase):
+    """Dữ liệu GỐC.
+
+    Điều được khoá ở đây: thiếu dữ liệu gốc phải được kể ra ĐẦU TIÊN và kèm lệnh CHẠY ĐƯỢC. Đây là
+    việc hay gặp nhất khi chạy notebook trên Colab, vì dữ liệu gốc không nằm trong git (luật 20):
+    preflight từng in "chạy `python run_pipeline.py` trước" mà lệnh đó thiếu `--version` nên dán vào
+    là lỗi ngay, còn nguyên nhân thật (không có dữ liệu gốc) thì không được nói ra.
+    """
+
+    NAMES = ("data_train.csv", "data_val.csv", "data_test.csv", "full_data.csv")
+
+    def make(self, folder):
+        return {
+            "name": "cosmetics",
+            "version": "v0.1.0",
+            "splits": {"train": "data_train.csv", "val": "data_val.csv",
+                       "test": "data_test.csv"},
+            "full": "full_data.csv",
+            "_sources": [{"kind": "raw", "name": "cosmetics", "version": "v0.1.0",
+                          "dir": Path(folder)}],
+        }
+
+    def test_missing_raw_data_is_reported_first_with_a_runnable_command(self):
+        problems, notes, info = ["việc khác"], [], {}
+        preflight.raw_source_report(self.make("khong/co/thu-muc-nay"), problems, notes, info)
+        self.assertEqual(len(problems), 2)
+        self.assertIn("dữ liệu GỐC", problems[0])
+        self.assertIn("--dataset cosmetics --version v0.1.0", problems[0])
+        self.assertEqual(len(info["raw_missing"]), 4)
+        self.assertEqual(notes, [])
+
+    def test_present_raw_data_is_a_note_not_a_problem(self):
+        problems, notes, info = [], [], {}
+        with tempfile.TemporaryDirectory() as folder:
+            for name in self.NAMES:
+                (Path(folder) / name).write_text("text,a\n", encoding="utf-8")
+            preflight.raw_source_report(self.make(folder), problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertEqual(info["raw_missing"], [])
+        self.assertTrue(any("dữ liệu gốc: đủ (4 file)" in note for note in notes))
+
+    def test_a_dataset_source_is_not_checked_as_raw(self):
+        """Nguồn `dataset` nằm trong `data/processed`, việc tồn tại của nó do phép kiểm khác lo."""
+        problems, notes, info = [], [], {}
+        preflight.raw_source_report(
+            {"_sources": [{"kind": "dataset", "dir": Path("khong/co")}]}, problems, notes, info)
+        self.assertEqual((problems, info["raw_missing"]), ([], []))
+
+    def test_pipeline_command_has_both_required_arguments(self):
+        self.assertEqual(preflight.pipeline_command({"name": "cosmetics", "version": "v0.1.0"}),
+                         "`python run_pipeline.py --dataset cosmetics --version v0.1.0`")
+        self.assertIn("<tên dataset>", preflight.pipeline_command(None))
+
+
 if __name__ == "__main__":
     unittest.main()
 
