@@ -1,0 +1,25 @@
+﻿split,cột,số ô trống,tỉ lệ %
+train,text,0,0.0
+train,stayingpower,10071,81.86
+train,texture,8366,68.01
+train,smell,10017,81.43
+train,price,9679,78.68
+train,colour,6279,51.04
+train,shipping,7987,64.92
+train,packing,9898,80.46
+val,text,0,0.0
+val,stayingpower,1262,82.81
+val,texture,1078,70.73
+val,smell,1222,80.18
+val,price,1205,79.07
+val,colour,773,50.72
+val,shipping,951,62.4
+val,packing,1223,80.25
+test,text,0,0.0
+test,stayingpower,1242,81.82
+test,texture,1027,67.65
+test,smell,1203,79.25
+test,price,1194,78.66
+test,colour,794,52.31
+test,shipping,989,65.15
+test,packing,1235,81.36

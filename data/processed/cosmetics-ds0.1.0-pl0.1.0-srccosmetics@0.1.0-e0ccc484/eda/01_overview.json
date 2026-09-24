@@ -10,7 +10,7 @@
     "cards": [
       {
         "label": "Số dòng (3 split)",
-        "value": "16227"
+        "value": "15344"
       },
       {
         "label": "Số khía cạnh",
@@ -18,7 +18,7 @@
       },
       {
         "label": "Train / Val / Test",
-        "value": "12981/1623/1623"
+        "value": "12302/1524/1518"
       }
     ],
     "charts": [
@@ -35,26 +35,26 @@
         ],
         "series": {
           "train": [
-            3.73,
-            64.41,
-            25.39,
-            6.44,
+            2.7,
+            65.22,
+            26.23,
+            5.82,
             0.03,
             0.0
           ],
           "val": [
-            2.77,
-            65.8,
-            25.63,
-            5.79,
+            1.38,
+            67.72,
+            26.31,
+            4.59,
             0.0,
             0.0
           ],
           "test": [
-            3.39,
-            63.71,
-            24.89,
-            8.01,
+            2.31,
+            64.43,
+            25.89,
+            7.38,
             0.0,
             0.0
           ]
@@ -78,8 +78,8 @@
         "rows": [
           [
             "train",
-            "data_train.csv",
-            12981,
+            "train.csv",
+            12302,
             8,
             "data",
             7,
@@ -87,8 +87,8 @@
           ],
           [
             "val",
-            "data_val.csv",
-            1623,
+            "val.csv",
+            1524,
             8,
             "data",
             7,
@@ -96,17 +96,8 @@
           ],
           [
             "test",
-            "data_test.csv",
-            1623,
-            8,
-            "data",
-            7,
-            "-"
-          ],
-          [
-            "(file gộp)",
-            "full_data.csv",
-            16227,
+            "test.csv",
+            1518,
             8,
             "data",
             7,
@@ -123,9 +114,9 @@
       }
     ],
     "files": [
-      "data/raw/cosmetics/v0.1.0/eda/01_overview_structure.csv",
-      "data/raw/cosmetics/v0.1.0/eda/01_overview_empty.csv",
-      "data/raw/cosmetics/v0.1.0/eda/01_overview_length.csv"
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/01_overview_structure.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/01_overview_empty.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/01_overview_length.csv"
     ]
   }
 }

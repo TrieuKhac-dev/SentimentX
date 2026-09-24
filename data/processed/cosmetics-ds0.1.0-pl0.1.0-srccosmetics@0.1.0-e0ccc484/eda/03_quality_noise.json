@@ -14,11 +14,11 @@
       },
       {
         "label": "Emoji khác nhau (3 split)",
-        "value": 342
+        "value": 332
       },
       {
         "label": "Từ bị gắn cờ xuất hiện từ 3 lần (3 split)",
-        "value": 384
+        "value": 345
       }
     ],
     "charts": [
@@ -32,42 +32,42 @@
           "👍",
           "😘",
           "😊",
-          "💯",
           "👌",
-          "♥",
           "😁",
+          "♥",
+          "💯",
           "😂",
           "👍🏻",
           "🤣",
           "🥲",
           "🤩",
-          "💕",
           "😚",
           "☺",
           "🤗",
+          "😗",
           "😀"
         ],
         "y": [
-          2279,
-          1978,
-          1385,
-          780,
-          558,
-          291,
-          291,
+          2172,
+          1697,
+          1209,
+          756,
+          556,
+          287,
           271,
-          256,
-          245,
-          211,
-          204,
-          184,
-          176,
-          173,
-          169,
-          161,
-          144,
-          130,
-          127
+          238,
+          237,
+          217,
+          205,
+          186,
+          182,
+          175,
+          165,
+          154,
+          138,
+          129,
+          118,
+          112
         ],
         "x_label": "emoji",
         "y_label": "số lần xuất hiện",
@@ -94,59 +94,59 @@
           ],
           [
             "trùng chính xác",
-            184,
-            22,
-            15,
-            221
+            0,
+            0,
+            0,
+            0
           ],
           [
             "trùng theo khoá so trùng",
-            242,
-            29,
-            20,
-            291
+            0,
+            0,
+            0,
+            0
           ],
           [
             "ứng viên gibberish",
-            388,
-            39,
-            60,
-            487
+            0,
+            0,
+            0,
+            0
           ],
           [
             "có emoji",
-            1931,
-            233,
-            222,
-            2386
+            1882,
+            226,
+            217,
+            2325
           ],
           [
             "chỉ emoji / dấu câu",
-            25,
-            3,
-            3,
-            31
-          ],
-          [
-            "có ký tự lặp",
-            3604,
-            452,
-            461,
-            4517
-          ],
-          [
-            "có dấu hiệu quảng cáo",
-            59,
-            11,
-            8,
-            78
-          ],
-          [
-            "có dấu hiệu code / HTML",
             1,
             0,
             0,
             1
+          ],
+          [
+            "có ký tự lặp",
+            3337,
+            416,
+            426,
+            4179
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            "có dấu hiệu code / HTML",
+            0,
+            0,
+            0,
+            0
           ]
         ],
         "num_columns": [
@@ -166,27 +166,27 @@
         "rows": [
           [
             "k",
-            1498,
+            1496,
             "một ký tự phụ âm + không có nguyên âm"
           ],
           [
             "mn",
-            916,
+            914,
             "không có nguyên âm"
           ],
           [
             "đc",
-            730,
+            726,
             "không có nguyên âm"
           ],
           [
             "mng",
-            373,
+            365,
             "không có nguyên âm"
           ],
           [
             "sp",
-            365,
+            362,
             "không có nguyên âm"
           ],
           [
@@ -196,12 +196,7 @@
           ],
           [
             "r",
-            303,
-            "một ký tự phụ âm + không có nguyên âm"
-          ],
-          [
-            "n",
-            299,
+            298,
             "một ký tự phụ âm + không có nguyên âm"
           ],
           [
@@ -210,24 +205,9 @@
             "không có nguyên âm"
           ],
           [
-            "ng",
-            249,
-            "không có nguyên âm"
-          ],
-          [
             "cx",
             188,
             "không có nguyên âm"
-          ],
-          [
-            "m",
-            181,
-            "một ký tự phụ âm + không có nguyên âm"
-          ],
-          [
-            "t",
-            170,
-            "một ký tự phụ âm + không có nguyên âm"
           ],
           [
             "mk",
@@ -236,33 +216,53 @@
           ],
           [
             "dc",
-            149,
+            148,
             "không có nguyên âm"
           ],
           [
             "j",
-            122,
+            121,
             "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z) + một ký tự phụ âm + không có nguyên âm"
           ],
           [
-            "c",
-            111,
+            "n",
+            115,
             "một ký tự phụ âm + không có nguyên âm"
           ],
           [
             "v",
-            108,
+            107,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "m",
+            107,
             "một ký tự phụ âm + không có nguyên âm"
           ],
           [
             "ncl",
-            99,
+            98,
             "không có nguyên âm"
           ],
           [
             "review",
-            96,
+            95,
             "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)"
+          ],
+          [
+            "trc",
+            82,
+            "không có nguyên âm"
+          ],
+          [
+            "d",
+            76,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "nhg",
+            75,
+            "không có nguyên âm"
           ]
         ],
         "num_columns": [
@@ -279,28 +279,28 @@
         "rows": [
           [
             "chữ không phải chữ Latin (ký tự trang trí / tiếng nước ngoài)",
-            217,
-            277
+            161,
+            218
           ],
           [
             "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)",
-            2736,
-            3707
+            2056,
+            2967
           ],
           [
             "trộn chữ và số",
-            584,
-            1354
+            454,
+            1117
           ],
           [
             "một ký tự phụ âm",
             20,
-            3266
+            2748
           ],
           [
             "không có nguyên âm",
-            1768,
-            11547
+            1362,
+            9961
           ]
         ],
         "num_columns": [
@@ -318,82 +318,28 @@
         ],
         "rows": [
           [
-            "ứng viên gibberish",
-            "train",
-            554,
-            "hhshshsbdbdbdhjdjdjdndndndndndndbdbdbdbdbdbdbdbdbdbdbd"
-          ],
-          [
-            "ứng viên gibberish",
-            "val",
-            502,
-            "Dvdvvsg sgnsgnagbwgbafbwynafbwgbwsgnsgnwgbafbwgnawgnwt"
-          ],
-          [
-            "ứng viên gibberish",
-            "test",
-            484,
-            "Uuhuhhuuuuuuuuuuuuuuu"
-          ],
-          [
             "chỉ emoji / dấu câu",
             "train",
-            1321,
-            "👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️"
-          ],
-          [
-            "chỉ emoji / dấu câu",
-            "val",
-            374,
-            "😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍"
-          ],
-          [
-            "chỉ emoji / dấu câu",
-            "test",
-            965,
-            ".................................................."
+            239,
+            "👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌"
           ],
           [
             "có ký tự lặp",
             "train",
-            4658,
-            "Ưngggg Nhà tài trợ không chỉ quản lý về hình ảnh thương hiệu tại sự kiện mà còn liên quan đến vấn đề pháp lý, độc quyền "
+            475,
+            "Săn sale nên giá khá ổn nhưng bôi hơi bị khô môi, k đc mịn lắm mnnnnnnnnnmnnnnnnnnnnnnnnnmnnmnmmmmmmmmmmmmkmmmmmmmm"
           ],
           [
             "có ký tự lặp",
             "val",
-            429,
-            "Đẹp lên màu chuẩn thích thật sự ákkk. Giao nhanh đóng giis cẩn thận❤️❤️❤️"
+            416,
+            "Màu son bôi cũng được có makeup thì đẹp lém ................"
           ],
           [
             "có ký tự lặp",
             "test",
-            986,
-            "Hàng về rất nhanh sản phẩm ok 👌👌👌👌👌 nếu ưng ý thì sẽ ủng hộ shop dài dài 👍👍👍👍👍👍👍👍👍👍👏👏👏👏👏👏👏👏👏👍👍👍👏👍👍👏👏👍👍"
-          ],
-          [
-            "có dấu hiệu quảng cáo",
-            "train",
-            3460,
-            "Mình thích màu này cực luôn ấy. Chưa thấy dòng nào có màu giống vậy. Màu kiểu cam cam nâu nâu í mọi người. Không cam quá"
-          ],
-          [
-            "có dấu hiệu quảng cáo",
-            "val",
-            83,
-            "Nốt hôm nay! TRÚNG ĐT Samsung Galaxy S20 (trị giá: 17.490.000đ), cơ hội cho TB may mắn soạn Q5 gửi 999. NHẬN NGAY 700MB/"
-          ],
-          [
-            "có dấu hiệu quảng cáo",
-            "test",
-            84,
-            "[TB] CHÚC MỪNG NĂM MỚI 2022. VIETTEL TẶNG 20% GIÁ TRỊ TẤT CẢ THẺ NẠP trong ngày 01/01. Tiền KM sử dụng nội mạng đến "
-          ],
-          [
-            "có dấu hiệu code / HTML",
-            "train",
-            10734,
-            "Bộ 3 nam thần của &quot;Phố trong làng&quot; ngoài đời: Người từng là &quot;bạn trai&quot; Minh Hằng, người có vợ vừa nổ"
+            760,
+            "Công dụng: dùng trang điểm khi ra ngoài , đi chơi...\nKết cấu: thiết kế vỏ hộp , hộp son , mịn\nĐộ bền màu: màu tươi đẹp ,"
           ]
         ],
         "num_columns": [
@@ -408,11 +354,11 @@
       }
     ],
     "files": [
-      "data/raw/cosmetics/v0.1.0/eda/03_quality_metrics.csv",
-      "data/raw/cosmetics/v0.1.0/eda/03_quality_teencode_candidates.csv",
-      "data/raw/cosmetics/v0.1.0/eda/03_quality_teencode_common_flagged.csv",
-      "data/raw/cosmetics/v0.1.0/eda/03_quality_emoji.csv",
-      "data/raw/cosmetics/v0.1.0/eda/03_quality_examples.csv"
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_metrics.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_teencode_candidates.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_teencode_common_flagged.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_emoji.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_examples.csv"
     ]
   }
 }

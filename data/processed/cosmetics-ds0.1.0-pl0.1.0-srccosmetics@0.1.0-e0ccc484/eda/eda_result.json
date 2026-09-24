@@ -12,11 +12,10 @@
     "Định dạng nguồn: csv",
     "Cột văn bản trong file gốc: data",
     "Số khía cạnh khai báo trong config: 7",
-    "Nguồn raw: data/raw/cosmetics/v0.1.0 (v0.1.0)",
     "Mã phiên bản: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
-    "File gốc đã đọc: data_train.csv, data_val.csv, data_test.csv",
+    "File gốc đã đọc: train.csv, val.csv, test.csv",
     "Cột khía cạnh khai báo trong config nhưng thiếu ở file gốc: 0 (không file nào thiếu)",
-    "Thư mục số liệu chi tiết: data/raw/cosmetics/v0.1.0/eda"
+    "Thư mục số liệu chi tiết: data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda"
   ],
   "sections": [
     {
@@ -25,7 +24,7 @@
       "cards": [
         {
           "label": "Số dòng (3 split)",
-          "value": "16227"
+          "value": "15344"
         },
         {
           "label": "Số khía cạnh",
@@ -33,7 +32,7 @@
         },
         {
           "label": "Train / Val / Test",
-          "value": "12981/1623/1623"
+          "value": "12302/1524/1518"
         }
       ],
       "charts": [
@@ -50,26 +49,26 @@
           ],
           "series": {
             "train": [
-              3.73,
-              64.41,
-              25.39,
-              6.44,
+              2.7,
+              65.22,
+              26.23,
+              5.82,
               0.03,
               0.0
             ],
             "val": [
-              2.77,
-              65.8,
-              25.63,
-              5.79,
+              1.38,
+              67.72,
+              26.31,
+              4.59,
               0.0,
               0.0
             ],
             "test": [
-              3.39,
-              63.71,
-              24.89,
-              8.01,
+              2.31,
+              64.43,
+              25.89,
+              7.38,
               0.0,
               0.0
             ]
@@ -93,8 +92,8 @@
           "rows": [
             [
               "train",
-              "data_train.csv",
-              12981,
+              "train.csv",
+              12302,
               8,
               "data",
               7,
@@ -102,8 +101,8 @@
             ],
             [
               "val",
-              "data_val.csv",
-              1623,
+              "val.csv",
+              1524,
               8,
               "data",
               7,
@@ -111,17 +110,8 @@
             ],
             [
               "test",
-              "data_test.csv",
-              1623,
-              8,
-              "data",
-              7,
-              "-"
-            ],
-            [
-              "(file gộp)",
-              "full_data.csv",
-              16227,
+              "test.csv",
+              1518,
               8,
               "data",
               7,
@@ -138,9 +128,9 @@
         }
       ],
       "files": [
-        "data/raw/cosmetics/v0.1.0/eda/01_overview_structure.csv",
-        "data/raw/cosmetics/v0.1.0/eda/01_overview_empty.csv",
-        "data/raw/cosmetics/v0.1.0/eda/01_overview_length.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/01_overview_structure.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/01_overview_empty.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/01_overview_length.csv"
       ]
     },
     {
@@ -153,7 +143,7 @@
         },
         {
           "label": "Số dòng không có nhãn khía cạnh nào (3 split)",
-          "value": "2884"
+          "value": "2131"
         },
         {
           "label": "Số nhãn không hợp lệ (3 split)",
@@ -184,26 +174,26 @@
               "title": "train",
               "series": {
                 "positive": [
-                  1237,
-                  2880,
-                  1851,
-                  2598,
-                  5045,
-                  2741,
-                  2342
+                  1232,
+                  2874,
+                  1845,
+                  2586,
+                  5030,
+                  2707,
+                  2304
                 ],
                 "negative": [
-                  754,
-                  636,
-                  340,
+                  753,
+                  635,
+                  339,
                   15,
                   555,
-                  1330,
+                  1328,
                   85
                 ],
                 "neutral": [
-                  247,
-                  428,
+                  246,
+                  427,
                   101,
                   22,
                   438,
@@ -216,13 +206,13 @@
               "title": "val",
               "series": {
                 "positive": [
-                  143,
-                  319,
-                  238,
-                  319,
-                  648,
-                  360,
-                  309
+                  141,
+                  316,
+                  237,
+                  315,
+                  645,
+                  349,
+                  294
                 ],
                 "negative": [
                   90,
@@ -235,7 +225,7 @@
                 ],
                 "neutral": [
                   31,
-                  54,
+                  53,
                   13,
                   4,
                   53,
@@ -249,27 +239,27 @@
               "series": {
                 "positive": [
                   141,
-                  346,
-                  252,
-                  321,
-                  622,
-                  334,
-                  282
+                  345,
+                  251,
+                  318,
+                  619,
+                  330,
+                  271
                 ],
                 "negative": [
-                  96,
-                  83,
+                  95,
+                  82,
                   48,
                   6,
                   54,
-                  174,
+                  173,
                   10
                 ],
                 "neutral": [
                   40,
                   64,
                   16,
-                  1,
+                  0,
                   51,
                   26,
                   2
@@ -294,31 +284,31 @@
           ],
           "series": {
             "train": [
-              17.24,
-              30.38,
-              17.66,
-              20.3,
-              46.51,
-              33.52,
-              18.81
+              18.14,
+              31.99,
+              18.57,
+              21.32,
+              48.96,
+              35.08,
+              19.54
             ],
             "val": [
-              16.27,
-              27.73,
-              18.67,
-              19.9,
-              46.46,
-              35.98,
-              19.47
+              17.19,
+              29.27,
+              19.82,
+              20.93,
+              49.28,
+              37.6,
+              19.75
             ],
             "test": [
-              17.07,
-              30.38,
-              19.47,
-              20.21,
-              44.79,
-              32.9,
-              18.11
+              18.18,
+              32.35,
+              20.75,
+              21.34,
+              47.69,
+              34.85,
+              18.64
             ]
           },
           "y_label": "tỉ lệ % số review của split"
@@ -337,30 +327,30 @@
           ],
           "series": {
             "train": [
-              27.59,
-              35.63,
-              24.87,
-              9.26,
-              2.28,
+              27.29,
+              35.68,
+              25.04,
+              9.32,
+              2.29,
               0.34,
               0.04
             ],
             "val": [
-              29.73,
-              33.88,
-              24.48,
-              9.54,
-              1.85,
-              0.52,
+              29.39,
+              33.69,
+              24.79,
+              9.72,
+              1.88,
+              0.53,
               0.0
             ],
             "test": [
-              26.77,
-              35.7,
-              25.32,
-              9.38,
-              2.21,
-              0.53,
+              26.01,
+              36.15,
+              25.54,
+              9.44,
+              2.24,
+              0.54,
               0.08
             ]
           },
@@ -390,67 +380,67 @@
           ],
           "z": [
             [
-              2779,
-              1767,
-              665,
-              638,
-              1727,
-              775,
+              2769,
+              1762,
+              661,
+              636,
+              1723,
+              773,
               340
             ],
             [
-              1767,
-              4887,
-              1366,
-              1195,
-              2947,
-              1347,
-              662
+              1762,
+              4873,
+              1360,
+              1193,
+              2942,
+              1345,
+              661
             ],
             [
-              665,
-              1366,
-              2911,
-              689,
-              1747,
-              904,
+              661,
+              1360,
+              2902,
+              686,
+              1745,
+              903,
               455
             ],
             [
-              638,
-              1195,
-              689,
-              3286,
-              1683,
-              1125,
-              507
+              636,
+              1193,
+              686,
+              3266,
+              1678,
+              1122,
+              502
             ],
             [
-              1727,
-              2947,
-              1747,
-              1683,
-              7519,
-              2416,
-              1233
+              1723,
+              2942,
+              1745,
+              1678,
+              7498,
+              2415,
+              1231
             ],
             [
-              775,
-              1347,
-              904,
-              1125,
-              2416,
-              5469,
-              1771
+              773,
+              1345,
+              903,
+              1122,
+              2415,
+              5417,
+              1750
             ],
             [
               340,
-              662,
+              661,
               455,
-              507,
-              1233,
-              1771,
-              3052
+              502,
+              1231,
+              1750,
+              2988
             ]
           ],
           "height": 460
@@ -458,10 +448,10 @@
       ],
       "tables": [],
       "files": [
-        "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_distribution.csv",
-        "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_per_review.csv",
-        "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_cooccurrence.csv",
-        "data/raw/cosmetics/v0.1.0/eda/02_label_aspect_invalid.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/02_label_aspect_distribution.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/02_label_aspect_per_review.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/02_label_aspect_cooccurrence.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/02_label_aspect_invalid.csv"
       ]
     },
     {
@@ -474,11 +464,11 @@
         },
         {
           "label": "Emoji khác nhau (3 split)",
-          "value": 342
+          "value": 332
         },
         {
           "label": "Từ bị gắn cờ xuất hiện từ 3 lần (3 split)",
-          "value": 384
+          "value": 345
         }
       ],
       "charts": [
@@ -492,42 +482,42 @@
             "👍",
             "😘",
             "😊",
-            "💯",
             "👌",
-            "♥",
             "😁",
+            "♥",
+            "💯",
             "😂",
             "👍🏻",
             "🤣",
             "🥲",
             "🤩",
-            "💕",
             "😚",
             "☺",
             "🤗",
+            "😗",
             "😀"
           ],
           "y": [
-            2279,
-            1978,
-            1385,
-            780,
-            558,
-            291,
-            291,
+            2172,
+            1697,
+            1209,
+            756,
+            556,
+            287,
             271,
-            256,
-            245,
-            211,
-            204,
-            184,
-            176,
-            173,
-            169,
-            161,
-            144,
-            130,
-            127
+            238,
+            237,
+            217,
+            205,
+            186,
+            182,
+            175,
+            165,
+            154,
+            138,
+            129,
+            118,
+            112
           ],
           "x_label": "emoji",
           "y_label": "số lần xuất hiện",
@@ -554,59 +544,59 @@
             ],
             [
               "trùng chính xác",
-              184,
-              22,
-              15,
-              221
+              0,
+              0,
+              0,
+              0
             ],
             [
               "trùng theo khoá so trùng",
-              242,
-              29,
-              20,
-              291
+              0,
+              0,
+              0,
+              0
             ],
             [
               "ứng viên gibberish",
-              388,
-              39,
-              60,
-              487
+              0,
+              0,
+              0,
+              0
             ],
             [
               "có emoji",
-              1931,
-              233,
-              222,
-              2386
+              1882,
+              226,
+              217,
+              2325
             ],
             [
               "chỉ emoji / dấu câu",
-              25,
-              3,
-              3,
-              31
-            ],
-            [
-              "có ký tự lặp",
-              3604,
-              452,
-              461,
-              4517
-            ],
-            [
-              "có dấu hiệu quảng cáo",
-              59,
-              11,
-              8,
-              78
-            ],
-            [
-              "có dấu hiệu code / HTML",
               1,
               0,
               0,
               1
+            ],
+            [
+              "có ký tự lặp",
+              3337,
+              416,
+              426,
+              4179
+            ],
+            [
+              "có dấu hiệu quảng cáo",
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              "có dấu hiệu code / HTML",
+              0,
+              0,
+              0,
+              0
             ]
           ],
           "num_columns": [
@@ -626,27 +616,27 @@
           "rows": [
             [
               "k",
-              1498,
+              1496,
               "một ký tự phụ âm + không có nguyên âm"
             ],
             [
               "mn",
-              916,
+              914,
               "không có nguyên âm"
             ],
             [
               "đc",
-              730,
+              726,
               "không có nguyên âm"
             ],
             [
               "mng",
-              373,
+              365,
               "không có nguyên âm"
             ],
             [
               "sp",
-              365,
+              362,
               "không có nguyên âm"
             ],
             [
@@ -656,12 +646,7 @@
             ],
             [
               "r",
-              303,
-              "một ký tự phụ âm + không có nguyên âm"
-            ],
-            [
-              "n",
-              299,
+              298,
               "một ký tự phụ âm + không có nguyên âm"
             ],
             [
@@ -670,24 +655,9 @@
               "không có nguyên âm"
             ],
             [
-              "ng",
-              249,
-              "không có nguyên âm"
-            ],
-            [
               "cx",
               188,
               "không có nguyên âm"
-            ],
-            [
-              "m",
-              181,
-              "một ký tự phụ âm + không có nguyên âm"
-            ],
-            [
-              "t",
-              170,
-              "một ký tự phụ âm + không có nguyên âm"
             ],
             [
               "mk",
@@ -696,33 +666,53 @@
             ],
             [
               "dc",
-              149,
+              148,
               "không có nguyên âm"
             ],
             [
               "j",
-              122,
+              121,
               "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z) + một ký tự phụ âm + không có nguyên âm"
             ],
             [
-              "c",
-              111,
+              "n",
+              115,
               "một ký tự phụ âm + không có nguyên âm"
             ],
             [
               "v",
-              108,
+              107,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "m",
+              107,
               "một ký tự phụ âm + không có nguyên âm"
             ],
             [
               "ncl",
-              99,
+              98,
               "không có nguyên âm"
             ],
             [
               "review",
-              96,
+              95,
               "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)"
+            ],
+            [
+              "trc",
+              82,
+              "không có nguyên âm"
+            ],
+            [
+              "d",
+              76,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "nhg",
+              75,
+              "không có nguyên âm"
             ]
           ],
           "num_columns": [
@@ -739,28 +729,28 @@
           "rows": [
             [
               "chữ không phải chữ Latin (ký tự trang trí / tiếng nước ngoài)",
-              217,
-              277
+              161,
+              218
             ],
             [
               "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)",
-              2736,
-              3707
+              2056,
+              2967
             ],
             [
               "trộn chữ và số",
-              584,
-              1354
+              454,
+              1117
             ],
             [
               "một ký tự phụ âm",
               20,
-              3266
+              2748
             ],
             [
               "không có nguyên âm",
-              1768,
-              11547
+              1362,
+              9961
             ]
           ],
           "num_columns": [
@@ -778,82 +768,28 @@
           ],
           "rows": [
             [
-              "ứng viên gibberish",
-              "train",
-              554,
-              "hhshshsbdbdbdhjdjdjdndndndndndndbdbdbdbdbdbdbdbdbdbdbd"
-            ],
-            [
-              "ứng viên gibberish",
-              "val",
-              502,
-              "Dvdvvsg sgnsgnagbwgbafbwynafbwgbwsgnsgnwgbafbwgnawgnwt"
-            ],
-            [
-              "ứng viên gibberish",
-              "test",
-              484,
-              "Uuhuhhuuuuuuuuuuuuuuu"
-            ],
-            [
               "chỉ emoji / dấu câu",
               "train",
-              1321,
-              "👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️"
-            ],
-            [
-              "chỉ emoji / dấu câu",
-              "val",
-              374,
-              "😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍"
-            ],
-            [
-              "chỉ emoji / dấu câu",
-              "test",
-              965,
-              ".................................................."
+              239,
+              "👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌👌"
             ],
             [
               "có ký tự lặp",
               "train",
-              4658,
-              "Ưngggg Nhà tài trợ không chỉ quản lý về hình ảnh thương hiệu tại sự kiện mà còn liên quan đến vấn đề pháp lý, độc quyền "
+              475,
+              "Săn sale nên giá khá ổn nhưng bôi hơi bị khô môi, k đc mịn lắm mnnnnnnnnnmnnnnnnnnnnnnnnnmnnmnmmmmmmmmmmmmkmmmmmmmm"
             ],
             [
               "có ký tự lặp",
               "val",
-              429,
-              "Đẹp lên màu chuẩn thích thật sự ákkk. Giao nhanh đóng giis cẩn thận❤️❤️❤️"
+              416,
+              "Màu son bôi cũng được có makeup thì đẹp lém ................"
             ],
             [
               "có ký tự lặp",
               "test",
-              986,
-              "Hàng về rất nhanh sản phẩm ok 👌👌👌👌👌 nếu ưng ý thì sẽ ủng hộ shop dài dài 👍👍👍👍👍👍👍👍👍👍👏👏👏👏👏👏👏👏👏👍👍👍👏👍👍👏👏👍👍"
-            ],
-            [
-              "có dấu hiệu quảng cáo",
-              "train",
-              3460,
-              "Mình thích màu này cực luôn ấy. Chưa thấy dòng nào có màu giống vậy. Màu kiểu cam cam nâu nâu í mọi người. Không cam quá"
-            ],
-            [
-              "có dấu hiệu quảng cáo",
-              "val",
-              83,
-              "Nốt hôm nay! TRÚNG ĐT Samsung Galaxy S20 (trị giá: 17.490.000đ), cơ hội cho TB may mắn soạn Q5 gửi 999. NHẬN NGAY 700MB/"
-            ],
-            [
-              "có dấu hiệu quảng cáo",
-              "test",
-              84,
-              "[TB] CHÚC MỪNG NĂM MỚI 2022. VIETTEL TẶNG 20% GIÁ TRỊ TẤT CẢ THẺ NẠP trong ngày 01/01. Tiền KM sử dụng nội mạng đến "
-            ],
-            [
-              "có dấu hiệu code / HTML",
-              "train",
-              10734,
-              "Bộ 3 nam thần của &quot;Phố trong làng&quot; ngoài đời: Người từng là &quot;bạn trai&quot; Minh Hằng, người có vợ vừa nổ"
+              760,
+              "Công dụng: dùng trang điểm khi ra ngoài , đi chơi...\nKết cấu: thiết kế vỏ hộp , hộp son , mịn\nĐộ bền màu: màu tươi đẹp ,"
             ]
           ],
           "num_columns": [
@@ -868,11 +804,11 @@
         }
       ],
       "files": [
-        "data/raw/cosmetics/v0.1.0/eda/03_quality_metrics.csv",
-        "data/raw/cosmetics/v0.1.0/eda/03_quality_teencode_candidates.csv",
-        "data/raw/cosmetics/v0.1.0/eda/03_quality_teencode_common_flagged.csv",
-        "data/raw/cosmetics/v0.1.0/eda/03_quality_emoji.csv",
-        "data/raw/cosmetics/v0.1.0/eda/03_quality_examples.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_metrics.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_teencode_candidates.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_teencode_common_flagged.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_emoji.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/03_quality_examples.csv"
       ]
     },
     {
@@ -881,15 +817,15 @@
       "cards": [
         {
           "label": "Số từ vựng (số từ khác nhau) - train / val / test",
-          "value": "10365 / 2867 / 2984"
+          "value": "9308 / 2602 / 2709"
         },
         {
           "label": "Số từ / review (đếm từ, không phải subword) - train / val / test",
-          "value": "21.05 / 20.89 / 21.31"
+          "value": "21.5 / 21.03 / 21.82"
         },
         {
           "label": "Số dòng không có chữ cái (3 split)",
-          "value": "36"
+          "value": "4"
         }
       ],
       "charts": [
@@ -906,49 +842,49 @@
             "mua",
             "lắm",
             "nhanh",
-            "gói",
-            "xinh",
             "shop",
+            "xinh",
+            "gói",
             "hơi",
             "môi",
             "nha",
             "đóng",
             "giá",
-            "sản",
             "mùi",
             "thơm",
-            "phẩm",
             "lâu",
             "luôn",
             "mịn",
+            "sản",
+            "phẩm",
             "ạ"
           ],
           "y": [
-            11840,
-            10609,
-            7366,
-            6820,
-            5043,
-            4857,
-            4516,
-            4149,
-            3395,
-            3002,
-            2991,
-            2982,
-            2894,
-            2719,
-            2654,
-            2587,
-            2363,
-            2293,
-            2260,
-            2255,
-            2214,
-            2153,
-            2107,
-            2073,
-            2025
+            11807,
+            10599,
+            7262,
+            6707,
+            4996,
+            4836,
+            4483,
+            4140,
+            3379,
+            2963,
+            2938,
+            2927,
+            2886,
+            2716,
+            2621,
+            2532,
+            2343,
+            2259,
+            2247,
+            2145,
+            2097,
+            2071,
+            2060,
+            2028,
+            2014
           ],
           "x_label": "từ",
           "y_label": "số lần xuất hiện",
@@ -966,19 +902,19 @@
           ],
           "series": {
             "Có dấu tiếng Việt": [
-              12467,
-              1565,
-              1556
+              12181,
+              1515,
+              1504
             ],
             "Viết không dấu": [
-              485,
-              54,
-              64
+              117,
+              9,
+              14
             ],
             "Không có chữ cái (emoji / số / ký hiệu)": [
-              29,
               4,
-              3
+              0,
+              0
             ]
           },
           "y_label": "tỉ lệ % số review",
@@ -996,38 +932,38 @@
           "rows": [
             [
               "stayingpower",
-              2779,
-              "bền màu (973), độ bền (934), kết cấu (820), công dụng (788), giao hàng (488)"
+              2769,
+              "bền màu (971), độ bền (932), kết cấu (818), công dụng (786), giao hàng (487)"
             ],
             [
               "texture",
-              4887,
-              "chất son (1713), bền màu (863), kết cấu (851), độ bền (844), giao hàng (811)"
+              4873,
+              "chất son (1713), bền màu (861), kết cấu (849), độ bền (842), giao hàng (811)"
             ],
             [
               "smell",
-              2911,
-              "mùi thơm (636), giao hàng (555), chất son (518), màu đẹp (430), có mùi (413)"
+              2902,
+              "mùi thơm (634), giao hàng (555), chất son (518), màu đẹp (430), có mùi (414)"
             ],
             [
               "price",
-              3286,
-              "giao hàng (652), chất lượng (577), với giá (540), nên mua (512), chất son (447)"
+              3266,
+              "giao hàng (650), chất lượng (569), với giá (538), nên mua (511), chất son (446)"
             ],
             [
               "colour",
-              7519,
-              "màu đẹp (1621), giao hàng (1484), màu son (1210), lên màu (1195), chất son (1102)"
+              7498,
+              "màu đẹp (1616), giao hàng (1486), màu son (1212), lên màu (1194), chất son (1102)"
             ],
             [
               "shipping",
-              5469,
-              "giao hàng (3351), hàng nhanh (1676), đóng gói (1437), hơi lâu (1005), sản phẩm (996)"
+              5417,
+              "giao hàng (3341), hàng nhanh (1666), đóng gói (1420), hơi lâu (1003), sản phẩm (946)"
             ],
             [
               "packing",
-              3052,
-              "đóng gói (2336), giao hàng (1240), cẩn thận (1229), sản phẩm (931), hàng nhanh (759)"
+              2988,
+              "đóng gói (2284), giao hàng (1235), cẩn thận (1222), sản phẩm (860), hàng nhanh (754)"
             ]
           ],
           "num_columns": [
@@ -1039,11 +975,11 @@
         }
       ],
       "files": [
-        "data/raw/cosmetics/v0.1.0/eda/04_text_vocabulary.csv",
-        "data/raw/cosmetics/v0.1.0/eda/04_text_top_words.csv",
-        "data/raw/cosmetics/v0.1.0/eda/04_text_bigrams_by_aspect.csv",
-        "data/raw/cosmetics/v0.1.0/eda/04_text_punctuation.csv",
-        "data/raw/cosmetics/v0.1.0/eda/04_text_accent.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_vocabulary.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_top_words.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_bigrams_by_aspect.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_punctuation.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_accent.csv"
       ]
     },
     {
@@ -1052,19 +988,19 @@
       "cards": [
         {
           "label": "Số dòng val/test trùng train - chính xác",
-          "value": "68"
+          "value": "0"
         },
         {
           "label": "Số dòng val/test trùng train - theo khoá so trùng",
-          "value": "91"
+          "value": "0"
         },
         {
           "label": "Số review bị xung đột nhãn giữa các split",
-          "value": "4"
+          "value": "0"
         },
         {
           "label": "Số ô nhãn (review × khía cạnh) bị xung đột",
-          "value": "4"
+          "value": "0"
         }
       ],
       "charts": [
@@ -1078,14 +1014,14 @@
           ],
           "series": {
             "trùng chính xác": [
-              18,
-              18,
-              5
+              0,
+              0,
+              0
             ],
             "trùng theo khoá so trùng": [
-              23,
-              22,
-              9
+              0,
+              0,
+              1
             ]
           },
           "x_label": "cặp split",
@@ -1094,7 +1030,7 @@
       ],
       "tables": [
         {
-          "title": "Xung đột nhãn giữa các split - toàn bộ 4 ô nhãn (review × khía cạnh) bị xung đột",
+          "title": "Xung đột nhãn giữa các split - toàn bộ 0 ô nhãn (review × khía cạnh) bị xung đột",
           "columns": [
             "văn bản",
             "khía cạnh",
@@ -1102,36 +1038,7 @@
             "val",
             "test"
           ],
-          "rows": [
-            [
-              "Chất lượng sản phẩm tuyệt vời\nĐóng gói sản phẩm rất đẹp và chắc chắn",
-              "packing",
-              "(không nhắc tới) / positive",
-              "positive",
-              "positive"
-            ],
-            [
-              "Sản phẩm rất xinh đẹp tuyệt vời, tôi không thể trông đợi gì hơn. Cảm ơn nhà cung cấp, nhà sản xuất, cảm ơn người bán hàng, cảm ơn sàn thương mại điện tử, cảm ơn người vận chuyển để tôi có cơ hội dùng sản phẩm tốt như thế này.",
-              "shipping",
-              "(không nhắc tới) / positive",
-              "(không nhắc tới) / positive",
-              "(không nhắc tới)"
-            ],
-            [
-              "• Sản phẩm rất xinh đẹp tuyệt vời, tôi không thể trông đợi gì hơn. Cảm ơn nhà cung cấp, nhà sản xuất, cảm ơn người bán hàng, cảm ơn sàn thương mại điện tử, cảm ơn người vận chuyển để tôi có cơ hội dùng sản phẩm tốt như thế này.\n\n• Hàng đóng gói rất đẹp.",
-              "shipping",
-              "(không nhắc tới)",
-              "(không nhắc tới) / positive",
-              "-"
-            ],
-            [
-              "Hàng đóng gói rất đẹp. Quả nhiên người bán đã gửi gắm rất nhiều tâm tư và tình cảm trong lúc gói hàng. Hộp không có dấu hiệu bị móp, chứng tỏ bộ phận vận chuyển đã nâng như nâng trứng, hứng như hứng hoa. Xin nghiêng mình cảm ơn vì tất cả.",
-              "shipping",
-              "(không nhắc tới) / positive",
-              "(không nhắc tới) / positive",
-              "(không nhắc tới)"
-            ]
-          ],
+          "rows": [],
           "narrow_columns": [
             1,
             2,
@@ -1144,10 +1051,10 @@
         }
       ],
       "files": [
-        "data/raw/cosmetics/v0.1.0/eda/05_split_duplicates.csv",
-        "data/raw/cosmetics/v0.1.0/eda/05_split_label_conflict.csv",
-        "data/raw/cosmetics/v0.1.0/eda/05_split_label_distribution.csv",
-        "data/raw/cosmetics/v0.1.0/eda/05_split_duplicate_totals.csv"
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_duplicates.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_label_conflict.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_label_distribution.csv",
+        "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_duplicate_totals.csv"
       ]
     }
   ]

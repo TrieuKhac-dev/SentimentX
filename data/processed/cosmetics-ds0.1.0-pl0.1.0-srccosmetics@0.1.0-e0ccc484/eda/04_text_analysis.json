@@ -10,15 +10,15 @@
     "cards": [
       {
         "label": "Số từ vựng (số từ khác nhau) - train / val / test",
-        "value": "10365 / 2867 / 2984"
+        "value": "9308 / 2602 / 2709"
       },
       {
         "label": "Số từ / review (đếm từ, không phải subword) - train / val / test",
-        "value": "21.05 / 20.89 / 21.31"
+        "value": "21.5 / 21.03 / 21.82"
       },
       {
         "label": "Số dòng không có chữ cái (3 split)",
-        "value": "36"
+        "value": "4"
       }
     ],
     "charts": [
@@ -35,49 +35,49 @@
           "mua",
           "lắm",
           "nhanh",
-          "gói",
-          "xinh",
           "shop",
+          "xinh",
+          "gói",
           "hơi",
           "môi",
           "nha",
           "đóng",
           "giá",
-          "sản",
           "mùi",
           "thơm",
-          "phẩm",
           "lâu",
           "luôn",
           "mịn",
+          "sản",
+          "phẩm",
           "ạ"
         ],
         "y": [
-          11840,
-          10609,
-          7366,
-          6820,
-          5043,
-          4857,
-          4516,
-          4149,
-          3395,
-          3002,
-          2991,
-          2982,
-          2894,
-          2719,
-          2654,
-          2587,
-          2363,
-          2293,
-          2260,
-          2255,
-          2214,
-          2153,
-          2107,
-          2073,
-          2025
+          11807,
+          10599,
+          7262,
+          6707,
+          4996,
+          4836,
+          4483,
+          4140,
+          3379,
+          2963,
+          2938,
+          2927,
+          2886,
+          2716,
+          2621,
+          2532,
+          2343,
+          2259,
+          2247,
+          2145,
+          2097,
+          2071,
+          2060,
+          2028,
+          2014
         ],
         "x_label": "từ",
         "y_label": "số lần xuất hiện",
@@ -95,19 +95,19 @@
         ],
         "series": {
           "Có dấu tiếng Việt": [
-            12467,
-            1565,
-            1556
+            12181,
+            1515,
+            1504
           ],
           "Viết không dấu": [
-            485,
-            54,
-            64
+            117,
+            9,
+            14
           ],
           "Không có chữ cái (emoji / số / ký hiệu)": [
-            29,
             4,
-            3
+            0,
+            0
           ]
         },
         "y_label": "tỉ lệ % số review",
@@ -125,38 +125,38 @@
         "rows": [
           [
             "stayingpower",
-            2779,
-            "bền màu (973), độ bền (934), kết cấu (820), công dụng (788), giao hàng (488)"
+            2769,
+            "bền màu (971), độ bền (932), kết cấu (818), công dụng (786), giao hàng (487)"
           ],
           [
             "texture",
-            4887,
-            "chất son (1713), bền màu (863), kết cấu (851), độ bền (844), giao hàng (811)"
+            4873,
+            "chất son (1713), bền màu (861), kết cấu (849), độ bền (842), giao hàng (811)"
           ],
           [
             "smell",
-            2911,
-            "mùi thơm (636), giao hàng (555), chất son (518), màu đẹp (430), có mùi (413)"
+            2902,
+            "mùi thơm (634), giao hàng (555), chất son (518), màu đẹp (430), có mùi (414)"
           ],
           [
             "price",
-            3286,
-            "giao hàng (652), chất lượng (577), với giá (540), nên mua (512), chất son (447)"
+            3266,
+            "giao hàng (650), chất lượng (569), với giá (538), nên mua (511), chất son (446)"
           ],
           [
             "colour",
-            7519,
-            "màu đẹp (1621), giao hàng (1484), màu son (1210), lên màu (1195), chất son (1102)"
+            7498,
+            "màu đẹp (1616), giao hàng (1486), màu son (1212), lên màu (1194), chất son (1102)"
           ],
           [
             "shipping",
-            5469,
-            "giao hàng (3351), hàng nhanh (1676), đóng gói (1437), hơi lâu (1005), sản phẩm (996)"
+            5417,
+            "giao hàng (3341), hàng nhanh (1666), đóng gói (1420), hơi lâu (1003), sản phẩm (946)"
           ],
           [
             "packing",
-            3052,
-            "đóng gói (2336), giao hàng (1240), cẩn thận (1229), sản phẩm (931), hàng nhanh (759)"
+            2988,
+            "đóng gói (2284), giao hàng (1235), cẩn thận (1222), sản phẩm (860), hàng nhanh (754)"
           ]
         ],
         "num_columns": [
@@ -168,11 +168,11 @@
       }
     ],
     "files": [
-      "data/raw/cosmetics/v0.1.0/eda/04_text_vocabulary.csv",
-      "data/raw/cosmetics/v0.1.0/eda/04_text_top_words.csv",
-      "data/raw/cosmetics/v0.1.0/eda/04_text_bigrams_by_aspect.csv",
-      "data/raw/cosmetics/v0.1.0/eda/04_text_punctuation.csv",
-      "data/raw/cosmetics/v0.1.0/eda/04_text_accent.csv"
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_vocabulary.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_top_words.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_bigrams_by_aspect.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_punctuation.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/04_text_accent.csv"
     ]
   }
 }

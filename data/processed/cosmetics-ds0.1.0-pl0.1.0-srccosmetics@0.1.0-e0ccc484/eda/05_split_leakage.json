@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+  "generated_at": "25/09/2026 01:25",
+  "section": {
+    "id": "split_leakage",
+    "title": "EDA 05 - Quan hệ giữa các split và rò rỉ dữ liệu",
+    "cards": [
+      {
+        "label": "Số dòng val/test trùng train - chính xác",
+        "value": "0"
+      },
+      {
+        "label": "Số dòng val/test trùng train - theo khoá so trùng",
+        "value": "0"
+      },
+      {
+        "label": "Số review bị xung đột nhãn giữa các split",
+        "value": "0"
+      },
+      {
+        "label": "Số ô nhãn (review × khía cạnh) bị xung đột",
+        "value": "0"
+      }
+    ],
+    "charts": [
+      {
+        "title": "Số văn bản xuất hiện ở CẢ HAI split của cặp (một văn bản có thể bị đếm ở nhiều cặp)",
+        "kind": "grouped_bar",
+        "x": [
+          "train <-> val",
+          "train <-> test",
+          "val <-> test"
+        ],
+        "series": {
+          "trùng chính xác": [
+            0,
+            0,
+            0
+          ],
+          "trùng theo khoá so trùng": [
+            0,
+            0,
+            1
+          ]
+        },
+        "x_label": "cặp split",
+        "y_label": "số văn bản"
+      }
+    ],
+    "tables": [
+      {
+        "title": "Xung đột nhãn giữa các split - toàn bộ 0 ô nhãn (review × khía cạnh) bị xung đột",
+        "columns": [
+          "văn bản",
+          "khía cạnh",
+          "train",
+          "val",
+          "test"
+        ],
+        "rows": [],
+        "narrow_columns": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "pre_wrap_columns": [
+          0
+        ]
+      }
+    ],
+    "files": [
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_duplicates.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_label_conflict.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_label_distribution.csv",
+      "data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/eda/05_split_duplicate_totals.csv"
+    ]
+  }
+}

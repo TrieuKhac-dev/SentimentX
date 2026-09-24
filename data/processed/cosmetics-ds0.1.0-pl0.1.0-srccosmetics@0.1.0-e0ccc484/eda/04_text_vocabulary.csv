@@ -1,0 +1,4 @@
+﻿split,tệp gốc,số review,tổng số token,token trung bình / review,số từ vựng (token duy nhất),từ vựng riêng của split
+train,train.csv,12302,264475,21.5,9308,6654
+val,val.csv,1524,32050,21.03,2602,620
+test,test.csv,1518,33128,21.82,2709,652

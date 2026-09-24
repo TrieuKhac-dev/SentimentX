@@ -124,6 +124,7 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P6 T3 | `ci: add github actions workflow for experiment branch` |
 | P6 | `fix(scripts): the documented --title now fills notes` |
 | P6 T5 | `docs(config): prompt paths resolve from the experiment folder first` |
+| P7 T2 | `feat(data): regenerate eda and pipeline reports` |
 
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 
