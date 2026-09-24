@@ -6,6 +6,10 @@
 
 ## Các file env
 
+Không bắt buộc với một lượt chạy trên Colab: ô bootstrap tự đặt `SENTIMENTX_DATA_ROOT` và
+`SENTIMENTX_RESULTS_ROOT` từ thư mục nhóm tìm được trên Drive (`docs/00_workflow/07_colab.md`). File
+env chỉ cần khi muốn chỉ đích danh thư mục, ghi đè đường dẫn, hoặc giữ token trong file.
+
 | File                 | Commit    | Dùng cho                  | Nội dung                   |
 | -------------------- | --------- | ------------------------- | -------------------------- |
 | `.env.example`       | có        | máy cá nhân, bản mẫu      | tên biến, giá trị để trống |

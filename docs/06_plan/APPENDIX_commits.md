@@ -113,6 +113,9 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P7 T1 | `chore(data): rebuild the dataset under the corrected version id` |
 | P6 T4 | `chore(deps): add ci colab and base requirements` |
 | P6 T5 | `docs(workflow): add the colab runbook` |
+| P6 T4 | `feat(runtime): find the group's Drive folder by its marker, not its name` |
+| P5 | `feat(notebook): do the whole Colab setup in the bootstrap cell` |
+| P6 T5 | `docs(workflow): the colab runbook is now three steps` |
 
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 

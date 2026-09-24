@@ -56,9 +56,14 @@ xong T1, T2, T4. Còn T3, T5, T6, T7. (T5 nhận thêm một file ngoài danh s�
       nên CI cài một file rất ngắn, và cũng không được cài nặng hơn thế. File Colab KHÔNG ghim
       `torch` vì Colab đã có bản khớp CUDA.
       Kèm theo: `docs/00_workflow/07_colab.md` - runbook chạy trên Colab, viết ra từ hai lần chạy
-      thật (mục 2 Drive cần gì, mục 4 thứ tự bắt buộc, mục 7 bảng tra lỗi). Người nhận notebook
-      không phải hỏi lại, và tài liệu ghi rõ VÌ SAO thứ tự đó chịu lực (mục 8) để lần sau không ai
-      "dọn dẹp cho gọn" rồi làm hỏng.
+      thật (mục 2 Drive cần gì, mục 4 ba bước của người chạy, mục 7 bảng tra lỗi).
+      Bản đầu của runbook liệt kê một chuỗi thao tác tay (mount, khai tên thư mục, tạo `.env.colab`,
+      nén rồi giải nén dữ liệu, cài gói) - tức là tôi viết lại việc đáng lẽ notebook phải tự làm.
+      Người dùng phản hồi đúng: thiết kế là "copy thư mục vào Drive rồi bấm Run all". Nên đã sửa tận
+      gốc: `runtime.drive_dir()` tìm thư mục nhóm BẰNG FILE ĐÁNH DẤU chứ không cần biết tên (quét một
+      cấp trong `MyDrive`/`Shareddrives`, ưu tiên thư mục có `data/`), và ô bootstrap tự mount Drive,
+      tự đặt hai gốc, tự cài gói còn thiếu. Runbook còn ba bước: copy thư mục + notebook, mở notebook,
+      bấm Run all (và bấm Allow khi Colab hỏi quyền Drive - việc duy nhất Google không cho tự động).
 - [ ] T5. Docs nhóm quy trình: `01_flow`, `02_rules`, `03_ci`, `04_terms`, `05_git_commits`, `06_conventions`.
       -> `docs(workflow): add workflow rules ci terms commits and conventions`
 - [ ] T6. Docs tham chiếu cấu hình: `05_config/01..07`.
