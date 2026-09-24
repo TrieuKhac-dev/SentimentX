@@ -57,6 +57,10 @@ tiết ở T8. Không còn mục nào phải chờ P7.
         - lần 3 thêm `--new`: `mode=NEW`, `[RUN] stashed=.../predictions/_bo-qua-2026-09-24-205105`
           (kết quả cũ được CHUYỂN sang thư mục con, không xoá), `resume = {mode: NEW, reused: 0,
           new: 4}`, mã thoát 0.
+      Thư mục bằng chứng (file nhỏ nên để trong git, cùng lý do `.gitignore` giữ chúng cho thí
+      nghiệm): `data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/`
+      `prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/` - đọc `run.log` trước, rồi
+      `metrics.json` (khoá `resume`), rồi `predictions/_bo-qua-*/part_0001.jsonl` và khối hiện tại.
 - [x] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
       -> `test(evaluation): add metric tests`
       Kiểm từng cam kết một: độ chính xác của bài toán nhắc tới (cả hai lớp), macro/micro và khớp
