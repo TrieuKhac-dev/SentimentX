@@ -31,12 +31,12 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
       phiên bản dataset, và chặn `eval` trỏ vào `train`. Kèm theo: hợp nhất báo LỖI khi hai lớp
       dùng cùng tên khoá với hai kiểu khác nhau (đã gặp thật: `checkpoint`), và khối `task` của
       lớp model được áp SAU tất cả các lớp vì nó là ràng buộc của model.
-- [ ] T5. Sinh danh sách `requires` từ dataset version, mã phiên bản và `roles`; cộng `requires_extra`.
-      -> `feat(experiments): derive required paths`
-- [ ] T6. Guard trùng: so `(config_sha256, mã, exp_id)` với mọi `run_meta.json` đã có.
-      -> `feat(experiments): add duplicate guard`
-- [ ] T7. Test cho thứ tự hợp nhất, bảng ghi đè và các lỗi kiểm tra.
-      -> `test(experiments): cover merge overrides and validation`
+- [x] T5. Sinh `requires` từ `data.roles`, mã phiên bản dữ liệu, các file prompt và `requires_extra`;
+      kèm `check_requires` để notebook kiểm TRƯỚC khi nạp model. (Chung commit với T6 vì cùng file.)
+- [x] T6. Guard trùng: `fingerprint()` = (config_sha256, mã phiên bản dữ liệu, exp_id);
+      `existing_runs()` quét mọi `run_meta.json` để biết lần chạy này đã có chưa.
+- [x] T7. Test cho thứ tự hợp nhất, nguồn từng khoá, bảng ghi đè, vân tay cấu hình, các lỗi của
+      `check()`, `requires`/`check_requires`, và guard trùng (`tests/test_experiments.py`, 32 test).
 
 ## 4. Điều kiện hoàn thành (DoD)
 

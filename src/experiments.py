@@ -453,3 +453,124 @@ def _splits_of(data, dataset, dataset_cfg):
             dataset, data.get("version")).get("splits") or {}
     except dataset_module.DatasetError as exc:
         raise ExperimentError("Không đọc được file phiên bản dataset: {}".format(exc))
+
+
+# ---
+# Đầu vào mà lần chạy PHẢI có
+# ---
+
+
+def requires(result, version_id):
+    """Danh sách đường dẫn mà lần chạy cần: [{"path": Path, "display": str, "role": str}, ...].
+
+    Sinh từ: file dữ liệu của từng vai trong `data.roles`, bảng mã nhãn của phiên bản dữ liệu,
+    các file prompt, rồi cộng `requires_extra` của thí nghiệm.
+
+    Vì sao cần danh sách này: chạy trên Colab thì dữ liệu nằm trên Drive, mà thiếu một file thì
+    lỗi hiện ra rất muộn - sau khi đã tải model. Notebook kiểm danh sách này TRƯỚC khi nạp model;
+    thiếu gì thì ghi vào `errors.json` mục `requires` (xem docs/00_workflow/01_flow.md).
+
+    `display` là đường dẫn để ghi vào file kết quả: tương đối so với gốc repo khi file nằm trong
+    repo, vì ghi đường dẫn tuyệt đối của máy cá nhân vào kết quả là thứ không tra cứu được.
+    """
+    config = result["config"] or {}
+    data = config.get("data") or {}
+    processed = paths.processed(version_id)
+    rows = []
+
+    for role in sorted(data.get("roles") or {}):
+        name = "{}".format(data["roles"][role])
+        rows.append(_requirement(processed / "{}.csv".format(name),
+                                 "data.roles.{}".format(role)))
+    rows.append(_requirement(processed / paths.pattern("label_map"), "label_map"))
+
+    for key in ("prompt", "examples", "system_prompt"):
+        if config.get(key):
+            rows.append(_requirement(resolve_file(result, config[key]), key))
+
+    for index, extra in enumerate(config.get("requires_extra") or [], start=1):
+        rows.append(_requirement(paths.root() / str(extra) if not Path(str(extra)).is_absolute()
+                                 else Path(str(extra)), "requires_extra[{}]".format(index)))
+    return rows
+
+
+def _requirement(path, role):
+    return {"path": path, "display": utils.rel(path), "role": role}
+
+
+def check_requires(result, version_id):
+    """Kiểm các đường dẫn trong `requires` có thật. Trả về danh sách còn thiếu (rỗng là đủ)."""
+    missing = [row for row in requires(result, version_id) if not row["path"].exists()]
+    if missing:
+        raise ExperimentError(
+            "Thiếu {} đường dẫn mà thí nghiệm cần:\n  - {}".format(
+                len(missing), "\n  - ".join(
+                    "{} ({})".format(row["display"], row["role"]) for row in missing)))
+    return []
+
+
+# ---
+# Chống chạy trùng
+# ---
+
+
+def fingerprint(result, version_id):
+    """Bộ ba quyết định một lần chạy có TRÙNG với lần đã chạy hay không.
+
+    `config_sha256` (cấu hình đã hợp nhất + văn bản prompt), mã phiên bản dữ liệu, và `exp_id`.
+    Đây cũng đúng là ba giá trị đầu vào của phép kiểm resume (xem docs/00_workflow/02_rules.md).
+    """
+    return {
+        "config_sha256": config_sha256(result),
+        "ma": version_id,
+        "exp_id": result["exp_id"],
+    }
+
+
+def existing_runs(result, version_id, root=None):
+    """Các `run_meta.json` đã có CÙNG bộ ba của lần chạy này, sắp theo đường dẫn.
+
+    Vì sao cần: cùng cấu hình trên cùng dữ liệu nghĩa là CÙNG một thí nghiệm. Không kiểm thì chạy
+    lại sẽ đẻ ra hai thư mục kết quả gần giống nhau, và người đọc báo cáo không biết cái nào là
+    kết quả dùng để so. Notebook dùng danh sách này để quyết định: lần chạy cũ ĐÃ XONG thì dừng và
+    báo; CHƯA XONG thì resume (xem docs/06_plan/P4_logging_mlflow.md).
+
+    `root` để trống thì quét gốc kết quả (`SENTIMENTX_RESULTS_ROOT`, mặc định là `experiments/`).
+    """
+    want = fingerprint(result, version_id)
+    found = []
+    for path in sorted((root or paths.results_root()).rglob(paths.pattern("run_meta"))):
+        data = _read_json(path)
+        if not data:
+            continue
+        if (data.get("config_sha256") == want["config_sha256"]
+                and (data.get("data") or {}).get("ma") == want["ma"]
+                and data.get("exp_id") == want["exp_id"]):
+            found.append(path)
+    return found
+
+
+def describe_runs(paths_list):
+    """Vài dòng mô tả các lần chạy đã có, để in ra trước khi quyết định resume."""
+    if not paths_list:
+        return ["Chưa có lần chạy nào cùng cấu hình và cùng dữ liệu."]
+    lines = ["Đã có {} lần chạy cùng cấu hình và cùng dữ liệu:".format(len(paths_list))]
+    for path in paths_list:
+        data = _read_json(path)
+        lines.append("    {} (trạng thái: {}, lúc: {})".format(
+            utils.rel(path), data.get("status") or "không rõ",
+            ((data.get("time") or {}).get("started") or "không rõ")))
+    return lines
+
+
+def _read_json(path):
+    """Đọc JSON; file hỏng hoặc thiếu trả về {}.
+
+    Quét cả cây kết quả nên không được chết vì một file lỗi: một `run_meta.json` viết dở (do lần
+    chạy trước bị ngắt) không phải lí do để lần chạy mới không chạy được.
+    """
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            return json.load(handle) or {}
+    except (OSError, ValueError):
+        return {}
