@@ -21,6 +21,10 @@ KHÔNG HỢP NHẤT, VÀ CŨNG KHÔNG SỬA
 hình của thí nghiệm. Chúng được ghi vào `run_meta.files[]` kèm `role` (xem P4).
 """
 
+import hashlib
+import json
+from pathlib import Path
+
 import yaml
 
 from src import model_config, paths, utils
@@ -189,3 +193,116 @@ def _value(value):
     if isinstance(value, list):
         return "[{}]".format(", ".join(str(_value(item)) for item in value))
     return value
+
+
+# ---
+# Dấu vân tay của cấu hình
+# ---
+
+
+def config_sha256(result):
+    """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT và VĂN BẢN PROMPT ĐÃ HỢP NHẤT.
+
+    Vì sao băm cả văn bản prompt: prompt là một phần của thí nghiệm, mà nội dung nó nằm ở file
+    riêng chứ không nằm trong config hợp nhất. Không băm thì hai thí nghiệm khác prompt sẽ mang
+    cùng một dấu vân tay.
+
+    Ba giá trị quyết định resume (xem docs/00_workflow/02_rules.md): `config_sha256`, mã phiên
+    bản dữ liệu, và commit đã ghim. Hàm này tính giá trị thứ nhất.
+    """
+    digest = hashlib.sha256()
+    digest.update(b"config:")
+    digest.update(canonical_bytes(result["config"]))
+    digest.update(b"prompt:")
+    digest.update(prompt_merged(result).encode("utf-8"))
+    return digest.hexdigest()
+
+
+def canonical_bytes(config):
+    """Config đã chuẩn hoá, ở dạng bytes để băm. Chuẩn hoá như `canonical`."""
+    text = json.dumps(canonical(config), sort_keys=True, ensure_ascii=False,
+                      separators=(",", ":"), default=str)
+    return text.encode("utf-8")
+
+
+def canonical(config):
+    """Chuẩn hoá cấu hình để băm: khoá sắp xếp, danh sách coi là TẬP HỢP.
+
+    Vì sao phải chuẩn hoá: `config_sha256` dùng để biết hai lần chạy có cùng cấu hình hay
+    không. Nếu thứ tự khoá trong file hay thứ tự phần tử của `target_modules` cũng làm đổi dấu
+    vân tay thì mỗi lần format lại YAML sẽ phá resume, dù cấu hình không đổi.
+
+    Danh sách nào có thứ tự CÓ NGHĨA thì khai vào `canonical.ordered_lists` trong
+    `configs/paths.yaml`; các danh sách khác được sắp xếp trước khi băm.
+    """
+    return _canonical(config, "", set(paths.ordered_lists()))
+
+
+def _canonical(value, prefix, ordered):
+    if isinstance(value, dict):
+        pairs = sorted(value.items(), key=lambda pair: str(pair[0]))
+        return {str(key): _canonical(item, _key(prefix, key), ordered)
+                for key, item in pairs}
+    if isinstance(value, list):
+        items = [_canonical(item, prefix, ordered) for item in value]
+        if prefix in ordered:
+            return items
+        return sorted(items, key=_sort_key)
+    return value
+
+
+def _sort_key(value):
+    """Khoá sắp xếp cho một phần tử danh sách, ổn định với mọi kiểu dữ liệu."""
+    return json.dumps(value, sort_keys=True, ensure_ascii=False, default=str)
+
+
+def _key(prefix, key):
+    return "{}.{}".format(prefix, key) if prefix else str(key)
+
+
+def prompt_merged(result):
+    """Văn bản prompt ĐÃ HỢP NHẤT của một thí nghiệm.
+
+    Gồm cả ba phần mà model thật sự nhìn thấy: khối hệ thống (nếu có), file prompt, và file ví
+    dụ few-shot (nếu prompt dùng `{examples}`). Vì sao phải gộp: `prompt_sha` chỉ tính nội dung
+    file prompt, nên đổi số ví dụ hay đổi khối hệ thống không làm đổi nó - trong khi đó là đổi
+    thí nghiệm.
+
+    Đường dẫn `prompt`/`examples`/`system_prompt` tính từ thư mục thí nghiệm trước, rồi mới tới
+    gốc repo, nên `prompt.txt` (file của chính thí nghiệm) và
+    `configs/prompts/system/absa_cot.txt` (file dùng chung) đều dùng được.
+    """
+    parts = []
+    for key, label in (("system_prompt", "khối hệ thống"),
+                       ("prompt", "file prompt"),
+                       ("examples", "file ví dụ few-shot")):
+        value = (result["config"] or {}).get(key)
+        if not value:
+            continue
+        path = resolve_file(result, value)
+        parts.append("# {}\n{}".format(utils.rel(path), _read_prompt_file(path, label)))
+    if not parts:
+        raise ExperimentError(
+            "Thí nghiệm chưa khai 'prompt' nên không có gì để hợp nhất.")
+    return "\n\n".join(parts)
+
+
+def resolve_file(result, value):
+    """Đường dẫn file của một khoá thí nghiệm: thử thư mục thí nghiệm trước, rồi tới gốc repo."""
+    path = Path(str(value))
+    if path.is_absolute():
+        return path
+    candidate = Path(result["dir"]) / path
+    return candidate if candidate.exists() else paths.root() / path
+
+
+def _read_prompt_file(path, label):
+    """Đọc một file văn bản của prompt; thiếu file hoặc thiếu `{text}` là lỗi."""
+    if not path.exists():
+        raise ExperimentError("Thiếu {}: {}".format(label, utils.rel(path)))
+    text = path.read_text(encoding="utf-8")
+    if label == "file prompt" and "{text}" not in text:
+        raise ExperimentError(
+            "{} thiếu ô nhớ {{text}}, nên prompt không dùng được cho review nào.".format(
+                utils.rel(path)))
+    return text

@@ -23,9 +23,9 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
 - [x] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá, in bảng
       ghi đè. Ghi chú: khoá đè dùng ĐÚNG đường dẫn khoá trong cấu hình đã hợp nhất; khoá lạ do
       ghi sai đường dẫn sẽ bị T4 chặn.
-- [ ] T3. `config_sha256`: băm JSON chuẩn hoá của config đã hợp nhất, cộng văn bản prompt đã hợp nhất
-      (`prompt_merged`).
-      -> `feat(experiments): hash merged config and merged prompt`
+- [x] T3. `config_sha256`: băm JSON chuẩn hoá của config đã hợp nhất, cộng văn bản prompt đã hợp
+      nhất (`prompt_merged` = khối hệ thống + file prompt + file ví dụ). Chuẩn hoá: khoá sắp xếp,
+      mọi danh sách coi là tập hợp và sắp xếp, trừ danh sách khai trong `canonical.ordered_lists`.
 - [ ] T4. Kiểm tra: `roles` bắt buộc khai; một dataset duy nhất; `splits` phải có trong file dataset version;
       chặn `eval` trỏ vào `train`.
       -> `feat(experiments): validate roles single dataset and leakage`
