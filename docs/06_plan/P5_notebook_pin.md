@@ -74,7 +74,8 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       Java khi cần, quyền ghi Drive, trạng thái FRESH hay RESUME.
       -> `feat(preflight): check paths device and drive`
       Làm TRƯỚC T3 để template notebook gọi được hàm đã có sẵn. Chạy thử trên máy thật: nhận ra
-      dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng), GPU
+      dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng - con số
+      2271 là ĐẾM DÒNG, sai; xem `fix(preflight): eval_lock counts records, not lines`), GPU
       RTX 3050 6GB + torch 2.14.0+cu126 + bitsandbytes, cả hai gốc ghi được, trạng thái NEW - và
       bắt được một LỖI THẬT: tôi đã so `data.version` (phiên bản file config dataset) với mã
       phiên bản dữ liệu ĐÃ XỬ LÝ, hai thứ khác nhau, nên báo lỗi sai.

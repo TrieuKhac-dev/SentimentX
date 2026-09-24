@@ -22,6 +22,7 @@ KHÔNG chặn chạy (`notes`). Muốn dừng ngay thì gọi `check()`, nó né
 sách. Lỗi thiếu đường dẫn còn được ghi vào `errors.json` mục `requires` nếu có truyền `log`.
 """
 
+import csv
 import importlib.util
 from pathlib import Path
 
@@ -139,6 +140,18 @@ def raw_source_report(ds, problems, notes, info):
     return info["raw_missing"]
 
 
+def count_rows(path):
+    """Số BẢN GHI của một file CSV, không phải số dòng.
+
+    Vì sao không đếm dòng: review trong bộ dữ liệu này có xuống dòng BÊN TRONG ô được trích dẫn, nên
+    đếm dòng cho ra 2271 trong khi tập test chỉ có 1518 bản ghi - và con số sai đó được ghi vào
+    `eval_lock` của file phiên bản dataset, tức là lưu lại lâu dài rồi không ai dò lại được.
+    Đọc bằng `csv.reader` với `newline=""` xử lý đúng ô nhiều dòng, trên mọi hệ điều hành.
+    """
+    with open(path, "r", encoding="utf-8", newline="") as handle:
+        return max(0, sum(1 for _ in csv.reader(handle)) - 1)
+
+
 def eval_lock_report(ds, version_id, problems, notes, info):
     """Kiểm tập đánh giá khớp `eval_lock`: đổi tập test là mất quyền so với công bố tham chiếu."""
     lock = dict((ds or {}).get("eval_lock") or {})
@@ -149,7 +162,7 @@ def eval_lock_report(ds, version_id, problems, notes, info):
             utils.rel(path)))
         return None
     measured = {"file": path.name, "sha256": versioning.file_sha256(path),
-                "rows": max(0, len(path.read_text(encoding="utf-8").splitlines()) - 1)}
+                "rows": count_rows(path)}
     info["test"] = measured
 
     if not lock.get("enforce", True):

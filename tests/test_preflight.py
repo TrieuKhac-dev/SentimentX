@@ -278,6 +278,16 @@ class TestRawSource(unittest.TestCase):
             {"_sources": [{"kind": "dataset", "dir": Path("khong/co")}]}, problems, notes, info)
         self.assertEqual((problems, info["raw_missing"]), ([], []))
 
+    def test_row_count_ignores_newlines_inside_quoted_fields(self):
+        """`eval_lock.rows` là số BẢN GHI, không phải số dòng.
+
+        Review trong bộ dữ liệu này có xuống dòng bên trong ô được trích dẫn: đếm dòng thì tập test
+        1518 bản ghi bị ghi thành 2271, và con số sai đó nằm lại trong file phiên bản dataset.
+        """
+        path = Path(tempfile.mkdtemp()) / "test.csv"
+        path.write_text('text,a\n"dong 1\ndong 2",positive\n"x",negative\n', encoding="utf-8")
+        self.assertEqual(preflight.count_rows(path), 2)
+
     def test_pipeline_command_has_both_required_arguments(self):
         self.assertEqual(preflight.pipeline_command({"name": "cosmetics", "version": "v0.1.0"}),
                          "`python run_pipeline.py --dataset cosmetics --version v0.1.0`")
