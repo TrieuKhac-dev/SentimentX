@@ -2,8 +2,9 @@
 """Cấu hình và nạp MỘT dataset.
 
 Mọi thứ thuộc về SCHEMA của dữ liệu (tên cột văn bản, danh sách aspect, nhãn
-hợp lệ, đường dẫn file) đều nằm trong configs/datasets/<tên>.yaml.
-Nhờ vậy: thêm dataset mới = thêm một file YAML, không sửa code EDA/pipeline.
+hợp lệ, nguồn dữ liệu) đều nằm trong file phiên bản
+configs/datasets/<tên>/<version>.yaml.
+Nhờ vậy: thêm dataset mới, hoặc thêm phiên bản mới, không phải sửa code EDA/pipeline.
 
 DẠNG CHUẨN NỘI BỘ
 ---
@@ -20,8 +21,11 @@ import yaml
 from src import config, loaders, paths
 
 DATASET_ERROR_HINT = (
-    "Xem configs/datasets/cosmetics.yaml để biết các khoá cần có."
+    "Xem một file configs/datasets/<tên>/<version>.yaml để biết các khoá cần có."
 )
+
+
+CONFIG_SUFFIX = ".yaml"
 
 
 class DatasetError(Exception):
@@ -34,11 +38,19 @@ class DatasetError(Exception):
 
 
 def available():
-    """Tên các dataset đã có file cấu hình trong configs/datasets/."""
+    """Tên các dataset đã có thư mục cấu hình trong configs/datasets/."""
     directory = config.DATASET_CONFIG_DIR
     if not directory.is_dir():
         return []
-    return sorted(path.stem for path in directory.glob("*.yaml"))
+    return sorted(path.name for path in directory.iterdir() if path.is_dir())
+
+
+def versions(name):
+    """Các phiên bản đã khai của một dataset, theo thứ tự tên file."""
+    directory = config.DATASET_CONFIG_DIR / str(name)
+    if not directory.is_dir():
+        return []
+    return sorted(path.stem for path in directory.glob("*" + CONFIG_SUFFIX))
 
 
 def default_name():
@@ -46,17 +58,29 @@ def default_name():
     names = available()
     if not names:
         raise DatasetError(
-            "Chưa có file cấu hình dataset nào trong {}. Tạo một file "
-            "<tên>.yaml ở đó trước. {}".format(
+            "Chưa có thư mục cấu hình dataset nào trong {}. Tạo "
+            "<tên>/<version>.yaml ở đó trước. {}".format(
                 config.DATASET_CONFIG_DIR, DATASET_ERROR_HINT
             )
         )
     return names[0]
 
 
-def config_path(name):
-    """Đường dẫn file cấu hình của một dataset."""
-    return config.DATASET_CONFIG_DIR / "{}.yaml".format(name)
+def config_path(name, version=None):
+    """Đường dẫn file cấu hình của một phiên bản dataset.
+
+    Không truyền `version` thì lấy phiên bản mới nhất theo tên file.
+    """
+    directory = config.DATASET_CONFIG_DIR / str(name)
+    if version:
+        return directory / "{}{}".format(version, CONFIG_SUFFIX)
+    found = versions(name)
+    if not found:
+        raise DatasetError(
+            "Dataset '{}' chưa có phiên bản nào trong {}. {}".format(
+                name, _display(directory), DATASET_ERROR_HINT)
+        )
+    return directory / "{}{}".format(found[-1], CONFIG_SUFFIX)
 
 
 def suggest(name):
@@ -71,67 +95,139 @@ def suggest(name):
     return "Có phải bạn muốn: {}?".format(" hoặc ".join(similar))
 
 
-def load_config(name=None):
-    """Đọc và chuẩn hoá cấu hình dataset.
+def load_config(name=None, version=None):
+    """Đọc và chuẩn hoá cấu hình một phiên bản dataset.
 
     Ngoài các khoá trong file YAML, hàm còn bổ sung:
         _path        : đường dẫn file cấu hình
-        _raw_dir     : thư mục dữ liệu gốc (đã tính thành đường dẫn tuyệt đối)
+        _sources     : từng nguồn kèm thư mục đã giải
+        _raw_dir     : thư mục dữ liệu gốc, chỉ khi có đúng một nguồn `raw`
         _label_to_id : bảng mã nhãn (nhãn chữ -> mã số)
     """
     name = name or default_name()
-    path = config_path(name)
+    path = config_path(name, version)
     if not path.exists():
         hint = suggest(name)
         raise DatasetError(
-            "Không tìm thấy cấu hình dataset '{}' tại {}. Các dataset hiện có: {}. {}{}".format(
-                name, config_path(name), ", ".join(available()) or "(trống)",
+            "Không tìm thấy cấu hình dataset '{}' phiên bản '{}' tại {}. Các dataset hiện "
+            "có: {}; các phiên bản của '{}': {}. {}{}".format(
+                name, version or "(mới nhất)", _display(path),
+                ", ".join(available()) or "(trống)", name,
+                ", ".join(versions(name)) or "(trống)",
                 hint + " " if hint else "", DATASET_ERROR_HINT)
         )
 
     with open(path, "r", encoding="utf-8") as handle:
-        cfg = yaml.safe_load(handle) or {}
+        raw = yaml.safe_load(handle) or {}
 
-    cfg.setdefault("name", name)
-    cfg.setdefault("version", "0.0.0")
-    cfg.setdefault("format", "csv")
-    cfg.setdefault("text_column", config.TEXT_COLUMN)
-    cfg["aspects"] = list(cfg.get("aspects") or [])
-    cfg["labels"] = list(cfg.get("labels") or [])
-    cfg["drop_columns"] = list(cfg.get("drop_columns") or [])
-    cfg["splits"] = dict(cfg.get("splits") or {})
-    cfg["raw_version"] = str(cfg.get("raw_version") or "")
-
-    cfg["_path"] = path
-    cfg["_raw_dir"] = paths.raw_dir(cfg["name"], cfg["raw_version"])
-    cfg["_label_to_id"] = label_encoding(cfg)
-
+    cfg = _normalize(raw, name, path)
     _check(cfg)
     return cfg
 
 
+def _normalize(raw, name, path):
+    """Đổi file phiên bản thành dạng phẳng mà phần còn lại của dự án đang dùng.
+
+    File khai schema lồng trong khoá `schema`; ở đây đổi thành khoá phẳng (`text_column`,
+    `aspects`, `labels`, `drop_columns`, `keep_columns`) để EDA và pipeline không phải biết
+    cấu trúc file. Các khoá khai báo như `sources`, `eval_lock` được giữ nguyên để báo cáo
+    và phần kiểm tra dùng lại.
+    """
+    schema = dict(raw.get("schema") or {})
+    text = dict(schema.get("text") or {})
+    identifier = dict(schema.get("id") or {})
+    cfg = dict(raw)
+    cfg.update({
+        "name": raw.get("name") or name,
+        "version": str(raw.get("version") or ""),
+        "format": raw.get("format") or "csv",
+        "splits": dict(raw.get("splits") or {}),
+        "aspect_policy": raw.get("aspect_policy"),
+        "eval_lock": dict(raw.get("eval_lock") or {}),
+        "text_column": text.get("column"),
+        "id_column": identifier.get("column"),
+        "aspects": list(schema.get("aspects") or []),
+        "labels": list(schema.get("labels") or []),
+        "drop_columns": list(schema.get("drop") or []),
+        "keep_columns": list(schema.get("keep") or []),
+        "sources": [dict(item) for item in (raw.get("sources") or [])],
+    })
+    cfg["_path"] = path
+    cfg["_sources"] = sources_of(cfg)
+    raw_dirs = [source["dir"] for source in cfg["_sources"] if source["kind"] == "raw"]
+    cfg["_raw_dir"] = raw_dirs[0] if len(raw_dirs) == 1 else None
+    cfg["_label_to_id"] = label_encoding(cfg)
+    return cfg
+
+
+def sources_of(cfg):
+    """Từng nguồn của dataset, kèm thư mục đã giải thành đường dẫn tuyệt đối.
+
+    Nguồn `raw` trỏ vào `data/raw/<name>/<raw_version>/`; nguồn `dataset` trỏ vào
+    `data/processed/<mã>/`.
+    """
+    result = []
+    for item in cfg.get("sources") or []:
+        kind = item.get("kind")
+        if kind == "raw":
+            directory = paths.raw_dir(item.get("name"), item.get("raw_version"))
+        elif kind == "dataset":
+            directory = paths.processed(item.get("version"))
+        else:
+            raise DatasetError(
+                "Nguồn '{}' có 'kind' không hợp lệ: {!r}, chỉ nhận 'raw' hoặc 'dataset'. "
+                "{}".format(item.get("name"), kind, DATASET_ERROR_HINT)
+            )
+        result.append({
+            "kind": kind,
+            "name": item.get("name"),
+            "version": item.get("raw_version") if kind == "raw" else item.get("version"),
+            "dir": directory,
+        })
+    return result
+
+
 def _check(cfg):
-    """Kiểm tra cấu hình có đủ thông tin để chạy hay không."""
+    """Kiểm tra cấu hình có đủ thông tin để chạy hay không.
+
+    Thiếu gì thì nói rõ thiếu gì và đọc từ file nào, không tự điền giá trị mặc định.
+    """
+
+    def _fail(message):
+        raise DatasetError("{} (đọc từ {}).".format(message, _display(cfg["_path"])))
+
+    stem = Path(cfg["_path"]).stem
+    if not cfg["version"]:
+        _fail("Dataset '{}' chưa khai báo 'version'".format(cfg["name"]))
+    if cfg["version"] != stem:
+        _fail("Dataset '{}': 'version' là {!r} nhưng tên file là {!r}, hai giá trị này phải "
+              "trùng nhau".format(cfg["name"], cfg["version"], stem))
+    if cfg["name"] != Path(cfg["_path"]).parent.name:
+        _fail("Dataset '{}': 'name' phải trùng tên thư mục '{}'".format(
+            cfg["name"], Path(cfg["_path"]).parent.name))
+    if not cfg["sources"]:
+        _fail("Dataset '{}' chưa khai báo 'sources'".format(cfg["name"]))
+    if not cfg.get("pipeline_version"):
+        _fail("Dataset '{}' chưa khai báo 'pipeline_version'".format(cfg["name"]))
+    if not cfg["text_column"]:
+        _fail("Dataset '{}' chưa khai báo 'schema.text.column'".format(cfg["name"]))
     if not cfg["aspects"]:
-        raise DatasetError(
-            "Dataset '{}' chưa khai báo 'aspects'. {}".format(
-                cfg["name"], DATASET_ERROR_HINT)
-        )
+        _fail("Dataset '{}' chưa khai báo 'schema.aspects'".format(cfg["name"]))
     if not cfg["labels"]:
-        raise DatasetError(
-            "Dataset '{}' chưa khai báo 'labels'. {}".format(
-                cfg["name"], DATASET_ERROR_HINT)
-        )
+        _fail("Dataset '{}' chưa khai báo 'schema.labels'".format(cfg["name"]))
     if not cfg["splits"]:
-        raise DatasetError(
-            "Dataset '{}' chưa khai báo các file trong 'splits'. {}".format(
-                cfg["name"], DATASET_ERROR_HINT)
-        )
-    if not cfg["raw_version"]:
-        raise DatasetError(
-            "Dataset '{}' chưa khai báo 'raw_version'. Đây là tên thư mục dữ liệu gốc "
-            "trong {}.".format(cfg["name"], _display(paths.data("raw") / cfg["name"]))
-        )
+        _fail("Dataset '{}' chưa khai báo 'splits'".format(cfg["name"]))
+    missing = [name for name in ("train", "val", "test") if name not in cfg["splits"]]
+    if missing:
+        _fail("Dataset '{}' thiếu split trong 'splits': {}".format(
+            cfg["name"], ", ".join(missing)))
+    if cfg["aspect_policy"] not in ("union", "strict"):
+        _fail("Dataset '{}': 'aspect_policy' phải là 'union' hoặc 'strict', đang là {!r}".format(
+            cfg["name"], cfg["aspect_policy"]))
+    lock = cfg["eval_lock"]
+    if lock and lock.get("enforce", True) and not (lock.get("test") or {}).get("file"):
+        _fail("Dataset '{}': 'eval_lock.test.file' là bắt buộc khi 'eval_lock.enforce' bật".format(
+            cfg["name"]))
     loaders.get(cfg["format"])  # báo lỗi ngay nếu định dạng chưa được hỗ trợ
 
 
@@ -148,21 +244,23 @@ def label_encoding(cfg):
 
 
 def expected_columns(cfg):
-    """Danh sách cột mong đợi sau khi nạp (cột văn bản + các aspect)."""
-    return [config.TEXT_COLUMN] + list(cfg["aspects"])
+    """Danh sách cột mong đợi sau khi nạp: cột văn bản, các aspect, rồi cột giữ thêm."""
+    return [config.TEXT_COLUMN] + list(cfg["aspects"]) + list(cfg.get("keep_columns") or [])
 
 
 def describe(cfg):
     """Vài dòng thông tin về dataset, dùng cho phần đầu báo cáo."""
-    return [
-        "Dataset: {}".format(cfg["name"]),
-        "Phiên bản dataset: v{}".format(cfg.get("version", "?")),
-        "Phiên bản dữ liệu gốc: {}".format(cfg.get("raw_version", "?")),
+    lines = [
+        "Dataset: {} (phiên bản {})".format(cfg["name"], cfg["version"]),
+        "Pipeline dùng để tạo dataset: {}".format(cfg.get("pipeline_version", "?")),
         "Định dạng nguồn: {}".format(cfg["format"]),
-        "Nguồn dữ liệu: {}".format(_display(cfg["_raw_dir"])),
-        "Số khía cạnh khai báo trong config: {}".format(len(cfg["aspects"])),
         "Cột văn bản trong file gốc: {}".format(cfg["text_column"]),
+        "Số khía cạnh khai báo trong config: {}".format(len(cfg["aspects"])),
     ]
+    for source in cfg["_sources"]:
+        lines.append("Nguồn {}: {} ({})".format(
+            source["kind"], _display(source["dir"]), source["version"]))
+    return lines
 
 
 def _display(path):
@@ -192,7 +290,7 @@ def standardize(frame, cfg):
     if text_column not in frame.columns:
         raise DatasetError(
             "Dataset '{}': file gốc không có cột văn bản '{}'. Các cột đang có: {}. "
-            "Sửa khoá 'text_column' trong {}.".format(
+            "Sửa khoá 'schema.text.column' trong {}.".format(
                 cfg["name"], text_column, ", ".join(map(str, frame.columns)),
                 _display(cfg["_path"])
             )

@@ -1,0 +1,74 @@
+# Phiên bản 1 của dataset cosmetics: dữ liệu gốc v0.1.0 đi qua pipeline v0.1.0.
+#
+# File này BẤT BIẾN. Nội dung của nó, cùng file pipeline và nội dung dữ liệu gốc, đi vào mã
+# phiên bản dữ liệu, nên sửa tại chỗ là hai định nghĩa khác nhau mang cùng một nhãn và kết
+# quả cũ không còn tra được. Muốn đổi thì tạo file mới, ví dụ v0.2.0.yaml.
+# Xem docs/05_config/03_datasets.md.
+
+schema_version: 1
+name: cosmetics
+
+# Nhãn phiên bản dataset, trùng tên file.
+version: v0.1.0
+
+# Nguồn đi vào dataset. Mỗi phần tử có `kind` riêng: raw hoặc dataset.
+sources:
+  - kind: raw
+    name: cosmetics
+    raw_version: v0.1.0
+
+# Phiên bản pipeline dùng để tạo dataset này.
+pipeline_version: v0.1.0
+
+# Định dạng file nguồn; thêm định dạng mới thì thêm một loader trong src/loaders/.
+format: csv
+
+# Tên file trong thư mục dữ liệu gốc, đúng như khi nhận được.
+splits:
+  train: data_train.csv
+  val: data_val.csv
+  test: data_test.csv
+
+# File gộp toàn bộ dữ liệu, dùng để đối chiếu.
+full: full_data.csv
+
+schema:
+  # Cột chứa nội dung review trong file gốc.
+  text:
+    column: data
+  # Dataset chưa có cột định danh; để null, dành chỗ khi nào có.
+  id:
+    column: null
+  aspects:
+    - stayingpower
+    - texture
+    - smell
+    - price
+    - colour
+    - shipping
+    - packing
+  labels:
+    - positive
+    - negative
+    - neutral
+  # Cột có trong file gốc nhưng KHÔNG dùng: "others" chỉ có nhãn neutral và ô trống,
+  # không mang tín hiệu phân loại cảm xúc.
+  drop:
+    - others
+  keep: []
+
+# Cách xử lý khi các nguồn có bộ khía cạnh khác nhau. Hiện chỉ có một nguồn.
+aspect_policy: union
+
+parent: null
+notes: "Bản đầu tiên: dữ liệu gốc v0.1.0 đi qua pipeline v0.1.0."
+
+# Chốt tập đánh giá để kết quả so được với công bố tham chiếu.
+# `sha256` và `rows` chưa biết trước khi chạy pipeline lần đầu: điền ngay sau lần chạy đó,
+# rồi đóng băng. Lệch nghĩa là test đã bị thay đổi, không còn so được với công bố.
+eval_lock:
+  enforce: true
+  test:
+    file: test.csv
+    sha256: null
+    rows: null
