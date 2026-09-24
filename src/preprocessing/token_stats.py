@@ -28,7 +28,7 @@ nên `info()` của Qwen trả thêm `examples_sha` (mã của file ví dụ, xe
 
 import inspect
 
-from src import config, prompts, utils, versioning
+from src import config, paths, prompts, utils, versioning
 from src.preprocessing import loader, phobert, qwen, segmenters, visobert
 
 def _word_count(texts, **kwargs):
@@ -392,13 +392,17 @@ def _resolved_segmenter(spec):
 
 
 def file_name(tag=None):
-    """Tên file CSV của một lần đo.
+    """Tên file CSV của một lần đo, lấy từ mẫu tên trong `configs/paths.yaml`.
 
     Có `tag` khi chạy với prompt hoặc bộ tách từ KHÁC mặc định: mỗi cấu hình một file
     riêng để hai thí nghiệm không ghi đè lên nhau. Không có tag thì giữ tên cũ
     (`token_stats.csv`), nhờ vậy các bản chạy trước vẫn tra cứu được.
+
+    Mẫu tên nằm trong `configs/paths.yaml` vì bảng tổng hợp `model_input` cũng phải tìm đúng
+    những file này; chép tên vào hai chỗ là hai chỗ có thể lệch nhau.
     """
-    return "token_stats.csv" if not tag else "token_stats__{}.csv".format(tag)
+    return (paths.pattern("token_stats") if not tag
+            else paths.pattern("token_stats_tagged", tag=tag))
 
 
 def write(rows, version_id, tag=None):

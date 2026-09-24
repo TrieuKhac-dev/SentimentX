@@ -18,6 +18,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from src import reports, utils
 
@@ -219,6 +220,40 @@ class ColumnLabelTest(unittest.TestCase):
         self.assertEqual(colour["qwen3-4b-instruct-2507 exp001"], 75.0)
         self.assertEqual(colour["phobert-base exp001"], 75.0)
         self.assertEqual(len([key for key in colour if key != "aspect"]), 2)
+
+
+class ModelInputTest(unittest.TestCase):
+    """Số đo input của model phải vào được bảng tổng hợp.
+
+    Khoá cả TÊN FILE: `run_token_stats.py` ghi file theo mẫu tên trong `configs/paths.yaml`, còn
+    bảng tổng hợp đi tìm theo đúng mẫu đó. Hai bên lệch tên thì báo cáo vẫn sinh ra bình thường,
+    chỉ là rỗng mãi - không có gì báo lỗi.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-model-input-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+        patcher = mock.patch.object(reports.paths, "report", return_value=self.root)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_doc_duoc_file_so_do_cua_run_token_stats(self):
+        from src.preprocessing import token_stats
+
+        version = "cosmetics-ds0.1.0"
+        (self.root / version).mkdir(parents=True)
+        row = [str(index) for index, _name in enumerate(token_stats.COLUMNS)]
+        utils.write_csv([row], list(token_stats.COLUMNS),
+                        self.root / version / token_stats.file_name("prompt-absa_cot_v1"))
+        rows, columns = reports.model_input_rows()
+        self.assertEqual(len(rows), 1)
+        self.assertIn("file", columns)
+        self.assertIn(version, rows[0]["file"])
+
+    def test_chua_do_thi_bang_rong_va_noi_ro(self):
+        rows, columns = reports.model_input_rows()
+        self.assertEqual(rows, [])
+        self.assertEqual(columns, [reports.EMPTY_TABLE_COLUMN])
 
 
 class WriteTest(unittest.TestCase):

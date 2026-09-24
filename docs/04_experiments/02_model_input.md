@@ -145,8 +145,13 @@ phụ thuộc vào model nào ([02_eda/02_metrics.md mục 9](../02_eda/02_metri
 
 ```bash
 python run_token_stats.py --dataset cosmetics
-# -> data/reports/model_input/model_input.csv
+# -> data/reports/model_input/<mã phiên bản>/token_stats.csv
 ```
+
+Tên file lấy từ mẫu trong `configs/paths.yaml`; chạy với tham số khác mặc định thì có thêm đuôi
+(`token_stats__<tag>.csv`) nên không ghi đè số liệu cũ. Bảng tổng hợp `model_input` gom cả hai mẫu
+tên đó, nên số đo luôn vào được báo cáo; chưa đo thì bảng rỗng và báo cáo nói rõ là rỗng (thư mục
+`shards/` dành cho các bảng số đo tách nhỏ).
 
 Chỉ cần `transformers` (không cần torch), nên đo được trước khi huấn luyện. Model
 nào chưa đo được sẽ bị bỏ qua kèm lí do, không ghi số liệu sai. Tên dataset sai thì

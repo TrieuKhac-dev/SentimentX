@@ -44,6 +44,10 @@ TABLE_NAMES = {
     "metrics_matrix": ("accuracy_by_aspect.csv", "prf_by_aspect_sentiment.csv"),
 }
 
+# Nhãn cột của bảng CHƯA có số đo: báo cáo vẫn sinh ra, kèm dấu hiệu RỖNG để người đọc phân biệt
+# "chưa đo" với "đo rồi mà không ra gì".
+EMPTY_TABLE_COLUMN = "model_input"
+
 MERMAID_HEADER = "```mermaid"
 
 
@@ -255,13 +259,19 @@ def model_input_rows():
     Bảng này do `run_token_stats.py` sinh (nó mới là nơi ĐO số token); ở đây chỉ gom lại và ghi thêm
     cột `file` để biết dòng nào của phiên bản dữ liệu nào. Chưa đo thì bảng RỖNG - và báo cáo nói rõ
     là rỗng, để người đọc phân biệt "chưa đo" với "đo rồi mà không ra gì".
+
+    Nhận CẢ HAI tên file: số đo (`token_stats*.csv`, mỗi phiên bản một thư mục con) và bảng gom của
+    chính nhóm này (`model_input*.csv`). Chỉ quét một tên thì số đo không bao giờ vào được báo cáo,
+    mà báo cáo vẫn sinh ra bình thường nên không ai thấy thiếu.
     """
     rows, columns = [], []
     root = paths.report("model_input")
     if not root.is_dir():
-        return [], ["model_input"]
-    pattern = "{}*.csv".format(Path(paths.pattern("model_input")).stem)
-    for path in sorted(root.rglob(pattern)):
+        return [], [EMPTY_TABLE_COLUMN]
+    stems = {Path(paths.pattern("model_input")).stem,
+             Path(paths.pattern("token_stats")).stem}
+    found = sorted({path for stem in stems for path in root.rglob("{}*.csv".format(stem))})
+    for path in found:
         frame = utils.read_csv(path)
         for name in frame.columns:
             if name not in columns:
@@ -270,7 +280,7 @@ def model_input_rows():
             record = dict(record)
             record["file"] = utils.rel(path)
             rows.append(record)
-    return rows, (["file"] + columns if rows else ["model_input"])
+    return rows, (["file"] + columns if rows else [EMPTY_TABLE_COLUMN])
 
 
 # ---

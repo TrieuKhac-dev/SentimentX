@@ -48,6 +48,10 @@ patterns:
   predictions: "predictions.csv"
   mispredictions: "mispredictions.csv"
   model_input: "model_input.csv"
+  # Số đo input thật của model (`run_token_stats.py`). Bảng tổng hợp nhóm `model_input` gom lại
+  # theo hai mẫu tên này, nên đổi tên ở đây là đủ.
+  token_stats: "token_stats.csv"
+  token_stats_tagged: "token_stats__{tag}.csv"
   plots: "plots"
   ckpt_last: "model/last"
   ckpt_best: "model/best"
