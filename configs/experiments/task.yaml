@@ -1,0 +1,17 @@
+# Định nghĩa bài toán. Mọi thí nghiệm kế thừa file này; model hoặc thí nghiệm nào cần khác
+# thì ghi đè. Xem docs/05_config/05_experiments_shared.md.
+
+# binary: chỉ positive và negative, cộng một quyết định nhị phân riêng là "có nhắc tới hay không".
+# full: bốn trạng thái gồm không nhắc, positive, negative, neutral.
+label_space: binary
+
+# Cách xử lý ô có nhãn neutral khi ở label_space binary.
+# Số ô bị loại được ghi vào metrics.json, vì công bố tham chiếu cũng loại neutral.
+neutral_policy: drop
+
+# separate: "có nhắc tới hay không" là quyết định nhị phân riêng, đúng như công bố.
+# as_class: coi đó là một lớp.
+not_mentioned: separate
+
+# all hoặc danh sách khía cạnh, ví dụ [smell, price].
+aspects: all

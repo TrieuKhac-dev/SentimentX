@@ -1,0 +1,10 @@
+# Nhánh notebook được phép kéo code.
+# Luật: docs/00_workflow/02_rules.md (notebook chỉ kéo nhánh `experiment`).
+# Xem docs/05_config/05_experiments_shared.md.
+
+url: https://github.com/TrieuKhac-dev/SentimentX
+branch: experiment
+
+# Nhánh được phép. Để trống nghĩa là tắt kiểm - chỉ làm vậy khi chưa chốt được danh sách.
+allowed_branches:
+  - experiment

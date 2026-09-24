@@ -1,0 +1,22 @@
+# Ghi nhận kết quả. Xem docs/05_config/05_experiments_shared.md.
+# Địa chỉ máy chủ MLflow nằm ở configs/dagshub.yaml.
+
+# mlflow, local_json hoặc none. Tên phải có trong registry TRACKERS.
+tracker: mlflow
+
+# Tên experiment trên máy chủ MLflow.
+experiment: sentimentx-absa
+
+# Nhãn của run trên DagsHub, không phải git tag. auto nghĩa là notebook tự lấy từ run_meta.
+mlflow_tags:
+  model: auto
+  method: auto
+  exp_id: auto
+
+# File nhỏ được tải lên. KHÔNG tải checkpoint và predictions.csv.
+artifacts:
+  - run_meta.json
+  - metrics.json
+  - metrics.csv
+  - mispredictions.csv
+  - model_input.csv

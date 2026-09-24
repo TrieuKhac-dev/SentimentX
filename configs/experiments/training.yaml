@@ -1,0 +1,30 @@
+# Huấn luyện. Thí nghiệm chỉ prompt để enabled: false.
+# Xem docs/05_config/05_experiments_shared.md.
+
+enabled: false
+
+# Khi enabled: true thì roles bắt buộc có train và val.
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+
+lr: 0.0002
+batch: 8
+epochs: 3
+grad_accum: 4
+weight_decay: 0.01
+
+checkpoint:
+  every_n_steps: 100
+  # Giữ ít checkpoint để khỏi đầy Drive; cũ hơn thì xoá.
+  keep_last_k: 2
+  save_last: true
+  save_best: true
+  # Xoá ngay các checkpoint-* trung gian sau mỗi lần lưu.
+  delete_intermediate: true

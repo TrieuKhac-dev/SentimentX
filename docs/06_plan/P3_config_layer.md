@@ -10,13 +10,16 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
 
 ## 2. Trạng thái
 
-chưa làm
+đang làm, xong T1
 
 ## 3. Task nhỏ (mỗi task một commit)
 
-- [ ] T1. Thêm config dùng chung: `configs/experiments/repo.yaml`, `task.yaml`, `evaluation.yaml`,
+- [x] T1. Thêm config dùng chung: `configs/experiments/repo.yaml`, `task.yaml`, `evaluation.yaml`,
       `training.yaml`, `tracking.yaml`.
-      -> `feat(config): add shared experiment configs`
+- [ ] T1b. Chuẩn hoá `configs/models/<model_id>.yaml` theo cấu trúc mới (`model_id`, `checkpoint`,
+      `config_version`, `task.*`, `preprocess.*`, `inference.*`), đổi tên file theo `model_id`;
+      cập nhật `src/model_config.py` và các module đang đọc khoá cũ.
+      -> `refactor(config): restructure model configs by model id`
 - [ ] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá,
       in bảng ghi đè.
       -> `feat(experiments): merge config layers with per-key source tracking`

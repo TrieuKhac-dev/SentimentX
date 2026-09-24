@@ -1,0 +1,30 @@
+# Cách chấm điểm. Xem docs/05_config/05_experiments_shared.md và docs/04_experiments/metrics.md.
+
+# Số mẫu dùng để chấm. null nghĩa là toàn bộ split, và đó là cách dùng để so với công bố.
+n: null
+
+# Cách sinh văn bản. greedy: chọn token xác suất cao nhất nên tất định.
+# sample: lấy theo temperature và top_p.
+decoding:
+  mode: greedy
+  temperature: 1.0
+  top_p: 1.0
+
+# Tên chỉ số cần tính. Mỗi tên phải có trong registry SCORERS, thiếu tên thì báo lỗi.
+scores:
+  - accuracy
+  - aspect_detection
+  - prf
+  - aggregate
+  - confusion
+
+# Chiều phân rã bảng chỉ số.
+group_by:
+  - aspect
+  - sentiment
+
+# Ghi gì vào thư mục kết quả. predictions.csv và plots/ là phần nặng.
+save:
+  predictions: true
+  plots: true
+  confusion: true
