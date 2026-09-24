@@ -20,9 +20,9 @@ có dấu vết để tra cứu, và chặn được các lỗi im lặng (thi�
       `config_version`, `task.*`, `preprocess.*`, `inference.*`), đổi tên file theo `model_id`;
       cập nhật `src/model_config.py` và các module đang đọc khoá cũ. Thêm `qwen3-0.6b.yaml`.
       Prompt không còn nằm trong config model: `--prompt` là bắt buộc khi đo/chạy Qwen3.
-- [ ] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá,
-      in bảng ghi đè.
-      -> `feat(experiments): merge config layers with per-key source tracking`
+- [x] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá, in bảng
+      ghi đè. Ghi chú: khoá đè dùng ĐÚNG đường dẫn khoá trong cấu hình đã hợp nhất; khoá lạ do
+      ghi sai đường dẫn sẽ bị T4 chặn.
 - [ ] T3. `config_sha256`: băm JSON chuẩn hoá của config đã hợp nhất, cộng văn bản prompt đã hợp nhất
       (`prompt_merged`).
       -> `feat(experiments): hash merged config and merged prompt`

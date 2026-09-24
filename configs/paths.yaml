@@ -53,6 +53,8 @@ patterns:
   ckpt_best: "model/best"
   pred_parts: "predictions/part_{n:04d}.jsonl"
   raw_meta: "raw_meta.yaml"
+  experiment_config: "config.yaml"
+  experiment_tmp: "_tmp"
   eda_dir: "eda"
   pipeline_dir: "pipeline"
   processing_log: "processing_log.json"

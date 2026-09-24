@@ -64,6 +64,22 @@ experiments/<model_id>/<method>/<expNNN>/config.yaml     đè lên tất cả
 Không hợp nhất: `configs/paths.yaml`, `configs/dagshub.yaml`, `configs/pipeline/<v>.yaml`,
 `configs/datasets/<name>/<v>.yaml`, và các file prompt. Chúng được ghi vào `run_meta.files[]` kèm `role`.
 
+## Cách ghi đè một giá trị dùng chung
+
+Năm file trong `configs/experiments/` khai khoá ở mức cao nhất, nên muốn đè thì thí nghiệm ghi
+**đúng đường dẫn khoá đó** ở mức cao nhất của `config.yaml`:
+
+```yaml
+# configs/experiments/evaluation.yaml khai "n: null"
+n: 200                      # <= đè đúng khoá đó
+preprocess:
+  max_length: 1024          # <= đè khoá lồng của lớp model
+```
+
+Ghi `evaluation: {n: 200}` là **sai**: nó tạo ra một khoá `evaluation` mới mà không chỗ nào đọc,
+trong khi `n` vẫn giữ giá trị cũ. Vì đây là lỗi im lặng, phần kiểm tra sẽ báo lỗi khi gặp khoá
+lạ trong cấu hình đã hợp nhất.
+
 ## Tạo thí nghiệm mới
 
 Dùng `python scripts/new_experiment.py --model ... --method ...`. Công cụ này tự chọn số `expNNN`
