@@ -10,12 +10,13 @@ Mã phiên bản dữ liệu đủ để tra ngược: nguồn nào, pipeline n�
 
 ## 2. Trạng thái
 
-chưa làm
+đang làm, xong T1
 
 ## 3. Task nhỏ (mỗi task một commit)
 
-- [ ] T1. Tách `configs/pipeline/v0.1.0.yaml` thành `configs/pipeline/<version>.yaml`.
-      -> `refactor(config): split pipeline config into versioned files`
+- [x] T1. Chuyển `configs/pipeline.yaml` thành `configs/pipeline/<version>.yaml` (đã có `v0.1.0.yaml`
+      với `version`, `parent`, `notes`, `steps`, `thresholds`); bỏ việc tự điền giá trị mặc định
+      trong `load_pipeline_config`.
 - [ ] T2. Tách `configs/datasets/cosmetics/v0.1.0.yaml` thành `configs/datasets/cosmetics/<version>.yaml`
       với `schema_version`, `name`, `version`, `sources`, `pipeline_version`, `format`, `splits`,
       `full`, `schema`, `aspect_policy`, `parent`, `notes`.
