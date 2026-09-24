@@ -6,8 +6,8 @@
     "log": "run.log",
     "errors": "errors.json",
     "status": "FINISHED",
-    "started": "2026-09-25 03:39:30",
-    "finished": "2026-09-25 03:40:21",
+    "started": "2026-09-25 04:14:24",
+    "finished": "2026-09-25 04:15:28",
     "note": null
   },
   "experiment": {
@@ -33,7 +33,7 @@
   "repo": {
     "url": "https://github.com/TrieuKhac-dev/SentimentX",
     "branch": "experiment",
-    "sha": "2b94e924dcce605748e5d3dd9a8f9ee9e32a598b"
+    "sha": "440be3a113dad09de072d5c1659a9b77ba289a81"
   },
   "config": {
     "sha256": "9a7126ac4295df4b0c0c90b6aa11a9b23772bc36c05749c511b7255adcf05c0f",
@@ -144,17 +144,17 @@
     "device": "cuda:0",
     "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
     "vram_gb": 2.49,
-    "quantization": "auto",
+    "quantization": "4-bit nf4 (tính bằng bfloat16)",
     "libs": {}
   },
   "attempts": [
     {
       "n": 1,
-      "started": "2026-09-25 03:39:30",
-      "finished": "2026-09-25 03:40:21",
-      "seconds": 51.0,
+      "started": "2026-09-25 04:14:24",
+      "finished": "2026-09-25 04:15:28",
+      "seconds": 64.0,
       "status": "FINISHED",
-      "sha": "2b94e924dcce605748e5d3dd9a8f9ee9e32a598b",
+      "sha": "440be3a113dad09de072d5c1659a9b77ba289a81",
       "config_sha256": "9a7126ac4295df4b0c0c90b6aa11a9b23772bc36c05749c511b7255adcf05c0f",
       "data": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
       "note": null
