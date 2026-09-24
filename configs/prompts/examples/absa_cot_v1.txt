@@ -5,7 +5,7 @@
 # "train, dòng <số>" ngay dưới đây. Ví dụ nằm trong prompt nghĩa là model đã nhìn thấy
 # nó, nên lấy từ val/test là rò rỉ dữ liệu đánh giá — điểm số đo được sẽ vô nghĩa.
 # Số ví dụ là một BIẾN THỰC NGHIỆM: bỏ/thêm khối "--- Ví dụ n ---" ở dưới là đổi số ví
-# dụ, KHÔNG phải sửa prompt (xem configs/prompts/qwen_absa_cot_1shot_v1.txt).
+# dụ, KHÔNG phải sửa prompt (xem configs/prompts/absa_cot_1shot_v1.txt).
 # --- HẾT CHÚ THÍCH ---
 --- Ví dụ 1 ---
 Review: "Thỏi son lên màu đỏ gạch tươi tắn, tán đều tệp vào da ngăm nhìn vẫn tự nhiên. Đánh từ sáng tới chiều muộn vẫn chưa phải dặm lại. Mùi hương thoang thoảng dễ chịu, vỏ hộp cứng cáp cầm chắc tay."

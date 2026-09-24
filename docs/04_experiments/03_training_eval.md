@@ -1,5 +1,8 @@
 # Thí nghiệm - huấn luyện và đánh giá
 
+> Đọc file này khi: chạy thí nghiệm và chấm điểm.
+> Liên quan: `docs/04_experiments/metrics.md`, `docs/06_plan/P4_logging_mlflow.md`
+
 ## 1. Định dạng nhãn khi huấn luyện
 
 Dữ liệu đã ở dạng **multi_head**: một vector 7 phần tử, mỗi phần tử là mã nhãn
@@ -138,10 +141,10 @@ python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-
 
 | Prompt                      | ví dụ | acc macro | khớp hoàn toàn | P nhắc | R nhắc    | F1 nhắc micro | F1 nhắc macro | token sinh/review | thời gian |
 | --------------------------- | ----- | --------- | -------------- | ------ | --------- | ------------- | ------------- | ----------------- | --------- |
-| `qwen_absa_v1` (một lượt)   | 0     | 90,86     | **55%**        | 0,836  | **0,953** | **0,891**     | **0,884**     | **46**            | **104 s** |
-| `qwen_absa_cot_zeroshot_v1` | 0     | **91,43** | 53%            | 0,916  | 0,854     | 0,884         | 0,869         | 233               | 564 s     |
-| `qwen_absa_cot_1shot_v1`    | 1     | 89,29     | 47%            | 0,901  | 0,760     | 0,825         | 0,825         | 217               | 676 s     |
-| `qwen_absa_cot_v1`          | 2     | 91,14     | 51%            | 0,909  | 0,833     | 0,870         | 0,868         | 217               | 739 s     |
+| `absa_direct_v1` (một lượt)   | 0     | 90,86     | **55%**        | 0,836  | **0,953** | **0,891**     | **0,884**     | **46**            | **104 s** |
+| `absa_cot_zeroshot_v1` | 0     | **91,43** | 53%            | 0,916  | 0,854     | 0,884         | 0,869         | 233               | 564 s     |
+| `absa_cot_1shot_v1`    | 1     | 89,29     | 47%            | 0,901  | 0,760     | 0,825         | 0,825         | 217               | 676 s     |
+| `absa_cot_v1`          | 2     | 91,14     | 51%            | 0,909  | 0,833     | 0,870         | 0,868         | 217               | 739 s     |
 
 Chi phí **input** đã đo ở tiền xử lý cho model (mục 4.2): 228,61 / 375,61 / 680,61 / 949,61 token/review - nên
 tổng chi phí của CoT là input dài hơn **và** output dài hơn cùng lúc.

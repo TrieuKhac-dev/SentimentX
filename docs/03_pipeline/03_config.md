@@ -1,5 +1,8 @@
 # Cấu hình pipeline (`configs/pipeline/v0.1.0.yaml`)
 
+> Đọc file này khi: sửa cách làm sạch dữ liệu.
+> Liên quan: `docs/05_config/02_pipeline.md`, `docs/03_pipeline/02_steps.md`
+
 ## 1. Cách đọc file này
 
 - Mọi phép biến đổi đều **bật / tắt được**. Quy ước: `true` = BẬT (có thực hiện biến

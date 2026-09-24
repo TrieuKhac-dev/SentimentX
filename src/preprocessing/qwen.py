@@ -70,7 +70,7 @@ def load_prompt(name):
     if not name:
         raise ValueError(
             "Thiếu tên prompt. Prompt nằm trong config của thí nghiệm, không lấy từ config "
-            "model; hãy truyền tên prompt, ví dụ 'qwen_absa_cot_v1'."
+            "model; hãy truyền tên prompt, ví dụ 'absa_cot_v1'."
         )
     return prompts.load(name)
 

@@ -1,5 +1,8 @@
 # Định dạng dữ liệu đầu ra
 
+> Đọc file này khi: đọc file mà pipeline ghi ra.
+> Liên quan: `docs/03_pipeline/02_steps.md`, `docs/04_experiments/02_model_input.md`
+
 ## 1. Vì sao là CSV, không phải Parquet
 
 Đầu ra là **CSV** (`{split}.csv`). Đã cân nhắc dùng Parquet nhưng chọn CSV

@@ -1,5 +1,8 @@
 # Thêm một bước Pipeline mới
 
+> Đọc file này khi: thêm một bước pipeline mới.
+> Liên quan: `docs/03_pipeline/02_steps.md`, `src/registry.py`
+
 1. Tạo file mới trong `src/pipeline/`, ví dụ `dedup_cross_split.py`.
 
 2. Viết hàm `run(context)`, trong đó:

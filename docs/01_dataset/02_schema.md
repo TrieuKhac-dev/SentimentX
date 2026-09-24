@@ -1,5 +1,8 @@
 # Schema và ý nghĩa nhãn
 
+> Đọc file này khi: sửa schema, hoặc cần biết ý nghĩa từng nhãn.
+> Liên quan: `docs/01_dataset/01_raw_data.md`, `docs/05_config/03_datasets.md`
+
 ## 1. Schema
 
 Mỗi dòng có 9 cột, nhưng **schema không còn được viết cứng trong code**. Nó nằm

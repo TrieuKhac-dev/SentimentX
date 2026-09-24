@@ -1,5 +1,8 @@
 # Cách tính từng chỉ số của EDA
 
+> Đọc file này khi: cần hiểu một chỉ số EDA đo gì.
+> Liên quan: `docs/02_eda/01_flow.md`, `docs/04_experiments/metrics.md`
+
 Đọc file này **trước khi đọc báo cáo EDA**: mọi chỉ số ở đây đều là quy ước do
 dự án chọn, không phải một chuẩn học thuật. Nơi nào là "chọn tay" thì đều được nói rõ.
 

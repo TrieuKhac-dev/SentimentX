@@ -4,7 +4,7 @@
 Cách dùng:
     python run_token_stats.py
     python run_token_stats.py --dataset cosmetics
-    python run_token_stats.py --prompt qwen_absa_v1      # đo một prompt khác
+    python run_token_stats.py --prompt absa_direct_v1      # đo một prompt khác
     python run_token_stats.py --segmenter vncorenlp      # chọn bộ tách từ cho PhoBERT
     python run_token_stats.py --list-prompts             # xem đang có prompt nào
     python run_token_stats.py --list-segmenters          # xem máy đã cài bộ tách từ nào

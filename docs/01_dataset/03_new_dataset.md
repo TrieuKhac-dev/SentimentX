@@ -1,5 +1,8 @@
 # Thêm một dataset mới
 
+> Đọc file này khi: thêm một dataset mới.
+> Liên quan: `docs/01_dataset/02_schema.md`, `docs/05_config/03_datasets.md`
+
 Xem hướng dẫn đầy đủ ở [README, mục 7](../README.md). Tóm tắt:
 
 1. Đặt dữ liệu gốc vào `data/raw/<tên>/` (mỗi dataset một thư mục riêng).

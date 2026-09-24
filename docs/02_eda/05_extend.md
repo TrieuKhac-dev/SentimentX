@@ -1,5 +1,8 @@
 # Thêm một mục EDA mới
 
+> Đọc file này khi: thêm một mục EDA mới.
+> Liên quan: `docs/02_eda/03_modules.md`, `src/registry.py`
+
 ## 1. Ba bước
 
 1. Tạo file mới trong `src/eda/`, ví dụ `emoji_deep.py`.

@@ -1,7 +1,6 @@
 # 06. Quy ước code, config, tài liệu
 
 > Đọc file này khi: viết code, viết config hoặc viết tài liệu mới.
->
 > Liên quan: `docs/00_workflow/05_git_commits.md`, `docs/05_config/01_paths.md`
 
 ## Chú thích
@@ -39,7 +38,9 @@
 
 ## Tài liệu
 
-- Mỗi file tài liệu mở đầu bằng hai dòng riêng: `> Đọc file này khi:` và `> Liên quan:`.
+- Mỗi file tài liệu mở đầu bằng **đúng hai dòng**, ngay sau dòng tiêu đề `#`:
+  `> Đọc file này khi:` rồi `> Liên quan:`. Hai dòng này **liền nhau**, không có dòng `>` trống
+  ở giữa, và không thêm dòng `>` nào khác (chú thích dài thì viết thành câu văn bên dưới).
 - Mỗi file chỉ nói một chủ đề, không quá dài. Nội dung dài thì tách thành nhiều file nhỏ.
 - `docs/README.md` là mục lục duy nhất: nhóm, file, nội dung, đọc khi nào.
 - Không ghi số liệu hay đặc trưng của dữ liệu vào tài liệu. Muốn xem thì mở đúng thư mục

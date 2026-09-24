@@ -1,5 +1,8 @@
 # Việc ĐÃ BIẾT nhưng CHƯA LÀM (backlog)
 
+> Đọc file này khi: chọn việc làm tiếp.
+> Liên quan: `docs/06_plan/README.md`, `docs/04_experiments/01_models.md`
+
 File này ghi lại những việc dự án đã nhận diện được nhưng **cố ý chưa làm** trong đợt
 này, để lần sau không quên và để người đọc tài liệu biết chỗ nào còn thiếu (thay vì
 tưởng đã xong). Mỗi mục ghi: việc gì, vì sao hoãn, và làm tiếp thì bắt đầu từ đâu.
@@ -49,8 +52,8 @@ token, và chạy model để biết chất lượng.
 **Đã xong (đợt này):**
 
 - Bốn prompt, đủ để tách riêng ảnh hưởng của "có suy luận" và "bao nhiêu ví dụ":
-  `qwen_absa_v1` (một lượt, 0 ví dụ), `qwen_absa_cot_zeroshot_v1` (0 ví dụ) ,
-  `qwen_absa_cot_1shot_v1` (1 ví dụ), `qwen_absa_cot_v1` (2 ví dụ).
+  `absa_direct_v1` (một lượt, 0 ví dụ), `absa_cot_zeroshot_v1` (0 ví dụ) ,
+  `absa_cot_1shot_v1` (1 ví dụ), `absa_cot_v1` (2 ví dụ).
 - **Chi phí input đã đo** (train): 229,50 -> 376,50 -> 681,50 -> 950,50 token/review. Mỗi ví
   dụ khoảng 287-305 token; prompt CoT dài nhất cần 1.195 token -> ngưỡng 1280 giữ 0% bị cắt ở
   mọi split. Bảng đầy đủ ở [02_model_input.md mục 4.2](02_model_input.md).
@@ -71,9 +74,9 @@ token, và chạy model để biết chất lượng.
   bản) và `tests/` (27 test cho bộ đọc + chỉ số, chạy không cần GPU).
 
 **Đã có kết quả chất lượng (đợt này):** bốn cấu hình prompt chạy trên cùng tập con 100
-review của `val` (greedy, 4-bit): `qwen_absa_v1` **90,86** acc macro / F1 nhắc 0,891 **46**
-token sinh/review **104 s**; `qwen_absa_cot_zeroshot_v1` **91,43** / 0,884 / 233 token /
-564 s; `qwen_absa_cot_1shot_v1` 89,29 / 0,825 / 217 token / 676 s; `qwen_absa_cot_v1` 91,14
+review của `val` (greedy, 4-bit): `absa_direct_v1` **90,86** acc macro / F1 nhắc 0,891 **46**
+token sinh/review **104 s**; `absa_cot_zeroshot_v1` **91,43** / 0,884 / 233 token /
+564 s; `absa_cot_1shot_v1` 89,29 / 0,825 / 217 token / 676 s; `absa_cot_v1` 91,14
 / 0,870 / 217 token / 739 s. Kết luận: **CoT không thắng rõ** (chênh lệch nằm trong khoảng
 nhiễu của 700 ô) nhưng đắt gấp ~5 lần ở output và ~5-7 lần thời gian; CoT chỉ **đổi kiểu
 lỗi** (thận trọng hơn: precision cao hơn, recall thấp hơn). Bảng đầy đủ + hạn chế:

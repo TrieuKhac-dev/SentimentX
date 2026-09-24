@@ -1,5 +1,8 @@
 # Luồng Data Pipeline (xử lý dữ liệu)
 
+> Đọc file này khi: chạy hoặc sửa Data Pipeline.
+> Liên quan: `docs/03_pipeline/02_steps.md`, `docs/05_config/02_pipeline.md`
+
 ## 1. Pipeline để làm gì
 
 Pipeline trả lời đúng **một** câu hỏi:

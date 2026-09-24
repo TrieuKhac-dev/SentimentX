@@ -1,7 +1,6 @@
 # SentimentX - mục lục tài liệu
 
 > Đọc file này khi: cần tìm một tài liệu.
->
 > Liên quan: `docs/06_plan/README.md` (kế hoạch triển khai), `docs/00_workflow/01_flow.md` (luồng làm việc)
 
 ## Lộ trình đọc cho người mới

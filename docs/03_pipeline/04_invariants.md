@@ -1,5 +1,8 @@
 # Ba bất biến của pipeline - và cách chứng minh
 
+> Đọc file này khi: kiểm một bất biến của dữ liệu đầu ra.
+> Liên quan: `docs/03_pipeline/02_steps.md`, `docs/04_experiments/metrics.md`
+
 Ba điều dưới đây **không được phép xảy ra** ở bất kỳ bước nào. Mỗi điều đều có một
 phép kiểm tự động riêng, in kết quả lên báo cáo pipeline (Step 4 và Step 6).
 

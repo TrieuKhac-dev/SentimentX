@@ -1,7 +1,6 @@
 # 02. Luật bắt buộc
 
 > Đọc file này khi: trước khi chạy hoặc giao một thí nghiệm.
->
 > Liên quan: `docs/00_workflow/01_flow.md`, `docs/05_config/03_datasets.md`
 
 ## Nhánh và code

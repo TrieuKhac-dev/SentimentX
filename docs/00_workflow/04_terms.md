@@ -1,7 +1,6 @@
 # 04. Thuật ngữ
 
 > Đọc file này khi: gặp một từ không rõ nghĩa trong tài liệu hoặc trong code.
->
 > Liên quan: `docs/05_config/01_paths.md`, `docs/04_experiments/metrics.md`
 
 ## Các nhóm việc của dự án

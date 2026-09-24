@@ -1,5 +1,8 @@
 # Luồng EDA (khảo sát dữ liệu)
 
+> Đọc file này khi: chạy hoặc sửa luồng EDA.
+> Liên quan: `docs/02_eda/02_metrics.md`, `docs/03_pipeline/01_flow.md`
+
 ## 1. EDA để làm gì
 
 EDA trả lời đúng **một** câu hỏi:

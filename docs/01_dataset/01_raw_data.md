@@ -1,7 +1,6 @@
 # Dữ liệu gốc
 
 > Đọc file này khi: làm việc với dữ liệu gốc.
->
 > Liên quan: `docs/01_dataset/02_schema.md`, `docs/05_config/03_datasets.md`
 
 ## 1. Nơi lưu và cách đánh phiên bản

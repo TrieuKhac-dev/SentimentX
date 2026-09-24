@@ -1,7 +1,6 @@
 # 05. Quy ước commit
 
 > Đọc file này khi: chuẩn bị commit.
->
 > Liên quan: `docs/06_plan/APPENDIX_commits.md`
 
 ## Định dạng

@@ -3,7 +3,7 @@
 
 Cách dùng:
     python run_check_examples.py                       # kiểm mọi prompt có file ví dụ
-    python run_check_examples.py --prompt qwen_absa_cot_v1
+    python run_check_examples.py --prompt absa_cot_v1
     python run_check_examples.py --max-overlap 5        # siết ngưỡng cảnh báo
 
 VÌ SAO CẦN PHÉP KIỂM NÀY

@@ -1,5 +1,8 @@
 # Chi tiết từng module EDA
 
+> Đọc file này khi: sửa hoặc thêm một mục EDA.
+> Liên quan: `docs/02_eda/01_flow.md`, `docs/02_eda/05_extend.md`
+
 Mỗi module trong `src/eda/` là một **mục báo cáo**: nhận cùng một `context` từ
 `run_eda.py` và trả về một dict mô tả mục đó. Thứ tự dưới đây **đúng bằng** thứ tự
 trên báo cáo (`src/registry.py::EDA_MODULES`).

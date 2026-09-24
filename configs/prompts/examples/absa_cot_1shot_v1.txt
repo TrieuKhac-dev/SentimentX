@@ -1,8 +1,8 @@
 # --- NGUỒN VÍ DỤ (chú thích của dự án — KHÔNG được gửi cho model) ---
 # Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
 # Kiểm chứng: python run_check_examples.py
-# Biến thể ONE-SHOT của qwen_absa_cot_v1: giống Y HỆT về prompt, chỉ khác là giữ ĐÚNG
-# MỘT ví dụ. Prompt dùng chung nội dung với qwen_absa_cot_v1.txt nên so sánh hai bên là
+# Biến thể ONE-SHOT của absa_cot_v1: giống Y HỆT về prompt, chỉ khác là giữ ĐÚNG
+# MỘT ví dụ. Prompt dùng chung nội dung với absa_cot_v1.txt nên so sánh hai bên là
 # so sánh 1 ví dụ với 2 ví dụ, không lẫn thay đổi câu chữ.
 # Nếu sau này lấy ví dụ TỪ DỮ LIỆU: CHỈ được lấy từ split train, ghi rõ "train, dòng N".
 # --- HẾT CHÚ THÍCH ---

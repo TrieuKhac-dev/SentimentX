@@ -1,5 +1,8 @@
 # Quy ước trình bày báo cáo
 
+> Đọc file này khi: viết hoặc sửa nội dung báo cáo.
+> Liên quan: `docs/02_eda/03_modules.md`, `src/reporting/`
+
 Áp dụng cho **cả** báo cáo EDA và báo cáo Pipeline - hai báo cáo dùng chung
 `src/reporting/` (Jinja2 + Plotly), chỉ khác dữ liệu đầu vào.
 

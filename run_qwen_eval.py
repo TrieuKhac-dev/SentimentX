@@ -3,9 +3,9 @@
 
 Cách dùng:
     python run_qwen_eval.py --dataset cosmetics --split val
-    python run_qwen_eval.py --split val --prompt qwen_absa_v1
-    python run_qwen_eval.py --split val --prompt qwen_absa_cot_v1 --limit 200
-    python run_qwen_eval.py --split val --prompt qwen_absa_cot_v1 --limit 200 --sample
+    python run_qwen_eval.py --split val --prompt absa_direct_v1
+    python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200
+    python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200 --sample
 
 VÌ SAO PHẢI CHẠY TRÊN VAL TRƯỚC
 ---

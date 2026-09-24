@@ -159,7 +159,7 @@ python run_token_stats.py --dataset cosmetics
 # 5) (Pha 3) Xem/phối hợp cấu hình đo: prompt nào, bộ tách từ nào, ngưỡng cắt nào
 python run_token_stats.py --list-prompts            # đang có prompt nào (tên + sha)
 python run_token_stats.py --list-segmenters         # máy này cài được bộ tách từ nào
-python run_token_stats.py --prompt qwen_absa_v1     # đo với một prompt khác
+python run_token_stats.py --prompt absa_direct_v1     # đo với một prompt khác
 python run_token_stats.py --segmenter pyvi          # đo với một bộ tách từ khác
 python run_token_stats.py --max-length qwen=1280    # đo với ngưỡng cắt khác (thử nhanh)
 
@@ -167,7 +167,7 @@ python run_token_stats.py --max-length qwen=1280    # đo với ngưỡng cắt 
 python run_check_examples.py
 
 # 7) (Pha 4) Chạy Qwen3 bằng chỉ dẫn (prompt một lượt / CoT) rồi chấm điểm
-python run_qwen_eval.py --split val --prompt qwen_absa_cot_v1 --limit 200
+python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200
 
 # 8) Test tự động (không cần GPU, không cần model)
 python -m unittest discover -s tests

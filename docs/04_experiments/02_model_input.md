@@ -1,5 +1,8 @@
 # Tiền xử lý cho model - chuẩn bị input cho từng model
 
+> Đọc file này khi: đo độ dài input thật, hoặc chọn `max_length`.
+> Liên quan: `docs/04_experiments/01_models.md`, `docs/05_config/04_models.md`
+
 ## 1. Khung mã nguồn (đã dựng sẵn)
 
 ```
@@ -29,6 +32,9 @@ src/
 `loader.py` là cửa vào duy nhất: nó đọc bảng multi_head trong
 `data/processed/<mã>/`, và sinh ra dạng dữ liệu mà từng model cần
 (`to_multi_head_arrays` cho encoder, `to_absa_records` cho model sinh).
+`project_multi_head` chiếu ma trận nhãn theo không gian nhãn của thí nghiệm và trả về `mask`,
+nên ô bị loại (ví dụ ô neutral khi `neutral_policy: drop`) không được tính vào loss mà cũng
+không làm mất các khía cạnh khác của cùng review.
 Các file model còn lại **không tự đọc file CSV** - nhờ vậy đổi dataset hay đổi
 phiên bản preprocessing không phải sửa code model.
 
@@ -41,15 +47,25 @@ Câu chỉ dẫn gửi cho Qwen3 là một **biến thực nghiệm**: cùng m�
 là đổi kết quả. Vì vậy nội dung prompt nằm ở `configs/prompts/<tên>.txt`, còn thí nghiệm
 nào dùng prompt nào do config của chính thí nghiệm quyết định (khoá `prompt`).
 
+`configs/prompts/` là **thư viện prompt dùng chung**: file ở đây tái sử dụng được cho nhiều
+model và nhiều thí nghiệm. Vì là thư viện dùng chung nên **tên file đặt theo NỘI DUNG của
+prompt** (`absa_direct_v1`, `absa_cot_v1`, `absa_cot_1shot_v1`), không đặt theo model hay theo
+thí nghiệm: model và phương pháp đã nằm trong đường dẫn `experiments/<model_id>/<method>/<expNNN>/`,
+ghi thêm vào tên file là hai nguồn sự thật cho cùng một việc.
+
+Prompt riêng của một thí nghiệm thì để ngay trong thư mục thí nghiệm (`prompt.txt`) và trỏ tới
+bằng khoá `prompt`; dùng file trong thư viện chung cũng được. Cả hai đều là đường dẫn tính từ
+thư mục thí nghiệm trước, rồi tới gốc repo.
+
 ```bash
 python run_token_stats.py --list-prompts          # đang có prompt nào, sha nào
-python run_token_stats.py --prompt qwen_absa_v1    # đo một prompt khác mặc định
+python run_token_stats.py --prompt absa_direct_v1    # đo một prompt khác mặc định
 ```
 
 | Quyết định thiết kế | Vì sao |
 |--------------------|--------|
 | Prompt ở file `.txt`, không phải chuỗi trong Python | Sửa/so sánh (diff) như văn bản; giữ nguyên dấu ba nháy, xuống dòng, ngoặc nhọn |
-| Tên prompt ở `configs/models/*.yaml`, **không** ở `configs/pipeline/v0.1.0.yaml` | `pipeline.yaml` được đưa vào hash để sinh **mã phiên bản dữ liệu**, nên để prompt ở đó sẽ đẻ ra mã phiên bản mới vô nghĩa cho cùng một dataset |
+| Tên prompt ở config của THÍ NGHIỆM (`experiments/<model_id>/<method>/<expNNN>/config.yaml`), **không** ở `configs/models/<model_id>.yaml` hay `configs/pipeline/<v>.yaml` | `pipeline.yaml` đi vào hash để sinh **mã phiên bản dữ liệu**, nên để prompt ở đó sẽ đẻ ra mã phiên bản mới vô nghĩa cho cùng một dataset. Còn config model là "model đọc dữ liệu thế nào", không phải "thí nghiệm hỏi thế nào" |
 | File `.txt` không chứa siêu dữ liệu | Một nguồn sự thật cho "prompt nào đang dùng"; tên file + sha được in ra và ghi vào mục lục |
 | Sai ô nhớ / thiếu `{text}` / dòng đánh dấu lạ -> **lỗi ngay khi nạp** | Chạy 15.000 review bằng một prompt sai là mất một buổi; thà dừng ở giây đầu |
 
@@ -164,7 +180,7 @@ Ba chốt an toàn đi kèm:
 1. **Không vượt trần kiến trúc** của model (PhoBERT 258, ViSoBERT 514, Qwen 262.144): vượt
    là bị chặn ngay, kèm gợi ý dùng `--max-length <model>=<số>`.
 2. **Cờ dòng lệnh thì tên file có thêm `maxlen-<model>-<số>`** (ví dụ
-   `token_stats__prompt-qwen_absa_cot_v1__maxlen-qwen-1024.csv`) -> chạy thử một giá trị
+   `token_stats__prompt-absa_cot_v1__maxlen-qwen-1024.csv`) -> chạy thử một giá trị
    khác không ghi đè lên số liệu của cấu hình chính. Ngược lại, sửa `preprocess.max_length`
    trong `configs/models/<model_id>.yaml` là đổi **cấu hình của dự án**, nên vẫn ghi vào file
    mặc định (`token_stats.csv`) - nếu không, chỉ đổi một dòng YAML là file mặc định biến mất,
@@ -196,7 +212,7 @@ Ba chốt an toàn đi kèm:
 
 
 Số liệu đã đo cho dataset `cosmetics` (split `train`, phiên bản `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34`,
-bộ tách từ `vncorenlp`, prompt `qwen_absa_v1`; bản đầy đủ cả 3 split nằm trong
+bộ tách từ `vncorenlp`, prompt `absa_direct_v1`; bản đầy đủ cả 3 split nằm trong
 `token_stats.csv`. Cấu hình có thể đã đổi, hãy chạy lại lệnh trên để lấy số của phiên
 bản đang dùng):
 
@@ -271,10 +287,10 @@ của thư mục phiên bản:
 
 | Prompt | ví dụ | file số liệu | token/review TB | p50 | p95 | p99 | max | % > 1280 |
 |--------|-------|--------------|-----------------|-----|-----|-----|-----|----------|
-| `qwen_absa_v1` (một lượt) | 0 | `token_stats.csv` | 229,50 | 224 | 268 | 298 | 474 | 0,00 |
-| `qwen_absa_cot_zeroshot_v1` | 0 | `...__prompt-qwen_absa_cot_zeroshot_v1.csv` | 376,50 | 371 | 415 | 445 | 621 | 0,00 |
-| `qwen_absa_cot_1shot_v1` | 1 | `...__prompt-qwen_absa_cot_1shot_v1__ex-5d530f7c.csv` | 681,50 | 676 | 720 | 750 | 926 | 0,00 |
-| `qwen_absa_cot_v1` | 2 | `...__prompt-qwen_absa_cot_v1__ex-c513f5a6.csv` | 950,50 | 945 | 989 | 1.019 | **1.195** | 0,00 |
+| `absa_direct_v1` (một lượt) | 0 | `token_stats.csv` | 229,50 | 224 | 268 | 298 | 474 | 0,00 |
+| `absa_cot_zeroshot_v1` | 0 | `...__prompt-absa_cot_zeroshot_v1.csv` | 376,50 | 371 | 415 | 445 | 621 | 0,00 |
+| `absa_cot_1shot_v1` | 1 | `...__prompt-absa_cot_1shot_v1__ex-5d530f7c.csv` | 681,50 | 676 | 720 | 750 | 926 | 0,00 |
+| `absa_cot_v1` | 2 | `...__prompt-absa_cot_v1__ex-c513f5a6.csv` | 950,50 | 945 | 989 | 1.019 | **1.195** | 0,00 |
 
 Ba điều đọc ra từ bảng này:
 
@@ -295,7 +311,7 @@ Vì vậy có hai lựa chọn ngưỡng cắt, **cả hai đều có số liệ
 
 | Ngưỡng cắt | File | Ảnh hưởng thật |
 |-----------|------|----------------|
-| 1280 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | `token_stats__prompt-qwen_absa_cot_v1__ex-c513f5a6.csv` | 0 mẫu bị cắt ở **mọi** split |
+| 1280 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | `token_stats__prompt-absa_cot_v1__ex-c513f5a6.csv` | 0 mẫu bị cắt ở **mọi** split |
 | 1024 (phương án đã cân nhắc, giữ lại để đối chiếu) | `...__ex-c513f5a6__maxlen-qwen-1024.csv` (chạy bằng `--max-length qwen=1024`) | 82/12.302 mẫu **train** mất phần đuôi (0,67%); val 0,59%; test 0,53% |
 
 **Quyết định:** dùng **1280** - số liệu ở cột `% review > max_length` khi đó bằng 0 ở mọi
