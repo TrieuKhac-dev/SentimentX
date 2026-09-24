@@ -38,6 +38,15 @@ GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn kho�
       -> `docs(experiments): record baseline results against reference`
 - [ ] T5. Giao notebook cho giảng viên: đẩy dữ liệu, notebook và `.env.colab` lên Drive, gửi hướng dẫn.
       (không tạo commit)
+      Gói bàn giao đã dựng sẵn (25/09/2026), chỉ chờ gửi: `sentimentx-exp001-ban-giao.zip` (2,03 MB)
+      với 13 file, giữ đúng cấu trúc mà notebook mong đợi khi giải nén vào Drive:
+      `.sentimentx_root` (file đánh dấu), `notebook-exp001.ipynb`, `HUONG_DAN.md`,
+      `env/.env.colab.example`, `data/raw/cosmetics/v0.1.0/` (4 CSV + `raw_meta.yaml`),
+      `data/processed/<mã>/` (train, val, test, label_map).
+      Kiểm trước khi gửi, bằng cách coi chính gói là thư mục Drive: mã phiên bản tính từ dữ liệu
+      TRONG GÓI khớp tên thư mục; `test.csv` trong gói có sha256 `e2558137...` và 1518 bản ghi, khớp
+      số đã đo; notebook trong gói ghim `67819b8` và sạch output; `preflight` từ gói báo 0 việc phải
+      sửa, chế độ NEW. Phần chỉ Colab kiểm được: mount Drive, bấm Allow, và GPU T4.
 
 ## 4. Điều kiện hoàn thành (DoD)
 

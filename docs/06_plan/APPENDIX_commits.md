@@ -125,6 +125,7 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P6 | `fix(scripts): the documented --title now fills notes` |
 | P6 T5 | `docs(config): prompt paths resolve from the experiment folder first` |
 | P7 T2 | `feat(data): regenerate eda and pipeline reports` |
+| P7 T5 | `docs(plan): record the prepared handover package` |
 
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 
