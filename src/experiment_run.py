@@ -501,10 +501,22 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
                   "(tập LỰA CHỌN, không phải test).")
     limit = limit if limit else limit_of(config_data)
     quant = quant or "auto"
+    # Giữ lại tham số ĐÈ của người gọi (dòng lệnh hoặc `SENTIMENTX_MODEL`): đường encoder dùng nó
+    # làm nguồn trọng số, còn đường prompt để `run_model` suy tiếp từ config.
+    model_override = model
     model = run_model(config_data, model)
     # Số review mỗi lượt sinh: tham số truyền vào (dòng lệnh) -> `inference.batch_size` của model.
     if not batch_size:
         batch_size = batch_size_of(model_id, config_data)
+
+    # Model encoder đi đường khác: nó phải HỌC trước khi trả lời, và không có prompt nào để ghim.
+    # Phần chấm điểm và ghi kết quả thì dùng chung, nên ở đây chỉ rẽ nhánh phần LẬP KẾ HOẠCH.
+    if model_config.approach_of(config_data, model_id) == "encoder":
+        from src import encoder_run
+
+        return encoder_run.plan(config_data, merged, ds=ds, version_id=version_id, split=split,
+                                limit=limit, model=model_override, seed=seed, batch_size=batch_size,
+                                max_length=max_length, quant=quant, new=new, quiet=quiet)
 
     # Prompt: tên trong thư viện dùng chung, hoặc đường dẫn tới file cạnh notebook. Nạp xong thì
     # đăng ký luôn (`qwen.load_prompt`), vì các bước sau chỉ truyền được một cái TÊN.
@@ -660,6 +672,13 @@ def run(plan_data, log=None):
               "        {}".format(utils.rel(out_dir)))
         return {"out_dir": out_dir, "mode": mode, "reason": plan_data["reason"], "stopped": True}
 
+    # Đường chạy encoder có vòng đời riêng (huấn luyện rồi mới suy luận): nó tự mở nhật ký và bản
+    # ghi, rồi quay lại `finish` của file này để chấm điểm và ghi kết quả - một bản chấm, hai đường.
+    if plan_data.get("approach") == "encoder":
+        from src import encoder_run
+
+        return encoder_run.run(plan_data, log=log)
+
     # Nạp biến môi trường TRƯỚC khi mở phiên ghi nhận: `DAGSHUB_TOKEN` nằm ở Colab Secrets hoặc
     # file `.env` (cả hai đều không được commit). Không nạp thì token có trong máy mà phần ghi
     # nhận vẫn báo "thiếu token" - một lỗi im lặng rất khó đoán.
@@ -778,8 +797,14 @@ def finish(plan_data, rows, cost, model_info, info, session, log):
     print_table(table_rows, table_columns)
     print("\nTổng hợp:")
     print_scores(result["scores"])
-    print("\nChi phí lượt này: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
-        cost["token sinh TB"], cost["giây"], cost["token sinh/giây"]))
+    if plan_data.get("approach") == "encoder":
+        # Model encoder không sinh token, nên "token sinh" và "token/giây" vô nghĩa ở đây; con số
+        # có nghĩa là thời gian huấn luyện + suy luận của cả lượt.
+        print("\nChi phí lượt này: {} giây cho {} mẫu (gồm {} bước huấn luyện)".format(
+            cost["giây"], len(rows_all), cost.get("số bước", "-")))
+    else:
+        print("\nChi phí lượt này: {} token sinh/review TB, {} giây, {} token sinh/giây".format(
+            cost["token sinh TB"], cost["giây"], cost["token sinh/giây"]))
     if plan_data["skip"]:
         print("Dùng lại {} mẫu của lần chạy trước ({} mẫu chạy trong lượt này).".format(
             len(plan_data["skip"]), len(rows)))
