@@ -76,6 +76,7 @@ def log_config(plan_data, log):
         found["delete_intermediate"]))
     log.config("chạy: max_length={} | batch chấm={} | device={} | dtype={}".format(
         plan_data["max_length"], plan_data["batch_size"], plan_data["device"], found["dtype"]))
+    log.config("mã hạt giống: {}".format(plan_data["seed"]))
 
 
 def run_record(plan_data):
@@ -259,9 +260,6 @@ def plan(config_data, merged, ds, version_id, split=None, limit=None, model=None
         texts = [texts[position] for position in keep]
         golds = [golds[position] for position in keep]
         row_index = [row_index[position] for position in keep]
-
-    log.config("mã hạt giống: {}".format(plan_data["seed"]))
-
 
     info = {
         "dataset": ds["name"], "version_id": version_id, "split": split, "approach": APPROACH,

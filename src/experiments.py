@@ -439,7 +439,7 @@ KNOWN_KEYS = (
     # lớp tracking
     "tracker", "experiment", "artifacts",
     # lớp config thí nghiệm
-    "exp_id", "parent", "model", "method",
+    "exp_id", "parent", "model", "method", "notes",
     "data.dataset", "data.version",
     "prompt", "examples", "system_prompt", "requires_extra",
 )
