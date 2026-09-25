@@ -187,3 +187,7 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Công cụ in prompt THẬT gửi cho model (chat template, số token, phần bị cắt ở đuôi) | `feat(scripts): show the exact prompt a model receives` |
 | Ghi hai công cụ đó vào tài liệu máy cá nhân | `docs(env): document the command-line tools for local runs` |
 | Ghi kết quả lượt chạy trên Colab (T4) và lượt thử 8 mẫu ở local vào git | `chore(experiments): record the colab run and the local smoke run` |
+| Bảng mã trong prompt bị lọc HAI chiều: trước đây vẫn dạy `3 = neutral` dù bài toán là binary + drop | `fix(labels): teach the label guide the experiment actually scores` |
+| Ô CSV nhiều dòng làm người đọc tưởng mất cột: mỗi bản ghi ghi trên một dòng vật lý | `fix(utils): keep one CSV record per physical line` |
+| Nói rõ dòng `KẾT QUẢ` cuối prompt chỉ là khuôn JSON (mã toàn số 0 dễ bị chép nguyên) | `fix(prompts): say the result line is a JSON shape, not an answer` |
+| Trang `05_predictions.md`: bảng giá trị `kiểu đọc`/`lí do` và cách ghi ô nhiều dòng | `docs(experiments): explain the reading route and the reason column` |

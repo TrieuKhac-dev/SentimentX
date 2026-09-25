@@ -74,7 +74,11 @@ Các ô nhớ được phép dùng: `{text}` (bắt buộc), `{aspects}`, `{labe
 các dòng đánh dấu `[SYSTEM]`, `[USER]`, `[ASSISTANT]` - chi tiết ghi ở đầu
 `src/prompts.py`. Bảng mã nhãn trong prompt (`{label_guide}`) **sinh từ
 `label_map.json`** của đúng phiên bản dữ liệu, nên dataset khác bộ nhãn thì prompt đổi
-theo.
+theo, **và bị lọc theo `label_space` + `neutral_policy`** của thí nghiệm: bài toán
+`binary` + `drop` thì bảng mã chỉ còn `0/1/2` (lỗi đã sửa 25/09/2026: trước đó bảng mã vẫn
+dạy `3 = neutral` vì chỉ lọc một chiều, tức dạy model một mã mà không gian nhãn không có).
+`{example}` là KHUÔN JSON đủ khoá theo bộ khía cạnh, mã toàn số 0 - nên prompt nói rõ đó là
+khuôn để điền, không phải đáp án.
 
 ### 2.1. Ví dụ few-shot là file RIÊNG (và là một biến thực nghiệm)
 

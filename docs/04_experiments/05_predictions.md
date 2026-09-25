@@ -25,9 +25,9 @@
 | `chỉ số` | Số thứ tự của review trong file dữ liệu của split | Tra ngược về đúng review; cũng là khoá để chạy tiếp đúng mẫu đã xong |
 | `split` | Tập đang chạy (`val`, `test`, `train`) | Chống nhầm: cùng prompt nhưng chấm trên tập khác là hai thí nghiệm |
 | `prompt` | **TÊN** prompt trong thư viện (`absa_cot_v1`), không phải nội dung | Biết dùng cấu hình nào; nội dung + sha nằm ở `run_meta.json` |
-| `kiểu đọc` | Bộ đọc lấy nhãn từ đâu: khối `KẾT QUẢ:` hay object JSON cuối cùng | `khối KẾT QUẢ` là đường chính; kiểu khác là đường lui, cần biết để đánh giá chất lượng |
+| `kiểu đọc` | Bộ đọc lấy nhãn bằng ĐƯỜNG NÀO (xem bảng dưới) | `khối KẾT QUẢ` là đường chính; kiểu khác là đường lui, cần biết để đánh giá chất lượng định dạng |
 | `đọc được` | `có` / `KHÔNG` — bộ đọc có lấy được bộ nhãn hợp lệ | Đọc được thì mới chấm; tỉ lệ này là chỉ số sức khoẻ của prompt |
-| `lí do` | Vì sao `có`/`KHÔNG` (`ok`, `câu trả lời rỗng`, `thiếu khía cạnh`…) | Tìm nguyên nhân khi tỉ lệ đọc được thấp |
+| `lí do` | Vì sao `có`/`KHÔNG`, hoặc lý do đọc được nhưng chưa trọn vẹn (xem bảng dưới) | Tìm nguyên nhân khi tỉ lệ đọc được thấp |
 | `text` | Review gốc tiếng Việt, nguyên văn | Đối chiếu câu trả lời với dữ liệu thật; kiểm "trích dẫn có đúng nguyên văn" |
 | `nhãn đúng` | Đáp án thật, JSON `{khía cạnh: mã}` | So với `nhãn đoán` để biết đúng/sai từng khía cạnh |
 | `nhãn đoán` | Model đoán, cùng dạng JSON; rỗng nếu `đọc được = KHÔNG` | Là thứ được chấm; rỗng được tính là sai cả hai ô (xem `metrics.md`) |
@@ -41,9 +41,40 @@
 Hai cột `prompt gửi model` và `câu trả lời` nằm cạnh nhau, nên đọc một dòng là thấy liền mạch:
 **câu hỏi → câu trả lời → nhãn đọc được**.
 
+**Mỗi bản ghi nằm gọn trên MỘT dòng vật lý.** Ô có ký tự xuống dòng thật (prompt, câu trả lời) được
+ghi thành hai ký tự `\n` khi ra CSV (`src/utils.py`, hàm `write_csv`). Chuẩn CSV cho phép ô nhiều
+dòng, nhưng trình xem nào coi "một dòng = một bản ghi" (Notepad, VSCode, công cụ tự viết) sẽ thấy
+dòng dừng ở giữa và tưởng các cột phía sau biến mất. Văn bản nhiều dòng nguyên gốc vẫn còn trong
+`predictions/part_*.jsonl` và trong `câu trả lời` của `mispredictions.csv`.
+
 **Model encoder (PhoBERT, ViSoBERT) KHÔNG có cột `prompt gửi model`.** Chúng học trực tiếp từ chuỗi
 thô chứ không đọc prompt nào, nên bảng của chúng giữ nguyên 14 cột — thêm một cột rỗng vào đó là nói
 sai về dữ liệu. Chi tiết kỹ thuật: `src/evaluation/records.py` (`columns(with_prompt=...)`).
+
+### 2.1. `kiểu đọc` — các giá trị
+
+| Giá trị | Nghĩa |
+| --- | --- |
+| `khối KẾT QUẢ` | Tìm thấy dấu `KẾT QUẢ:` và đọc object JSON sau dấu đó — ĐƯỜNG CHÍNH của prompt CoT |
+| `đường lui: object JSON cuối cùng` | Không thấy dấu `KẾT QUẢ:`, nên bộ đọc lấy object JSON cân bằng CUỐI CÙNG trong cả câu trả lời. Đọc được nhưng là đường lui: nếu tỉ lệ này cao thì prompt chưa dạy được định dạng |
+| `không đọc được` | Chưa xác định được đường đọc (câu trả lời rỗng, hoặc không có JSON nào) |
+
+Bộ đọc nhận cả vài biến thể gõ thiếu dấu (`KẾT QUA:`, `KET QUA:`, `KẾT QUẢ :`) vì model hay mắc khi
+trả lời nhanh — chi tiết ở `src/evaluation/parse.py`.
+
+### 2.2. `lí do` — các giá trị
+
+| Giá trị | Nghĩa |
+| --- | --- |
+| `ok` | Đọc được, mã đều hợp lệ, và **đủ cả 7 khía cạnh** — không có gì để lưu ý. Vì thế cột này "toàn ok" ở một lượt chạy tốt; nó chỉ có ích khi có dòng KHÁC `ok` |
+| `ok (thiếu texture, price)` | Đọc được nhưng JSON thiếu khía cạnh nào đó; ô thiếu bị tính là SAI (không được điền 0 hộ) |
+| `không thấy khối kết quả` | Có dấu mở khối nhưng phần sau không có object JSON nào |
+| `không thấy JSON nào` | Cả câu trả lời không có object JSON cân bằng nào |
+| `JSON không hợp lệ (...)` | Object tìm thấy nhưng `json.loads` lỗi (kèm thông báo của Python) |
+| `kết quả không phải object JSON` | JSON đọc được nhưng không phải object (ví dụ một mảng hoặc một chuỗi) |
+| `khoá không khớp bộ khía cạnh` | Object không có khoá nào trùng bộ khía cạnh của dataset |
+| `mã nhãn không hợp lệ` | Khoá đúng nhưng mã nằm ngoài bảng mã của không gian nhãn (ví dụ trả `3` khi bài toán là `binary`) |
+| `câu trả lời rỗng` | Model trả về chuỗi rỗng |
 
 ## 3. Đọc một dòng theo thứ tự nào
 
