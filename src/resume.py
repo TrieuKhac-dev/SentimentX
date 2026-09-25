@@ -16,7 +16,6 @@ và ghi thành attempt mới (mục 14). Kết quả cũ không bị xoá - ch�
 """
 
 import json
-import shutil
 from pathlib import Path
 
 from src import paths, runlog
@@ -161,17 +160,4 @@ class Parts:
             handle.flush()
         self._cache = None
         return path
-
-    def stash(self):
-        """Chuyển các khối cũ sang thư mục con (KHÔNG xoá). Trả về thư mục đó, hoặc None."""
-        existing = self.paths()
-        if not existing:
-            return None
-        moment = runlog.now().replace(":", "").replace(" ", "-")
-        folder = self.directory() / "_bo-qua-{}".format(moment)
-        folder.mkdir(parents=True, exist_ok=True)
-        for path in existing:
-            shutil.move(str(path), str(folder / path.name))
-        self._cache = None
-        return folder
 

@@ -61,12 +61,12 @@ class ReportError(Exception):
 
 
 def default_roots():
-    """Các gốc mặc định để quét lượt chạy: thí nghiệm, và thư mục đánh giá chạy tay.
+    """Gốc quét lượt chạy: gốc kết quả của các thí nghiệm (`experiments/**/results/<hash8>/`).
 
-    Cả hai đều là chỗ kết quả THẬT nằm, và cả hai đều có `run_meta.json`. Thư mục đánh giá chạy tay
-    vẫn phải quét: những lượt đo thử prompt nằm ở đó và chúng cũng là bằng chứng.
+    Chỉ còn MỘT gốc: mọi kết quả đều thuộc một thí nghiệm, nên không có chỗ nào khác để quét và
+    cũng không có lượt chạy nào "không thuộc thí nghiệm nào".
     """
-    roots = [paths.results_root(), config.MODEL_EVAL_REPORT_DIR]
+    roots = [paths.results_root()]
     seen, unique = set(), []
     for path in roots:
         key = str(Path(path).resolve()) if Path(path).exists() else str(path)
@@ -115,17 +115,20 @@ def _read_json(path):
 
 
 def canonical_label(run):
-    """Nhãn của một lượt chạy: `<model>/<method>/<expNNN>` nếu thuộc thí nghiệm, không thì `tag`.
+    """Nhãn của một lượt chạy: `<model>/<method>/<expNNN>:<hash8>`.
 
-    Thí nghiệm là đơn vị so sánh, nên nhãn phải nói được nó thuộc thí nghiệm nào; lượt chạy tay
-    (không thí nghiệm) thì dùng tên thư mục kết quả, vì tên đó đã ghi rõ cấu hình.
+    Thí nghiệm là đơn vị so sánh, nên nhãn phải nói được nó thuộc thí nghiệm nào; thêm mã băm danh
+    tính vì một thí nghiệm có thể có nhiều lượt chạy (khác commit hoặc khác cấu hình), và tên thư
+    mục chỉ là mã băm nên không tự nói được gì.
     """
     meta = run.get("meta") or {}
     experiment = dict(meta.get("experiment") or {})
+    run_block = dict(meta.get("run") or {})
+    hash8 = str(run_block.get("hash") or (run.get("dir") or "").name)
     model, method, exp_id = experiment.get("model"), experiment.get("method"), experiment.get("exp_id")
     if model and method and exp_id:
-        return "{}/{}/{}".format(model, method, exp_id)
-    return str((meta.get("run") or {}).get("tag") or (run.get("dir") or "").name)
+        return "{}/{}/{}:{}".format(model, method, exp_id, hash8)
+    return hash8
 
 
 # ---

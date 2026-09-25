@@ -35,7 +35,7 @@ cần GPU (`python -m unittest discover -s tests`).
 import time
 from pathlib import Path
 
-from src import config, paths, utils
+from src import paths, utils
 from src.evaluation import metrics, parse, records
 from src.preprocessing import qwen
 
@@ -267,16 +267,6 @@ def _as_json(labels):
     return json.dumps(labels, ensure_ascii=False)
 
 
-def run_dir(version_id, tag):
-    """Thư mục của MỘT lần chạy: `<thư mục kết quả đánh giá>/<mã phiên bản>/<hậu tố>/`.
-
-    Mỗi cấu hình chạy (prompt, split, cách sinh) có thư mục riêng, nên tên file TRONG đó là tên
-    cố định đọc từ `configs/paths.yaml` (`predictions.csv`, `metrics.json`) thay vì ghép chuỗi.
-    Ghép chuỗi thì tên file là nguồn sự thật thứ hai, và nó lệch khỏi config lúc nào không biết.
-    """
-    return config.MODEL_EVAL_REPORT_DIR / str(version_id) / str(tag)
-
-
 def write(rows, columns, out_dir, name=None):
     """Ghi một bảng CSV vào thư mục của lần chạy. Trả về đường dẫn file."""
     return utils.write_csv(rows, columns,
@@ -401,6 +391,9 @@ def load(quant="auto", model_name=None):
         if quantization is not None and how.startswith("4-bit") else short
     info["cách nạp"] = how
     info["thiết bị"] = str(next(model.parameters()).device)
+    # Kiểu số THẬT đã dùng, tách thành khoá riêng: trước đây nó chỉ nằm lồng trong chuỗi `quant`
+    # ("4-bit nf4 (tính bằng bfloat16)"), nên muốn so hai máy phải đọc chuỗi và cắt ra.
+    info["dtype"] = short
     if torch.cuda.is_available():
         info["gpu"] = torch.cuda.get_device_name(0)
         info["vram_gb"] = round(

@@ -86,31 +86,22 @@ class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
         self.assertEqual(settings["temperature"], 0.2)
         self.assertEqual(settings["top_p"], 0.9)
 
-    def test_tag_ghi_ro_cau_hinh(self):
-        greedy = experiment_run.build_tag("absa_cot_v1", "val", 200, False, None)
-        self.assertEqual(greedy, "prompt-absa_cot_v1__val__n200__greedy")
-        full = experiment_run.build_tag("absa_cot_v1", "test", 0, True, "4bit")
-        self.assertEqual(full, "prompt-absa_cot_v1__test__sample__4bit")
+    def test_run_hash_lay_tam_ky_tu_dau_cua_ma_bam(self):
+        self.assertEqual(experiment_run.run_hash("1a2b3c4d5e6f"), "1a2b3c4d")
+        self.assertEqual(experiment_run.run_hash("abc"), "abc")
 
-    def test_tag_ghi_them_model_khi_chay_bang_model_khac(self):
-        # Chạy thử bằng model nhỏ mà tên thư mục không nhắc gì thì lần chạy THẬT sau đó sẽ thấy
-        # "đã chạy xong" và dừng - nên model phải vào tên thư mục.
-        config_data = {"checkpoint": "Qwen/Qwen3-4B-Instruct-2507"}
-        self.assertIsNone(experiment_run.model_tag("Qwen/Qwen3-4B-Instruct-2507", config_data))
-        self.assertIsNone(experiment_run.model_tag(None, config_data))
-        self.assertEqual(experiment_run.model_tag("data/models/Qwen3-0.6B", config_data),
-                         "Qwen3-0.6B")
-        tagged = experiment_run.build_tag("absa_cot_v1", "val", 4, False, None, "Qwen3-0.6B")
-        self.assertEqual(tagged, "prompt-absa_cot_v1__val__n4__greedy__Qwen3-0.6B")
-
-    def test_ket_qua_trong_thi_nghiem_di_vao_thu_muc_thi_nghiem(self):
-        inside, flag = experiment_run.out_dir_of("v1", "tag", "model", "method", "exp001")
-        self.assertTrue(flag)
-        self.assertTrue(inside.as_posix().startswith(
+    def test_ket_qua_di_vao_thu_muc_thi_nghiem_theo_ma_bam(self):
+        folder = experiment_run.out_dir_of("1a2b3c4d", "model", "method", "exp001")
+        self.assertTrue(folder.as_posix().startswith(
             paths.experiment_dir("model", "method", "exp001").as_posix()))
-        outside, flag = experiment_run.out_dir_of("v1", "tag")
-        self.assertFalse(flag)
-        self.assertEqual(outside, config.MODEL_EVAL_REPORT_DIR / "v1" / "tag")
+        self.assertEqual(folder.name, "1a2b3c4d")
+
+    def test_thieu_dinh_danh_thi_nghiem_la_loi(self):
+        """Không còn chỗ ghi ngoài thí nghiệm, nên thiếu bộ ba định danh là LỖI có hướng dẫn."""
+        with self.assertRaises(experiment_run.RunError) as caught:
+            experiment_run.out_dir_of("1a2b3c4d", "model", None, "exp001")
+        self.assertIn("method", str(caught.exception))
+        self.assertIn("new_experiment.py", str(caught.exception))
 
     def test_batch_size_lay_tu_config_cua_model(self):
         """Đúng lỗi đã xảy ra: notebook gọi `plan()` không truyền batch, mà plan cũng không lấy từ
@@ -132,6 +123,9 @@ class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
                 "merged": {"overrides": [["n", 100, 200, "experiment"]]},
                 "model_id": "qwen3-4b-instruct-2507", "method": "prompt-cot", "exp_id": "exp001",
                 "version_id": "cosmetics-ds0.1.0", "split": "val", "limit": 200,
+                "max_length": 2304, "batch_size": 8,
+                "generation": {"max_new_tokens": 400, "do_sample": False, "temperature": None,
+                               "top_p": None, "top_k": None, "seed": None},
                 "prompt": prompts.load("absa_cot_v1"), "examples": None, "sampled": False}
         with tempfile.TemporaryDirectory() as tmp:
             with runlog.start(Path(tmp) / "tag") as log:
@@ -140,6 +134,10 @@ class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
         self.assertIn("[CONFIG] đè n: 100 <- 200", text)
         self.assertIn("label_space=binary", text)
         self.assertIn("prompt: absa_cot_v1", text)
+        # Ngưỡng cắt và cách sinh phải nằm trong FILE: màn hình thì notebook không giữ lại.
+        self.assertIn("max_length=2304", text)
+        self.assertIn("max_new_tokens=400", text)
+        self.assertIn("batch=8", text)
 
     def test_doi_ten_nhan_theo_ma_so(self):
         names = experiment_run.label_names({"id_to_label": {0: "không", 1: "có"}})
@@ -211,9 +209,13 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
         cls.prompt_name = names[0]
 
     def _plan(self, **kwargs):
+        # Mọi lượt chạy đều thuộc MỘT thí nghiệm (không còn đường ghi ngoài thí nghiệm), nên bộ ba
+        # định danh là bắt buộc - test truyền sẵn, test nào muốn kiểm thiếu thì đè lại.
+        options = {"model_id": "model", "method": "method", "exp_id": "exp001"}
+        options.update(kwargs)
         try:
             return experiment_run.plan(self.merged, split="val", limit=3,
-                                       prompt=self.prompt_name, **kwargs)
+                                       prompt=self.prompt_name, **options)
         except (FileNotFoundError, dataset.DatasetError) as exc:
             self.skipTest("chưa có dữ liệu đã xử lý trên máy này: {}".format(exc))
 
@@ -237,26 +239,41 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
         self.assertIsNone(plan["generation"]["temperature"])
 
     def test_plan_trong_thi_nghiem_ghi_vao_thu_muc_thi_nghiem(self):
-        plan = self._plan(model_id="model", method="method", exp_id="exp001")
-        self.assertTrue(plan["inside"])
+        plan = self._plan()
         self.assertTrue(plan["out_dir"].as_posix().startswith(
             paths.experiment_dir("model", "method", "exp001").as_posix()))
+        # Tên thư mục CHÍNH LÀ mã băm danh tính (8 ký tự), không phải câu mô tả cấu hình.
+        self.assertEqual(plan["out_dir"].name, plan["hash"])
+        self.assertEqual(len(plan["hash"]), 8)
         self.assertEqual(plan["info"]["experiment"],
                          {"model": "model", "method": "method", "exp_id": "exp001"})
 
-    def test_plan_chi_lap_ke_hoach_khong_dong_vao_ket_qua_cu(self):
-        """`plan()` KHÔNG được chuyển/xoá kết quả cũ: người gọi có thể chỉ muốn xem trước rồi thôi.
+    def test_thieu_thi_nghiem_la_loi(self):
+        """Không còn chỗ ghi nào NGOÀI thí nghiệm: thiếu định danh thì DỪNG, không tự chọn chỗ khác."""
+        with self.assertRaises(experiment_run.RunError) as caught:
+            self._plan(model_id=None, method=None, exp_id=None)
+        self.assertIn("thí nghiệm", str(caught.exception))
+        self.assertIn("new_experiment.py", str(caught.exception))
 
-        Việc chuyển khối cũ sang `_bo-qua-*` thuộc `run()`. Ở đây chặn bằng một spy ném lỗi nếu ai
-        gọi `stash()` trong lúc lập kế hoạch, và kiểm kế hoạch có ghi lại SỐ khối cần chuyển.
+    def test_doi_commit_thi_doi_ma_bam(self):
+        """Mã băm danh tính có commit: cùng cấu hình nhưng khác bản code là THƯ MỤC KHÁC."""
+        plan = self._plan()
+        other = dict(plan["repo"])
+        other["sha"] = "f" * 40
+        with mock.patch.object(experiment_run.run_meta, "repo_info", return_value=other):
+            changed = self._plan()
+        self.assertNotEqual(plan["hash"], changed["hash"])
+        self.assertTrue(changed["out_dir"].name.startswith(changed["hash"]))
+
+    def test_plan_khong_dong_vao_dia(self):
+        """`plan()` chỉ lập kế hoạch: không tạo thư mục kết quả, không chuyển/xoá kết quả cũ.
+
+        Không còn `_bo-qua-*` để chuyển: thư mục kết quả là duy nhất theo mã băm danh tính, nên
+        không có chuyện hai phép đo chen vào một thư mục.
         """
-        with mock.patch.object(experiment_run.resume.Parts, "count", return_value=3), \
-                mock.patch.object(experiment_run.resume, "decide",
-                                  return_value=(resume.MODE_NEW, "theo yêu cầu --new")), \
-                mock.patch.object(experiment_run.resume.Parts, "stash",
-                                  side_effect=AssertionError("plan() đã chuyển kết quả cũ")):
-            plan = self._plan(new=True)
-        self.assertEqual(plan["stash_count"], 3)
+        plan = self._plan()
+        self.assertFalse(plan["out_dir"].exists())
+        self.assertFalse(hasattr(experiment_run.resume.Parts, "stash"))
 
     def test_plan_prompt_nam_canh_thi_nghiem(self):
         source = prompts.prompt_path(self.prompt_name)
@@ -272,7 +289,8 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
                 shutil.copyfile(str(examples), str(tmp / "examples.txt"))
                 extra["examples"] = "examples.txt"
             plan = experiment_run.plan(dict(self.merged, dir=str(tmp)), split="val", limit=2,
-                                       prompt="prompt.txt", **extra)
+                                       prompt="prompt.txt", model_id="model", method="method",
+                                       exp_id="exp001", **extra)
             self.assertEqual(plan["prompt"].name, "prompt")
             self.assertEqual(plan["prompt"].path, tmp / "prompt.txt")
             self.assertEqual(len(plan["texts"]), 2)
@@ -295,7 +313,8 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
             # (chưa nạp model) - và tuyệt đối không được lấy file prompt làm file ví dụ.
             with self.assertRaises(prompts.PromptError):
                 experiment_run.plan(dict(self.merged, dir=str(tmp)), split="val", limit=2,
-                                    prompt="prompt.txt")
+                                    prompt="prompt.txt", model_id="model", method="method",
+                                    exp_id="exp001")
         finally:
             shutil.rmtree(str(tmp), ignore_errors=True)
 
@@ -329,16 +348,16 @@ class RunIdentityTest(unittest.TestCase):
         ds = dataset.load_config(config["data"]["dataset"])
         return result, config, prompt_obj, versioning.compute_id(ds)
 
-    def identity(self):
+    def identity(self, **overrides):
         result, config, prompt_obj, version_id = self.pieces()
-        with mock.patch.dict(os.environ, {"SENTIMENTX_MODEL": ""}):
-            found = experiment_run.run_identity(
-                config, version_id, prompt_obj, "test",
-                limit=experiment_run.limit_of(config),
-                sampled=experiment_run.settings_of(config)[1],
-                quant=experiment_run.effective_quant("auto", config),
-                model=experiment_run.run_model(config, None),
-                model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
+        options = dict(
+            model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP,
+            generation=experiment_run.run_generation(
+                config, experiment_run.effective_quant("auto", config),
+                experiment_run.settings_of(config)[1]),
+            max_length=experiment_run.effective_max_length(config))
+        options.update(overrides)
+        found = experiment_run.run_identity(config, version_id, prompt_obj, **options)
         return result, config, prompt_obj, version_id, found
 
     def test_plan_and_preflight_agree_on_the_folder_and_the_fingerprint(self):
@@ -355,22 +374,38 @@ class RunIdentityTest(unittest.TestCase):
         self.assertEqual(pre_fingerprint["config_sha256"], plan_data["config_sha256"])
         self.assertEqual(pre_fingerprint["sha"], plan_data["repo"]["sha"])
 
-    def test_folder_name_carries_the_configuration_fingerprint(self):
+    def test_folder_name_is_the_identity_hash(self):
         _result, _config, _prompt, _version, found = self.identity()
-        self.assertIn("cfg{}".format(found["config_sha256"][:8]), found["tag"])
-        self.assertTrue(found["out_dir"].name.endswith(found["tag"]))
-        self.assertTrue(found["inside"], "thí nghiệm phải ghi kết quả vào thư mục của nó")
+        self.assertEqual(found["out_dir"].name, found["hash"])
+        self.assertEqual(found["hash"], found["config_sha256"][:8])
 
-    def test_quantization_shows_up_in_the_folder_name(self):
-        """4-bit và không lượng hoá là hai phép đo khác nhau: không được chung thư mục."""
-        _result, config, _prompt, _version, _found = self.identity()
-        four = experiment_run.build_tag(
-            "absa_cot_v1", "test", None, False, experiment_run.effective_quant("4bit", config))
-        none_quant = experiment_run.build_tag(
-            "absa_cot_v1", "test", None, False, experiment_run.effective_quant("none", config))
-        self.assertIn("4bit", four)
-        self.assertNotIn("4bit", none_quant)
-        self.assertNotEqual(four, none_quant)
+    def test_another_model_source_keeps_the_same_folder(self):
+        """Nguồn trọng số KHÔNG vào mã băm: Colab (id HF) và local (thư mục trên đĩa) phải ra CÙNG tên.
+
+        Đây là điều kiện để copy kết quả từ Drive về repo, và để hai bên không sinh ra hai thư mục
+        "trông khác nhau mà thật ra là một".
+        """
+        _result, _config, _prompt, _version, found = self.identity()
+        self.assertNotIn("Qwen3-4B", found["out_dir"].name)
+        self.assertEqual(len(found["out_dir"].name), 8)
+
+    def test_quantization_changes_the_hash(self):
+        """4-bit và không lượng hoá là hai phép đo khác nhau, nên phải ra hai thư mục khác.
+
+        Lượng hoá nằm trong cấu hình (`inference.quantization`) nên đã vào mã băm; đổi nó là đổi
+        cấu hình, đúng như luật "khác cấu hình thì khác thư mục".
+        """
+        _result, config, _prompt, _version, four = self.identity()
+        plain_config = dict(config)
+        plain_config["inference"] = dict(config.get("inference") or {})
+        plain_config["inference"]["quantization"] = None
+        _result2, _config2, _prompt2, _version2, plain = self.identity()
+        changed = experiment_run.run_identity(
+            plain_config, _version, _prompt2, model_id=self.MODEL, method=self.METHOD,
+            exp_id=self.EXP)
+        self.assertNotEqual(four["hash"], changed["hash"])
+        self.assertNotEqual(four["out_dir"], changed["out_dir"])
+        self.assertNotEqual(plain["hash"], changed["hash"])
 
     def test_changing_the_examples_file_changes_the_fingerprint(self):
         """Đổi bộ ví dụ mà dấu vân tay không đổi thì lượt chạy bị ngắt sẽ RESUME trên bộ ví dụ CŨ."""
@@ -378,10 +413,10 @@ class RunIdentityTest(unittest.TestCase):
         with mock.patch.object(experiment_run, "side_shas",
                                return_value={"examples": ("x.txt", "khac-sha")}):
             changed = experiment_run.run_identity(
-                config, version_id, prompt_obj, "test", limit=None, sampled=False, quant=None,
-                model=None, model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
+                config, version_id, prompt_obj, model_id=self.MODEL, method=self.METHOD,
+                exp_id=self.EXP)
         self.assertNotEqual(changed["config_sha256"], found["config_sha256"])
-        self.assertNotEqual(changed["fingerprint"], found["fingerprint"])
+        self.assertNotEqual(changed["out_dir"], found["out_dir"])
 
 
 class SystemLabelTest(unittest.TestCase):

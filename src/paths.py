@@ -152,10 +152,16 @@ def experiment_dir(model_id, method, exp_id):
     return experiments_dir() / str(model_id) / str(method) / str(exp_id)
 
 
-def results_dir(model_id, method, exp_id, ma):
-    """Thư mục kết quả một lần chạy: gốc kết quả `<model>/<method>/<exp>/results/<mã>/`."""
+def results_dir(model_id, method, exp_id):
+    """Thư mục kết quả của một thí nghiệm: `<gốc kết quả>/<model>/<method>/<exp>/results/`.
+
+    Mỗi LƯỢT CHẠY là một thư mục con tên là **mã băm danh tính** (xem
+    `experiment_run.run_identity`), nên không còn tầng "mã phiên bản dữ liệu" ở giữa: mã phiên bản
+    dữ liệu đã nằm trong chính mã băm, và nhờ vậy đường dẫn ngắn, đọc được, và giống nhau trên mọi
+    máy (`experiments/<model_id>/<method>/<expNNN>/results/<hash8>/`).
+    """
     return (results_root() / str(model_id) / str(method) / str(exp_id)
-            / cfg()["patterns"].get("run_meta_dir", "results") / str(ma))
+            / cfg()["patterns"].get("run_meta_dir", "results"))
 
 
 def pattern(key, **values):

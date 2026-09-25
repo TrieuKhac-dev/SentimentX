@@ -70,10 +70,10 @@ class TestDefaultPaths(unittest.TestCase):
         root = paths.root()
         self.assertEqual(paths.experiment_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp001"),
                          root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp001")
+        # Một tầng: thư mục lượt chạy là thư mục con của `results/`, tên là mã băm danh tính.
         self.assertEqual(
-            paths.results_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp001", "cosmetics-ds0.1.0"),
-            root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp001"
-            / "results" / "cosmetics-ds0.1.0")
+            paths.results_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp001"),
+            root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp001" / "results")
 
     def test_patterns(self):
         self.assertEqual(paths.pattern("run_log"), "run.log")
@@ -109,8 +109,8 @@ class TestEnvOverrides(unittest.TestCase):
         with mock.patch.dict(os.environ, {paths.ENV_RESULTS_ROOT: target}):
             self.assertEqual(paths.results_root(), Path(target))
             self.assertEqual(
-                paths.results_dir("m", "method", "exp001", "ma"),
-                Path(target) / "m" / "method" / "exp001" / "results" / "ma")
+                paths.results_dir("m", "method", "exp001"),
+                Path(target) / "m" / "method" / "exp001" / "results")
             # Thư mục định nghĩa thí nghiệm vẫn nằm trong repo.
             self.assertEqual(paths.experiment_dir("m", "method", "exp001"),
                              paths.root() / "experiments" / "m" / "method" / "exp001")

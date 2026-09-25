@@ -31,7 +31,7 @@ class TestRecords(unittest.TestCase):
 
     def build(self, **kwargs):
         payload = dict(
-            tag="prompt-absa_cot_v1__val__greedy",
+            hash8="1a2b3c4d",
             experiment={"model": "qwen3-4b-instruct-2507", "method": "prompt-cot",
                         "exp_id": "exp001"},
             data={"dataset": "cosmetics", "version": "v0.1.0",

@@ -37,10 +37,8 @@ PROMPT_DIR = paths.config_path("prompts")        # nội dung prompt, mỗi prom
 # Đường dẫn file config pipeline KHÔNG còn ở đây: mỗi phiên bản là một file riêng, lấy qua
 # utils.pipeline_config_path() theo `pipeline_version` khai trong file dataset.
 
-# CÒN LẠI TỪ CẤU TRÚC CŨ, giữ cho ĐƯỜNG CHẠY TAY: chạy ngoài thí nghiệm (đo thử prompt, chấm lại
-# từ file dự đoán) ghi kết quả ở đây. Chạy TRONG thí nghiệm thì ghi vào
-# `experiments/<model>/<method>/<expNNN>/results/<mã>/`. Xem docs/04_experiments/04_backlog.md mục 6.
-MODEL_EVAL_REPORT_DIR = REPORT_DIR / "model_eval"
+# Không còn thư mục kết quả cho "đường chạy tay ngoài thí nghiệm": MỌI kết quả đều thuộc một thí
+# nghiệm và nằm ở `experiments/<model>/<method>/<expNNN>/results/<hash8>/`. Xem docs/00_workflow/01_flow.md.
 
 # Tên file kết quả do run_eda.py / run_pipeline.py ghi ra
 RESULT_FILE_SUFFIX = "_result.json"

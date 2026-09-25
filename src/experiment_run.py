@@ -20,6 +20,7 @@ kiểm được trong vài giây; còn `run` mới là bước tốn hàng chụ
 `preflight` trước, chỉ khi sạch mới tới `run`.
 """
 
+import json
 import random
 from pathlib import Path
 
@@ -107,50 +108,34 @@ def effective_max_length(config_data, passed=None):
     return qwen.limit()[0]
 
 
-def build_tag(prompt_name, split, limit, sampled, quant, model=None, config_sha=None):
-    """Tên thư mục kết quả của MỘT cấu hình chạy.
+def run_hash(config_sha256):
+    """Tên thư mục kết quả của một lượt chạy: **tám ký tự đầu của mã băm danh tính**.
 
-    Cấu hình nằm ở TÊN THƯ MỤC nên tên file bên trong là tên cố định, và hai lượt chạy khác cấu
-    hình không bao giờ ghi đè nhau. Các phần, theo thứ tự:
-
-        `prompt-<tên>`  câu hỏi đang hỏi (tên file prompt)
-        `<split>`       chấm trên tập nào
-        `n<N>`          tập con bao nhiêu mẫu (bỏ khi chấm cả split)
-        `greedy`/`sample`  cách sinh
-        `<quant>`       cách biểu diễn model (4bit, 8bit...); bỏ khi model không lượng hoá
-        `<model>`       CHỈ khi model khác `checkpoint` của config (chạy thử bằng model nhỏ, hoặc
-                        dùng trọng số có sẵn trên đĩa): không ghi thì hai lượt chạy khác model mà
-                        cùng cấu hình sẽ tranh nhau một thư mục, và lượt thứ hai bị coi là "đã chạy
-                        xong" - một lỗi im lặng rất khó thấy.
-        `cfg<sha8>`     tám ký tự đầu của dấu vân tay cấu hình (xem `run_identity`). Đây là phần bảo
-                        đảm "KHÁC CẤU HÌNH thì KHÁC THƯ MỤC" kể cả khi mọi phần trên trùng nhau -
-                        ví dụ cùng tên prompt nhưng nội dung file prompt hoặc bộ ví dụ đã đổi.
-
-    `model` và `quant` là ĐIỀU KIỆN CHẠY, không phải biến thí nghiệm; chúng ở đây vì cùng một cấu
-    hình chạy 4-bit và không lượng hoá là hai phép đo khác nhau, phải nằm khác thư mục.
+    Tên thư mục CỐ Ý không mô tả gì. Đường dẫn đã nói thí nghiệm nào
+    (`experiments/<model_id>/<method>/<expNNN>/`), còn cấu hình đầy đủ nằm trong mã băm và trong
+    `run_meta.json` của chính thư mục đó. Nhờ vậy cùng một phép đo chạy trên Colab và trên máy cá
+    nhân ra **cùng một tên thư mục** - điều kiện để copy kết quả từ Drive về repo, và để hai bên
+    không sinh ra hai thư mục "trông khác nhau mà là một".
     """
-    parts = ["prompt-{}".format(prompt_name), str(split)]
-    if limit:
-        parts.append("n{}".format(limit))
-    parts.append("sample" if sampled else "greedy")
-    if quant:
-        parts.append(str(quant))
-    if model:
-        parts.append(str(model))
-    if config_sha:
-        parts.append("cfg{}".format(str(config_sha)[:8]))
-    return "__".join(parts)
+    return str(config_sha256)[:8]
 
 
-def model_tag(model, config_data):
-    """Phần tên model để đưa vào tên thư mục: rỗng nếu trùng checkpoint của config.
+def out_dir_of(hash8, model_id=None, method=None, exp_id=None):
+    """Thư mục kết quả của lượt chạy: `experiments/<model>/<method>/<exp>/results/<hash8>/`.
 
-    Model truyền vào có thể là id HF (`Qwen/Qwen3-0.6B`) hoặc thư mục cục bộ (`data/models/Qwen3-0.6B`),
-    nên chỉ lấy đoạn cuối cho tên thư mục ngắn và đọc được.
+    KHÔNG còn đường ghi nào NGOÀI thí nghiệm: mọi kết quả đều thuộc một thí nghiệm, nên con số luôn
+    truy được về một cấu hình đã ghim. Thiếu định danh thí nghiệm là LỖI, không phải chuyện tự chọn
+    chỗ ghi khác - kết quả nằm ngoài thí nghiệm thì không ai biết nó thuộc bản code nào.
     """
-    if not model or str(model) == str(config_data.get("checkpoint") or ""):
-        return None
-    return str(model).replace("\\", "/").strip("/").split("/")[-1] or None
+    missing = [name for name, value in (("model_id", model_id), ("method", method),
+                                        ("exp_id", exp_id)) if not value]
+    if missing:
+        raise RunError(
+            "Chưa biết kết quả thuộc thí nghiệm nào (thiếu {}).\n"
+            "      Mở notebook của thí nghiệm rồi bấm Run all, hoặc tạo thí nghiệm mới bằng\n"
+            "      `python scripts/new_experiment.py <model_id>/<method>/<expNNN>`.".format(
+                ", ".join(missing)))
+    return paths.results_dir(model_id, method, exp_id) / str(hash8)
 
 
 def inside_experiment(exp_dir, value):
@@ -204,6 +189,30 @@ def merged_task(config_data):
             for name in ("label_space", "neutral_policy", "not_mentioned")}
 
 
+def run_record(plan_data):
+    """Các giá trị CHỈ CÓ KHI CHẠY, để ghi vào khối `run` của `run_meta.json`.
+
+    Vì sao cần: `metrics.json` chỉ ra đời khi lượt chạy XONG, nên một lượt bị ngắt giữa chừng không
+    cho biết nó đã đo bằng gì. Khối này ghi ngay từ lúc bắt đầu (cùng lúc với `run.log`), nên tra
+    được cả với lượt chạy hỏng. Máy/GPU/kiểu số không nằm ở đây mà ở khối `env` - chúng chỉ biết
+    được SAU khi nạp model.
+    """
+    return {
+        "split": plan_data["split"],
+        "limit": plan_data["limit"],
+        "n_samples": plan_data["info"]["n_samples"],
+        "subset_seed": plan_data["seed"],
+        "quant": plan_data["quant"],
+        "max_length": plan_data["max_length"],
+        "batch_size": plan_data["batch_size"],
+        "generation": dict(plan_data.get("generation") or {}),
+        "prompt": plan_data["prompt"].name,
+        "prompt_sha": plan_data["prompt"].sha,
+        "examples_sha": (plan_data["examples"] or {}).get("sha"),
+        "system_sha": (plan_data["system"] or {}).get("sha"),
+    }
+
+
 def log_config(plan_data, log):
     """Ghi bảng GHI ĐÈ và giá trị hiệu lực vào `run.log` với nhãn `[CONFIG]`.
 
@@ -227,19 +236,51 @@ def log_config(plan_data, log):
         plan_data["prompt"].name, plan_data["prompt"].sha,
         (plan_data["examples"] or {}).get("sha") or "không dùng",
         "greedy" if not plan_data["sampled"] else "lấy mẫu"))
+    generation = dict(plan_data.get("generation") or {})
+    log.config("chạy: max_length={} | max_new_tokens={} | batch={} | do_sample={} "
+               "temperature={} top_p={} top_k={} seed={}".format(
+                   plan_data["max_length"], generation.get("max_new_tokens"),
+                   plan_data["batch_size"], generation.get("do_sample"),
+                   generation.get("temperature"), generation.get("top_p"),
+                   generation.get("top_k"), generation.get("seed")))
 
 
-def out_dir_of(version_id, tag, model_id=None, method=None, exp_id=None):
-    """Thư mục kết quả của lần chạy, và cho biết có nằm TRONG thí nghiệm không.
+def sibling_runs(out_dir):
+    """Các lượt chạy KHÁC đã có của cùng thí nghiệm: một dòng mô tả mỗi thư mục.
 
-    Đủ ba phần định danh thí nghiệm thì dùng đúng chỗ của thí nghiệm
-    (`experiments/<model>/<method>/<expNNN>/results/<mã>/<hậu tố>/`). Chạy tay trên dòng lệnh mà
-    không nêu thí nghiệm thì dùng thư mục đánh giá cũ - và nói rõ là đang chạy NGOÀI thí nghiệm,
-    để không ai tưởng kết quả đó thuộc một thí nghiệm đã ghim.
+    In ra trước khi bắt đầu, vì mã băm danh tính có cả commit: ghim lại bản code (kể cả chỉ sửa tài
+    liệu) là ra thư mục MỚI, và người chạy cần thấy mình đang tạo lượt mới vì bản code/cấu hình khác
+    - chứ không phải mất một lượt chạy dài trong im lặng.
     """
-    if model_id and method and exp_id:
-        return paths.results_dir(model_id, method, exp_id, version_id) / str(tag), True
-    return config.MODEL_EVAL_REPORT_DIR / str(version_id) / str(tag), False
+    found = []
+    parent = Path(out_dir).parent
+    if not parent.is_dir():
+        return found
+    for path in sorted(parent.glob("*")):
+        if not path.is_dir() or path.resolve() == Path(out_dir).resolve():
+            continue
+        record = run_meta.read(path)
+        if not record:
+            continue
+        run = dict(record.get("run") or {})
+        scores = ((_read_json(path / paths.pattern("metrics_json")).get("scores") or {})
+                  .get("accuracy") or {})
+        found.append("{}  commit {}  {:<9}  accuracy macro {}".format(
+            path.name, str((record.get("repo") or {}).get("sha", ""))[:7],
+            run.get("status", ""), scores.get("macro", "-")))
+    return found
+
+
+def _read_json(path):
+    """Đọc JSON, trả {} nếu thiếu file hoặc file hỏng (việc in cảnh báo không được làm chết lượt chạy)."""
+    path = Path(path)
+    if not path.is_file():
+        return {}
+    try:
+        with open(path, encoding="utf-8") as handle:
+            return json.load(handle)
+    except (OSError, ValueError):
+        return {}
 
 
 def print_table(rows, columns):
@@ -292,9 +333,10 @@ def print_config(plan_data, model_info):
     examples = plan_data["examples"]
     system = plan_data.get("system")
     print("Cấu hình chạy:")
-    print("  thí nghiệm  : {}".format(
-        "{}/{}/{}".format(plan_data["model_id"], plan_data["method"], plan_data["exp_id"])
-        if plan_data["inside"] else "chạy NGOÀI thí nghiệm (kết quả không thuộc thí nghiệm nào)"))
+    print("  thí nghiệm  : {}/{}/{}".format(
+        plan_data["model_id"], plan_data["method"], plan_data["exp_id"]))
+    print("  thư mục kết quả: {} (mã băm danh tính của lượt chạy)".format(
+        utils.rel(plan_data["out_dir"])))
     print("  prompt      : {} ({}), sha {}".format(prompt.name, prompt.where, prompt.sha))
     print("  ví dụ       : {}".format(
         "{} - {} ví dụ, sha {}".format(examples["file"], examples["examples"],
@@ -386,33 +428,40 @@ def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=42):
                            top_k=card.get("top_k"), seed=seed if sampled else None)
 
 
-def run_identity(config_data, version_id, prompt_obj, split, limit=None, sampled=False,
-                 quant=None, model=None, model_id=None, method=None, exp_id=None,
+def run_identity(config_data, version_id, prompt_obj, model_id=None, method=None, exp_id=None,
                  generation=None, max_length=None):
-    """Thư mục kết quả + dấu vân tay của MỘT lượt chạy: chỗ DUY NHẤT quyết định hai thứ đó.
+    """Thư mục kết quả + mã băm danh tính + dấu vân tay của MỘT lượt chạy: chỗ DUY NHẤT quyết định.
 
     `plan()` (lượt chạy thật) và `preflight` (kiểm trước) đều gọi hàm này, nên không thể nói hai
     chuyện khác nhau. Đã từng lệch thật (25/09/2026): preflight báo `NEW - chưa có lần chạy nào
     trong thư mục này` trong khi lượt chạy cùng lúc báo `RESUME - chạy tiếp từ 16 mẫu đã xong`, vì
     preflight nhìn thư mục PHIÊN BẢN còn lượt chạy nhìn thư mục LƯỢT CHẠY.
 
-    `generation`/`max_length`: đưa vào dấu vân tay vì chúng quyết định model sinh ra gì. Chúng
-    thường suy từ config (đã nằm trong dấu vân tay), nhưng khi chạy tay với `--max-new-tokens`,
-    `--seed`, `--sample` hay `--max-length` thì KHÔNG có trong config - thiếu chúng thì lượt chạy
-    sau được coi là "cùng phép đo" và có thể RESUME trên cách sinh khác.
+    MÃ BĂM DANH TÍNH - và vì sao đúng những thứ này:
 
-    Trả về dict gồm `config_sha256`, `fingerprint`, `tag`, `out_dir`, `inside`, `repo`.
+    | Có trong mã băm | Không có |
+    | --- | --- |
+    | Nội dung cấu hình đã hợp nhất (bài toán, prompt nào, split, n, cách sinh, lượng hoá, ngưỡng cắt) | Máy, GPU, kiểu số (fp16/bf16) |
+    | Nội dung file prompt + file ví dụ + khối hệ thống | Nguồn trọng số (id HF hay thư mục trên đĩa) |
+    | Mã phiên bản dữ liệu | Thời điểm chạy, số lần chạy |
+    | **Commit đã ghim** (`repo.sha`) | |
+    | `generation` và `max_length` hiệu lực (kể cả khi truyền vào lúc chạy) | |
+
+    Nhờ vậy cùng một phép đo trên Colab và trên máy cá nhân ra CÙNG thư mục (copy qua lại được),
+    còn đổi commit - kể cả chỉ sửa tài liệu - là thư mục KHÁC, nên lượt chạy mới không bao giờ trộn
+    vào kết quả cũ.
+
+    Trả về dict gồm `config_sha256`, `fingerprint`, `hash`, `out_dir`, `repo`.
     """
+    repo = run_meta.repo_info(url=config_data.get("url"), branch=config_data.get("branch"))
     config_sha = experiments.config_sha256(
         {"config": config_data}, prompt_text=prompt_obj.text, side_files=side_shas(prompt_obj),
-        extra={"generation": generation or {}, "max_length": max_length})
-    repo = run_meta.repo_info(url=config_data.get("url"), branch=config_data.get("branch"))
+        extra={"generation": generation or {}, "max_length": max_length,
+               "version_id": version_id, "repo_sha": repo["sha"]})
     fingerprint = resume.fingerprint(config_sha, version_id, repo["sha"])
-    tag = build_tag(prompt_obj.name, split, limit, sampled, quant,
-                    model_tag(model, config_data), config_sha)
-    out_dir, inside = out_dir_of(version_id, tag, model_id, method, exp_id)
-    return {"config_sha256": config_sha, "fingerprint": fingerprint, "tag": tag,
-            "out_dir": out_dir, "inside": inside, "repo": repo}
+    hash8 = run_hash(config_sha)
+    return {"config_sha256": config_sha, "fingerprint": fingerprint, "hash": hash8,
+            "out_dir": out_dir_of(hash8, model_id, method, exp_id), "repo": repo}
 
 
 def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, prompt=None,
@@ -500,17 +549,19 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     generation = run_generation(config_data, quant_effective, sampled, max_new_tokens, seed)
     max_length = effective_max_length(config_data, max_length)
 
-    identity = run_identity(config_data, version_id, prompt_obj, split, limit=limit,
-                            sampled=sampled, quant=quant_effective,
-                            model=model, model_id=model_id, method=method, exp_id=exp_id,
+    identity = run_identity(config_data, version_id, prompt_obj,
+                            model_id=model_id, method=method, exp_id=exp_id,
                             generation=generation, max_length=max_length)
-    tag = identity["tag"]
-    out_dir, inside = identity["out_dir"], identity["inside"]
-    if not inside:
-        print("LƯU Ý: chạy NGOÀI thí nghiệm nên kết quả đi vào {} (không thuộc thí nghiệm nào). "
-              "Muốn kết quả nằm trong thí nghiệm thì chạy notebook của thí nghiệm.".format(
-                  utils.rel(out_dir)))
-    if split == "test" and inside:
+    hash8 = identity["hash"]
+    out_dir = identity["out_dir"]
+    others = sibling_runs(out_dir)
+    if others:
+        print("LƯU Ý: thí nghiệm này đã có {} lượt chạy KHÁC:".format(len(others)))
+        for row in others:
+            print("  {}".format(row))
+        print("Lượt này ghi vào thư mục MỚI '{}' (bản code/cấu hình khác). Kết quả cũ không bị "
+              "đụng tới.\n".format(hash8))
+    if split == "test":
         print("LƯU Ý: đang chạy trên TEST. Tập này chỉ dùng cho con số CUỐI CÙNG, sau khi đã")
         print("       chốt prompt và ngưỡng trên val - chọn theo test là tự lừa mình.\n")
 
@@ -536,10 +587,13 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         run_meta.read(out_dir), resume.fingerprint(config_sha256, version_id, repo["sha"]),
         done_count, force_new=new)
     if mode == resume.MODE_NEW and done_count:
-        # KHÔNG chuyển kết quả cũ ở đây: `plan()` chỉ lập kế hoạch, người gọi có thể chỉ muốn XEM
-        # trước (in ra cấu hình, kiểm tra) rồi quyết định không chạy. Việc chuyển khối cũ sang thư
-        # mục con nằm trong `run()`, kèm số khối cần chuyển ở `stash_count`.
-        info["stash_count"] = done_count
+        # Không xảy ra được với mã băm danh tính nằm trong tên thư mục: trong một thư mục thì mọi
+        # attempt đều cùng code + cấu hình + dữ liệu. Nếu vẫn thấy, tức là thư mục bị trộn bằng tay
+        # (sửa run_meta.json, hoặc đổi tên thư mục cũ) - DỪNG, vì chạy tiếp sẽ trộn hai phép đo.
+        raise RunError(
+            "Thư mục {} có {} khối kết quả nhưng bản ghi không khớp lượt chạy hiện tại.\n"
+            "      Không dùng lại được. Xoá thư mục đó rồi chạy lại.".format(
+                utils.rel(out_dir), done_count))
 
     # Mẫu đã chạy xong thì bỏ qua (chỉ khi chạy tiếp).
     skip = parts.keys() if mode == resume.MODE_RESUME else set()
@@ -567,16 +621,17 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
 
     return {
         "config": config_data, "merged": merged, "model_id": model_id, "method": method,
-        "exp_id": exp_id, "exp_dir": exp_dir, "inside": inside, "dataset": ds,
+        "exp_id": exp_id, "exp_dir": exp_dir, "dataset": ds,
         "version_id": version_id, "split": split, "limit": limit, "seed": seed,
         "total": len(frame), "prompt": prompt_obj, "examples": examples_info,
         "system": system_info,
         "label_map": label_map, "labels": label_names(label_map), "aspects": aspects,
         "texts": texts, "golds": golds, "row_index": row_index, "generation": generation,
         "sampled": sampled, "max_length": max_length, "model": model, "quant": quant,
-        "names": names, "stash_count": info.get("stash_count", 0),
+        "names": names,
         "columns": columns,
-        "batch_size": batch_size, "quiet": quiet, "tag": tag, "out_dir": out_dir, "info": info,
+        "batch_size": batch_size, "quiet": quiet, "hash": hash8, "out_dir": out_dir,
+        "info": info,
         "repo": repo, "config_sha256": config_sha256, "mode": mode, "reason": reason,
         "parts": parts, "skip": skip, "roles": roles, "rows_by_role": rows_by_role,
         "eval_lock": eval_lock,
@@ -600,8 +655,9 @@ def run(plan_data, log=None):
     mode = plan_data["mode"]
     if mode == resume.MODE_STOP:
         print("DỪNG: {}".format(plan_data["reason"]))
-        print("      Muốn chạy lại từ đầu thì dùng `--new` (kết quả cũ được chuyển sang thư mục "
-              "con, không bị xoá).")
+        print("      Đây là lượt chạy đã XONG của đúng bản code + cấu hình + dữ liệu này.")
+        print("      Muốn chạy lại từ đầu thì XOÁ thư mục kết quả rồi chạy lại:\n"
+              "        {}".format(utils.rel(out_dir)))
         return {"out_dir": out_dir, "mode": mode, "reason": plan_data["reason"], "stopped": True}
 
     # Nạp biến môi trường TRƯỚC khi mở phiên ghi nhận: `DAGSHUB_TOKEN` nằm ở Colab Secrets hoặc
@@ -611,18 +667,11 @@ def run(plan_data, log=None):
 
     with runlog.start(out_dir, mode=mode, info=info) as active:
         log = log or active
-        if plan_data.get("stash_count"):
-            # Kết quả cũ KHÔNG bị xoá: chuyển sang thư mục con, vì nó là dấu vết của một lần chạy
-            # thật. Làm ở đây chứ không ở `plan()` để bước lập kế hoạch không đụng vào đĩa.
-            stashed = plan_data["parts"].stash()
-            info["stashed"] = utils.rel(stashed)
-            print("Chạy lại từ đầu: {} khối cũ được chuyển sang {}".format(
-                plan_data["stash_count"], utils.rel(stashed)))
         # Bản ghi lần chạy: ghi NGAY từ đầu, để lần chạy hỏng vẫn còn dấu vết (đang ở attempt nào,
         # với code và config nào). Chốt lại lúc đóng log; việc chốt chạy TRƯỚC phần ghi nhận nên
         # bản được tải lên máy chủ là bản đã chốt.
         record = run_meta.build(
-            out_dir, tag=plan_data["tag"],
+            out_dir, hash8=plan_data["hash"],
             experiment={"model": plan_data["model_id"], "method": plan_data["method"],
                         "exp_id": plan_data["exp_id"]},
             data={"dataset": plan_data["dataset"]["name"],
@@ -639,6 +688,7 @@ def run(plan_data, log=None):
             overrides=plan_data["merged"]["overrides"],
             files=plan_data["files"],
             env=run_meta.env_info(kind=runtime.env_name()),
+            run_extra=run_record(plan_data),
             note="chạy tiếp" if mode == resume.MODE_RESUME else None)
         run_meta.write(out_dir, record)
         log.on_close(run_meta.closer(record, out_dir, log=log))

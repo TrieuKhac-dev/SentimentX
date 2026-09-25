@@ -39,7 +39,7 @@ def write_run(root, tag, experiment=None, status="FINISHED"):
     utils.write_csv(METRICS_ROWS, METRICS_COLUMNS, directory / "metrics.csv")
     utils.write_json({
         "version": 1,
-        "run": {"tag": tag, "status": status, "started": "2026-09-24 20:51:05"},
+        "run": {"hash": "1a2b3c4d", "status": status, "started": "2026-09-24 20:51:05"},
         "experiment": experiment or {"model": "model-x", "method": None, "exp_id": None},
         "data": {"dataset": "cosmetics", "version": "v0.1.0", "ma": "cosmetics-ma"},
         "repo": {"url": "https://example", "branch": "experiment", "sha": "a" * 40},
@@ -74,14 +74,16 @@ class ScanTest(unittest.TestCase):
                   experiment={"model": "model-x", "method": "prompt-cot", "exp_id": "exp001"})
         runs = reports.scan_runs([self.root])
         self.assertEqual(len(runs), 1)
-        self.assertEqual(reports.canonical_label(runs[0]), "model-x/prompt-cot/exp001")
+        # Nhãn = <model>/<method>/<expNNN>:<hash8>: tên thư mục chỉ là mã băm nên nhãn phải nói
+        # được lượt chạy thuộc thí nghiệm nào VÀ là lượt nào trong thí nghiệm đó.
+        self.assertEqual(reports.canonical_label(runs[0]), "model-x/prompt-cot/exp001:1a2b3c4d")
         self.assertEqual(reports.column_label(runs[0]), "exp001")
 
-    def test_chay_ngoai_thi_nghiem_thi_nhan_la_ten_thu_muc(self):
-        write_run(self.root, "prompt-absa_cot_v1__val__n4__greedy")
+    def test_moi_luot_chay_deu_thuoc_mot_thi_nghiem(self):
+        """Không còn lượt chạy "ngoài thí nghiệm": nhãn lấy mã băm trong `run_meta.json`."""
+        write_run(self.root, "1a2b3c4d", experiment={})
         runs = reports.scan_runs([self.root])
-        self.assertEqual(reports.canonical_label(runs[0]), "prompt-absa_cot_v1__val__n4__greedy")
-        self.assertEqual(reports.column_label(runs[0]), "absa_cot_v1 n4")
+        self.assertEqual(reports.canonical_label(runs[0]), "1a2b3c4d")
 
     def test_thu_muc_khong_co_run_meta_thi_bo_qua(self):
         (self.root / "khong-phai-luot-chay").mkdir()

@@ -13,18 +13,21 @@ tên file).
 
 CÁC KHỐI
     version     phiên bản của chính cấu trúc file này
-    run         tên thư mục kết quả, tag cấu hình, trạng thái, lúc bắt đầu/kết thúc
+    run         mã băm danh tính (cũng là tên thư mục), trạng thái, lúc bắt đầu/kết thúc, và các
+                giá trị CHỈ CÓ KHI CHẠY (split, số mẫu, lượng hoá, ngưỡng cắt, cách sinh, batch).
+                Khối này ghi ngay từ đầu, nên lượt chạy hỏng vẫn tra được nó đã đo bằng gì
     experiment  model, method, exp_id, parent
     data        dataset, version (bản trong configs/datasets), ma (mã phiên bản dữ liệu), roles
     repo        url, branch, sha - `sha` là commit ĐÃ GHIM, một trong ba điều kiện resume
-    config      sha256 (điều kiện resume thứ hai), sources (khoá nào do lớp cấu hình nào đặt)
-    env         colab hay local, python, hệ điều hành
-    attempts    các lần chạy vào cùng thư mục này; mỗi lần có `sha` và `config_sha256` RIÊNG,
-                nên nhìn là biết hai lần chạy có so được với nhau hay không
+    config      sha256 (mã băm danh tính; cũng là điều kiện resume), sources (khoá nào do lớp nào đặt)
+    env         colab hay local, python, hệ điều hành; thiết bị, GPU, VRAM, lượng hoá, KIỂU SỐ
+    attempts    các lần chạy vào cùng thư mục này; mỗi lần có `sha` và `config_sha256` RIÊNG
     files       file ĐẦU VÀO của lần chạy, kèm `role` (paths, config, prompt, dataset...)
 
-Quy tắc resume ở docs/00_workflow/02_rules.md mục 13-14: chỉ resume khi `config_sha256`,
-`data.ma` và `repo.sha` đều KHÔNG đổi; code đổi thì chạy lại từ đầu và ghi thành attempt mới.
+Vì sao trong một thư mục mọi attempt đều giống nhau: tên thư mục LÀ mã băm danh tính (gồm cấu hình,
+prompt + ví dụ, mã phiên bản dữ liệu và commit đã ghim), nên khác một trong những thứ đó là thư mục
+KHÁC. Nhờ vậy không còn chuyện trộn hai phép đo vào cùng một chỗ, và không phải chuyển kết quả cũ đi
+chỗ khác khi chạy lại (`predictions/_bo-qua-*` đã bỏ).
 """
 
 import hashlib
@@ -118,7 +121,7 @@ def env_info(kind=None, extra=None):
 
 
 def device_info(model=None, quant=None):
-    """Thiết bị, mức lượng hoá và thư viện đã chạy: đọc từ `model_info` của bước nạp model.
+    """Thiết bị, mức lượng hoá, kiểu số và thư viện đã chạy: đọc từ `model_info` của bước nạp model.
 
     Chỉ ghi thứ ĐỌC ĐƯỢC: thiếu khoá thì để trống chứ không đoán, vì đây là phần truy vết của một
     phép đo (cùng cấu hình chạy bf16 và 4-bit là hai phép đo khác nhau).
@@ -131,14 +134,18 @@ def device_info(model=None, quant=None):
         # Ưu tiên giá trị ĐÃ GIẢI từ bước nạp model ("4-bit nf4 (tính bằng float16)") hơn tham số
         # khai trong config ("auto"), vì bản ghi phải nói phép đo đã chạy bằng gì.
         "quantization": model.get("quant") or quant,
+        # Kiểu số tách riêng (`float16` trên T4, `bfloat16` trên RTX 30xx): hai máy khác kiểu số cho
+        # số khác nhau chút ít, nên phải tra được mà không phải đọc chuỗi `quantization`.
+        "dtype": model.get("dtype"),
         "libs": {name: version for name, version in (("torch", model.get("torch")),
                                                      ("transformers", model.get("transformers")))
                  if version},
     }
 
 
-def build(out_dir, tag=None, experiment=None, data=None, repo=None, config=None,
-          files=None, env=None, note=None, previous=None, task=None, overrides=None):
+def build(out_dir, hash8=None, experiment=None, data=None, repo=None, config=None,
+          files=None, env=None, note=None, previous=None, task=None, overrides=None,
+          run_extra=None):
     """Dựng nội dung `run_meta.json` cho một lần chạy, kèm attempt đầu tiên.
 
     `previous` là bản ghi cũ (kết quả của `read`). Chạy lại vào cùng thư mục thì các attempt cũ
@@ -151,10 +158,10 @@ def build(out_dir, tag=None, experiment=None, data=None, repo=None, config=None,
     """
     payload = {
         "version": SCHEMA_VERSION,
-        "run": {"out_dir": Path(out_dir).name, "tag": tag or Path(out_dir).name,
+        "run": {"out_dir": Path(out_dir).name, "hash": hash8 or Path(out_dir).name,
                 "log": paths.pattern("run_log"), "errors": paths.pattern("errors"),
                 "status": STATUS_RUNNING, "started": runlog.now(), "finished": None,
-                "note": note},
+                "note": note, **dict(run_extra or {})},
         "experiment": dict(experiment or {}),
         "data": dict(data or {}),
         "repo": dict(repo or {}),

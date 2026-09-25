@@ -145,18 +145,12 @@ class TestParts(unittest.TestCase):
         self.assertEqual(rows[0][0], 7)
         self.assertEqual(len(rows[0]), len(records.COLUMNS))
 
-    def test_stash_moves_parts_without_deleting(self):
+    def test_parts_of_a_finished_run_are_readable(self):
+        """Không còn `stash()`: thư mục kết quả là duy nhất theo mã băm, không phải chuyển đi đâu."""
         parts = resume.Parts(self.out_dir)
         parts.append([row(0, {"a": 1}, {"a": 1})])
-        moved = parts.stash()
-
-        self.assertTrue(moved.is_dir())
-        self.assertIn("_bo-qua-", moved.name)
-        self.assertEqual(len(list(moved.glob("part_*.jsonl"))), 1)
-        self.assertEqual(resume.Parts(self.out_dir).count(), 0)
-
-    def test_stash_without_parts_is_nothing(self):
-        self.assertIsNone(resume.Parts(self.out_dir).stash())
+        self.assertFalse(hasattr(parts, "stash"))
+        self.assertEqual(resume.Parts(self.out_dir).count(), 1)
 
 
 class TestRecords(unittest.TestCase):
