@@ -166,5 +166,31 @@ class TestExistingRepo(unittest.TestCase):
             self.assertEqual(repo.run_git(["branch", "-r"], cwd=clone)[1].split(), before)
 
 
+    def test_a_stale_branch_ref_is_refreshed_before_judging(self):
+        """Máy cá nhân vừa push xong: ref trong máy còn cũ, không được vì thế mà báo nhầm."""
+        with tempfile.TemporaryDirectory() as folder:
+            origin, clone, _first = self.make_pair(folder)
+            branch = repo.run_git(["symbolic-ref", "--short", "HEAD"], cwd=origin)[1].strip()
+            (origin / "file.txt").write_text("ba\n", encoding="utf-8")
+            repo.run_git(["commit", "-q", "-am", "third"], cwd=origin)
+            third = repo.run_git(["rev-parse", "HEAD"], cwd=origin)[1].strip()
+
+            info = repo.prepare(str(origin), third, dest=clone, branch=branch)
+            self.assertEqual(info["action"], "dùng repo đang có")
+            self.assertTrue(info["on_branch"])
+            self.assertEqual(info["warnings"], [])
+
+    def test_a_missing_branch_ref_is_fetched_when_the_remote_has_it(self):
+        """Repo chỉ từng push mà chưa fetch: chưa có ref `origin/<nhánh>`, lấy về rồi kiểm được."""
+        with tempfile.TemporaryDirectory() as folder:
+            origin, clone, first = self.make_pair(folder)
+            branch = repo.run_git(["symbolic-ref", "--short", "HEAD"], cwd=origin)[1].strip()
+            repo.run_git(["update-ref", "-d", "refs/remotes/origin/" + branch], cwd=clone)
+
+            info = repo.prepare(str(origin), first, dest=clone, branch=branch)
+            self.assertTrue(info["on_branch"])
+            self.assertEqual(info["warnings"], [])
+
+
 if __name__ == "__main__":
     unittest.main()

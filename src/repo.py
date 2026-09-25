@@ -178,11 +178,14 @@ def _try(steps, dest, info):
 def _check_branch(sha, branch, dest, info, require_branch, log):
     """Kiểm commit đã ghim có nằm trên nhánh cho phép.
 
-    Nhánh không có trong repo thì bỏ qua kèm cảnh báo: máy cá nhân có thể chưa fetch nhánh đó, mà
-    báo lỗi vì thiếu thông tin thì không giúp gì. Có thông tin mà commit KHÔNG nằm trên nhánh thì
-    mới là việc phải xử lý.
+    Cập nhật ref `origin/<nhánh>` TRƯỚC khi kiểm, vì hai chuyện thật đã gặp: máy cá nhân vừa push
+    xong thì ref trong máy còn CŨ (kiểm bằng nó là báo nhầm "không nằm trên nhánh"), và repo mới
+    `git init` + push thì chưa có ref nào. Fetch hỏng (không mạng, chưa có `origin`) thì kiểm bằng
+    thứ đang có: nhánh không có trong repo thì bỏ qua kèm cảnh báo, vì thiếu thông tin mà báo lỗi
+    thì không giúp gì. Có thông tin mà commit KHÔNG nằm trên nhánh thì mới là việc phải xử lý.
     """
     ref = "origin/" + branch
+    run_git(["fetch", "origin", branch], cwd=dest)
     if not ref_exists(ref, dest):
         info["warnings"].append(
             "Chưa có {} trong repo nên không kiểm được commit đã ghim có nằm trên nhánh {}.".format(
