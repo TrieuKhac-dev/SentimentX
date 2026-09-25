@@ -58,6 +58,12 @@ theo dõi trong git ở `data/processed/<mã>/`).
 file gốc, nên thiếu raw thì Colab tính ra một mã khác và preflight báo thiếu dataset. Dữ liệu không
 nằm trong git (luật 20 của `docs/00_workflow/02_rules.md`), nên bản clone sạch chỉ có `raw_meta.yaml`.
 
+Đưa dữ liệu gốc lên **nguyên byte**: đừng mở rồi lưu lại bằng Excel, Notepad hay một công cụ có sửa
+kiểu xuống dòng, và đừng đổi tên file. Mã phiên bản dữ liệu băm **nội dung** file gốc, nên một bản bị
+sửa cho ra mã khác, và lượt chạy sẽ dừng ở preflight. Preflight nay so từng file với dấu vân tay ghi
+trong `processing_log.json` (`docs/03_pipeline/05_output.md`) và, khi lệch, in ra **đúng tên file** đã
+đổi; nếu thư mục `processed/` trên Drive là bản cũ thì thông báo cũng liệt kê những mã đang có.
+
 **`env/.env.colab`** - nhóm đặt sẵn trong gói bàn giao. Nội dung gồm token DagsHub, `SENTIMENTX_ENV`
 và `HF_HOME`; **hai khoá gốc đường dẫn để nguyên dạng chú thích**:
 
@@ -181,6 +187,9 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `Thiếu N file dữ liệu GỐC` | thư mục nhóm trên Drive chưa có dữ liệu gốc | thêm 4 file CSV vào `data/raw/cosmetics/v0.1.0/` (mục 3) |
 | `Model config khai inference.quantization: 4bit nhưng máy chưa có bitsandbytes` | máy ảo thiếu gói | bình thường notebook tự cài (`Thiếu gói bitsandbytes - đang cài...`). Nếu `pip install ->` khác 0 thì đọc dòng lỗi in ngay dưới |
 | `Thiếu tập đánh giá .../test.csv` | thư mục nhóm chưa có dữ liệu đã xử lý | thêm thư mục `data/processed/<mã>/`, hoặc chạy `python run_pipeline.py --dataset cosmetics --version v0.1.0` trong `/content/SentimentX` |
+| `Nội dung dữ liệu gốc đã ĐỔI so với bản dùng để dựng dataset (N file)` | file gốc trên Drive đã bị sửa hoặc lưu lại (Excel, Notepad, công cụ tải) | đưa lại đúng 4 file CSV của gói, không mở/sửa chúng, rồi chạy lại ô bootstrap. Dòng lỗi in ra tên file và hai dấu vân tay để đối chiếu |
+| `Chưa có dataset đã xử lý ở .../X. Thư mục đang có: .../Y.` | `data/raw` và `data/processed` trên Drive không thuộc cùng một gói (bản cũ) | đối chiếu mã `X` với gói đang dùng; đưa lại **cả** `data/raw` và `data/processed/<mã>` của cùng gói đó |
+| `Đường chạy : encoder` rồi `Prompt : không có` | bình thường với PhoBERT và ViSoBERT | không phải lỗi: model encoder học từ dữ liệu gán nhãn, không nhận câu chỉ dẫn |
 | `Thiếu gói peft` (thí nghiệm LoRA) | máy ảo chưa có thư viện LoRA | không cần làm gì: ô bootstrap tự cài khi notebook là đường huấn luyện. Nếu `pip install ->` khác 0 thì đọc dòng lỗi in ngay dưới |
 | `Bộ tách từ 'vncorenlp' không chạy được trên máy này` (notebook PhoBERT) | máy ảo chưa có Java | không cần làm gì: ô bootstrap tự cài `default-jdk` khi model khai `preprocess.segmenter: vncorenlp`. Nếu `apt-get ->` khác 0 thì Restart session rồi Run all |
 | `Mã phiên bản đang dùng (...) khác mã tính từ config` | dữ liệu gốc trên Drive khác bản ở máy | dùng đúng 4 file của `cosmetics/v0.1.0`. Khác kiểu xuống dòng CRLF/LF **không** còn làm lệch mã |

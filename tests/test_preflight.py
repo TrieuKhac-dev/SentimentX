@@ -377,6 +377,81 @@ class TestRawSource(unittest.TestCase):
         self.assertIn("<tên dataset>", preflight.pipeline_command(None))
 
 
+class TestRawFingerprint(unittest.TestCase):
+    """Nội dung file gốc phải khớp dấu vân tay đã ghi khi dựng dataset.
+
+    Nội dung file gốc đi vào mã phiên bản dữ liệu, nên một file bị sửa (Excel, Notepad, công cụ tải)
+    làm mã đổi và thông báo "chưa có dataset đã xử lý" trở thành ngõ cụt nếu không nói ra file nào.
+    Phép kiểm phải CHỊU ĐƯỢC khác biệt kiểu xuống dòng, vì `digest_bytes` chuẩn hoá trước khi băm:
+    cùng một bộ dữ liệu trên Windows (CRLF) và trên Colab (LF) KHÔNG được coi là đã đổi.
+    """
+
+    NAMES = ("data_train.csv", "full_data.csv")
+
+    def make(self, folder):
+        return {"_sources": [{"kind": "raw", "name": "cosmetics", "version": "v0.1.0",
+                              "dir": Path(folder)}]}
+
+    def payload(self, folder, names):
+        return {"dataset": {"sources": [{"kind": "raw", "dir": str(folder), "files": [
+            {"name": name, "sha256": versioning.file_sha256(Path(folder) / name)}
+            for name in names]}]}}
+
+    def run_it(self, folder, payload):
+        problems, notes, info = [], [], {}
+        with mock.patch.object(versioning, "read_processing_log", return_value=payload):
+            preflight.raw_fingerprint_report(self.make(folder), "ma", problems, notes, info)
+        return problems, notes, info
+
+    def test_matching_data_is_a_note(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for name in self.NAMES:
+                (Path(folder) / name).write_text("text,a\n", encoding="utf-8")
+            problems, notes, info = self.run_it(folder, self.payload(folder, self.NAMES))
+        self.assertEqual(problems, [])
+        self.assertEqual(info["raw_checked"], 2)
+        self.assertTrue(any("khớp 2 file" in note for note in notes), notes)
+
+    def test_changed_content_is_an_error_naming_the_file(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for name in self.NAMES:
+                (Path(folder) / name).write_text("text,a\n", encoding="utf-8")
+            payload = self.payload(folder, self.NAMES)
+            (Path(folder) / "data_train.csv").write_text("text,a\nsua roi\n", encoding="utf-8")
+            problems, _notes, _info = self.run_it(folder, payload)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("data_train.csv", problems[0])
+        self.assertIn("ĐỔI", problems[0])
+        self.assertNotIn("full_data.csv", problems[0])
+
+    def test_line_endings_do_not_count_as_a_change(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for name in self.NAMES:
+                (Path(folder) / name).write_text("text,a\n", encoding="utf-8")
+            payload = self.payload(folder, self.NAMES)
+            # Cùng nội dung, khác kiểu xuống dòng: Windows ghi CRLF, Colab ghi LF.
+            (Path(folder) / "data_train.csv").write_bytes("text,a\n".replace("\n", "\r\n").encode())
+            problems, notes, _info = self.run_it(folder, payload)
+        self.assertEqual(problems, [])
+        self.assertTrue(any("khớp 2 file" in note for note in notes), notes)
+
+    def test_missing_file_is_an_error(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for name in self.NAMES:
+                (Path(folder) / name).write_text("text,a\n", encoding="utf-8")
+            payload = self.payload(folder, self.NAMES)
+            (Path(folder) / "full_data.csv").unlink()
+            problems, _notes, _info = self.run_it(folder, payload)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("thiếu file", problems[0])
+        self.assertIn("full_data.csv", problems[0])
+
+    def test_without_a_recorded_log_it_stays_quiet(self):
+        problems, notes, info = self.run_it("khong/co/thu-muc-nay", {})
+        self.assertEqual((problems, notes), ([], []))
+        self.assertNotIn("raw_checked", info)
+
+
 if __name__ == "__main__":
     unittest.main()
 

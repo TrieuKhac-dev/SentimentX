@@ -78,9 +78,17 @@ def version_report(ds, version_id, want_version, problems, notes, info):
     if info["version_id"] and folder.is_dir():
         notes.append("dataset: {}".format(utils.rel(folder)))
     else:
+        # Kể luôn những mã đang có trong `data/processed/`: mã phiên bản tính từ nội dung file gốc,
+        # nên một bộ dữ liệu cũ (trên Drive chẳng hạn) cho ra mã khác, và thông báo "chưa có dataset"
+        # mà không nói mình đang có mã nào là ngõ cụt - người đọc không biết lệch ở đâu.
+        parent = paths.data("processed")
+        others = sorted(path.name for path in parent.iterdir() if path.is_dir()) \
+            if parent.is_dir() else []
         problems.append(
-            "Chưa có dataset đã xử lý ở {}. Tạo bằng: {}".format(
-                utils.rel(folder), pipeline_command(ds)))
+            "Chưa có dataset đã xử lý ở {}.{} Tạo bằng: {}".format(
+                utils.rel(folder),
+                " Thư mục đang có: {}.".format(", ".join(others)) if others else "",
+                pipeline_command(ds)))
     return info["version_id"]
 
 
@@ -138,6 +146,56 @@ def raw_source_report(ds, problems, notes, info):
         len(missing), (ds or {}).get("name") or "?",
         "\n      ".join(info["raw_missing"]), remedy))
     return info["raw_missing"]
+
+
+def raw_fingerprint_report(ds, version_id, problems, notes, info):
+    """Nội dung file GỐC phải khớp dấu vân tay đã ghi khi dựng dataset.
+
+    Vì sao cần: mã phiên bản dữ liệu được tính từ NỘI DUNG các file gốc, nên một bộ dữ liệu bị sửa
+    (mở bằng Excel, lưu lại bằng công cụ khác, tải lên qua đường có sửa file) sinh ra mã khác, và
+    thông báo "chưa có dataset đã xử lý" không nói được file nào đã đổi.
+
+    Băm qua `versioning.file_sha256` (tức `utils.digest_bytes`, có chuẩn hoá kiểu xuống dòng), nên
+    CRLF so với LF KHÔNG bị coi là lệch - đúng bằng phép băm mà mã phiên bản dùng. Nhờ vậy thông báo
+    chỉ kể ra file thật sự bị SỬA.
+    """
+    log = versioning.read_processing_log(version_id) if version_id else {}
+    recorded = {}
+    for source in ((log.get("dataset") or {}).get("sources") or []):
+        for item in source.get("files") or []:
+            if item.get("name") and item.get("sha256"):
+                recorded[str(item["name"])] = str(item["sha256"])
+    if not recorded:
+        return None
+
+    wrong, missing, checked = [], [], 0
+    for source in (ds or {}).get("_sources") or []:
+        if source.get("kind") != "raw":
+            continue
+        folder = Path(source["dir"])
+        for name, expected in sorted(recorded.items()):
+            path = folder / name
+            if not path.is_file():
+                missing.append(name)
+                continue
+            checked += 1
+            measured = versioning.file_sha256(path)
+            if measured != expected:
+                wrong.append("{}: lúc dựng dataset {}, hiện tại {} ({})".format(
+                    name, expected[:12], measured[:12], utils.rel(path)))
+    info["raw_checked"] = checked
+    if missing:
+        problems.append("Dữ liệu gốc thiếu file so với lúc dựng dataset: {}.".format(
+            ", ".join(missing)))
+    if wrong:
+        problems.append(
+            "Nội dung dữ liệu gốc đã ĐỔI so với bản dùng để dựng dataset ({} file):\n      {}\n"
+            "      Nội dung file gốc đi vào mã phiên bản dữ liệu, nên dữ liệu đã sửa là mã khác và kết "
+            "quả không so được với công bố. Đưa lại đúng bộ dữ liệu gốc.".format(
+                len(wrong), "\n      ".join(wrong)))
+    elif checked:
+        notes.append("dữ liệu gốc: khớp {} file với dấu vân tay lúc dựng dataset".format(checked))
+    return wrong
 
 
 def count_rows(path):
@@ -348,6 +406,9 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
     version_id = version_report(ds, version_id, data.get("version"), problems, notes, info)
     if version_id:
         eval_lock_report(ds, version_id, problems, notes, info)
+        # Nội dung file gốc phải khớp bản đã dùng để dựng dataset: lệch thì mã phiên bản cũng lệch,
+        # và người chạy cần biết CHÍNH XÁC file nào đã đổi thay vì đoán.
+        raw_fingerprint_report(ds, version_id, problems, notes, info)
 
     # 5. Thiết bị và cách nạp model; 6. bộ tách từ nếu model cần.
     device_report(model_id, problems, notes, info)
