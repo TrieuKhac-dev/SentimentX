@@ -23,13 +23,14 @@ data:
   # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
   # Khai `train` và `val` khi training.enabled: true.
   #
-  # exp001 chấm trên VAL, không phải test: `val` là tập để LỰA CHỌN (prompt nào, bao nhiêu ví dụ,
-  # ngưỡng nào). Chọn theo test là tự lừa mình - con số trên test sau đó mất ý nghĩa so sánh.
-  roles: {eval: val}
+  # exp001 chấm trên TEST - đây là con số để so với công bố tham chiếu. Lúc dựng đường chạy, các lượt
+  # chạy kiểm tra dùng `val` (tập LỰA CHỌN: chọn prompt, số ví dụ, ngưỡng cắt). Chọn theo test là tự
+  # lừa mình, nên test chỉ chạy khi cấu hình đã chốt và kết quả chỉ dùng MỘT lần.
+  roles: {eval: test}
 
-# Số mẫu dùng để chấm, đè `n` của lớp evaluation. 200 mẫu đủ để phân biệt hai prompt mà vẫn chạy
-# gọn trong một buổi trên GPU 6 GB; muốn so với công bố thì bỏ khoá này (null = cả split).
-n: 200
+# Số mẫu dùng để chấm, đè `n` của lớp evaluation. null = CẢ split: so với công bố thì phải chấm hết
+# tập test, chấm một tập con rồi đem so là so hai phép đo khác nhau.
+n: null
 
 # Prompt lấy từ THƯ VIỆN DÙNG CHUNG, không phải file riêng của thí nghiệm: đây là prompt CoT của
 # phương pháp `prompt-cot` (chuỗi suy luận + 2 ví dụ few-shot). Đường dẫn tính từ thư mục thí nghiệm

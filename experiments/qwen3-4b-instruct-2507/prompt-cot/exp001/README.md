@@ -1,4 +1,4 @@
-# exp001 - Qwen3-4B-Instruct-2507 bằng prompt CoT, chấm trên val
+# exp001 - Qwen3-4B-Instruct-2507 bằng prompt CoT, chấm trên test
 
 ## Thí nghiệm này hỏi câu gì
 
@@ -7,18 +7,18 @@ từng khía cạnh (7 khía cạnh, nhãn -1/0/1): **nếu đưa chuỗi suy lu
 chấm được bao nhiêu, và đọc ra được bao nhiêu phần trăm?**
 
 Đây là thí nghiệm ĐẦU TIÊN và là mốc so sánh cho các thí nghiệm sau. Câu hỏi phụ đã trả lời trước
-khi chạy: prompt này tốn 861 token/review nên `preprocess.max_length` phải là 1280 (xem
-`configs/models/qwen3-4b-instruct-2507.yaml`).
+khi chạy: prompt này tốn khoảng 950 token/review (bản 5 ví dụ tốn 2.109 token), nên
+`preprocess.max_length` phải là 2304 (xem `configs/models/qwen3-4b-instruct-2507.yaml`).
 
 ## Khác gì những lần chạy trước
 
-Không có lần chạy trước (`parent: null`). Ba lựa chọn của thí nghiệm này:
+Không có lần chạy trước (`parent: null`). Bốn lựa chọn của thí nghiệm này:
 
 | Lựa chọn | Giá trị | Vì sao |
 | --- | --- | --- |
 | Prompt | `configs/prompts/absa_cot_v1.txt` (CoT + 2 ví dụ) | Phương pháp là `prompt-cot`; thêm ví dụ là biến rẻ nhất của hướng này, đổi số ví dụ mà KHÔNG phải sửa prompt |
-| Split chấm | `val` (1.524 review) | `val` là tập để LỰA CHỌN; test chỉ dùng cho con số cuối cùng |
-| Số mẫu | `n: 200` | Đủ để phân biệt hai prompt, chạy gọn trên GPU 6 GB trong một buổi |
+| Split chấm | `test` (1.518 review) | Đây là con số để SO VỚI CÔNG BỐ. Lúc dựng đường chạy, mọi lượt kiểm tra dùng `val` (tập LỰA CHỌN: chọn prompt, số ví dụ, ngưỡng cắt); chọn theo test là tự lừa mình, nên test chỉ chạy khi cấu hình đã chốt |
+| Số mẫu | `n: null` (cả split) | So với công bố thì phải chấm hết tập test; chấm một tập con rồi đem so là so hai phép đo khác nhau |
 | Cách sinh | `greedy` (mặc định) | Tất định nên tái lập được; lấy mẫu chỉ dùng khi muốn đo dao động |
 
 ## Kết quả nằm ở đâu
@@ -32,6 +32,7 @@ Không có lần chạy trước (`parent: null`). Ba lựa chọn của thí ng
 | `metrics.json` | chỉ số, kèm cách chấm (`label_space`, `neutral_policy`, số ô neutral bị loại) |
 | `metrics.csv` | bảng dài `aspect, sentiment, metric, value` để so với các lần chạy khác |
 | `mispredictions.csv` | chỉ các ô đoán sai |
+| `predictions.csv` | TỪNG review: prompt đã gửi model, câu trả lời nguyên văn, nhãn đúng/đoán (đọc thế nào: `docs/04_experiments/05_predictions.md`) |
 | `predictions/part_*.jsonl` | kết quả ghi dần, để chạy tiếp khi bị ngắt |
 
 Không chép số liệu vào README này: số liệu nằm trong `metrics.json`, bản tổng hợp do
