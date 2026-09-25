@@ -72,6 +72,22 @@ def settings_of(config_data, do_sample=None):
     return settings, sampled
 
 
+def batch_size_of(model_id, config_data):
+    """Số review mỗi lượt sinh, lấy từ `inference.batch_size` của model.
+
+    KHÔNG đặt mặc định trong code: mặc định nằm ở `configs/models/<model_id>.yaml`, và một mặc định
+    ngầm trong code là thứ khiến notebook (không truyền gì) chạy khác dòng lệnh (truyền 4) mà không
+    ai biết. Đúng lỗi đã xảy ra: lượt chạy trong notebook chết ở `range(0, len(texts), None)`.
+    """
+    value = (config_data.get("inference") or {}).get("batch_size")
+    if not value:
+        raise RunError(
+            "Thiếu `inference.batch_size` cho model '{}': xem {}. Khoá này quyết định số review mỗi "
+            "lượt sinh nên không có giá trị mặc định trong code.".format(
+                model_id, model_config.config_path(model_id)))
+    return int(value)
+
+
 def build_tag(prompt_name, split, limit, sampled, quant, model=None):
     """Tên thư mục kết quả của MỘT cấu hình chạy.
 
@@ -246,6 +262,7 @@ def print_config(plan_data, model_info):
             plan_data["generation"]["temperature"], plan_data["generation"]["top_p"],
             plan_data["generation"]["top_k"], plan_data["generation"]["seed"])))
     print("  tối đa sinh : {} token/review".format(plan_data["generation"]["max_new_tokens"]))
+    print("  mỗi lô      : {} review (inference.batch_size)".format(plan_data["batch_size"]))
     print("  model       : {} - {}, {}, {}".format(
         plan_data["model"], model_info.get("quant"), model_info.get("cách nạp"),
         model_info.get("thiết bị")))
@@ -290,9 +307,10 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     limit = limit if limit else limit_of(config_data)
     quant = quant or "auto"
     model = model or config_data.get("hf_model") or qwen.MODEL_NAME
+    # Số review mỗi lượt sinh: tham số truyền vào (dòng lệnh) -> `inference.batch_size` của model.
+    if not batch_size:
+        batch_size = batch_size_of(model_id, config_data)
 
-    # Prompt: tên trong thư viện dùng chung, hoặc đường dẫn tới file cạnh notebook. Nạp xong thì
-    # đăng ký luôn (`qwen.load_prompt`), vì các bước sau chỉ truyền được một cái TÊN.
     # Prompt: tên trong thư viện dùng chung, hoặc đường dẫn tới file cạnh notebook. Nạp xong thì
     # đăng ký luôn (`qwen.load_prompt`), vì các bước sau chỉ truyền được một cái TÊN.
     prompt_value = prompt or config_data.get("prompt")

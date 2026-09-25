@@ -109,6 +109,19 @@ class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
         self.assertFalse(flag)
         self.assertEqual(outside, config.MODEL_EVAL_REPORT_DIR / "v1" / "tag")
 
+    def test_batch_size_lay_tu_config_cua_model(self):
+        """Đúng lỗi đã xảy ra: notebook gọi `plan()` không truyền batch, mà plan cũng không lấy từ
+        config, nên `batch_size` là None và lượt sinh chết ở `range(0, n, None)`."""
+        self.assertEqual(
+            experiment_run.batch_size_of("qwen3-4b-instruct-2507",
+                                         {"inference": {"batch_size": 8}}), 8)
+
+    def test_thieu_batch_size_thi_bao_loi_kem_duong_dan_file(self):
+        with self.assertRaises(experiment_run.RunError) as caught:
+            experiment_run.batch_size_of("qwen3-4b-instruct-2507", {"inference": {}})
+        self.assertIn("batch_size", str(caught.exception))
+        self.assertIn("qwen3-4b-instruct-2507.yaml", str(caught.exception))
+
     def test_log_config_ghi_bang_de_va_gia_tri_hieu_luc(self):
         """Bảng ghi đè phải vào FILE: notebook gửi cho giảng viên đã bị làm sạch output."""
         plan = {"config": {"label_space": "binary", "neutral_policy": "drop",
@@ -200,6 +213,11 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
                                        prompt=self.prompt_name, **kwargs)
         except (FileNotFoundError, dataset.DatasetError) as exc:
             self.skipTest("chưa có dữ liệu đã xử lý trên máy này: {}".format(exc))
+
+    def test_plan_lay_batch_size_tu_config_model(self):
+        """Notebook không truyền `batch_size`, nên plan phải lấy từ `inference.batch_size`."""
+        plan = self._plan()
+        self.assertEqual(plan["batch_size"], 8)
 
     def test_plan_khong_can_model_va_dang_ky_prompt(self):
         plan = self._plan()
