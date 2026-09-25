@@ -414,12 +414,14 @@ def _fingerprint(result, version_id, model_id=None, method=None, exp_id=None, ou
     prompt_obj = experiment_run.run_prompt(config, model_id, method, exp_id)
     roles = (config.get("data") or {}).get("roles") or {}
     split = roles.get("eval") or "val"
+    quant = experiment_run.effective_quant("auto", config)
     sampled = experiment_run.settings_of(config)[1]
     identity = experiment_run.run_identity(
         config, version_id, prompt_obj, split,
-        limit=experiment_run.limit_of(config), sampled=sampled,
-        quant=experiment_run.effective_quant("auto", config), model=model,
-        model_id=model_id, method=method, exp_id=exp_id)
+        limit=experiment_run.limit_of(config), sampled=sampled, quant=quant, model=model,
+        model_id=model_id, method=method, exp_id=exp_id,
+        generation=experiment_run.run_generation(config, quant, sampled),
+        max_length=experiment_run.effective_max_length(config))
     return identity["out_dir"], identity["fingerprint"]
 
 

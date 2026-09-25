@@ -41,8 +41,13 @@
 | Ngưỡng cắt `max_length` đổi | **Khác** (`cfg…` đổi) | Input bị cắt khác đi |
 | `split` khác, `n` khác, `greedy`/`sample` khác | **Khác** (phần tương ứng trong tên) | Ba thứ này quyết định chấm cái gì và sinh thế nào |
 | **Code (commit) đổi** - kể cả sửa nhỏ trong `src/` | **CÙNG thư mục** | Đây là "chạy lại cùng phép đo bằng bản code khác"; bộ kết quả cũ được chuyển vào `predictions/_bo-qua-<thời điểm>` và lượt mới ghi vào chính thư mục đó |
-| Máy chạy khác (Colab so với local), batch size, `max_new_tokens`, seed | **CÙNG thư mục**, trừ khi máy trỏ model vào thư mục cục bộ (`SENTIMENTX_MODEL`) | Không đổi phép đo; chúng nằm trong `run_meta.json` (`env.device`, `env.gpu`, `inference.batch_size`…). Lượt chạy local dùng `data/models/Qwen3-4B-Instruct-2507` nên tên thư mục có thêm `__Qwen3-4B-Instruct-2507`: cùng trọng số nhưng khác NGUỒN, và không có cách nào kiểm là giống nhau - nên chúng không resume chung |
+| Máy chạy khác (Colab so với local), kiểu số của GPU (fp16/bf16) | **CÙNG thư mục**, trừ khi máy trỏ model vào thư mục cục bộ (`SENTIMENTX_MODEL`) | Kiểu số do máy quyết định và không nằm trong config; `run_meta.json` ghi lại (`env.device`, `env.gpu`). Lượt chạy local dùng `data/models/Qwen3-4B-Instruct-2507` nên tên thư mục có thêm `__Qwen3-4B-Instruct-2507`: cùng trọng số nhưng khác NGUỒN, không có cách nào kiểm là giống nhau - nên hai bên không resume chung |
+| `inference.batch_size`, `max_new_tokens`, `preprocess.max_length`, `--seed`, `--sample`, `--max-new-tokens`, `--max-length` | **KHÁC** (`cfg…` đổi) | Đều đổi ĐẦU VÀO hoặc ĐẦU RA của phép đo. Chúng nằm trong config (đã băm) hoặc được băm riêng vì chỉ có khi chạy tay |
 | Dữ liệu đổi (phiên bản dữ liệu khác) | **Khác** (thư mục `<mã dữ liệu>`) | Chấm trên bộ dữ liệu khác |
+
+Nói gọn: **cái gì đổi phép đo thì đổi thư mục** (cấu hình hợp nhất, nội dung prompt, file ví dụ, khối hệ
+thống, cách sinh, ngưỡng cắt, split, n, lượng hoá, nguồn trọng số, phiên bản dữ liệu). **Cái gì chỉ là
+bản code hay cái máy** thì dùng lại chỗ cũ, và bộ kết quả cũ được chuyển vào `predictions/_bo-qua-*`.
 
 ### 1.2. Chạy tiếp (RESUME) hay chạy mới
 

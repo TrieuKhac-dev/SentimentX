@@ -268,8 +268,8 @@ def _value(value):
 # ---
 
 
-def config_sha256(result, prompt_text=None, side_files=None):
-    """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT, VĂN BẢN PROMPT, và CÁC FILE ĐI KÈM prompt.
+def config_sha256(result, prompt_text=None, side_files=None, extra=None):
+    """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT, VĂN BẢN PROMPT, các FILE ĐI KÈM prompt, và PHẦN CHẠY.
 
     Vì sao băm cả văn bản prompt: prompt là một phần của thí nghiệm, mà nội dung nó nằm ở file
     riêng chứ không nằm trong config hợp nhất. Không băm thì hai thí nghiệm khác prompt sẽ mang
@@ -282,6 +282,10 @@ def config_sha256(result, prompt_text=None, side_files=None):
     thống. Phải băm cả chúng: hai bộ ví dụ khác nhau đi với cùng một prompt cho ra hai phép đo khác
     nhau mà `prompt_sha` không đổi, nên thiếu chúng thì một lượt chạy bị ngắt sẽ RESUME trên bộ ví dụ
     CŨ và trộn hai phép đo vào cùng một bảng (lỗi im lặng, sửa 25/09/2026).
+
+    `extra`: các giá trị CHỈ có khi chạy mà config không giữ - cách sinh (`max_new_tokens`, seed...)
+    và ngưỡng cắt khi chúng được truyền từ dòng lệnh. Cũng phải băm: chúng đổi kết quả sinh, mà
+    thiếu thì hai lượt chạy khác cách sinh vẫn được coi là "cùng phép đo".
 
     Ba giá trị quyết định resume (xem docs/00_workflow/02_rules.md): `config_sha256`, mã phiên
     bản dữ liệu, và commit đã ghim. Hàm này tính giá trị thứ nhất.
@@ -303,6 +307,9 @@ def config_sha256(result, prompt_text=None, side_files=None):
         digest.update(str(name).encode("utf-8"))
         digest.update(b":")
         digest.update(str(sha or path or "").encode("utf-8"))
+    if extra:
+        digest.update(b"run:")
+        digest.update(canonical_bytes(extra))
     return digest.hexdigest()
     digest = hashlib.sha256()
     digest.update(b"config:")

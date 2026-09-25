@@ -15,10 +15,12 @@ Ba điều được khoá ở đây:
 Chạy: python -m unittest discover -s tests
 """
 
+import io
 import os
 import shutil
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -312,6 +314,14 @@ class RunIdentityTest(unittest.TestCase):
     METHOD = "prompt-cot"
     EXP = "exp001"
 
+    def setUp(self):
+        # Cần dữ liệu ĐÃ XỬ LÝ trên máy (bước dựng prompt/dấu vân tay đọc khoá tập đánh giá).
+        self.version_id = versioning.compute_id(dataset.load_config("cosmetics"))
+        processed = paths.processed(self.version_id) / "test.csv"
+        if not processed.is_file():
+            raise unittest.SkipTest(
+                "chưa có dữ liệu đã xử lý trên máy này: {}".format(processed))
+
     def pieces(self):
         result = experiments.load(self.MODEL, self.METHOD, self.EXP)
         config = dict(result["config"])
@@ -331,13 +341,19 @@ class RunIdentityTest(unittest.TestCase):
                 model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
         return result, config, prompt_obj, version_id, found
 
-    def test_preflight_looks_at_the_same_folder_and_fingerprint(self):
-        result, _config, _prompt, version_id, run_side = self.identity()
+    def test_plan_and_preflight_agree_on_the_folder_and_the_fingerprint(self):
+        """Khoá lỗi đã xảy ra: `plan()` và `preflight` phải ra CÙNG thư mục và CÙNG bộ ba."""
+        merged = experiments.load(self.MODEL, self.METHOD, self.EXP)
         with mock.patch.dict(os.environ, {"SENTIMENTX_MODEL": ""}):
+            # Bắt stdout: `plan()` in cảnh báo "đang chạy trên TEST", và console của Windows không
+            # mã hoá được tiếng Việt trong lúc chạy test - lỗi mã hoá đó không phải lỗi của code.
+            with redirect_stdout(io.StringIO()):
+                plan_data = experiment_run.plan(merged, quiet=True)
             pre_dir, pre_fingerprint = preflight._fingerprint(
-                result, version_id, self.MODEL, self.METHOD, self.EXP)
-        self.assertEqual(pre_dir, run_side["out_dir"])
-        self.assertEqual(pre_fingerprint, run_side["fingerprint"])
+                merged, plan_data["version_id"], self.MODEL, self.METHOD, self.EXP)
+        self.assertEqual(pre_dir, plan_data["out_dir"])
+        self.assertEqual(pre_fingerprint["config_sha256"], plan_data["config_sha256"])
+        self.assertEqual(pre_fingerprint["sha"], plan_data["repo"]["sha"])
 
     def test_folder_name_carries_the_configuration_fingerprint(self):
         _result, _config, _prompt, _version, found = self.identity()
@@ -359,14 +375,13 @@ class RunIdentityTest(unittest.TestCase):
     def test_changing_the_examples_file_changes_the_fingerprint(self):
         """Đổi bộ ví dụ mà dấu vân tay không đổi thì lượt chạy bị ngắt sẽ RESUME trên bộ ví dụ CŨ."""
         _result, config, prompt_obj, version_id, found = self.identity()
-        other = experiment_run.run_identity(
-            config, version_id, prompt_obj, "test", limit=None, sampled=False,
-            quant=None, model=None, model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
-        changed = experiments.config_sha256(
-            {"config": config}, prompt_text=prompt_obj.text,
-            side_files={"examples": ("configs/prompts/examples/absa_cot_v1.txt", "khac-sha")})
-        self.assertNotEqual(changed, found["config_sha256"])
-        self.assertNotEqual(other["fingerprint"], changed)
+        with mock.patch.object(experiment_run, "side_shas",
+                               return_value={"examples": ("x.txt", "khac-sha")}):
+            changed = experiment_run.run_identity(
+                config, version_id, prompt_obj, "test", limit=None, sampled=False, quant=None,
+                model=None, model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
+        self.assertNotEqual(changed["config_sha256"], found["config_sha256"])
+        self.assertNotEqual(changed["fingerprint"], found["fingerprint"])
 
 
 class SystemLabelTest(unittest.TestCase):

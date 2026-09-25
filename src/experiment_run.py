@@ -373,8 +373,22 @@ def effective_quant(quant, config_data):
     return str(value) if value else None
 
 
+def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=42):
+    """Cấu hình sinh HIỆU LỰC của một lượt chạy: `plan()` và `preflight` dùng chung hàm này.
+
+    Nhiệt độ/top_p/top_k lấy theo model card (hoặc giá trị config khai đè), seed chỉ có nghĩa khi
+    lấy mẫu. Cấu hình sinh được băm vào dấu vân tay lượt chạy, nên hai bên tính khác nhau là hai
+    dấu vân tay khác nhau - và lượt chạy bị ngắt sẽ RESUME trên cách sinh khác.
+    """
+    card, _sampled = settings_of(config_data, do_sample=sampled)
+    return runner.settings(quant=quant, max_new_tokens=max_new_tokens, do_sample=sampled,
+                           temperature=card.get("temperature"), top_p=card.get("top_p"),
+                           top_k=card.get("top_k"), seed=seed if sampled else None)
+
+
 def run_identity(config_data, version_id, prompt_obj, split, limit=None, sampled=False,
-                 quant=None, model=None, model_id=None, method=None, exp_id=None):
+                 quant=None, model=None, model_id=None, method=None, exp_id=None,
+                 generation=None, max_length=None):
     """Thư mục kết quả + dấu vân tay của MỘT lượt chạy: chỗ DUY NHẤT quyết định hai thứ đó.
 
     `plan()` (lượt chạy thật) và `preflight` (kiểm trước) đều gọi hàm này, nên không thể nói hai
@@ -382,11 +396,16 @@ def run_identity(config_data, version_id, prompt_obj, split, limit=None, sampled
     trong thư mục này` trong khi lượt chạy cùng lúc báo `RESUME - chạy tiếp từ 16 mẫu đã xong`, vì
     preflight nhìn thư mục PHIÊN BẢN còn lượt chạy nhìn thư mục LƯỢT CHẠY.
 
+    `generation`/`max_length`: đưa vào dấu vân tay vì chúng quyết định model sinh ra gì. Chúng
+    thường suy từ config (đã nằm trong dấu vân tay), nhưng khi chạy tay với `--max-new-tokens`,
+    `--seed`, `--sample` hay `--max-length` thì KHÔNG có trong config - thiếu chúng thì lượt chạy
+    sau được coi là "cùng phép đo" và có thể RESUME trên cách sinh khác.
+
     Trả về dict gồm `config_sha256`, `fingerprint`, `tag`, `out_dir`, `inside`, `repo`.
     """
-    config_sha = experiments.config_sha256({"config": config_data},
-                                           prompt_text=prompt_obj.text,
-                                           side_files=side_shas(prompt_obj))
+    config_sha = experiments.config_sha256(
+        {"config": config_data}, prompt_text=prompt_obj.text, side_files=side_shas(prompt_obj),
+        extra={"generation": generation or {}, "max_length": max_length})
     repo = run_meta.repo_info(url=config_data.get("url"), branch=config_data.get("branch"))
     fingerprint = resume.fingerprint(config_sha, version_id, repo["sha"])
     tag = build_tag(prompt_obj.name, split, limit, sampled, quant,
@@ -474,15 +493,17 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
 
     # Cấu hình sinh: `evaluation.decoding` trong config quyết định greedy hay lấy mẫu; khi lấy mẫu
     # thì nhiệt độ/top_p/top_k theo model card (hoặc giá trị config khai đè).
-    card, sampled = settings_of(config_data, do_sample=sample)
-    generation = runner.settings(quant=quant, max_new_tokens=max_new_tokens, do_sample=sampled,
-                                 temperature=card.get("temperature"), top_p=card.get("top_p"),
-                                 top_k=card.get("top_k"), seed=seed if sampled else None)
+    _card, sampled = settings_of(config_data, do_sample=sample)
+    # Cách biểu diễn model tính MỘT LẦN: cấu hình sinh ghi vào bản ghi và dấu vân tay đều dùng giá
+    # trị hiệu lực, không dùng chữ "auto" - hai chỗ ghi hai giá trị khác nhau là hai dấu vân tay.
+    quant_effective = effective_quant(quant, config_data)
+    generation = run_generation(config_data, quant_effective, sampled, max_new_tokens, seed)
     max_length = effective_max_length(config_data, max_length)
 
     identity = run_identity(config_data, version_id, prompt_obj, split, limit=limit,
-                            sampled=sampled, quant=effective_quant(quant, config_data),
-                            model=model, model_id=model_id, method=method, exp_id=exp_id)
+                            sampled=sampled, quant=quant_effective,
+                            model=model, model_id=model_id, method=method, exp_id=exp_id,
+                            generation=generation, max_length=max_length)
     tag = identity["tag"]
     out_dir, inside = identity["out_dir"], identity["inside"]
     if not inside:
