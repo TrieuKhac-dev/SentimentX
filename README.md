@@ -387,7 +387,7 @@ python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-
 
 # 3) Ghim bản code vào notebook (phải push lên nhánh experiment trước)
 git push origin experiment
-python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001
+python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp002
 ```
 
 Giao cho giảng viên: dựng **thư mục Drive** gồm dữ liệu (gốc + đã xử lý), file notebook và

@@ -8,7 +8,7 @@ File: `experiments/<model_id>/<method>/<expNNN>/config.yaml`.
 ## Ví dụ
 
 ```yaml
-exp_id: exp001
+exp_id: exp002
 parent: null
 model: qwen3-4b-instruct-2507
 method: prompt-cot

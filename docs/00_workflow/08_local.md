@@ -63,7 +63,7 @@ nhân, `repo.prepare()` so `HEAD` với `REPO_SHA`:
   nông (`git log` cụt từ commit đó về sau).
 
 Muốn chạy đúng bản code mới nhất của mình: commit, đẩy lên nhánh `experiment`, rồi **ghim lại**
-(`python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001`) trước khi Run all.
+(`python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp002`) trước khi Run all.
 
 Sau khi chạy xong, thư mục code đang ở commit ghim (tách rời). **Trước lần Run all sau, chạy
 `git switch experiment`.** Lý do: notebook đọc hằng số `REPO_SHA` từ FILE notebook, mà file đó lúc này
@@ -76,7 +76,7 @@ nhưng là kết quả của mã cũ hơn, và chỉ có một dòng cảnh báo
 **Cách khuyến nghị: dùng script, không cần tiện ích Jupyter.**
 
 ```bash
-python scripts/run_notebook.py qwen3-4b-instruct-2507/prompt-cot/exp001
+python scripts/run_notebook.py qwen3-4b-instruct-2507/prompt-cot/exp002
 ```
 
 Script này tự làm đủ bốn việc: (1) đọc `REPO_SHA` từ chính ô GHIM của notebook, (2) kéo ĐÚNG commit
@@ -104,7 +104,7 @@ cây làm việc bị đưa về bản cũ, nên chỉ làm khi `git status` s�
 Muốn xem **prompt thật** gửi cho model (không phải đọc file prompt rồi đoán):
 
 ```bash
-python scripts/show_prompt.py qwen3-4b-instruct-2507/prompt-cot/exp001
+python scripts/show_prompt.py qwen3-4b-instruct-2507/prompt-cot/exp002
 ```
 
 Công cụ in nguồn (file prompt/ví dụ/hệ thống + sha), bản ghi hội thoại dễ đọc, chuỗi SAU chat

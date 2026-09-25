@@ -326,12 +326,12 @@ class RunIdentityTest(unittest.TestCase):
     Vì sao khoá: `plan()` (lượt chạy thật) và `preflight` (kiểm trước) từng tính hai kiểu khác nhau.
     preflight báo `NEW - chưa có lần chạy nào trong thư mục này` trong khi lượt chạy cùng lúc báo
     `RESUME - chạy tiếp từ 16 mẫu đã xong`, vì preflight nhìn thư mục PHIÊN BẢN còn lượt chạy nhìn
-    thư mục LƯỢT CHẠY. Test này so hai đường với nhau trên đúng cấu hình của exp001.
+    thư mục LƯỢT CHẠY. Test này so hai đường với nhau trên đúng cấu hình của exp002.
     """
 
     MODEL = "qwen3-4b-instruct-2507"
     METHOD = "prompt-cot"
-    EXP = "exp001"
+    EXP = "exp002"
 
     def setUp(self):
         # Cần dữ liệu ĐÃ XỬ LÝ trên máy (bước dựng prompt/dấu vân tay đọc khoá tập đánh giá).

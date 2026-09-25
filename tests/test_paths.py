@@ -68,12 +68,12 @@ class TestDefaultPaths(unittest.TestCase):
 
     def test_experiment_and_results_dir(self):
         root = paths.root()
-        self.assertEqual(paths.experiment_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp001"),
-                         root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp001")
+        self.assertEqual(paths.experiment_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp002"),
+                         root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp002")
         # Một tầng: thư mục lượt chạy là thư mục con của `results/`, tên là mã băm danh tính.
         self.assertEqual(
-            paths.results_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp001"),
-            root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp001" / "results")
+            paths.results_dir("qwen3-4b-instruct-2507", "prompt-cot", "exp002"),
+            root / "experiments" / "qwen3-4b-instruct-2507" / "prompt-cot" / "exp002" / "results")
 
     def test_patterns(self):
         self.assertEqual(paths.pattern("run_log"), "run.log")

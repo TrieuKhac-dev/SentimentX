@@ -120,8 +120,8 @@ Danh sách khoá có thể đổi và ý nghĩa từng khoá:
 
 > **Các số dưới đây là lượt chạy KIỂM ĐƯỜNG CHẠY, không phải kết quả để báo cáo.** Chúng chạy trên
 > `val` (tập LỰA CHỌN) với `n` nhỏ, để trả lời "đường chạy có ra số được không, có đúng ý không".
-> Thư mục kết quả của các lượt đó đã được xoá khỏi repo cho gọn; con số để SO VỚI CÔNG BỐ là lượt
-> chạy `exp001` trên `test` (xem `experiments/qwen3-4b-instruct-2507/prompt-cot/exp001/README.md`
+> Thư mục kết quả của các lượt đó đã được xoá khỏi repo cho gọn; con số để SO VỚI CÔNG BỐ là các lượt
+> chạy trên `test` của `prompt-cot/exp002`, `exp003`, `exp004` (xem README của từng thí nghiệm
 > và `docs/06_plan/P7_rerun.md` T3/T4). Giữ bảng này lại vì nó là dấu vết của bước dựng đường chạy.
 
 Đây là phần đầu tiên của nhóm thí nghiệm có số liệu CHẤT LƯỢNG thật. Ba model encoder (PhoBERT,

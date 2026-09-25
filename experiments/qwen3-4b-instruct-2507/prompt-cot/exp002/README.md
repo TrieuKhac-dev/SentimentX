@@ -16,8 +16,8 @@ nhiêu?** Đây là một trong ba mức 0/1/5 ví dụ của công bố, chấm
 | Số mẫu | cả split (`n: null`) | Chấm một tập con rồi đem so là so hai phép đo khác nhau |
 | Cách sinh | `greedy` | Tất định nên tái lập được |
 
-So với `exp001` (CoT 2 ví dụ) và `exp004` (CoT 5 ví dụ), thí nghiệm này trả lời câu "ví dụ có giúp
-không" ở mức 0.
+So với `exp003` (1 ví dụ) và `exp004` (5 ví dụ), thí nghiệm này trả lời câu "ví dụ có giúp không" ở
+mức 0 ví dụ.
 
 ## Kết quả nằm ở đâu
 

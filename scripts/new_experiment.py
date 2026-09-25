@@ -3,7 +3,7 @@
 
 CÁCH DÙNG
     python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot
-    python scripts/new_experiment.py --model ... --method ... --exp-id exp002 --parent .../exp001
+    python scripts/new_experiment.py --model ... --method ... --exp-id exp005 --parent qwen3-4b-instruct-2507/prompt-cot/exp004
     python scripts/new_experiment.py --model ... --method ... --dry-run      # chỉ in ra
 
 VÌ SAO PHẢI CÓ CÔNG CỤ NÀY, KHÔNG CHÉP TAY

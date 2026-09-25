@@ -39,9 +39,9 @@ class TestPathsAndLines(unittest.TestCase):
                 pin.experiment_parts(text)
 
     def test_notebook_path(self):
-        path = pin.notebook_path("qwen3-4b-instruct-2507/prompt-cot/exp001")
+        path = pin.notebook_path("qwen3-4b-instruct-2507/prompt-cot/exp002")
         self.assertEqual(path.name, pin.NOTEBOOK)
-        self.assertEqual(path.parent.name, "exp001")
+        self.assertEqual(path.parent.name, "exp002")
         self.assertEqual(path.parent.parent.name, "prompt-cot")
 
     def test_pinned_lines_hold_the_four_constants(self):

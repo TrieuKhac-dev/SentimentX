@@ -28,9 +28,9 @@ input như 3 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
 ## 2. Chạy Qwen3 theo hướng CHỈ DẪN (prompt + CoT) - ĐÃ DỰNG (đợt 2)
 
 *Cập nhật 25/09/2026:* ba mức ví dụ của công bố đã thành ba thí nghiệm
-(`qwen3-4b-instruct-2507/prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ), cạnh
-`exp001` (2 ví dụ, mức nội bộ của nhóm). Cả bốn chấm trên tập `test` và đã ghim cùng một bản code,
-chờ máy GPU của Colab để ra số. Phần mô tả dưới đây giữ nguyên vì nó giải thích VÌ SAO đi hướng này.
+(`qwen3-4b-instruct-2507/prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ) cạnh hai lượt
+LoRA cho encoder. Cả năm chấm trên tập `test` và đã ghim cùng một bản code, chờ máy GPU của Colab để ra
+số. Phần mô tả dưới đây giữ nguyên vì nó giải thích VÌ SAO đi hướng này.
 
 **Việc:** cho Qwen3 trả lời tập test bằng prompt (zero-shot / few-shot / CoT), rồi đo tỉ
 lệ JSON hợp lệ và F1. **Không fine-tune.**

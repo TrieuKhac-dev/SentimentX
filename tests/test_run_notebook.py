@@ -30,7 +30,7 @@ SPEC = importlib.util.spec_from_file_location(
 run_notebook = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(run_notebook)
 
-EXPERIMENT = "qwen3-4b-instruct-2507/prompt-cot/exp001"
+EXPERIMENT = "qwen3-4b-instruct-2507/prompt-cot/exp002"
 
 
 def pinned_notebook(source=None):

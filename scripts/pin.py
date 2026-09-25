@@ -2,7 +2,7 @@
 """Ghim bản code vào cell đầu của notebook thí nghiệm.
 
 CÁCH DÙNG
-    python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001
+    python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp002
     python scripts/pin.py <model>/<method>/<expNNN> --sha <commit>      # mặc định: HEAD
     python scripts/pin.py <model>/<method>/<expNNN> --dry-run           # chỉ in ra, không ghi
 

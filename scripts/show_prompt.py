@@ -2,7 +2,7 @@
 """In ra CÂU LỆNH THẬT đang gửi cho model, để kiểm bằng mắt chứ không tin vào suy đoán.
 
 CÁCH DÙNG
-    python scripts/show_prompt.py qwen3-4b-instruct-2507/prompt-cot/exp001
+    python scripts/show_prompt.py qwen3-4b-instruct-2507/prompt-cot/exp002
     python scripts/show_prompt.py <...> --split test --row 5
     python scripts/show_prompt.py <...> --text "Son này lên màu đẹp, giữ được lâu"
 
@@ -61,7 +61,7 @@ def experiment_parts(target):
     parts = [part for part in str(target).replace("\\", "/").split("/") if part]
     if len(parts) != 3:
         raise ShowPromptError(
-            "Cần `<model_id>/<method>/<expNNN>` (ví dụ `qwen3-4b-instruct-2507/prompt-cot/exp001`); "
+            "Cần `<model_id>/<method>/<expNNN>` (ví dụ `qwen3-4b-instruct-2507/prompt-cot/exp002`); "
             "nhận được: {}".format(target))
     return parts
 

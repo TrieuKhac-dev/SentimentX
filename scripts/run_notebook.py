@@ -2,7 +2,7 @@
 """Chạy notebook của một thí nghiệm trên máy cá nhân, KHÔNG cần tiện ích Jupyter.
 
 CÁCH DÙNG
-    python scripts/run_notebook.py qwen3-4b-instruct-2507/prompt-cot/exp001
+    python scripts/run_notebook.py qwen3-4b-instruct-2507/prompt-cot/exp002
     python scripts/run_notebook.py <...> --limit 8          # chạy thử nhanh, KHÔNG sửa file nào
     python scripts/run_notebook.py <...> --preflight-only    # chỉ tới ô kiểm trước khi chạy
     python scripts/run_notebook.py <...> --keep              # giữ bản clone tạm để soi lại
@@ -104,7 +104,7 @@ def notebook_path(target):
     parts = [part for part in str(target).replace("\\", "/").split("/") if part]
     if len(parts) != 3:
         raise RunNotebookError(
-            "Cần `<model_id>/<method>/<expNNN>` (ví dụ `qwen3-4b-instruct-2507/prompt-cot/exp001`) "
+            "Cần `<model_id>/<method>/<expNNN>` (ví dụ `qwen3-4b-instruct-2507/prompt-cot/exp002`) "
             "hoặc đường dẫn tới file .ipynb; nhận được: {}".format(target))
     path = paths.experiment_dir(*parts) / NOTEBOOK_NAME
     if not path.is_file():
