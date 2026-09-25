@@ -80,6 +80,9 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       Tạo bằng CHÍNH `new_experiment.py` (ăn thử công cụ) rồi `scripts/pin.py` ghim commit
       `fe180947` vào ô đầu (`chore(experiments): pin commit fe180947 into the exp001 notebook`).
       exp001 chấm trên `val` với `n: 200`, prompt CoT lấy từ thư viện dùng chung bằng ĐƯỜNG DẪN.
+      (25/09/2026: exp001 đã đổi sang chấm trên `test` với `n: null` để so được với công bố - xem
+      `docs/06_plan/P7_rerun.md` T3. Các lượt 200 mẫu trên `val` là bước kiểm đường chạy, thư mục kết
+      quả đã xoá.)
       Preflight cho exp001 báo 0 việc phải sửa. Lượt chạy 200 mẫu của exp001 để dành cho P7; đường
       chạy đã chứng minh bằng một lượt 4 mẫu thật ngoài thí nghiệm (xem P4 T8).
       Làm T4 thì lộ ra và sửa hai lỗi thật: đường dẫn prompt trong config thiếu một cấp `../`

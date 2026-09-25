@@ -40,6 +40,7 @@
 | 04_experiments | `01_models.md`             | các model dùng cho thí nghiệm                    | chọn model                          |
 | 04_experiments | `02_model_input.md`        | đo đầu vào thật của model                        | chọn `max_length`                   |
 | 04_experiments | `03_training_eval.md`      | huấn luyện và đánh giá                           | chạy thí nghiệm                     |
+| 04_experiments | `05_predictions.md`        | đọc bảng dự đoán `predictions.csv`               | tra một mẫu ra kết quả              |
 | 04_experiments | `04_backlog.md`            | việc chưa làm                                    | lập kế hoạch                        |
 | 04_experiments | `metrics.md`               | định nghĩa từng metric đánh giá                  | viết báo cáo                        |
 | 04_experiments | `reference_publication.md` | số của công bố và cách so                        | so kết quả                          |

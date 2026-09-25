@@ -34,6 +34,16 @@ GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn kho�
       và `generated_at` - mọi con số giữ nguyên, tức bộ dữ liệu không đổi khi mã phiên bản đổi.
 - [ ] T3. Chạy baseline prompt 0-shot, 1-shot, 5-shot trên tập `test` đúng như công bố.
       -> `feat(experiments): run baseline prompt experiments`
+      **Phạm vi đã chốt lại (25/09/2026): trước mắt chỉ chạy MỘT lượt, không phải ba.** `exp001` đã
+      được đổi sang chấm trên `test` với `n: null` (cả 1.518 review), vì đó mới là con số so được với
+      công bố; ba mức 0/1/5 ví dụ sẽ là ba thí nghiệm tiếp theo, tạo sau khi lượt này chạy xong (mỗi
+      mức là một lần chạy vài giờ trên GPU 6 GB). Các thư mục kết quả của giai đoạn kiểm đường chạy
+      (chấm trên `val`, `n` nhỏ) đã được XOÁ khỏi repo: chúng chỉ để trả lời "đường chạy có ra số
+      được không", giữ lại chỉ làm loãng bảng tổng hợp. Hai công cụ phục vụ việc chạy và kiểm:
+      `scripts/run_notebook.py` (chạy notebook trên máy cá nhân, kéo commit ghim vào thư mục tạm nên
+      repo không bị đụng) và `scripts/show_prompt.py` (in prompt thật gửi cho model). Muốn tra từng
+      mẫu thì đọc cột `prompt gửi model` trong `predictions.csv`
+      (`docs/04_experiments/05_predictions.md`).
 - [ ] T4. Sinh bảng so sánh với cột `reference`; ghi lại kết quả và khoảng cách.
       -> `docs(experiments): record baseline results against reference`
 - [ ] T5. Giao notebook cho giảng viên: đẩy dữ liệu, notebook và `.env.colab` lên Drive, gửi hướng dẫn.
