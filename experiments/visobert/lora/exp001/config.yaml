@@ -1,0 +1,33 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp001
+
+# Thí nghiệm gốc của hướng này (chưa có bản nào trước để so).
+parent: null
+
+model: visobert
+method: lora
+
+notes: "LoRA cơ bản trên ViSoBERT, chấm trên test để so trực tiếp với công bố"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.1.0
+
+  # Model encoder HỌC trước rồi mới trả lời, nên cần đủ ba vai:
+  #   train - học;  val - chọn `model/best`;  eval - con số cuối cùng (split test của công bố).
+  roles: {train: train, val: val, eval: test}
+
+# Bật huấn luyện (lớp dùng chung để `enabled: false`). Tham số LoRA và số epoch lấy từ
+# `configs/experiments/training.yaml` + `configs/models/visobert.yaml`; chỉ khai ở đây khi thí
+# nghiệm này cần KHÁC.
+enabled: true
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận câu chỉ dẫn.
+# Số mẫu chấm lấy từ lớp evaluation (`n: null` = cả split test, đúng 1.518 review).
+

@@ -1,0 +1,26 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+
+exp_id: exp003
+
+# Ba mức 0/1/5 ví dụ của công bố là ba thí nghiệm NGANG HÀNG, không phải bản làm lại của nhau.
+parent: null
+
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+notes: "CoT 1 ví dụ: đúng mức COT+1-shot của công bố, chấm trên test"
+
+data:
+  dataset: cosmetics
+  version: v0.1.0
+  roles: {eval: test}
+
+# Prompt và bộ ví dụ đều ở THƯ VIỆN DÙNG CHUNG; đường dẫn tính từ thư mục thí nghiệm trước (bốn
+# cấp lên gốc repo). Prompt khai bằng ĐƯỜNG DẪN thì file ví dụ phải khai TƯỜNG MINH: suy theo tên
+# chỉ đúng khi prompt gọi bằng tên.
+prompt: ../../../../configs/prompts/absa_cot_1shot_v1.txt
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v1.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+

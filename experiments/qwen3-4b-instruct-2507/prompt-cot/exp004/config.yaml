@@ -1,0 +1,26 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+
+exp_id: exp004
+
+# Ba mức 0/1/5 ví dụ của công bố là ba thí nghiệm NGANG HÀNG, không phải bản làm lại của nhau.
+parent: null
+
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+notes: "CoT 5 ví dụ: đúng mức COT+5-shot của công bố, chấm trên test"
+
+data:
+  dataset: cosmetics
+  version: v0.1.0
+  roles: {eval: test}
+
+# Prompt 5 ví dụ dài hơn hẳn: số đo ở `docs/04_experiments/02_model_input.md` cho thấy
+# 1.866 token/review trung bình. Ngưỡng cắt đang dùng (`preprocess.max_length: 2304`) đã tính cả
+# trường hợp này, nên không phải khai lại ở đây.
+prompt: ../../../../configs/prompts/absa_cot_5shot_v1.txt
+examples: ../../../../configs/prompts/examples/absa_cot_5shot_v1.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+

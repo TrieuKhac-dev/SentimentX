@@ -1,0 +1,29 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp002
+
+# Ba mức 0/1/5 ví dụ của công bố là ba thí nghiệm NGANG HÀNG, không phải bản làm lại của nhau.
+parent: null
+
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+notes: "CoT 0 ví dụ (zero-shot): đúng mức COT+0-shot của công bố, chấm trên test"
+
+data:
+  dataset: cosmetics
+  version: v0.1.0
+
+  # Chỉ chấm (model sinh không học): vai `eval` là bắt buộc, `train`/`val` chỉ cần khi huấn luyện.
+  roles: {eval: test}
+
+# Prompt lấy từ THƯ VIỆN DÙNG CHUNG, tính từ thư mục thí nghiệm trước rồi tới gốc repo (bốn cấp).
+# Bản 0 ví dụ KHÔNG dùng ô nhớ `{examples}`, nên không khai `examples`.
+prompt: ../../../../configs/prompts/absa_cot_zeroshot_v1.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+
