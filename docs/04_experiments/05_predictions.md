@@ -19,9 +19,9 @@
   chính mã băm và trong `run_meta.json` (khối `run`). Nhờ vậy cùng một phép đo chạy trên **Colab và
   trên máy cá nhân ra CÙNG một thư mục** - copy từ Drive về repo là copy thẳng.
 - Muốn đọc nhanh "thư mục này là gì": mở `run_meta.json` khối `run`, hoặc xem bảng
-  `data/reports/experiment_registry/` (`python scripts/collect_reports.py`) - bảng có `run` (=
-  `<model>/<method>/<expNNN>:<hash8>`), `repo_sha`, `prompt`, `split`, `subset`, `decoding`, `quant`,
-  `max_length`, `dtype`, `version_id`, và điểm số.
+  `data/reports/experiment_registry/` (`python scripts/collect_reports.py`) - bảng có `hash`,
+  `run` (= `<model>/<method>/<expNNN>:<hash8>`), `repo_sha`, `prompt`, `split`, `subset`, `decoding`,
+  `quant`, `dtype`, `max_length`, `version_id`, và điểm số.
 
 ### 1.1. Khi nào chung thư mục, khi nào khác
 

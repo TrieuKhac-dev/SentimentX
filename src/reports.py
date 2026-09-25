@@ -209,6 +209,7 @@ def experiment_rows(runs):
         cost = dict(metrics.get("cost") or {})
         rows.append({
             "run": canonical_label(run),
+            "hash": run_info.get("hash") or run["dir"].name,
             "status": run_info.get("status"),
             "started": run_info.get("started"),
             "seconds": cost.get("giây"),
@@ -224,6 +225,7 @@ def experiment_rows(runs):
                                                 subset.get("seed", "-")),
             "decoding": "sample" if generation.get("do_sample") else "greedy",
             "quant": metrics.get("quant"),
+            "dtype": dict(meta.get("env") or {}).get("dtype") or "-",
             "max_length": metrics.get("max_length"),
             "max_new_tokens": generation.get("max_new_tokens"),
             "dataset": data.get("dataset"),
