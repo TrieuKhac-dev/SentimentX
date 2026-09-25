@@ -153,7 +153,13 @@ def count_rows(path):
 
 
 def eval_lock_report(ds, version_id, problems, notes, info):
-    """Kiểm tập đánh giá khớp `eval_lock`: đổi tập test là mất quyền so với công bố tham chiếu."""
+    """Kiểm tập đánh giá khớp khoá: đổi tập test là mất quyền so với công bố tham chiếu.
+
+    Khoá đọc theo thứ tự: giá trị MONG ĐỢI khai trong file phiên bản dataset (nếu có, dùng khi muốn
+    đối chiếu với một tập test bên ngoài), rồi tới khoá ĐÃ GHI cùng dữ liệu
+    (`data/processed/<mã>/eval_lock.json`) - khoá này có từ bản dữ liệu ĐẦU TIÊN, nên bản v0 cũng
+    được kiểm, không phải chờ phiên bản sau.
+    """
     lock = dict((ds or {}).get("eval_lock") or {})
     declared = dict(lock.get("test") or {})
     path = paths.processed(version_id or "") / str(declared.get("file") or "test.csv")
@@ -167,21 +173,32 @@ def eval_lock_report(ds, version_id, problems, notes, info):
 
     if not lock.get("enforce", True):
         notes.append("`eval_lock.enforce` đang TẮT: tập test có thể bị đổi mà không ai chặn.")
+        info["eval_lock"] = {"enforce": False, "source": ""}
         return measured
+
+    stored = versioning.split_lock(version_id, Path(str(declared.get("file") or "test.csv")).stem)
+    source = "khai trong file phiên bản dataset"
     want = declared.get("sha256")
     if not want:
+        want = stored.get("sha256")
+        source = "ghi cùng dữ liệu lúc tạo ({})".format(
+            utils.rel(versioning.eval_lock_path(version_id or "")))
+    info["eval_lock"] = {"enforce": True, "source": source, "sha256": want,
+                         "rows": stored.get("rows")}
+    if not want:
         notes.append(
-            "Tập test CHƯA được chốt (`eval_lock.test.sha256` đang trống). Đo được {} ({} dòng); "
-            "chốt giá trị này vào file phiên bản dataset KẾ TIẾP, không sửa file đang dùng.".format(
-                measured["sha256"], measured["rows"]))
+            "Chưa có khoá tập đánh giá cho phiên bản này. Chạy pipeline để tạo khoá (nó ghi "
+            "{} trong cùng lần chạy sinh ra test.csv): `python run_pipeline.py --dataset <tên> "
+            "--version <phiên bản>`.".format(utils.rel(versioning.eval_lock_path(version_id or ""))))
         return measured
     if str(want) != measured["sha256"]:
         problems.append(
-            "{} KHÔNG khớp `eval_lock`: khai {}, đo được {}. Tập đánh giá đã thay đổi nên kết quả "
-            "không so được với công bố tham chiếu.".format(
-                measured["file"], want, measured["sha256"]))
+            "{} KHÔNG khớp khoá tập đánh giá ({}): đã ghi {}, đo được {}. Tập đánh giá đã thay đổi "
+            "nên kết quả không so được với công bố tham chiếu.".format(
+                measured["file"], source, want, measured["sha256"]))
     else:
-        notes.append("{} khớp `eval_lock` ({} dòng).".format(measured["file"], measured["rows"]))
+        notes.append("{} khớp khoá tập đánh giá ({} dòng; {}).".format(
+            measured["file"], measured["rows"], source))
     return measured
 
 

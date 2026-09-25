@@ -12,6 +12,7 @@ cây thật (định nghĩa thí nghiệm theo thiết kế nằm trong repo) v�
 Chạy: python -m unittest discover -s tests
 """
 
+import os
 import shutil
 import tempfile
 import unittest
@@ -19,7 +20,7 @@ from pathlib import Path
 from unittest import mock
 
 from src import dataset as dataset_module
-from src import experiments, model_config, paths, preflight, versioning
+from src import experiments, model_config, paths, preflight, utils, versioning
 
 TEST_MODEL = "zz-test-model"
 TEST_METHOD = "test-method"
@@ -110,14 +111,6 @@ class TestWritable(unittest.TestCase):
 
 @requires_dataset
 class TestEvalLock(PreflightCase):
-    def test_unlocked_test_set_is_a_note_not_a_problem(self):
-        problems, notes, info = [], [], {}
-        measured = preflight.eval_lock_report(self.dataset, self.version_id, problems, notes, info)
-        self.assertEqual(problems, [])
-        self.assertIsNotNone(measured)
-        self.assertEqual(len(measured["sha256"]), 64)
-        self.assertTrue(any("chốt" in note for note in notes))
-
     def test_mismatch_is_a_problem(self):
         problems, notes, info = [], [], {}
         fake = {"eval_lock": {"enforce": True,
@@ -142,6 +135,76 @@ class TestEvalLock(PreflightCase):
         preflight.eval_lock_report(self.dataset, "khong-co-phien-ban-nay", problems, notes, info)
         self.assertEqual(len(problems), 1)
         self.assertIn("Thiếu tập đánh giá", problems[0])
+
+
+class TestEvalLockFromData(unittest.TestCase):
+    """Khoá tập đánh giá ghi CÙNG DỮ LIỆU (`data/processed/<mã>/eval_lock.json`).
+
+    Đây là nguồn chính thức, và nó có từ bản dữ liệu ĐẦU TIÊN: nếu chỉ dựa vào giá trị khai trong
+    file phiên bản dataset thì bản đầu tiên (sha256 null) không có khoá nào cả, còn các bản sau lại
+    thừa hưởng khoá của bản trước - một chuỗi hở ở gốc. Test chạy trên gốc dữ liệu TẠM nên không cần
+    dataset thật, và không đụng vào dữ liệu của dự án.
+    """
+
+    VERSION_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-abcdef12"
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        patcher = mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: self._tmp.name})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.directory = paths.processed(self.VERSION_ID)
+        self.directory.mkdir(parents=True)
+        self.test_csv = self.directory / "test.csv"
+        utils.write_csv([["review a"], ["review b"]], ["text"], self.test_csv)
+
+    def dataset(self, sha256=None, enforce=True):
+        return {"eval_lock": {"enforce": enforce,
+                              "test": {"file": "test.csv", "sha256": sha256}}}
+
+    def lock(self, sha256):
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": sha256,
+                                                     "rows": 2})
+
+    def test_khoa_ghi_cung_du_lieu_khop_thi_chi_ghi_chu(self):
+        self.lock(versioning.file_sha256(self.test_csv))
+        problems, notes, info = [], [], {}
+        measured = preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertEqual(measured["rows"], 2)
+        self.assertTrue(any("khớp khoá" in note for note in notes))
+        self.assertIn("eval_lock.json", info["eval_lock"]["source"])
+
+    def test_khoa_ghi_cung_du_lieu_lech_thi_la_loi(self):
+        self.lock("0" * 64)
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("KHÔNG khớp", problems[0])
+        self.assertIn("eval_lock.json", problems[0])
+
+    def test_chua_co_khoa_thi_ghi_chu_kem_lenh_tao(self):
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertTrue(any("Chưa có khoá" in note for note in notes))
+        self.assertTrue(any("run_pipeline.py" in note for note in notes))
+
+    def test_gia_tri_khai_trong_config_thang_khoa_ghi_cung_du_lieu(self):
+        self.lock(versioning.file_sha256(self.test_csv))
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(sha256="0" * 64), self.VERSION_ID,
+                                   problems, notes, info)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("file phiên bản dataset", problems[0])
+
+    def test_enforce_tat_thi_khong_kiem(self):
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(enforce=False), self.VERSION_ID,
+                                   problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertTrue(any("đang TẮT" in note for note in notes))
 
 
 class TestDeviceAndSegmenter(PreflightCase):
