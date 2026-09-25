@@ -5,7 +5,7 @@
     local_json  ghi bản ghi JSON trong nhóm report `experiment_registry`
     none        không ghi đi đâu cả
 
-CÁCH DÙNG (xem run_qwen_eval.py)
+CÁCH DÙNG (`src/experiment_run.py` gọi, notebook không gọi trực tiếp)
 
     session = tracking.begin(tracking_config, out_dir, info=info, log=log)
     log.on_close(tracking.closer(session, log=log))     # phiên nào cũng được kết thúc

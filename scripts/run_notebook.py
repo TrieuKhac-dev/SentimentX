@@ -365,8 +365,7 @@ def main(argv=None):
                     finished_already = True
                     failures += len(errors)
                     print("\n(Ô chạy báo STOP: cấu hình này đã chạy xong ở lượt trước nên không chạy "
-                          "lại. Muốn chạy lại từ đầu thì xoá thư mục kết quả, hoặc dùng `--new` với "
-                          "`run_qwen_eval.py`.)")
+                          "lại. Muốn chạy lại từ đầu thì XOÁ thư mục kết quả rồi chạy lại.)")
                     break
                 failures += len(errors)
                 print("=== Ô {} xong sau {:.0f} giây{} ===".format(

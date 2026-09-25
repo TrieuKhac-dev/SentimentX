@@ -100,8 +100,8 @@ def load(model_id, method, exp_id):
 def load_shared(model_id=None):
     """Hợp nhất các lớp ĐANG CÓ khi chưa có thư mục thí nghiệm.
 
-    Dùng cho công cụ chạy tay (`run_qwen_eval.py`): nó chạy MỘT model với MỘT prompt, chưa gắn
-    với `expNNN` nào. Có thư mục thí nghiệm rồi thì dùng `load()`.
+    Dùng cho công cụ cần đọc một lớp dùng chung mà không đi qua thí nghiệm (`scripts/pin.py`,
+    `scripts/new_experiment.py`, `src/checks.py`). Chạy một THÍ NGHIỆM thì luôn dùng `load()`.
 
     Không thay thế được `load()`: thiếu lớp thí nghiệm nghĩa là thiếu `data.roles` và thiếu prompt
     của thí nghiệm, nên bản ghi lần chạy phải nói rõ đang chạy bằng cấu hình dùng chung.

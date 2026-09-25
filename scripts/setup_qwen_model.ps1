@@ -165,4 +165,4 @@ if ($problems -gt 0) {
     exit 1
 }
 Write-Host ''
-Write-Host ('Xong. Thử nạp bằng: python run_qwen_eval.py --prompt <tên prompt> --model "{0}"' -f $OutDir)
+Write-Host ('Xong. Thử nạp bằng notebook của một thí nghiệm (đặt SENTIMENTX_MODEL="{0}") hoặc xem docs/00_workflow/08_local.md.' -f $OutDir)

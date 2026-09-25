@@ -3,9 +3,8 @@
 
 VÌ SAO TÊN CỘT Ở ĐÂY
 Bảng dự đoán là ĐỊNH DẠNG dùng chung cho ba việc: ghi `predictions.csv`, ghi khối
-`predictions/part_*.jsonl` để chạy tiếp, và chấm lại từ file đã lưu. Ba chỗ đó phải nói cùng một
-tên cột, nên tên cột nằm ở đây - module thuần, KHÔNG cần torch, để `run_rescore_eval.py` dùng
-được trên máy không có GPU.
+`predictions/part_*.jsonl` để chạy tiếp, và gộp nhiều lượt chạy lại khi chấm. Ba chỗ đó phải nói
+cùng một tên cột, nên tên cột nằm ở đây - module thuần, KHÔNG cần torch.
 
 `nhãn đúng` và `nhãn đoán` là JSON trong một ô CSV: nhãn là dict theo khía cạnh, mà CSV chỉ có
 một ô cho mỗi khía cạnh được. Nhờ vậy file dự đoán tự chứa đủ để chấm lại mà không cần đọc lại

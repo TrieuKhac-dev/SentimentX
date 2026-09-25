@@ -174,7 +174,7 @@ def use_tokenizer(found):
     """Ép dùng MỘT tokenizer cụ thể cho mọi hàm của module này.
 
     Vì sao cần: đường vào model và đường vào tokenizer phải là MỘT. Khi chạy với model nạp
-    từ thư mục cục bộ (`run_qwen_eval.py --model <thư mục>`), nếu prompt vẫn đi qua
+    từ thư mục cục bộ (biến môi trường `SENTIMENTX_MODEL`), nếu prompt vẫn đi qua
     `tokenizer()` mặc định thì hai chuyện xấu xảy ra: (a) máy phải tải tokenizer từ HF dù
     model đã có sẵn trên đĩa, (b) tokenizer có thể là của BẢN KHÁC với model đang chạy -
     chat template khác nhau thì phép so sánh mất ý nghĩa mà không có gì báo lỗi.

@@ -135,8 +135,8 @@ class TestNoHardcodedPaths(unittest.TestCase):
         repo = paths.root()
         targets = list((repo / "src").rglob("*.py"))
         targets += [repo / name for name in (
-            "run_eda.py", "run_pipeline.py", "run_token_stats.py", "run_qwen_eval.py",
-            "run_rescore_eval.py", "build_report.py", "run_check_examples.py")]
+            "run_eda.py", "run_pipeline.py", "run_token_stats.py",
+            "build_report.py", "run_check_examples.py")]
         offenders = []
         for path in targets:
             if "__pycache__" in str(path) or not path.exists():
