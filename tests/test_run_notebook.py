@@ -109,5 +109,34 @@ class TestEnvironmentAndState(unittest.TestCase):
             self.assertIsNone(run_notebook.newest_result_dir(Path(folder)))
 
 
+class TestStateDiff(unittest.TestCase):
+    """Lượt chạy SINH kết quả trong repo là chuyện bình thường, không phải "repo bị đổi".
+
+    Bản đầu so cả hai chiều nên mỗi lần chạy xong đều in cảnh báo sai - và cảnh báo sai thì người
+    đọc học cách bỏ qua cảnh báo thật.
+    """
+
+    BEFORE = {"head": "a" * 40, "branch": "experiment", "changes": [" M file.py"]}
+
+    def test_new_result_files_are_not_a_warning(self):
+        after = {"head": "a" * 40, "branch": "experiment",
+                 "changes": [" M file.py", "?? results/exp001/"]}
+        lost, added, moved = run_notebook.state_diff(self.BEFORE, after)
+        self.assertEqual(lost, [])
+        self.assertEqual(added, ["?? results/exp001/"])
+        self.assertFalse(moved)
+
+    def test_a_lost_change_is_reported(self):
+        after = {"head": "a" * 40, "branch": "experiment", "changes": []}
+        lost, _added, moved = run_notebook.state_diff(self.BEFORE, after)
+        self.assertEqual(lost, [" M file.py"])
+        self.assertFalse(moved)
+
+    def test_moving_the_head_is_reported(self):
+        after = {"head": "b" * 40, "branch": "", "changes": []}
+        _lost, _added, moved = run_notebook.state_diff(self.BEFORE, after)
+        self.assertTrue(moved)
+
+
 if __name__ == "__main__":
     unittest.main()

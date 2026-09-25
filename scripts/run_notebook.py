@@ -205,6 +205,19 @@ def describe_state(label, current):
         len(current["changes"])))
 
 
+def state_diff(before, after):
+    """So trạng thái repo trước/sau, trả về (mục bị MẤT, mục MỚI, commit/nhánh đổi).
+
+    Chỉ mục bị MẤT mới là đáng báo động: đó là việc đang làm dở của người dùng bị thay đổi. Mục
+    MỚI là chuyện bình thường và là điều mong đợi - lượt chạy vừa sinh thư mục kết quả trong repo.
+    Bản trước của hàm này so cả hai chiều nên báo động sai mỗi lần chạy xong.
+    """
+    lost = [line for line in before["changes"] if line not in after["changes"]]
+    added = [line for line in after["changes"] if line not in before["changes"]]
+    moved = (before["head"] != after["head"]) or (before["branch"] != after["branch"])
+    return lost, added, moved
+
+
 def newest_result_dir(experiment_dir):
     """Thư mục kết quả mới nhất của thí nghiệm (None nếu chưa có)."""
     found = [path for path in (experiment_dir / "results").glob("*/*") if path.is_dir()]
@@ -326,11 +339,17 @@ def main(argv=None):
         after = state()
         print()
         describe_state("Repo sau   ", after)
-        if before == after:
+        lost, added, moved = state_diff(before, after)
+        if lost or moved:
+            print("CẢNH BÁO: repo đã đổi trong lúc chạy - kiểm lại bằng `git status`.")
+            for line in lost:
+                print("  mất: {}".format(line))
+        else:
             print("Repo KHÔNG đổi: file chưa commit, file chưa `git add` và thư mục chưa theo dõi "
                   "đều còn nguyên.")
-        else:
-            print("CẢNH BÁO: trạng thái repo đã đổi trong lúc chạy - kiểm lại bằng `git status`.")
+        if added:
+            print("(Lượt chạy sinh thêm {} mục mới trong repo - đó là kết quả, không phải thay đổi "
+                  "của bạn.)".format(len(added)))
         return 1 if failures else 0
     finally:
         if sink is not None:
