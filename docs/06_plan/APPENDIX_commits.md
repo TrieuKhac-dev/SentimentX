@@ -24,7 +24,7 @@
 ## Scope thường dùng
 
 `repo`, `git`, `env`, `config`, `paths`, `datasets`, `versioning`, `experiments`, `labels`,
-`preprocessing`, `evaluation`, `tracking`, `mlflow`, `resume`, `templates`, `notebook`,
+`preprocessing`, `prompts`, `evaluation`, `tracking`, `mlflow`, `resume`, `templates`, `notebook`,
 `preflight`, `scripts`, `reports`, `cli`, `ci`, `deps`, `docs`, `data`, `assets`
 
 Scope mới thì thêm vào danh sách này ngay khi dùng lần đầu, để bảng dưới và lịch sử git không nói
@@ -177,3 +177,6 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Ghi lại hai việc của máy cá nhân: kernel cần `ipykernel`, và `git fetch origin` một lần để có `origin/experiment` | `docs(env): document the local Jupyter kernel and the one-time fetch` |
 | `repo.prepare()` cập nhật ref `origin/<nhánh>` trước khi kết luận (ref trong máy cũ ngay sau khi push) | `fix(repo): refresh the branch ref before judging the pinned commit` |
 | Ghim lại notebook exp001 (`75cbdb6`) và đính chính sha ghi sai trong chính commit ghim | `chore(experiments): pin 75cbdb6 into the exp001 notebook`, `docs(experiments): name the sha the pin actually wrote` |
+| Bộ ví dụ 5-shot (`absa_cot_5shot_v1`) để chạy được mức 5 ví dụ như công bố | `feat(prompts): add a five-example variant of the CoT prompt` |
+| Test khoá: tên prompt ghi `Nshot` thì file ví dụ phải có đúng N khối | `test(prompts): lock the example count named by a N-shot prompt` |
+| Bổ sung scope `prompts` vào danh sách scope (đã dùng từ `fix(prompts): ...`) | `docs(config): add the prompts scope to the commit list` |
