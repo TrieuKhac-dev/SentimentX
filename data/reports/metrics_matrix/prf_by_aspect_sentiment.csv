@@ -1,15 +1,15 @@
-﻿aspect,sentiment,absa_cot_v1 n4 P,absa_cot_v1 n4 R,absa_cot_v1 n4 F1,COT+0-shot P,COT+0-shot R,COT+0-shot F1
-colour,negative,0.0,0.0,0.0,0.7778,1.0,0.875
-colour,positive,1.0,1.0,1.0,1.0,0.971,0.9853
-packing,negative,0.0,0.0,0.0,0.6667,1.0,0.8
-packing,positive,0.0,0.0,0.0,1.0,0.9818,0.9908
-price,negative,0.0,0.0,0.0,0.0,0.0,0.0
-price,positive,1.0,1.0,1.0,1.0,0.9722,0.9859
-shipping,negative,1.0,0.5,0.667,1.0,1.0,1.0
-shipping,positive,0.0,0.0,0.0,1.0,1.0,1.0
-smell,negative,0.0,0.0,0.0,0.6667,0.6667,0.6667
-smell,positive,1.0,0.5,0.667,0.9706,0.9706,0.9706
-stayingpower,negative,0.0,0.0,0.0,1.0,1.0,1.0
-stayingpower,positive,0.0,0.0,0.0,1.0,1.0,1.0
-texture,negative,0.0,0.0,0.0,1.0,0.7692,0.8696
-texture,positive,0.0,0.0,0.0,0.9268,1.0,0.962
+﻿aspect,sentiment,absa_cot_v1 n4 P,absa_cot_v1 n4 R,absa_cot_v1 n4 F1,exp001 P,exp001 R,exp001 F1,exp001 #2 P,exp001 #2 R,exp001 #2 F1,COT+0-shot P,COT+0-shot R,COT+0-shot F1
+colour,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.778,0.778,0.778,0.7778,1.0,0.875
+colour,positive,1.0,1.0,1.0,1.0,1.0,1.0,0.9,0.809,0.852,1.0,0.971,0.9853
+packing,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.6667,1.0,0.8
+packing,positive,0.0,0.0,0.0,0.0,0.0,0.0,0.809,0.974,0.884,1.0,0.9818,0.9908
+price,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+price,positive,1.0,1.0,1.0,1.0,1.0,1.0,0.969,0.795,0.873,1.0,0.9722,0.9859
+shipping,negative,1.0,0.5,0.667,1.0,0.5,0.667,1.0,0.889,0.941,1.0,1.0,1.0
+shipping,positive,0.0,0.0,0.0,0.0,0.0,0.0,0.975,0.907,0.94,1.0,1.0,1.0
+smell,negative,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.8,0.889,0.6667,0.6667,0.6667
+smell,positive,1.0,0.5,0.667,1.0,0.5,0.667,0.96,0.923,0.941,0.9706,0.9706,0.9706
+stayingpower,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.667,0.571,0.615,1.0,1.0,1.0
+stayingpower,positive,0.0,0.0,0.0,0.0,0.0,0.0,0.938,0.652,0.769,1.0,1.0,1.0
+texture,negative,0.0,0.0,0.0,0.0,0.0,0.0,0.636,0.778,0.7,1.0,0.7692,0.8696
+texture,positive,0.0,0.0,0.0,0.0,0.0,0.0,0.969,0.756,0.849,0.9268,1.0,0.962

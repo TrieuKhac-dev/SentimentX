@@ -1,9 +1,9 @@
-﻿aspect,absa_cot_v1 n4,COT+0-shot
-colour,100.0,94.12
-packing,100.0,100.0
-price,100.0,94.59
-shipping,75.0,98.25
-smell,75.0,
-stayingpower,75.0,97.37
-texture,100.0,97.22
-aspect_detection,89.29,100.0
+﻿aspect,absa_cot_v1 n4,exp001,exp001 #2,COT+0-shot
+colour,100.0,100.0,86.8,94.12
+packing,100.0,100.0,94.0,100.0
+price,100.0,100.0,95.5,94.59
+shipping,75.0,75.0,96.45,98.25
+smell,75.0,75.0,98.47,
+stayingpower,75.0,75.0,90.86,97.37
+texture,100.0,100.0,92.06,97.22
+aspect_detection,89.29,89.29,94.19,100.0
