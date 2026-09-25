@@ -64,6 +64,8 @@ patterns:
   processing_log: "processing_log.json"
   label_map: "label_map.json"
   run_meta_dir: "results"
+  # Khoá tập đánh giá, ghi một lần khi tạo dữ liệu: `data/processed/<mã>/eval_lock.json`.
+  eval_lock: "eval_lock.json"
 
 colab:
   # Thử lần lượt khi mount Drive; {folder} là tên folder giảng viên cấp.

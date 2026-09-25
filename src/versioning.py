@@ -187,6 +187,62 @@ def file_sha256(path):
     return digest.hexdigest()
 
 
+def eval_lock_path(version_id):
+    """Đường dẫn `data/processed/<mã>/eval_lock.json`: khoá tập đánh giá của một phiên bản."""
+    return processing_log_path(version_id).parent / paths.pattern("eval_lock")
+
+
+def read_eval_lock(version_id):
+    """Nội dung `eval_lock.json`: `{tên split: {file, sha256, rows}}`; chưa có thì trả về {}.
+
+    KHOA NÀY CÓ TỪ BẢN ĐẦU TIÊN, không phải từ phiên bản sau: nó được ghi trong cùng lần chạy
+    pipeline đã tạo ra `test.csv`, và nằm cạnh dữ liệu (`data/processed/<mã>/`). File cấu hình
+    dataset chỉ khai *chính sách* (`eval_lock.enforce`, tên file) và - khi cần - giá trị MONG ĐỢI để
+    đối chiếu với một tập test bên ngoài. Nhờ vậy bản v0 cũng có khoá, và không phải chờ phiên bản
+    kế tiếp mới biết tập đánh giá là tập nào.
+
+    Khoá theo TÊN SPLIT để sau này khoá thêm split khác cũng được, và để bảng tổng hợp đọc thẳng ra
+    được split nào đang được khoá (xem `src/reports.py`).
+    """
+    path = eval_lock_path(version_id or "")
+    if not path.is_file():
+        return {}
+    with open(path, "r", encoding="utf-8") as handle:
+        return json.load(handle) or {}
+
+
+def split_lock(version_id, split="test"):
+    """Khoá của MỘT split, hoặc {} nếu chưa có."""
+    return dict(read_eval_lock(version_id).get(str(split)) or {})
+
+
+def write_eval_lock(version_id, measured):
+    """Ghi khoá tập đánh giá MỘT LẦN cho một phiên bản. Trả về đường dẫn file.
+
+    Ghi lần thứ hai với nội dung KHÁC là lỗi: cùng một mã phiên bản nghĩa là cùng một bộ dữ liệu,
+    mà tập đánh giá đã khác thì kết quả cũ không còn so được. Cách sửa đúng là tạo phiên bản dataset
+    mới (raw khác, hoặc pipeline khác), chứ không phải ghi đè khoá.
+    """
+    path = eval_lock_path(version_id)
+    payload = dict(measured or {})
+    payload["sha256"] = payload.get("sha256") or ""
+    split = Path(str(payload.get("file") or "test.csv")).stem
+    previous = split_lock(version_id, split)
+    if previous:
+        if previous.get("sha256") != payload["sha256"]:
+            raise VersionError(
+                "Khoá tập đánh giá ({}) của {} đã có và KHÁC lần này: đã ghi {} ({} dòng), đo được {} "
+                "({} dòng). Tập đánh giá đã thay đổi, nên tạo phiên bản dataset mới thay vì ghi đè "
+                "khoá cũ.".format(
+                    split, version_id, previous.get("sha256"), previous.get("rows"),
+                    payload["sha256"], payload.get("rows")))
+        if previous.get("rows") == payload.get("rows"):
+            return path
+    stored = read_eval_lock(version_id)
+    stored[split] = payload
+    return Path(utils.write_json(stored, path))
+
+
 def guard_versions(dataset_cfg=None, pipeline_cfg=None):
     """Chặn việc sửa file phiên bản đã dùng.
 

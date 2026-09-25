@@ -19,10 +19,53 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import utils, versioning
+from src import paths, utils, versioning
 
 ID_PATTERN = re.compile(
     r"^cosmetics-ds0\.1\.0-pl0\.1\.0-srccosmetics@0\.1\.0-[0-9a-f]{8}$")
+
+
+class TestEvalLockFile(unittest.TestCase):
+    """Khoá tập đánh giá: ghi MỘT LẦN cho mỗi phiên bản, nằm cạnh dữ liệu.
+
+    Vì sao khoá nằm ở đây chứ không ở file phiên bản dataset: giá trị `sha256` của `test.csv` chỉ
+    biết được SAU khi pipeline chạy lần đầu, mà file phiên bản thì bất biến. Ghi khoá cùng dữ liệu
+    nghĩa là bản dữ liệu ĐẦU TIÊN đã có khoá, và mọi lượt chạy sau đều kiểm được tập test còn nguyên.
+    """
+
+    VERSION_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-abcdef12"
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        patcher = mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: self.tmp.name})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def measured(self, sha256="a" * 64, rows=1518):
+        return {"file": "test.csv", "sha256": sha256, "rows": rows}
+
+    def test_ghi_roi_doc_lai(self):
+        path = versioning.write_eval_lock(self.VERSION_ID, self.measured())
+        self.assertEqual(path, paths.processed(self.VERSION_ID) / "eval_lock.json")
+        self.assertEqual(versioning.read_eval_lock(self.VERSION_ID)["test"]["rows"], 1518)
+        self.assertEqual(versioning.split_lock(self.VERSION_ID)["sha256"], "a" * 64)
+
+    def test_chua_ghi_thi_doc_ra_rong(self):
+        self.assertEqual(versioning.read_eval_lock(self.VERSION_ID), {})
+        self.assertEqual(versioning.split_lock(self.VERSION_ID), {})
+
+    def test_ghi_lai_cung_noi_dung_thi_khong_loi(self):
+        versioning.write_eval_lock(self.VERSION_ID, self.measured())
+        versioning.write_eval_lock(self.VERSION_ID, self.measured())
+        self.assertEqual(versioning.split_lock(self.VERSION_ID)["sha256"], "a" * 64)
+
+    def test_doi_tap_danh_gia_thi_bao_loi_kem_cach_sua(self):
+        versioning.write_eval_lock(self.VERSION_ID, self.measured())
+        with self.assertRaises(versioning.VersionError) as caught:
+            versioning.write_eval_lock(self.VERSION_ID, self.measured(sha256="b" * 64))
+        self.assertIn("KHÁC", str(caught.exception))
+        self.assertIn("phiên bản dataset mới", str(caught.exception))
 
 
 class TestComputeId(unittest.TestCase):
