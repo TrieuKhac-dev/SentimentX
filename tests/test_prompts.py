@@ -13,6 +13,7 @@ Ba điều được khoá ở đây, đều là lỗi im lặng nếu sai:
 Chạy: python -m unittest discover -s tests
 """
 
+import re
 import shutil
 import tempfile
 import unittest
@@ -105,6 +106,33 @@ class CacheKeyTest(unittest.TestCase):
         first = qwen.load_prompt("prompt.txt", base_dir=self.base, examples="mot.txt")
         second = qwen.load_prompt("prompt.txt", base_dir=self.base, examples="hai.txt")
         self.assertIsNot(first, second)
+
+
+class SoViDuTest(unittest.TestCase):
+    """Tên prompt nói bao nhiêu ví dụ thì file ví dụ phải có đúng bấy nhiêu khối.
+
+    Lỗi im lặng mà phép kiểm này chặn: một thí nghiệm gọi là "5-shot" nhưng file ví dụ chỉ có 4
+    khối vẫn chạy ra kết quả, chỉ có điều nó không còn là mức 5-shot như công bố - và bảng so sánh
+    với công bố thì nói sai mà nhìn vào không thấy. Số ví dụ là BIẾN THỰC NGHIỆM, nên tên file là
+    chỗ duy nhất người đọc dựa vào.
+    """
+
+    def test_ten_prompt_va_so_khoi_vi_du_phai_khop(self):
+        checked = []
+        for name in prompts.available():
+            matched = re.search(r"_(\d)shot", name)
+            if not matched:
+                continue
+            info = prompts.examples_info(prompts.load(name).examples_value)
+            self.assertIsNotNone(info, "{}: thiếu file ví dụ".format(name))
+            self.assertEqual(
+                info["examples"], int(matched.group(1)),
+                "{}: tên nói {} ví dụ nhưng file {} có {} khối".format(
+                    name, matched.group(1), info["file"], info["examples"]))
+            checked.append(name)
+        self.assertEqual(sorted(checked), ["absa_cot_1shot_v1", "absa_cot_5shot_v1"],
+                         "thiếu mức 1-shot hoặc 5-shot để so với công bố")
+
 
 
 LABEL_MAP = {"aspects": ["smell"], "label_to_id": {"": 0, "positive": 1, "negative": 2},
