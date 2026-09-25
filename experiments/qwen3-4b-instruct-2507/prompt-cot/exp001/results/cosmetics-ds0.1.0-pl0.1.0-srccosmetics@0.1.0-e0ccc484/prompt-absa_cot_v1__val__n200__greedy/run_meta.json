@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "run": {
+    "out_dir": "prompt-absa_cot_v1__val__n200__greedy",
+    "tag": "prompt-absa_cot_v1__val__n200__greedy",
+    "log": "run.log",
+    "errors": "errors.json",
+    "status": "FINISHED",
+    "started": "2026-09-25 04:09:01",
+    "finished": "2026-09-25 04:26:39",
+    "note": null
+  },
+  "experiment": {
+    "model": "qwen3-4b-instruct-2507",
+    "method": "prompt-cot",
+    "exp_id": "exp001"
+  },
+  "data": {
+    "dataset": "cosmetics",
+    "version": "v0.1.0",
+    "ma": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+    "roles": {
+      "eval": "val"
+    },
+    "rows": {
+      "eval": 1524
+    },
+    "eval_lock": {
+      "enforce": true,
+      "declared": null
+    }
+  },
+  "repo": {
+    "url": "https://github.com/TrieuKhac-dev/SentimentX",
+    "branch": "experiment",
+    "sha": "75cbdb6bc19429588dd8f114366dd378c33b4e6a"
+  },
+  "config": {
+    "sha256": "9a7126ac4295df4b0c0c90b6aa11a9b23772bc36c05749c511b7255adcf05c0f",
+    "layers": [
+      [
+        "model",
+        "configs/models/qwen3-4b-instruct-2507.yaml"
+      ],
+      [
+        "repo",
+        "configs/experiments/repo.yaml"
+      ],
+      [
+        "task",
+        "configs/experiments/task.yaml"
+      ],
+      [
+        "evaluation",
+        "configs/experiments/evaluation.yaml"
+      ],
+      [
+        "training",
+        "configs/experiments/training.yaml"
+      ],
+      [
+        "tracking",
+        "configs/experiments/tracking.yaml"
+      ],
+      [
+        "experiment",
+        "experiments/qwen3-4b-instruct-2507/prompt-cot/exp001/config.yaml"
+      ]
+    ],
+    "sources": {
+      "model_id": "model",
+      "checkpoint": "model",
+      "config_version": "model",
+      "preprocess.max_length": "model",
+      "preprocess.add_generation_prompt": "model",
+      "inference.dtype": "model",
+      "inference.quantization": "model",
+      "inference.batch_size": "model",
+      "url": "repo",
+      "branch": "repo",
+      "allowed_branches": "repo",
+      "label_space": "task",
+      "neutral_policy": "task",
+      "not_mentioned": "task",
+      "aspects": "task",
+      "n": "experiment",
+      "decoding.mode": "evaluation",
+      "decoding.temperature": "evaluation",
+      "decoding.top_p": "evaluation",
+      "scores": "evaluation",
+      "group_by": "evaluation",
+      "save.predictions": "evaluation",
+      "save.plots": "evaluation",
+      "save.confusion": "evaluation",
+      "enabled": "training",
+      "lora.r": "training",
+      "lora.alpha": "training",
+      "lora.dropout": "training",
+      "lora.target_modules": "training",
+      "lr": "training",
+      "batch": "training",
+      "epochs": "training",
+      "grad_accum": "training",
+      "weight_decay": "training",
+      "checkpoints.every_n_steps": "training",
+      "checkpoints.keep_last_k": "training",
+      "checkpoints.save_last": "training",
+      "checkpoints.save_best": "training",
+      "checkpoints.delete_intermediate": "training",
+      "tracker": "tracking",
+      "experiment": "tracking",
+      "mlflow_tags.model": "tracking",
+      "mlflow_tags.method": "tracking",
+      "mlflow_tags.exp_id": "tracking",
+      "artifacts": "tracking",
+      "exp_id": "experiment",
+      "parent": "experiment",
+      "model": "experiment",
+      "method": "experiment",
+      "data.dataset": "experiment",
+      "data.version": "experiment",
+      "data.roles.eval": "experiment",
+      "prompt": "experiment",
+      "examples": "experiment"
+    }
+  },
+  "task": {
+    "label_space": "binary",
+    "neutral_policy": "drop",
+    "not_mentioned": "separate"
+  },
+  "overrides": [
+    [
+      "n",
+      null,
+      200,
+      "experiment"
+    ]
+  ],
+  "env": {
+    "kind": "colab",
+    "python": "3.13.15",
+    "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "device": "cuda:0",
+    "gpu": "Tesla T4",
+    "vram_gb": 2.49,
+    "quantization": "4-bit nf4 (tính bằng float16)",
+    "libs": {}
+  },
+  "attempts": [
+    {
+      "n": 1,
+      "started": "2026-09-25 04:09:01",
+      "finished": "2026-09-25 04:26:39",
+      "seconds": 1058.0,
+      "status": "FINISHED",
+      "sha": "75cbdb6bc19429588dd8f114366dd378c33b4e6a",
+      "config_sha256": "9a7126ac4295df4b0c0c90b6aa11a9b23772bc36c05749c511b7255adcf05c0f",
+      "data": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+      "note": null
+    }
+  ],
+  "files": [
+    {
+      "path": "configs/paths.yaml",
+      "role": "paths",
+      "bytes": 2772,
+      "sha256": "e587e552a02ab1600c2b1dd956b033d165a9743f44079fcc229e0c88f501bdaf"
+    },
+    {
+      "path": "configs/dagshub.yaml",
+      "role": "tracking",
+      "bytes": 568,
+      "sha256": "ff38c3c94744e02b8a68df0eec4f025a316f3d74944582f28db6367bf7adb4d8"
+    },
+    {
+      "path": "configs/experiments/repo.yaml",
+      "role": "config",
+      "bytes": 396,
+      "sha256": "fe1b7b6db60b8d4aee33103e1853548aea28fb126cab252bc5a49cb1c8b62ed0"
+    },
+    {
+      "path": "configs/experiments/task.yaml",
+      "role": "config",
+      "bytes": 837,
+      "sha256": "1b22c438e46fe2cc5af8ece178c8d4f0a913f211016c41d99d8120cf5c718338"
+    },
+    {
+      "path": "configs/experiments/evaluation.yaml",
+      "role": "config",
+      "bytes": 1209,
+      "sha256": "5ac1f7b16210191c921397eb35a969fdfcf1cc9cafe983bdba1ffeb0084bb353"
+    },
+    {
+      "path": "configs/experiments/training.yaml",
+      "role": "config",
+      "bytes": 887,
+      "sha256": "3db3235a818c44b2b6807e1f138f94d8a17123a78202c529668ebd0d52f4e6fd"
+    },
+    {
+      "path": "configs/experiments/tracking.yaml",
+      "role": "config",
+      "bytes": 650,
+      "sha256": "3223778ae0b9414ab5ea99804c2009a76ea70278828335918a790f23c469f19d"
+    },
+    {
+      "path": "configs/models/qwen3-4b-instruct-2507.yaml",
+      "role": "model",
+      "bytes": 1230,
+      "sha256": "4bc438851deea3950fce830f633181a0e90500ac0a2fa8b889d83cce0e0eab7d"
+    },
+    {
+      "path": "configs/datasets/cosmetics/v0.1.0.yaml",
+      "role": "dataset",
+      "bytes": 2403,
+      "sha256": "e40c156bcad52b0295acfef1a9850a71bcd91874ff7d77e17fc472654a550f68"
+    },
+    {
+      "path": "configs/pipeline/v0.1.0.yaml",
+      "role": "pipeline",
+      "bytes": 2416,
+      "sha256": "54731c64e4eef01bd65fd142e2956cfbde91a5b7d09e613eb1f3a7d9044b6b53"
+    },
+    {
+      "path": "configs/prompts/absa_cot_v1.txt",
+      "role": "prompt",
+      "bytes": 947,
+      "sha256": "b1a457b427b8160d8c0d89d92f5d8d727dc5cfaf2e10bacd8b604d166b0b4fd8"
+    },
+    {
+      "path": "configs/prompts/examples/absa_cot_v1.txt",
+      "role": "examples",
+      "bytes": 2738,
+      "sha256": "27e20218c8e3d9a6f3640bca63e2d158a558c09e2013d05cc3f7bcc2a5a1e9e9"
+    }
+  ]
+}

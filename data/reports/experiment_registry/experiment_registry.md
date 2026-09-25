@@ -9,4 +9,6 @@ graph LR
   n1 -->|NEW| n2
   n3 -->|NEW| n4
   n3 -->|NEW| n4
+  n3 -->|NEW| n4
+  n3 -->|NEW| n4
 ```
