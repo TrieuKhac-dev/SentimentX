@@ -102,8 +102,11 @@ def describe_sources(prompt_obj, label_map, aspects, split, row, tokenizer_name)
     else:
         print("Ví dụ       : không dùng")
     system = prompt_obj.system_info()
+    sections = prompt_obj.sections or []
     print("Hệ thống    : {}".format(
-        "{} ({})".format(system["file"], system["sha"]) if system else "không dùng"))
+        "{} ({})".format(system["file"], system["sha"]) if system else
+        ("trong chính file prompt (mục [SYSTEM])"
+         if any(name == "system" for name, _text in sections) else "không dùng")))
     print("Khía cạnh   : {}".format(", ".join(aspects)))
     print("Mã nhãn     : {}".format(
         ", ".join("{}={}".format(name or "(không nhắc)", code)

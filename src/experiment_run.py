@@ -270,6 +270,22 @@ def print_scores(scores):
                 print("    {:<20} {}".format(key, value))
 
 
+def system_label(prompt_obj, system_info):
+    """Khối chỉ dẫn hệ thống của lượt chạy, nói rõ nó ĐẾN TỪ ĐÂU.
+
+    Hai nguồn: file khối hệ thống dùng chung (khoá `system_prompt` của config), hoặc ngay trong file
+    prompt (mục `[SYSTEM]`). In "không dùng" khi prompt có mục `[SYSTEM]` là nói SAI: model vẫn nhận
+    một khối hệ thống, chỉ là nó nằm trong chính file prompt - người đọc log dễ tưởng model không có
+    chỉ dẫn nào.
+    """
+    if system_info:
+        return "{} (sha {})".format(system_info["file"], system_info["sha"])
+    sections = prompt_obj.sections or []
+    if any(name == "system" for name, _text in sections):
+        return "trong chính file prompt (mục [SYSTEM])"
+    return "không dùng"
+
+
 def print_config(plan_data, model_info):
     """In cấu hình của lần chạy TRƯỚC khi sinh, để nhìn là biết đang đo cái gì."""
     prompt = plan_data["prompt"]
@@ -283,8 +299,7 @@ def print_config(plan_data, model_info):
     print("  ví dụ       : {}".format(
         "{} - {} ví dụ, sha {}".format(examples["file"], examples["examples"],
                                        examples["sha"]) if examples else "không dùng"))
-    print("  hệ thống    : {}".format(
-        "{} (sha {})".format(system["file"], system["sha"]) if system else "không dùng"))
+    print("  hệ thống    : {}".format(system_label(prompt, system)))
     print("  tập dữ liệu : {} - {}{}".format(
         plan_data["split"], plan_data["limit"] or plan_data["total"],
         " (TẬP CON ngẫu nhiên, seed {})".format(plan_data["seed"])

@@ -369,6 +369,35 @@ class RunIdentityTest(unittest.TestCase):
         self.assertNotEqual(other["fingerprint"], changed)
 
 
+class SystemLabelTest(unittest.TestCase):
+    """Nhãn `hệ thống` phải nói ĐÚNG nguồn của khối chỉ dẫn.
+
+    Bản cũ in `không dùng` cả khi model vẫn nhận một khối `[SYSTEM]` nằm trong chính file prompt -
+    người đọc log tưởng model không có chỉ dẫn nào, trong khi nó có.
+    """
+
+    BODY = "Danh sách khía cạnh: {aspects}\n{label_guide}\nReview:\n{text}"
+
+    def prompt(self, text):
+        """Prompt thật sự (không phải dict): nhãn hệ thống đọc từ chính đối tượng đã nạp."""
+        return prompts.Prompt("x", paths.root() / "configs/prompts/absa_cot_v1.txt", text)
+
+    def test_a_system_section_inside_the_prompt_file_is_named(self):
+        obj = self.prompt("[SYSTEM]\nBạn là trợ lí.\n\n[USER]\n" + self.BODY)
+        self.assertEqual(experiment_run.system_label(obj, None),
+                         "trong chính file prompt (mục [SYSTEM])")
+
+    def test_a_separate_system_file_is_named_with_its_sha(self):
+        obj = self.prompt(self.BODY)
+        found = experiment_run.system_label(
+            obj, {"file": "configs/prompts/system/absa_v1.txt", "sha": "abc12345"})
+        self.assertIn("absa_v1.txt", found)
+        self.assertIn("sha abc12345", found)
+
+    def test_no_system_block_says_none(self):
+        self.assertEqual(experiment_run.system_label(self.prompt(self.BODY), None), "không dùng")
+
+
 class MaxLengthTest(unittest.TestCase):
     """Ngưỡng cắt đọc từ đâu: tham số dòng lệnh > config ĐÃ HỢP NHẤT > file cấu hình model.
 
