@@ -27,7 +27,7 @@
 | `prompt` | **TÊN** prompt trong thư viện (`absa_cot_v1`), không phải nội dung | Biết dùng cấu hình nào; nội dung + sha nằm ở `run_meta.json` |
 | `kiểu đọc` | Bộ đọc lấy nhãn bằng ĐƯỜNG NÀO (xem bảng dưới) | `khối KẾT QUẢ` là đường chính; kiểu khác là đường lui, cần biết để đánh giá chất lượng định dạng |
 | `đọc được` | `có` / `KHÔNG` — bộ đọc có lấy được bộ nhãn hợp lệ | Đọc được thì mới chấm; tỉ lệ này là chỉ số sức khoẻ của prompt |
-| `lí do` | Vì sao `có`/`KHÔNG`, hoặc lý do đọc được nhưng chưa trọn vẹn (xem bảng dưới) | Tìm nguyên nhân khi tỉ lệ đọc được thấp |
+| `tình trạng đọc` | Vì sao `có`/`KHÔNG`, hoặc lý do đọc được nhưng chưa trọn vẹn (xem bảng dưới) | Tìm nguyên nhân khi tỉ lệ đọc được thấp |
 | `text` | Review gốc tiếng Việt, nguyên văn | Đối chiếu câu trả lời với dữ liệu thật; kiểm "trích dẫn có đúng nguyên văn" |
 | `nhãn đúng` | Đáp án thật, JSON `{khía cạnh: mã}` | So với `nhãn đoán` để biết đúng/sai từng khía cạnh |
 | `nhãn đoán` | Model đoán, cùng dạng JSON; rỗng nếu `đọc được = KHÔNG` | Là thứ được chấm; rỗng được tính là sai cả hai ô (xem `metrics.md`) |
@@ -62,7 +62,7 @@ sai về dữ liệu. Chi tiết kỹ thuật: `src/evaluation/records.py` (`col
 Bộ đọc nhận cả vài biến thể gõ thiếu dấu (`KẾT QUA:`, `KET QUA:`, `KẾT QUẢ :`) vì model hay mắc khi
 trả lời nhanh — chi tiết ở `src/evaluation/parse.py`.
 
-### 2.2. `lí do` — các giá trị
+### 2.2. `tình trạng đọc` — các giá trị
 
 | Giá trị | Nghĩa |
 | --- | --- |
@@ -78,7 +78,7 @@ trả lời nhanh — chi tiết ở `src/evaluation/parse.py`.
 
 ## 3. Đọc một dòng theo thứ tự nào
 
-1. `đọc được` + `lí do` — nếu `KHÔNG` thì các cột sau không có ý nghĩa, đọc `câu trả lời` để biết
+1. `đọc được` + `tình trạng đọc` — nếu `KHÔNG` thì các cột sau không có ý nghĩa, đọc `câu trả lời` để biết
    model trả về cái gì.
 2. `nhãn đúng` và `nhãn đoán` — khác nhau ở khía cạnh nào? (`0` = không nhắc tới, `1` = positive,
    `2` = negative, `3` = neutral; mã lấy từ `label_map.json` của phiên bản dữ liệu.)

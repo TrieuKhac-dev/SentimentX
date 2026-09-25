@@ -190,4 +190,7 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Bảng mã trong prompt bị lọc HAI chiều: trước đây vẫn dạy `3 = neutral` dù bài toán là binary + drop | `fix(labels): teach the label guide the experiment actually scores` |
 | Ô CSV nhiều dòng làm người đọc tưởng mất cột: mỗi bản ghi ghi trên một dòng vật lý | `fix(utils): keep one CSV record per physical line` |
 | Nói rõ dòng `KẾT QUẢ` cuối prompt chỉ là khuôn JSON (mã toàn số 0 dễ bị chép nguyên) | `fix(prompts): say the result line is a JSON shape, not an answer` |
-| Trang `05_predictions.md`: bảng giá trị `kiểu đọc`/`lí do` và cách ghi ô nhiều dòng | `docs(experiments): explain the reading route and the reason column` |
+| Trang `05_predictions.md`: bảng giá trị `kiểu đọc`/`tình trạng đọc` và cách ghi ô nhiều dòng | `docs(experiments): explain the reading route and the reason column` |
+| Bỏ nốt dấu vết bài 4 nhãn: câu quy trình trong prompt và ví dụ 5-shot không còn dùng `mã 3` | `fix(prompts): stop teaching a code the binary task does not score` |
+| Ngưỡng cắt ghi đè được từ config thí nghiệm (trước đây đọc thẳng file cấu hình model) | `fix(config): let the experiment override max_length` |
+| Đổi tên cột `lí do` -> `tình trạng đọc`, và ghi chú bốn trạng thái của dataset so với không gian nhãn của thí nghiệm | `refactor(evaluation): name the parse verdict column for what it is` |

@@ -26,7 +26,7 @@ def row(index, gold, guess, valid=True, extra=None):
     values = {
         "chỉ số": index, "split": "val", "prompt": "absa_cot_v1", "kiểu đọc": "json",
         "đọc được": "có" if valid else "KHÔNG",
-        "lí do": "" if valid else "JSON không hợp lệ",
+        "tình trạng đọc": "" if valid else "JSON không hợp lệ",
         "text": "review {}".format(index),
         "nhãn đúng": json.dumps(gold, ensure_ascii=False),
         "nhãn đoán": json.dumps(guess or {}, ensure_ascii=False),

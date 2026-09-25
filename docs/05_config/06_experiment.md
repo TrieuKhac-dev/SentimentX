@@ -40,6 +40,29 @@ requires_extra: []
 | `system_prompt`  | đường dẫn khối chỉ dẫn hệ thống dùng chung, bắt buộc khi prompt dùng ô nhớ `{system_prompt}`. File nhận cả hai cách viết: chỉ có câu hệ thống, hoặc có mục `[SYSTEM]` |
 | `requires_extra` | danh sách đường dẫn bổ sung mà notebook phải kiểm, cho thứ máy không suy ra được             |
 
+## Ghi đè lớp dùng chung: được, kể cả ngưỡng cắt input
+
+Lớp thí nghiệm là lớp **CUỐI** khi hợp nhất, nên khoá nào đã có ở lớp trước đều khai lại được ở đây,
+và giá trị khai lại là giá trị chạy. Ví dụ với ngưỡng cắt input:
+
+```yaml
+preprocess:
+  max_length: 2304          # ghi đè `preprocess.max_length` của configs/models/<model_id>.yaml
+```
+
+Dùng khi một thí nghiệm cần ngưỡng khác hẳn ngưỡng của model: prompt nhiều ví dụ thì dài hơn, ngưỡng
+của model có thể không đủ, và phần bị cắt là phần ĐUÔI - đúng chỗ chứa dòng dạy định dạng đầu ra.
+Hai điều cần nhớ:
+
+- Ngưỡng KHÔNG làm đổi phép đo độ dài input; nó chỉ quyết định **ai bị cắt**
+  (`docs/04_experiments/02_model_input.md` mục 4.2).
+- `run_token_stats.py` đo theo ngưỡng trong file cấu hình model, nên muốn đo theo ngưỡng của thí
+  nghiệm thì truyền `--max-length` đúng giá trị đó.
+
+Ngưỡng đang dùng được in ra khi chạy và ghi vào `run.log` (`[RUN] max_length=...`), nên không phải
+đoán xem lượt chạy đó dùng số nào. (Trước 25/09/2026, ghi đè ở lớp thí nghiệm bị bỏ qua trong im
+lặng: bước lập kế hoạch đọc thẳng file cấu hình model.)
+
 `prompt`, `examples`, `system_prompt` đều nhận TÊN TRẦN (không dấu `/`, không `.txt`) để lấy file
 trong thư viện dùng chung: `configs/prompts/<tên>.txt`, `configs/prompts/examples/<tên>.txt`,
 `configs/prompts/system/<tên>.txt`. Muốn dùng chung một khối hệ thống cho nhiều prompt thì viết câu

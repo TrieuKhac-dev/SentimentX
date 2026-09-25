@@ -15,11 +15,16 @@ dataset - đổi cách chấm thì không phải chạy lại model.
 import json
 
 # Cột của bảng kết quả (cũng là cột file CSV dự đoán và khoá của từng dòng JSONL).
+# `tình trạng đọc` (trước đây tên là `lí do`) là KẾT LUẬN của bộ đọc: `ok` khi đọc được trọn vẹn, còn
+# lại là lý do cụ thể (xem bảng giá trị ở docs/04_experiments/05_predictions.md). Đổi tên vì "lí do"
+# đọc như một trường tự do, trong khi đây là tập giá trị đóng do `src/evaluation/parse.py` quyết định.
 COLUMNS = [
-    "chỉ số", "split", "prompt", "kiểu đọc", "đọc được", "lí do",
+    "chỉ số", "split", "prompt", "kiểu đọc", "đọc được", "tình trạng đọc",
     "text", "nhãn đúng", "nhãn đoán",
     "token sinh", "giây", "có suy luận", "có <think>", "câu trả lời",
 ]
+
+REASON_COLUMN = "tình trạng đọc"
 
 # Cột nhận diện một mẫu. Dùng để bỏ qua mẫu đã chạy khi chạy tiếp.
 KEY = COLUMNS[0]
@@ -120,7 +125,7 @@ def to_arrays(rows, aspects):
         preds.append({name: int(value) for name, value in guess.items()} if valid else None)
         infos.append({
             "valid": valid,
-            "reason": row.get("lí do", ""),
+            "reason": row.get(REASON_COLUMN, ""),
             "has_reasoning": str(row.get("có suy luận", "")) == MENTIONED,
             "had_thinking": str(row.get("có <think>", "")) == MENTIONED,
             "thiếu": [aspect for aspect in aspects if aspect not in guess],

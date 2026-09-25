@@ -63,3 +63,9 @@ Bộ nhãn này do config khai báo (khoá `labels`); mã nhãn dùng trong dữ
 ---
 
 Xem tiếp: [03_new_dataset.md](03_new_dataset.md) - thêm dataset mới.
+
+Dataset có **bốn trạng thái** (kể cả ô trống = không nhắc tới). Thí nghiệm KHÔNG nhất thiết
+dùng cả bốn: không gian nhãn do `configs/experiments/task.yaml` quyết định (hiện tại
+`label_space: binary` + `neutral_policy: drop`, tức chấm positive/negative và để "có nhắc tới"
+làm một quyết định riêng, còn ô neutral bị loại khỏi phần chấm). Bảng mã ĐƯA CHO MODEL bị lọc
+theo đúng không gian đó - xem `docs/04_experiments/05_predictions.md`.
