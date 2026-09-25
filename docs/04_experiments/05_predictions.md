@@ -41,7 +41,7 @@
 | Ngưỡng cắt `max_length` đổi | **Khác** (`cfg…` đổi) | Input bị cắt khác đi |
 | `split` khác, `n` khác, `greedy`/`sample` khác | **Khác** (phần tương ứng trong tên) | Ba thứ này quyết định chấm cái gì và sinh thế nào |
 | **Code (commit) đổi** - kể cả sửa nhỏ trong `src/` | **CÙNG thư mục** | Đây là "chạy lại cùng phép đo bằng bản code khác"; bộ kết quả cũ được chuyển vào `predictions/_bo-qua-<thời điểm>` và lượt mới ghi vào chính thư mục đó |
-| Máy chạy khác (Colab so với local), batch size, `max_new_tokens`, seed | **CÙNG thư mục** | Không đổi phép đo; chúng nằm trong `run_meta.json` (`env.device`, `env.gpu`, `inference.batch_size`…) |
+| Máy chạy khác (Colab so với local), batch size, `max_new_tokens`, seed | **CÙNG thư mục**, trừ khi máy trỏ model vào thư mục cục bộ (`SENTIMENTX_MODEL`) | Không đổi phép đo; chúng nằm trong `run_meta.json` (`env.device`, `env.gpu`, `inference.batch_size`…). Lượt chạy local dùng `data/models/Qwen3-4B-Instruct-2507` nên tên thư mục có thêm `__Qwen3-4B-Instruct-2507`: cùng trọng số nhưng khác NGUỒN, và không có cách nào kiểm là giống nhau - nên chúng không resume chung |
 | Dữ liệu đổi (phiên bản dữ liệu khác) | **Khác** (thư mục `<mã dữ liệu>`) | Chấm trên bộ dữ liệu khác |
 
 ### 1.2. Chạy tiếp (RESUME) hay chạy mới
