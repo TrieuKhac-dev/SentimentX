@@ -183,3 +183,7 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Nâng ngưỡng cắt input của Qwen lên 2304: prompt 5 ví dụ tốn 2.109 token, ở 1280 thì 100% review mất phần đuôi | `fix(config): raise the Qwen input limit so the five-example prompt fits` |
 | Ghi lại số đo mới (bảng 4.2, ngưỡng, mục 6.1) | `docs(config): record the new input limit and the five-example measurement` |
 | Test báo cáo không còn đọc thư mục report thật (đo token một lần là test đỏ dù code không đổi) | `test(reports): keep the write tests off the project's own report folder` |
+| Chạy notebook ở local không cần tiện ích Jupyter: kéo commit ghim vào thư mục TẠM nên repo không bị đụng | `feat(scripts): run a pinned experiment notebook from the command line` |
+| Công cụ in prompt THẬT gửi cho model (chat template, số token, phần bị cắt ở đuôi) | `feat(scripts): show the exact prompt a model receives` |
+| Ghi hai công cụ đó vào tài liệu máy cá nhân | `docs(env): document the command-line tools for local runs` |
+| Ghi kết quả lượt chạy trên Colab (T4) và lượt thử 8 mẫu ở local vào git | `chore(experiments): record the colab run and the local smoke run` |

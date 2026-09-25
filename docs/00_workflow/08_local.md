@@ -73,6 +73,43 @@ nhưng là kết quả của mã cũ hơn, và chỉ có một dòng cảnh báo
 
 ## 4. Chạy
 
+**Cách khuyến nghị: dùng script, không cần tiện ích Jupyter.**
+
+```bash
+python scripts/run_notebook.py qwen3-4b-instruct-2507/prompt-cot/exp001
+```
+
+Script này tự làm đủ bốn việc: (1) đọc `REPO_SHA` từ chính ô GHIM của notebook, (2) kéo ĐÚNG commit
+đó vào một thư mục TẠM, (3) chạy lần lượt các ô code trong một kernel `python3` như bấm Run all,
+(4) để kết quả về thẳng `<repo>/experiments/...` (vì `SENTIMENTX_RESULTS_ROOT` trỏ vào repo).
+
+Vì chạy trong thư mục tạm nên **repo của bạn không bị đụng**: file chưa commit, file chưa `git add`,
+thư mục chưa theo dõi đều còn nguyên - cuối lượt chạy script tự so trạng thái trước/sau và in ra.
+
+| Việc | Lệnh |
+| --- | --- |
+| Chạy đủ (như Run all) | `python scripts/run_notebook.py <model>/<method>/<expNNN>` |
+| Kiểm trước khi chạy, chưa tốn GPU (~30 giây) | thêm `--preflight-only` |
+| Chạy thử vài mẫu (`n = N`, KHÔNG sửa file nào) | thêm `--limit 8` |
+| Ghi thêm toàn bộ đầu ra ra file | thêm `--log <đường dẫn>` |
+| Giữ thư mục code tạm để soi | thêm `--keep` |
+
+`--limit N` hoạt động bằng cách ép `n = N` ngay trong RAM sau khi nạp config, nên tên thư mục kết quả
+có `nN` và không lẫn với lượt chạy đủ; config trong git vẫn nguyên.
+
+**Cách thay thế: mở notebook bằng Jupyter/VS Code rồi bấm Run all.** Được, nhưng nhớ hai điều:
+kernel phải có `ipykernel` (mục 2), và bootstrap sẽ `git checkout` commit ghim NGAY TRONG repo -
+cây làm việc bị đưa về bản cũ, nên chỉ làm khi `git status` sạch. Xem mục 3.
+
+Muốn xem **prompt thật** gửi cho model (không phải đọc file prompt rồi đoán):
+
+```bash
+python scripts/show_prompt.py qwen3-4b-instruct-2507/prompt-cot/exp001
+```
+
+Công cụ in nguồn (file prompt/ví dụ/hệ thống + sha), bản ghi hội thoại dễ đọc, chuỗi SAU chat
+template - đúng thứ model nhận - số token, và phần bị cắt ở đuôi nếu vượt `max_length`.
+
 1. Mở `experiments/<model_id>/<method>/expNNN/notebook.ipynb` bằng Jupyter hoặc VS Code (không phải
    Colab), chọn kernel có `torch` CUDA.
 2. Run all. Ô bootstrap sẽ in `Nơi chạy : local`, `Gốc dữ liệu : <repo>/data`, `Gốc kết quả :
