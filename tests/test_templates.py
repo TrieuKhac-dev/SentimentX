@@ -224,5 +224,59 @@ class TestBootstrap(unittest.TestCase):
                         path, TEMPLATES / "experiment" / "notebook.ipynb"))
 
 
+class TestConfigCell(unittest.TestCase):
+    """Ô CẤU HÌNH ĐANG DÙNG phải in được cấu hình cho CẢ HAI đường chạy.
+
+    Lỗi thật đã gặp trên Colab: ô này đọc thẳng `config["prompt"]`, nên thí nghiệm model encoder
+    (không có prompt) chết ngay ở ô thứ tư - trước cả khi preflight kịp chạy, và trước cả khi in ra
+    bản code cùng gốc dữ liệu đang dùng. Ô này chỉ để IN cấu hình, nên nó không được có quyền làm
+    chết lượt chạy: mọi khoá phải đọc qua `.get`.
+    """
+
+    MARKER = "ĐANG DÙNG"
+
+    def config_cell(self, path):
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        for cell in data["cells"]:
+            if cell.get("cell_type") != "code":
+                continue
+            source = cell.get("source") or []
+            source = source if isinstance(source, str) else "".join(source)
+            if self.MARKER in source:
+                return source
+        self.fail("{}: không có ô cấu hình".format(path))
+
+    def every_notebook(self):
+        return [TEMPLATES / "experiment" / "notebook.ipynb"] + sorted(
+            (paths.root() / "experiments").rglob("notebook.ipynb"))
+
+    def test_every_key_is_read_with_get(self):
+        for path in self.every_notebook():
+            with self.subTest(notebook=str(path)):
+                source = self.config_cell(path)
+                self.assertNotIn(
+                    'config["', source,
+                    "đọc khoá trực tiếp: thiếu khoá là ô này chết. Dùng config.get()")
+
+    def test_it_branches_on_the_run_approach(self):
+        for path in self.every_notebook():
+            with self.subTest(notebook=str(path)):
+                source = self.config_cell(path)
+                self.assertIn('approach == "encoder"', source)
+                self.assertIn('.get("prompt")', source)
+                self.assertIn('config.get("trainer")', source)
+
+    def test_it_compiles_and_matches_the_template(self):
+        template = self.config_cell(TEMPLATES / "experiment" / "notebook.ipynb")
+        compile(template, "<cell-config>", "exec")
+        for path in self.every_notebook():
+            with self.subTest(notebook=str(path)):
+                self.assertEqual(
+                    self.config_cell(path), template,
+                    "{}: ô cấu hình khác bản mẫu - chép lại từ {}".format(
+                        path, TEMPLATES / "experiment" / "notebook.ipynb"))
+
+
 if __name__ == "__main__":
     unittest.main()
