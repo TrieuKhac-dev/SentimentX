@@ -28,8 +28,15 @@ MODEL_CONFIG = (
     "model_id: {}\n"
     "checkpoint: test/checkpoint\n"
     "config_version: 1\n"
+    # `approach` bắt buộc: nó quyết định đường chạy của model (prompt hay encoder).
+    "approach: prompt\n"
     "task:\n"
     "  label_space: full\n"
+    # `lora.target_modules` thuộc config của MODEL (tên module khác nhau theo kiến trúc).
+    "lora:\n"
+    "  target_modules:\n"
+    "    - query\n"
+    "    - value\n"
     "preprocess:\n"
     "  max_length: 128\n"
 ).format(TEST_MODEL)

@@ -40,6 +40,7 @@ MODEL_CONFIG = (
     "model_id: {}\n"
     "checkpoint: test/checkpoint\n"
     "config_version: 1\n"
+    "approach: prompt\n"
     "preprocess:\n"
     "  max_length: 128\n"
     "inference:\n"
@@ -254,6 +255,7 @@ class TestDeviceAndSegmenter(PreflightCase):
         with tempfile.TemporaryDirectory() as folder:
             config = Path(folder) / "x.yaml"   # tên file phải trùng `model_id`
             config.write_text("model_id: x\ncheckpoint: test/x\nconfig_version: 1\n"
+                              "approach: prompt\n"
                               "preprocess:\n  max_length: 64\n  segmenter: khong-co\n",
                               encoding="utf-8")
             with mock.patch.object(model_config, "config_path", return_value=config):
