@@ -259,11 +259,23 @@ def compute_dtype_name(bf16_supported):
 
 
 def _model_dtype(torch):
-    """`(kiểu số, tên)` để nạp model, chọn theo máy đang chạy. Xem `compute_dtype_name`."""
+    """`(kiểu số, tên)` để nạp model, chọn theo máy đang chạy. Xem `compute_dtype_name`.
+
+    Phải hỏi bản torch mới bằng `including_emulation=False`: mặc định của tham số này là True, nghĩa
+    là GPU KHÔNG có bf16 thật (T4 là Turing) vẫn trả về "có", vì torch chạy bf16 bằng giả lập phần
+    mềm - đúng và chậm hơn nhiều. Đã gặp thật: lượt chạy trên T4 với torch 2.11 vẫn chọn bf16.
+    """
     try:
-        supported = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
+        supported = bool(torch.cuda.is_available()
+                         and torch.cuda.is_bf16_supported(including_emulation=False))
+    except TypeError:
+        # Bản torch cũ không có tham số này; hàm khi đó vốn chỉ kiểm hỗ trợ PHẦN CỨNG.
+        try:
+            supported = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
+        except (AttributeError, RuntimeError):
+            supported = False
     except (AttributeError, RuntimeError):
-        # Bản torch cũ không có `is_bf16_supported`, hoặc driver hỏng: coi như không hỗ trợ.
+        # Thiếu hàm, hoặc driver hỏng: coi như không hỗ trợ.
         supported = False
     name = compute_dtype_name(supported)
     return getattr(torch, name), name

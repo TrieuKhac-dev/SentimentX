@@ -10,6 +10,7 @@ Chạy: python -m unittest discover -s tests
 
 import importlib.util
 import unittest
+from unittest import mock
 
 from src.evaluation import runner
 
@@ -30,6 +31,20 @@ class ComputeDtypeTest(unittest.TestCase):
         for flag in (True, False):
             name = runner.compute_dtype_name(flag)
             self.assertTrue(hasattr(torch, name))
+
+    @unittest.skipUnless(HAS_TORCH, "cần torch")
+    def test_hoi_torch_ho_tro_THAT_chu_khong_phai_gia_lap(self):
+        """T4 là Turing: torch đời mới trả `is_bf16_supported()` = True vì có giả lập phần mềm.
+
+        Hỏi bằng `including_emulation=False` thì mới biết máy có bf16 THẬT hay không. Nếu torch bị
+        mock thành bản chỉ hỗ trợ giả lập, kết quả phải là fp16.
+        """
+        import torch
+
+        with mock.patch.object(torch.cuda, "is_bf16_supported",
+                               side_effect=lambda including_emulation=True: including_emulation):
+            _dtype, name = runner._model_dtype(torch)
+        self.assertEqual(name, "float16")
 
 
 if __name__ == "__main__":
