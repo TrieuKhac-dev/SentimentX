@@ -302,11 +302,19 @@ def build_classes():
             self.n_codes = int(n_codes)
             self.head = nn.Linear(int(encoder.config.hidden_size), self.n_aspects * self.n_codes)
 
-        def forward(self, input_ids, attention_mask):
+        def forward(self, input_ids=None, attention_mask=None, **kwargs):
+            """`**kwargs` để chịu được tham số phụ do lớp bọc (peft) hoặc Trainer truyền vào.
+
+            Tham số phụ như `inputs_embeds` không đổi phép tính của đầu phân loại, nên bỏ qua thay
+            vì lỗi: chặn ở đây sẽ làm cả lượt huấn luyện dừng ở bước đầu tiên.
+            """
             output = self.encoder(input_ids=input_ids, attention_mask=attention_mask)
+            # Ép về kiểu số của CHÍNH đầu phân loại: encoder ở bf16/fp16 còn đầu ở fp32 (máy tính
+            # bằng bf16 nhưng tham số học ở fp32), và `matmul` đòi hai vế cùng kiểu. Phép ép này
+            # vẫn cho gradient đi qua, nên không mất gì.
+            pooled = output.last_hidden_state[:, 0].to(self.head.weight.dtype)
             # Token đầu tiên là đại diện cả câu (<s> của PhoBERT và của XLM-R/ViSoBERT).
-            return self.head(output.last_hidden_state[:, 0]).view(
-                -1, self.n_aspects, self.n_codes)
+            return self.head(pooled).view(-1, self.n_aspects, self.n_codes)
 
         def loss(self, logits, targets, mask):
             """Cross-entropy trên từng ô ĐƯỢC TÍNH: `mask = 0` nghĩa là ô đó không có nhãn dùng được."""
