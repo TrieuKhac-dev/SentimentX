@@ -298,6 +298,27 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
 
 
 
+class MaxLengthTest(unittest.TestCase):
+    """Ngưỡng cắt đọc từ đâu: tham số dòng lệnh > config ĐÃ HỢP NHẤT > file cấu hình model.
+
+    Vì sao khoá: bản trước đọc thẳng file cấu hình model, nên khai `preprocess.max_length` trong
+    config của thí nghiệm bị BỎ QUA trong im lặng - người viết tưởng đã đổi ngưỡng, còn model vẫn
+    nhận input dài như cũ (hoặc bị cắt) mà không có gì báo.
+    """
+
+    def test_experiment_layer_can_override_the_model_layer(self):
+        self.assertEqual(experiment_run.effective_max_length(
+            {"preprocess": {"max_length": 1024}}), 1024)
+
+    def test_the_command_line_wins(self):
+        self.assertEqual(experiment_run.effective_max_length(
+            {"preprocess": {"max_length": 1024}}, passed=512), 512)
+
+    def test_without_any_override_the_model_config_is_used(self):
+        self.assertEqual(experiment_run.effective_max_length({}), qwen.limit()[0])
+        self.assertEqual(experiment_run.effective_max_length({"preprocess": {}}), qwen.limit()[0])
+
+
 if __name__ == "__main__":
     unittest.main()
 

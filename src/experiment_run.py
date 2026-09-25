@@ -88,6 +88,25 @@ def batch_size_of(model_id, config_data):
     return int(value)
 
 
+def effective_max_length(config_data, passed=None):
+    """Ngưỡng cắt ĐANG dùng cho lượt chạy này, theo thứ tự ưu tiên.
+
+    `passed` (tham số dòng lệnh) > `preprocess.max_length` của cấu hình ĐÃ HỢP NHẤT > ngưỡng khai
+    trong file cấu hình model.
+
+    Vì sao đọc từ cấu hình đã hợp nhất: lớp THÍ NGHIỆM là lớp cuối khi hợp nhất, nên khai
+    `preprocess.max_length` trong `experiments/<model>/<method>/expNNN/config.yaml` là ghi đè được
+    ngưỡng của model - cách duy nhất để chạy một cấu hình với ngưỡng khác mà không sửa file dùng
+    chung. Bản trước đọc thẳng file cấu hình model, nên ghi đè kiểu đó bị bỏ qua trong im lặng.
+    """
+    if passed:
+        return int(passed)
+    value = ((config_data or {}).get("preprocess") or {}).get("max_length")
+    if value:
+        return int(value)
+    return qwen.limit()[0]
+
+
 def build_tag(prompt_name, split, limit, sampled, quant, model=None):
     """Tên thư mục kết quả của MỘT cấu hình chạy.
 
@@ -255,7 +274,8 @@ def print_config(plan_data, model_info):
         plan_data["split"], plan_data["limit"] or plan_data["total"],
         " (TẬP CON ngẫu nhiên, seed {})".format(plan_data["seed"])
         if plan_data["limit"] and plan_data["limit"] < plan_data["total"] else ""))
-    print("  ngưỡng cắt  : {} token (max_length của Qwen)".format(plan_data["max_length"]))
+    print("  ngưỡng cắt  : {} token (preprocess.max_length đang dùng)".format(
+        plan_data["max_length"]))
     print("  sinh        : {}".format(
         "greedy (tái lập)" if not plan_data["sampled"] else
         "lấy mẫu: temperature={}, top_p={}, top_k={}, seed={}".format(
@@ -352,7 +372,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     generation = runner.settings(quant=quant, max_new_tokens=max_new_tokens, do_sample=sampled,
                                  temperature=card.get("temperature"), top_p=card.get("top_p"),
                                  top_k=card.get("top_k"), seed=seed if sampled else None)
-    max_length = max_length or qwen.limit()[0]
+    max_length = effective_max_length(config_data, max_length)
 
     tag = build_tag(prompt_obj.name, split, limit, sampled,
                     quant if quant and quant != "auto" else None,
