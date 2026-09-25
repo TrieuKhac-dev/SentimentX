@@ -202,7 +202,7 @@ def run_record(plan_data):
         "limit": plan_data["limit"],
         "n_samples": plan_data["info"]["n_samples"],
         "subset_seed": plan_data["seed"],
-        "quant": plan_data["quant"],
+        "quant": effective_quant(plan_data.get("quant"), plan_data["config"]),
         "max_length": plan_data["max_length"],
         "batch_size": plan_data["batch_size"],
         "generation": dict(plan_data.get("generation") or {}),
