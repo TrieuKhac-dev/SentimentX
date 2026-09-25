@@ -27,3 +27,4 @@ SUY LUẬN:
 - <khía cạnh>: <trích dẫn> | <lí do ngắn> | mã <số>     (một dòng cho MỖI khía cạnh)
 KẾT QUẢ:
 {example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT của từng khía cạnh vào đó, KHÔNG chép nguyên các số 0)
