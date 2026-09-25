@@ -207,7 +207,8 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Năm thí nghiệm mới: hai lượt LoRA cho encoder và ba mức ví dụ của công bố | `feat(experiments): add two LoRA runs and the three CoT prompt levels` |
 | Hai lỗi lộ ra khi chạy thật: encoder ở bf16 so với đầu phân loại ở fp32, và `inputs_embeds` do peft truyền vào | `fix(training): align the head dtype with the encoder and ignore extra kwargs` |
 | `log_config` giữ dòng hạt giống; `notes` là khoá hợp lệ của config thí nghiệm | `fix(experiments): log the seed from log_config and accept the notes key` |
-| Ghim CÙNG một bản code cho cả sáu notebook | `chore(experiments): pin one code revision into all six notebooks` |
+| Ghim một bản code cho cả sáu notebook (lần đó chỉ ghim được MỘT cái: cây làm việc bẩn nên năm lần sau bị từ chối) | `chore(experiments): pin one code revision into all six notebooks` |
+| Ghim CẢ SÁU notebook về bản code đã rà soát (`--allow-dirty`, vì lần ghim trước đã làm cây bẩn) | `chore(experiments): point all six notebooks at the reviewed revision` |
 | Bảng `model_input` không đọc lại chính file nó ghi ra - nguồn của các cột trùng tên `file.1`, `file.2` | `fix(reports): read only the measurement tables, never the aggregate they feed` |
 
 21 commit của đợt trước viết tiếng Việt, không theo quy ước `type(scope): subject`. Chúng được giữ
