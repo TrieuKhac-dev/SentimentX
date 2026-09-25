@@ -379,6 +379,9 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     repo = run_meta.repo_info(url=config_data.get("url"), branch=config_data.get("branch"))
     config_sha256 = experiments.config_sha256(merged, prompt_text=prompt_obj.text)
     parts = resume.Parts(out_dir)
+    # Cột của bảng dự đoán: đường chạy này LUÔN gửi prompt cho model, nên bảng ghi luôn chuỗi đã gửi
+    # (xem `records.columns`). Đường chạy model encoder sẽ khai bảng KHÔNG có cột này.
+    columns = records.columns(with_prompt=True)
     done_count = parts.count()
     mode, reason = resume.decide(
         run_meta.read(out_dir), resume.fingerprint(config_sha256, version_id, repo["sha"]),
@@ -423,6 +426,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "texts": texts, "golds": golds, "row_index": row_index, "generation": generation,
         "sampled": sampled, "max_length": max_length, "model": model, "quant": quant,
         "names": names, "stash_count": info.get("stash_count", 0),
+        "columns": columns,
         "batch_size": batch_size, "quiet": quiet, "tag": tag, "out_dir": out_dir, "info": info,
         "repo": repo, "config_sha256": config_sha256, "mode": mode, "reason": reason,
         "parts": parts, "skip": skip, "roles": roles, "rows_by_role": rows_by_role,
@@ -529,7 +533,8 @@ def run(plan_data, log=None):
             plan_data["label_map"], plan_data["prompt"].name, model, tokenizer,
             batch_size=plan_data["batch_size"], max_length=plan_data["max_length"],
             generation=plan_data["generation"], row_index=plan_data["row_index"],
-            quiet=plan_data["quiet"], store=plan_data["parts"])
+            quiet=plan_data["quiet"], store=plan_data["parts"],
+            columns=plan_data["columns"])
         log.step("sinh xong {} mẫu mới".format(len(rows)), seconds=cost["giây"])
         return finish(plan_data, rows, cost, model_info, info, session, log)
 
@@ -544,7 +549,7 @@ def finish(plan_data, rows, cost, model_info, info, session, log):
     config_data = plan_data["config"]
     aspects = plan_data["aspects"]
     parts = plan_data["parts"]
-    rows_all = records.merge(parts.records(), rows)
+    rows_all = records.merge(parts.records(), rows, plan_data["columns"])
     golds_all, preds_all, infos_all = records.to_arrays(rows_all, aspects)
     read = metrics.read_rate(infos_all)
     log.step("tổng {} mẫu ({} mẫu mới), đọc được {}% kết quả".format(
@@ -611,7 +616,7 @@ def write_all(plan_data, rows, samples, result, extra, session, log):
     save = dict(plan_data["config"].get("save") or {})
     shown = {}
     if save.get("predictions", True):
-        shown[paths.pattern("predictions")] = runner.write(rows, runner.PREDICTION_COLUMNS,
+        shown[paths.pattern("predictions")] = runner.write(rows, plan_data["columns"],
                                                            out_dir)
         log.step("ghi {} dòng dự đoán".format(len(rows)))
     shown.update(scorers.write(out_dir, samples, names=result["names"],

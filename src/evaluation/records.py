@@ -27,6 +27,29 @@ KEY_INDEX = COLUMNS.index(KEY)
 
 MENTIONED = "có"
 
+# Cột chỉ có ở đường chạy dùng PROMPT (model chỉ dẫn - LLM): chuỗi ĐÃ GỬI cho model, sau chat
+# template và sau khi cắt ở `max_length`. Nhờ nó, muốn biết "mẫu này thành prompt nào rồi model
+# trả lời ra sao" thì đọc thẳng `predictions.csv`, không phải chạy lại gì.
+#
+# Model encoder (PhoBERT, ViSoBERT) học từ chuỗi thô, KHÔNG có prompt nào để ghi - bảng của chúng
+# không có cột này. Vì vậy cột không nằm trong `COLUMNS` mà do `columns(with_prompt=True)` thêm vào.
+PROMPT_COLUMN = "prompt gửi model"
+ANSWER_COLUMN = "câu trả lời"
+
+
+def columns(with_prompt=False):
+    """Cột của bảng dự đoán cho MỘT đường chạy.
+
+    `with_prompt=True` chèn cột prompt NGAY TRƯỚC cột `câu trả lời`, để đọc một dòng là thấy liền
+    mạch: câu hỏi (prompt) -> câu trả lời -> nhãn đọc được. Thứ tự còn lại giữ nguyên như bảng cũ,
+    nên file của model encoder và file của LLM chỉ khác nhau đúng một cột.
+    """
+    base = list(COLUMNS)
+    if not with_prompt:
+        return base
+    index = base.index(ANSWER_COLUMN)
+    return base[:index] + [PROMPT_COLUMN] + base[index:]
+
 
 def as_dict(row, columns=None):
     """Một dòng có thể là dict (đọc từ JSONL) hoặc list (vừa chạy trong bộ nhớ): đưa về dict.

@@ -196,6 +196,38 @@ class TestRecords(unittest.TestCase):
         self.assertEqual(infos[0]["thiếu"], ["colour"])
 
 
+class PromptColumnTest(unittest.TestCase):
+    """Cột `prompt gửi model`: có ở đường chạy LLM, KHÔNG có ở bảng của model encoder.
+
+    Vì sao khoá: bảng dự đoán là chỗ duy nhất trả lời được "mẫu này thành prompt nào rồi model trả
+    lời ra sao". Thiếu cột đó thì phải chạy lại model mới biết. Nhưng model encoder (PhoBERT,
+    ViSoBERT) học từ chuỗi thô - chúng không có prompt nào để ghi, nên bảng của chúng phải giữ
+    nguyên 14 cột; thêm cột rỗng vào đó là nói dối về dữ liệu.
+    """
+
+    def test_llm_table_has_the_prompt_right_before_the_answer(self):
+        columns = records.columns(with_prompt=True)
+        self.assertEqual(len(columns), len(records.COLUMNS) + 1)
+        self.assertEqual(columns[columns.index(records.ANSWER_COLUMN) - 1],
+                         records.PROMPT_COLUMN)
+        self.assertNotIn(records.PROMPT_COLUMN, records.COLUMNS)
+
+    def test_encoder_table_is_unchanged(self):
+        self.assertEqual(records.columns(with_prompt=False), records.COLUMNS)
+        self.assertEqual(records.columns(), records.COLUMNS)
+
+    def test_merging_keeps_the_prompt_of_rows_already_on_disk(self):
+        """Chạy tiếp: dòng đã lưu (dict) phải giữ được prompt khi gộp vào bảng."""
+        columns = records.columns(with_prompt=True)
+        stored = [dict(zip(columns, [0, "val", "p", "khối", "có", "ok", "review", "{}", "{}",
+                                     10, 1.0, "có", "không", "PROMPT CŨ", "trả lời cũ"]))]
+        merged = records.merge(stored, [], columns)
+        self.assertEqual(merged[0][columns.index(records.PROMPT_COLUMN)], "PROMPT CŨ")
+
+    def test_prompt_column_is_named_in_vietnamese_like_the_others(self):
+        self.assertIn(" ", records.PROMPT_COLUMN)
+
+
 if __name__ == "__main__":
     unittest.main()
 

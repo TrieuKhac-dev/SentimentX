@@ -40,8 +40,9 @@ from src.evaluation import metrics, parse, records
 from src.preprocessing import qwen
 
 # Cột của bảng dự đoán: định nghĩa ở `records.py` để chỗ ghi CSV, chỗ ghi khối `part_*.jsonl` và
-# chỗ chấm lại từ file dùng CÙNG một tên cột.
-PREDICTION_COLUMNS = records.COLUMNS
+# chỗ chấm lại từ file dùng CÙNG một tên cột. Bảng của đường chạy có prompt thêm một cột so với bảng
+# gốc (`records.columns(with_prompt=True)`); muốn bảng của model encoder thì dùng `records.COLUMNS`.
+PREDICTION_COLUMNS = records.columns(with_prompt=True)
 
 # Cấu hình sinh mặc định
 DEFAULT_MAX_NEW_TOKENS = 400
@@ -157,9 +158,31 @@ def generate(inputs, model, tokenizer, generation):
     return answers, [int(value) for value in lengths], elapsed
 
 
+def sent_prompts(tokenizer, inputs, columns):
+    """Chuỗi ĐÃ GỬI cho model của từng dòng trong lô (rỗng nếu bảng không có cột prompt).
+
+    Dịch ngược token id thành chữ SAU khi đã cắt ở `max_length`, nên đây đúng là thứ model nhận -
+    không phải bản prompt "đầy đủ" trên lý thuyết. Bảng của model encoder không có cột này nên
+    không tốn công dịch.
+    """
+    if records.PROMPT_COLUMN not in columns:
+        return [""] * len(inputs["input_ids"])
+    tokenizer = tokenizer or qwen.tokenizer()
+    mask = inputs.get("attention_mask") if hasattr(inputs, "get") else None
+    texts = []
+    for index, row in enumerate(inputs["input_ids"]):
+        ids = row
+        if mask is not None:
+            # Bỏ phần PAD: đệm nằm ở BÊN TRÁI (padding_side="left"), nếu không bỏ thì prompt in ra
+            # bắt đầu bằng hàng loạt token đệm và người đọc sẽ tưởng model nhận rác.
+            ids = row[mask[index].bool()]
+        texts.append(tokenizer.decode(ids.tolist(), skip_special_tokens=False))
+    return texts
+
+
 def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
         batch_size=4, max_length=None, generation=None, row_index=None, quiet=False,
-        store=None):
+        store=None, columns=None):
     """Sinh + đọc kết quả cho cả một split (hoặc một tập con).
 
     `golds` là list[dict {khía cạnh: mã đúng}]; `row_index` là chỉ số dòng gốc trong file
@@ -173,10 +196,14 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
     `store` (tuỳ chọn) là `src.resume.Parts`: mỗi lô xong được ghi xuống đĩa NGAY, nên bị ngắt
     giữa chừng thì lần chạy sau biết mẫu nào đã xong. Không truyền thì kết quả chỉ nằm trong bộ
     nhớ cho tới lúc ghi file cuối cùng.
+
+    `columns` là cột của bảng dự đoán (xem `records.columns`). Mặc định có cột `prompt gửi model`
+    vì đường chạy này LUÔN gửi prompt cho model; model encoder sẽ truyền bảng không có cột đó.
     """
     generation = generation or settings()
     aspects = list(aspects)
     codes = list(label_map["label_to_id"].values())
+    columns = list(columns or records.columns(with_prompt=True))
     rows, infos, preds = [], [], []
     total_tokens, total_seconds, total_items = 0, 0.0, 0
     starts = list(range(0, len(texts), batch_size))
@@ -186,6 +213,7 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
         inputs = qwen.build_inputs(chunk, max_length=max_length, aspects=aspects,
                                    label_map=label_map, prompt_name=prompt_name)
         answers, lengths, seconds = generate(inputs, model, tokenizer, generation)
+        prompts = sent_prompts(tokenizer, inputs, columns)
 
         batch_rows = []
         for offset, answer in enumerate(answers):
@@ -195,19 +223,25 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
             preds.append(labels or None)
             total_tokens += lengths[offset]
             total_items += 1
-            batch_rows.append([
-                (row_index[position] if row_index else position), split, prompt_name,
-                info["kiểu đọc"], "có" if info["valid"] else "KHÔNG", info["reason"],
-                texts[position], _as_json(golds[position]), _as_json(labels),
-                lengths[offset], round(seconds / len(chunk), 2),
-                "có" if info["has_reasoning"] else "không",
-                "có" if info["had_thinking"] else "không",
-                answer.strip(),
-            ])
+            values = {
+                "chỉ số": (row_index[position] if row_index else position),
+                "split": split, "prompt": prompt_name, "kiểu đọc": info["kiểu đọc"],
+                "đọc được": "có" if info["valid"] else "KHÔNG", "lí do": info["reason"],
+                "text": texts[position], "nhãn đúng": _as_json(golds[position]),
+                "nhãn đoán": _as_json(labels), "token sinh": lengths[offset],
+                "giây": round(seconds / len(chunk), 2),
+                "có suy luận": "có" if info["has_reasoning"] else "không",
+                "có <think>": "có" if info["had_thinking"] else "không",
+                records.PROMPT_COLUMN: prompts[offset],
+                records.ANSWER_COLUMN: answer.strip(),
+            }
+            # Ghi theo ĐÚNG thứ tự cột của đường chạy này: bảng của model encoder không có cột
+            # prompt, nên chỗ này phải theo `columns` chứ không phải theo danh sách cứng.
+            batch_rows.append([values[column] for column in columns])
         rows.extend(batch_rows)
         if store is not None:
             # Ghi NGAY sau mỗi lô: đây là thứ khiến việc chạy tiếp trở nên rẻ.
-            store.append(batch_rows, PREDICTION_COLUMNS)
+            store.append(batch_rows, columns)
         total_seconds += seconds
         if not quiet:
             print("    lô {}/{}: {} câu | {:.1f} giây | {:.1f} token sinh/giây".format(
