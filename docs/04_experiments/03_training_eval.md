@@ -137,6 +137,11 @@ python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-
 | Ngưỡng cắt | 1280 token                                                                                 | prompt CoT cần tới 1.195 token (tiền xử lý cho model, mục 4.2)                              |
 | Đầu ra     | Một thư mục riêng cho mỗi cấu hình: `predictions.csv`, `predictions/part_*.jsonl`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `run_meta.json`, `run.log` | Tên file cố định (đọc từ `configs/paths.yaml`), cấu hình nằm ở tên thư mục, nên không ghi đè nhau. `metrics.json` ghi `label_space`, `neutral_policy`, số ô neutral bị loại, `resume` nếu là chạy tiếp, và `rescored` nếu có chấm lại. `run.log` và `run_meta.json` luôn có; `errors.json` chỉ xuất hiện khi có lỗi (xem [00_workflow/01_flow.md](../00_workflow/01_flow.md)) |
 
+> Ngưỡng cắt đã nâng thành **2304** từ 25/09/2026: bản prompt 5 ví dụ (mức mà công bố so) cần tới
+> 2.109 token, nên ở ngưỡng 1280 thì 100% review mất phần đuôi - tức mất luôn yêu cầu định dạng
+> đầu ra. Bảng trên ghi đúng cấu hình của LẦN CHẠY đó nên vẫn để 1280; xem
+> [02_model_input.md](02_model_input.md) mục 4.2.
+
 ### 6.2. Kết quả (cùng một tập 100 review)
 
 | Prompt                      | ví dụ | acc macro | khớp hoàn toàn | P nhắc | R nhắc    | F1 nhắc micro | F1 nhắc macro | token sinh/review | thời gian |

@@ -13,12 +13,12 @@ Không chứa `prompt`, `examples`, `roles`, hay `dataset` - những thứ đó 
 ```yaml
 model_id: qwen3-4b-instruct-2507
 checkpoint: Qwen/Qwen3-4B-Instruct-2507
-config_version: 1
+config_version: 2
 task:
   label_space: binary
   neutral_policy: drop
 preprocess:
-  max_length: 1280
+  max_length: 2304
   add_generation_prompt: true
   segmenter: vncorenlp
 inference:

@@ -284,18 +284,23 @@ python run_token_stats.py --dataset cosmetics --segmenter none
 Còn thiếu: tác động của việc tách từ lên **kết quả cuối** (F1) - việc đó cần huấn luyện,
 ghi ở [04_backlog.md](04_backlog.md).
 
-### 4.2. Prompt: đo chi phí TRƯỚC khi chạy model (0 / 1 / 2 ví dụ)
+### 4.2. Prompt: đo chi phí TRƯỚC khi chạy model (0 / 1 / 2 / 5 ví dụ)
 
 Prompt cũng là một biến thực nghiệm, nên phải biết nó tốn bao nhiêu token trước khi đem đi
 chạy. Số dưới đây là split `train` (12.302 review); bản đầy đủ cả 3 split nằm trong các file
 của thư mục phiên bản:
 
-| Prompt | ví dụ | file số liệu | token/review TB | p50 | p95 | p99 | max | % > 1280 |
+| Prompt | ví dụ | file số liệu | token/review TB | p50 | p95 | p99 | max | % > ngưỡng |
 |--------|-------|--------------|-----------------|-----|-----|-----|-----|----------|
 | `absa_direct_v1` (một lượt) | 0 | `token_stats.csv` | 229,50 | 224 | 268 | 298 | 474 | 0,00 |
 | `absa_cot_zeroshot_v1` | 0 | `...__prompt-absa_cot_zeroshot_v1.csv` | 376,50 | 371 | 415 | 445 | 621 | 0,00 |
 | `absa_cot_1shot_v1` | 1 | `...__prompt-absa_cot_1shot_v1__ex-5d530f7c.csv` | 681,50 | 676 | 720 | 750 | 926 | 0,00 |
 | `absa_cot_v1` | 2 | `...__prompt-absa_cot_v1__ex-c513f5a6.csv` | 950,50 | 945 | 989 | 1.019 | **1.195** | 0,00 |
+| `absa_cot_5shot_v1` | 5 | `...__prompt-absa_cot_5shot_v1__ex-2799b4c8.csv` | 1.864,50 | 1.859 | 1.903 | 1.933 | **2.109** | 0,00 |
+
+Cột cuối tính theo ngưỡng cắt của **từng lần đo**: bốn dòng đầu đo ở ngưỡng 1280, dòng 5 ví dụ đo
+ở ngưỡng 2304 (ngưỡng hiện tại). Các cột `TB`, `p50`, `p95`, `p99`, `max` là **độ dài input**, không
+phụ thuộc ngưỡng - nên bốn dòng đầu vẫn đúng nguyên giá trị dù ngưỡng đã nâng lên.
 
 Ba điều đọc ra từ bảng này:
 
@@ -306,27 +311,29 @@ Ba điều đọc ra từ bảng này:
 2. **Mỗi ví dụ khoảng 287-305 token, và chi phí cộng thẳng:** 376,50 (0 ví dụ) -> 681,50 (1) ->
    950,50 (2). Đó là lí do "số ví dụ" là một biến thực nghiệm đáng thử: phương án 0 ví dụ rẻ
    hơn một nửa so với 2 ví dụ mà vẫn giữ phần suy luận.
-3. Prompt CoT dài nhất cần **1.195 token** ở train (val 1.102, test 1.045) nên **ngưỡng
-   1280 cho 0% bị cắt ở mọi split**. Ngưỡng 1024 cắt 0,67% train (82 mẫu), 0,59% val và
-   0,53% test - và với prompt dạng chat, phần bị cắt là phần **CUỐI**, tức chính yêu cầu
-   định dạng đầu ra. (Số liệu cũ hơn trong lịch sử - "4/12.302 mẫu, max 1.106" - tương ứng
-   với bộ ví dụ CŨ; ví dụ hiện tại dài hơn, nên con số đã được đo lại toàn bộ.)
+3. Prompt CoT dài nhất cần **2.109 token** ở train (bản 5 ví dụ; val 2.016, test 1.959) nên ngưỡng
+   1280 cắt MẤT PHẦN ĐUÔI của **100% review ở cả ba split** khi chạy mức 5 ví dụ - với prompt dạng
+   chat, phần bị cắt chính là yêu cầu định dạng đầu ra, nên mẫu đó mất luôn chỉ dẫn. Ngưỡng
+   **2304** giữ 0% bị cắt cho cả bản 2 ví dụ lẫn bản 5 ví dụ. (Bản 2 ví dụ cần 1.195 token ở train
+   nên ở ngưỡng 1280 vẫn 0% bị cắt - con số đó vẫn đúng cho bản 2 ví dụ.)
 
 Vì vậy có hai lựa chọn ngưỡng cắt, **cả hai đều có số liệu** trong thư mục phiên bản:
 
 | Ngưỡng cắt | File | Ảnh hưởng thật |
 |-----------|------|----------------|
-| 1280 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | `token_stats__prompt-absa_cot_v1__ex-c513f5a6.csv` | 0 mẫu bị cắt ở **mọi** split |
+| 2304 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | `token_stats__prompt-absa_cot_5shot_v1__ex-2799b4c8.csv` | 0 mẫu bị cắt ở **mọi** split, cho cả bản 2 ví dụ lẫn bản 5 ví dụ |
+| 1280 (ngưỡng cho tới 25/09/2026) | `...__prompt-absa_cot_v1__ex-c513f5a6.csv` | bản 2 ví dụ: 0 mẫu bị cắt; bản **5 ví dụ: 100% review ở cả ba split** mất phần đuôi - tức mất yêu cầu định dạng |
 | 1024 (phương án đã cân nhắc, giữ lại để đối chiếu) | `...__ex-c513f5a6__maxlen-qwen-1024.csv` (chạy bằng `--max-length qwen=1024`) | 82/12.302 mẫu **train** mất phần đuôi (0,67%); val 0,59%; test 0,53% |
 
-**Quyết định:** dùng **1280** - số liệu ở cột `% review > max_length` khi đó bằng 0 ở mọi
-split, và chi phí gần như bằng không (hai file có y hệt `token/review TB`, p95, p99).
+**Quyết định:** dùng **2304** - mức 5 ví dụ (mức mà công bố so) chỉ chạy được ở đây với 0% bị cắt, và
+nâng ngưỡng **không làm đổi phép đo**: cột `% review > max_length` bằng 0 ở ngưỡng 2304, còn các
+cột độ dài input y hệt nhau giữa hai ngưỡng.
 
 Điểm cần hiểu đúng: **`max_length` không làm đổi phép đo** - nó quyết định **ai bị cắt khi
-thật sự đưa input vào model**. Bằng chứng: hai file trên giống nhau mọi con số đo, chỉ khác
-cột `max_length` và cột `% review > max_length`. Với prompt dạng chat, phần bị cắt là phần
-CUỐI của hội thoại - mà trong prompt CoT này, phần cuối chính là yêu cầu định dạng đầu ra,
-nên ở ngưỡng 1024, 4 mẫu đó còn mất luôn chỉ dẫn định dạng.
+thật sự đưa input vào model**. Bằng chứng: cùng một ngưỡng thì hai lần đo khác prompt cho ra độ
+dài input y hệt nhau, chỉ khác cột `% review > max_length`. Với prompt dạng chat, phần bị cắt là
+phần CUỐI của hội thoại - mà trong prompt CoT này, phần cuối chính là yêu cầu định dạng đầu ra và
+object JSON mẫu, nên mẫu bị cắt còn mất luôn chỉ dẫn định dạng.
 
 
 

@@ -180,3 +180,6 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Bộ ví dụ 5-shot (`absa_cot_5shot_v1`) để chạy được mức 5 ví dụ như công bố | `feat(prompts): add a five-example variant of the CoT prompt` |
 | Test khoá: tên prompt ghi `Nshot` thì file ví dụ phải có đúng N khối | `test(prompts): lock the example count named by a N-shot prompt` |
 | Bổ sung scope `prompts` vào danh sách scope (đã dùng từ `fix(prompts): ...`) | `docs(config): add the prompts scope to the commit list` |
+| Nâng ngưỡng cắt input của Qwen lên 2304: prompt 5 ví dụ tốn 2.109 token, ở 1280 thì 100% review mất phần đuôi | `fix(config): raise the Qwen input limit so the five-example prompt fits` |
+| Ghi lại số đo mới (bảng 4.2, ngưỡng, mục 6.1) | `docs(config): record the new input limit and the five-example measurement` |
+| Test báo cáo không còn đọc thư mục report thật (đo token một lần là test đỏ dù code không đổi) | `test(reports): keep the write tests off the project's own report folder` |
