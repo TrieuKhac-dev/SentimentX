@@ -172,3 +172,4 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Khoá tập đánh giá ghi MỘT LẦN ngay khi tạo dữ liệu, vào `data/processed/<mã>/eval_lock.json` (bản v0 cũng có khoá) | `feat(versioning): write the evaluation lock next to the data` |
 | Preflight kiểm `test.csv` theo khoá ghi cùng dữ liệu, không chỉ theo giá trị khai trong config | `fix(preflight): verify the test set against the lock stored with the data` |
 | Tài liệu về chỗ đặt khoá: dataset config, luật 11, đầu ra pipeline, công bố tham chiếu, cây Drive | `docs(config): the evaluation lock lives with the data, from the first version` |
+| CI cho phép `eval_lock.json` được git theo dõi (metadata, như `processing_log.json`) | `fix(checks): the evaluation lock is metadata, so CI must not flag it` |

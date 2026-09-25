@@ -37,8 +37,8 @@ from src.labels import LABEL_SPACES
 from src.preprocessing import segmenters
 
 # File ĐƯỢC PHÉP nằm trong git dù ở trong `data/` (docs/00_workflow/03_ci.md, luật 20).
-ALLOWED_DATA_NAMES = ("raw_meta.yaml", "processing_log.json", "label_map.json", ".gitkeep",
-                      "README.md")
+ALLOWED_DATA_NAMES = ("raw_meta.yaml", "processing_log.json", "label_map.json", "eval_lock.json",
+                      ".gitkeep", "README.md")
 # Thư mục ĐƯỢC PHÉP trong `data/`. Ghi bằng từng phần đường dẫn, không ghép chuỗi có dấu `/`, vì
 # đường dẫn viết cứng trong source bị test `test_sources_have_no_hardcoded_paths` chặn.
 ALLOWED_DATA_PREFIXES = (("data", "assets"), ("data", "reference_publication"),
