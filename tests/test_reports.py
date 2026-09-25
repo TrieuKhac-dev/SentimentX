@@ -263,6 +263,13 @@ class WriteTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, str(self.out), ignore_errors=True)
         self.source = Path(tempfile.mkdtemp(prefix="sentimentx-reports-in-"))
         self.addCleanup(shutil.rmtree, str(self.source), ignore_errors=True)
+        # Nhóm `model_input` đọc CHÍNH thư mục report của dự án (nó là bảng tổng hợp của cả dự án,
+        # không theo `roots` như các nhóm theo lượt chạy), nên phải trỏ nó vào thư mục tạm. Không
+        # thì kết quả test phụ thuộc dữ liệu đang có trên máy: đo token một lần là bảng hết rỗng và
+        # test đỏ dù code không đổi.
+        patcher = mock.patch.object(reports.paths, "report", return_value=self.source / "reports")
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def test_moi_nhom_ghi_ba_dinh_dang(self):
         write_run(self.source, "exp001",
