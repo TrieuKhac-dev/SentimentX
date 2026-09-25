@@ -35,6 +35,11 @@ bitsandbytes
 # Chưa ghim cứng vì còn thử nghiệm; khi nào chốt kết quả cuối thì nên ghim (xem
 # docs/04_experiments/04_backlog.md).
 
+# --- Huấn luyện LoRA trên model encoder (PhoBERT, ViSoBERT) ---
+# `peft` là thứ tạo adapter LoRA. Model encoder học bằng LoRA/QLoRA, KHÔNG full fine-tune
+# (docs/00_workflow/02_rules.md); prompt-only (Qwen3) không cần gói này.
+peft
+
 # --- Pha 3: tách từ tiếng Việt cho PhoBERT ---
 # Bộ CHÍNH CHỦ là RDRSegmenter/VnCoreNLP (VinAI dùng chính nó để tiền huấn luyện
 # PhoBERT). Gói này chỉ là phần Python; nó CẦN JAVA (JDK/JRE 1.8+) nữa:

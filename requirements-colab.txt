@@ -14,6 +14,13 @@ transformers
 accelerate                # cho device_map="auto" khi VRAM thiếu
 bitsandbytes              # LƯỢNG HÓA 4-BIT lúc chạy - bắt buộc, model config khai quantization: 4bit
 
+# --- Huấn luyện LoRA trên model encoder (thí nghiệm PhoBERT / ViSoBERT) ---
+# `peft` tạo adapter LoRA; `bitsandbytes` ở trên cũng là thứ QLoRA dùng khi khai quantization: 4bit.
+# Model encoder cần TÁCH TỪ: PhoBERT dùng VnCoreNLP (cần Java, cài bằng `apt-get install -y
+# default-jdk`; ô bootstrap của notebook tự cài khi model khai `segmenter: vncorenlp`).
+peft
+py-vncorenlp
+
 # --- Ghi nhận lên DagsHub qua MLflow ---
 # Thiếu thư viện này lần chạy VẪN xong: `src/tracking/` coi ghi nhận là việc phụ và ghi lại lí do
 # vào `run.log` (xem docs/04_experiments/03_training_eval.md).
