@@ -265,17 +265,20 @@ def model_input_rows():
     cột `file` để biết dòng nào của phiên bản dữ liệu nào. Chưa đo thì bảng RỖNG - và báo cáo nói rõ
     là rỗng, để người đọc phân biệt "chưa đo" với "đo rồi mà không ra gì".
 
-    Nhận CẢ HAI tên file: số đo (`token_stats*.csv`, mỗi phiên bản một thư mục con) và bảng gom của
-    chính nhóm này (`model_input*.csv`). Chỉ quét một tên thì số đo không bao giờ vào được báo cáo,
-    mà báo cáo vẫn sinh ra bình thường nên không ai thấy thiếu.
+    Chỉ đọc bảng SỐ ĐO (`token_stats*.csv`, mỗi phiên bản dữ liệu một thư mục con). Bảng gom của
+    chính nhóm này (`model_input.csv`) là ĐẦU RA của hàm, không phải đầu vào.
     """
     rows, columns = [], []
     root = paths.report("model_input")
     if not root.is_dir():
         return [], [EMPTY_TABLE_COLUMN]
-    stems = {Path(paths.pattern("model_input")).stem,
-             Path(paths.pattern("token_stats")).stem}
+    # CHỈ đọc bảng số đo (`token_stats*.csv`), KHÔNG đọc bảng gom của chính nhóm này: bảng gom là ĐẦU
+    # RA, đọc lại nó thì mỗi lần sinh báo cáo lại nạp thêm một bộ cột trùng tên (`file`, `file.1`,
+    # ...) và bảng mất nghĩa. Lỗi này đã vào tận file đã commit trước khi bị phát hiện.
+    aggregate = (root / Path(paths.pattern("model_input")).name).resolve()
+    stems = {Path(paths.pattern("token_stats")).stem}
     found = sorted({path for stem in stems for path in root.rglob("{}*.csv".format(stem))})
+    found = [path for path in found if path.resolve() != aggregate]
     for path in found:
         frame = utils.read_csv(path)
         for name in frame.columns:

@@ -257,6 +257,14 @@ class ModelInputTest(unittest.TestCase):
         self.assertEqual(rows, [])
         self.assertEqual(columns, [reports.EMPTY_TABLE_COLUMN])
 
+    def test_bang_gom_cua_chinh_nhom_khong_duoc_doc_lai(self):
+        """Bảng gom là ĐẦU RA: đọc lại nó thì mỗi lần sinh báo cáo lại thêm một bộ cột trùng tên."""
+        aggregate = self.root / Path(reports.paths.pattern("model_input")).name
+        utils.write_csv([["1", "x"]], ["model", "file"], aggregate)
+        rows, columns = reports.model_input_rows()
+        self.assertEqual(rows, [])
+        self.assertEqual(columns, [reports.EMPTY_TABLE_COLUMN])
+
 
 class WriteTest(unittest.TestCase):
 
