@@ -65,6 +65,12 @@ nhân, `repo.prepare()` so `HEAD` với `REPO_SHA`:
 Muốn chạy đúng bản code mới nhất của mình: commit, đẩy lên nhánh `experiment`, rồi **ghim lại**
 (`python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001`) trước khi Run all.
 
+Sau khi chạy xong, thư mục code đang ở commit ghim (tách rời). **Trước lần Run all sau, chạy
+`git switch experiment`.** Lý do: notebook đọc hằng số `REPO_SHA` từ FILE notebook, mà file đó lúc này
+là bản của chính commit ghim - và bản ấy trỏ tới commit ghim của THẾ HỆ TRƯỚC (mỗi lần ghim lại là
+một commit mới). Nên Run all lần nữa từ cây tách rời sẽ lùi repo thêm một đời code: vẫn ra kết quả,
+nhưng là kết quả của mã cũ hơn, và chỉ có một dòng cảnh báo để nhận ra. Đã gặp thật ngày 25/09/2026.
+
 ## 4. Chạy
 
 1. Mở `experiments/<model_id>/<method>/expNNN/notebook.ipynb` bằng Jupyter hoặc VS Code (không phải
