@@ -66,6 +66,12 @@ tiết ở T8. Không còn mục nào phải chờ P7.
       nghiệm): `data/reports/model_eval/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-bf68b1c5/`
       `prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/` - đọc `run.log` trước, rồi
       `metrics.json` (khoá `resume`), rồi `predictions/_bo-qua-*/part_0001.jsonl` và khối hiện tại.
+
+      *Cập nhật 25/09/2026:* thư mục bằng chứng đó đã bị xoá cùng lần dựng lại dữ liệu (mã phiên bản
+      đổi), và cả ba thứ dùng cho lượt kiểm này đã bỏ: `run_qwen_eval.py`, `run_rescore_eval.py`,
+      `data/reports/model_eval/`. Nay lượt chạy bị ngắt **không** cần `_bo-qua-*`: tên thư mục kết quả
+      LÀ mã băm danh tính (có cả commit), nên đổi code/cấu hình là ra thư mục khác và kết quả cũ giữ
+      nguyên; cơ chế resume/`attempts` vẫn đúng như mô tả ở T8.
 - [x] T9. Test cho các chỉ số theo định nghĩa trong `docs/04_experiments/metrics.md`.
       -> `test(evaluation): add metric tests`
       Kiểm từng cam kết một: độ chính xác của bài toán nhắc tới (cả hai lớp), macro/micro và khớp

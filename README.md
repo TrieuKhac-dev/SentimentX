@@ -171,23 +171,28 @@ python run_token_stats.py --max-length qwen=1280    # đo với ngưỡng cắt 
 # 6) (Pha 3) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
 python run_check_examples.py
 
-# 7) (Pha 4) Chạy Qwen3 bằng chỉ dẫn (prompt một lượt / CoT) rồi chấm điểm
-python run_qwen_eval.py --split val --prompt absa_cot_v1 --limit 200
+# 7) (Pha 4) Chạy thí nghiệm Qwen3 bằng chỉ dẫn (prompt một lượt / CoT) rồi chấm điểm
+#    Mở notebook của thí nghiệm và bấm Run all - đó là đường chạy chính, tự kéo đúng commit
+#    đã ghim rồi kiểm trước. (Xem notebooks ở experiments/qwen3-4b-instruct-2507/…)
 
 # 8) Test tự động (không cần GPU, không cần model)
 python -m unittest discover -s tests
-
-# 9) (Pha 4) Chấm lại kết quả từ file dự đoán đã lưu — không cần GPU
-#    (dùng khi sửa cách chấm điểm; nhãn đã parse nằm sẵn trong file dự đoán nên không phải
-#     chạy lại model, và mục lục sẽ ghi rõ là đã chấm lại)
-python run_rescore_eval.py
 ```
 
-`run_qwen_eval.py` mặc định chạy trên **val** (tập để LỰA CHỌN prompt/ngưỡng), không phải
-test: chọn theo test là tự lừa mình. Mặc định sinh **greedy** (tái lập được); muốn dùng cấu
-hình khuyến nghị của model card thì thêm `--sample` (nhiệt độ 0.7, top_p 0.8, top_k 20 — và
-`--seed` sẽ được ghi lại). `--limit N` chạy trên tập con ngẫu nhiên có seed; tên file ghi rõ
-`n<N>` nên **không bao giờ lẫn** kết quả tập con với kết quả toàn tập.
+Mọi kết quả đều thuộc một thí nghiệm và nằm ở
+`experiments/<model>/<method>/<expNNN>/results/<hash8>/`, trong đó `<hash8>` là **mã băm danh tính**
+của lượt chạy (nội dung cấu hình + prompt + bộ ví dụ + mã phiên bản dữ liệu + **commit đã ghim**).
+Tên thư mục KHÔNG mô tả gì để nó **giống nhau trên Colab và trên máy cá nhân** — copy kết quả từ
+Drive về repo là copy thẳng; muốn biết thư mục đó là gì thì mở `run_meta.json` (khối `run`) hoặc
+`python scripts/collect_reports.py` (bảng `experiment_registry` có `hash`, `repo_sha`, `prompt`,
+`split`, `n`, `quant`, `dtype`, điểm).
+
+Một lượt chạy luôn chạy trên tập do **config của thí nghiệm** quyết định (`data.roles.eval`, tức
+`val` cho tới khi chốt); chọn theo test là tự lừa mình. Cách sinh cũng theo config
+(`evaluation.decoding`): mặc định **greedy** (tái lập được), muốn dùng cấu hình khuyến nghị của
+model card thì khai `sample` (nhiệt độ 0.7, top_p 0.8, top_k 20 — và `seed` sẽ được ghi lại).
+Số mẫu khai ở `n` trong config thí nghiệm; `n` khác nhau cho ra **hash khác** nên kết quả tập con
+**không bao giờ lẫn** với kết quả toàn tập.
 
 `--prompt`, `--segmenter` và `--max-length` ghi ra **file CSV riêng**
 (`token_stats__prompt-X.csv`, `token_stats__seg-Y.csv`, `...__maxlen-qwen-1280.csv`), không
@@ -216,7 +221,7 @@ Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phi�
 | Báo cáo Pipeline | `data/processed/<mã>/pipeline/report.html` |
 | Dataset đã xử lý | `data/processed/<mã>/train.csv` (kèm `val.csv`, `test.csv`, `label_map.json`) |
 | Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats.csv` |
-| Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<mã>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
+| Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<hash8>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
 | Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
 
 Mã phiên bản có dạng `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484`: đọc ra được phiên bản
@@ -248,7 +253,8 @@ SentimentX/
 │   ├── experiments/{repo,task,evaluation,training,tracking}.yaml   # dùng chung cho mọi thí nghiệm
 │   └── prompts/<tên>.txt + prompts/examples/<tên>.txt              # nội dung prompt và ví dụ
 ├── experiments/<model>/<method>/<expNNN>/  # ĐỊNH NGHĨA thí nghiệm: config.yaml, notebook.ipynb,
-│                                           # README.md; kết quả chạy ở results/<mã dữ liệu>/
+│                                           # README.md; kết quả chạy ở results/<hash8>/ (mã băm
+│                                           # danh tính: cấu hình + prompt + ví dụ + dữ liệu + commit)
 ├── templates/                  # bản mẫu để tạo thí nghiệm mới (scripts/new_experiment.py dùng)
 ├── src/
 │   ├── paths.py                # API đường dẫn, đọc configs/paths.yaml
@@ -289,8 +295,6 @@ SentimentX/
 ├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo)
 ├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC ghi rõ --version
 ├── run_token_stats.py  # (pha 3) đo input thật của từng tokenizer -> token_stats.csv
-├── run_qwen_eval.py    # chạy một thí nghiệm ngoài notebook (cửa vào mỏng, gọi cùng thư viện)
-├── run_rescore_eval.py # chấm lại kết quả đã dự đoán, không chạy model lại
 ├── build_report.py     # đọc file kết quả -> Plotly + Jinja2 -> HTML (mở luôn)
 ├── requirements.txt        # máy cá nhân (torch cài riêng, xem §3)
 ├── requirements-ci.txt     # CI: rất ngắn, vì CI không chạy model và không đọc dữ liệu

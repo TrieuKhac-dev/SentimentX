@@ -195,12 +195,12 @@ Bốn điều đọc ra từ bảng này:
 | Việc                                              | Bắt đầu từ đâu                                                                               |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | Huấn luyện PhoBERT (× 4 bộ tách từ) và ViSoBERT   | chưa có script; dùng `loader.to_multi_head_arrays()` với `preprocess.max_length` của từng model trong `configs/models/`  |
-| Tăng `--limit` lên 300-500 cho hai cấu hình chính | `python run_qwen_eval.py --split val --limit 300 ...` (khoảng 5-35 phút tuỳ prompt)          |
-| Đo dao động                                       | `--sample --seed <n>` vài lần; cấu hình lấy đúng khuyến nghị của model card (0.7 / 0.8 / 20) |
-| Self-consistency (lấy mẫu nhiều lần rồi bỏ phiếu) | hạ tầng đã có: chạy `--sample` nhiều seed rồi bỏ phiếu theo từng ô                           |
+| Tăng `n` lên 300-500 cho hai cấu hình chính | khai `n: 300` trong `experiments/<model>/<method>/<expNNN>/config.yaml` rồi Run all (khoảng 5-35 phút tuỳ prompt); `n` khác ⇒ hash khác nên không lẫn với lượt chạy cả split |
+| Đo dao động                                       | khai `decoding: sample` trong config thí nghiệm và chạy vài lần (đổi `seed` ⇒ hash khác, mỗi lần một thư mục) |
+| Self-consistency (lấy mẫu nhiều lần rồi bỏ phiếu) | hạ tầng đã có: chạy `sample` nhiều seed rồi bỏ phiếu theo từng ô                           |
 | Đối chiếu bf16 với 4-bit                          | cần GPU >= 24 GB, hoặc chạy trên Colab/Kaggle                                                 |
-| Chạy trên `test` sau khi chốt                     | `--split test` (script in cảnh báo về việc dùng test)                                        |
-| Chấm lại khi đổi cách chấm | chấm lại từ file dự đoán trong thư mục kết quả, không cần GPU |
+| Chạy trên `test` sau khi chốt                     | khai vai `eval: test` trong config thí nghiệm; notebook in cảnh báo về việc dùng test        |
+| Tính lại điểm khi đổi cách chấm                   | phải CHẠY LẠI thí nghiệm (công cụ chấm lại từ file dự đoán đã bỏ 25/09/2026); `predictions.csv` vẫn giữ cả hai cột nhãn nên vẫn tự tính lại được |
 
 ---
 

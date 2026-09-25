@@ -142,12 +142,12 @@ lệnh cũ sẽ tự nhận ra và đi tiếp:
 | `[RUN] mode=NEW`   | chưa có gì để đi tiếp: chạy từ đầu                                                                 |
 | `[RUN] mode=RESUME` | có kết quả dở, và ba giá trị bên dưới chưa đổi: chỉ chạy những mẫu còn thiếu                        |
 
-Ba giá trị quyết định resume (xem [02_rules.md](02_rules.md) mục 13): `config_sha256`,
-`data.ma` (mã phiên bản dữ liệu) và `repo.sha`. Lệch MỘT giá trị là kết quả cũ không còn so được
-với kết quả mới, nên phải chạy lại từ đầu và ghi thành attempt mới (mục 14) - nhưng kết quả cũ
-KHÔNG bị xoá: các khối dở được chuyển vào `predictions/_bo-qua-<lúc>/`. Lần chạy trước đã XONG với
-đúng ba giá trị đó thì script DỪNG và báo, tránh chạy lại vô ích; muốn chạy lại thật thì thêm
-`--new`.
+Ba giá trị quyết định resume (xem [02_rules.md](02_rules.md) mục 13): `config_sha256`, `data.ma`
+(mã phiên bản dữ liệu) và `repo.sha`. Cả ba đã nằm TRONG mã băm danh tính - tức tên thư mục kết quả
+- nên trong một thư mục thì mọi attempt luôn khớp nhau: **không còn chuyện phải chuyển kết quả cũ đi
+chỗ khác để chạy lại** (`predictions/_bo-qua-*` đã bỏ). Lần chạy trước đã XONG với đúng ba giá trị đó
+thì lượt chạy DỪNG và báo; muốn chạy lại thật thì **xoá thư mục kết quả** rồi chạy lại - ghim lại
+một bản code khác thì tự khắc ra thư mục mới.
 
 Điểm số của một lượt chạy tiếp luôn là điểm của CẢ split (mẫu cũ đọc từ các khối, mẫu mới đọc từ
 bộ nhớ), không phải điểm của phần còn lại. `metrics.json` ghi lại `resume.mode`, `resume.reused`
@@ -178,7 +178,7 @@ không chặn chạy. Lỗi thiếu đường dẫn được ghi vào `errors.js
 
 | Hiện tượng                      | Xem ở đâu                               |
 | ------------------------------- | --------------------------------------- |
-| Notebook dừng giữa chừng        | `results/<mã>/errors.json` và `run.log` |
+| Notebook dừng giữa chừng        | `results/<hash8>/errors.json` và `run.log` |
 | Không thấy kết quả trên DagsHub | `run.log`, mục `[TRACK]`                |
 | Thiếu file dữ liệu trên Drive   | `errors.json`, mục `requires`           |
 | CI báo đỏ                       | `docs/00_workflow/03_ci.md`             |

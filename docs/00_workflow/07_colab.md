@@ -38,7 +38,7 @@ MyDrive/SentimentX/                                    ← thư mục gốc trê
 │         train.csv, val.csv, test.csv, label_map.json, processing_log.json, eval_lock.json
 └── experiments/<model_id>/<method>/expNNN/
     ├── README.md                                      ← thí nghiệm này hỏi gì
-    └── results/<mã>/                                  ← để TRỐNG, code tự tạo và ghi kết quả vào
+    └── results/                                       ← để TRỐNG, code tự tạo thư mục <hash8> và ghi kết quả vào
 ```
 
 Cây này chỉ KHÁC cây `data/` và `experiments/` trong repo ở những mục cố ý không lên Drive:
@@ -48,7 +48,7 @@ Cây này chỉ KHÁC cây `data/` và `experiments/` trong repo ở những m�
 | `src/`, `configs/` | code; notebook tự kéo ĐÚNG commit đã ghim về `/content/SentimentX` |
 | `data/processed/<mã>/pipeline/`, `eda/` | báo cáo của lần chạy, đã nằm trong git; lượt chạy không cần |
 | `data/processed/<mã>/model_input/` | chỉ để xem lại số đo, không cần cho lượt chạy |
-| `results/<mã>/model/`, `predictions/`, `plots/` | phần nặng, tự sinh khi chạy; `.gitignore` chặn sẵn khi copy về |
+| `results/<hash8>/model/`, `predictions/`, `plots/` | phần nặng, tự sinh khi chạy; `.gitignore` chặn sẵn khi copy về |
 
 `processing_log.json` thì CÓ trên Drive: nó là metadata của phiên bản dữ liệu, và cây Drive phải
 phản ánh đúng bộ dữ liệu đã dùng (luật 20 vẫn cấm commit nó ở dạng dữ liệu, nhưng file này vẫn được
@@ -149,8 +149,10 @@ mục 7 có cách xử lý cho từng dòng.
   `trạng thái: NEW`, `GPU: ...`, `Không có việc nào phải sửa.`
 - Ô chạy: `Chế độ chạy: NEW` rồi `Chế độ: NEW | thư mục: <Drive>/experiments/...`.
 - Kết quả nằm ở
-  `<Drive>/experiments/<model>/<method>/<expNNN>/results/<mã dữ liệu>/`, gồm `run.log`,
+  `<Drive>/experiments/<model>/<method>/<expNNN>/results/<hash8>/`, gồm `run.log`,
   `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, thư mục `predictions/`.
+  Tên `<hash8>` giống hệt trên máy cá nhân (nó KHÔNG chứa nguồn trọng số hay kiểu số), nên copy
+  nguyên thư mục đó về repo là số liệu vào đúng chỗ.
 - Mở `run.log` trước: nó ghi từng bước, và ghi rõ khi chạy tiếp (`[RUN] mode=RESUME`).
 
 Máy đứt giữa chừng thì cứ Run all lần nữa: phần đã xong nằm trong `predictions/part_*.jsonl` và
@@ -184,7 +186,7 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `Máy KHÔNG thấy GPU (torch.cuda.is_available() = False)` | phiên Colab đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU | Runtime > Change runtime type > **T4 GPU** > Save, rồi **Restart session** và Run all. Kiểm bằng `!nvidia-smi` và `import torch; torch.cuda.is_available()`: có GPU trong `nvidia-smi` mà torch vẫn `False` nghĩa là torch là bản CPU, mở phiên mới (đừng `pip install torch`) |
 | Chạy trên T4 chậm bất thường | T4 là Turing, **không** hỗ trợ bf16, mà bf16 là kiểu số mặc định của model config | Không cần làm gì: `runner._model_dtype` tự chọn fp16 khi máy không hỗ trợ bf16, và ghi kiểu đã dùng vào `run.log`/`run_meta.json` (`4-bit nf4 (tính bằng float16)`) |
 | Vẫn `ModuleNotFoundError: No module named 'src'` | kernel còn nhớ kết luận "không có gói `src`" từ lúc máy trống | Runtime -> Restart session rồi Run all; ô bootstrap đã tự xoá bộ nhớ đệm import |
-| Muốn chạy lại từ đầu | | `python run_qwen_eval.py ... --new` (kết quả cũ chuyển sang `predictions/_bo-qua-*`), hoặc xoá thư mục kết quả trên Drive |
+| Muốn chạy lại từ đầu | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên |
 
 ## 8. Đừng đổi thứ tự nếu chưa hiểu vì sao
 

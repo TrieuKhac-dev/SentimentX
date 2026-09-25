@@ -45,7 +45,8 @@ paths.data("raw")
 paths.processed(ma)
 paths.report("experiment_registry")
 paths.experiment_dir(model_id, method, exp_id)
-paths.results_dir(model_id, method, exp_id, ma)
+paths.results_dir(model_id, method, exp_id)     # .../<model>/<method>/<exp>/results/ (một tầng;
+                                                # thư mục lượt chạy là con, tên = mã băm danh tính)
 paths.pattern("run_meta")
 ```
 

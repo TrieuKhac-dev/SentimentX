@@ -10,10 +10,12 @@ experiments/<model_id>/<method>/<expNNN>/
 \\-- results/         KẾT QUẢ sinh ra khi chạy - không sửa tay, không commit file nặng
 ```
 
-Kết quả nằm ở `results/<mã phiên bản dữ liệu>/<hậu tố cấu hình>/`, mỗi lần chạy một thư mục:
+Kết quả nằm ở `results/<hash8>/`, mỗi lần chạy một thư mục (`<hash8>` = 8 ký tự đầu của mã băm danh
+tính: cấu hình + prompt + ví dụ + dữ liệu + **commit đã ghim**; cùng phép đo trên Colab và trên máy cá
+nhân ra cùng tên):
 `run.log` (luôn có), `run_meta.json`, `metrics.json`, `metrics.csv`, `predictions/part_*.jsonl`
 (ghi dần, để chạy tiếp khi bị ngắt), `predictions.csv` khi đã xong. Xem
-`docs/00_workflow/01_flow.md`.
+`docs/00_workflow/01_flow.md` và `docs/04_experiments/05_predictions.md`.
 
 ## `config.yaml` - sửa gì
 

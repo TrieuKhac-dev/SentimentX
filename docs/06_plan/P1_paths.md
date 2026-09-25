@@ -31,6 +31,9 @@ Ghi chú khi làm, khác kế hoạch ban đầu:
 
 - `MODEL_EVAL_REPORT_DIR` chưa bỏ ở đây mà để tới P4, vì đúng lúc đó kết quả đánh giá mới
   chuyển sang thư mục thí nghiệm. Bỏ sớm thì phải sửa hai lần.
+  *Cập nhật 25/09/2026:* nó ở lại tới hết P4 (không task nào bỏ), rồi **đã bỏ** cùng
+  `run_rescore_eval.py` khi rà soát lại: mọi kết quả nay đều thuộc một thí nghiệm, và thư mục kết quả
+  là `experiments/<model>/<method>/<expNNN>/results/<hash8>/`.
 - `EDA_REPORT_DIR` và `PIPELINE_REPORT_DIR` để lại tới P2, vì P2 mới đổi chỗ ghi kết quả.
 - T4, T5, T6 nằm chung một commit với việc dọn ký hiệu AI trong code, vì cùng sửa một số file.
 

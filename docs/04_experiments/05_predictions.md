@@ -7,64 +7,55 @@
 
 ## 1. File nằm ở đâu
 
-`experiments/<model_id>/<method>/expNNN/results/<mã dữ liệu>/<hậu tố>/predictions.csv`
+`experiments/<model_id>/<method>/expNNN/results/<hash8>/predictions.csv`
 
-- `<hậu tố>` là DANH TÍNH của lượt chạy, ghép theo thứ tự:
-  `prompt-<tên prompt>__<split>[__n<N>]__<greedy|sample>[__<quant>][__<model>]__cfg<sha8>`.
-
-  | Phần | Có khi | Nghĩa |
-  | --- | --- | --- |
-  | `prompt-<tên>` | luôn | Tên file prompt đang hỏi (`absa_cot_v1`) |
-  | `<split>` | luôn | Chấm trên tập nào (`val`/`test`) |
-  | `n<N>` | khi chấm một tập con | Số mẫu (`n8`, `n200`); vắng mặt = cả split |
-  | `greedy`/`sample` | luôn | Cách sinh (`evaluation.decoding`) |
-  | `<quant>` | khi model được lượng hoá | `4bit`… Lấy từ `inference.quantization` của config, hoặc tham số dòng lệnh |
-  | `<model>` | khi model khác `checkpoint` của config | Đoạn cuối đường dẫn model (`Qwen3-4B-Instruct-2507` cho `data/models/Qwen3-4B-Instruct-2507`) |
-  | `cfg<sha8>` | luôn | Tám ký tự đầu của **dấu vân tay cấu hình**: nội dung prompt, file ví dụ, khối hệ thống, các lớp config, ngưỡng cắt… |
-
-  Ví dụ: `prompt-absa_cot_v1__test__greedy__4bit__Qwen3-4B-Instruct-2507__cfg1a2b3c4d`.
-
-  **Vì sao có `cfg<sha8>`:** đây là phần bảo đảm lời hứa "khác cấu hình thì khác thư mục". Không có nó,
-  sửa nội dung file prompt (giữ nguyên tên) hoặc đổi bộ ví dụ few-shot vẫn cho ra CÙNG tên thư mục -
-  bảng kết quả của hai phép đo khác nhau nằm chung một chỗ. `2507` trong phần `<model>` là phiên bản
-  của model (tháng 7/2025) lấy từ chính tên model.
+- `<hash8>` là **mã băm danh tính** của lượt chạy: 8 ký tự đầu của `config_sha256`, tính từ
+  - nội dung **cấu hình đã hợp nhất** (bài toán, prompt nào, split, `n`, cách sinh, lượng hoá,
+    `max_length`, `batch_size`…),
+  - nội dung **file prompt + file ví dụ + khối hệ thống**,
+  - **mã phiên bản dữ liệu** và **commit đã ghim**,
+  - `generation` và `max_length` hiệu lực của lượt chạy.
+- Tên thư mục **cố ý không mô tả gì**: đường dẫn đã nói thí nghiệm nào, còn cấu hình đầy đủ nằm trong
+  chính mã băm và trong `run_meta.json` (khối `run`). Nhờ vậy cùng một phép đo chạy trên **Colab và
+  trên máy cá nhân ra CÙNG một thư mục** - copy từ Drive về repo là copy thẳng.
+- Muốn đọc nhanh "thư mục này là gì": mở `run_meta.json` khối `run`, hoặc xem bảng
+  `data/reports/experiment_registry/` (`python scripts/collect_reports.py`) - bảng có `run` (=
+  `<model>/<method>/<expNNN>:<hash8>`), `repo_sha`, `prompt`, `split`, `subset`, `decoding`, `quant`,
+  `max_length`, `dtype`, `version_id`, và điểm số.
 
 ### 1.1. Khi nào chung thư mục, khi nào khác
 
 | Thay đổi | Thư mục kết quả | Vì sao |
 | --- | --- | --- |
 | **Model khác** (`model_id` khác, ví dụ `phobert-base-v2`) | **Khác thư mục ở cấp trên**: `experiments/<model_id>/…` | `model_id` nằm trong đường dẫn thí nghiệm |
-| Dùng trọng số khác cho cùng `model_id` (`SENTIMENTX_MODEL`, `--model`) | **Khác** (thêm `__<tên model>`) | Cùng tên nhưng hai bộ trọng số là hai phép đo |
-| Lượng hoá khác (`4bit` so với không lượng hoá) | **Khác** (thêm `__4bit`) | 4-bit và bf16 cho số khác nhau - không được chung |
-| Nội dung prompt đổi (giữ nguyên tên file) | **Khác** (`cfg…` đổi) | Câu hỏi đã đổi |
-| Bộ ví dụ few-shot đổi (0/1/2/5 ví dụ) | **Khác** (`cfg…` đổi) | Prompt gửi model đã đổi |
-| Ngưỡng cắt `max_length` đổi | **Khác** (`cfg…` đổi) | Input bị cắt khác đi |
-| `split` khác, `n` khác, `greedy`/`sample` khác | **Khác** (phần tương ứng trong tên) | Ba thứ này quyết định chấm cái gì và sinh thế nào |
-| **Code (commit) đổi** - kể cả sửa nhỏ trong `src/` | **CÙNG thư mục** | Đây là "chạy lại cùng phép đo bằng bản code khác"; bộ kết quả cũ được chuyển vào `predictions/_bo-qua-<thời điểm>` và lượt mới ghi vào chính thư mục đó |
-| Máy chạy khác (Colab so với local), kiểu số của GPU (fp16/bf16) | **CÙNG thư mục**, trừ khi máy trỏ model vào thư mục cục bộ (`SENTIMENTX_MODEL`) | Kiểu số do máy quyết định và không nằm trong config; `run_meta.json` ghi lại (`env.device`, `env.gpu`). Lượt chạy local dùng `data/models/Qwen3-4B-Instruct-2507` nên tên thư mục có thêm `__Qwen3-4B-Instruct-2507`: cùng trọng số nhưng khác NGUỒN, không có cách nào kiểm là giống nhau - nên hai bên không resume chung |
-| `inference.batch_size`, `max_new_tokens`, `preprocess.max_length`, `--seed`, `--sample`, `--max-new-tokens`, `--max-length` | **KHÁC** (`cfg…` đổi) | Đều đổi ĐẦU VÀO hoặc ĐẦU RA của phép đo. Chúng nằm trong config (đã băm) hoặc được băm riêng vì chỉ có khi chạy tay |
-| Dữ liệu đổi (phiên bản dữ liệu khác) | **Khác** (thư mục `<mã dữ liệu>`) | Chấm trên bộ dữ liệu khác |
+| **Commit đã ghim đổi** (kể cả chỉ sửa tài liệu) | **KHÁC** (`<hash8>` khác) | Bản code là một phần của phép đo: hai bản code là hai thí nghiệm, và kết quả cũ phải giữ nguyên |
+| Nội dung prompt / bộ ví dụ few-shot / khối hệ thống đổi | **Khác** | Prompt gửi model đã đổi |
+| Lượng hoá đổi (`4bit` ↔ không lượng hoá), `max_length`, `batch_size`, `max_new_tokens`, cách sinh, `seed`, `n`, `split` | **Khác** | Đổi đầu vào hoặc đầu ra của phép đo |
+| Phiên bản dữ liệu khác | **Khác** | Chấm trên bộ dữ liệu khác |
+| Máy chạy khác (Colab ↔ local), kiểu số (fp16/bf16), **nguồn trọng số** (id HF hay `data/models/…`) | **CÙNG thư mục** | Ba thứ này không nằm trong mã băm; `run_meta.json` ghi lại (`env.device`, `env.gpu`, `env.dtype`, `env.quantization`) để báo cáo nói rõ máy nào chạy |
 
-Nói gọn: **cái gì đổi phép đo thì đổi thư mục** (cấu hình hợp nhất, nội dung prompt, file ví dụ, khối hệ
-thống, cách sinh, ngưỡng cắt, split, n, lượng hoá, nguồn trọng số, phiên bản dữ liệu). **Cái gì chỉ là
-bản code hay cái máy** thì dùng lại chỗ cũ, và bộ kết quả cũ được chuyển vào `predictions/_bo-qua-*`.
+Nói gọn: **cái gì đổi phép đo thì đổi thư mục; cái gì chỉ là bản code hay cái máy thì dùng lại chỗ
+cũ** (…trừ commit: commit nằm trong mã băm, nên bản code khác là thư mục khác).
 
 ### 1.2. Chạy tiếp (RESUME) hay chạy mới
 
 Một thư mục kết quả giữ được nhiều "attempt" (mỗi lần chạy ghi một mục vào `run_meta.json`). Quyết
-định nằm ở MỘT chỗ (`src/resume.py`) và dựa trên **bộ ba**: `config_sha256` (config + nội dung prompt +
-file ví dụ + khối hệ thống), mã phiên bản dữ liệu, và commit đã ghim.
+định nằm ở MỘT chỗ (`src/resume.py`) và dựa trên **bộ ba**: `config_sha256`, mã phiên bản dữ liệu, và
+commit đã ghim - cả ba đã nằm TRONG mã băm (tên thư mục), nên trong một thư mục thì mọi attempt luôn
+khớp nhau.
 
-| Trạng thái trong thư mục | Bộ ba của lượt này | Kết quả |
-| --- | --- | --- |
-| Chưa có attempt nào | — | `NEW` |
-| Attempt trước XONG, bộ ba khớp | khớp | `STOP` - không chạy lại (muốn chạy lại: xoá thư mục kết quả, hoặc `--new` với `run_qwen_eval.py`) |
-| Attempt trước XONG, bộ ba KHÁC | khác | `NEW` - số cũ không so được với số mới |
-| Attempt trước bị ngắt, bộ ba khớp | khớp | `RESUME` - chạy tiếp từ `predictions/part_*.jsonl`, điểm vẫn tính trên cả split |
-| Attempt trước bị ngắt, bộ ba KHÁC | khác | `NEW` - kết quả đã ghi bị bỏ qua (chuyển vào `_bo-qua-*`) |
+| Trạng thái trong thư mục | Kết quả |
+| --- | --- |
+| Chưa có attempt nào | `NEW` |
+| Attempt trước XONG | `STOP` - không chạy lại (muốn chạy lại: **xoá thư mục kết quả** rồi chạy lại) |
+| Attempt trước bị ngắt | `RESUME` - chạy tiếp từ `predictions/part_*.jsonl`, điểm vẫn tính trên cả split |
+| Thư mục có khối kết quả mà bản ghi không khớp | **DỪNG kèm lỗi**: thư mục bị trộn bằng tay, xoá rồi chạy lại |
+
+Không còn `predictions/_bo-qua-*`: muốn một phép đo mới (khác bản code, khác cấu hình) thì cứ ghim
+lại/chạy - mã băm khác nên ra **thư mục khác**, kết quả cũ không bị chuyển đi và không bị ghi đè.
 
 **Kiểm trước và lượt chạy phải nói cùng một chuyện.** Cả hai gọi `experiment_run.run_identity()` -
-hàm duy nhất tính `tag`, thư mục kết quả và bộ ba - nên trạng thái in ở ô kiểm trước đúng bằng trạng
+hàm duy nhất tính mã băm, thư mục kết quả và bộ ba - nên trạng thái in ở ô kiểm trước đúng bằng trạng
 thái ô chạy sẽ dùng. (Trước 25/09/2026 thì không: ô kiểm trước nhìn thư mục PHIÊN BẢN nên báo `NEW`
 trong khi ô chạy báo `RESUME - chạy tiếp từ 16 mẫu đã xong`.)
 
@@ -153,8 +144,10 @@ trả lời nhanh — chi tiết ở `src/evaluation/parse.py`.
 | Biết máy/config/dữ liệu của lượt chạy | `run_meta.json` |
 | Chỉ xem các ô đoán sai | `mispredictions.csv` |
 
-## 5. Bảng này tự chứa đủ để chấm lại
+## 5. Bảng này tự chứa đủ để tính lại điểm
 
 `nhãn đúng` và `nhãn đoán` nằm ngay trong file, nên đổi cách chấm thì **không phải chạy lại model**:
-`python run_rescore_eval.py` chấm lại từ chính `predictions.csv` (xem `docs/04_experiments/metrics.md`).
-Đó cũng là lý do hai cột nhãn là JSON trong một ô CSV thay vì tách thành 7 cột.
+đọc `predictions.csv` rồi tính lại là ra số mới, vì cả nhãn đúng lẫn nhãn model trả lời đều đã có sẵn
+trong ô (hai cột này để dạng JSON trong một ô CSV chính vì lý do đó). Từ 25/09/2026 **không còn công cụ
+dòng lệnh riêng** cho việc này (`run_rescore_eval.py` đã bỏ cùng đường chạy ngoài thí nghiệm): muốn
+điểm theo cách chấm mới thì chạy lại thí nghiệm - hoặc tự tính trên file, dữ liệu đã đủ.

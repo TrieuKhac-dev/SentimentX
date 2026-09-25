@@ -43,7 +43,7 @@ Nếu gặp tài liệu cũ ghi "xử lý dữ liệu" hay "tiền xử lý cho 
 | raw         | dữ liệu gốc, mỗi phiên bản một thư mục `data/raw/<name>/<raw_version>/`                                                                            |
 | dataset     | kết quả sau khi raw đi qua pipeline                                                                                                                |
 | thí nghiệm  | một định nghĩa gồm config, prompt, examples, notebook; định danh bằng `expNNN`                                                                     |
-| lần chạy    | một lần thực thi một thí nghiệm trên một phiên bản dữ liệu; thư mục `results/<mã>/`                                                                |
+| lần chạy    | một lần thực thi một thí nghiệm trên một phiên bản dữ liệu; thư mục `results/<hash8>/`, tên là mã băm danh tính (cấu hình + prompt + ví dụ + dữ liệu + commit) |
 | attempt     | một lần thử trong cùng một lần chạy: `fresh` hoặc `resume`                                                                                         |
 | ghim code   | ghi sha của commit vào notebook để luôn kéo đúng bản đó                                                                                            |
 | role        | vai của một split: `train`, `val`, `eval`                                                                                                          |

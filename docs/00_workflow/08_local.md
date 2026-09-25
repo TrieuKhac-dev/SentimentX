@@ -29,10 +29,10 @@ pip install -r requirements.txt
 - Kiểm GPU trước khi chạy: `python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"`.
   GPU 6 GB chạy được Qwen3-4B nhờ lượng hoá 4-bit (`bitsandbytes`).
 - Model 4B nên có sẵn trên đĩa để khỏi tải 8 GB mỗi lần: đặt vào `data/models/Qwen3-4B-Instruct-2507/`
-  rồi chạy với `--model data/models/Qwen3-4B-Instruct-2507` (dòng lệnh). Với notebook, đặt biến môi
-  trường `SENTIMENTX_MODEL=data/models/Qwen3-4B-Instruct-2507` TRƯỚC khi mở Jupyter; bỏ trống thì
-  notebook dùng `checkpoint` trong `configs/models/<model_id>.yaml` (tải một lần vào cache
-  `~/.cache/huggingface`, các lần sau dùng lại).
+  rồi đặt biến môi trường `SENTIMENTX_MODEL=data/models/Qwen3-4B-Instruct-2507` TRƯỚC khi mở Jupyter;
+  bỏ trống thì notebook dùng `checkpoint` trong `configs/models/<model_id>.yaml` (tải một lần vào
+  cache `~/.cache/huggingface`, các lần sau dùng lại). Nguồn trọng số KHÔNG vào tên thư mục kết quả,
+  nên máy cá nhân và Colab vẫn ra cùng một thư mục cho cùng một phép đo.
 - Kernel Jupyter phải có `ipykernel`. Thiếu gói này thì chọn kernel `base` xong bấm Run all KHÔNG
   chạy ô nào và cũng không hiện lỗi rõ ràng (kernel tắt ngay lúc khởi động). Kiểm rồi cài:
 
@@ -119,15 +119,16 @@ template - đúng thứ model nhận - số token, và phần bị cắt ở đu
 
 ## 5. Kết quả và thời lượng
 
-- Kết quả: `experiments/<model_id>/<method>/expNNN/results/<mã dữ liệu>/<hậu tố>/`, phần nhẹ
-  (`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) vào git; phần
-  nặng (`predictions/`, `predictions.csv`, `plots/`, `model/`) đã bị `.gitignore` chặn.
+- Kết quả: `experiments/<model_id>/<method>/expNNN/results/<hash8>/` - `<hash8>` là mã băm danh tính
+  (cấu hình + prompt + ví dụ + dữ liệu + commit); phần nhẹ (`run.log`, `run_meta.json`, `metrics.json`,
+  `metrics.csv`, `mispredictions.csv`) vào git; phần nặng (`predictions/`, `predictions.csv`, `plots/`,
+  `model/`) đã bị `.gitignore` chặn.
 - Tham chiếu để ước lượng trên GPU 6 GB, Qwen3-4B 4-bit, prompt CoT 2 ví dụ: nạp model khoảng 25 đến
-  35 giây, mỗi review khoảng 6 đến 10 giây. Tập `val` 1.524 mẫu vì thế nên chạy `n` nhỏ trước (ví dụ
-  `n: 8` hoặc `--limit 4`) rồi mới chạy cả split.
+  35 giây, mỗi review khoảng 6 đến 10 giây. Tập `val` 1.524 mẫu vì thế nên chạy `n` nhỏ trước (khai
+  `n: 8` trong config thí nghiệm) rồi mới chạy cả split; `n` khác nhau ra hash khác nên không lẫn.
 - Bị ngắt giữa chừng (hết pin, tắt máy, Ctrl+C): Run all lại. Notebook chạy tiếp từ
   `predictions/part_*.jsonl` (`[RUN] mode=RESUME` trong `run.log`), và điểm số vẫn tính trên cả split.
-  Muốn chạy lại từ đầu thì dùng `--new` (kết quả cũ được chuyển sang `predictions/_bo-qua-*`).
+  Muốn chạy lại từ đầu thì **xoá thư mục `results/<hash8>/`** rồi Run all.
 
 ## 6. Kết quả chỉ dùng để so khi nào
 

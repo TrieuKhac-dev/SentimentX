@@ -67,7 +67,8 @@ của từng đơn vị vẫn nằm trong `metrics.csv` nên cách tính này kh
 `metrics.json` gồm: `label_space`, `neutral_policy`, `not_mentioned`, `dropped_neutral` (và
 `dropped_neutral_by_aspect`), `n_reviews`, `aspects`, `scores` (mỗi bộ chấm một khối), `tables`
 (ma trận nhầm theo khía cạnh), và thông tin của lần chạy (prompt, model, cách sinh, chi phí).
-Khoá `rescored` xuất hiện khi file được chấm lại từ `predictions.csv` thay vì chạy lại model.
+Khoá `rescored` xuất hiện khi file được chấm lại từ `predictions.csv` thay vì chạy lại model - công cụ
+chấm lại (`run_rescore_eval.py`) đã bỏ 25/09/2026, nên khoá này chỉ còn trong các file cũ.
 
 Trong `metrics.csv`, giá trị `all` ở cột `aspect` hoặc `sentiment` nghĩa là "gộp mọi giá trị của
 cột đó" - ví dụ dòng `all, all, accuracy_macro` là con số tổng hợp. `plots/` do bước sinh báo cáo

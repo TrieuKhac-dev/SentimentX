@@ -23,7 +23,9 @@ Không có lần chạy trước (`parent: null`). Bốn lựa chọn của thí
 
 ## Kết quả nằm ở đâu
 
-`results/<mã phiên bản dữ liệu>/<hậu tố cấu hình>/`, mỗi lần chạy một thư mục:
+`results/<hash8>/`, mỗi lần chạy một thư mục. `<hash8>` là mã băm danh tính của lượt chạy (cấu hình +
+prompt + ví dụ + mã phiên bản dữ liệu + **commit đã ghim**), nên cùng một phép đo chạy trên Colab và
+trên máy cá nhân ra **cùng một tên thư mục** - copy từ Drive về repo là copy thẳng.
 
 | File | Nội dung |
 | --- | --- |
@@ -40,12 +42,12 @@ Không chép số liệu vào README này: số liệu nằm trong `metrics.json
 
 ## Chạy lại
 
-Bấm **Run all** trong `notebook.ipynb` (nó tự kéo đúng commit đã ghim rồi kiểm trước khi chạy), hoặc
-trên dòng lệnh:
+Bấm **Run all** trong `notebook.ipynb` (nó tự kéo đúng commit đã ghim rồi kiểm trước khi chạy). Bị
+ngắt giữa chừng thì Run all lần nữa: notebook chạy tiếp từ `predictions/part_*.jsonl`.
 
-```
-python run_qwen_eval.py --experiment qwen3-4b-instruct-2507/prompt-cot/exp001
-```
+Muốn chạy lại TỪ ĐẦU: **xoá thư mục `results/<hash8>/`** rồi Run all. Muốn một lượt chạy mới vì đã
+sửa code: ghim lại (`python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001`) - mã băm danh
+tính sẽ khác nên lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên.
 
 Sau khi commit đã ghim: **KHÔNG sửa** `config.yaml`, `prompt`/`examples` hay notebook của thí nghiệm
 này nữa, cho tới khi người nhận chạy xong. Cần thử cách khác thì tạo thí nghiệm mới

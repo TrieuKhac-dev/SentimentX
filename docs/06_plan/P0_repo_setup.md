@@ -19,6 +19,10 @@ xong
       (`run_eda.py`, `run_pipeline.py`, `run_token_stats.py`, `run_check_examples.py`,
       `build_report.py`, `run_qwen_eval.py`, `run_rescore_eval.py`).
       -> `chore(repo): scaffold refactored project tree`
+
+      *Cập nhật 25/09/2026:* hai script cuối (`run_qwen_eval.py`, `run_rescore_eval.py`) là file CŨ
+      mang sang, không phải thành phần của kiến trúc mới - đã **bỏ** cùng ngày, vì mọi kết quả phải
+      thuộc một thí nghiệm và do notebook đã ghim sinh ra (xem `docs/04_experiments/04_backlog.md`).
 - [x] T2. Copy `data/reports/assets/plotly.min.js` sang `data/assets/plotly.min.js`.
       -> `chore(assets): move shared plotly asset into data/assets`
 - [x] T3. Chuyển `data/raw/` và `data/models/` sang cây mới (không commit, chỉ là file trên đĩa).
