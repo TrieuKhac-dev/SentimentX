@@ -29,8 +29,10 @@ pip install -r requirements.txt
 - Kiểm GPU trước khi chạy: `python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"`.
   GPU 6 GB chạy được Qwen3-4B nhờ lượng hoá 4-bit (`bitsandbytes`).
 - Model 4B nên có sẵn trên đĩa để khỏi tải 8 GB mỗi lần: đặt vào `data/models/Qwen3-4B-Instruct-2507/`
-  rồi chạy với `--model data/models/Qwen3-4B-Instruct-2507` (dòng lệnh) hoặc để notebook dùng bản
-  theo `checkpoint` trong `configs/models/<model_id>.yaml`.
+  rồi chạy với `--model data/models/Qwen3-4B-Instruct-2507` (dòng lệnh). Với notebook, đặt biến môi
+  trường `SENTIMENTX_MODEL=data/models/Qwen3-4B-Instruct-2507` TRƯỚC khi mở Jupyter; bỏ trống thì
+  notebook dùng `checkpoint` trong `configs/models/<model_id>.yaml` (tải một lần vào cache
+  `~/.cache/huggingface`, các lần sau dùng lại).
 
 ## 3. Trước khi bấm Run all: kiểm ô GHIM
 

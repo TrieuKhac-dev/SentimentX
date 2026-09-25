@@ -164,3 +164,5 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Giữ lượt chạy 4 mẫu lần hai, sau khi đổi kiểu số | `chore(experiments): keep the second four-sample run, now that the number type is recorded` |
 | Ghim lại `exp001` để lượt chạy trên T4 dùng đúng kiểu số | `chore(experiments): pin 1ae179a so the T4 run picks the right number type` |
 | Trang hướng dẫn chạy notebook trên máy cá nhân | `docs(workflow): add the page for running the notebook on a local machine` |
+| Notebook gọi `plan()` mà không truyền `batch_size`, còn plan không lấy từ config: lượt chạy chết ở `range(0, n, None)` | `fix(run): a plan without a batch size reads it from the model config` |
+| Ô chạy đọc `SENTIMENTX_MODEL` để dùng trọng số có sẵn trên máy | `feat(notebook): let a machine point at the weights it already has` |

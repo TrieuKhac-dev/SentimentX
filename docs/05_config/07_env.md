@@ -26,6 +26,7 @@ env chỉ cần khi muốn chỉ đích danh thư mục, ghi đè đường dẫ
 | `SENTIMENTX_RESULTS_ROOT` | gốc kết quả, trên Colab trỏ vào Drive                         |
 | `SENTIMENTX_ENV`          | `colab` hoặc `local`                                          |
 | `HF_HOME`                 | nơi cache model; trên Colab để ở đĩa tạm, không để trên Drive |
+| `SENTIMENTX_MODEL`        | đường dẫn bản trọng số có sẵn trên máy (ô chạy của notebook đọc biến này); bỏ trống thì dùng `checkpoint` trong `configs/models/<model_id>.yaml` |
 
 ## Thứ tự nạp
 
