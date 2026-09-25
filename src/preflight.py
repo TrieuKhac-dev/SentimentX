@@ -27,7 +27,7 @@ import importlib.util
 from pathlib import Path
 
 from src import dataset as dataset_module
-from src import experiments, model_config, paths, resume, runtime, utils, versioning
+from src import experiments, model_config, paths, resume, runtime, training, utils, versioning
 from src.preprocessing import segmenters
 from src.tracking import run_meta
 
@@ -353,6 +353,14 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
     device_report(model_id, problems, notes, info)
     segmenter_report(model_id, problems, notes, info)
 
+    # 5b. Cách huấn luyện (model encoder): thiếu thư viện, thiếu `trainer`, thiếu `lora.target_modules`
+    # đều biết được ngay ở đây - không phải sau khi đã tải dữ liệu và nạp model.
+    if config.get("enabled"):
+        _collect(problems, notes, "huấn luyện", _training_problems, config, model_id)
+        notes.append("huấn luyện: trainer={}, {} epoch, batch {} (tích luỹ {})".format(
+            config.get("trainer"), config.get("epochs"), config.get("batch"),
+            config.get("grad_accum")))
+
     # 7. Ghi được vào gốc dữ liệu và gốc kết quả (trên Colab: Drive phải mount).
     writable(paths.results_root(), "gốc kết quả", problems, notes)
     writable(paths.data_root(), "gốc dữ liệu", problems, notes)
@@ -392,6 +400,14 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
             "version_id": version_id}
 
 
+def _training_problems(config, model_id):
+    """Đổi danh sách vấn đề của cách huấn luyện thành một ngoại lệ, để `_collect` gom cùng một chỗ."""
+    found = training.check(config, model_id)
+    if found:
+        raise PreflightError("; ".join(found))
+    return True
+
+
 def _fingerprint(result, version_id, model_id=None, method=None, exp_id=None, out_dir=None):
     """Bộ ba quyết định chạy mới hay chạy tiếp, tách ra để `run()` thu LỖI thành VẤN ĐỀ.
 
@@ -409,6 +425,14 @@ def _fingerprint(result, version_id, model_id=None, method=None, exp_id=None, ou
     from src import experiment_run
 
     config = dict(result.get("config") or {})
+    # Model encoder không có prompt, nên phần "cấu hình + prompt" phải tính bằng hàm của đường đó:
+    # băm thiếu một phần là preflight và lượt chạy thật nhìn vào hai thư mục khác nhau.
+    if model_id and model_config.approach_of(config, model_id) == "encoder":
+        from src import encoder_run
+
+        found = encoder_run.identity(config, version_id, model_id, method, exp_id)
+        return found["out_dir"], found["fingerprint"]
+
     prompt_obj = experiment_run.run_prompt(config, model_id, method, exp_id)
     quant = experiment_run.effective_quant("auto", config)
     sampled = experiment_run.settings_of(config)[1]

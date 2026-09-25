@@ -31,10 +31,11 @@ from pathlib import Path
 
 from src import dataset as dataset_module, experiments, notebooks, paths, repo, utils, versioning
 from src import labels as labels_module
-from src import tracking
+from src import tracking, training
 from src.evaluation import scorers
 from src.labels import LABEL_SPACES
 from src.preprocessing import segmenters
+from src.training import encoders
 
 # File ĐƯỢC PHÉP nằm trong git dù ở trong `data/` (docs/00_workflow/03_ci.md, luật 20).
 ALLOWED_DATA_NAMES = ("raw_meta.yaml", "processing_log.json", "label_map.json", "eval_lock.json",
@@ -245,11 +246,15 @@ def registries(root=None):
     # model. Thiếu bộ tách từ là việc của preflight trên máy chạy, không phải việc của CI.
     for label, registry in (("labels", LABEL_SPACES), ("scorers", scorers.SCORERS),
                             ("tracking", tracking.TRACKERS),
-                            ("segmenters", segmenters.SEGMENTERS)):
+                            ("segmenters", segmenters.SEGMENTERS),
+                            ("trainers", training.TRAINERS)):
         found += _registry_names(registry, label)
+    # Encoders: khoá là `model_id` nên tên có gạch ngang; chỉ kiểm "có trỏ tới đâu".
+    found += _registry_names(encoders.ENCODERS, "encoders", check_name=False)
     for name in sorted(LABEL_SPACES):
         found += _attempt("labels[{}]".format(name), labels_module.get, name)
     found += _attempt("scorers", scorers.check, scorers.available())
+    found += _attempt("encoders", encoders.check)
     configured = (experiments.shared("tracking") or {}).get("tracker")
     if configured and configured not in tracking.TRACKERS:
         found.append("tracking: config đang chọn {!r} mà registry không có. Đang có: {}".format(
@@ -263,13 +268,17 @@ def registries(root=None):
     return found
 
 
-def _registry_names(registry, label):
-    """Kiểm cấu trúc của một registry: tên đúng quy ước và có trỏ tới một mục thật."""
+def _registry_names(registry, label, check_name=True):
+    """Kiểm cấu trúc của một registry: tên đúng quy ước và có trỏ tới một mục thật.
+
+    `check_name=False` cho registry mà khoá là `model_id`: tên model trên Hugging Face có gạch
+    ngang (`phobert-base-v2`), nên quy ước chữ thường + gạch dưới không áp dụng được.
+    """
     found = []
     if not registry:
         return ["{}: registry rỗng".format(label)]
     for name, entry in sorted(registry.items()):
-        if not NAME_PATTERN.match(str(name)):
+        if check_name and not NAME_PATTERN.match(str(name)):
             found.append("{}[{}]: tên phải là chữ thường + gạch dưới".format(label, name))
         if entry is None:
             found.append("{}[{}]: chưa trỏ tới đâu".format(label, name))

@@ -65,6 +65,18 @@ CÁCH MỞ RỘNG
    - Ghi nhận KHÔNG BAO GIỜ được ném ra ngoài: máy chủ hỏng thì thành dòng `[WARN]`, còn file kết
      quả vẫn phải nguyên. Xem quy tắc ở đầu `src/tracking/base.py`.
 
+9) Thêm một CÁCH HUẤN LUYỆN mới (ví dụ full fine-tune, hoặc QLoRA cho LLM):
+   - Viết file trong `src/training/`, ví dụ `qlora.py`, theo hợp đồng ở `src/training/__init__.py`
+     (`NAME`, `DESCRIPTION`, `check()`, `fit()`, `predict()`).
+   - Thêm một dòng vào `TRAINERS`. Thí nghiệm chọn bằng `training.trainer` trong config.
+   - `fit()` phải ghi `model/last` (đủ để chạy tiếp) và `model/best` (chỉ adapter) theo
+     `configs/experiments/training.yaml`; tên thư mục lấy từ `configs/paths.yaml`.
+
+10) Thêm một MODEL ENCODER mới cho huấn luyện:
+   - Viết module trong `src/preprocessing/` theo hợp đồng ở điểm 5 (thêm `build_inputs()`).
+   - Thêm một dòng vào `ENCODERS` trong `src/training/encoders.py`, và một file
+     `configs/models/<model_id>.yaml` có `approach: encoder`.
+
 Định dạng file kết quả do run_eda.py / run_pipeline.py ghi ra được mô tả ở
 `src/reporting/result.py`. build_report.py đọc lại file đó để vẽ báo cáo.
 """
