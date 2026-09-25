@@ -182,11 +182,23 @@ def suggest(name):
 
 
 def _display(path):
-    """Đường dẫn tương đối so với gốc dự án, cho dễ đọc trong thông báo lỗi."""
-    try:
-        return path.relative_to(config.ROOT_DIR).as_posix()
-    except ValueError:
-        return str(path)
+    """Đường dẫn gọn để IN RA: tương đối so với gốc dự án và KHÔNG còn `..`.
+
+    Vì sao phải `resolve()`: đường dẫn khai trong config thí nghiệm được tính từ thư mục thí nghiệm,
+    nên giá trị đọc được thường có dạng `../../../../configs/prompts/absa_cot_v1.txt`. In nguyên
+    chuỗi đó ra log/thông báo thì người đọc phải tự đếm `..` mới biết là file nào; sau khi resolve
+    thì còn `configs/prompts/absa_cot_v1.txt` - đúng thứ cần đọc.
+    """
+    path = Path(path)
+    # Thử bản ĐÃ CHUẨN HOÁ trước: đường dẫn kiểu `exp001/../../../../configs/...` vẫn "nằm trong"
+    # gốc repo nếu so từng đoạn một (phép so này thuần văn bản), nên thử nó trước là vẫn ra chuỗi có
+    # `..`. Resolve rồi mới so thì mới ra `configs/prompts/...`.
+    for candidate in (path.resolve(), path):
+        try:
+            return candidate.relative_to(config.ROOT_DIR).as_posix()
+        except ValueError:
+            continue
+    return path.name if path.is_absolute() else path.as_posix()
 
 
 # ---

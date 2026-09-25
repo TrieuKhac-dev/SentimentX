@@ -93,7 +93,7 @@ def use_run_tokenizer(model_id, checkpoint):
 
 def describe_sources(prompt_obj, label_map, aspects, split, row, tokenizer_name):
     """In nguồn của prompt: file nào, sha nào, bao nhiêu ví dụ, khối hệ thống, bảng mã nhãn."""
-    print("Prompt      : {} | {}".format(prompt_obj.name, prompt_obj.path))
+    print("Prompt      : {} | {}".format(prompt_obj.name, prompt_obj.where))
     print("  sha       : {}".format(prompt_obj.sha))
     examples = prompt_obj.examples_info()
     if examples:
