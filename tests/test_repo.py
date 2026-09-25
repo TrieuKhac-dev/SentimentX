@@ -101,5 +101,70 @@ class TestPrepare(unittest.TestCase):
             self.assertIn("clone rút gọn rồi checkout", message)
 
 
+class TestExistingRepo(unittest.TestCase):
+    """Máy cá nhân: repo đã có sẵn, đúng remote -> chỉ lấy thêm commit đã ghim.
+
+    Hai lỗi bị khoá ở đây, cả hai đều đã xảy ra thật (25/09/2026):
+      - `git remote remove origin` + `remote add` xoá hết ref `origin/*`, nên lần kiểm "commit đã
+        ghim có nằm trên nhánh không" không còn gì để kiểm (chỉ in cảnh báo);
+      - `git fetch --depth 1` biến repo đầy đủ thành repo NÔNG: `git rev-list --count HEAD` của
+        repo cá nhân tụt từ 124 commit xuống 3.
+    """
+
+    def make_pair(self, folder):
+        """Một kho `origin` hai commit, và một bản clone của nó (giống repo máy cá nhân)."""
+        origin = Path(folder) / "origin"
+        origin.mkdir()
+        repo.run_git(["init", "-q"], cwd=origin)
+        repo.run_git(["config", "user.email", "test@example.invalid"], cwd=origin)
+        repo.run_git(["config", "user.name", "test"], cwd=origin)
+        (origin / "file.txt").write_text("mot\n", encoding="utf-8")
+        repo.run_git(["add", "file.txt"], cwd=origin)
+        repo.run_git(["commit", "-q", "-m", "first"], cwd=origin)
+        first = repo.run_git(["rev-parse", "HEAD"], cwd=origin)[1].strip()
+        (origin / "file.txt").write_text("hai\n", encoding="utf-8")
+        repo.run_git(["commit", "-q", "-am", "second"], cwd=origin)
+        clone = Path(folder) / "clone"
+        repo.run_git(["clone", "-q", str(origin), str(clone)])
+        return origin, clone, first
+
+    def test_plans_offer_the_existing_repo_first(self):
+        with tempfile.TemporaryDirectory() as folder:
+            origin, clone, _first = self.make_pair(folder)
+            names = [name for name, _steps in repo.plans(str(origin), "a" * 40, clone)]
+            self.assertEqual(names[0], "dùng repo đang có")
+            self.assertNotIn("remote", " ".join(str(args) for args in
+                                                 repo.plans(str(origin), "a" * 40, clone)[0][1]))
+
+    def test_plans_do_not_offer_it_when_origin_is_somewhere_else(self):
+        with tempfile.TemporaryDirectory() as folder:
+            _origin, clone, _first = self.make_pair(folder)
+            names = [name for name, _steps in repo.plans("https://example.invalid/r.git", "a" * 40,
+                                                         clone)]
+            self.assertEqual(names, ["fetch theo sha", "clone rút gọn rồi checkout"])
+
+    def test_fetching_an_older_commit_keeps_remotes_and_full_history(self):
+        with tempfile.TemporaryDirectory() as folder:
+            origin, clone, first = self.make_pair(folder)
+            before = repo.run_git(["branch", "-r"], cwd=clone)[1].split()
+            self.assertTrue(before, "bản clone phải có ref origin/*")
+
+            info = repo.prepare(str(origin), first, dest=clone)
+            self.assertEqual(info["action"], "dùng repo đang có")
+            self.assertEqual(repo.current_sha(clone), first)
+            self.assertEqual(repo.run_git(["branch", "-r"], cwd=clone)[1].split(), before)
+            self.assertFalse((clone / ".git" / "shallow").exists(),
+                             "không được biến repo đầy đủ thành repo nông")
+
+    def test_a_commit_that_is_not_on_the_remote_stops_without_touching_the_repo(self):
+        with tempfile.TemporaryDirectory() as folder:
+            origin, clone, _first = self.make_pair(folder)
+            before = repo.run_git(["branch", "-r"], cwd=clone)[1].split()
+            with self.assertRaises(repo.RepoError) as caught:
+                repo.prepare(str(origin), "f" * 40, dest=clone)
+            self.assertIn("Không lấy được commit đã ghim", str(caught.exception))
+            self.assertEqual(repo.run_git(["branch", "-r"], cwd=clone)[1].split(), before)
+
+
 if __name__ == "__main__":
     unittest.main()

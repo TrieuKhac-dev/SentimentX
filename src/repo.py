@@ -7,15 +7,23 @@ Notebook của giảng viên chạy trên máy khác, sau khi ta đã sửa code
 khác. Vì vậy notebook giữ một commit cụ thể (`REPO_SHA`), và mọi kết quả chỉ được dùng khi commit
 đó nằm trên nhánh `experiment` (docs/00_workflow/01_flow.md).
 
-BA CÁCH, THEO THỨ TỰ RẺ TỚI ĐẮT
-    1. Thư mục đang có đúng commit rồi  -> không làm gì (máy cá nhân thường ở trường hợp này)
-    2. `git fetch --depth 1 origin <sha>`  -> nhẹ nhất, nhưng GitHub không phải lúc nào cũng cho
-       fetch theo sha
-    3. `git clone --filter=blob:none --no-checkout` rồi `git checkout <sha>` -> nặng hơn nhưng
-       chắc chắn được, vì bản clone có đủ lịch sử để checkout bất kỳ commit nào
-
-Sau khi kéo, `git rev-parse HEAD` PHẢI bằng đúng sha đã ghim. Không thì báo lỗi kèm hai lệnh đã
+SAU KHI KÉO
+`git rev-parse HEAD` PHẢI bằng đúng sha đã ghim. Không thì báo lỗi kèm các bước đã
 thử - thà dừng ngay còn hơn chạy trên bản code không rõ là bản nào.
+
+BỐN CÁCH, THEO THỨ TỰ RẺ TỚI ĐẮT
+    1. Thư mục đang có đúng commit rồi  -> không làm gì (máy cá nhân thường ở trường hợp này)
+    2. Thư mục ĐÃ là repo và `origin` trỏ đúng kho (máy cá nhân đang ở commit khác): chỉ
+       `git fetch origin <sha>` rồi `checkout --detach <sha>`. Không `init` lại, KHÔNG gỡ `origin`,
+       không fetch `--depth 1`: gỡ `origin` là mất hết ref `origin/*`, còn `--depth 1` biến repo
+       đầy đủ thành repo NÔNG nên `git log` của máy cá nhân cụt từ commit đó về sau. Mất ref thì
+       việc kiểm "commit đã ghim có nằm trên nhánh không" ở dưới cũng không chạy được - tức là mất
+       đúng thứ cần kiểm. Hỏng ở bước này thì DỪNG, không thử hai cách dưới.
+    3. `git fetch --depth 1 origin <sha>` (dùng cho thư mục TRỐNG) -> nhẹ nhất, nhưng GitHub không
+       phải lúc nào cũng cho fetch theo sha
+    4. `git clone --filter=blob:none --no-checkout` rồi `git checkout <sha>` (thư mục trống) ->
+       nặng hơn nhưng chắc chắn được, vì bản clone có đủ lịch sử để checkout bất kỳ commit nào.
+       Cách này để lại `origin/<nhánh>` cho MỌI nhánh, nên kiểm được commit đã ghim nằm trên nhánh.
 """
 
 import os
@@ -102,28 +110,56 @@ def object_exists(sha, root=None):
     return code == 0
 
 
-def plans(url, sha):
+def _same_url(left, right):
+    """Hai địa chỉ kho có trỏ cùng một chỗ không (bỏ `.git` và dấu `/` ở cuối)."""
+    def clean(value):
+        text = str(value or "").strip().rstrip("/")
+        return text[:-4] if text.endswith(".git") else text
+
+    return bool(clean(left)) and clean(left) == clean(right)
+
+
+def origin_matches(url, root=None):
+    """`origin` của repo này có trỏ đúng kho đã ghim không.
+
+    Dùng để nhận ra MÁY CÁ NHÂN đang có sẵn repo: biết chắc rồi thì chỉ cần lấy thêm commit đã
+    ghim, KHÔNG được `git init` lại rồi `git remote add` (bước gỡ `origin` xoá hết ref
+    `origin/*`), cũng không fetch `--depth 1` (làm repo đầy đủ thành repo nông).
+    """
+    code, output = run_git(["remote", "get-url", "origin"], cwd=root or paths.root())
+    return code == 0 and _same_url(output, url)
+
+
+def plans(url, sha, dest=None):
     """Các cách kéo code, theo thứ tự rẻ tới đắt.
 
     Mỗi bước là `(tham số git, bắt buộc thành công không)`. Bước không bắt buộc là bước có thể
     đã đúng sẵn (ví dụ `remote add` khi `origin` đã có), nên hỏng thì đi tiếp chứ không bỏ cả cách.
+
+    `dest` là thư mục code. Có `dest` và thư mục đó đã là repo với đúng `origin` (máy cá nhân) thì
+    cách ĐẦU TIÊN chỉ lấy thêm commit đã ghim, không đụng tới remote - xem phần đầu file.
     """
-    return [
-        ("fetch theo sha", [
-            (["init", "-q"], True),
-            (["remote", "remove", "origin"], False),
-            (["remote", "add", "origin", url], True),
-            (["fetch", "--depth", "1", "origin", sha], True),
-            (["checkout", "--detach", "FETCH_HEAD"], True),
-        ]),
-        ("clone rút gọn rồi checkout", [
-            # `--filter=blob:none`: lấy lịch sử mà không lấy nội dung file cho tới lúc cần, nên
-            # checkout được BẤT KỲ commit nào (khác `--depth 1`, chỉ có commit mới nhất).
-            (["clone", "--filter=blob:none", "--no-checkout", url, "."], True),
-            (["fetch", "--depth", "1", "origin", sha], True),
+    found = []
+    if dest is not None and is_repo(dest) and origin_matches(url, dest):
+        found.append(("dùng repo đang có", [
+            (["fetch", "origin", sha], True),
             (["checkout", "--detach", sha], True),
-        ]),
-    ]
+        ]))
+    found.append(("fetch theo sha", [
+        (["init", "-q"], True),
+        (["remote", "remove", "origin"], False),
+        (["remote", "add", "origin", url], True),
+        (["fetch", "--depth", "1", "origin", sha], True),
+        (["checkout", "--detach", "FETCH_HEAD"], True),
+    ]))
+    found.append(("clone rút gọn rồi checkout", [
+        # `--filter=blob:none`: lấy lịch sử mà không lấy nội dung file cho tới lúc cần, nên
+        # checkout được BẤT KỲ commit nào (khác `--depth 1`, chỉ có commit mới nhất).
+        (["clone", "--filter=blob:none", "--no-checkout", url, "."], True),
+        (["fetch", "--depth", "1", "origin", sha], True),
+        (["checkout", "--detach", sha], True),
+    ]))
+    return found
 
 
 def _try(steps, dest, info):
@@ -182,11 +218,18 @@ def prepare(url, sha, branch=None, dest=None, require_branch=False, log=None):
     if is_repo(dest) and current_sha(dest) == sha:
         info["action"] = "dùng bản code đang có"
     else:
-        for action, steps in plans(url, sha):
+        for action, steps in plans(url, sha, dest):
             info["output"].append("--- {}".format(action))
             if _try(steps, dest, info):
                 info["action"] = action
                 break
+            if action == "dùng repo đang có":
+                # Dừng ngay, KHÔNG thử hai cách còn lại: chúng dành cho thư mục TRỐNG, chạy trên
+                # repo đang có sẽ gỡ `origin` (mất ref `origin/*`) và làm repo nông, mà nguyên nhân
+                # thật - commit đã ghim không có trên remote - thì chúng cũng không sửa được.
+                raise RepoError(
+                    "Không lấy được commit đã ghim ({}) vào repo đang có ở {}:\n{}".format(
+                        sha[:12], dest, "\n".join(info["output"][-6:])))
         else:
             raise RepoError("Không kéo được commit đã ghim ({}). Đã thử:\n{}".format(
                 sha[:12], "\n".join(info["output"][-12:])))
