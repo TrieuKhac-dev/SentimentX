@@ -46,7 +46,8 @@ Các file này là số liệu tham chiếu, **không** được sinh tự độ
 
 ## Điều kiện để so sánh hợp lệ
 
-1. Dùng đúng split `test`, không đổi tập này. Guard là `eval_lock` trong file dataset version.
+1. Dùng đúng split `test`, không đổi tập này. Guard là khoá tập đánh giá
+   (`data/processed/<mã>/eval_lock.json`), ghi ngay từ bản dữ liệu đầu tiên.
 2. Dùng đúng metric trong `docs/04_experiments/metrics.md`.
 3. Loại neutral và OTHERS giống công bố.
 4. Kết quả phải có `valid: true` và `comparable: true` trong bảng tổng hợp.

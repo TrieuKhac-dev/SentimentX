@@ -35,7 +35,7 @@ MyDrive/SentimentX/                                    ← thư mục gốc trê
 │   ├── raw/cosmetics/v0.1.0/full_data.csv
 │   ├── raw/cosmetics/v0.1.0/raw_meta.yaml
 │   └── processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/
-│         train.csv, val.csv, test.csv, label_map.json, processing_log.json
+│         train.csv, val.csv, test.csv, label_map.json, processing_log.json, eval_lock.json
 └── experiments/<model_id>/<method>/expNNN/
     ├── README.md                                      ← thí nghiệm này hỏi gì
     └── results/<mã>/                                  ← để TRỐNG, code tự tạo và ghi kết quả vào

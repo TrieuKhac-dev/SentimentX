@@ -169,3 +169,6 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Giữ lượt chạy thứ ba, đi đúng đường của notebook (batch từ config, model từ biến môi trường) | `chore(experiments): keep the run made through the path the notebook uses` |
 | Ghim lại `exp001` (bản code có sửa `batch_size`) | `chore(experiments): pin 6247e73 so the reader gets the batch size fix` |
 | Chỉ nhận bf16 khi máy có hỗ trợ THẬT, không nhận bản giả lập phần mềm (T4 của Colab) | `fix(evaluation): ask for real bf16 support, not software emulation` |
+| Khoá tập đánh giá ghi MỘT LẦN ngay khi tạo dữ liệu, vào `data/processed/<mã>/eval_lock.json` (bản v0 cũng có khoá) | `feat(versioning): write the evaluation lock next to the data` |
+| Preflight kiểm `test.csv` theo khoá ghi cùng dữ liệu, không chỉ theo giá trị khai trong config | `fix(preflight): verify the test set against the lock stored with the data` |
+| Tài liệu về chỗ đặt khoá: dataset config, luật 11, đầu ra pipeline, công bố tham chiếu, cây Drive | `docs(config): the evaluation lock lives with the data, from the first version` |

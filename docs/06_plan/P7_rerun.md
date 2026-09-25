@@ -39,7 +39,7 @@ GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn kho�
 - [ ] T5. Giao notebook cho giảng viên: đẩy dữ liệu, notebook và `.env.colab` lên Drive, gửi hướng dẫn.
       (không tạo commit)
       Gói bàn giao đã dựng lại (25/09/2026, sau khi sửa lỗi đọc file prompt theo đường dẫn - xem
-      bên dưới), chỉ chờ gửi: `sentimentx-exp001-ban-giao.zip` (2,03 MB) với 16 file, cây đúng như
+      bên dưới), chỉ chờ gửi: `sentimentx-exp001-ban-giao.zip` (2,03 MB) với 17 file, cây đúng như
       `docs/00_workflow/07_colab.md` mục 2:
 
       ```
@@ -48,7 +48,8 @@ GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn kho�
       notebooks/qwen3-4b-instruct-2507/prompt-cot/exp001.ipynb
       experiments/qwen3-4b-instruct-2507/prompt-cot/exp001/README.md
       data/raw/cosmetics/v0.1.0/            4 CSV + raw_meta.yaml
-      data/processed/<mã>/                  train, val, test, label_map.json, processing_log.json
+      data/processed/<mã>/                  train, val, test, label_map.json, processing_log.json,
+                                            eval_lock.json
       ```
 
       `env/.env.colab` có token DagsHub thật (gói gửi qua kênh riêng, đổi token sau đồ án). Hai khoá

@@ -32,11 +32,16 @@ xong
 
 Ghi chú khi làm:
 
-- `eval_lock.test.sha256` để `null` ở phiên bản đầu; cuối lần chạy pipeline in ra giá trị vừa
-  đo, và giá trị đó được chốt khi **tạo phiên bản dataset kế tiếp**. Không điền vào file đang
-  dùng, vì file phiên bản đã dùng là bất biến và guard sẽ chặn.
-- Kết quả sinh ra (`processing_log.json`, `report.html`, `pipeline_result.json`, kết quả EDA)
-  hiện vẫn được commit; việc chọn nhóm report nào commit là việc của P6.
+- **Cập nhật 25/09/2026 - chỗ đặt khoá tập đánh giá.** Bản đầu để `eval_lock.test.sha256` trong file
+  phiên bản dataset ở trạng thái `null` rồi "chốt ở phiên bản kế tiếp". Cách đó để hở đúng chỗ quan
+  trọng nhất: bản v0 không có khoá nào, còn các bản sau thừa hưởng khoá của bản trước - chuỗi hở ở
+  gốc, và không ai trả lời được "tập đánh giá của bản v0 là tập nào". Nay số đo được ghi MỘT LẦN ngay
+  trong lần chạy đã tạo ra `test.csv`, vào `data/processed/<mã>/eval_lock.json`
+  (`versioning.write_eval_lock`); file phiên bản chỉ khai chính sách và (khi cần) giá trị mong đợi.
+  `src/reports.py` vốn đã đọc file này cho cột `eval_locked` - trước đây nó luôn rỗng vì chưa có chỗ
+  ghi.
+- Kết quả sinh ra (`processing_log.json`, `report.html`, `pipeline_result.json`, `eval_lock.json`,
+  kết quả EDA) hiện vẫn được commit; việc chọn nhóm report nào commit là việc của P6.
 - Guard chặn cả trường hợp sửa một dòng chú thích trong file phiên bản đã dùng. Đó là chủ ý:
   nội dung file đi vào mã phiên bản, nên mọi thay đổi đều làm kết quả cũ không còn tra được.
 - **Kiểu xuống dòng KHÔNG được đi vào phép băm** (sửa 25/09/2026). Mã phiên bản băm nội dung file,

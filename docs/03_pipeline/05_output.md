@@ -71,11 +71,34 @@ liệu đang dùng (`loader.known_aspects()`), nên đổi dataset không phải
 Thêm dataset có nhãn mới (ví dụ `mixed`) thì mã nhãn mới được cấp tự động, các nhãn
 quen thuộc giữ nguyên mã - xem [01_dataset/03_new_dataset.md](../01_dataset/03_new_dataset.md).
 
-## 5. Các file truy vết
+## 5. `eval_lock.json` - khoá tập đánh giá
+
+```json
+{
+  "test": {
+    "file": "test.csv",
+    "sha256": "e2558137...",
+    "rows": 1518
+  }
+}
+```
+
+Ghi MỘT LẦN trong cùng lần chạy đã tạo ra `test.csv`, và nằm ngay cạnh dữ liệu
+(`data/processed/<mã>/`). Đây là thứ khiến tập đánh giá đóng băng được **từ bản dữ liệu đầu
+tiên**: mọi lượt chạy sau - trên máy nào cũng vậy - đọc file này (`versioning.split_lock()`) và
+so với `test.csv` đang có; lệch là LỖI, không phải cảnh báo.
+
+Vì sao khoá không nằm trong file phiên bản dataset: giá trị `sha256` chỉ biết được SAU khi
+pipeline chạy lần đầu, mà file phiên bản thì bất biến. File phiên bản khai **chính sách**
+(`eval_lock.enforce`, tên file) và, khi cần đối chiếu với một tập test bên ngoài, giá trị
+**mong đợi**. Chi tiết: [05_config/03_datasets.md](../05_config/03_datasets.md).
+
+## 6. Các file truy vết
 
 | File                                                  | Nội dung                                                                                  |
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | `data/processed/<mã>/processing_log.json`             | config đã dùng + số liệu chính của lần chạy. Nằm **cùng thư mục** với dataset mà nó mô tả |
+| `data/processed/<mã>/eval_lock.json`                  | khoá tập đánh giá (`sha256` + số dòng từng split đã khoá), ghi một lần lúc tạo dữ liệu     |
 | `data/processed/<mã>/pipeline/removed_records.csv`    | dòng bị loại, kèm lí do + văn bản                                                         |
 | `data/processed/<mã>/pipeline/quarantine_records.csv` | dòng bị cách ly vì xung đột nhãn                                                          |
 | `data/processed/<mã>/pipeline/validation_report.csv`  | lỗi phát hiện ở Step 2 (chỉ ghi nhận)                                                     |

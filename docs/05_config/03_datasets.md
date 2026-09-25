@@ -52,17 +52,31 @@ eval_lock:
 | `notes`                 | vì sao có phiên bản này, gồm cả mô tả cách gộp nguồn                                                                                  |
 | `eval_lock`             | dấu vân tay của tập đánh giá, xem mục dưới                                                                                            |
 
-## eval_lock
+## eval_lock - khoá tập đánh giá
 
-Chốt tập đánh giá để kết quả so được với công bố tham chiếu:
+Chốt tập đánh giá để kết quả so được với công bố tham chiếu. Có **hai phần**, và chúng nằm ở hai
+chỗ khác nhau vì lý do rất cụ thể:
 
-- Pipeline kiểm `test.csv` vừa ghi có `sha256` khớp giá trị trong `eval_lock`, nếu lệch thì báo lỗi.
-- Mọi biến đổi văn bản chỉ áp cho train và val.
-- Nếu muốn thử biến đổi cả test thì đặt `eval_lock.enforce: false`; kết quả sẽ bị đánh dấu
-  `comparable: false` và không dùng để so với công bố.
-- Lần chạy đầu chưa biết `sha256`, nên file phiên bản để `null`; cuối lần chạy pipeline in ra
-  giá trị vừa đo, và giá trị đó được chốt khi **tạo phiên bản dataset kế tiếp** - không điền
-  vào file đang dùng, vì file phiên bản đã dùng là bất biến (guard sẽ chặn).
+| Phần | Nằm ở đâu | Nội dung |
+| --- | --- | --- |
+| Chính sách | file phiên bản dataset (`eval_lock.enforce`, `eval_lock.test.file`) | có khoá tập test hay không, tên file nào |
+| Giá trị MONG ĐỢI (tuỳ chọn) | `eval_lock.test.sha256`, `eval_lock.test.rows` | chỉ khai khi muốn đối chiếu với một tập test bên ngoài (ví dụ tập của công bố) |
+| Số đo ĐÃ CHỐT | `data/processed/<mã>/eval_lock.json` | `{"test": {"file", "sha256", "rows"}}`, ghi MỘT LẦN trong cùng lần chạy sinh ra `test.csv` |
+
+Vì sao số đo không nằm trong file phiên bản: `sha256` của `test.csv` chỉ biết được SAU khi pipeline
+chạy, mà file phiên bản thì bất biến (sửa là guard chặn). Ghi số đo cùng dữ liệu nghĩa là **bản dữ
+liệu đầu tiên đã có khoá** - không phải chờ tới phiên bản sau, và không có chỗ hở ở gốc chuỗi.
+
+Cách hoạt động:
+
+- Pipeline ghi `eval_lock.json` khi export. Ghi lần hai với giá trị KHÁC là LỖI kèm hướng dẫn tạo
+  phiên bản dataset mới - cùng một mã phiên bản không thể có hai tập test khác nhau.
+- Preflight (và notebook) đọc khoá và so với `test.csv` đang có: lệch là LỖI. Nếu config có khai
+  `eval_lock.test.sha256` thì giá trị khai được ưu tiên (dùng khi đối chiếu tập test bên ngoài).
+- `eval_lock.enforce: false` thì KHÔNG ghi khoá và chỉ ghi chú: dùng khi cố ý thử biến đổi cả test,
+  và khi đó kết quả không còn tính là so được với công bố.
+- `python scripts/collect_reports.py` đọc chính file này để điền cột `eval_locked` trong
+  `data/reports/dataset_registry/`.
 
 ## Luật bất biến
 

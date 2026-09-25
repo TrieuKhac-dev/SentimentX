@@ -25,9 +25,11 @@
 9. File config của phiên bản (`configs/pipeline/<v>.yaml`, `configs/datasets/<name>/<v>.yaml`)
    là **bất biến**. Muốn đổi thì tạo phiên bản mới.
 10. Mọi biến đổi văn bản của pipeline **chỉ áp cho train và val**.
-11. `test.csv` phải khớp `eval_lock`. `eval_lock` là dấu vân tay của tập đánh giá, khai trong
-    file config dataset version: gồm tên file, số dòng và `sha256`. Pipeline phải xuất ra `test.csv`
-    đúng dấu vân tay này, lệch thì báo lỗi. Chi tiết ở `docs/05_config/03_datasets.md`.
+11. `test.csv` phải khớp **khoá tập đánh giá**. Khoá do pipeline ghi MỘT LẦN, ngay từ bản dữ liệu
+    đầu tiên, vào `data/processed/<mã>/eval_lock.json` (tên file, số dòng, `sha256` của từng split
+    đã khoá). File config dataset version chỉ khai **chính sách** (`eval_lock.enforce`, tên file) và
+    giá trị **mong đợi** khi cần đối chiếu với một tập test bên ngoài. Lệch khoá là báo lỗi, không
+    chỉ cảnh báo. Chi tiết ở `docs/05_config/03_datasets.md`.
 12. Metric lấy theo công bố tham chiếu, không tự thêm bớt khi so sánh.
 
 ## Resume
