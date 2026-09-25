@@ -107,14 +107,27 @@ def effective_max_length(config_data, passed=None):
     return qwen.limit()[0]
 
 
-def build_tag(prompt_name, split, limit, sampled, quant, model=None):
+def build_tag(prompt_name, split, limit, sampled, quant, model=None, config_sha=None):
     """Tên thư mục kết quả của MỘT cấu hình chạy.
 
-    Cấu hình nằm ở TÊN THƯ MỤC nên tên file bên trong là tên cố định, và hai lần chạy khác cấu
-    hình không bao giờ ghi đè nhau. `model` chỉ được ghi khi nó KHÁC checkpoint trong config (tức
-    là khi có người truyền `--model <thứ khác>`, ví dụ chạy thử bằng model nhỏ): không ghi thì hai
-    lần chạy khác model mà cùng cấu hình sẽ tranh nhau một thư mục, và lần thứ hai bị coi là "đã
-    chạy xong" - một lỗi im lặng rất khó thấy.
+    Cấu hình nằm ở TÊN THƯ MỤC nên tên file bên trong là tên cố định, và hai lượt chạy khác cấu
+    hình không bao giờ ghi đè nhau. Các phần, theo thứ tự:
+
+        `prompt-<tên>`  câu hỏi đang hỏi (tên file prompt)
+        `<split>`       chấm trên tập nào
+        `n<N>`          tập con bao nhiêu mẫu (bỏ khi chấm cả split)
+        `greedy`/`sample`  cách sinh
+        `<quant>`       cách biểu diễn model (4bit, 8bit...); bỏ khi model không lượng hoá
+        `<model>`       CHỈ khi model khác `checkpoint` của config (chạy thử bằng model nhỏ, hoặc
+                        dùng trọng số có sẵn trên đĩa): không ghi thì hai lượt chạy khác model mà
+                        cùng cấu hình sẽ tranh nhau một thư mục, và lượt thứ hai bị coi là "đã chạy
+                        xong" - một lỗi im lặng rất khó thấy.
+        `cfg<sha8>`     tám ký tự đầu của dấu vân tay cấu hình (xem `run_identity`). Đây là phần bảo
+                        đảm "KHÁC CẤU HÌNH thì KHÁC THƯ MỤC" kể cả khi mọi phần trên trùng nhau -
+                        ví dụ cùng tên prompt nhưng nội dung file prompt hoặc bộ ví dụ đã đổi.
+
+    `model` và `quant` là ĐIỀU KIỆN CHẠY, không phải biến thí nghiệm; chúng ở đây vì cùng một cấu
+    hình chạy 4-bit và không lượng hoá là hai phép đo khác nhau, phải nằm khác thư mục.
     """
     parts = ["prompt-{}".format(prompt_name), str(split)]
     if limit:
@@ -124,6 +137,8 @@ def build_tag(prompt_name, split, limit, sampled, quant, model=None):
         parts.append(str(quant))
     if model:
         parts.append(str(model))
+    if config_sha:
+        parts.append("cfg{}".format(str(config_sha)[:8]))
     return "__".join(parts)
 
 
@@ -289,6 +304,83 @@ def print_config(plan_data, model_info):
     print()
 
 
+def run_model(config_data, model=None):
+    """Model của lượt chạy: tham số truyền vào > `hf_model` của config > model mặc định của module.
+
+    Một chỗ duy nhất, vì tên thư mục kết quả có phần model khi nó KHÁC `checkpoint` của config:
+    `plan()` và `preflight` phải chọn cùng một giá trị, nếu không thì hai bên nhìn hai thư mục khác
+    nhau (đã từng xảy ra với `SENTIMENTX_MODEL` trên máy cá nhân).
+    """
+    return model or config_data.get("hf_model") or qwen.MODEL_NAME
+
+
+def run_prompt(config_data, model_id=None, method=None, exp_id=None, prompt=None, examples=None,
+               base_dir=None):
+    """Nạp prompt của một lượt chạy (và đăng ký vào `qwen` cho các bước sau dùng theo tên).
+
+    Một chỗ duy nhất, vì `plan()` và `preflight` đều cần CÙNG prompt đó - nạp ở hai nơi là hai nơi
+    có thể lệch nhau (một nơi dùng tên trong thư viện, nơi kia dùng đường dẫn).
+
+    `base_dir`: thư mục thí nghiệm để giải đường dẫn tương đối trong config. `plan()` truyền thư mục
+    nó đang làm việc (kết quả đã nạp có khoá `dir`), còn khi chỉ có tên thí nghiệm thì suy ra.
+    """
+    if base_dir is None and model_id and method and exp_id:
+        base_dir = paths.experiment_dir(model_id, method, exp_id)
+    return qwen.load_prompt(
+        prompt or config_data.get("prompt"), base_dir=base_dir,
+        examples=examples if examples is not None else config_data.get("examples"),
+        system=config_data.get("system_prompt"))
+
+
+def side_shas(prompt_obj):
+    """`{nhãn: (đường dẫn, sha)}` của các file đi kèm prompt, để đưa vào dấu vân tay.
+
+    Bộ ví dụ few-shot và khối hệ thống KHÔNG nằm trong file prompt, nên nếu không băm chúng thì đổi
+    bộ ví dụ mà dấu vân tay không đổi - lượt chạy bị ngắt sẽ RESUME trên bộ ví dụ cũ.
+    """
+    found = {}
+    for name, info in (("examples", prompt_obj.examples_info()),
+                       ("system", prompt_obj.system_info())):
+        if info:
+            found[name] = (info.get("file"), info.get("sha"))
+    return found
+
+
+def effective_quant(quant, config_data):
+    """Cách biểu diễn model của lượt chạy: tham số truyền vào > `inference.quantization` của config.
+
+    `auto` nghĩa là "theo config", nên giá trị hiệu lực lấy từ config. Trả về None khi model không
+    lượng hoá - lúc đó tên thư mục không có phần này.
+    """
+    if quant and quant != "auto":
+        return str(quant)
+    value = (config_data.get("inference") or {}).get("quantization")
+    return str(value) if value else None
+
+
+def run_identity(config_data, version_id, prompt_obj, split, limit=None, sampled=False,
+                 quant=None, model=None, model_id=None, method=None, exp_id=None):
+    """Thư mục kết quả + dấu vân tay của MỘT lượt chạy: chỗ DUY NHẤT quyết định hai thứ đó.
+
+    `plan()` (lượt chạy thật) và `preflight` (kiểm trước) đều gọi hàm này, nên không thể nói hai
+    chuyện khác nhau. Đã từng lệch thật (25/09/2026): preflight báo `NEW - chưa có lần chạy nào
+    trong thư mục này` trong khi lượt chạy cùng lúc báo `RESUME - chạy tiếp từ 16 mẫu đã xong`, vì
+    preflight nhìn thư mục PHIÊN BẢN còn lượt chạy nhìn thư mục LƯỢT CHẠY.
+
+    Trả về dict gồm `config_sha256`, `fingerprint`, `tag`, `out_dir`, `inside`, `repo`.
+    """
+    config_sha = experiments.config_sha256({"config": config_data},
+                                           prompt_text=prompt_obj.text,
+                                           side_files=side_shas(prompt_obj))
+    repo = run_meta.repo_info(url=config_data.get("url"), branch=config_data.get("branch"))
+    fingerprint = resume.fingerprint(config_sha, version_id, repo["sha"])
+    tag = build_tag(prompt_obj.name, split, limit, sampled, quant,
+                    model_tag(model, config_data), config_sha)
+    out_dir, inside = out_dir_of(version_id, tag, model_id, method, exp_id)
+    return {"config_sha256": config_sha, "fingerprint": fingerprint, "tag": tag,
+            "out_dir": out_dir, "inside": inside, "repo": repo}
+
+
 def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, prompt=None,
          examples=None, split=None, limit=None, version_id=None, quant="auto", new=False,
          seed=42, max_new_tokens=None, max_length=None, batch_size=None, model=None,
@@ -326,7 +418,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
                   "(tập LỰA CHỌN, không phải test).")
     limit = limit if limit else limit_of(config_data)
     quant = quant or "auto"
-    model = model or config_data.get("hf_model") or qwen.MODEL_NAME
+    model = run_model(config_data, model)
     # Số review mỗi lượt sinh: tham số truyền vào (dòng lệnh) -> `inference.batch_size` của model.
     if not batch_size:
         batch_size = batch_size_of(model_id, config_data)
@@ -335,9 +427,8 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     # đăng ký luôn (`qwen.load_prompt`), vì các bước sau chỉ truyền được một cái TÊN.
     prompt_value = prompt or config_data.get("prompt")
     examples_value = examples if examples is not None else config_data.get("examples")
-    system_value = config_data.get("system_prompt")
-    prompt_obj = qwen.load_prompt(prompt_value, base_dir=exp_dir, examples=examples_value,
-                                  system=system_value)
+    prompt_obj = run_prompt(config_data, model_id, method, exp_id,
+                            prompt=prompt_value, examples=examples_value, base_dir=exp_dir)
     # Thông tin truy vết đọc từ CHÍNH prompt đã nạp (đường dẫn đã giải xong), không giải lại từ
     # config: hai chỗ giải đường dẫn là hai chỗ có thể lệch nhau.
     examples_info = prompt_obj.examples_info()
@@ -374,10 +465,11 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
                                  top_k=card.get("top_k"), seed=seed if sampled else None)
     max_length = effective_max_length(config_data, max_length)
 
-    tag = build_tag(prompt_obj.name, split, limit, sampled,
-                    quant if quant and quant != "auto" else None,
-                    model_tag(model, config_data))
-    out_dir, inside = out_dir_of(version_id, tag, model_id, method, exp_id)
+    identity = run_identity(config_data, version_id, prompt_obj, split, limit=limit,
+                            sampled=sampled, quant=effective_quant(quant, config_data),
+                            model=model, model_id=model_id, method=method, exp_id=exp_id)
+    tag = identity["tag"]
+    out_dir, inside = identity["out_dir"], identity["inside"]
     if not inside:
         print("LƯU Ý: chạy NGOÀI thí nghiệm nên kết quả đi vào {} (không thuộc thí nghiệm nào). "
               "Muốn kết quả nằm trong thí nghiệm thì chạy notebook của thí nghiệm.".format(
@@ -395,9 +487,10 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     }
 
     # Chạy mới hay chạy tiếp: quyết định ở MỘT chỗ (`src/resume.py`), dựa trên ba giá trị mà
-    # docs/00_workflow/02_rules.md mục 13 yêu cầu giống nhau (cấu hình, dữ liệu, mã repo).
-    repo = run_meta.repo_info(url=config_data.get("url"), branch=config_data.get("branch"))
-    config_sha256 = experiments.config_sha256(merged, prompt_text=prompt_obj.text)
+    # docs/00_workflow/02_rules.md mục 13 yêu cầu giống nhau (cấu hình, dữ liệu, mã repo). Ba giá
+    # trị đó lấy từ `run_identity` - cùng hàm mà preflight gọi, nên hai bên không thể lệch nhau.
+    repo = identity["repo"]
+    config_sha256 = identity["config_sha256"]
     parts = resume.Parts(out_dir)
     # Cột của bảng dự đoán: đường chạy này LUÔN gửi prompt cho model, nên bảng ghi luôn chuỗi đã gửi
     # (xem `records.columns`). Đường chạy model encoder sẽ khai bảng KHÔNG có cột này.

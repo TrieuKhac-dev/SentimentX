@@ -268,8 +268,8 @@ def _value(value):
 # ---
 
 
-def config_sha256(result, prompt_text=None):
-    """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT và VĂN BẢN PROMPT ĐÃ HỢP NHẤT.
+def config_sha256(result, prompt_text=None, side_files=None):
+    """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT, VĂN BẢN PROMPT, và CÁC FILE ĐI KÈM prompt.
 
     Vì sao băm cả văn bản prompt: prompt là một phần của thí nghiệm, mà nội dung nó nằm ở file
     riêng chứ không nằm trong config hợp nhất. Không băm thì hai thí nghiệm khác prompt sẽ mang
@@ -278,9 +278,32 @@ def config_sha256(result, prompt_text=None):
     `prompt_text`: dùng khi văn bản prompt KHÔNG lấy được từ thư mục thí nghiệm - công cụ chạy tay
     dùng prompt ở thư viện dùng chung (`configs/prompts/`).
 
+    `side_files`: `{nhãn: (đường dẫn, sha)}` của các file ĐI KÈM prompt - bộ ví dụ few-shot, khối hệ
+    thống. Phải băm cả chúng: hai bộ ví dụ khác nhau đi với cùng một prompt cho ra hai phép đo khác
+    nhau mà `prompt_sha` không đổi, nên thiếu chúng thì một lượt chạy bị ngắt sẽ RESUME trên bộ ví dụ
+    CŨ và trộn hai phép đo vào cùng một bảng (lỗi im lặng, sửa 25/09/2026).
+
     Ba giá trị quyết định resume (xem docs/00_workflow/02_rules.md): `config_sha256`, mã phiên
     bản dữ liệu, và commit đã ghim. Hàm này tính giá trị thứ nhất.
     """
+    digest = hashlib.sha256()
+    digest.update(b"config:")
+    digest.update(canonical_bytes(result["config"]))
+    digest.update(b"prompt:")
+    text = prompt_text if prompt_text is not None else prompt_merged(result)
+    # Chuẩn hoá kiểu xuống dòng trước khi băm: văn bản prompt đọc từ file nên trên Windows là CRLF
+    # còn trên Colab là LF. Không chuẩn hoá thì cùng một cấu hình, hai máy cho hai dấu vân tay khác
+    # nhau, và người đọc báo cáo tưởng đó là hai thí nghiệm khác nhau (xem `utils.normalize_text`).
+    digest.update(utils.normalize_text(text or "").encode("utf-8"))
+    for name, item in sorted((side_files or {}).items()):
+        if not item:
+            continue
+        path, sha = item
+        digest.update(b"side:")
+        digest.update(str(name).encode("utf-8"))
+        digest.update(b":")
+        digest.update(str(sha or path or "").encode("utf-8"))
+    return digest.hexdigest()
     digest = hashlib.sha256()
     digest.update(b"config:")
     digest.update(canonical_bytes(result["config"]))

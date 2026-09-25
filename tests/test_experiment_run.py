@@ -22,7 +22,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import config, dataset, experiment_run, experiments, paths, prompts, resume, runlog
+from src import (config, dataset, experiment_run, experiments, paths, preflight, prompts, resume,
+                 runlog, versioning)
 from src.preprocessing import qwen
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -296,6 +297,76 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
         finally:
             shutil.rmtree(str(tmp), ignore_errors=True)
 
+
+
+class RunIdentityTest(unittest.TestCase):
+    """`run_identity` là chỗ DUY NHẤT quyết định thư mục kết quả và dấu vân tay.
+
+    Vì sao khoá: `plan()` (lượt chạy thật) và `preflight` (kiểm trước) từng tính hai kiểu khác nhau.
+    preflight báo `NEW - chưa có lần chạy nào trong thư mục này` trong khi lượt chạy cùng lúc báo
+    `RESUME - chạy tiếp từ 16 mẫu đã xong`, vì preflight nhìn thư mục PHIÊN BẢN còn lượt chạy nhìn
+    thư mục LƯỢT CHẠY. Test này so hai đường với nhau trên đúng cấu hình của exp001.
+    """
+
+    MODEL = "qwen3-4b-instruct-2507"
+    METHOD = "prompt-cot"
+    EXP = "exp001"
+
+    def pieces(self):
+        result = experiments.load(self.MODEL, self.METHOD, self.EXP)
+        config = dict(result["config"])
+        prompt_obj = experiment_run.run_prompt(config, self.MODEL, self.METHOD, self.EXP)
+        ds = dataset.load_config(config["data"]["dataset"])
+        return result, config, prompt_obj, versioning.compute_id(ds)
+
+    def identity(self):
+        result, config, prompt_obj, version_id = self.pieces()
+        with mock.patch.dict(os.environ, {"SENTIMENTX_MODEL": ""}):
+            found = experiment_run.run_identity(
+                config, version_id, prompt_obj, "test",
+                limit=experiment_run.limit_of(config),
+                sampled=experiment_run.settings_of(config)[1],
+                quant=experiment_run.effective_quant("auto", config),
+                model=experiment_run.run_model(config, None),
+                model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
+        return result, config, prompt_obj, version_id, found
+
+    def test_preflight_looks_at_the_same_folder_and_fingerprint(self):
+        result, _config, _prompt, version_id, run_side = self.identity()
+        with mock.patch.dict(os.environ, {"SENTIMENTX_MODEL": ""}):
+            pre_dir, pre_fingerprint = preflight._fingerprint(
+                result, version_id, self.MODEL, self.METHOD, self.EXP)
+        self.assertEqual(pre_dir, run_side["out_dir"])
+        self.assertEqual(pre_fingerprint, run_side["fingerprint"])
+
+    def test_folder_name_carries_the_configuration_fingerprint(self):
+        _result, _config, _prompt, _version, found = self.identity()
+        self.assertIn("cfg{}".format(found["config_sha256"][:8]), found["tag"])
+        self.assertTrue(found["out_dir"].name.endswith(found["tag"]))
+        self.assertTrue(found["inside"], "thí nghiệm phải ghi kết quả vào thư mục của nó")
+
+    def test_quantization_shows_up_in_the_folder_name(self):
+        """4-bit và không lượng hoá là hai phép đo khác nhau: không được chung thư mục."""
+        _result, config, _prompt, _version, _found = self.identity()
+        four = experiment_run.build_tag(
+            "absa_cot_v1", "test", None, False, experiment_run.effective_quant("4bit", config))
+        none_quant = experiment_run.build_tag(
+            "absa_cot_v1", "test", None, False, experiment_run.effective_quant("none", config))
+        self.assertIn("4bit", four)
+        self.assertNotIn("4bit", none_quant)
+        self.assertNotEqual(four, none_quant)
+
+    def test_changing_the_examples_file_changes_the_fingerprint(self):
+        """Đổi bộ ví dụ mà dấu vân tay không đổi thì lượt chạy bị ngắt sẽ RESUME trên bộ ví dụ CŨ."""
+        _result, config, prompt_obj, version_id, found = self.identity()
+        other = experiment_run.run_identity(
+            config, version_id, prompt_obj, "test", limit=None, sampled=False,
+            quant=None, model=None, model_id=self.MODEL, method=self.METHOD, exp_id=self.EXP)
+        changed = experiments.config_sha256(
+            {"config": config}, prompt_text=prompt_obj.text,
+            side_files={"examples": ("configs/prompts/examples/absa_cot_v1.txt", "khac-sha")})
+        self.assertNotEqual(changed, found["config_sha256"])
+        self.assertNotEqual(other["fingerprint"], changed)
 
 
 class MaxLengthTest(unittest.TestCase):

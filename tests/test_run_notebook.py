@@ -16,7 +16,9 @@ Chạy: python -m unittest discover -s tests
 """
 
 import importlib.util
+import os
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -107,6 +109,36 @@ class TestEnvironmentAndState(unittest.TestCase):
     def test_newest_result_dir_is_empty_when_nothing_ran(self):
         with tempfile.TemporaryDirectory() as folder:
             self.assertIsNone(run_notebook.newest_result_dir(Path(folder)))
+
+    def test_newest_result_dir_ignores_folders_older_than_the_run(self):
+        """Thư mục cũ CÓ đúng cấu hình trùng vẫn không được nhận là "kết quả của lượt này"."""
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / "results" / "ma-du-lieu"
+            older = root / "prompt-x__val__greedy"
+            newer = root / "prompt-x__val__greedy__4bit"
+            older.mkdir(parents=True)
+            newer.mkdir(parents=True)
+            now = time.time()
+            os.utime(older, (now - 5000, now - 5000))
+            os.utime(newer, (now - 100, now - 100))
+            self.assertEqual(run_notebook.newest_result_dir(Path(folder)), newer)
+            self.assertIsNone(run_notebook.newest_result_dir(Path(folder), since=now - 10))
+
+
+class TestAlreadyFinished(unittest.TestCase):
+    """`Chế độ chạy: STOP` không phải lỗi: cấu hình này đã có kết quả của đúng code/config/dữ liệu.
+
+    Nhận ra nó để script không kể hai lỗi giả (`SystemExit` của ô chạy và `NameError: run_result` của
+    ô kết thúc phía sau) và trả về mã thoát 0.
+    """
+
+    def test_stop_line_is_recognised(self):
+        text = "Chế độ chạy: STOP - lần chạy trước đã XONG với đúng code, config và dữ liệu này\n"
+        self.assertTrue(run_notebook.already_finished(text))
+
+    def test_an_ordinary_run_is_not_stop(self):
+        text = "Chế độ chạy: NEW - chưa có lần chạy nào trong thư mục này\n"
+        self.assertFalse(run_notebook.already_finished(text))
 
 
 class TestStateDiff(unittest.TestCase):

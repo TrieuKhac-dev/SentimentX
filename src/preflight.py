@@ -24,6 +24,7 @@ sách. Lỗi thiếu đường dẫn còn được ghi vào `errors.json` mục 
 
 import csv
 import importlib.util
+import os
 from pathlib import Path
 
 from src import dataset as dataset_module
@@ -304,9 +305,13 @@ def state_report(out_dir, want, problems, notes, info, force_new=False):
     return mode
 
 
-def run(result, ds=None, version_id=None, out_dir=None, model_id=None, force_new=False,
-        log=None):
-    """Kiểm hết rồi trả về báo cáo. KHÔNG ném: notebook in ra rồi tự quyết định."""
+def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=None, exp_id=None,
+        force_new=False, log=None):
+    """Kiểm hết rồi trả về báo cáo. KHÔNG ném: notebook in ra rồi tự quyết định.
+
+    `method`/`exp_id`: khai khi kiểm cho một thí nghiệm - nhờ chúng mà việc kiểm "chạy mới hay chạy
+    tiếp" nhìn ĐÚNG thư mục của lượt chạy (`results/<mã>/<hậu tố>/`), không phải thư mục phiên bản.
+    """
     from src import repo
 
     problems, notes, info = [], [], {}
@@ -355,11 +360,27 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, force_new
 
     # 8. Chạy mới hay chạy tiếp, dùng chung quyết định với lúc chạy thật.
     if version_id:
-        want = _collect(problems, notes, "dấu vân tay cấu hình (config + prompt + dữ liệu)",
-                        _fingerprint, result, version_id)
-        if want:
-            state_report(out_dir, want, problems, notes, info, force_new=force_new)
-            info["fingerprint"] = want
+        if method and exp_id:
+            # Có đủ thông tin để tính ĐÚNG thư mục của lượt chạy: dùng nó cho cả dấu vân tay lẫn
+            # báo cáo trạng thái, nên "kiểm trước" và lượt chạy không thể nói hai chuyện khác nhau.
+            found = _collect(
+                problems, notes, "dấu vân tay cấu hình (config + prompt + ví dụ + dữ liệu)",
+                _fingerprint, result, version_id, model_id, method, exp_id)
+            if found:
+                out_dir, want = found
+                info["run_dir"] = out_dir
+                state_report(out_dir, want, problems, notes, info, force_new=force_new)
+                info["fingerprint"] = want
+        else:
+            notes.append(
+                "Không khai `method`/`exp_id` nên chưa tính được thư mục của LƯỢT CHẠY; trạng thái "
+                "dưới đây là của thư mục phiên bản, có thể khác lượt chạy thật.")
+            sha = _collect(problems, notes, "dấu vân tay cấu hình (config + prompt)",
+                           experiments.config_sha256, result)
+            if sha:
+                want = resume.fingerprint(sha, version_id, repo.current_sha())
+                state_report(out_dir, want, problems, notes, info, force_new=force_new)
+                info["fingerprint"] = want
 
     if log is not None:
         for item in notes:
@@ -372,17 +393,34 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, force_new
             "version_id": version_id}
 
 
-def _fingerprint(result, version_id):
+def _fingerprint(result, version_id, model_id=None, method=None, exp_id=None, out_dir=None):
     """Bộ ba quyết định chạy mới hay chạy tiếp, tách ra để `run()` thu LỖI thành VẤN ĐỀ.
+
+    Tính bằng CHÍNH `experiment_run.run_identity` - hàm mà lượt chạy thật dùng - nên hai bên luôn
+    nói cùng một chuyện. Trước 25/09/2026 chỗ này băm thiếu file ví dụ/khối hệ thống và nhìn thư mục
+    PHIÊN BẢN, nên preflight báo "NEW - chưa có lần chạy nào" trong khi lượt chạy báo "RESUME - chạy
+    tiếp từ 16 mẫu đã xong" trên cùng một thư mục.
 
     `config_sha256` phải đọc cả văn bản prompt, nên thiếu file prompt là lỗi ngay ở đây. Đó đúng là
     việc kiểm trước phải kể ra thành danh sách việc-phải-sửa: ném ra giữa chừng thì notebook dừng
     bằng vết gọi, người đọc không biết phải sửa chỗ nào.
-    """
-    from src import repo
 
-    return resume.fingerprint(experiments.config_sha256(result), version_id,
-                              repo.current_sha())
+    Trả về (thư mục kết quả, bộ ba) - thư mục là thư mục của LƯỢT CHẠY, không phải thư mục phiên bản.
+    """
+    from src import experiment_run
+
+    config = dict(result.get("config") or {})
+    model = experiment_run.run_model(config, os.environ.get("SENTIMENTX_MODEL") or None)
+    prompt_obj = experiment_run.run_prompt(config, model_id, method, exp_id)
+    roles = (config.get("data") or {}).get("roles") or {}
+    split = roles.get("eval") or "val"
+    sampled = experiment_run.settings_of(config)[1]
+    identity = experiment_run.run_identity(
+        config, version_id, prompt_obj, split,
+        limit=experiment_run.limit_of(config), sampled=sampled,
+        quant=experiment_run.effective_quant("auto", config), model=model,
+        model_id=model_id, method=method, exp_id=exp_id)
+    return identity["out_dir"], identity["fingerprint"]
 
 
 def check(*args, **kwargs):

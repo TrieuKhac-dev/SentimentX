@@ -218,9 +218,16 @@ def state_diff(before, after):
     return lost, added, moved
 
 
-def newest_result_dir(experiment_dir):
-    """Thư mục kết quả mới nhất của thí nghiệm (None nếu chưa có)."""
+def newest_result_dir(experiment_dir, since=None):
+    """Thư mục kết quả mới nhất của thí nghiệm (None nếu chưa có).
+
+    `since` (mốc thời gian): chỉ xét thư mục được ghi SAU mốc đó. Cần vì một thí nghiệm có thể có
+    nhiều thư mục kết quả (mỗi cấu hình một thư mục), và bản "mới nhất theo đồng hồ" có thể là thư mục
+    của lượt chạy khác - lúc đó phần tổng kết sẽ chỉ vào một thư mục không liên quan tới lượt vừa rồi.
+    """
     found = [path for path in (experiment_dir / "results").glob("*/*") if path.is_dir()]
+    if since is not None:
+        found = [path for path in found if path.stat().st_mtime >= since]
     if not found:
         return None
     return max(found, key=lambda path: path.stat().st_mtime)
@@ -243,10 +250,11 @@ def start_kernel(cwd):
 def run_cell(kc, source, sink=None):
     """Chạy một ô, in đầu ra NGAY khi nó tới (lượt chạy dài nên phải thấy tiến độ).
 
-    Trả về danh sách lỗi của ô (rỗng nghĩa là ô chạy sạch).
+    Trả về (danh sách lỗi, toàn bộ đầu ra dạng chuỗi) - đầu ra để chỗ gọi nhận ra những kết cục
+    KHÔNG phải lỗi, ví dụ `Chế độ chạy: STOP` (cấu hình này đã chạy xong rồi).
     """
     message_id = kc.execute(source)
-    errors = []
+    errors, chunks = [], []
     while True:
         message = kc.get_iopub_msg(timeout=CELL_TIMEOUT)
         if message["parent_header"].get("msg_id") != message_id:
@@ -263,11 +271,22 @@ def run_cell(kc, source, sink=None):
         elif kind == "status" and message["content"]["execution_state"] == "idle":
             break
         if text:
+            chunks.append(text)
             print(text if text.endswith("\n") else text + "\n", end="")
             if sink is not None:
                 sink.write(text if text.endswith("\n") else text + "\n")
                 sink.flush()
-    return errors
+    return errors, "".join(chunks)
+
+
+def already_finished(text):
+    """Ô chạy có nói `Chế độ chạy: STOP` - cấu hình này đã xong, không có gì để chạy lại.
+
+    Đây KHÔNG phải lỗi: `src/experiment_run.py` cố ý dừng để không chạy lại một phép đo đã có. Nhưng
+    nó thoát bằng `SystemExit`, và ô kết thúc phía sau sẽ lỗi `NameError: run_result` vì chưa có kết
+    quả - nên script phải nhận ra và dừng luôn ở đó thay vì kể hai lỗi giả.
+    """
+    return "Trạng thái     : STOP" in text or "Chế độ chạy: STOP" in text
 
 
 def main(argv=None):
@@ -288,6 +307,7 @@ def main(argv=None):
     describe_state("Repo trước ", before)
 
     work = Path(tempfile.mkdtemp(prefix="sentimentx-run-"))
+    started_at = time.time()
     sink = open(args.log, "w", encoding="utf-8") if args.log else None
     try:
         print("\n=== Kéo commit đã ghim vào {} ===".format(work))
@@ -312,14 +332,42 @@ def main(argv=None):
 
         km, kc = start_kernel(work)
         failures = 0
+        interrupted = False
+        finished_already = False
         try:
             if args.limit:
                 print("\n=== Ô chèn thêm: chạy thử n = {} ===".format(args.limit))
-                failures += len(run_cell(kc, LIMIT_PRELUDE.format(limit=args.limit), sink))
+                try:
+                    prelude_errors, _text = run_cell(
+                        kc, LIMIT_PRELUDE.format(limit=args.limit), sink)
+                    failures += len(prelude_errors)
+                except KeyboardInterrupt:
+                    interrupted = True
             for index, source in enumerate(kernels):
+                if interrupted:
+                    break
                 started = time.time()
                 print("\n=== Ô {} bắt đầu {} ===".format(index, time.strftime("%H:%M:%S")))
-                errors = run_cell(kc, source, sink)
+                try:
+                    errors, text = run_cell(kc, source, sink)
+                except KeyboardInterrupt:
+                    # Ctrl+C ở terminal tới CẢ script này và kernel (cùng nhóm tiến trình). Không in
+                    # traceback: người chạy chủ động dừng, việc cần biết là dừng có mất gì không.
+                    interrupted = True
+                    print("\n=== DỪNG theo yêu cầu (Ctrl+C) ở ô {} lúc {} ===".format(
+                        index, time.strftime("%H:%M:%S")))
+                    print("Các lô đã xong vẫn nằm trong predictions/part_*.jsonl của thư mục kết quả,")
+                    print("và lần chạy sau sẽ tự RESUME từ đúng chỗ đó - không phải làm lại từ đầu.")
+                    break
+                if already_finished(text):
+                    # Cấu hình này đã chạy xong ở lượt trước (cùng code, config, dữ liệu): không có
+                    # gì để làm, và các ô sau cố ý không chạy được vì chưa có kết quả mới.
+                    finished_already = True
+                    failures += len(errors)
+                    print("\n(Ô chạy báo STOP: cấu hình này đã chạy xong ở lượt trước nên không chạy "
+                          "lại. Muốn chạy lại từ đầu thì xoá thư mục kết quả, hoặc dùng `--new` với "
+                          "`run_qwen_eval.py`.)")
+                    break
                 failures += len(errors)
                 print("=== Ô {} xong sau {:.0f} giây{} ===".format(
                     index, time.time() - started, " (CÓ LỖI)" if errors else ""))
@@ -327,7 +375,7 @@ def main(argv=None):
             kc.stop_channels()
             km.shutdown_kernel(now=True)
 
-        result = newest_result_dir(experiment_dir)
+        result = newest_result_dir(experiment_dir, since=started_at)
         print("\n=== Kết quả ===")
         if result is None:
             print("Chưa thấy thư mục kết quả nào trong {}".format(experiment_dir / "results"))
@@ -350,6 +398,12 @@ def main(argv=None):
         if added:
             print("(Lượt chạy sinh thêm {} mục mới trong repo - đó là kết quả, không phải thay đổi "
                   "của bạn.)".format(len(added)))
+        if interrupted:
+            return 130
+        if finished_already and not failures:
+            print("Kết luận: cấu hình này ĐÃ CÓ kết quả của đúng code + config + dữ liệu này; "
+                  "không chạy lại.")
+            return 0
         return 1 if failures else 0
     finally:
         if sink is not None:

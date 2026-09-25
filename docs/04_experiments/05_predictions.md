@@ -9,10 +9,60 @@
 
 `experiments/<model_id>/<method>/expNNN/results/<mã dữ liệu>/<hậu tố>/predictions.csv`
 
-- `<hậu tố>` ghi rõ cấu hình của lượt chạy: `prompt-<tên prompt>__<split>__n<số>__greedy[__<model>]`.
-  Ví dụ `prompt-absa_cot_v1__val__n200__greedy` = prompt `absa_cot_v1`, chấm trên `val`, 200 mẫu,
-  sinh greedy. Phần `__<model>` chỉ xuất hiện khi lượt chạy dùng model KHÁC `checkpoint` trong config
-  (ví dụ trọng số có sẵn trên đĩa của máy cá nhân).
+- `<hậu tố>` là DANH TÍNH của lượt chạy, ghép theo thứ tự:
+  `prompt-<tên prompt>__<split>[__n<N>]__<greedy|sample>[__<quant>][__<model>]__cfg<sha8>`.
+
+  | Phần | Có khi | Nghĩa |
+  | --- | --- | --- |
+  | `prompt-<tên>` | luôn | Tên file prompt đang hỏi (`absa_cot_v1`) |
+  | `<split>` | luôn | Chấm trên tập nào (`val`/`test`) |
+  | `n<N>` | khi chấm một tập con | Số mẫu (`n8`, `n200`); vắng mặt = cả split |
+  | `greedy`/`sample` | luôn | Cách sinh (`evaluation.decoding`) |
+  | `<quant>` | khi model được lượng hoá | `4bit`… Lấy từ `inference.quantization` của config, hoặc tham số dòng lệnh |
+  | `<model>` | khi model khác `checkpoint` của config | Đoạn cuối đường dẫn model (`Qwen3-4B-Instruct-2507` cho `data/models/Qwen3-4B-Instruct-2507`) |
+  | `cfg<sha8>` | luôn | Tám ký tự đầu của **dấu vân tay cấu hình**: nội dung prompt, file ví dụ, khối hệ thống, các lớp config, ngưỡng cắt… |
+
+  Ví dụ: `prompt-absa_cot_v1__test__greedy__4bit__Qwen3-4B-Instruct-2507__cfg1a2b3c4d`.
+
+  **Vì sao có `cfg<sha8>`:** đây là phần bảo đảm lời hứa "khác cấu hình thì khác thư mục". Không có nó,
+  sửa nội dung file prompt (giữ nguyên tên) hoặc đổi bộ ví dụ few-shot vẫn cho ra CÙNG tên thư mục -
+  bảng kết quả của hai phép đo khác nhau nằm chung một chỗ. `2507` trong phần `<model>` là phiên bản
+  của model (tháng 7/2025) lấy từ chính tên model.
+
+### 1.1. Khi nào chung thư mục, khi nào khác
+
+| Thay đổi | Thư mục kết quả | Vì sao |
+| --- | --- | --- |
+| **Model khác** (`model_id` khác, ví dụ `phobert-base-v2`) | **Khác thư mục ở cấp trên**: `experiments/<model_id>/…` | `model_id` nằm trong đường dẫn thí nghiệm |
+| Dùng trọng số khác cho cùng `model_id` (`SENTIMENTX_MODEL`, `--model`) | **Khác** (thêm `__<tên model>`) | Cùng tên nhưng hai bộ trọng số là hai phép đo |
+| Lượng hoá khác (`4bit` so với không lượng hoá) | **Khác** (thêm `__4bit`) | 4-bit và bf16 cho số khác nhau - không được chung |
+| Nội dung prompt đổi (giữ nguyên tên file) | **Khác** (`cfg…` đổi) | Câu hỏi đã đổi |
+| Bộ ví dụ few-shot đổi (0/1/2/5 ví dụ) | **Khác** (`cfg…` đổi) | Prompt gửi model đã đổi |
+| Ngưỡng cắt `max_length` đổi | **Khác** (`cfg…` đổi) | Input bị cắt khác đi |
+| `split` khác, `n` khác, `greedy`/`sample` khác | **Khác** (phần tương ứng trong tên) | Ba thứ này quyết định chấm cái gì và sinh thế nào |
+| **Code (commit) đổi** - kể cả sửa nhỏ trong `src/` | **CÙNG thư mục** | Đây là "chạy lại cùng phép đo bằng bản code khác"; bộ kết quả cũ được chuyển vào `predictions/_bo-qua-<thời điểm>` và lượt mới ghi vào chính thư mục đó |
+| Máy chạy khác (Colab so với local), batch size, `max_new_tokens`, seed | **CÙNG thư mục** | Không đổi phép đo; chúng nằm trong `run_meta.json` (`env.device`, `env.gpu`, `inference.batch_size`…) |
+| Dữ liệu đổi (phiên bản dữ liệu khác) | **Khác** (thư mục `<mã dữ liệu>`) | Chấm trên bộ dữ liệu khác |
+
+### 1.2. Chạy tiếp (RESUME) hay chạy mới
+
+Một thư mục kết quả giữ được nhiều "attempt" (mỗi lần chạy ghi một mục vào `run_meta.json`). Quyết
+định nằm ở MỘT chỗ (`src/resume.py`) và dựa trên **bộ ba**: `config_sha256` (config + nội dung prompt +
+file ví dụ + khối hệ thống), mã phiên bản dữ liệu, và commit đã ghim.
+
+| Trạng thái trong thư mục | Bộ ba của lượt này | Kết quả |
+| --- | --- | --- |
+| Chưa có attempt nào | — | `NEW` |
+| Attempt trước XONG, bộ ba khớp | khớp | `STOP` - không chạy lại (muốn chạy lại: xoá thư mục kết quả, hoặc `--new` với `run_qwen_eval.py`) |
+| Attempt trước XONG, bộ ba KHÁC | khác | `NEW` - số cũ không so được với số mới |
+| Attempt trước bị ngắt, bộ ba khớp | khớp | `RESUME` - chạy tiếp từ `predictions/part_*.jsonl`, điểm vẫn tính trên cả split |
+| Attempt trước bị ngắt, bộ ba KHÁC | khác | `NEW` - kết quả đã ghi bị bỏ qua (chuyển vào `_bo-qua-*`) |
+
+**Kiểm trước và lượt chạy phải nói cùng một chuyện.** Cả hai gọi `experiment_run.run_identity()` -
+hàm duy nhất tính `tag`, thư mục kết quả và bộ ba - nên trạng thái in ở ô kiểm trước đúng bằng trạng
+thái ô chạy sẽ dùng. (Trước 25/09/2026 thì không: ô kiểm trước nhìn thư mục PHIÊN BẢN nên báo `NEW`
+trong khi ô chạy báo `RESUME - chạy tiếp từ 16 mẫu đã xong`.)
+
 - Đây là file **nặng**: mỗi dòng mang cả prompt đã gửi và câu trả lời nguyên văn, nên `.gitignore`
   chặn nó khỏi git. Muốn đưa cho người khác thì gửi kèm, đừng commit.
 - Mỗi DÒNG = một **ô** (một review × không phải một khía cạnh): mỗi dòng là một review với cả 7 khía
