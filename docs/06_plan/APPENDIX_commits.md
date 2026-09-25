@@ -175,3 +175,5 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | CI cho phép `eval_lock.json` được git theo dõi (metadata, như `processing_log.json`) | `fix(checks): the evaluation lock is metadata, so CI must not flag it` |
 | `repo.prepare()` không gỡ `origin` và không fetch `--depth 1` trên repo máy cá nhân (mất ref `origin/*`, repo thành nông) | `fix(repo): take the pinned commit without touching the developer's remotes` |
 | Ghi lại hai việc của máy cá nhân: kernel cần `ipykernel`, và `git fetch origin` một lần để có `origin/experiment` | `docs(env): document the local Jupyter kernel and the one-time fetch` |
+| `repo.prepare()` cập nhật ref `origin/<nhánh>` trước khi kết luận (ref trong máy cũ ngay sau khi push) | `fix(repo): refresh the branch ref before judging the pinned commit` |
+| Ghim lại notebook exp001 (`75cbdb6`) và đính chính sha ghi sai trong chính commit ghim | `chore(experiments): pin 75cbdb6 into the exp001 notebook`, `docs(experiments): name the sha the pin actually wrote` |
