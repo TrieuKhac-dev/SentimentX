@@ -21,7 +21,7 @@
 | P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
 | P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | xong T1..T6; DoD "kéo code theo sha trên Colab thật" ĐÃ có bằng chứng (hai lần chạy thật); còn DoD "gốc kết quả trên Drive" |
 | P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | xong T1..T7 (T5–T7 đã soát lại 25/09/2026) |
-| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: xong T1 (dataset `...-e0ccc484`) và T2 (EDA + report); còn T3..T5 |
+| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: T1 (dataset `...-e0ccc484`) và T2 (EDA + report) xong; T3 nay gồm SÁU thí nghiệm (2 LoRA + 3 mức ví dụ + exp001 2 ví dụ) đã dựng và ghim (`eb8b0ef`), chờ GPU của Colab để ra số; còn T4, T5 |
 | -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 
 Bảng trên là **nguồn duy nhất** nói đang ở bước nào: sửa mục 2 của file con thì sửa luôn dòng tương

@@ -34,21 +34,25 @@ Pipeline giữ nguyên bốn trạng thái.
 | `scores`           | danh sách tên chỉ số cần tính; tên phải có trong registry `SCORERS`, thiếu tên thì báo lỗi                  |
 | `group_by`         | chiều phân rã bảng chỉ số, ví dụ theo `aspect` và `sentiment`                                               |
 | `save.predictions` | ghi `predictions.csv` hay không                                                                             |
-| `save.plots`       | ghi thư mục `plots/` hay không                                                                              |
+| `save.plots`       | giữ chỗ cho biểu đồ sinh kèm lượt chạy; hiện biểu đồ do bước sinh báo cáo vẽ từ `metrics.json`, nên khoá này chưa có tác dụng và không nên bật với hy vọng có thêm hình               |
 | `save.confusion`   | ghi ma trận nhầm theo khía cạnh hay không                                                                   |
 
 ## training.yaml - huấn luyện
 
 | Khoá                                                          | Ý nghĩa                                                                                 |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `enabled`                                                     | `true` với thí nghiệm LoRA hoặc QLoRA. Khi `true`, `roles` bắt buộc có `train` và `val` |
-| `lora.r`, `lora.alpha`, `lora.dropout`, `lora.target_modules` | tham số LoRA                                                                            |
+| `enabled`                                                     | `true` với thí nghiệm huấn luyện. Khi `true`, `roles` bắt buộc có `train` và `val`       |
+| `trainer`                                                     | cách huấn luyện, phải có tên trong registry `TRAINERS` (`src/training/`); hiện có `lora` |
+| `lora.r`, `lora.alpha`, `lora.dropout`                        | hệ số LoRA (thứ RIÊNG của từng kiến trúc như `lora.target_modules` khai ở config model)   |
 | `lr`, `batch`, `epochs`, `grad_accum`, `weight_decay`         | tham số huấn luyện. `weight_decay` là weight decay thật                                 |
 | `checkpoints.every_n_steps`                                   | lưu checkpoint mỗi bao nhiêu bước                                                       |
 | `checkpoints.keep_last_k`                                     | giữ bao nhiêu checkpoint gần nhất để resume; cũ hơn thì xoá                             |
 | `checkpoints.save_last`                                       | lưu `model/last` đủ để chạy tiếp                                                        |
 | `checkpoints.save_best`                                       | lưu `model/best` theo chỉ số trên `val`                                                 |
 | `checkpoints.delete_intermediate`                             | xoá ngay các `checkpoint-*` trung gian sau mỗi lần lưu, để tiết kiệm Drive              |
+
+Ai đọc những khoá này: `src/training/lora.py` (đường chạy encoder), gọi từ `src/encoder_run.py`.
+Chi tiết checkpoint và cách chạy tiếp: `docs/04_experiments/06_lora_encoder.md`.
 
 Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là tên model trên Hugging Face
 ở lớp `configs/models/<model_id>.yaml`; trùng tên thì lớp sau đè mất lớp trước mà không báo gì.

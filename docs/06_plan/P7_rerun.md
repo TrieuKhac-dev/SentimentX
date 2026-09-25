@@ -17,6 +17,14 @@ Còn T3..T5: chạy baseline 0/1/5-shot, sinh bảng so với công bố, và v�
 GPU: trên máy cá nhân (RTX 3050 6GB) một lượt Qwen3-4B 4-bit tốn khoảng 10 giây/mẫu, mà tập `test` có
 1518 mẫu - nên chúng thuộc lượt chạy trên Colab, cùng lượt bàn giao ở T5.
 
+*Cập nhật 25/09/2026 - đợt thí nghiệm thứ hai:* T3 nay gồm SÁU thí nghiệm thay vì ba, và cả sáu đã
+dựng xong, ghim CÙNG một bản code (`eb8b0ef` đã đẩy lên nhánh `experiment`) và nằm trong gói bàn
+giao: hai lượt LoRA cho encoder (`visobert/lora/exp001`, `phobert-base-v2/lora/exp001`) và ba mức ví
+dụ của công bố trên Qwen3 (`prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ). Đường
+huấn luyện encoder được thêm trong đợt này (`src/encoder_run.py`, `src/training/lora.py`), và nó đã
+chạy trọn vẹn một lượt thu nhỏ trên máy cá nhân trước khi ghim. Sáu con số của tập `test` vẫn đang
+chờ máy GPU của Colab.
+
 ## 3. Task nhỏ (mỗi task một commit)
 
 - [x] T1. Chạy lại pipeline để sinh phiên bản dataset đầu tiên theo cấu trúc mới.

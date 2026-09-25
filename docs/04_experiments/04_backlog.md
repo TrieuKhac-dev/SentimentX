@@ -25,7 +25,12 @@ viết thêm code chỉ là suy đoán, không phải tái lập.
 (`MODEL_NAME`, `tokenizer`, `encode`, `words`, `info`) để đo được độ dài
 input như 3 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
 
-## 2. Chạy Qwen3 theo hướng CHỈ DẪN (prompt + CoT) - chưa làm
+## 2. Chạy Qwen3 theo hướng CHỈ DẪN (prompt + CoT) - ĐÃ DỰNG (đợt 2)
+
+*Cập nhật 25/09/2026:* ba mức ví dụ của công bố đã thành ba thí nghiệm
+(`qwen3-4b-instruct-2507/prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ), cạnh
+`exp001` (2 ví dụ, mức nội bộ của nhóm). Cả bốn chấm trên tập `test` và đã ghim cùng một bản code,
+chờ máy GPU của Colab để ra số. Phần mô tả dưới đây giữ nguyên vì nó giải thích VÌ SAO đi hướng này.
 
 **Việc:** cho Qwen3 trả lời tập test bằng prompt (zero-shot / few-shot / CoT), rồi đo tỉ
 lệ JSON hợp lệ và F1. **Không fine-tune.**
@@ -160,4 +165,7 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 | `nbstripout` cài trên từng máy | chưa cài | CI kiểm notebook sạch output ở kiểm tra 3, nên vẫn chặn được notebook kèm output |
 | `mlflow_tags` đủ 8 nhãn và `artifacts` có `plots` | làm gọn hơn | Hiện gắn `model`, `method`, `exp_id`; `sha` và `config_sha256` đã nằm trong `run_meta.json` (được tải lên làm artifact) nên tra được từ run |
 | Thư mục `data/reports/model_eval/**` | **ĐÃ BỎ 25/09/2026** | Bằng chứng của lượt kiểm resume ngày 24/09/2026 nằm ở đó (xem `docs/06_plan/P4_logging_mlflow.md` T8) đã bị xoá cùng lần dựng lại dữ liệu; kết quả của nhóm nay chỉ nằm trong `experiments/**/results/<hash8>/` |
+| Huấn luyện LoRA cho PhoBERT / ViSoBERT | **ĐÃ LÀM (đợt 2, 25/09/2026)** | `src/training/lora.py` (registry `TRAINERS`) và `src/encoder_run.py`, hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Từ đợt này `training.yaml` hết là khai báo suông: `trainer`, `checkpoints.*` đều có nơi đọc |
+| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/dataset.py` |
+| `save.plots` trong `configs/experiments/evaluation.yaml` | chưa có tác dụng | Biểu đồ do bước sinh báo cáo vẽ từ `metrics.json`; khoá này nay đã được ghi rõ trong `docs/05_config/05_experiments_shared.md` để không ai bật nó mà chờ hình |
 

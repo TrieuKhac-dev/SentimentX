@@ -50,7 +50,10 @@ Các file này là số liệu tham chiếu, **không** được sinh tự độ
    (`data/processed/<mã>/eval_lock.json`), ghi ngay từ bản dữ liệu đầu tiên.
 2. Dùng đúng metric trong `docs/04_experiments/metrics.md`.
 3. Loại neutral và OTHERS giống công bố.
-4. Kết quả phải có `valid: true` và `comparable: true` trong bảng tổng hợp.
+4. Kết quả chỉ được dùng khi commit đã ghim nằm trên nhánh `experiment`, và khi merge vào nhánh đó
+   không phải sửa file nào (`docs/00_workflow/02_rules.md` luật 3-4). Cột `valid`/`comparable` trong
+   bảng tổng hợp để máy tự kiểm điều này là việc **chưa làm** - xem
+   `docs/04_experiments/04_backlog.md` mục 6.
 
 Phần **huấn luyện và pipeline xử lý dữ liệu thì được tự do thay đổi**, miễn là giữ tập test
 và metric. Mục tiêu là kết quả **nhỉnh hơn** công bố, không chỉ tái hiện.

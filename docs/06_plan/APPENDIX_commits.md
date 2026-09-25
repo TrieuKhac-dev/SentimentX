@@ -193,4 +193,25 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Trang `05_predictions.md`: bảng giá trị `kiểu đọc`/`tình trạng đọc` và cách ghi ô nhiều dòng | `docs(experiments): explain the reading route and the reason column` |
 | Bỏ nốt dấu vết bài 4 nhãn: câu quy trình trong prompt và ví dụ 5-shot không còn dùng `mã 3` | `fix(prompts): stop teaching a code the binary task does not score` |
 | Ngưỡng cắt ghi đè được từ config thí nghiệm (trước đây đọc thẳng file cấu hình model) | `fix(config): let the experiment override max_length` |
+
+## Đợt hai: đường chạy encoder (LoRA) và sáu thí nghiệm
+
+| Việc | Commit |
+| ---- | ------ |
+| `approach` thành khoá bắt buộc của config model; `lora.target_modules` về config model (tên module khác nhau theo kiến trúc); `trainer` được whitelist; bỏ khối chết sau `config_sha256` | `feat(models): declare the run approach and per-model LoRA targets` |
+| Registry `TRAINERS` và `src/training/lora.py`: LoRA, loss có mask cho ô neutral bị loại, checkpoint `model/last` + `model/best` | `feat(training): add the LoRA trainer registry for encoder models` |
+| `src/encoder_run.py` và chỗ rẽ nhánh trong `experiment_run`; phần chấm điểm và ghi kết quả dùng chung với đường prompt | `feat(experiments): run encoder experiments with LoRA training` |
+| Preflight tính CÙNG dấu vân tay với lượt chạy encoder và kiểm config huấn luyện trước khi nạp dữ liệu | `feat(preflight): check encoder runs without a prompt` |
+| Test cho `approach`, khoá huấn luyện, checkpoint, loss có mask, dấu vân tay encoder, cột dự đoán dùng chung | `test(training): cover the approach key, checkpoints and the encoder path` |
+| Ô bootstrap cài `peft` và `default-jdk` khi model của thí nghiệm cần | `feat(notebook): install peft and a JDK when the run needs them` |
+| Năm thí nghiệm mới: hai lượt LoRA cho encoder và ba mức ví dụ của công bố | `feat(experiments): add two LoRA runs and the three CoT prompt levels` |
+| Hai lỗi lộ ra khi chạy thật: encoder ở bf16 so với đầu phân loại ở fp32, và `inputs_embeds` do peft truyền vào | `fix(training): align the head dtype with the encoder and ignore extra kwargs` |
+| `log_config` giữ dòng hạt giống; `notes` là khoá hợp lệ của config thí nghiệm | `fix(experiments): log the seed from log_config and accept the notes key` |
+| Ghim CÙNG một bản code cho cả sáu notebook | `chore(experiments): pin one code revision into all six notebooks` |
+| Bảng `model_input` không đọc lại chính file nó ghi ra - nguồn của các cột trùng tên `file.1`, `file.2` | `fix(reports): read only the measurement tables, never the aggregate they feed` |
+
+21 commit của đợt trước viết tiếng Việt, không theo quy ước `type(scope): subject`. Chúng được giữ
+nguyên: luật của dự án cấm viết lại lịch sử sau commit đầu tiên (sha ghim trong notebook phải luôn
+còn hiệu lực). Từ đợt hai trở đi, mọi commit viết tiếng Anh theo đúng quy ước.
+
 | Đổi tên cột `lí do` -> `tình trạng đọc`, và ghi chú bốn trạng thái của dataset so với không gian nhãn của thí nghiệm | `refactor(evaluation): name the parse verdict column for what it is` |

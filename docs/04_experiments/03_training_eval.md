@@ -194,7 +194,7 @@ Bốn điều đọc ra từ bảng này:
 
 | Việc                                              | Bắt đầu từ đâu                                                                               |
 | ------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Huấn luyện PhoBERT (× 4 bộ tách từ) và ViSoBERT   | chưa có script; dùng `loader.to_multi_head_arrays()` với `preprocess.max_length` của từng model trong `configs/models/`  |
+| Huấn luyện PhoBERT và ViSoBERT                    | đã có: hai thí nghiệm `visobert/lora/exp001` và `phobert-base-v2/lora/exp001`, chạy bằng `src/training/lora.py`. Muốn chạy tiếp hoặc đổi tham số: `docs/04_experiments/06_lora_encoder.md` |
 | Tăng `n` lên 300-500 cho hai cấu hình chính | khai `n: 300` trong `experiments/<model>/<method>/<expNNN>/config.yaml` rồi Run all (khoảng 5-35 phút tuỳ prompt); `n` khác ⇒ hash khác nên không lẫn với lượt chạy cả split |
 | Đo dao động                                       | khai `decoding: sample` trong config thí nghiệm và chạy vài lần (đổi `seed` ⇒ hash khác, mỗi lần một thư mục) |
 | Self-consistency (lấy mẫu nhiều lần rồi bỏ phiếu) | hạ tầng đã có: chạy `sample` nhiều seed rồi bỏ phiếu theo từng ô                           |

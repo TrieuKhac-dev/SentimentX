@@ -79,6 +79,31 @@ hệ thống một lần ở `configs/prompts/system/<tên>.txt` rồi cho các 
 Ngoài ra: giá trị của mỗi vai phải là khoá có thật trong `splits` của file dataset version.
 Chấm trên `train` bị chặn, vì đó là rò rỉ dữ liệu.
 
+## Thí nghiệm dùng model encoder thì khác gì
+
+Model encoder (`approach: encoder`) học từ dữ liệu gán nhãn, nên config của nó:
+
+- KHÔNG khai `prompt`, `examples`, `system_prompt` - không có câu chỉ dẫn nào để gửi cho model.
+- Bắt buộc `enabled: true` và đủ ba vai `train`, `val`, `eval`: học từ `train`, chọn `model/best`
+  theo `val`, chấm trên `eval`. Thiếu `val` thì không có cơ sở chọn model tốt nhất.
+- Tham số huấn luyện lấy từ `configs/experiments/training.yaml`; phần riêng của kiến trúc (ví dụ
+  `lora.target_modules`) lấy từ `configs/models/<model_id>.yaml`.
+
+```yaml
+exp_id: exp001
+model: visobert
+method: lora
+notes: "LoRA cơ bản trên ViSoBERT, chấm trên test"
+data:
+  dataset: cosmetics
+  version: v0.1.0
+  roles: {train: train, val: val, eval: test}
+enabled: true
+```
+
+Chi tiết đường chạy (checkpoint, chạy tiếp, thiết bị cần gì):
+`docs/04_experiments/06_lora_encoder.md`.
+
 ## Thứ tự hợp nhất
 
 ```

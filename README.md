@@ -20,26 +20,30 @@ Ta giải quyết **7 aspect**: `stayingpower`, `texture`, `smell`, `price`, `co
 Dự án tách rõ ba việc khác nhau, **không trộn vào nhau**:
 
 ```
-                  RAW DATA  (data/raw/<tên dataset>)
-                       │
-         ┌─────────────┴─────────────┐
-         ▼                           ▼
-        EDA                    DATA PIPELINE
- "Dữ liệu đang thế nào?"   "Ta sẽ xử lý thế nào?"
-         │                           │
-         └─────────────┬─────────────┘
-                       ▼
-              FILE KẾT QUẢ (JSON + CSV)
-             data/reports/<pha>/versions/<mã>/
-                       │
-                       ▼
-                  BUILD REPORT
-      Plotly (biểu đồ) + Jinja2 (giao diện) → HTML / MD
-                       │
-                       ▼
-            MODEL PREPROCESSING (Pha 3)
-       PhoBERT / ViSoBERT / Qwen3-4B
-     (ViTASA đang gác — xem docs/04_experiments/04_backlog.md)
+RAW DATA (data/raw/<tên>/<phiên bản>/)
+    |
+    +--> EDA            "Dữ liệu đang thế nào?"      (src/eda/)
+    |
+    +--> DATA PIPELINE  "Ta xử lý thế nào?"          (src/pipeline/)
+             |
+             v
+    dataset có phiên bản: data/processed/<mã>/
+        train.csv, val.csv, test.csv, label_map.json, processing_log.json,
+        eval_lock.json, pipeline/ (báo cáo), eda/ (số đo)
+             |
+             v
+    THÍ NGHIỆM (experiments/<model_id>/<method>/<expNNN>/)
+        approach: prompt  -> Qwen3-4B / Qwen3-0.6B: gửi câu chỉ dẫn rồi đọc trả lời
+        approach: encoder -> PhoBERT / ViSoBERT: học LoRA rồi suy luận
+             |
+             v
+    KẾT QUẢ: experiments/**/results/<hash8>/  (metrics.json, run.log, ...)
+             |
+             v
+    BÁO CÁO TỔNG HỢP: data/reports/  (dataset_registry, experiment_registry,
+    model_input, metrics_matrix)
+
+(ViTASA đang gác - xem docs/04_experiments/04_backlog.md)
 ```
 
 | Pha | Trả lời câu hỏi | Ở đâu trong repo |

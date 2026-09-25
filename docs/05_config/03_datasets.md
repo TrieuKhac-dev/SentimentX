@@ -67,6 +67,11 @@ Vì sao số đo không nằm trong file phiên bản: `sha256` của `test.csv`
 chạy, mà file phiên bản thì bất biến (sửa là guard chặn). Ghi số đo cùng dữ liệu nghĩa là **bản dữ
 liệu đầu tiên đã có khoá** - không phải chờ tới phiên bản sau, và không có chỗ hở ở gốc chuỗi.
 
+Cập nhật 25/09/2026: câu chú thích cũ trong `configs/datasets/cosmetics/v0.1.0.yaml` (điền số đo vào
+phiên bản KẾ TIẾP) đã lạc hậu so với cách làm này, nhưng **không sửa được tại chỗ**: nội dung file
+phiên bản đi vào mã phiên bản dữ liệu, nên sửa một dòng chú thích là mã đổi (đã thử và mã đúng là
+đổi thật), và mọi kết quả cũ không còn tra được. Câu đó sẽ được thay khi tạo phiên bản dataset mới.
+
 Cách hoạt động:
 
 - Pipeline ghi `eval_lock.json` khi export. Ghi lần hai với giá trị KHÁC là LỖI kèm hướng dẫn tạo
