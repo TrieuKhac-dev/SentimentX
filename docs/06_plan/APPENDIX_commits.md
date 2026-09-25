@@ -166,3 +166,6 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Trang hướng dẫn chạy notebook trên máy cá nhân | `docs(workflow): add the page for running the notebook on a local machine` |
 | Notebook gọi `plan()` mà không truyền `batch_size`, còn plan không lấy từ config: lượt chạy chết ở `range(0, n, None)` | `fix(run): a plan without a batch size reads it from the model config` |
 | Ô chạy đọc `SENTIMENTX_MODEL` để dùng trọng số có sẵn trên máy | `feat(notebook): let a machine point at the weights it already has` |
+| Giữ lượt chạy thứ ba, đi đúng đường của notebook (batch từ config, model từ biến môi trường) | `chore(experiments): keep the run made through the path the notebook uses` |
+| Ghim lại `exp001` (bản code có sửa `batch_size`) | `chore(experiments): pin 6247e73 so the reader gets the batch size fix` |
+| Chỉ nhận bf16 khi máy có hỗ trợ THẬT, không nhận bản giả lập phần mềm (T4 của Colab) | `fix(evaluation): ask for real bf16 support, not software emulation` |
