@@ -33,6 +33,21 @@ pip install -r requirements.txt
   trường `SENTIMENTX_MODEL=data/models/Qwen3-4B-Instruct-2507` TRƯỚC khi mở Jupyter; bỏ trống thì
   notebook dùng `checkpoint` trong `configs/models/<model_id>.yaml` (tải một lần vào cache
   `~/.cache/huggingface`, các lần sau dùng lại).
+- Kernel Jupyter phải có `ipykernel`. Thiếu gói này thì chọn kernel `base` xong bấm Run all KHÔNG
+  chạy ô nào và cũng không hiện lỗi rõ ràng (kernel tắt ngay lúc khởi động). Kiểm rồi cài:
+
+  ```bash
+  python -c "import ipykernel; print(ipykernel.__version__)"   # lỗi ModuleNotFoundError thì:
+  pip install ipykernel
+  ```
+
+  VS Code đã kèm sẵn tiện ích Jupyter (`ms-toolsai.jupyter`) nên chỉ cần đúng gói này; không cần
+  `notebook` hay `jupyterlab` (chúng kéo theo cả một chồng gói nữa để mở giao diện trong trình duyệt).
+  Sau khi cài, chọn lại kernel trong notebook rồi Run all.
+- Lần đầu làm việc với repo: chạy `git fetch origin` một lần. Notebook kiểm commit đã ghim có nằm
+  trên nhánh `experiment` bằng ref `origin/experiment`; repo mới `git init` rồi push mà chưa lần nào
+  fetch thì không có ref nào cả, notebook in cảnh báo `Chưa có origin/experiment trong repo nên không
+  kiểm được ...` (cảnh báo, không phải lỗi - `python scripts/ci_checks.py` trên CI là nơi kiểm chắc).
 
 ## 3. Trước khi bấm Run all: kiểm ô GHIM
 
@@ -40,9 +55,12 @@ pip install -r requirements.txt
 nhân, `repo.prepare()` so `HEAD` với `REPO_SHA`:
 
 - Trùng nhau thì notebook báo `dùng bản code đang có` và chạy tiếp, KHÔNG đụng vào cây làm việc.
-- Khác nhau thì nó `git checkout` đúng commit đã ghim (chế độ tách rời), tức là **đưa repo về bản
-  cũ**. Chỉ nên để việc đó xảy ra khi bạn đang không làm dở gì: `git status` sạch, không có việc
-  chưa commit.
+- Khác nhau thì nó lấy thêm đúng commit đã ghim rồi `git checkout` commit đó (chế độ tách rời), tức
+  là **đưa cây làm việc về bản cũ**; nhánh `experiment` và mọi ref `origin/*` giữ nguyên. Chỉ nên để
+  việc đó xảy ra khi bạn đang không làm dở gì: `git status` sạch, không có việc chưa commit.
+  Nếu commit đã ghim không có trên remote (chưa đẩy, hoặc gõ sai) thì notebook DỪNG ngay và nói rõ -
+  nó không thử hai cách dành cho thư mục trống, vì hai cách đó gỡ `origin` và làm repo thành repo
+  nông (`git log` cụt từ commit đó về sau).
 
 Muốn chạy đúng bản code mới nhất của mình: commit, đẩy lên nhánh `experiment`, rồi **ghim lại**
 (`python scripts/pin.py qwen3-4b-instruct-2507/prompt-cot/exp001`) trước khi Run all.

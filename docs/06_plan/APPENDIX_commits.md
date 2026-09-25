@@ -173,3 +173,5 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | Preflight kiểm `test.csv` theo khoá ghi cùng dữ liệu, không chỉ theo giá trị khai trong config | `fix(preflight): verify the test set against the lock stored with the data` |
 | Tài liệu về chỗ đặt khoá: dataset config, luật 11, đầu ra pipeline, công bố tham chiếu, cây Drive | `docs(config): the evaluation lock lives with the data, from the first version` |
 | CI cho phép `eval_lock.json` được git theo dõi (metadata, như `processing_log.json`) | `fix(checks): the evaluation lock is metadata, so CI must not flag it` |
+| `repo.prepare()` không gỡ `origin` và không fetch `--depth 1` trên repo máy cá nhân (mất ref `origin/*`, repo thành nông) | `fix(repo): take the pinned commit without touching the developer's remotes` |
+| Ghi lại hai việc của máy cá nhân: kernel cần `ipykernel`, và `git fetch origin` một lần để có `origin/experiment` | `docs(env): document the local Jupyter kernel and the one-time fetch` |

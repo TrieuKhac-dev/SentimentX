@@ -59,6 +59,21 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       máy cá nhân) vì băm thẳng byte, xem `docs/06_plan/P2_versioning.md`.
       Điều còn thiếu của P5 là gốc kết quả trên Drive: lần chạy trên không thấy Drive (chưa mount),
       nên preflight dừng ở việc thiếu dữ liệu.
+      **Lần chạy thật thứ ba, trên máy cá nhân (25/09/2026)** lộ ra hai việc nữa của `repo.prepare()`,
+      đều đã sửa cùng ngày:
+      (a) khi cây làm việc đang ở commit KHÁC commit đã ghim, `prepare()` chạy cách "fetch theo sha"
+      vốn dành cho thư mục trống: nó `git remote remove origin` rồi `remote add` lại (mất hết ref
+      `origin/*`) và fetch `--depth 1` (biến repo đầy đủ thành repo NÔNG - `git rev-list --count HEAD`
+      của repo cá nhân tụt từ 124 xuống 3); mất ref thì việc kiểm ngay sau đó - commit đã ghim có nằm
+      trên nhánh `experiment` không - không còn gì để kiểm, chỉ in cảnh báo. Nay thư mục đã là repo
+      với đúng `origin` thì `prepare()` chỉ `git fetch origin <sha>` rồi `checkout --detach`, không
+      đụng tới remote, và hỏng thì DỪNG chứ không thử hai cách dành cho thư mục trống;
+      (b) cảnh báo `Chưa có origin/experiment trong repo` cũng xuất hiện ở repo chỉ mới `git init` +
+      push (chưa lần nào fetch) - không phải lỗi, nhưng `docs/00_workflow/08_local.md` đã ghi rõ cách
+      hết: chạy `git fetch origin` một lần.
+      Lượt chạy đó còn cho thấy bấm Run all trong VS Code không chạy ô nào vì kernel `base` thiếu
+      `ipykernel` (VS Code có tiện ích Jupyter nhưng kernel thì cần gói này); đã cài và ghi vào
+      `docs/00_workflow/08_local.md`.
 - [x] T4. Notebook thí nghiệm đầu tiên `exp001`: cell tiêu đề, bootstrap, cấu hình đang dùng,
       preflight, cell thí nghiệm, cell kết thúc.
       -> `feat(experiments): create exp001 - Qwen3-4B CoT prompt, scored on val`
