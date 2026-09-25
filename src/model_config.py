@@ -13,8 +13,12 @@ MỘT FILE GỒM NHỮNG GÌ
     model_id      : tên dùng cho mọi đường dẫn và nhãn MLflow; phải trùng tên file
     checkpoint    : tên model trên Hugging Face, để đối chiếu tránh nhầm model
     config_version: tăng mỗi khi sửa file
+    approach      : `prompt` (model sinh, nhận câu chỉ dẫn) hoặc `encoder` (model phân loại,
+                    học từ dữ liệu gán nhãn). Quyết định ĐƯỜNG CHẠY, nên phải khai rõ.
     task.*        : ghi đè `configs/experiments/task.yaml` khi model này cần khác
     preprocess.*  : ngưỡng cắt input, chèn lượt trợ lý, bộ tách từ
+    lora.*        : thứ RIÊNG của model cho huấn luyện, ví dụ `target_modules` (tên module
+                    khác nhau theo kiến trúc, nên không nằm ở file dùng chung)
     inference.*   : kiểu số, lượng hoá, kích thước lô
 
 KHÔNG CÓ GÌ THUỘC RIÊNG MỘT THÍ NGHIỆM
@@ -37,10 +41,15 @@ import yaml
 from src import config
 
 # Khoá được phép dùng trong configs/models/<tên>.yaml
-KNOWN_KEYS = ("model_id", "checkpoint", "config_version", "task", "preprocess", "inference")
+KNOWN_KEYS = ("model_id", "checkpoint", "config_version", "approach", "task", "preprocess",
+              "lora", "inference")
 
 # Khoá bắt buộc phải có.
-REQUIRED_KEYS = ("model_id", "checkpoint", "config_version", "preprocess")
+REQUIRED_KEYS = ("model_id", "checkpoint", "config_version", "approach", "preprocess")
+
+# Cách một model được DÙNG trong thí nghiệm. Thêm một cách mới thì thêm module chạy tương ứng
+# (`prompt` -> src/evaluation/runner.py, `encoder` -> src/encoder_run.py) rồi thêm tên vào đây.
+APPROACHES = ("prompt", "encoder")
 
 CONFIG_HINT = "Xem configs/models/qwen3-4b-instruct-2507.yaml để biết các khoá cần có."
 
@@ -119,6 +128,13 @@ def load(name):
                 _display(path))
         )
 
+    approach = str(cfg["approach"]).strip()
+    if approach not in APPROACHES:
+        raise ModelConfigError(
+            "{}: 'approach' là {!r} nhưng chỉ nhận {}. Đây là khoá quyết định ĐƯỜNG CHẠY của "
+            "model, nên không đoán hộ.".format(
+                _display(path), cfg["approach"], " hoặc ".join(APPROACHES)))
+
     value = cfg["preprocess"].get("max_length")
     if value is None:
         raise ModelConfigError(
@@ -149,6 +165,35 @@ def inference(name):
 def task_override(name):
     """Nhóm `task` của một model: phần ghi đè lên `configs/experiments/task.yaml`."""
     return dict(load(name).get("task") or {})
+
+
+def approach(name):
+    """Cách dùng model trong thí nghiệm: `prompt` hoặc `encoder` (đã kiểm ở `load`)."""
+    return str(load(name)["approach"]).strip()
+
+
+def approach_of(config_data, model_id=None):
+    """Cách chạy của MỘT LƯỢT CHẠY: đọc `approach` trong config ĐÃ HỢP NHẤT trước, rồi tới file cấu
+    hình model.
+
+    Vì sao ưu tiên config đã hợp nhất: nó đã gồm lớp model, mà lại dùng được cả khi chạy tay với
+    cấu hình không có file model (khi đó chỉ đường prompt chạy được - đường encoder bắt buộc có
+    `lora.target_modules` của model). Nhờ vậy chỗ rẽ nhánh không phụ thuộc việc đọc file.
+    """
+    value = str((config_data or {}).get("approach") or "").strip()
+    if value:
+        return value
+    if model_id:
+        try:
+            return approach(model_id)
+        except ModelConfigError:
+            return "prompt"
+    return "prompt"
+
+
+def lora(name):
+    """Nhóm `lora` của một model: thứ riêng của model cho huấn luyện; rỗng nếu model không khai."""
+    return dict(load(name).get("lora") or {})
 
 
 def max_length(name):

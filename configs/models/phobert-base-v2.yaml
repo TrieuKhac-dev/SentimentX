@@ -2,7 +2,11 @@
 
 model_id: phobert-base-v2
 checkpoint: vinai/phobert-base-v2
-config_version: 1
+config_version: 2
+
+# prompt: model sinh (LLM) nhận câu chỉ dẫn rồi trả lời. encoder: model phân loại học từ dữ liệu
+# gán nhãn. Giá trị này quyết định đường chạy: `encoder` dùng `src/encoder_run.py`.
+approach: encoder
 
 preprocess:
   # Ngưỡng cắt input, tính bằng TOKEN (kể cả 2 token đặc biệt <s> và </s>).
@@ -11,3 +15,21 @@ preprocess:
   max_length: 256
   # Bộ tách từ chính chủ của PhoBERT; đổi bộ tách từ KHÔNG làm đổi tokenizer.
   segmenter: vncorenlp
+
+# Chỉ thí nghiệm HUẤN LUYỆN mới dùng nhóm này; model sinh (Qwen3) không khai.
+# Tham số huấn luyện dùng chung nằm ở `configs/experiments/training.yaml`; ở đây khai thứ RIÊNG
+# của model, vì tên module khác nhau theo kiến trúc (Qwen3 dùng q_proj/k_proj, PhoBERT dùng query/key).
+lora:
+  # Tên module trong `RobertaLayer` của PhoBERT: ba phép chiếu attention và đầu ra của nó.
+  target_modules:
+    - query
+    - key
+    - value
+    - dense
+
+inference:
+  # `auto`: mã chọn kiểu số theo máy - bf16 khi máy hỗ trợ, fp16 khi không (T4 là Turing, không có
+  # bf16), fp32 trên CPU. LoRA cơ bản (không lượng hoá) vẫn vừa 6 GB VRAM; muốn QLoRA thì khai
+  # `quantization: 4bit` và cài bitsandbytes.
+  dtype: auto
+  batch_size: 16

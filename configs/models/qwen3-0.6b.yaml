@@ -4,7 +4,10 @@
 
 model_id: qwen3-0.6b
 checkpoint: Qwen/Qwen3-0.6B
-config_version: 1
+config_version: 2
+
+# prompt: model sinh (LLM) nhận câu chỉ dẫn rồi trả lời; model này chỉ chạy bằng prompt.
+approach: prompt
 
 preprocess:
   max_length: 1280

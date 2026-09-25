@@ -311,16 +311,6 @@ def config_sha256(result, prompt_text=None, side_files=None, extra=None):
         digest.update(b"run:")
         digest.update(canonical_bytes(extra))
     return digest.hexdigest()
-    digest = hashlib.sha256()
-    digest.update(b"config:")
-    digest.update(canonical_bytes(result["config"]))
-    digest.update(b"prompt:")
-    text = prompt_text if prompt_text is not None else prompt_merged(result)
-    # Chuẩn hoá kiểu xuống dòng trước khi băm: văn bản prompt đọc từ file nên trên Windows là CRLF
-    # còn trên Colab là LF. Không chuẩn hoá thì cùng một cấu hình, hai máy cho hai dấu vân tay khác
-    # nhau, và người đọc báo cáo tưởng đó là hai thí nghiệm khác nhau (xem `utils.normalize_text`).
-    digest.update(utils.normalize_text(text).encode("utf-8"))
-    return digest.hexdigest()
 
 
 def canonical_bytes(config):
@@ -429,7 +419,7 @@ def _read_prompt_file(path, label):
 # tạo khoá `evaluation.n` mà không chỗ nào đọc, trong khi `n` vẫn giữ giá trị cũ).
 KNOWN_KEYS = (
     # lớp model
-    "model_id", "checkpoint", "config_version",
+    "model_id", "checkpoint", "config_version", "approach",
     "preprocess.max_length", "preprocess.add_generation_prompt", "preprocess.segmenter",
     "inference.dtype", "inference.quantization", "inference.batch_size",
     # lớp repo
@@ -441,7 +431,7 @@ KNOWN_KEYS = (
     "scores", "group_by",
     "save.predictions", "save.plots", "save.confusion",
     # lớp training
-    "enabled",
+    "enabled", "trainer",
     "lora.r", "lora.alpha", "lora.dropout", "lora.target_modules",
     "lr", "batch", "epochs", "grad_accum", "weight_decay",
     "checkpoints.every_n_steps", "checkpoints.keep_last_k", "checkpoints.save_last",
@@ -508,6 +498,13 @@ def check(result, dataset_cfg=None):
                 if role not in roles:
                     problems.append(
                         "training.enabled: true nên 'data.roles' phải có vai '{}'".format(role))
+
+    # Model encoder KHÔNG có prompt để tự trả lời: kết quả của nó chỉ có khi đã huấn luyện. Chặn
+    # ngay ở đây, vì để tới lúc chạy mới phát hiện thì đã tải xong model.
+    if config.get("approach") == "encoder" and not config.get("enabled"):
+        problems.append(
+            "model dùng `approach: encoder` nhưng `enabled: false`: model encoder không có prompt "
+            "để tự trả lời, nên thí nghiệm phải khai `training.enabled: true`")
 
     splits = _splits_of(data, dataset, dataset_cfg)
     if isinstance(splits, dict):

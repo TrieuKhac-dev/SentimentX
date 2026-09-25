@@ -6,7 +6,11 @@ model_id: qwen3-4b-instruct-2507
 checkpoint: Qwen/Qwen3-4B-Instruct-2507
 
 # Tăng số này mỗi khi sửa file.
-config_version: 2
+config_version: 3
+
+# prompt: model sinh (LLM) nhận câu chỉ dẫn rồi trả lời. encoder: model phân loại học từ dữ liệu
+# gán nhãn. Giá trị này quyết định đường chạy: `prompt` dùng `src/evaluation/runner.py`.
+approach: prompt
 
 preprocess:
   # Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). 2304 vì SỐ ĐO (25/09/2026): prompt CoT + 2 ví

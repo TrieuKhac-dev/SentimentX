@@ -3,16 +3,16 @@
 
 enabled: false
 
+# Cách huấn luyện khi `enabled: true`. Tên phải có trong registry TRAINERS (src/training/).
+trainer: lora
+
 # Khi enabled: true thì roles bắt buộc có train và val.
+# `lora.target_modules` KHÔNG khai ở đây: tên module khác nhau theo kiến trúc, nên nó thuộc
+# `configs/models/<model_id>.yaml` (Qwen3: q_proj/k_proj/..., PhoBERT và ViSoBERT: query/key/...).
 lora:
   r: 16
   alpha: 32
   dropout: 0.05
-  target_modules:
-    - q_proj
-    - k_proj
-    - v_proj
-    - o_proj
 
 lr: 0.0002
 batch: 8
