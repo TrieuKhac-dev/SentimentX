@@ -77,12 +77,27 @@ def read_csv(path):
     return pd.read_csv(path, dtype=str, keep_default_na=False, encoding="utf-8-sig")
 
 
+def _single_line(value):
+    """Đổi ký tự xuống dòng bên trong một ô thành hai ký tự `\\n`.
+
+    VÌ SAO: ô CSV để nguyên ký tự xuống dòng vẫn HỢP LỆ (ô được trích dẫn), nhưng mọi trình xem
+    thông thường - Notepad, VSCode, công cụ CSV tự viết - đều coi "một dòng vật lý = một bản ghi".
+    Bảng dự đoán có ô dài hàng nghìn ký tự (prompt đã gửi model) nên một review chiếm hàng chục
+    dòng, và các cột phía sau trông như biến mất. Đổi sang `\\n` thì mỗi bản ghi nằm gọn một dòng,
+    còn nội dung vẫn đọc được (ai cần văn bản thật thì đọc `run.log` hoặc khối `predictions/`).
+    """
+    if not isinstance(value, str):
+        return value
+    return value.replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
+
+
 def write_csv(rows, columns, path):
-    """Ghi danh sách các dòng (list of list) ra CSV."""
+    """Ghi danh sách các dòng (list of list) ra CSV, mỗi bản ghi trên MỘT dòng vật lý."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    df = pd.DataFrame(rows, columns=columns)
-    df.to_csv(path, index=False, encoding="utf-8-sig")
+    frame = pd.DataFrame(rows, columns=columns)
+    frame = frame.apply(lambda column: column.map(_single_line))
+    frame.to_csv(path, index=False, encoding="utf-8-sig")
     return path
 
 
