@@ -19,7 +19,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import prompts
+from src import labels, prompts
 from src.preprocessing import qwen
 
 PROMPT_WITH_EXAMPLES = "[USER]\nXet review:\n{text}\n{examples}\n"
@@ -137,6 +137,36 @@ class SoViDuTest(unittest.TestCase):
 
 LABEL_MAP = {"aspects": ["smell"], "label_to_id": {"": 0, "positive": 1, "negative": 2},
              "id_to_label": {"0": "", "1": "positive", "2": "negative"}}
+
+class BangMaNhanTest(unittest.TestCase):
+    """Bảng mã trong prompt phải KHỚP không gian nhãn của thí nghiệm.
+
+    Lỗi thật đã gặp (25/09/2026): `filter_label_map` chỉ lọc `id_to_label`, còn `label_guide` đọc từ
+    `label_to_id` - nên prompt CoT vẫn dạy model "3 = neutral (trung tính)" trong khi bài toán là
+    `binary` + `neutral_policy: drop`. Model nghe theo lời dạy đó là câu trả lời CHẮC CHẮN sai, và
+    người đọc prompt tưởng dự án đang làm bài bốn nhãn.
+    """
+
+    MAP = {"aspects": ["smell"], "labels": ["positive", "negative", "neutral"],
+           "label_to_id": {"": 0, "positive": 1, "negative": 2, "neutral": 3},
+           "id_to_label": {"0": "", "1": "positive", "2": "negative", "3": "neutral"}}
+
+    def test_binary_drop_removes_neutral_from_both_tables(self):
+        filtered = labels.filter_label_map(self.MAP, "binary", "drop")
+        self.assertEqual(sorted(filtered["label_to_id"].values()), [0, 1, 2])
+        self.assertEqual(sorted(int(code) for code in filtered["id_to_label"]), [0, 1, 2])
+
+    def test_label_guide_of_binary_drop_has_no_neutral(self):
+        filtered = labels.filter_label_map(self.MAP, "binary", "drop")
+        guide = prompts.label_guide(filtered)
+        self.assertIn("0 =", guide)
+        self.assertIn("positive", guide)
+        self.assertNotIn("neutral", guide)
+
+    def test_neutral_stays_when_the_policy_keeps_it(self):
+        filtered = labels.filter_label_map(self.MAP, "binary", "keep")
+        self.assertIn("neutral", prompts.label_guide(filtered))
+
 
 if __name__ == "__main__":
     unittest.main()

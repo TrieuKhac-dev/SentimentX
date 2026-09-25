@@ -104,6 +104,13 @@ def filter_label_map(label_map, name, neutral_policy):
     keep = set(allowed_codes(name, neutral_policy))
     filtered = dict(label_map)
     filtered["labels"] = [label for label in label_map.get("labels") or []]
+    # LỌC CẢ `label_to_id`, không chỉ `id_to_label`: bảng mã trong prompt (`prompts.label_guide`)
+    # đọc từ `label_to_id`, nên chỉ lọc một chiều thì prompt vẫn dạy model mã `3 = neutral` trong
+    # khi không gian nhãn không có mã đó - model trả lời 3 là câu trả lời chắc chắn bị tính sai.
+    filtered["label_to_id"] = {
+        label: int(code) for label, code in (label_map.get("label_to_id") or {}).items()
+        if int(code) in keep
+    }
     filtered["id_to_label"] = {
         str(code): label for code, label in (label_map.get("id_to_label") or {}).items()
         if int(code) in keep
