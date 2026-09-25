@@ -834,7 +834,8 @@ def write_all(plan_data, rows, samples, result, extra, session, log):
     print("Hoàn tất. Đã ghi vào {}:".format(utils.rel(out_dir)))
     for name, path in shown.items():
         print("  - {:<18} {}".format(name, utils.rel(path)))
-    print("  (tên thư mục '{}' ghi rõ cấu hình của lần chạy này)".format(plan_data["tag"]))
+    print("  (thư mục '{}' là mã băm danh tính của lượt chạy này - mở run_meta.json để đọc cấu hình)"
+          .format(plan_data["hash"]))
     return shown
 
 

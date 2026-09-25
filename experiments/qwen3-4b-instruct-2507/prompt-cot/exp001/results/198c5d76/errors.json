@@ -1,0 +1,56 @@
+{
+  "run": {
+    "mode": "RESUME",
+    "out_dir": "198c5d76",
+    "log": "run.log",
+    "started": "2026-09-25 18:16:05",
+    "finished": "2026-09-25 18:16:31",
+    "seconds": 26.3,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+      "split": "test",
+      "prompt": "absa_cot_v1",
+      "prompt_sha": "b8745e55",
+      "model": "D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/Qwen3-4B-Instruct-2507",
+      "quant": "auto",
+      "max_length": 2304,
+      "generation": {
+        "quant": "4bit",
+        "max_new_tokens": 400,
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "top_k": null,
+        "seed": null
+      },
+      "subset": {
+        "limit": 8,
+        "seed": 42
+      },
+      "n_samples": 0,
+      "experiment": {
+        "model": "qwen3-4b-instruct-2507",
+        "method": "prompt-cot",
+        "exp_id": "exp001"
+      }
+    },
+    "machine": {
+      "system": "Windows-11-10.0.26200-SP0",
+      "python": "3.13.13"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-09-25 18:16:28",
+      "level": "ERROR",
+      "message": "KeyError: 'tag'",
+      "type": "KeyError",
+      "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\TRIEUK~1\\AppData\\Local\\Temp\\sentimentx-run-1in5cech\\src\\experiment_run.py\", line 738, in run\n    return finish(plan_data, rows, cost, model_info, info, session, log)\n  File \"C:\\Users\\TRIEUK~1\\AppData\\Local\\Temp\\sentimentx-run-1in5cech\\src\\experiment_run.py\", line 801, in finish\n    shown = write_all(plan_data, rows_all, samples, result, extra, session, log)\n  File \"C:\\Users\\TRIEUK~1\\AppData\\Local\\Temp\\sentimentx-run-1in5cech\\src\\experiment_run.py\", line 837, in write_all\n    print(\"  (tên thư mục '{}' ghi rõ cấu hình của lần chạy này)\".format(plan_data[\"tag\"]))\n                                                                         ~~~~~~~~~^^^^^^^\nKeyError: 'tag'\n",
+      "context": {
+        "kind": "KeyError"
+      }
+    }
+  ],
+  "warnings": []
+}

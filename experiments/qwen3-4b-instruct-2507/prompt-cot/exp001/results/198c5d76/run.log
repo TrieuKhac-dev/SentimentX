@@ -1,0 +1,86 @@
+=== lần chạy 2026-09-25 18:14:27 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484
+[RUN] split=test
+[RUN] prompt=absa_cot_v1
+[RUN] prompt_sha=b8745e55
+[RUN] model=D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/Qwen3-4B-Instruct-2507
+[RUN] quant=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=8
+[RUN] subset.seed=42
+[RUN] n_samples=8
+[RUN] experiment.model=qwen3-4b-instruct-2507
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp001
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: qwen3-4b-instruct-2507/prompt-cot/exp001 | dữ liệu: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 | split chấm: test | n: 8
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_v1 (sha b8745e55) | ví dụ: c513f5a6 | sinh: greedy
+[CONFIG] chạy: max_length=2304 | max_new_tokens=400 | batch=8 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/Qwen3-4B-Instruct-2507 (quant=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng bfloat16), 4-bit + device_map=auto (bfloat16) | 23.1 giây
+[STEP] bắt đầu sinh 8 mẫu của split test (batch 8)
+[STEP] sinh xong 8 mẫu mới | 55.6 giây
+[STEP] tổng 8 mẫu (8 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] ghi 8 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, predictions.csv
+[STEP] ghi nhận: 18 tham số, 192 chỉ số, 4 file
+[ERROR] KeyError: 'tag'
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 78.8 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FAILED
+[TRACK] đã ghi lên https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow: run bf6396958bf94c0a95141e1cf6f5b875 (18 tham số, 192 chỉ số, 4 file)
+=== lần chạy 2026-09-25 18:16:05 - mode=RESUME ===
+[RUN] mode=RESUME
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484
+[RUN] split=test
+[RUN] prompt=absa_cot_v1
+[RUN] prompt_sha=b8745e55
+[RUN] model=D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/Qwen3-4B-Instruct-2507
+[RUN] quant=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=8
+[RUN] subset.seed=42
+[RUN] n_samples=0
+[RUN] experiment.model=qwen3-4b-instruct-2507
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp001
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: qwen3-4b-instruct-2507/prompt-cot/exp001 | dữ liệu: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 | split chấm: test | n: 8
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_v1 (sha b8745e55) | ví dụ: c513f5a6 | sinh: greedy
+[CONFIG] chạy: max_length=2304 | max_new_tokens=400 | batch=8 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/Qwen3-4B-Instruct-2507 (quant=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng bfloat16), 4-bit + device_map=auto (bfloat16) | 22.9 giây
+[STEP] bắt đầu sinh 0 mẫu của split test (batch 8)
+[STEP] sinh xong 0 mẫu mới | 0.0 giây
+[STEP] tổng 8 mẫu (0 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] ghi 8 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, predictions.csv
+[STEP] ghi nhận: 18 tham số, 192 chỉ số, 4 file
+[ERROR] KeyError: 'tag'
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 22.9 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FAILED
+[TRACK] đã ghi lên https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow: run a62652200a0f4b188ddb2dda956eb3cd (18 tham số, 192 chỉ số, 4 file)
