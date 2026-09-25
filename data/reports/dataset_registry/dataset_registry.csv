@@ -1,2 +1,2 @@
 ﻿dataset,version,ma,on_disk,splits,rows,eval_locked,aspects,raw_dir,config
-cosmetics,v0.1.0,cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484,yes,"test=2271, train=18143, val=2229",22643,chưa có dữ liệu,"stayingpower, texture, smell, price, colour, shipping, packing",,configs/datasets/cosmetics/v0.1.0.yaml
+cosmetics,v0.1.0,cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484,yes,"test=2271, train=18143, val=2229",22643,test,"stayingpower, texture, smell, price, colour, shipping, packing",,configs/datasets/cosmetics/v0.1.0.yaml
