@@ -1,0 +1,78 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án — KHÔNG được gửi cho model) ---
+# Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
+# Kiểm chứng: python run_check_examples.py   (đối chiếu cả 3 split đã xử lý)
+# Biến thể FIVE-SHOT của absa_cot_v1: prompt giống Y HỆT (configs/prompts/absa_cot_5shot_v1.txt
+# trùng nội dung absa_cot_v1.txt), chỉ khác số ví dụ. Hai ví dụ đầu giữ NGUYÊN nội dung của
+# absa_cot_v1 để so 2 ví dụ với 5 ví dụ là so đúng một biến, không lẫn thay đổi câu chữ.
+# Ba ví dụ thêm cố ý phủ những chỗ mà 0/1/2 ví dụ chưa dạy: mã 3 (trung tính) cho khía cạnh
+# được nhắc tới nhưng nhận xét lửng, và các cặp khen/chê cùng khía cạnh ở hai ví dụ khác nhau.
+# Nếu sau này lấy ví dụ TỪ DỮ LIỆU: CHỈ được lấy từ split train, và phải ghi lại
+# "train, dòng <số>" ngay dưới đây. Ví dụ nằm trong prompt nghĩa là model đã nhìn thấy
+# nó, nên lấy từ val/test là rò rỉ dữ liệu đánh giá — điểm số đo được sẽ vô nghĩa.
+# Số ví dụ là một BIẾN THỰC NGHIỆM: bỏ/thêm khối "--- Ví dụ n ---" ở dưới là đổi số ví
+# dụ, KHÔNG phải sửa prompt (xem configs/prompts/absa_cot_1shot_v1.txt).
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Thỏi son lên màu đỏ gạch tươi tắn, tán đều tệp vào da ngăm nhìn vẫn tự nhiên. Đánh từ sáng tới chiều muộn vẫn chưa phải dặm lại. Mùi hương thoang thoảng dễ chịu, vỏ hộp cứng cáp cầm chắc tay."
+SUY LUẬN:
+- colour: "lên màu đỏ gạch tươi tắn, tán đều tệp vào da ngăm" | khen màu lên đẹp | mã 1
+- stayingpower: "đánh từ sáng tới chiều muộn vẫn chưa phải dặm lại" | giữ màu lâu | mã 1
+- texture: "tán đều tệp vào da" | chất son dễ tán, không bị khô | mã 1
+- smell: "mùi hương thoang thoảng dễ chịu" | mùi dễ chịu | mã 1
+- packing: "vỏ hộp cứng cáp cầm chắc tay" | đóng gói tốt | mã 1
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 1, "stayingpower": 1, "texture": 1, "smell": 1, "packing": 1, "price": 0, "shipping": 0}
+
+--- Ví dụ 2 ---
+Review: "Màu nhạt hơn ảnh, son vón cục khi đánh lớp hai. Mùi nhựa hắc, giá cao hơn hẳn những gì nhận được. Ship thì nhanh nhưng hộp móp."
+SUY LUẬN:
+- colour: "màu nhạt hơn ảnh" | không đúng như mô tả | mã 2
+- texture: "son vón cục khi đánh lớp hai" | lỗi kết cấu | mã 2
+- smell: "mùi nhựa hắc" | mùi khó chịu | mã 2
+- price: "giá cao hơn hẳn những gì nhận được" | đắt so với giá trị nhận được | mã 2
+- shipping: "ship thì nhanh" | giao nhanh | mã 1
+- packing: "hộp móp" | đóng gói không tốt | mã 2
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+KẾT QUẢ:
+{"colour": 2, "texture": 2, "smell": 2, "price": 2, "shipping": 1, "packing": 2, "stayingpower": 0}
+
+--- Ví dụ 3 ---
+Review: "Chai nước hoa hồng xịt lên thơm nhẹ, để được tới tối. Cây son thì mình thấy cũng bình thường, không có gì nổi bật. Chưa kịp dùng nên chưa biết độ bền thế nào. Cả hai món đều giao đúng hẹn và hộp còn nguyên seal."
+SUY LUẬN:
+- smell: "xịt lên thơm nhẹ, để được tới tối" | mùi dễ chịu | mã 1
+- texture: "mình thấy cũng bình thường, không có gì nổi bật" | có nhắc tới nhưng nhận xét lửng, không khen cũng không chê | mã 3
+- stayingpower: "chưa kịp dùng nên chưa biết độ bền thế nào" | chưa dùng nên không kết luận được | mã 0
+- shipping: "giao đúng hẹn" | giao đúng hẹn | mã 1
+- packing: "hộp còn nguyên seal" | còn nguyên niêm phong | mã 1
+- colour: "không nhắc tới" | review không nói về màu | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+KẾT QUẢ:
+{"smell": 1, "texture": 3, "stayingpower": 0, "shipping": 1, "packing": 1, "colour": 0, "price": 0}
+
+--- Ví dụ 4 ---
+Review: "Sữa rửa mặt làm sạch tốt mà không làm da căng khô. Chai nhựa dày, nắp bật chắc chắn. Mùi hơi nồng khi mới rửa nhưng dịu ngay sau đó. Giá hơi cao so với dung tích, mình mua đúng đợt giảm giá mới thấy hợp lý."
+SUY LUẬN:
+- texture: "làm sạch tốt mà không làm da căng khô" | dùng ổn, không gây khô | mã 1
+- packing: "chai nhựa dày, nắp bật chắc chắn" | đóng gói tốt | mã 1
+- smell: "mùi hơi nồng khi mới rửa nhưng dịu ngay sau đó" | mùi lúc đầu hơi nồng, chê nhẹ | mã 2
+- price: "giá hơi cao so với dung tích" | đắt so với dung tích | mã 2
+- colour: "không nhắc tới" | review không nói về màu | mã 0
+- stayingpower: "không nhắc tới" | review không nói về độ bền | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"texture": 1, "packing": 1, "smell": 2, "price": 2, "colour": 0, "stayingpower": 0, "shipping": 0}
+
+--- Ví dụ 5 ---
+Review: "Son kem này màu lên hơi khác ảnh, lại thỏi ra rất nhanh nên tán không đều, môi bị loang. Mùi thì mình chịu không nổi, kiểu mùi nhựa. Bù lại nhận hàng chỉ sau hai ngày, đóng gói kỹ còn bọc thêm xốp."
+SUY LUẬN:
+- colour: "màu lên hơi khác ảnh" | không đúng như ảnh | mã 2
+- texture: "thỏi ra rất nhanh nên tán không đều, môi bị loang" | khó tán, bị loang | mã 2
+- smell: "mùi mình chịu không nổi, kiểu mùi nhựa" | mùi khó chịu | mã 2
+- shipping: "nhận hàng chỉ sau hai ngày" | giao nhanh | mã 1
+- packing: "đóng gói kỹ còn bọc thêm xốp" | đóng gói kỹ | mã 1
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+KẾT QUẢ:
+{"colour": 2, "texture": 2, "smell": 2, "shipping": 1, "packing": 1, "stayingpower": 0, "price": 0}
