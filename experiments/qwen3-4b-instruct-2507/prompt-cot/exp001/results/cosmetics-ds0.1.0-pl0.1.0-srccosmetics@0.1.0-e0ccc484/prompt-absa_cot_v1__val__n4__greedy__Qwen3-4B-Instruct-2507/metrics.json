@@ -27,8 +27,6 @@
     "method": "prompt-cot",
     "exp_id": "exp001"
   },
-  "stash_count": 4,
-  "stashed": "experiments/qwen3-4b-instruct-2507/prompt-cot/exp001/results/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/prompt-absa_cot_v1__val__n4__greedy__Qwen3-4B-Instruct-2507/predictions/_bo-qua-2026-09-25-041424",
   "prompt_examples": {
     "file": "experiments/qwen3-4b-instruct-2507/prompt-cot/exp001/../../../../configs/prompts/examples/absa_cot_v1.txt",
     "value": "../../../../configs/prompts/examples/absa_cot_v1.txt",
@@ -59,9 +57,9 @@
     "số mẫu": 4,
     "token sinh": 824,
     "token sinh TB": 206.0,
-    "giây": 29.0,
-    "token sinh/giây": 28.4,
-    "lô": 4
+    "giây": 26.7,
+    "token sinh/giây": 30.9,
+    "lô": 8
   },
   "scores_order": [
     "accuracy",

@@ -6,8 +6,8 @@
     "log": "run.log",
     "errors": "errors.json",
     "status": "FINISHED",
-    "started": "2026-09-25 04:14:24",
-    "finished": "2026-09-25 04:15:28",
+    "started": "2026-09-25 08:43:50",
+    "finished": "2026-09-25 08:44:45",
     "note": null
   },
   "experiment": {
@@ -33,7 +33,7 @@
   "repo": {
     "url": "https://github.com/TrieuKhac-dev/SentimentX",
     "branch": "experiment",
-    "sha": "440be3a113dad09de072d5c1659a9b77ba289a81"
+    "sha": "6247e73136abceca7afa41ca044ae643d6df9e3c"
   },
   "config": {
     "sha256": "9a7126ac4295df4b0c0c90b6aa11a9b23772bc36c05749c511b7255adcf05c0f",
@@ -150,11 +150,11 @@
   "attempts": [
     {
       "n": 1,
-      "started": "2026-09-25 04:14:24",
-      "finished": "2026-09-25 04:15:28",
-      "seconds": 64.0,
+      "started": "2026-09-25 08:43:50",
+      "finished": "2026-09-25 08:44:45",
+      "seconds": 55.0,
       "status": "FINISHED",
-      "sha": "440be3a113dad09de072d5c1659a9b77ba289a81",
+      "sha": "6247e73136abceca7afa41ca044ae643d6df9e3c",
       "config_sha256": "9a7126ac4295df4b0c0c90b6aa11a9b23772bc36c05749c511b7255adcf05c0f",
       "data": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
       "note": null
