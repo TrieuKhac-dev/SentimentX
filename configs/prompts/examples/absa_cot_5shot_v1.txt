@@ -39,17 +39,17 @@ KẾT QUẢ:
 {"colour": 2, "texture": 2, "smell": 2, "price": 2, "shipping": 1, "packing": 2, "stayingpower": 0}
 
 --- Ví dụ 3 ---
-Review: "Chai nước hoa hồng xịt lên thơm nhẹ, để được tới tối. Cây son thì mình thấy cũng bình thường, không có gì nổi bật. Chưa kịp dùng nên chưa biết độ bền thế nào. Cả hai món đều giao đúng hẹn và hộp còn nguyên seal."
+Review: "Nước hoa hồng thơm nhẹ dễ chịu mà bay mùi nhanh, xịt buổi sáng thì trưa đã hết. Cây son thì chưa dùng nên không dám nói gì. Giao hàng đúng hẹn, hộp còn nguyên seal."
 SUY LUẬN:
-- smell: "xịt lên thơm nhẹ, để được tới tối" | mùi dễ chịu | mã 1
-- texture: "mình thấy cũng bình thường, không có gì nổi bật" | có nhắc tới nhưng nhận xét lửng, không khen cũng không chê | mã 3
-- stayingpower: "chưa kịp dùng nên chưa biết độ bền thế nào" | chưa dùng nên không kết luận được | mã 0
-- shipping: "giao đúng hẹn" | giao đúng hẹn | mã 1
+- smell: "thơm nhẹ dễ chịu" | mùi dễ chịu | mã 1
+- stayingpower: "bay mùi nhanh, xịt buổi sáng thì trưa đã hết" | lưu hương kém | mã 2
+- texture: "chưa dùng nên không dám nói gì" | chưa dùng nên chưa kết luận được | mã 0
+- shipping: "giao hàng đúng hẹn" | giao đúng hẹn | mã 1
 - packing: "hộp còn nguyên seal" | còn nguyên niêm phong | mã 1
 - colour: "không nhắc tới" | review không nói về màu | mã 0
 - price: "không nhắc tới" | review không nói về giá | mã 0
 KẾT QUẢ:
-{"smell": 1, "texture": 3, "stayingpower": 0, "shipping": 1, "packing": 1, "colour": 0, "price": 0}
+{"smell": 1, "stayingpower": 2, "texture": 0, "shipping": 1, "packing": 1, "colour": 0, "price": 0}
 
 --- Ví dụ 4 ---
 Review: "Sữa rửa mặt làm sạch tốt mà không làm da căng khô. Chai nhựa dày, nắp bật chắc chắn. Mùi hơi nồng khi mới rửa nhưng dịu ngay sau đó. Giá hơi cao so với dung tích, mình mua đúng đợt giảm giá mới thấy hợp lý."

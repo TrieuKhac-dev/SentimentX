@@ -11,7 +11,7 @@ Danh sách khía cạnh: {aspects}
 
 Quy trình cho TỪNG khía cạnh:
 1. Trích nguyên văn đoạn văn nói về khía cạnh đó. Nếu review không nhắc tới, ghi "không nhắc tới".
-2. Nêu ngắn gọn vì sao đoạn đó là tích cực, tiêu cực hay trung tính.
+2. Nêu ngắn gọn vì sao đoạn đó là tích cực hay tiêu cực.
 3. Chốt mã số.
 
 Ví dụ:
