@@ -34,6 +34,8 @@ MyDrive/SentimentX/                                    ← thư mục gốc trê
 │   ├── raw/cosmetics/v0.1.0/data_test.csv
 │   ├── raw/cosmetics/v0.1.0/full_data.csv
 │   ├── raw/cosmetics/v0.1.0/raw_meta.yaml
+│   ├── models/vncorenlp/                               ← CHỈ cần cho PhoBERT (bộ tách từ chính chủ)
+│   │     VnCoreNLP-1.2.jar + models/wordsegmenter/{vi-vocab, wordsegmenter.rdr}
 │   └── processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484/
 │         train.csv, val.csv, test.csv, label_map.json, processing_log.json, eval_lock.json
 └── experiments/<model_id>/<method>/expNNN/
@@ -53,6 +55,12 @@ Cây này chỉ KHÁC cây `data/` và `experiments/` trong repo ở những m�
 `processing_log.json` thì CÓ trên Drive: nó là metadata của phiên bản dữ liệu, và cây Drive phải
 phản ánh đúng bộ dữ liệu đã dùng (luật 20 vẫn cấm commit nó ở dạng dữ liệu, nhưng file này vẫn được
 theo dõi trong git ở `data/processed/<mã>/`).
+
+**`data/models/vncorenlp/` cũng có trên Drive** (27 MB) vì notebook PhoBERT cần nó: bộ tách từ chính
+chủ của PhoBERT là một chương trình Java (`VnCoreNLP-1.2.jar` + `models/wordsegmenter/`), mà git
+không chứa file model (`.gitignore` chặn `data/models/**`). Thí nghiệm PhoBERT khai đường dẫn này ở
+`requires_extra`, nên máy thiếu nó bị chặn NGAY ở preflight, trước khi nạp model - không phải đợi
+đến lúc huấn luyện mới hỏng. Hai notebook encoder kia không dùng tới (`none` cho ViSoBERT).
 
 **Dữ liệu GỐC là bắt buộc**, không chỉ dữ liệu đã xử lý: mã phiên bản dữ liệu được băm từ nội dung
 file gốc, nên thiếu raw thì Colab tính ra một mã khác và preflight báo thiếu dataset. Dữ liệu không
@@ -191,7 +199,9 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `Chưa có dataset đã xử lý ở .../X. Thư mục đang có: .../Y.` | `data/raw` và `data/processed` trên Drive không thuộc cùng một gói (bản cũ) | đối chiếu mã `X` với gói đang dùng; đưa lại **cả** `data/raw` và `data/processed/<mã>` của cùng gói đó |
 | `Đường chạy : encoder` rồi `Prompt : không có` | bình thường với PhoBERT và ViSoBERT | không phải lỗi: model encoder học từ dữ liệu gán nhãn, không nhận câu chỉ dẫn |
 | `Thiếu gói peft` (thí nghiệm LoRA) | máy ảo chưa có thư viện LoRA | không cần làm gì: ô bootstrap tự cài khi notebook là đường huấn luyện. Nếu `pip install ->` khác 0 thì đọc dòng lỗi in ngay dưới |
-| `Bộ tách từ 'vncorenlp' không chạy được trên máy này` (notebook PhoBERT) | máy ảo chưa có Java | không cần làm gì: ô bootstrap tự cài `default-jdk` khi model khai `preprocess.segmenter: vncorenlp`. Nếu `apt-get ->` khác 0 thì Restart session rồi Run all |
+| `Bộ tách từ 'vncorenlp' không chạy được trên máy này` (notebook PhoBERT) | máy ảo chưa có Java, chưa có `py-vncorenlp`, hoặc thiếu model VnCoreNLP | ô bootstrap tự cài và in bằng chứng: `JAVA_HOME -> ...`, `pip install -> 0`, `model VnCoreNLP: ... (có/THIẾU)`. Dòng nào khác 0 thì Restart session rồi Run all; dòng cuối ra `THIẾU` thì thêm `data/models/vncorenlp/` lên Drive (mục 2) |
+| `Thiếu đường dẫn ... data/models/vncorenlp` ở preflight (notebook PhoBERT) | thư mục nhóm trên Drive thiếu model VnCoreNLP | chép `data/models/vncorenlp/` từ gói bàn giao lên Drive, giữ nguyên cây thư mục |
+| `Thiếu N file dữ liệu gốc ... nên KHÔNG tính được mã phiên bản` | gốc dữ liệu đang trỏ vào chỗ không có file gốc, thường là máy ảo (xem dòng `Gốc dữ liệu` in ngay trên) | đưa dữ liệu gốc lên Drive rồi bấm **Allow** khi Colab hỏi (mục 3). Lỗi in ra ĐÚNG tên file còn thiếu |
 | `Mã phiên bản đang dùng (...) khác mã tính từ config` | dữ liệu gốc trên Drive khác bản ở máy | dùng đúng 4 file của `cosmetics/v0.1.0`. Khác kiểu xuống dòng CRLF/LF **không** còn làm lệch mã |
 | `CUDA out of memory` | batch quá lớn cho GPU của máy ảo | giảm `batch` trong `configs/experiments/training.yaml` |
 | `Máy KHÔNG thấy GPU (torch.cuda.is_available() = False)` | phiên Colab đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU | Runtime > Change runtime type > **T4 GPU** > Save, rồi **Restart session** và Run all. Kiểm bằng `!nvidia-smi` và `import torch; torch.cuda.is_available()`: có GPU trong `nvidia-smi` mà torch vẫn `False` nghĩa là torch là bản CPU, mở phiên mới (đừng `pip install torch`) |

@@ -125,14 +125,46 @@ class TestComputeId(unittest.TestCase):
     def test_id_unchanged_when_line_endings_change(self):
         """CRLF (Windows) và LF (Linux/Colab) là CÙNG một dữ liệu, phải ra cùng một mã.
 
-        Lỗi thật: notebook ghim chạy trên Colab xin `...-2d9fc48b` còn máy cá nhân đã tạo
-        `...-bf68b1c5` - chỉ vì kiểu xuống dòng khác nhau, nên hai máy không đời nào khớp kết quả.
+        Không chuẩn hoá thì hai máy không đời nào khớp kết quả, mà chuyện đó đã xảy ra thật. (Giá trị
+        `...-2d9fc48b` từng bị hiểu là hệ quả của kiểu xuống dòng; nguyên nhân thật của nó là THIẾU
+        DỮ LIỆU GỐC - xem `test_missing_source_file_is_an_error_naming_the_file`.)
         """
         before = self.compute()
         (self.raw / "train.csv").write_bytes(b"text,a\r\nhay,positive\r\n")
         (self.raw / "full.csv").write_bytes(b"text,a\r\nhay,positive\r\n")
         self.dataset_config.write_bytes(b"name: cosmetics\r\nversion: v0.1.0\r\n")
         self.assertEqual(before, self.compute())
+
+    def test_missing_source_file_is_an_error_naming_the_file(self):
+        """Gốc dữ liệu RỖNG từng cho ra một mã trông hợp lệ (`...-2d9fc48b`) và mã đó bị đem đi dùng.
+
+        Đây là lỗi im lặng đắt nhất của cách đánh phiên bản theo nội dung: thiếu dữ liệu mà không ai
+        báo. Ô cấu hình của notebook in mã đó ra, tên thư mục kết quả lấy theo mã đó, rồi preflight
+        mới nói "chưa có dataset đã xử lý" - người đọc đi tìm lỗi ở phiên bản dữ liệu trong khi nguyên
+        nhân thật là chưa đưa dữ liệu gốc lên máy. Nay thiếu file khai là LỖI kèm đúng tên file.
+        """
+        (self.raw / "train.csv").unlink()
+        with self.assertRaises(versioning.VersionError) as caught:
+            self.compute()
+        self.assertIn("train.csv", str(caught.exception))
+        self.assertIn("dữ liệu gốc", str(caught.exception))
+
+    def test_missing_sources_lists_every_declared_file(self):
+        (self.raw / "train.csv").unlink()
+        (self.raw / "full.csv").unlink()
+        self.assertEqual([path.name for path in versioning.missing_sources(self.cfg)],
+                         ["train.csv", "full.csv"])
+
+    def test_nothing_missing_when_the_source_is_complete(self):
+        self.assertEqual(versioning.missing_sources(self.cfg), [])
+
+    def test_declared_files_include_files_that_are_absent(self):
+        (self.raw / "full.csv").unlink()
+        source = self.cfg["_sources"][0]
+        self.assertEqual([path.name for path in versioning.declared_files(self.cfg, source)],
+                         ["train.csv", "full.csv"])
+        self.assertEqual([path.name for path in versioning.source_files(self.cfg, source)],
+                         ["train.csv"])
 
     def test_id_unchanged_when_a_bom_is_added(self):
         before = self.compute()

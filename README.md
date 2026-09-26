@@ -98,7 +98,12 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1
 ```
 
 Kiểm tra: `python run_token_stats.py --list-segmenters` — dòng `vncorenlp` phải hiện
-`dùng được = có`. Máy chưa cài được Java mà vẫn muốn chạy ngay thì dùng
+`dùng được = có`. Trên Colab thì **không phải làm gì**: ô bootstrap của notebook PhoBERT tự
+cài `default-jdk` + `py-vncorenlp`, đặt `JAVA_HOME`, và model VnCoreNLP đã nằm trong
+`data/models/vncorenlp/` của gói bàn giao — thí nghiệm PhoBERT khai đường dẫn đó ở
+`requires_extra` nên preflight chặn trước khi nạp model nếu thiếu
+([docs/00_workflow/07_colab.md §2](docs/00_workflow/07_colab.md)).
+Máy chưa cài được Java mà vẫn muốn chạy ngay thì dùng
 `--segmenter pyvi` (`pip install pyvi`), nhưng phải ghi rõ đã dùng bộ nào vì số liệu
 của hai bộ không so sánh ngang nhau được. Chi tiết (vì sao cài bằng ZIP thay vì `winget`,
 vì sao không dùng `py_vncorenlp.download_model`): xem

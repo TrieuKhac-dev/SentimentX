@@ -29,13 +29,17 @@ def normalize_text(text):
 
     VÌ SAO PHẢI CHUẨN HOÁ KIỂU XUỐNG DÒNG
     Cùng một file, Windows lưu CRLF còn Linux/Colab lưu LF. Băm thẳng từng byte thì hai máy ra hai
-    mã khác nhau dù nội dung không đổi, và đó là lỗi đã gặp thật: notebook ghim chạy trên Colab xin
-    mã phiên bản dữ liệu `...-2d9fc48b` trong khi máy cá nhân đã tạo `...-bf68b1c5`, nên kết quả hai
-    máy không đời nào khớp nhau.
+    mã khác nhau dù nội dung không đổi, nên kết quả hai máy không đời nào khớp nhau.
 
     `.gitattributes` (`data/** -text`) chỉ cấm git đổi kiểu xuống dòng khi checkout; nó không giúp
     gì khi tệp được TẢI LÊN Colab từ máy Windows. Vì vậy phép chuẩn hoá phải nằm ở chỗ mọi phép băm
     đi qua, không phải ở từng nơi gọi.
+
+    ĐÍNH CHÍNH (25/09/2026): giá trị `...-2d9fc48b` từng được giải thích là do kiểu xuống dòng, và
+    cách giải thích đó đã đi vào tài liệu. Nguyên nhân thật là THIẾU DỮ LIỆU GỐC: chỗ băm bỏ qua file
+    không tồn tại, nên một gốc dữ liệu RỖNG vẫn cho ra `...-2d9fc48b` (đo được: cùng cấu hình, không
+    có file nguồn nào, mã vẫn là giá trị đó). Việc chuẩn hoá vẫn cần - hai máy phải ra cùng một mã -
+    còn việc thiếu dữ liệu nay là LỖI ngay ở `versioning.compute_id`.
     """
     if text.startswith("\ufeff"):
         text = text[1:]

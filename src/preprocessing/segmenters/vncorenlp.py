@@ -87,7 +87,12 @@ JDK_SEARCH_DIRS = (
 
 INSTALL_HINT = (
     "Bộ tách từ chính chủ của PhoBERT cần 2 thứ: JAVA (JDK/JRE 1.8+) và model VnCoreNLP.\n"
-    "Cài trên Windows (không cần quyền admin, cài trong thư mục người dùng):\n"
+    "Trên Colab/Linux:\n"
+    "    apt-get install -y default-jdk\n"
+    "    export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))\n"
+    "    pip install py-vncorenlp\n"
+    "    (model VnCoreNLP nằm trong {} - gói bàn giao đã kèm sẵn)\n"
+    "Trên Windows (không cần quyền admin, cài trong thư mục người dùng):\n"
     "    powershell -ExecutionPolicy Bypass -File scripts\\setup_java.ps1\n"
     "    powershell -ExecutionPolicy Bypass -File scripts\\setup_vncorenlp.ps1\n"
     "Hoặc cài tay:\n"
@@ -95,7 +100,7 @@ INSTALL_HINT = (
     "    pip install py-vncorenlp\n"
     "    (tải VnCoreNLP-1.2.jar + models/wordsegmenter vào {})\n"
     "Trong lúc chưa có Java, có thể tạm chạy bằng: --segmenter pyvi".format(
-        MODEL_DIR.as_posix())
+        MODEL_DIR.as_posix(), MODEL_DIR.as_posix())
 )
 
 _RDR = None

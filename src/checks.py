@@ -321,7 +321,12 @@ def experiment_configs(root=None):
         try:
             config = result["config"]
             dataset_name = (config.get("data") or {}).get("dataset")
-            version = versioning.compute_id(dataset_module.load_config(dataset_name))
+            dataset_cfg = dataset_module.load_config(dataset_name)
+            # CI cố ý KHÔNG có dữ liệu (luật 20), nên thiếu file gốc thì chưa tính được mã phiên bản.
+            # Việc thiếu dữ liệu là việc của preflight trên máy có dữ liệu; ở đây vẫn kiểm tiếp được
+            # các đường dẫn nằm trong repo (prompt, ví dụ) nên không bỏ qua phần kiểm đó.
+            version = (None if versioning.missing_sources(dataset_cfg)
+                       else versioning.compute_id(dataset_cfg))
             rows = experiments.requires(result, version)
         except Exception as exc:                              # noqa: BLE001 - như trên
             found.append("{}: mã phiên bản dữ liệu: {}: {}".format(

@@ -31,6 +31,13 @@ enabled: true
 # Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận câu chỉ dẫn.
 # Số mẫu chấm lấy từ lớp evaluation (`n: null` = cả split test, đúng 1.518 review).
 #
-# LƯU Ý khi chạy: PhoBERT cần bộ tách từ VnCoreNLP (cần Java). Trên Colab, ô bootstrap cài
-# `default-jdk` nếu máy chưa có; trên máy cá nhân thì xem scripts/setup_vncorenlp.ps1.
+# LƯU Ý khi chạy - PhoBERT cần bộ tách từ VnCoreNLP, gồm HAI thứ không có trong git:
+#   * Java (JDK/JRE 1.8+) và gói `py-vncorenlp`. Trên Colab ô bootstrap tự cài (`default-jdk` + pip);
+#     trên máy cá nhân thì chạy scripts/setup_java.ps1.
+#   * Model VnCoreNLP (~27 MB: `VnCoreNLP-1.2.jar` + `models/wordsegmenter/`). Khai ở
+#     `requires_extra` dưới đây để notebook kiểm TRƯỚC khi chạy; gói bàn giao đã kèm sẵn thư mục đó.
+requires_extra:
+  # Tính từ GỐC REPO (khác `prompt`/`examples`/`examples`: những đường dẫn đó tính từ thư mục thí
+  # nghiệm trước). Trên Colab, `data/` là thư mục trên Drive - xem docs/00_workflow/07_colab.md mục 2.
+  - data/models/vncorenlp
 

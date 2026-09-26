@@ -358,6 +358,16 @@ powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1
 powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1
 ```
 
+Trên Colab/Linux thì ba việc đó là (ô bootstrap của notebook PhoBERT làm tự động, không phải gõ tay):
+
+```bash
+pip install -r requirements.txt
+apt-get install -y default-jdk                     # ảnh Colab có JDK 11; 1.8+ là đủ
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))   # pyjnius tìm JVM qua biến này
+pip install py-vncorenlp
+# model VnCoreNLP: đã kèm trong gói ở data/models/vncorenlp/ (27 MB) - không phải tải lại
+```
+
 Vì sao cần Java, và vì sao phải là script chứ không phải "cài gì cũng được":
 
 | Điều | Chi tiết |
@@ -365,7 +375,7 @@ Vì sao cần Java, và vì sao phải là script chứ không phải "cài gì 
 | Bộ tách từ chính chủ là chương trình **Java** | RDRSegmenter nằm trong `VnCoreNLP-1.2.jar`; `py-vncorenlp` gọi nó qua **pyjnius (JNI)**, không phải qua lệnh `java` |
 | pyjnius tìm JVM qua biến môi trường | `JDK_HOME` rồi `JAVA_HOME`; không thấy thì báo `"Unable to find JAVA_HOME"` - một lỗi chung chung, dễ làm sập cả phép đo. Vì vậy dự án **kiểm tra Java trước** và báo lỗi kèm đúng lệnh cần chạy |
 | Vì sao cài bằng ZIP thay vì `winget` | Cài vào `%USERPROFILE%\.jdks\temurin-17`: không cần quyền admin, gỡ ra chỉ cần xoá thư mục, và **mọi máy dùng cùng một dòng 17.0.x LTS** (script tải từ Adoptium API và kiểm SHA256) |
-| Vì sao không dùng `py_vncorenlp.download_model()` | Hàm đó gọi `wget` qua `os.system`, mà Windows không có wget -> không tải được gì rồi báo lỗi khó hiểu. `scripts\setup_vncorenlp.ps1` tải bằng PowerShell và **kiểm kích thước từng file** |
+| Vì sao không dùng `py_vncorenlp.download_model()` | Hàm đó gọi `wget` qua `os.system`, mà Windows không có wget -> không tải được gì rồi báo lỗi khó hiểu. `scripts\setup_vncorenlp.ps1` tải bằng PowerShell và **kiểm kích thước từng file**. Trên Colab/Linux hàm đó chạy được, nhưng gói bàn giao vẫn kèm sẵn model để lượt chạy không phụ thuộc vào mạng |
 | Phiên bản đang dùng | JDK: Temurin **17** (script in ra bản cụ thể khi cài; đã kiểm: 17.0.20.1). Model: `VnCoreNLP-1.2.jar` + `models/wordsegmenter/{vi-vocab, wordsegmenter.rdr}` trong `data/models/vncorenlp/` - thư mục này nằm trong `.gitignore`, cài lại bằng script chứ không commit |
 
 Kiểm tra sau khi cài (không khởi động JVM nên rất nhanh):

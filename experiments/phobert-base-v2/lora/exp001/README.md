@@ -16,8 +16,10 @@ Không có lần chạy trước (`parent: null`). Bốn lựa chọn của thí
 | Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ; `val` chỉ dùng để chọn `model/best` |
 | Số mẫu | cả split | So với công bố thì phải chấm hết tập test |
 
-Cần Java cho bộ tách từ: trên Colab ô bootstrap cài `default-jdk` khi máy chưa có; trên máy cá nhân
-xem `scripts/setup_vncorenlp.ps1`. Preflight kiểm việc này trước khi nạp model.
+Cần hai thứ không có trong git: Java (bootstrap trên Colab tự cài `default-jdk` + `py-vncorenlp`) và
+model VnCoreNLP (~27 MB, khai ở `requires_extra` nên notebook kiểm trước khi chạy; gói bàn giao đã
+kèm sẵn trong `data/models/vncorenlp/`). Trên máy cá nhân xem `scripts/setup_java.ps1` và
+`scripts/setup_vncorenlp.ps1`.
 
 ## Kết quả nằm ở đâu
 

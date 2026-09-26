@@ -45,11 +45,60 @@ class VersionError(Exception):
     """Lỗi liên quan tới phiên bản dữ liệu (file phiên bản bị sửa, thiếu phiên bản...)."""
 
 
+def declared_files(dataset_cfg, source):
+    """Mọi file dữ liệu mà một nguồn KHAI, kể cả file chưa có trên đĩa.
+
+    Nguồn `raw` chỉ lấy đúng file khai trong `splits` và `full`, không lấy cả thư mục: trong thư mục
+    còn `raw_meta.yaml` và kết quả EDA, không phải dữ liệu.
+    """
+    if source.get("kind") == "dataset":
+        names = list(DATASET_FILES)
+    else:
+        names = list((dataset_cfg.get("splits") or {}).values())
+        if dataset_cfg.get("full"):
+            names.append(dataset_cfg["full"])
+    return [Path(source["dir"]) / str(name) for name in names]
+
+
+def source_files(dataset_cfg, source):
+    """Các file dữ liệu CÓ trên đĩa của một nguồn, theo thứ tự tên.
+
+    Dùng cho việc băm nội dung và cho nhật ký nguồn. Việc THIẾU file là lỗi riêng, do
+    `missing_sources()` báo - không lặng lẽ bỏ qua ở đây.
+    """
+    return [path for path in declared_files(dataset_cfg, source) if path.exists()]
+
+
+def missing_sources(dataset_cfg):
+    """File dữ liệu đã KHAI của các nguồn mà KHÔNG có trên đĩa.
+
+    Vì sao cần phép kiểm này: mã phiên bản băm NỘI DUNG các file nguồn, nên nếu chỗ băm bỏ qua file
+    thiếu thì một gốc dữ liệu RỖNG vẫn cho ra một mã trông hợp lệ - mã đó được in ra ở ô cấu hình,
+    được dùng làm tên thư mục kết quả, rồi preflight báo "chưa có dataset đã xử lý". Người đọc đi tìm
+    lỗi ở phiên bản dữ liệu, trong khi nguyên nhân thật là chưa đưa dữ liệu gốc lên máy.
+    """
+    missing = []
+    for source in dataset_cfg.get("_sources") or []:
+        missing.extend(path for path in declared_files(dataset_cfg, source) if not path.exists())
+    return missing
+
+
 def compute_id(dataset_cfg, pipeline_cfg=None):
     """Tính mã phiên bản từ cấu hình và nội dung dữ liệu của các nguồn.
 
     Không truyền `pipeline_cfg` thì nạp file pipeline ghi ở `pipeline_version` của dataset.
+
+    Thiếu file dữ liệu gốc là LỖI: băm một bộ nguồn rỗng cho ra một mã hợp lệ nhưng vô nghĩa, và mọi
+    thứ đi sau đó (tên thư mục kết quả, khoá resume, bảng tổng hợp) đều dựa vào mã ấy.
     """
+    missing = missing_sources(dataset_cfg)
+    if missing:
+        raise VersionError(
+            "Thiếu {} file dữ liệu gốc của dataset {!r} nên KHÔNG tính được mã phiên bản:\n  - {}\n"
+            "Đưa đủ dữ liệu gốc vào thư mục của nguồn rồi chạy lại. Dữ liệu gốc KHÔNG nằm trong git "
+            "(luật 20 của docs/00_workflow/02_rules.md), nên bản clone sạch không có chúng.".format(
+                len(missing), dataset_cfg.get("name"), "\n  - ".join(utils.rel(path) for path in missing)))
+
     if pipeline_cfg is None:
         pipeline_cfg = utils.load_pipeline_config(dataset_cfg.get("pipeline_version"))
 

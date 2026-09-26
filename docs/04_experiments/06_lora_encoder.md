@@ -44,7 +44,10 @@ hai phép đo vào cùng một bảng là lỗi không nhìn thấy được.
 ## Chạy trên Colab
 
 Hai notebook LoRA chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa 6 GB VRAM). Ô bootstrap
-tự cài `peft`, và tự cài `default-jdk` khi model khai `preprocess.segmenter: vncorenlp` (PhoBERT).
+tự cài `peft`, và với PhoBERT (`preprocess.segmenter: vncorenlp`) thì tự cài thêm `default-jdk` +
+`py-vncorenlp` rồi đặt `JAVA_HOME` cho tiến trình. Model VnCoreNLP (27 MB) không nằm trong git, nên
+phải có sẵn ở `data/models/vncorenlp/` của thư mục dữ liệu: thí nghiệm PhoBERT khai đường dẫn đó ở
+`requires_extra`, và preflight chặn trước khi nạp model nếu thiếu.
 `inference.dtype: auto` nghĩa là mã chọn bf16 khi máy hỗ trợ, fp16 khi không (T4 là Turing), fp32 trên
 CPU - kiểu số đã dùng được ghi vào `run.log` và `run_meta.json`.
 

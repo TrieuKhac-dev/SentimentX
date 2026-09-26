@@ -55,6 +55,13 @@ Ghi chú khi làm:
   `...-e0ccc484`. Giá trị `eval_lock` đo được ở lần chạy này là `e2558137...` (1518 dòng), chốt vào
   phiên bản dataset kế tiếp ở P7.
 
+  **Đính chính 25/09/2026 - nguyên nhân thật của `...-2d9fc48b`:** giá trị đó không phải do kiểu
+  xuống dòng, mà do **thiếu dữ liệu gốc**: `versioning.source_files` bỏ qua file không tồn tại, nên
+  một gốc dữ liệu RỖNG vẫn cho ra `...-2d9fc48b` (đo lại được: cùng cấu hình, không có file nguồn nào,
+  mã vẫn là `...-2d9fc48b`). Việc chuẩn hoá xuống dòng vẫn đúng và vẫn cần (hai máy phải ra cùng một
+  mã), nhưng nay **thiếu file nguồn là LỖI ngay ở `compute_id`**, kèm tên từng file - thay vì đưa ra
+  một mã trông hợp lệ rồi để preflight nói "chưa có dataset đã xử lý".
+
 ## 4. Điều kiện hoàn thành (DoD)
 
 - Chạy hai phiên bản dataset khác nhau ra hai mã khác nhau, hai thư mục khác nhau.
