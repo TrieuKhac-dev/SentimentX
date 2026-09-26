@@ -248,6 +248,26 @@ class TestDriveDir(unittest.TestCase):
         (nested / MARKER).write_text("", encoding="utf-8")
         self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), nested)
 
+    def test_the_search_follows_a_drive_shortcut(self):
+        """A chia sẻ thư mục cho b/c/d: mỗi người bấm "Add shortcut to My Drive" một lần.
+
+        Drive để lối tắt trong thư mục ẩn `.shortcut-targets-by-id/<id>/<tên>`. Không xét chỗ này thì
+        b/c/d thấy "chưa có thư mục nhóm" dù thư mục đã được chia sẻ và lối tắt đã có - đúng cảnh đã
+        gặp, vì `MyDrive` của họ chỉ có thư mục riêng.
+        """
+        target = self.root / "MyDrive" / ".shortcut-targets-by-id" / "1AbC" / "ABSA_2026_2027"
+        target.mkdir(parents=True)
+        (target / MARKER).write_text("", encoding="utf-8")
+        self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), target)
+
+    def test_listing_reports_the_shortcut_targets(self):
+        """Lối tắt phải được IN RA: đó là câu trả lời cho "tôi được chia sẻ rồi mà sao không thấy"."""
+        (self.root / "MyDrive" / ".shortcut-targets-by-id" / "1AbC" / "ABSA_2026_2027").mkdir(
+            parents=True)
+        listing = {item["root"].name: item["shortcuts"]
+                   for item in runtime.drive_listing(self.candidates())}
+        self.assertEqual(listing["MyDrive"], ["ABSA_2026_2027"])
+
     def test_the_closest_folder_with_the_marker_wins(self):
         """Có dấu ở cả hai cấp thì lấy cấp MỘT: gần gốc hơn, và tránh chọn thư mục con của nó."""
         outer = self.root / "Shareddrives" / "Khoa CNTT"

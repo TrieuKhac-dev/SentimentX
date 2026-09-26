@@ -130,17 +130,24 @@ def _find_drive(folder, places, marker):
 def _search_for_marker(places, marker):
     """Tìm thư mục có FILE ĐÁNH DẤU trong các gốc của `places`, không cần biết tên trước.
 
-    Quét `/content/drive/MyDrive/<tên bất kỳ>/.sentimentx_root`, và nếu chưa thấy thì quét thêm MỘT
-    cấp nữa. Cấp thứ hai là cho SHARED DRIVE: cấu trúc hay gặp là
-    `Shareddrives/<tên shared drive>/<thư mục dự án>/.sentimentx_root` (nhóm để dự án trong shared
-    drive của khoa/giảng viên). Không quét cấp hai khi cấp một đã có, nên trường hợp bình thường vẫn
-    nhanh và không có chuyện chọn nhầm thư mục cha.
+    Ba lượt, theo thứ tự, dừng ngay khi thấy:
+      1. một cấp: `/content/drive/MyDrive/<tên bất kỳ>/.sentimentx_root` (cách thường dùng);
+      2. hai cấp: `.../Shareddrives/<tên shared drive>/<thư mục dự án>/.sentimentx_root` (nhóm để dự án
+         trong shared drive của khoa/giảng viên);
+      3. LỐI TẮT (shortcut): `.../MyDrive/.shortcut-targets-by-id/<id>/<tên>/.sentimentx_root` - đây là
+         chỗ Drive để lối tắt khi A CHIA SẺ thư mục nhóm cho b/c/d và mỗi người bấm "Add shortcut to My
+         Drive". Không xét chỗ này thì b/c/d thấy "chưa có thư mục nhóm" dù đã được chia sẻ.
 
-    Nhiều thư mục cùng có dấu thì chọn thư mục CÓ `data/` (dấu hiệu thư mục đã được chuẩn bị để chạy),
-    còn lại lấy theo thứ tự tên - để kết quả không phụ thuộc thứ tự đọc đĩa.
+    Không quét lượt sau khi lượt trước đã thấy, nên trường hợp bình thường vẫn nhanh và không có chuyện
+    chọn nhầm một thư mục cha. Nhiều thư mục cùng có dấu thì chọn thư mục CÓ `data/` (dấu hiệu thư mục
+    đã được chuẩn bị để chạy), còn lại lấy theo thứ tự tên - để kết quả không phụ thuộc thứ tự đọc đĩa.
     """
+    from src import paths
+
     if not marker:
         return None
+    settings = paths.cfg().get("colab") or {}
+    shortcut = str(settings.get("shortcut_dir") or "")
     roots = []
     for place in places:
         # Dùng `Path` chứ không cắt chuỗi theo "/": trên Windows đường dẫn dùng "\", cắt theo "/" thì
@@ -166,6 +173,15 @@ def _search_for_marker(places, marker):
             for nested in sorted(child.iterdir()):
                 if nested.is_dir() and (nested / marker).exists() and nested not in found:
                     found.append(nested)
+        if found:
+            continue
+        if shortcut and (root / shortcut).is_dir():
+            for folder_id in sorted((root / shortcut).iterdir()):
+                if not folder_id.is_dir():
+                    continue
+                for target in sorted(folder_id.iterdir()):
+                    if target.is_dir() and (target / marker).exists() and target not in found:
+                        found.append(target)
     if not found:
         return None
     for child in found:
@@ -199,15 +215,30 @@ def drive_roots(places=None):
 def drive_listing(places=None, limit=12):
     """Mỗi gốc Drive kèm tên các thư mục con đang thấy: để IN RA khi không tìm được thư mục nhóm.
 
-    Trả về `[{"root": Path, "names": [tên...], "gone": bool}, ...]`. Không phải để chọn thư mục -
-    chọn thì vẫn theo FILE ĐÁNH DẤU (xem `drive_dir`) - mà để người đọc biết máy đang nhìn vào đâu:
-    gốc MyDrive có gì, gốc Shareddrives có gì, hay cả hai đều rỗng.
+    Trả về `[{"root": Path, "names": [tên...], "shortcuts": [tên...], "gone": bool}, ...]`. Không phải
+    để chọn thư mục - chọn thì vẫn theo FILE ĐÁNH DẤU (xem `drive_dir`) - mà để người đọc biết máy đang
+    nhìn vào đâu: gốc MyDrive có gì, gốc Shareddrives có gì, LỐI TẮT (shortcut) đang trỏ tới đâu, hay
+    cả hai gốc đều rỗng.
+
+    `shortcuts` là chỗ trả lời câu hỏi hay gặp nhất của người được chia sẻ thư mục nhóm: "tôi đã được
+    chia sẻ rồi mà notebook bảo chưa thấy" - khi đó hoặc chưa bấm "Add shortcut to My Drive", hoặc lối
+    tắt đã có mà thư mục đích thiếu file đánh dấu.
     """
+    from src import paths
+
+    settings = paths.cfg().get("colab") or {}
+    shortcut = str(settings.get("shortcut_dir") or "")
     listing = []
     for root in drive_roots(places):
         exists = root.is_dir()
         names = sorted(child.name for child in root.iterdir()) if exists else []
-        listing.append({"root": root, "names": names[:limit], "gone": not exists})
+        shortcuts = []
+        if shortcut and (root / shortcut).is_dir():
+            for folder_id in sorted((root / shortcut).iterdir()):
+                if folder_id.is_dir():
+                    shortcuts.extend(sorted(target.name for target in folder_id.iterdir()))
+        listing.append({"root": root, "names": names[:limit], "gone": not exists,
+                        "shortcuts": shortcuts[:limit]})
     return listing
 
 

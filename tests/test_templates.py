@@ -281,7 +281,7 @@ class TestBootstrap(unittest.TestCase):
         source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
         self.assertIn("runtime.drive_listing()", source)
         self.assertIn("SHARED DRIVE", source)
-        self.assertIn("ĐỦ GHI", source)
+        self.assertIn("Shareddrives", source)
 
     def test_bootstrap_says_which_account_to_pick_when_the_drive_has_nothing(self):
         """Thấy toàn thư mục lạ thì phải nói tới chuyện chọn nhầm TÀI KHOẢN Google.
@@ -293,6 +293,18 @@ class TestBootstrap(unittest.TestCase):
         source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
         self.assertIn("MỘT TÀI KHOẢN GOOGLE KHÁC", source)
         self.assertIn("Disconnect and delete runtime", source)
+
+    def test_bootstrap_explains_the_shared_folder_case(self):
+        """A chia sẻ thư mục cho b/c/d: notebook phải nói bước "Add shortcut to My Drive".
+
+        Được chia sẻ thôi thì Drive của người nhận vẫn KHÔNG chứa thư mục đó ("Shared with me" không
+        nằm trong `MyDrive`), nên nếu notebook không nói bước này thì lượt chạy dừng mà không ai biết
+        phải làm gì. Kèm theo là lối tắt được in ra và hai khoá env để chỉ định thẳng đường dẫn.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("Add shortcut to My Drive", source)
+        self.assertIn("lối tắt (shortcut) đang trỏ tới", source)
+        self.assertIn("SENTIMENTX_RESULTS_ROOT", source)
 
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.

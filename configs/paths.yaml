@@ -74,6 +74,11 @@ colab:
     - "/content/drive/Shareddrives/{folder}"
   folder_marker: ".sentimentx_root"
   env_file: "env/.env.colab"
+  # Khi A CHIA SẺ thư mục nhóm cho b/c/d (thư mục nằm trong Drive của A, không phải Shared drive),
+  # mỗi người bấm "Add shortcut to My Drive" MỘT lần. Drive để lối tắt trong thư mục ẩn này:
+  # `/content/drive/MyDrive/.shortcut-targets-by-id/<id>/<tên thư mục>`. Notebook xét cả chỗ này,
+  # vì nếu không thì b/c/d thấy "chưa có thư mục nhóm" dù họ đã được chia sẻ.
+  shortcut_dir: ".shortcut-targets-by-id"
 
 canonical:
   # Danh sách nào có thứ tự có nghĩa khi băm cấu hình.

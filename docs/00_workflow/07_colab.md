@@ -135,6 +135,40 @@ print("sẵn sàng:", sorted(item.name for item in root.iterdir()))
 
 Không cần nén, không cần `.env.colab`, không cần khai tên thư mục: xem mục 4.
 
+### Chia sẻ thư mục nhóm cho cả nhóm (A chia sẻ cho b, c, d)
+
+**Cách 1 - Shared drive (chỉ có với Google Workspace, và là cách gọn nhất):** tạo **một** Shared drive
+(ví dụ `ABSA 2026-2027`), đưa thư mục dự án vào trong đó, rồi thêm b/c/d với quyền **Content manager**
+(đủ ghi). Notebook tự tìm thấy ở `Shareddrives/<tên shared drive>/<thư mục dự án>`; cả nhóm chạy trên
+cùng một thư mục nên kết quả gom về một chỗ.
+
+**Cách 2 - A chia sẻ một thư mục trong Drive của A (Gmail thường cũng làm được):** A chia sẻ thư mục
+`ABSA_2026_2027` cho b/c/d với quyền **Editor**. Sau đó **mỗi người** trong b/c/d làm một việc, một lần,
+trên Drive của mình:
+
+```
+mở Drive > "Shared with me" > chuột phải thư mục ABSA_2026_2027 > Organize > Add shortcut
+  > chọn My Drive > Add
+```
+
+Vì sao bắt buộc: thư mục được chia sẻ **không nằm trong `MyDrive`** của người nhận, nên cả
+`/content/drive` lẫn notebook đều không thấy nó. Sau khi có lối tắt, notebook tìm thấy qua lối tắt (nó
+xét cả `MyDrive/.shortcut-targets-by-id/`), và in ra dòng `lối tắt (shortcut) đang trỏ tới: ...` khi cần
+đối chiếu.
+
+**Cách 3 - chỉ định thẳng đường dẫn** (khi hai cách trên chưa làm được ngay): bỏ chú thích trong
+`env/.env.colab` và trỏ tới đúng chỗ:
+
+```
+SENTIMENTX_DATA_ROOT=/content/drive/MyDrive/ABSA_2026_2027/data
+SENTIMENTX_RESULTS_ROOT=/content/drive/MyDrive/ABSA_2026_2027/experiments
+```
+
+Điều kiện chung cho cả ba cách: quyền phải **đủ ghi**, vì kết quả chạy ghi vào
+`<thư mục nhóm>/experiments/...`; và thư mục nhóm nên có file đánh dấu `.sentimentx_root` (A tạo **một
+lần** bằng code, xem đoạn trên) - thiếu file đó thì notebook vẫn nhận ra thư mục nếu nó có cấu trúc của
+gói (`env/.env.colab`, hoặc `data` + `experiments`), nhưng có dấu thì chắc chắn hơn.
+
 ## 4. Người chạy notebook - ba bước
 
 1. **Copy** thư mục nhóm đã chuẩn bị **và file `notebook.ipynb`** vào Drive của mình. Ngay cả khi
@@ -228,7 +262,7 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `Máy KHÔNG thấy GPU (torch.cuda.is_available() = False)` | phiên Colab đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU | Runtime > Change runtime type > **T4 GPU** > Save, rồi **Restart session** và Run all. Kiểm bằng `!nvidia-smi` và `import torch; torch.cuda.is_available()`: có GPU trong `nvidia-smi` mà torch vẫn `False` nghĩa là torch là bản CPU, mở phiên mới (đừng `pip install torch`) |
 | Chạy trên T4 chậm bất thường | T4 là Turing, **không** hỗ trợ bf16, mà bf16 là kiểu số mặc định của model config | Không cần làm gì: `runner._model_dtype` tự chọn fp16 khi máy không hỗ trợ bf16, và ghi kiểu đã dùng vào `run.log`/`run_meta.json` (`4-bit nf4 (tính bằng float16)`) |
 | Vẫn `ModuleNotFoundError: No module named 'src'` | kernel còn nhớ kết luận "không có gói `src`" từ lúc máy trống | Runtime -> Restart session rồi Run all; ô bootstrap đã tự xoá bộ nhớ đệm import |
-| `MyDrive: ...` / `Shareddrives: ...` in ra rồi dừng vì không thấy thư mục nhóm | (a) phiên này mount Drive của **tài khoản Google KHÁC**; (b) thư mục nhóm nằm trong **Shared drive chưa được chia sẻ** (gốc `Shareddrives` rỗng); (c) thiếu `.sentimentx_root` | (a) `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản** khi Colab hỏi; (b) xin chia sẻ shared drive với quyền **đủ ghi**; (c) tạo file đánh dấu (mục 3). Tài khoản đúng là tài khoản có thư mục chứa `data/`, `env/` |
+| `MyDrive: ...` / `Shareddrives: ...` (`CHƯA thấy gốc Drive: .../Shareddrives`) in ra rồi dừng vì không thấy thư mục nhóm | (a) phiên này mount Drive của **tài khoản Google KHÁC**; (b) thư mục nhóm do **A chia sẻ** mà người nhận **chưa bấm "Add shortcut to My Drive"**; (c) thư mục nhóm nằm trong **Shared drive** chưa được chia sẻ; (d) thiếu `.sentimentx_root` và thư mục cũng không có cấu trúc gói | (a) `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản**; (b) bấm `Organize > Add shortcut` một lần rồi chạy lại (mục 3, "Cách 2"); (c) xin chia sẻ shared drive với quyền **đủ ghi**; (d) tạo file đánh dấu (mục 3). Hoặc chỉ định thẳng `SENTIMENTX_DATA_ROOT`/`SENTIMENTX_RESULTS_ROOT` trong `env/.env.colab` (mục 3, "Cách 3") |
 | `Muốn chạy lại từ đầu` | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên. Thư mục của lượt HỎNG (không có `metrics.json`) xoá được ngay |
 
 ## 8. Đừng đổi thứ tự nếu chưa hiểu vì sao
