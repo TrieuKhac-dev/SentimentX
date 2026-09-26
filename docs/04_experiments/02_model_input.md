@@ -365,7 +365,8 @@ pip install -r requirements.txt
 apt-get install -y default-jdk                     # ảnh Colab có JDK 11; 1.8+ là đủ
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))   # pyjnius tìm JVM qua biến này
 pip install py-vncorenlp
-# model VnCoreNLP: đã kèm trong gói ở data/models/vncorenlp/ (27 MB) - không phải tải lại
+# model VnCoreNLP (27 MB): gói bàn giao đã kèm ở data/models/vncorenlp/, và nếu thiếu thì ô bootstrap
+# của notebook PhoBERT tự tải về đúng gốc dữ liệu - không phải chép tay
 ```
 
 Vì sao cần Java, và vì sao phải là script chứ không phải "cài gì cũng được":

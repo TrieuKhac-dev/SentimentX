@@ -206,6 +206,39 @@ class TestBootstrap(unittest.TestCase):
         self.assertIn("IN_COLAB", source)
         self.assertIn('"-m", "pip", "install"', source)
 
+    def test_bootstrap_downloads_the_tokenizer_assets_when_missing(self):
+        """Ô bootstrap phải TỰ có model VnCoreNLP, không bắt người chạy chép tay.
+
+        Lỗi thật trên Colab: preflight dừng vì thiếu `data/models/vncorenlp`, trong khi gói bàn giao
+        đã có thư mục đó - người chạy chép thiếu một thư mục là cả lượt chạy không bắt đầu được.
+        Nay ô bootstrap tự tải ba file cần thiết vào GỐC DỮ LIỆU khi thiếu, cùng nguồn và cùng mức
+        kích thước tối thiểu như `scripts/setup_vncorenlp.ps1`.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("urlretrieve", source)
+        self.assertIn("VnCoreNLP-1.2.jar", source)
+        self.assertIn("models/wordsegmenter/vi-vocab", source)
+        self.assertIn("models/wordsegmenter/wordsegmenter.rdr", source)
+        # Tải về chỗ mà preflight và bộ tách từ cùng đọc: gốc dữ liệu, không phải thư mục khác.
+        self.assertIn('paths.data("models")', source)
+
+    def test_bootstrap_stops_when_the_group_folder_is_missing(self):
+        """Colab không thấy thư mục nhóm là DỪNG, không chạy tiếp rồi chết ở ô cấu hình.
+
+        Máy ảo Colab không chứa dữ liệu gốc, nên chạy tiếp chỉ tạo ra thêm hai thông báo khó hiểu
+        (thiếu dữ liệu, kết quả ghi vào chỗ mất khi hết phiên). Lượt chạy thật đã rơi vào đúng cảnh
+        đó. Việc dừng phải nằm SAU bước tìm thư mục nhóm, và phải nhường chỗ cho trường hợp người
+        chạy cố ý khai `SENTIMENTX_DATA_ROOT`.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("chưa thấy thư mục nhóm trên Drive", source)
+        self.assertIn('os.environ.get("SENTIMENTX_DATA_ROOT"', source)
+        lines = [line for line in source.splitlines() if not line.lstrip().startswith("#")]
+        lookup = next(index for index, line in enumerate(lines) if "runtime.drive_dir()" in line)
+        stop = next(index for index, line in enumerate(lines)
+                    if "chưa thấy thư mục nhóm trên Drive" in line)
+        self.assertLess(lookup, stop, "phải tìm thư mục nhóm TRƯỚC khi kết luận là không có")
+
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
 
