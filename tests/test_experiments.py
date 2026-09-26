@@ -287,6 +287,31 @@ class TestRequires(ExperimentCase):
         self.assertEqual([row["role"] for row in rows][-2:],
                          ["requires_extra[1]", "requires_extra[2]"])
 
+    def test_requires_extra_data_path_comes_from_the_data_root(self):
+        """Mục `data/...` tính từ GỐC DỮ LIỆU, không phải gốc repo.
+
+        Lỗi thật ở lượt chạy PhoBERT đầu tiên trên Colab: `data/models/vncorenlp` bị tính từ gốc repo
+        (`/content/SentimentX`, chỉ có mã nguồn) nên máy báo THIẾU dù gói bàn giao đã đặt thư mục đó
+        trên Drive - đúng nơi gốc dữ liệu trỏ tới.
+        """
+        rows = experiments.requires(
+            self.load(extra="requires_extra: [data/models/vncorenlp]\n"), self.version_id)
+        self.assertEqual(rows[-1]["path"], Path(self.tmp.name) / "models" / "vncorenlp")
+
+    def test_requires_extra_other_paths_come_from_the_repo_root(self):
+        """Thứ nằm trong git (mã nguồn, cấu hình) vẫn tính từ gốc repo."""
+        rows = experiments.requires(
+            self.load(extra="requires_extra: [configs/prompts/system/absa_cot.txt]\n"),
+            self.version_id)
+        self.assertEqual(rows[-1]["path"],
+                         paths.root() / "configs" / "prompts" / "system" / "absa_cot.txt")
+
+    def test_requires_extra_absolute_path_is_kept(self):
+        absolute = (Path(self.tmp.name) / "ngoai-repo").as_posix()
+        rows = experiments.requires(
+            self.load(extra="requires_extra: [{}]\n".format(absolute)), self.version_id)
+        self.assertEqual(rows[-1]["path"], Path(absolute))
+
     def test_check_requires_reports_every_missing_path(self):
         with self.assertRaises(experiments.ExperimentError) as caught:
             experiments.check_requires(self.load(), self.version_id)

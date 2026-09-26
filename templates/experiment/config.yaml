@@ -38,4 +38,5 @@ prompt: prompt.txt
 # examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
 # system_prompt: ../../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
 # requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
-#   - data/models/vncorenlp                   # đường dẫn tính từ GỐC REPO (khác prompt/examples)
+#   - data/models/vncorenlp                   # mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU (trên
+#                                             # Colab là thư mục Drive); mục khác tính từ gốc repo

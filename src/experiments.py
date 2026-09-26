@@ -546,7 +546,8 @@ def requires(result, version_id):
     """Danh sách đường dẫn mà lần chạy cần: [{"path": Path, "display": str, "role": str}, ...].
 
     Sinh từ: file dữ liệu của từng vai trong `data.roles`, bảng mã nhãn của phiên bản dữ liệu,
-    các file prompt, rồi cộng `requires_extra` của thí nghiệm.
+    các file prompt, rồi cộng `requires_extra` của thí nghiệm (mục bắt đầu bằng `data/` tính từ gốc
+    dữ liệu - trên Colab là thư mục Drive; xem `_extra_path`).
 
     Vì sao cần danh sách này: chạy trên Colab thì dữ liệu nằm trên Drive, mà thiếu một file thì
     lỗi hiện ra rất muộn - sau khi đã tải model. Notebook kiểm danh sách này TRƯỚC khi nạp model;
@@ -571,9 +572,41 @@ def requires(result, version_id):
             rows.append(_requirement(resolve_file(result, config[key]), key))
 
     for index, extra in enumerate(config.get("requires_extra") or [], start=1):
-        rows.append(_requirement(paths.root() / str(extra) if not Path(str(extra)).is_absolute()
-                                 else Path(str(extra)), "requires_extra[{}]".format(index)))
+        rows.append(_requirement(_extra_path(extra), "requires_extra[{}]".format(index)))
     return rows
+
+
+# Mục `requires_extra` bắt đầu bằng tiền tố này thì tính từ GỐC DỮ LIỆU, xem `_extra_path`.
+
+
+def _data_prefix():
+    """Tiền tố nhận ra một mục `requires_extra` tính từ GỐC DỮ LIỆU.
+
+    Đọc tên thư mục từ `configs/paths.yaml` (`roots.data`) chứ không viết cứng: đổi cấu trúc thư mục
+    thì chỉ sửa file cấu hình - đúng quy ước của `src/paths.py`. Test `tests/test_paths.py` khoá lại
+    điều này.
+    """
+    return str(paths.cfg()["roots"]["data"]).replace("\\", "/").strip("/") + "/"
+
+
+def _extra_path(raw):
+    """Đường dẫn của một mục `requires_extra`.
+
+    Mục bắt đầu bằng tên GỐC DỮ LIỆU tính từ gốc đó (biến `SENTIMENTX_DATA_ROOT`), không phải gốc
+    repo: trên Colab hai gốc đó KHÁC nhau - mã nguồn ở `/content/SentimentX`, còn dữ liệu nằm trong
+    thư mục Drive. Tính từ gốc repo thì máy báo thiếu `data/models/vncorenlp` dù gói bàn giao đã kèm
+    thư mục đó; đây là lỗi đã gặp thật ở lượt chạy PhoBERT đầu tiên. Ở máy cá nhân hai gốc trùng nhau
+    nên không có gì đổi.
+
+    Mục khác tính từ gốc repo (mã nguồn, cấu hình, prompt - những thứ nằm trong git), trừ khi là
+    đường dẫn tuyệt đối.
+    """
+    text = str(raw).replace("\\", "/")
+    prefix = _data_prefix()
+    if text.startswith(prefix):
+        return paths.data_root() / text[len(prefix):]
+    candidate = Path(text)
+    return candidate if candidate.is_absolute() else paths.root() / candidate
 
 
 def _requirement(path, role):

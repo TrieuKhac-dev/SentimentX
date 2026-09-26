@@ -149,6 +149,18 @@ class TestComputeId(unittest.TestCase):
         self.assertIn("train.csv", str(caught.exception))
         self.assertIn("dữ liệu gốc", str(caught.exception))
 
+    def test_error_names_the_data_root_in_use(self):
+        """Thông báo phải nói RÕ gốc dữ liệu đang dùng.
+
+        Trên Colab cùng một đường dẫn tương đối (`data/raw/...`) có thể nằm trong máy ảo hoặc trong
+        thư mục Drive, và "gốc dữ liệu nào?" chính là câu hỏi cần trả lời ngay. Lượt chạy thật đã
+        dừng ở đây mà không có chi tiết đó, nên người đọc phải đoán.
+        """
+        (self.raw / "full.csv").unlink()
+        with self.assertRaises(versioning.VersionError) as caught:
+            self.compute()
+        self.assertIn(str(paths.data_root()), str(caught.exception))
+
     def test_missing_sources_lists_every_declared_file(self):
         (self.raw / "train.csv").unlink()
         (self.raw / "full.csv").unlink()

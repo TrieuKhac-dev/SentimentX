@@ -94,10 +94,12 @@ def compute_id(dataset_cfg, pipeline_cfg=None):
     missing = missing_sources(dataset_cfg)
     if missing:
         raise VersionError(
-            "Thiếu {} file dữ liệu gốc của dataset {!r} nên KHÔNG tính được mã phiên bản:\n  - {}\n"
+            "Thiếu {} file dữ liệu gốc của dataset {!r} trong gốc dữ liệu {} nên KHÔNG tính được mã "
+            "phiên bản:\n  - {}\n"
             "Đưa đủ dữ liệu gốc vào thư mục của nguồn rồi chạy lại. Dữ liệu gốc KHÔNG nằm trong git "
             "(luật 20 của docs/00_workflow/02_rules.md), nên bản clone sạch không có chúng.".format(
-                len(missing), dataset_cfg.get("name"), "\n  - ".join(utils.rel(path) for path in missing)))
+                len(missing), dataset_cfg.get("name"), paths.data_root(),
+                "\n  - ".join(utils.rel(path) for path in missing)))
 
     if pipeline_cfg is None:
         pipeline_cfg = utils.load_pipeline_config(dataset_cfg.get("pipeline_version"))

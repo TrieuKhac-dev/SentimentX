@@ -62,6 +62,10 @@ không chứa file model (`.gitignore` chặn `data/models/**`). Thí nghiệm P
 `requires_extra`, nên máy thiếu nó bị chặn NGAY ở preflight, trước khi nạp model - không phải đợi
 đến lúc huấn luyện mới hỏng. Hai notebook encoder kia không dùng tới (`none` cho ViSoBERT).
 
+Mục `requires_extra` **bắt đầu bằng `data/`** tính từ **gốc dữ liệu** (trên Colab là thư mục Drive),
+không phải gốc repo - vì trên Colab hai gốc đó khác nhau. Mục khác (mã nguồn, cấu hình, prompt) vẫn
+tính từ gốc repo.
+
 **Dữ liệu GỐC là bắt buộc**, không chỉ dữ liệu đã xử lý: mã phiên bản dữ liệu được băm từ nội dung
 file gốc, nên thiếu raw thì Colab tính ra một mã khác và preflight báo thiếu dataset. Dữ liệu không
 nằm trong git (luật 20 của `docs/00_workflow/02_rules.md`), nên bản clone sạch chỉ có `raw_meta.yaml`.

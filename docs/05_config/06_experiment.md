@@ -38,7 +38,7 @@ requires_extra: []
 | `prompt`         | đường dẫn file prompt: tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là bốn cấp) |
 | `examples`       | đường dẫn file ví dụ few-shot, bắt buộc khi prompt dùng ô nhớ `{examples}`                   |
 | `system_prompt`  | đường dẫn khối chỉ dẫn hệ thống dùng chung, bắt buộc khi prompt dùng ô nhớ `{system_prompt}`. File nhận cả hai cách viết: chỉ có câu hệ thống, hoặc có mục `[SYSTEM]` |
-| `requires_extra` | danh sách đường dẫn bổ sung mà notebook phải kiểm, cho thứ máy không suy ra được             |
+| `requires_extra` | danh sách đường dẫn bổ sung mà notebook phải kiểm, cho thứ máy không suy ra được. Mục **bắt đầu bằng `data/`** tính từ GỐC DỮ LIỆU (`SENTIMENTX_DATA_ROOT`) - trên Colab là thư mục Drive; mục khác tính từ gốc repo |
 
 ## Ghi đè lớp dùng chung: được, kể cả ngưỡng cắt input
 

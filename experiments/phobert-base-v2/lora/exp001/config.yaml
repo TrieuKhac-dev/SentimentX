@@ -37,7 +37,8 @@ enabled: true
 #   * Model VnCoreNLP (~27 MB: `VnCoreNLP-1.2.jar` + `models/wordsegmenter/`). Khai ở
 #     `requires_extra` dưới đây để notebook kiểm TRƯỚC khi chạy; gói bàn giao đã kèm sẵn thư mục đó.
 requires_extra:
-  # Tính từ GỐC REPO (khác `prompt`/`examples`/`examples`: những đường dẫn đó tính từ thư mục thí
-  # nghiệm trước). Trên Colab, `data/` là thư mục trên Drive - xem docs/00_workflow/07_colab.md mục 2.
+  # Mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU, không phải gốc repo: trên Colab gốc đó là thư mục
+  # Drive, còn mã nguồn nằm ở `/content/SentimentX`. (Khác `prompt`/`examples`: những đường dẫn đó
+  # tính từ thư mục thí nghiệm trước.) Xem docs/00_workflow/07_colab.md mục 2.
   - data/models/vncorenlp
 
