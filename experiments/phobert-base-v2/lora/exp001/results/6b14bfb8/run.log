@@ -1,0 +1,68 @@
+=== lần chạy 2026-09-26 10:25:42 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=vinai/phobert-base-v2
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1518
+[RUN] experiment.model=phobert-base-v2
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp001
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=3
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0002
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=16
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[WARN] không dùng được MLflow: chưa cài thư viện `mlflow`: pip install mlflow.
+[TRACK] không ghi nhận: chưa cài thư viện `mlflow`: pip install mlflow.
+[CONFIG] thí nghiệm: phobert-base-v2/lora/exp001 | dữ liệu: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 | split chấm: test | n: cả split
+[CONFIG] đè enabled: False <- True
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=16 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0002 batch=8 grad_accum=4 epochs=3 weight_decay=0.01
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 42
+[STEP] huấn luyện: 3 epoch, batch 8 (tích luỹ 4), 12302 mẫu train, 1524 mẫu val
+[STEP] bước 100 | loss 0.6950 | val 0.7612 (10477 ô) | đã lưu model/best
+[STEP] bước 200 | loss 0.4618 | val 0.8412 (10477 ô) | đã lưu model/best
+[STEP] bước 300 | loss 0.4320 | val 0.8978 (10477 ô) | đã lưu model/best
+[STEP] bước 400 | loss 0.4199 | val 0.9352 (10477 ô) | đã lưu model/best
+[STEP] bước 500 | loss 0.3958 | val 0.9414 (10477 ô) | đã lưu model/best
+[STEP] bước 600 | loss 0.4961 | val 0.9477 (10477 ô) | đã lưu model/best
+[STEP] bước 700 | loss 0.3657 | val 0.9539 (10477 ô) | đã lưu model/best
+[STEP] bước 800 | loss 0.3507 | val 0.9568 (10477 ô) | đã lưu model/best
+[STEP] bước 900 | loss 0.3749 | val 0.9562 (10477 ô) | chưa tốt hơn
+[STEP] bước 1000 | loss 0.3652 | val 0.9570 (10477 ô) | đã lưu model/best
+[STEP] bước 1100 | loss 0.4041 | val 0.9573 (10477 ô) | đã lưu model/best
+[STEP] huấn luyện xong: 1153 bước trong 2198.1 giây (2678784 tham số học / 137693205 tổng) | 2198.1 giây
+[STEP] suy luận bằng /content/drive/MyDrive/ABSA_2026_2027/experiments/phobert-base-v2/lora/exp001/results/6b14bfb8/model/best
+[STEP] suy luận xong 1518 mẫu; checkpoint huấn luyện với 7 khía cạnh, nhãn 0, 1, 2
+[STEP] tổng 1518 mẫu (1518 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 199 ô neutral theo neutral_policy=drop
+[STEP] ghi 1518 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, predictions.csv
+[STEP] ghi nhận: 0 tham số, 0 chỉ số, 0 file
+[RUN] kết thúc sau 2260.0 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
+[TRACK] không ghi nhận gì (tracker tắt)

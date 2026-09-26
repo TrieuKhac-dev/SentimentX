@@ -1,0 +1,79 @@
+{
+  "run": {
+    "mode": "NEW",
+    "out_dir": "06517238",
+    "log": "run.log",
+    "started": "2026-09-26 09:31:22",
+    "finished": "2026-09-26 09:31:49",
+    "seconds": 26.8,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+      "split": "test",
+      "approach": "encoder",
+      "prompt": null,
+      "prompt_sha": null,
+      "model": "vinai/phobert-base-v2",
+      "quant": "none",
+      "max_length": 256,
+      "batch_size": 16,
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1518,
+      "experiment": {
+        "model": "phobert-base-v2",
+        "method": "lora",
+        "exp_id": "exp001"
+      },
+      "label_space": "binary",
+      "neutral_policy": "drop",
+      "not_mentioned": "separate",
+      "training": {
+        "trainer": "lora",
+        "epochs": 3,
+        "batch": 8,
+        "grad_accum": 4,
+        "lr": 0.0002,
+        "weight_decay": 0.01,
+        "lora_r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "query",
+          "key",
+          "value",
+          "dense"
+        ],
+        "every_n_steps": 100,
+        "keep_last_k": 2,
+        "quantization": "none",
+        "dtype": "auto"
+      }
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-09-26 09:31:49",
+      "level": "ERROR",
+      "message": "ImportError: Found an incompatible version of torchao. Found version 0.10.0, but only versions above 0.16.0 are supported",
+      "type": "ImportError",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/encoder_run.py\", line 416, in run\n    report = trainer.fit(plan_data[\"config\"], plan_data[\"model_id\"], out_dir,\n                         train=plan_data[\"data\"][\"train\"], val=plan_data[\"data\"][\"val\"],\n                         aspects=plan_data[\"aspects\"], codes=plan_data[\"codes\"],\n                         fingerprint=plan_data[\"fingerprint\"], seed=plan_data[\"seed\"],\n                         source=plan_data[\"model\"], log=log)\n  File \"/content/SentimentX/src/training/lora.py\", line 528, in fit\n    model, head = build_model(found, device, n_aspects=len(aspects), n_codes=len(codes),\n                  ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                              adapter_dir=adapter, source=found[\"source\"])\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/training/lora.py\", line 388, in build_model\n    model = get_peft_model(classifier, LoraConfig(\n        r=found[\"lora_r\"], lora_alpha=found[\"lora_alpha\"], lora_dropout=found[\"lora_dropout\"],\n        target_modules=list(found[\"target_modules\"]), bias=\"none\", task_type=\"FEATURE_EXTRACTION\"))\n  File \"/usr/local/lib/python3.13/dist-packages/peft/mapping_func.py\", line 122, in get_peft_model\n    return MODEL_TYPE_TO_PEFT_MODEL_MAPPING[peft_config.task_type](\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        model,\n        ^^^^^^\n    ...<3 lines>...\n        low_cpu_mem_usage=low_cpu_mem_usage,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/peft/peft_model.py\", line 3151, in __init__\n    super().__init__(model, peft_config, adapter_name, **kwargs)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/peft/peft_model.py\", line 164, in __init__\n    self.base_model = cls(model, {adapter_name: peft_config}, adapter_name)\n                      ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/peft/tuners/tuners_utils.py\", line 318, in __init__\n    self.inject_adapter(self.model, adapter_name, low_cpu_mem_usage=low_cpu_mem_usage, state_dict=state_dict)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/peft/tuners/tuners_utils.py\", line 917, in inject_adapter\n    self._create_and_replace(\n    ~~~~~~~~~~~~~~~~~~~~~~~~^\n        peft_config, adapter_name, target, target_name, parent, current_key=key\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/peft/tuners/lora/model.py\", line 281, in _create_and_replace\n    new_module = self._create_new_module(lora_config, adapter_name, target, device_map=device_map, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/peft/tuners/lora/model.py\", line 430, in _create_new_module\n    new_module = dispatcher(target, adapter_name, config=lora_config, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/peft/tuners/lora/torchao.py\", line 160, in dispatch_torchao\n    if not is_torchao_available():\n           ~~~~~~~~~~~~~~~~~~~~^^\n  File \"/usr/local/lib/python3.13/dist-packages/peft/import_utils.py\", line 147, in is_torchao_available\n    raise ImportError(\n    ...<2 lines>...\n    )\nImportError: Found an incompatible version of torchao. Found version 0.10.0, but only versions above 0.16.0 are supported\n",
+      "context": {
+        "kind": "ImportError"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "at": "2026-09-26 09:31:22",
+      "message": "không dùng được MLflow: chưa cài thư viện `mlflow`: pip install mlflow.",
+      "context": {}
+    }
+  ]
+}

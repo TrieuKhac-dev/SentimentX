@@ -172,6 +172,11 @@ mục 7 có cách xử lý cho từng dòng.
   `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, thư mục `predictions/`.
   Tên `<hash8>` giống hệt trên máy cá nhân (nó KHÔNG chứa nguồn trọng số hay kiểu số), nên copy
   nguyên thư mục đó về repo là số liệu vào đúng chỗ.
+- **Vì sao trong `results/` có NHIỀU thư mục `<hash8>`:** mã băm danh tính gồm cấu hình, prompt, mã
+  phiên bản dữ liệu **và commit đã ghim**. Mỗi lần ghim lại notebook (đổi bản code) là một mã mới, nên
+  lượt chạy rơi vào thư mục mới - đúng thiết kế, để kết quả của hai bản code không bao giờ trộn vào
+  nhau. Thư mục của lượt HỎNG không có `metrics.json`: xoá được ngay, không mất gì để so. Thư mục có
+  `metrics.json` là bằng chứng của một lượt đã chạy - giữ lại.
 - Mở `run.log` trước: nó ghi từng bước, và ghi rõ khi chạy tiếp (`[RUN] mode=RESUME`).
 
 Máy đứt giữa chừng thì cứ Run all lần nữa: phần đã xong nằm trong `predictions/part_*.jsonl` và
@@ -214,7 +219,8 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `Máy KHÔNG thấy GPU (torch.cuda.is_available() = False)` | phiên Colab đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU | Runtime > Change runtime type > **T4 GPU** > Save, rồi **Restart session** và Run all. Kiểm bằng `!nvidia-smi` và `import torch; torch.cuda.is_available()`: có GPU trong `nvidia-smi` mà torch vẫn `False` nghĩa là torch là bản CPU, mở phiên mới (đừng `pip install torch`) |
 | Chạy trên T4 chậm bất thường | T4 là Turing, **không** hỗ trợ bf16, mà bf16 là kiểu số mặc định của model config | Không cần làm gì: `runner._model_dtype` tự chọn fp16 khi máy không hỗ trợ bf16, và ghi kiểu đã dùng vào `run.log`/`run_meta.json` (`4-bit nf4 (tính bằng float16)`) |
 | Vẫn `ModuleNotFoundError: No module named 'src'` | kernel còn nhớ kết luận "không có gói `src`" từ lúc máy trống | Runtime -> Restart session rồi Run all; ô bootstrap đã tự xoá bộ nhớ đệm import |
-| Muốn chạy lại từ đầu | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên |
+| `Đang thấy N thư mục trong Drive: Colab Notebooks, ...` rồi dừng | phiên này mount Drive của **tài khoản Google KHÁC** (tài khoản chứa thư mục nhóm là tài khoản đã chạy được lượt trước), hoặc thư mục nhóm nằm trong Shared drive chưa được chia sẻ | `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản** khi Colab hỏi quyền Drive; tài khoản đúng là tài khoản có thư mục chứa `data/`, `env/` |
+| `Muốn chạy lại từ đầu` | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên. Thư mục của lượt HỎNG (không có `metrics.json`) xoá được ngay |
 
 ## 8. Đừng đổi thứ tự nếu chưa hiểu vì sao
 

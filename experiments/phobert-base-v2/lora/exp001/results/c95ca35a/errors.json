@@ -1,0 +1,79 @@
+{
+  "run": {
+    "mode": "NEW",
+    "out_dir": "c95ca35a",
+    "log": "run.log",
+    "started": "2026-09-26 10:08:21",
+    "finished": "2026-09-26 10:08:25",
+    "seconds": 4.0,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+      "split": "test",
+      "approach": "encoder",
+      "prompt": null,
+      "prompt_sha": null,
+      "model": "vinai/phobert-base-v2",
+      "quant": "none",
+      "max_length": 256,
+      "batch_size": 16,
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1518,
+      "experiment": {
+        "model": "phobert-base-v2",
+        "method": "lora",
+        "exp_id": "exp001"
+      },
+      "label_space": "binary",
+      "neutral_policy": "drop",
+      "not_mentioned": "separate",
+      "training": {
+        "trainer": "lora",
+        "epochs": 3,
+        "batch": 8,
+        "grad_accum": 4,
+        "lr": 0.0002,
+        "weight_decay": 0.01,
+        "lora_r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "query",
+          "key",
+          "value",
+          "dense"
+        ],
+        "every_n_steps": 100,
+        "keep_last_k": 2,
+        "quantization": "none",
+        "dtype": "auto"
+      }
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-09-26 10:08:25",
+      "level": "ERROR",
+      "message": "RuntimeError: Sizes of tensors must match except in dimension 0. Expected size 107 but got size 164 for tensor number 1 in the list.",
+      "type": "RuntimeError",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/encoder_run.py\", line 416, in run\n    report = trainer.fit(plan_data[\"config\"], plan_data[\"model_id\"], out_dir,\n                         train=plan_data[\"data\"][\"train\"], val=plan_data[\"data\"][\"val\"],\n                         aspects=plan_data[\"aspects\"], codes=plan_data[\"codes\"],\n                         fingerprint=plan_data[\"fingerprint\"], seed=plan_data[\"seed\"],\n                         source=plan_data[\"model\"], log=log)\n  File \"/content/SentimentX/src/training/lora.py\", line 561, in fit\n    ids, masks = encode(module, train[\"texts\"], found[\"max_length\"])\n                 ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/training/lora.py\", line 270, in encode\n    return torch.cat(ids, dim=0), torch.cat(masks, dim=0)\n           ~~~~~~~~~^^^^^^^^^^^^\nRuntimeError: Sizes of tensors must match except in dimension 0. Expected size 107 but got size 164 for tensor number 1 in the list.\n",
+      "context": {
+        "kind": "RuntimeError"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "at": "2026-09-26 10:08:21",
+      "message": "không dùng được MLflow: chưa cài thư viện `mlflow`: pip install mlflow.",
+      "context": {}
+    }
+  ]
+}

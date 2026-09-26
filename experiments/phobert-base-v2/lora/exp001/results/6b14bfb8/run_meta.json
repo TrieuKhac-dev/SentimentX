@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "run": {
+    "out_dir": "6b14bfb8",
+    "hash": "6b14bfb8",
+    "log": "run.log",
+    "errors": "errors.json",
+    "status": "FINISHED",
+    "started": "2026-09-26 10:25:42",
+    "finished": "2026-09-26 11:03:22",
+    "note": null,
+    "approach": "encoder",
+    "split": "test",
+    "limit": 0,
+    "n_samples": 1518,
+    "subset_seed": 42,
+    "quant": "none",
+    "max_length": 256,
+    "batch_size": 16,
+    "training": {
+      "trainer": "lora",
+      "epochs": 3,
+      "batch": 8,
+      "grad_accum": 4,
+      "lr": 0.0002,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "target_modules": [
+        "query",
+        "key",
+        "value",
+        "dense"
+      ]
+    },
+    "prompt": null,
+    "prompt_sha": null,
+    "examples_sha": null,
+    "system_sha": null
+  },
+  "experiment": {
+    "model": "phobert-base-v2",
+    "method": "lora",
+    "exp_id": "exp001"
+  },
+  "data": {
+    "dataset": "cosmetics",
+    "version": "v0.1.0",
+    "ma": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+    "roles": {
+      "train": "train",
+      "val": "val",
+      "eval": "test"
+    },
+    "rows": {
+      "eval": 1518,
+      "train": 12302,
+      "val": 1524
+    },
+    "eval_lock": {
+      "enforce": true,
+      "declared": null
+    }
+  },
+  "repo": {
+    "url": "https://github.com/TrieuKhac-dev/SentimentX",
+    "branch": "experiment",
+    "sha": "b14dc1f78285b355371de4e3174ffb60bdbceb4a"
+  },
+  "config": {
+    "sha256": "6b14bfb88a01da110a2c6c7675c0aadf66fbc5965b9f67e235ea7c3947b3dcf4",
+    "layers": [
+      [
+        "model",
+        "configs/models/phobert-base-v2.yaml"
+      ],
+      [
+        "repo",
+        "configs/experiments/repo.yaml"
+      ],
+      [
+        "task",
+        "configs/experiments/task.yaml"
+      ],
+      [
+        "evaluation",
+        "configs/experiments/evaluation.yaml"
+      ],
+      [
+        "training",
+        "configs/experiments/training.yaml"
+      ],
+      [
+        "tracking",
+        "configs/experiments/tracking.yaml"
+      ],
+      [
+        "experiment",
+        "experiments/phobert-base-v2/lora/exp001/config.yaml"
+      ]
+    ],
+    "sources": {
+      "model_id": "model",
+      "checkpoint": "model",
+      "config_version": "model",
+      "approach": "model",
+      "preprocess.max_length": "model",
+      "preprocess.segmenter": "model",
+      "lora.target_modules": "model",
+      "inference.dtype": "model",
+      "inference.batch_size": "model",
+      "url": "repo",
+      "branch": "repo",
+      "allowed_branches": "repo",
+      "label_space": "task",
+      "neutral_policy": "task",
+      "not_mentioned": "task",
+      "aspects": "task",
+      "n": "evaluation",
+      "decoding.mode": "evaluation",
+      "decoding.temperature": "evaluation",
+      "decoding.top_p": "evaluation",
+      "scores": "evaluation",
+      "group_by": "evaluation",
+      "save.predictions": "evaluation",
+      "save.plots": "evaluation",
+      "save.confusion": "evaluation",
+      "enabled": "experiment",
+      "trainer": "training",
+      "lora.r": "training",
+      "lora.alpha": "training",
+      "lora.dropout": "training",
+      "lr": "training",
+      "batch": "training",
+      "epochs": "training",
+      "grad_accum": "training",
+      "weight_decay": "training",
+      "checkpoints.every_n_steps": "training",
+      "checkpoints.keep_last_k": "training",
+      "checkpoints.save_last": "training",
+      "checkpoints.save_best": "training",
+      "checkpoints.delete_intermediate": "training",
+      "tracker": "tracking",
+      "experiment": "tracking",
+      "mlflow_tags.model": "tracking",
+      "mlflow_tags.method": "tracking",
+      "mlflow_tags.exp_id": "tracking",
+      "artifacts": "tracking",
+      "exp_id": "experiment",
+      "parent": "experiment",
+      "model": "experiment",
+      "method": "experiment",
+      "notes": "experiment",
+      "data.dataset": "experiment",
+      "data.version": "experiment",
+      "data.roles.train": "experiment",
+      "data.roles.val": "experiment",
+      "data.roles.eval": "experiment",
+      "requires_extra": "experiment"
+    }
+  },
+  "task": {
+    "label_space": "binary",
+    "neutral_policy": "drop",
+    "not_mentioned": "separate"
+  },
+  "overrides": [
+    [
+      "enabled",
+      false,
+      true,
+      "experiment"
+    ]
+  ],
+  "env": {
+    "kind": "colab",
+    "python": "3.13.15",
+    "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "device": "cuda",
+    "gpu": "Tesla T4",
+    "vram_gb": 14.6,
+    "quantization": "none",
+    "dtype": "bfloat16",
+    "libs": {
+      "torch": "2.11.0+cu128",
+      "transformers": "5.16.1"
+    }
+  },
+  "attempts": [
+    {
+      "n": 1,
+      "started": "2026-09-26 10:25:42",
+      "finished": "2026-09-26 11:03:22",
+      "seconds": 2260.0,
+      "status": "FINISHED",
+      "sha": "b14dc1f78285b355371de4e3174ffb60bdbceb4a",
+      "config_sha256": "6b14bfb88a01da110a2c6c7675c0aadf66fbc5965b9f67e235ea7c3947b3dcf4",
+      "data": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
+      "note": null
+    }
+  ],
+  "files": [
+    {
+      "path": "configs/paths.yaml",
+      "role": "paths",
+      "bytes": 2772,
+      "sha256": "e587e552a02ab1600c2b1dd956b033d165a9743f44079fcc229e0c88f501bdaf"
+    },
+    {
+      "path": "configs/dagshub.yaml",
+      "role": "tracking",
+      "bytes": 568,
+      "sha256": "ff38c3c94744e02b8a68df0eec4f025a316f3d74944582f28db6367bf7adb4d8"
+    },
+    {
+      "path": "configs/experiments/repo.yaml",
+      "role": "config",
+      "bytes": 396,
+      "sha256": "fe1b7b6db60b8d4aee33103e1853548aea28fb126cab252bc5a49cb1c8b62ed0"
+    },
+    {
+      "path": "configs/experiments/task.yaml",
+      "role": "config",
+      "bytes": 837,
+      "sha256": "1b22c438e46fe2cc5af8ece178c8d4f0a913f211016c41d99d8120cf5c718338"
+    },
+    {
+      "path": "configs/experiments/evaluation.yaml",
+      "role": "config",
+      "bytes": 1209,
+      "sha256": "5ac1f7b16210191c921397eb35a969fdfcf1cc9cafe983bdba1ffeb0084bb353"
+    },
+    {
+      "path": "configs/experiments/training.yaml",
+      "role": "config",
+      "bytes": 1139,
+      "sha256": "5496fbd0e99bd951d8236a98b2cd12c423d3a46b0dfa8e34439150eb67167e89"
+    },
+    {
+      "path": "configs/experiments/tracking.yaml",
+      "role": "config",
+      "bytes": 650,
+      "sha256": "3223778ae0b9414ab5ea99804c2009a76ea70278828335918a790f23c469f19d"
+    },
+    {
+      "path": "configs/models/phobert-base-v2.yaml",
+      "role": "model",
+      "bytes": 1622,
+      "sha256": "573d4dbc697935dab664114bc8e302a25722da766eda6d0f13a92bf8b0da286c"
+    },
+    {
+      "path": "configs/datasets/cosmetics/v0.1.0.yaml",
+      "role": "dataset",
+      "bytes": 2403,
+      "sha256": "e40c156bcad52b0295acfef1a9850a71bcd91874ff7d77e17fc472654a550f68"
+    },
+    {
+      "path": "configs/pipeline/v0.1.0.yaml",
+      "role": "pipeline",
+      "bytes": 2416,
+      "sha256": "54731c64e4eef01bd65fd142e2956cfbde91a5b7d09e613eb1f3a7d9044b6b53"
+    }
+  ]
+}

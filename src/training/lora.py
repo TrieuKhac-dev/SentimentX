@@ -652,11 +652,15 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             if step % found["every_n_steps"]:
                 continue
             metrics = measure(model, module, val, found, codes, device)
-            history.append({"step": step, "epoch": epoch + 1, "loss": round(float(loss), 6),
+            # `detach()` trước khi đổi sang số: `loss` còn gắn đồ thị tính đạo hàm, và PyTorch cảnh báo
+            # (`Converting a tensor with requires_grad=True to a scalar...`) - cảnh báo đã hiện trong
+            # run.log của lượt chạy thật, làm log khó đọc mà không có lỗi nào thật.
+            loss_value = float(loss.detach())
+            history.append({"step": step, "epoch": epoch + 1, "loss": round(loss_value, 6),
                             "lr": round(float(scheduler.get_last_lr()[0]), 8), "val": metrics})
             improved = record(epoch + 1, metrics, snapshot=True)
             message = "bước {} | loss {:.4f} | val {} | {}".format(
-                step, float(loss), value_text(metrics),
+                step, loss_value, value_text(metrics),
                 "đã lưu model/best" if improved else "chưa tốt hơn")
             print("  " + message)
             if log is not None:

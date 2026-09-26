@@ -1,0 +1,50 @@
+=== lần chạy 2026-09-26 09:50:19 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=vinai/phobert-base-v2
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1518
+[RUN] experiment.model=phobert-base-v2
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp001
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=3
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0002
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=16
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[WARN] không dùng được MLflow: chưa cài thư viện `mlflow`: pip install mlflow.
+[TRACK] không ghi nhận: chưa cài thư viện `mlflow`: pip install mlflow.
+[CONFIG] thí nghiệm: phobert-base-v2/lora/exp001 | dữ liệu: cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 | split chấm: test | n: cả split
+[CONFIG] đè enabled: False <- True
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=16 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0002 batch=8 grad_accum=4 epochs=3 weight_decay=0.01
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 42
+[STEP] huấn luyện: 3 epoch, batch 8 (tích luỹ 4), 12302 mẫu train, 1524 mẫu val
+[ERROR] ImportError: Found an incompatible version of torchao. Found version 0.10.0, but only versions above 0.16.0 are supported
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 24.8 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FAILED
+[TRACK] không ghi nhận gì (tracker tắt)

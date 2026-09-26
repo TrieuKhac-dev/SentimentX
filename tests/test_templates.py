@@ -271,6 +271,17 @@ class TestBootstrap(unittest.TestCase):
         self.assertIn("runtime.looks_like_group_dir", source)
         self.assertIn("THIẾU file đánh dấu .sentimentx_root", source)
 
+    def test_bootstrap_says_which_account_to_pick_when_the_drive_has_nothing(self):
+        """Thấy toàn thư mục lạ thì phải nói tới chuyện chọn nhầm TÀI KHOẢN Google.
+
+        Lỗi thật: một phiên Colab mount Drive của tài khoản khác, nên chỉ thấy `Colab Notebooks`,
+        `artifacts_backup3`... và notebook kết luận "chưa thấy thư mục nhóm". Nguyên nhân nằm ở lần
+        Colab hỏi chọn tài khoản khi mount, mà điều đó chỉ người chạy sửa được.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("NHIỀU tài khoản Google", source)
+        self.assertIn("Disconnect and delete runtime", source)
+
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
 
