@@ -6,8 +6,11 @@
 # `requirements.txt` (bản dành cho máy cá nhân Windows) có thể thay mất bản đó. Dấu hiệu đã cài đè:
 # `import torch; torch.cuda.is_available()` trả về False, hoặc preflight báo không thấy GPU.
 #
-# `py-vncorenlp`/`pyvi` cũng KHÔNG có ở đây: chúng chỉ dùng cho hướng encoder (PhoBERT/ViSoBERT).
-# Hướng Qwen3 (prompt / CoT) không tách từ, nên không cần Java.
+# `py-vncorenlp` nằm ở mục LoRA bên dưới: bộ tách từ chính chủ của PhoBERT là chương trình Java, gọi
+# từ Python qua gói đó (cần thêm JDK - ô bootstrap của notebook tự cài `default-jdk`).
+# `pyvi` thì KHÔNG có ở đây: nó chỉ là bộ DỰ PHÒNG khi máy chưa cài được Java, mà số liệu đo bằng bộ
+# dự phòng không so ngang được với bộ chính chủ - muốn dùng phải `pip install pyvi` và ghi rõ ra.
+# Hướng Qwen3 (prompt / CoT) không tách từ, nên không cần gói nào trong hai gói đó.
 
 # --- Chạy Qwen3 bằng CHỈ DẪN (prompt / CoT) rồi chấm điểm ---
 transformers
