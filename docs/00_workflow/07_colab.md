@@ -96,7 +96,11 @@ trong file là tự trói notebook vào tên đó; sai tên thì dữ liệu và
 phiên), đúng triệu chứng `Gốc dữ liệu : /content/SentimentX/data` ở mục 7. Chỉ bỏ chú thích hai dòng
 đó khi thật sự muốn chỉ đích danh thư mục.
 
-- Dùng Shared drive thì thay bằng `/content/drive/Shareddrives/<tên>/...`.
+- Dùng Shared drive thì thay bằng `/content/drive/Shareddrives/<tên shared drive>/...`. Notebook tìm
+  trong cả hai gốc (`MyDrive` và `Shareddrives`), nhận ra bằng file đánh dấu `.sentimentx_root` như
+  trên - **nhưng tài khoản phải được chia sẻ shared drive đó với quyền ĐỦ GHI**, vì kết quả chạy ghi
+  vào chính thư mục đó. Khi không tìm thấy thư mục nhóm, ô bootstrap in **từng gốc một** (`MyDrive: ...`,
+  `Shareddrives: ...`) để biết gốc nào rỗng.
 - `DAGSHUB_TOKEN` để trống cũng chạy được: thiếu token thì phần ghi MLflow tự hạ cấp thành ghi chú
   trong `run.log`, không làm hỏng lượt chạy. Colab Secrets được đọc TRƯỚC file này, nên muốn dùng
   token riêng thì thêm `DAGSHUB_TOKEN` vào Secrets là đủ.
@@ -219,7 +223,7 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `Máy KHÔNG thấy GPU (torch.cuda.is_available() = False)` | phiên Colab đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU | Runtime > Change runtime type > **T4 GPU** > Save, rồi **Restart session** và Run all. Kiểm bằng `!nvidia-smi` và `import torch; torch.cuda.is_available()`: có GPU trong `nvidia-smi` mà torch vẫn `False` nghĩa là torch là bản CPU, mở phiên mới (đừng `pip install torch`) |
 | Chạy trên T4 chậm bất thường | T4 là Turing, **không** hỗ trợ bf16, mà bf16 là kiểu số mặc định của model config | Không cần làm gì: `runner._model_dtype` tự chọn fp16 khi máy không hỗ trợ bf16, và ghi kiểu đã dùng vào `run.log`/`run_meta.json` (`4-bit nf4 (tính bằng float16)`) |
 | Vẫn `ModuleNotFoundError: No module named 'src'` | kernel còn nhớ kết luận "không có gói `src`" từ lúc máy trống | Runtime -> Restart session rồi Run all; ô bootstrap đã tự xoá bộ nhớ đệm import |
-| `Đang thấy N thư mục trong Drive: Colab Notebooks, ...` rồi dừng | phiên này mount Drive của **tài khoản Google KHÁC** (tài khoản chứa thư mục nhóm là tài khoản đã chạy được lượt trước), hoặc thư mục nhóm nằm trong Shared drive chưa được chia sẻ | `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản** khi Colab hỏi quyền Drive; tài khoản đúng là tài khoản có thư mục chứa `data/`, `env/` |
+| `MyDrive: ...` / `Shareddrives: ...` in ra rồi dừng vì không thấy thư mục nhóm | (a) phiên này mount Drive của **tài khoản Google KHÁC**; (b) thư mục nhóm nằm trong **Shared drive chưa được chia sẻ** (gốc `Shareddrives` rỗng); (c) thiếu `.sentimentx_root` | (a) `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản** khi Colab hỏi; (b) xin chia sẻ shared drive với quyền **đủ ghi**; (c) tạo file đánh dấu (mục 3). Tài khoản đúng là tài khoản có thư mục chứa `data/`, `env/` |
 | `Muốn chạy lại từ đầu` | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên. Thư mục của lượt HỎNG (không có `metrics.json`) xoá được ngay |
 
 ## 8. Đừng đổi thứ tự nếu chưa hiểu vì sao

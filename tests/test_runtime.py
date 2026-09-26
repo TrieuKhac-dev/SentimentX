@@ -214,6 +214,29 @@ class TestDriveDir(unittest.TestCase):
         (folder / "data").mkdir(parents=True)
         self.assertFalse(runtime.looks_like_group_dir(folder))
 
+    def test_listing_names_each_root_separately(self):
+        """In TỪNG gốc: thư mục nhóm có thể nằm trong Shared drive, không phải MyDrive.
+
+        Gộp hai gốc vào một dòng thì người đọc không biết `Shareddrives` rỗng (tài khoản chưa được
+        chia sẻ) hay có thư mục khác - mà đó chính là câu hỏi cần trả lời.
+        """
+        (self.root / "MyDrive" / "TaiLieu").mkdir(parents=True)
+        self.mine.mkdir(parents=True)
+        (self.root / "Shareddrives" / "Khoa CNTT").mkdir(parents=True)
+        listing = runtime.drive_listing(self.candidates())
+        by_root = {item["root"].name: item["names"] for item in listing}
+        self.assertEqual(by_root["MyDrive"], ["TaiLieu", "nhom"])
+        self.assertEqual(by_root["Shareddrives"], ["Khoa CNTT"])
+        self.assertFalse(any(item["gone"] for item in listing))
+
+    def test_listing_marks_a_root_that_is_not_there(self):
+        """Gốc chưa mount thì phải NÓI RA, thay vì im lặng coi như không có thư mục nào."""
+        self.mine.mkdir(parents=True)
+        listing = runtime.drive_listing(self.candidates())
+        self.assertEqual([item["root"].name for item in listing if item["gone"]], ["Shareddrives"])
+        self.assertEqual(runtime.drive_roots(self.candidates()),
+                         [self.root / "MyDrive", self.root / "Shareddrives"])
+
     def test_env_file_path_inside_the_drive(self):
         self.mine.mkdir(parents=True)
         (self.mine / MARKER).write_text("", encoding="utf-8")

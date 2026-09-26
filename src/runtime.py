@@ -162,25 +162,48 @@ def _search_for_marker(places, marker):
 
 
 
-def drive_children(places=None, limit=20):
-    """Các thư mục con của những gốc Drive đã khai, để IN RA khi không tìm thấy thư mục nhóm.
+def drive_roots(places=None):
+    """Các GỐC Drive đã khai (`/content/drive/MyDrive`, `/content/drive/Shareddrives`, ...).
 
-    Không phải để chọn thư mục - chọn thì vẫn theo FILE ĐÁNH DẤU. Đây là dữ kiện để người đọc biết máy
-    đang thấy gì: thiếu file đánh dấu, hay đang thấy một thư mục khác hẳn.
+    Lấy từ mẫu đường dẫn trong `configs/paths.yaml`: phần trước `{folder}` là gốc. Shared drive nằm
+    ở gốc riêng, nên khi không thấy thư mục nhóm thì phải in TỪNG gốc - người đọc cần biết gốc nào
+    rỗng, gốc nào có thư mục lạ.
     """
     from src import paths
 
     settings = paths.cfg().get("colab") or {}
     places = list(places if places is not None else settings.get("drive_candidates") or [])
-    found = []
+    roots = []
     for place in places:
         pattern = Path(str(place))
         if "{" not in pattern.name:
             continue
-        root = pattern.parent
-        if not root.is_dir():
-            continue
-        for child in sorted(root.iterdir()):
+        if pattern.parent not in roots:
+            roots.append(pattern.parent)
+    return roots
+
+
+def drive_listing(places=None, limit=12):
+    """Mỗi gốc Drive kèm tên các thư mục con đang thấy: để IN RA khi không tìm được thư mục nhóm.
+
+    Trả về `[{"root": Path, "names": [tên...], "gone": bool}, ...]`. Không phải để chọn thư mục -
+    chọn thì vẫn theo FILE ĐÁNH DẤU (xem `drive_dir`) - mà để người đọc biết máy đang nhìn vào đâu:
+    gốc MyDrive có gì, gốc Shareddrives có gì, hay cả hai đều rỗng.
+    """
+    listing = []
+    for root in drive_roots(places):
+        exists = root.is_dir()
+        names = sorted(child.name for child in root.iterdir()) if exists else []
+        listing.append({"root": root, "names": names[:limit], "gone": not exists})
+    return listing
+
+
+def drive_children(places=None, limit=20):
+    """Mọi thư mục con của các gốc Drive đã khai (gộp lại, để đối chiếu với file đánh dấu)."""
+    found = []
+    for item in drive_listing(places, limit=limit):
+        for name in item["names"]:
+            child = item["root"] / name
             if child.is_dir() and child not in found:
                 found.append(child)
     return found[:limit]

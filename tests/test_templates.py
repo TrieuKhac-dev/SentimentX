@@ -271,6 +271,18 @@ class TestBootstrap(unittest.TestCase):
         self.assertIn("runtime.looks_like_group_dir", source)
         self.assertIn("THIẾU file đánh dấu .sentimentx_root", source)
 
+    def test_bootstrap_lists_each_drive_root_separately(self):
+        """MyDrive và Shareddrives là hai gốc khác nhau: phải in từng gốc khi không thấy thư mục nhóm.
+
+        Thư mục nhóm của nhóm/giảng viên có thể nằm trong SHARED DRIVE, nên câu hỏi "gốc nào có gì"
+        phải trả lời được ngay từ dòng notebook in ra - nếu gộp chung thì không biết `Shareddrives`
+        rỗng hay tài khoản chưa được chia sẻ.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("runtime.drive_listing()", source)
+        self.assertIn("SHARED DRIVE", source)
+        self.assertIn("ĐỦ GHI", source)
+
     def test_bootstrap_says_which_account_to_pick_when_the_drive_has_nothing(self):
         """Thấy toàn thư mục lạ thì phải nói tới chuyện chọn nhầm TÀI KHOẢN Google.
 
@@ -279,7 +291,7 @@ class TestBootstrap(unittest.TestCase):
         Colab hỏi chọn tài khoản khi mount, mà điều đó chỉ người chạy sửa được.
         """
         source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("NHIỀU tài khoản Google", source)
+        self.assertIn("MỘT TÀI KHOẢN GOOGLE KHÁC", source)
         self.assertIn("Disconnect and delete runtime", source)
 
     def test_bootstrap_is_the_same_in_every_notebook(self):
