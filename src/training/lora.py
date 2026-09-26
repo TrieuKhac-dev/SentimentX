@@ -252,21 +252,38 @@ def torch_dtype(name, device):
 
 
 def encode(module, texts, max_length, batch=64):
-    """Mọi văn bản đã tách từ (nếu model cần), đã cắt và đã pad: hai tensor cùng số dòng.
+    """Mọi văn bản đã tách từ (nếu model cần), đã cắt và ĐÃ PAD CÙNG MỘT ĐỘ RỘNG.
 
     Dùng `build_inputs()` của chính module model, nên ngưỡng cắt ở đây đúng bằng ngưỡng mà
     `token_stats` đã đo - không có đường thứ hai để lệch nhau.
+
+    VÌ SAO PHẢI PAD LẠI CHO CÙNG ĐỘ RỘNG: `build_inputs` pad theo văn bản DÀI NHẤT TRONG LÔ (đúng cho
+    phép đo token, vì đo từng lô văn bản thật), mà hàm này mã hoá theo TỪNG LÔ rồi nối lại. Hai lô có
+    văn bản dài ngắn khác nhau thì hai tensor rộng khác nhau, và `torch.cat` ném `RuntimeError: Sizes
+    of tensors must match except in dimension 0` - lỗi thật đã gặp trên Colab với ~4.000 review (nhiều
+    lô), trong khi phép chạy thử ở máy chỉ có 40 review (một lô) nên không lộ ra. Ở đây pad thêm cho
+    bằng lô rộng nhất: id 0 là token pad, mask 0 nghĩa là không chú ý tới - model không nhìn thấy gì
+    khác so với không pad.
     """
     import torch
 
-    ids, masks = [], []
-    for start in range(0, len(texts), batch):
-        chunk = module.build_inputs(list(texts[start:start + batch]), max_length=max_length)
-        ids.append(chunk["input_ids"])
-        masks.append(chunk["attention_mask"])
-    if not ids:
+    chunks = [module.build_inputs(list(texts[start:start + batch]), max_length=max_length)
+              for start in range(0, len(texts), batch)]
+    if not chunks:
         empty = torch.empty((0, 0), dtype=torch.long)
         return empty, empty
+
+    width = max(chunk["input_ids"].size(1) for chunk in chunks)
+    ids, masks = [], []
+    for chunk in chunks:
+        rows, columns = chunk["input_ids"].shape
+        if columns == width:
+            ids.append(chunk["input_ids"])
+            masks.append(chunk["attention_mask"])
+            continue
+        padding = chunk["input_ids"].new_zeros((rows, width - columns))
+        ids.append(torch.cat([chunk["input_ids"], padding], dim=1))
+        masks.append(torch.cat([chunk["attention_mask"], padding], dim=1))
     return torch.cat(ids, dim=0), torch.cat(masks, dim=0)
 
 

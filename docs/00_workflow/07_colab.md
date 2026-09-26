@@ -194,6 +194,7 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 
 | Triệu chứng | Nguyên nhân | Cách sửa |
 | --- | --- | --- |
+| `RuntimeError: Sizes of tensors must match except in dimension 0` ở bước mã hoá | bản code cũ: các lô được pad theo văn bản dài nhất TRONG LÔ rồi nối lại | không cần làm gì ở bản mới: `lora.encode` pad mọi lô về cùng một độ rộng. Notebook ghim trước `63def29` thì mở lại notebook mới trong gói |
 | `Drive : CHƯA thấy - dữ liệu và kết quả sẽ nằm trong máy ảo...` | thư mục nhóm chưa lên Drive; hoặc thiếu `.sentimentx_root`; hoặc chưa bấm Allow cho Drive | đưa thư mục nhóm lên Drive (mục 3), bấm Allow, rồi chạy lại ô bootstrap. Ô bootstrap chờ tới 30 giây và thử lại (Drive vừa mount thì danh sách thư mục có thể chưa đủ ngay), nên thấy dòng này nghĩa là đã hết 10 lượt thử |
 | `Gốc dữ liệu : /content/SentimentX/data` dù đã mount | notebook không tìm thấy thư mục nhóm, nên dùng gốc mặc định trong máy ảo; hoặc `.env.colab` ghi đè sai đường dẫn | kiểm file đánh dấu `.sentimentx_root` trong thư mục nhóm; kiểm `SENTIMENTX_DATA_ROOT` nếu có file env |
 | `git clone ... -> 128 ... not an empty directory` | thư mục còn từ lần chạy trước | bootstrap bỏ qua bước clone khi thư mục đã là repo; nếu là thư mục lạ thì nó DỪNG kèm `rm -rf` để bạn tự xoá |

@@ -41,6 +41,12 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
 Chạy tiếp chỉ hợp lệ khi cả ba y nguyên; khác thì báo lỗi và yêu cầu xoá thư mục kết quả, vì trộn
 hai phép đo vào cùng một bảng là lỗi không nhìn thấy được.
 
+Một chi tiết của đường này: văn bản được mã hoá theo TỪNG LÔ (để không dựng cả tập train trong bộ
+nhớ), rồi các lô được nối lại - nên `lora.encode` pad mọi lô về **cùng một độ rộng**. Không pad như
+vậy thì `torch.cat` ném `RuntimeError: Sizes of tensors must match except in dimension 0` ngay khi
+tập train có nhiều lô (đã gặp thật với ~4.000 review; phép chạy thử ở máy chỉ có 40 review nên chỉ
+một lô và không lộ ra).
+
 ## Chạy trên Colab
 
 Hai notebook LoRA chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa 6 GB VRAM). Ô bootstrap

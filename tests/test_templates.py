@@ -259,6 +259,18 @@ class TestBootstrap(unittest.TestCase):
         self.assertIn('"uninstall", "-y", "-q", "torchao"', source)
         self.assertIn('sys.modules.pop("torchao", None)', source)
 
+    def test_bootstrap_shows_what_it_sees_when_the_drive_lookup_fails(self):
+        """Không thấy thư mục nhóm thì phải in DANH SÁCH thư mục đang thấy, và vẫn nhận ra thư mục gói.
+
+        Hai việc này đi cùng nhau: dòng danh sách là bằng chứng để người đọc biết máy đang nhìn vào đâu,
+        còn `looks_like_group_dir` cứu trường hợp file đánh dấu bị MẤT khi chép thư mục - file bắt đầu
+        bằng dấu chấm nên `Compress-Archive` (và đôi khi cả Explorer) bỏ qua nó.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("runtime.drive_children()", source)
+        self.assertIn("runtime.looks_like_group_dir", source)
+        self.assertIn("THIẾU file đánh dấu .sentimentx_root", source)
+
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
 

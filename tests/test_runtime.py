@@ -181,6 +181,39 @@ class TestDriveDir(unittest.TestCase):
                                                     candidates=self.candidates()))
         self.assertEqual(sleeper.call_count, 0)
 
+    def test_children_lists_the_folders_it_can_see(self):
+        """Khi không tìm thấy thư mục nhóm, notebook phải IN RA thứ máy đang thấy.
+
+        Không có dòng đó thì người đọc chỉ biết "không thấy", mà nguyên nhân có thể là: thiếu file
+        đánh dấu, chưa bấm Allow, hoặc đang nhìn vào Drive của tài khoản khác.
+        """
+        (self.root / "MyDrive" / "TaiLieu").mkdir(parents=True)
+        self.mine.mkdir(parents=True)
+        names = [path.name for path in runtime.drive_children(self.candidates())]
+        self.assertIn("nhom", names)
+        self.assertIn("TaiLieu", names)
+
+    def test_a_folder_with_the_package_structure_counts_as_the_group_folder(self):
+        """Gói bàn giao có `env/.env.colab` (và `data/` + `experiments/`) - đó là dấu hiệu nhận ra.
+
+        File đánh dấu bắt đầu bằng dấu chấm nên công cụ chép thư mục trên Windows có thể bỏ qua nó;
+        khi đó thư mục ĐÚNG vẫn bị coi là không có, và lượt chạy dừng vô ích.
+        """
+        folder = self.root / "MyDrive" / "ABSA_2026_2027"
+        (folder / "env").mkdir(parents=True)
+        (folder / "env" / ".env.colab").write_text("", encoding="utf-8")
+        (folder / "data").mkdir()
+        (folder / "experiments").mkdir()
+        self.assertTrue(runtime.looks_like_group_dir(folder))
+        seen = [path for path in runtime.drive_children(self.candidates())
+                if runtime.looks_like_group_dir(path)]
+        self.assertEqual(seen, [folder])
+
+    def test_a_plain_folder_is_not_mistaken_for_the_group_folder(self):
+        folder = self.root / "MyDrive" / "TaiLieu"
+        (folder / "data").mkdir(parents=True)
+        self.assertFalse(runtime.looks_like_group_dir(folder))
+
     def test_env_file_path_inside_the_drive(self):
         self.mine.mkdir(parents=True)
         (self.mine / MARKER).write_text("", encoding="utf-8")

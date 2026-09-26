@@ -162,6 +162,44 @@ def _search_for_marker(places, marker):
 
 
 
+def drive_children(places=None, limit=20):
+    """Các thư mục con của những gốc Drive đã khai, để IN RA khi không tìm thấy thư mục nhóm.
+
+    Không phải để chọn thư mục - chọn thì vẫn theo FILE ĐÁNH DẤU. Đây là dữ kiện để người đọc biết máy
+    đang thấy gì: thiếu file đánh dấu, hay đang thấy một thư mục khác hẳn.
+    """
+    from src import paths
+
+    settings = paths.cfg().get("colab") or {}
+    places = list(places if places is not None else settings.get("drive_candidates") or [])
+    found = []
+    for place in places:
+        pattern = Path(str(place))
+        if "{" not in pattern.name:
+            continue
+        root = pattern.parent
+        if not root.is_dir():
+            continue
+        for child in sorted(root.iterdir()):
+            if child.is_dir() and child not in found:
+                found.append(child)
+    return found[:limit]
+
+
+def looks_like_group_dir(path):
+    """Thư mục có CẤU TRÚC của gói bàn giao, dù thiếu file đánh dấu.
+
+    Vì sao cần: công cụ chép thư mục trên Windows có thể BỎ QUA file bắt đầu bằng dấu chấm
+    (`Compress-Archive` bỏ qua thật, và Explorer cũng có thể), nên thư mục đúng vẫn có thể thiếu
+    `.sentimentx_root`. Điều kiện đòi hai dấu hiệu rất đặc trưng của gói - `env/.env.colab`, hoặc
+    `data/` đi kèm `experiments/` - chứ không đoán theo tên thư mục.
+    """
+    path = Path(path)
+    if (path / "env" / ".env.colab").is_file():
+        return True
+    return (path / "data").is_dir() and (path / "experiments").is_dir()
+
+
 def drive_env_file(folder=None, candidates=None):
     """File env trên Drive (`<Drive>/env/.env.colab`), hoặc None nếu chưa thấy Drive."""
     from src import paths

@@ -327,6 +327,51 @@ class FitDataTest(unittest.TestCase):
         self.assertTrue(any(code == 2 for row in data["train"]["labels"] for code in row))
 
 
+@unittest.skipUnless(HAS_TORCH, "CI không cài torch")
+class EncodeTest(unittest.TestCase):
+    """`encode` phải nối được các lô có ĐỘ RỘNG khác nhau.
+
+    Lỗi thật trên Colab: `build_inputs` pad theo văn bản dài nhất TRONG LÔ, nên lô đầu rộng 107 còn lô
+    sau rộng 164, và `torch.cat` ném `RuntimeError: Sizes of tensors must match except in dimension 0`
+    - chết ngay ở bước mã hoá tập train (~4.000 review). Phép chạy thử ở máy chỉ có 40 review nên chỉ
+    một lô, không lộ ra; test này dựng NHIỀU lô với độ dài khác nhau.
+    """
+
+    class FakeModule:
+        """Bắt chước `build_inputs` của module model: pad theo văn bản dài nhất trong lô."""
+
+        def build_inputs(self, texts, max_length=None):
+            import torch
+
+            widths = [min(len(text), max_length or len(text)) for text in texts]
+            width = max(widths)
+            rows = [list(range(1, size + 1)) + [0] * (width - size) for size in widths]
+            ids = torch.tensor(rows, dtype=torch.long)
+            return {"input_ids": ids, "attention_mask": (ids != 0).long()}
+
+    def test_chunks_of_different_width_are_padded_to_one_width(self):
+        texts = ["a" * 3, "b" * 5, "c" * 40, "d" * 2, "e" * 17]
+        ids, masks = lora.encode(self.FakeModule(), texts, max_length=64, batch=2)
+        self.assertEqual(ids.shape, masks.shape)
+        self.assertEqual(ids.shape[0], len(texts))
+        self.assertEqual(ids.shape[1], 40)
+        # Ô thêm vào là token pad: mask 0, nên model không nhìn thấy gì khác so với không pad.
+        self.assertEqual(int(masks[0].sum()), 3)
+        self.assertEqual(int(masks[2].sum()), 40)
+        self.assertEqual(int(masks[4].sum()), 17)
+
+    def test_a_single_chunk_keeps_its_own_width(self):
+        """Một lô thì không pad thêm gì: số token tính vào attention không đổi so với trước."""
+        ids, masks = lora.encode(self.FakeModule(), ["a" * 3, "b" * 9], max_length=64, batch=8)
+        self.assertEqual(ids.shape[1], 9)
+        self.assertEqual(int(masks[0].sum()), 3)
+
+    def test_empty_input_gives_empty_tensors(self):
+        ids, masks = lora.encode(self.FakeModule(), [], max_length=64)
+        self.assertEqual(ids.shape, masks.shape)
+        self.assertEqual(ids.shape[0], 0)
+
+
 class PeftFailureTest(unittest.TestCase):
     """`peft` ném ImportError vì `torchao` cũ: thông báo phải có CÁCH SỬA.
 
