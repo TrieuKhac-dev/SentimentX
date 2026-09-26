@@ -378,17 +378,44 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
     classifier = MultiHeadClassifier(encoder, n_aspects, n_codes)
 
     if adapter_dir is not None:
-        model = PeftModel.from_pretrained(classifier, str(adapter_dir))
+        try:
+            model = PeftModel.from_pretrained(classifier, str(adapter_dir))
+        except ImportError as exc:
+            raise _peft_error(exc) from exc
         classifier.head.load_state_dict(
             torch.load(str(Path(adapter_dir) / HEAD_WEIGHTS), map_location="cpu"))
         return model, classifier.head
 
     if str(found.get("quantization") or "none") == "4bit":
         classifier.encoder = prepare_model_for_kbit_training(classifier.encoder)
-    model = get_peft_model(classifier, LoraConfig(
-        r=found["lora_r"], lora_alpha=found["lora_alpha"], lora_dropout=found["lora_dropout"],
-        target_modules=list(found["target_modules"]), bias="none", task_type="FEATURE_EXTRACTION"))
+    try:
+        model = get_peft_model(classifier, LoraConfig(
+            r=found["lora_r"], lora_alpha=found["lora_alpha"], lora_dropout=found["lora_dropout"],
+            target_modules=list(found["target_modules"]), bias="none",
+            task_type="FEATURE_EXTRACTION"))
+    except ImportError as exc:
+        raise _peft_error(exc) from exc
     return model, classifier.head
+
+
+TORCHAO_HINT = (
+    "Máy này có gói `torchao` cũ hơn mức `peft` cần, và `peft` ném lỗi ngay khi bọc LoRA dù dự án "
+    "KHÔNG dùng torchao. Gỡ nó rồi chạy lại:\n    pip uninstall -y torchao\n"
+    "Trên Colab, ô bootstrap của notebook tự làm việc này nên không phải gõ lệnh."
+)
+
+
+def _peft_error(exc):
+    """Câu thông báo khi `peft` không bọc được LoRA, kèm cách sửa cho ca hay gặp.
+
+    Lỗi thật trên Colab: `Found an incompatible version of torchao. Found version 0.10.0, but only
+    versions above 0.16.0 are supported` làm chết lượt chạy LoRA sau khi đã tải và nạp xong model -
+    thông báo gốc chỉ nói về một gói mà dự án không dùng, nên người đọc không biết phải làm gì.
+    """
+    first = (str(exc).splitlines() or [""])[0].strip()
+    if "torchao" in str(exc):
+        return TrainingError("Không bọc được LoRA bằng `peft`: {}\n{}".format(first, TORCHAO_HINT))
+    return TrainingError("Không bọc được LoRA bằng `peft`: {}".format(first))
 
 
 def read_head_config(directory):

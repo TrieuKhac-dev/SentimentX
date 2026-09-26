@@ -17,6 +17,7 @@ còn thiếu, để notebook in ra. Không bao giờ in giá trị, vì đó là
 
 import os
 import sys
+import time
 from pathlib import Path
 
 ENV_NAME = "SENTIMENTX_ENV"
@@ -73,7 +74,7 @@ def _local_env_path():
     return str(paths.root() / ".env")
 
 
-def drive_dir(folder=None, candidates=None):
+def drive_dir(folder=None, candidates=None, attempts=1, delay=0.0):
     """Thư mục Drive của nhóm trên Colab, nhận ra bằng FILE ĐÁNH DẤU.
 
     Vì sao phải có file đánh dấu: MyDrive và Shared drives trông giống nhau, mà chỉ một trong hai
@@ -87,6 +88,11 @@ def drive_dir(folder=None, candidates=None):
     thể là "SentimentX (1)" hoặc do giảng viên đặt - bắt họ khai đúng tên là bắt làm việc máy làm được.
     Vẫn nhận ra bằng `.sentimentx_root` chứ không bằng tên, nên không thể nhầm sang thư mục người khác.
 
+    `attempts` và `delay` (giây): số lần thử và thời gian chờ giữa hai lần. Cần thiết vì
+    `drive.mount()` trả về NGAY khi Drive được gắn, nhưng danh sách thư mục của Drive (FUSE) có thể
+    chưa đủ ngay lập tức - đã gặp thật: cùng một phiên, notebook này thấy thư mục nhóm còn notebook
+    kia thì không. Kết luận "chưa có thư mục" quá sớm là lượt chạy rơi vào máy ảo và mất kết quả.
+
     Trả về `Path` hoặc None (chưa mount, hoặc chưa có thư mục nào khớp).
     """
     from src import paths
@@ -96,6 +102,18 @@ def drive_dir(folder=None, candidates=None):
     marker = str(settings.get("folder_marker") or "")
     places = list(candidates if candidates is not None
                   else settings.get("drive_candidates") or [])
+    total = max(1, int(attempts))
+    for attempt in range(total):
+        found = _find_drive(folder, places, marker)
+        if found is not None:
+            return found
+        if delay and attempt + 2 <= total:
+            time.sleep(delay)
+    return None
+
+
+def _find_drive(folder, places, marker):
+    """Một lượt tìm thư mục nhóm: khớp theo tên trước, rồi tìm thư mục có file đánh dấu."""
     for place in places:
         try:
             candidate = Path(str(place).format(folder=folder or ""))

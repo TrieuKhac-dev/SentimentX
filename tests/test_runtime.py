@@ -149,6 +149,38 @@ class TestDriveDir(unittest.TestCase):
         (other / MARKER).write_text("", encoding="utf-8")
         self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), other)
 
+    def test_retries_until_the_marker_shows_up(self):
+        """`drive.mount()` trả về TRƯỚC khi Drive liệt kê xong danh sách thư mục.
+
+        Lỗi thật trên Colab: cùng một phiên, notebook này thấy thư mục nhóm còn notebook kia thì không
+        - lượt chạy sau đó rơi vào máy ảo, nơi không có dữ liệu gốc. Phải thử lại rồi mới kết luận.
+        """
+        with mock.patch.object(runtime, "_find_drive",
+                               side_effect=[None, None, self.mine]) as finder:
+            with mock.patch.object(runtime.time, "sleep") as sleeper:
+                found = runtime.drive_dir(folder="nhom", candidates=self.candidates(),
+                                          attempts=3, delay=2)
+        self.assertEqual(found, self.mine)
+        self.assertEqual(finder.call_count, 3)
+        self.assertEqual(sleeper.call_count, 2)
+
+    def test_gives_up_after_the_last_attempt(self):
+        with mock.patch.object(runtime, "_find_drive", return_value=None) as finder:
+            with mock.patch.object(runtime.time, "sleep") as sleeper:
+                found = runtime.drive_dir(folder="nhom", candidates=self.candidates(),
+                                          attempts=2, delay=1)
+        self.assertIsNone(found)
+        self.assertEqual(finder.call_count, 2)
+        self.assertEqual(sleeper.call_count, 1)
+
+    def test_one_attempt_does_not_sleep(self):
+        """Mặc định (một lượt) vẫn như cũ: không chờ, không đổi hành vi của nơi gọi khác."""
+        with mock.patch.object(runtime, "_find_drive", return_value=None):
+            with mock.patch.object(runtime.time, "sleep") as sleeper:
+                self.assertIsNone(runtime.drive_dir(folder="nhom",
+                                                    candidates=self.candidates()))
+        self.assertEqual(sleeper.call_count, 0)
+
     def test_env_file_path_inside_the_drive(self):
         self.mine.mkdir(parents=True)
         (self.mine / MARKER).write_text("", encoding="utf-8")

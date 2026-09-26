@@ -327,3 +327,27 @@ class FitDataTest(unittest.TestCase):
         self.assertTrue(any(code == 2 for row in data["train"]["labels"] for code in row))
 
 
+class PeftFailureTest(unittest.TestCase):
+    """`peft` ném ImportError vì `torchao` cũ: thông báo phải có CÁCH SỬA.
+
+    Lỗi thật trên Colab: `Found an incompatible version of torchao. Found version 0.10.0, but only
+    versions above 0.16.0 are supported` làm chết lượt chạy LoRA sau khi đã tải và nạp xong model.
+    Thông báo gốc chỉ nói về một gói mà dự án không dùng, nên người đọc không biết phải làm gì.
+    """
+
+    TORCHAO_TEXT = ("Found an incompatible version of torchao. Found version 0.10.0, but only "
+                    "versions above 0.16.0 are supported")
+
+    def test_torchao_failure_gets_the_uninstall_hint(self):
+        message = str(lora._peft_error(ImportError(self.TORCHAO_TEXT)))
+        self.assertIn("torchao", message)
+        self.assertIn("pip uninstall -y torchao", message)
+        self.assertIn("bootstrap", message)
+
+    def test_other_peft_failures_keep_the_first_line_only(self):
+        message = str(lora._peft_error(ImportError("cannot import name 'LoraConfig'\n  chi tiết")))
+        self.assertIn("cannot import name 'LoraConfig'", message)
+        self.assertNotIn("torchao", message)
+        self.assertNotIn("chi tiết", message)
+
+

@@ -239,6 +239,26 @@ class TestBootstrap(unittest.TestCase):
                     if "chưa thấy thư mục nhóm trên Drive" in line)
         self.assertLess(lookup, stop, "phải tìm thư mục nhóm TRƯỚC khi kết luận là không có")
 
+    def test_bootstrap_waits_before_giving_up_on_drive(self):
+        """Drive vừa mount thì danh sách thư mục có thể chưa đủ: phải chờ rồi thử lại.
+
+        Lỗi thật: cùng một phiên Colab, notebook này thấy thư mục nhóm còn notebook kia thì không -
+        lượt chạy sau đó rơi vào máy ảo và báo thiếu dữ liệu gốc.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("attempts=10, delay=3", source)
+
+    def test_bootstrap_removes_a_torchao_that_breaks_peft(self):
+        """`peft` ném ImportError khi máy có torchao cũ, nên ô bootstrap phải gỡ nó.
+
+        Lỗi thật trên Colab: torchao 0.10.0 so với ngưỡng 0.16.0 của peft, và lượt chạy LoRA chết sau
+        khi đã nạp xong model. Hỏi thẳng `peft.import_utils` thay vì tự so phiên bản trong notebook.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("from peft.import_utils import is_torchao_available", source)
+        self.assertIn('"uninstall", "-y", "-q", "torchao"', source)
+        self.assertIn('sys.modules.pop("torchao", None)', source)
+
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
 
