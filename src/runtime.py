@@ -130,9 +130,14 @@ def _find_drive(folder, places, marker):
 def _search_for_marker(places, marker):
     """Tìm thư mục có FILE ĐÁNH DẤU trong các gốc của `places`, không cần biết tên trước.
 
-    Quét ĐÚNG MỘT cấp: `/content/drive/MyDrive/<tên bất kỳ>/.sentimentx_root`. Nhiều thư mục cùng
-    có dấu thì chọn thư mục CÓ `data/` (dấu hiệu thư mục đã được chuẩn bị để chạy), còn lại lấy theo
-    thứ tự tên - để kết quả không phụ thuộc thứ tự đọc đĩa.
+    Quét `/content/drive/MyDrive/<tên bất kỳ>/.sentimentx_root`, và nếu chưa thấy thì quét thêm MỘT
+    cấp nữa. Cấp thứ hai là cho SHARED DRIVE: cấu trúc hay gặp là
+    `Shareddrives/<tên shared drive>/<thư mục dự án>/.sentimentx_root` (nhóm để dự án trong shared
+    drive của khoa/giảng viên). Không quét cấp hai khi cấp một đã có, nên trường hợp bình thường vẫn
+    nhanh và không có chuyện chọn nhầm thư mục cha.
+
+    Nhiều thư mục cùng có dấu thì chọn thư mục CÓ `data/` (dấu hiệu thư mục đã được chuẩn bị để chạy),
+    còn lại lấy theo thứ tự tên - để kết quả không phụ thuộc thứ tự đọc đĩa.
     """
     if not marker:
         return None
@@ -153,6 +158,14 @@ def _search_for_marker(places, marker):
         for child in sorted(root.iterdir()):
             if child.is_dir() and (child / marker).exists() and child not in found:
                 found.append(child)
+        if found:
+            continue
+        for child in sorted(root.iterdir()):
+            if not child.is_dir():
+                continue
+            for nested in sorted(child.iterdir()):
+                if nested.is_dir() and (nested / marker).exists() and nested not in found:
+                    found.append(nested)
     if not found:
         return None
     for child in found:

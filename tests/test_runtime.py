@@ -237,6 +237,27 @@ class TestDriveDir(unittest.TestCase):
         self.assertEqual(runtime.drive_roots(self.candidates()),
                          [self.root / "MyDrive", self.root / "Shareddrives"])
 
+    def test_the_search_also_looks_inside_a_shared_drive(self):
+        """Thư mục nhóm có thể nằm TRONG một thư mục con của shared drive.
+
+        Cấu trúc hay gặp: `Shareddrives/Khoa CNTT/ABSA_2026_2027/` - nhóm để dự án trong shared drive
+        của khoa. Quét một cấp thì không thấy, và lượt chạy dừng dù dữ liệu nằm ngay đó.
+        """
+        nested = self.root / "Shareddrives" / "Khoa CNTT" / "ABSA_2026_2027"
+        nested.mkdir(parents=True)
+        (nested / MARKER).write_text("", encoding="utf-8")
+        self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), nested)
+
+    def test_the_closest_folder_with_the_marker_wins(self):
+        """Có dấu ở cả hai cấp thì lấy cấp MỘT: gần gốc hơn, và tránh chọn thư mục con của nó."""
+        outer = self.root / "Shareddrives" / "Khoa CNTT"
+        outer.mkdir(parents=True)
+        (outer / MARKER).write_text("", encoding="utf-8")
+        inner = outer / "ABSA_2026_2027"
+        inner.mkdir()
+        (inner / MARKER).write_text("", encoding="utf-8")
+        self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), outer)
+
     def test_env_file_path_inside_the_drive(self):
         self.mine.mkdir(parents=True)
         (self.mine / MARKER).write_text("", encoding="utf-8")

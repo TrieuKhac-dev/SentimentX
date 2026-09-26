@@ -101,6 +101,11 @@ phiên), đúng triệu chứng `Gốc dữ liệu : /content/SentimentX/data` �
   trên - **nhưng tài khoản phải được chia sẻ shared drive đó với quyền ĐỦ GHI**, vì kết quả chạy ghi
   vào chính thư mục đó. Khi không tìm thấy thư mục nhóm, ô bootstrap in **từng gốc một** (`MyDrive: ...`,
   `Shareddrives: ...`) để biết gốc nào rỗng.
+- **Nhóm để dự án trong shared drive của khoa/giảng viên cũng chạy được**, kể cả khi thư mục nhóm nằm
+  một cấp bên trong: `Shareddrives/<tên shared drive>/<thư mục dự án>/.sentimentx_root`. Notebook quét
+  cấp một trước (`Shareddrives/<tên shared drive>/.sentimentx_root`) và chỉ khi không thấy mới quét
+  thêm một cấp. Cùng một tài khoản thì `MyDrive` và shared drive đều cần quyền đủ ghi nếu muốn ghi kết
+  quả vào đó.
 - `DAGSHUB_TOKEN` để trống cũng chạy được: thiếu token thì phần ghi MLflow tự hạ cấp thành ghi chú
   trong `run.log`, không làm hỏng lượt chạy. Colab Secrets được đọc TRƯỚC file này, nên muốn dùng
   token riêng thì thêm `DAGSHUB_TOKEN` vào Secrets là đủ.
