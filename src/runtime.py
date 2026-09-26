@@ -75,18 +75,23 @@ def _local_env_path():
 
 
 def drive_dir(folder=None, candidates=None, attempts=1, delay=0.0):
-    """Thư mục Drive của nhóm trên Colab, nhận ra bằng FILE ĐÁNH DẤU.
+    """Thư mục Drive của nhóm trên Colab.
 
-    Vì sao phải có file đánh dấu: MyDrive và Shared drives trông giống nhau, mà chỉ một trong hai
-    là thư mục giảng viên cấp. Đoán theo tên thư mục thì notebook có thể đọc nhầm một thư mục
-    cùng tên của người khác - và lúc đó nó ghi kết quả vào chỗ không ai tìm thấy.
+    Nhận ra thư mục theo hai dấu hiệu, KHÔNG đoán theo tên (MyDrive và Shared drives trông giống nhau,
+    đoán theo tên thì notebook có thể ghi kết quả vào thư mục cùng tên của người khác):
+
+      1. FILE ĐÁNH DẤU `.sentimentx_root` - chắc chắn nhất;
+      2. CẤU TRÚC CỦA GÓI: `env/.env.colab`, hoặc `data/` đi kèm `experiments/`.
+
+    Vì sao phải có dấu hiệu thứ hai: không phải ai cũng tạo được `.sentimentx_root`. Tên file bắt đầu
+    bằng dấu chấm nên **web Drive không tạo được**, và khi A chia sẻ thư mục cho b/c/d thì A có thể chỉ
+    share rồi thôi. Không có dấu hiệu thứ hai thì mọi người được chia sẻ đều bị chặn vô cớ.
 
     KHÔNG tự mount Drive: việc mount là của người chạy notebook (docs/00_workflow/01_flow.md).
 
-    Không khớp theo tên thì TÌM một cấp trong các gốc của những đường dẫn đã khai (`MyDrive`,
-    `Shareddrives`): người nhận notebook chỉ việc copy thư mục của nhóm vào Drive của mình, tên có
-    thể là "SentimentX (1)" hoặc do giảng viên đặt - bắt họ khai đúng tên là bắt làm việc máy làm được.
-    Vẫn nhận ra bằng `.sentimentx_root` chứ không bằng tên, nên không thể nhầm sang thư mục người khác.
+    Không khớp theo tên thì xét (`drive_candidates`, theo thứ tự ưu tiên): một cấp trong các gốc đã khai
+    (`MyDrive`, `Shareddrives`), rồi trong thư mục con của gốc (shared drive lồng), rồi QUA LỐI TẮT
+    (`MyDrive/.shortcut-targets-by-id/...`) - lối tắt là cách b/c/d nhìn thấy thư mục A chia sẻ.
 
     `attempts` và `delay` (giây): số lần thử và thời gian chờ giữa hai lần. Cần thiết vì
     `drive.mount()` trả về NGAY khi Drive được gắn, nhưng danh sách thư mục của Drive (FUSE) có thể
@@ -113,82 +118,105 @@ def drive_dir(folder=None, candidates=None, attempts=1, delay=0.0):
 
 
 def _find_drive(folder, places, marker):
-    """Một lượt tìm thư mục nhóm: khớp theo tên trước, rồi tìm thư mục có file đánh dấu."""
+    """Một lượt tìm: khớp theo TÊN (nếu có khai) trước, rồi tới thư mục đáng xét nhất."""
+    roots = drive_roots(places)
     for place in places:
         try:
             candidate = Path(str(place).format(folder=folder or ""))
         except (KeyError, IndexError, ValueError):
             continue
-        if not candidate.is_dir():
+        # Bỏ qua chính các GỐC Drive: nhận `MyDrive/` làm thư mục nhóm thì kết quả sẽ ghi vào
+        # `MyDrive/experiments` - sai chỗ mà lại im lặng.
+        if candidate in roots or not candidate.is_dir():
             continue
-        if marker and not (candidate / marker).exists():
+        if marker and not (candidate / marker).exists() and not looks_like_group_dir(candidate):
             continue
         return candidate
-    return _search_for_marker(places, marker)
+    found = drive_candidates(places)
+    return found[0]["path"] if found else None
 
 
-def _search_for_marker(places, marker):
-    """Tìm thư mục có FILE ĐÁNH DẤU trong các gốc của `places`, không cần biết tên trước.
+def drive_candidates(places=None, limit=40):
+    """Mọi thư mục ĐÁNG XÉT trong các gốc Drive, kèm cách nhận ra chúng.
 
-    Ba lượt, theo thứ tự, dừng ngay khi thấy:
-      1. một cấp: `/content/drive/MyDrive/<tên bất kỳ>/.sentimentx_root` (cách thường dùng);
-      2. hai cấp: `.../Shareddrives/<tên shared drive>/<thư mục dự án>/.sentimentx_root` (nhóm để dự án
-         trong shared drive của khoa/giảng viên);
-      3. LỐI TẮT (shortcut): `.../MyDrive/.shortcut-targets-by-id/<id>/<tên>/.sentimentx_root` - đây là
-         chỗ Drive để lối tắt khi A CHIA SẺ thư mục nhóm cho b/c/d và mỗi người bấm "Add shortcut to My
-         Drive". Không xét chỗ này thì b/c/d thấy "chưa có thư mục nhóm" dù đã được chia sẻ.
+    Trả về `[{"path": Path, "how": "marker" | "structure", "where": str, "prepared": bool}, ...]`, đã
+    sắp theo thứ tự ưu tiên: file đánh dấu trước cấu trúc, cấp nông trước cấp sâu, trong cùng nhóm thì
+    thư mục có `data/` lên trước (dấu hiệu đã được chuẩn bị để chạy), cuối cùng theo đường dẫn - để kết
+    quả không phụ thuộc thứ tự đọc đĩa.
 
-    Không quét lượt sau khi lượt trước đã thấy, nên trường hợp bình thường vẫn nhanh và không có chuyện
-    chọn nhầm một thư mục cha. Nhiều thư mục cùng có dấu thì chọn thư mục CÓ `data/` (dấu hiệu thư mục
-    đã được chuẩn bị để chạy), còn lại lấy theo thứ tự tên - để kết quả không phụ thuộc thứ tự đọc đĩa.
+    Đây là MỘT nguồn duy nhất cho cả việc chọn thư mục (`drive_dir`) và việc in ra khi không chọn được
+    (ô bootstrap), nên hai chỗ không thể lệch nhau.
+
+    Các lượt xét dừng ngay khi lượt trước đã có kết quả, vì mỗi lượt là một loạt lệnh đọc đĩa trên
+    Drive (chậm): (1) một cấp, (2) QUA LỐI TẮT, (3) trong thư mục con của gốc - shared drive lồng. Lối
+    tắt xét trước lượt thứ ba vì nó chỉ đọc một thư mục ẩn nhỏ, còn lượt thứ ba phải đi hết cây một cấp
+    của MyDrive - đúng chỗ tốn thời gian nhất.
     """
     from src import paths
 
-    if not marker:
-        return None
     settings = paths.cfg().get("colab") or {}
+    marker = str(settings.get("folder_marker") or "")
     shortcut = str(settings.get("shortcut_dir") or "")
-    roots = []
-    for place in places:
-        # Dùng `Path` chứ không cắt chuỗi theo "/": trên Windows đường dẫn dùng "\", cắt theo "/" thì
-        # không ra gốc nào và phép tìm im lặng không chạy - đúng lỗi mà ba test dưới đây bắt được.
-        pattern = Path(str(place))
-        if "{" not in pattern.name:
-            continue
-        root = pattern.parent
-        if root not in roots:
-            roots.append(root)
+    places = list(places if places is not None else settings.get("drive_candidates") or [])
+
     found = []
-    for root in roots:
+
+    def consider(path, where):
+        if any(item["path"] == path for item in found):
+            return False
+        if marker and (path / marker).exists():
+            how = "marker"
+        elif looks_like_group_dir(path):
+            how = "structure"
+        else:
+            return False
+        found.append({"path": path, "how": how, "where": where,
+                      "prepared": (path / "data").is_dir()})
+        return True
+
+    for root in drive_roots(places):
         if not root.is_dir():
             continue
-        for child in sorted(root.iterdir()):
-            if child.is_dir() and (child / marker).exists() and child not in found:
-                found.append(child)
-        if found:
-            continue
-        for child in sorted(root.iterdir()):
-            if not child.is_dir():
-                continue
-            for nested in sorted(child.iterdir()):
-                if nested.is_dir() and (nested / marker).exists() and nested not in found:
-                    found.append(nested)
-        if found:
+        # Mỗi lượt phải xét HẾT các thư mục của lượt đó rồi mới quyết định có đi tiếp hay không: xét
+        # kiểu "dừng ngay khi thấy một cái" thì phép xếp hạng bên dưới không có gì để chọn - đúng lỗi mà
+        # test "thư mục có file đánh dấu phải thắng thư mục chỉ có cấu trúc" bắt được.
+        before = len(found)
+        children = sorted(child for child in root.iterdir() if child.is_dir())
+        for child in children:
+            consider(child, "một cấp")
+        if len(found) > before:
             continue
         if shortcut and (root / shortcut).is_dir():
-            for folder_id in sorted((root / shortcut).iterdir()):
-                if not folder_id.is_dir():
-                    continue
-                for target in sorted(folder_id.iterdir()):
-                    if target.is_dir() and (target / marker).exists() and target not in found:
-                        found.append(target)
-    if not found:
-        return None
-    for child in found:
-        if (child / "data").is_dir():
-            return child
-    return found[0]
+            targets = [target for folder_id in sorted(item for item in (root / shortcut).iterdir()
+                                                      if item.is_dir())
+                       for target in sorted(item for item in folder_id.iterdir() if item.is_dir())]
+            for item in targets:
+                consider(item, "qua lối tắt (shortcut)")
+            if len(found) > before:
+                continue
+        nested = [grand for child in children
+                  for grand in sorted(item for item in child.iterdir() if item.is_dir())]
+        for item in nested:
+            consider(item, "trong thư mục con")
 
+    def rank(item):
+        return (0 if item["how"] == "marker" else 1,
+                {"một cấp": 0, "qua lối tắt (shortcut)": 1}.get(item["where"], 2),
+                0 if item["prepared"] else 1,
+                item["path"].as_posix())
+
+    return sorted(found, key=rank)[:limit]
+
+
+def folder_marker():
+    """Tên file đánh dấu thư mục nhóm, đọc từ `configs/paths.yaml`.
+
+    Notebook cần tên này chỉ để NÓI RA khi thư mục được nhận bằng cấu trúc gói chứ không bằng dấu
+    (`drive_dir` đã đọc cấu hình cho việc tìm). Không viết cứng tên file ở hai chỗ.
+    """
+    from src import paths
+
+    return str((paths.cfg().get("colab") or {}).get("folder_marker") or "")
 
 
 def drive_roots(places=None):
@@ -216,13 +244,13 @@ def drive_listing(places=None, limit=12):
     """Mỗi gốc Drive kèm tên các thư mục con đang thấy: để IN RA khi không tìm được thư mục nhóm.
 
     Trả về `[{"root": Path, "names": [tên...], "shortcuts": [tên...], "gone": bool}, ...]`. Không phải
-    để chọn thư mục - chọn thì vẫn theo FILE ĐÁNH DẤU (xem `drive_dir`) - mà để người đọc biết máy đang
-    nhìn vào đâu: gốc MyDrive có gì, gốc Shareddrives có gì, LỐI TẮT (shortcut) đang trỏ tới đâu, hay
-    cả hai gốc đều rỗng.
+    để chọn thư mục - chọn thì theo `drive_candidates` (dấu hiệu file đánh dấu hoặc cấu trúc gói) - mà
+    để người đọc biết máy đang nhìn vào đâu: gốc MyDrive có gì, gốc Shareddrives có gì, LỐI TẮT
+    (shortcut) đang trỏ tới đâu, hay cả hai gốc đều rỗng.
 
     `shortcuts` là chỗ trả lời câu hỏi hay gặp nhất của người được chia sẻ thư mục nhóm: "tôi đã được
     chia sẻ rồi mà notebook bảo chưa thấy" - khi đó hoặc chưa bấm "Add shortcut to My Drive", hoặc lối
-    tắt đã có mà thư mục đích thiếu file đánh dấu.
+    tắt đã có mà thư mục đích không có dấu hiệu nào của gói.
     """
     from src import paths
 
@@ -240,17 +268,6 @@ def drive_listing(places=None, limit=12):
         listing.append({"root": root, "names": names[:limit], "gone": not exists,
                         "shortcuts": shortcuts[:limit]})
     return listing
-
-
-def drive_children(places=None, limit=20):
-    """Mọi thư mục con của các gốc Drive đã khai (gộp lại, để đối chiếu với file đánh dấu)."""
-    found = []
-    for item in drive_listing(places, limit=limit):
-        for name in item["names"]:
-            child = item["root"] / name
-            if child.is_dir() and child not in found:
-                found.append(child)
-    return found[:limit]
 
 
 def looks_like_group_dir(path):

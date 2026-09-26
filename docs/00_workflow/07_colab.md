@@ -23,7 +23,7 @@ Cách code tìm Drive (`src/runtime.py`): thử `/content/drive/MyDrive/{folder}
 
 ```
 MyDrive/SentimentX/                                    ← thư mục gốc trên Drive, tên tùy ý
-├── .sentimentx_root                                   ← FILE RỖNG, bắt buộc
+├── .sentimentx_root                                   ← FILE RỖNG (khuyến nghị, KHÔNG bắt buộc)
 ├── README.md                                          ← hướng dẫn người chạy (nhóm đặt sẵn)
 ├── env/.env.colab                                     ← biến môi trường + token DagsHub (KHÔNG commit)
 ├── env/.env.colab.example                             ← bản mẫu để tham chiếu
@@ -123,8 +123,8 @@ Việc này là của **nhóm làm dự án**, không phải của người ch�
 test, `label_map.json`, `processing_log.json`). Đưa lên bằng cách mở Drive, tạo thư mục, rồi kéo từng
 thư mục vào đúng chỗ.
 
-File `.sentimentx_root` phải tạo bằng code (web Drive không tạo được tên bắt đầu bằng dấu chấm). Sau
-khi đã mount Drive trong Colab:
+File `.sentimentx_root` (**không bắt buộc**, nhưng nên có để máy nhận ra chắc chắn) phải tạo bằng code
+(web Drive không tạo được tên bắt đầu bằng dấu chấm). Sau khi đã mount Drive trong Colab:
 
 ```python
 from pathlib import Path
@@ -156,6 +156,11 @@ Vì sao bắt buộc: thư mục được chia sẻ **không nằm trong `MyDriv
 xét cả `MyDrive/.shortcut-targets-by-id/`), và in ra dòng `lối tắt (shortcut) đang trỏ tới: ...` khi cần
 đối chiếu.
 
+**A KHÔNG cần tạo `.sentimentx_root`.** Notebook nhận ra thư mục nhóm bằng chính **cấu trúc của gói**
+(`data/` đi kèm `experiments/`, hoặc `env/.env.colab`), và nói ra khi nó nhận theo cách đó:
+`(nhận ra thư mục nhóm bằng CẤU TRÚC GÓI: không có file đánh dấu ... - không sao ...)`. File đánh dấu chỉ
+là dấu hiệu chắc chắn hơn - ai đó tạo một lần cũng được, không có cũng chạy.
+
 **Cách 3 - chỉ định thẳng đường dẫn** (khi hai cách trên chưa làm được ngay): bỏ chú thích trong
 `env/.env.colab` và trỏ tới đúng chỗ:
 
@@ -165,9 +170,8 @@ SENTIMENTX_RESULTS_ROOT=/content/drive/MyDrive/ABSA_2026_2027/experiments
 ```
 
 Điều kiện chung cho cả ba cách: quyền phải **đủ ghi**, vì kết quả chạy ghi vào
-`<thư mục nhóm>/experiments/...`; và thư mục nhóm nên có file đánh dấu `.sentimentx_root` (A tạo **một
-lần** bằng code, xem đoạn trên) - thiếu file đó thì notebook vẫn nhận ra thư mục nếu nó có cấu trúc của
-gói (`env/.env.colab`, hoặc `data` + `experiments`), nhưng có dấu thì chắc chắn hơn.
+`<thư mục nhóm>/experiments/...`; và thư mục nhóm nên giữ nguyên cấu trúc của gói (`data/`,
+`experiments/`, `env/`) - đó là thứ notebook dùng để nhận ra nó.
 
 ## 4. Người chạy notebook - ba bước
 

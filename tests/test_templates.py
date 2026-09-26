@@ -260,16 +260,25 @@ class TestBootstrap(unittest.TestCase):
         self.assertIn('sys.modules.pop("torchao", None)', source)
 
     def test_bootstrap_shows_what_it_sees_when_the_drive_lookup_fails(self):
-        """Không thấy thư mục nhóm thì phải in DANH SÁCH thư mục đang thấy, và vẫn nhận ra thư mục gói.
+        """Không thấy thư mục nhóm thì phải in DANH SÁCH thư mục đang thấy (từng gốc, kèm lối tắt).
 
-        Hai việc này đi cùng nhau: dòng danh sách là bằng chứng để người đọc biết máy đang nhìn vào đâu,
-        còn `looks_like_group_dir` cứu trường hợp file đánh dấu bị MẤT khi chép thư mục - file bắt đầu
-        bằng dấu chấm nên `Compress-Archive` (và đôi khi cả Explorer) bỏ qua nó.
+        `runtime.drive_listing()` là nguồn duy nhất cho dòng đó, nên dòng in ra và việc chọn thư mục
+        (`runtime.drive_dir`) không thể lệch nhau.
         """
         source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("runtime.drive_children()", source)
-        self.assertIn("runtime.looks_like_group_dir", source)
-        self.assertIn("THIẾU file đánh dấu .sentimentx_root", source)
+        self.assertIn("runtime.drive_listing()", source)
+        self.assertIn("lối tắt (shortcut) đang trỏ tới", source)
+
+    def test_bootstrap_says_when_it_used_the_package_structure(self):
+        """Nhận ra thư mục nhóm bằng CẤU TRÚC GÓI thì phải NÓI RA.
+
+        Mô hình của nhóm: A chỉ chia sẻ thư mục (không tạo `.sentimentx_root` - web Drive không tạo được
+        tên bắt đầu bằng dấu chấm), b/c/d bấm lối tắt. Notebook vẫn chạy, và nói rõ nó nhận ra bằng cách
+        nào, kèm cách làm cho chắc chắn hơn.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn("CẤU TRÚC GÓI", source)
+        self.assertIn("runtime.folder_marker()", source)
 
     def test_bootstrap_lists_each_drive_root_separately(self):
         """MyDrive và Shareddrives là hai gốc khác nhau: phải in từng gốc khi không thấy thư mục nhóm.

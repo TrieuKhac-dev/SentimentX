@@ -181,23 +181,11 @@ class TestDriveDir(unittest.TestCase):
                                                     candidates=self.candidates()))
         self.assertEqual(sleeper.call_count, 0)
 
-    def test_children_lists_the_folders_it_can_see(self):
-        """Khi không tìm thấy thư mục nhóm, notebook phải IN RA thứ máy đang thấy.
-
-        Không có dòng đó thì người đọc chỉ biết "không thấy", mà nguyên nhân có thể là: thiếu file
-        đánh dấu, chưa bấm Allow, hoặc đang nhìn vào Drive của tài khoản khác.
-        """
-        (self.root / "MyDrive" / "TaiLieu").mkdir(parents=True)
-        self.mine.mkdir(parents=True)
-        names = [path.name for path in runtime.drive_children(self.candidates())]
-        self.assertIn("nhom", names)
-        self.assertIn("TaiLieu", names)
-
     def test_a_folder_with_the_package_structure_counts_as_the_group_folder(self):
         """Gói bàn giao có `env/.env.colab` (và `data/` + `experiments/`) - đó là dấu hiệu nhận ra.
 
-        File đánh dấu bắt đầu bằng dấu chấm nên công cụ chép thư mục trên Windows có thể bỏ qua nó;
-        khi đó thư mục ĐÚNG vẫn bị coi là không có, và lượt chạy dừng vô ích.
+        Vì sao cần dấu hiệu này: tên file đánh dấu bắt đầu bằng dấu chấm nên **web Drive không tạo
+        được**, và người chia sẻ thư mục (A) có thể chỉ share rồi thôi - không nên bắt ai phải tạo nó.
         """
         folder = self.root / "MyDrive" / "ABSA_2026_2027"
         (folder / "env").mkdir(parents=True)
@@ -205,14 +193,45 @@ class TestDriveDir(unittest.TestCase):
         (folder / "data").mkdir()
         (folder / "experiments").mkdir()
         self.assertTrue(runtime.looks_like_group_dir(folder))
-        seen = [path for path in runtime.drive_children(self.candidates())
-                if runtime.looks_like_group_dir(path)]
-        self.assertEqual(seen, [folder])
+        found = runtime.drive_candidates(self.candidates())
+        self.assertEqual([item["path"] for item in found], [folder])
+        self.assertEqual(found[0]["how"], "structure")
+        self.assertTrue(found[0]["prepared"])
+
+    def test_a_shared_folder_reached_by_shortcut_needs_no_marker(self):
+        """ĐÚNG MÔ HÌNH CỦA NHÓM: A chia sẻ, b/c/d bấm lối tắt, KHÔNG ai tạo `.sentimentx_root`.
+
+        Thư mục đích của lối tắt nằm ở `MyDrive/.shortcut-targets-by-id/<id>/<tên>` và chỉ có cấu trúc
+        của gói. Trước đây chỗ nhận theo cấu trúc chỉ xét một cấp nên không thấy nó, và b/c/d bị chặn
+        dù đã làm đúng phần việc của mình.
+        """
+        target = self.root / "MyDrive" / ".shortcut-targets-by-id" / "1AbC" / "ABSA_2026_2027"
+        (target / "env").mkdir(parents=True)
+        (target / "env" / ".env.colab").write_text("", encoding="utf-8")
+        (target / "data").mkdir()
+        (target / "experiments").mkdir()
+        self.assertEqual(runtime.drive_dir(folder="", candidates=self.candidates()), target)
+        found = runtime.drive_candidates(self.candidates())
+        self.assertEqual(found[0]["path"], target)
+        self.assertEqual(found[0]["where"], "qua lối tắt (shortcut)")
+
+    def test_the_marker_wins_over_plain_structure(self):
+        """Có cả hai loại thư mục thì chọn thư mục CÓ FILE ĐÁNH DẤU - dấu hiệu chắc chắn hơn."""
+        marked = self.root / "MyDrive" / "co-dau"
+        marked.mkdir(parents=True)
+        (marked / MARKER).write_text("", encoding="utf-8")
+        plain = self.root / "MyDrive" / "chi-co-cau-truc"
+        (plain / "data").mkdir(parents=True)
+        (plain / "experiments").mkdir()
+        found = runtime.drive_candidates(self.candidates())
+        self.assertEqual(found[0]["path"], marked)
+        self.assertEqual(found[0]["how"], "marker")
 
     def test_a_plain_folder_is_not_mistaken_for_the_group_folder(self):
         folder = self.root / "MyDrive" / "TaiLieu"
         (folder / "data").mkdir(parents=True)
         self.assertFalse(runtime.looks_like_group_dir(folder))
+        self.assertEqual(runtime.drive_candidates(self.candidates()), [])
 
     def test_listing_names_each_root_separately(self):
         """In TỪNG gốc: thư mục nhóm có thể nằm trong Shared drive, không phải MyDrive.
