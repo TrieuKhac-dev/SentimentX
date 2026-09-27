@@ -14,6 +14,7 @@
 Chạy: python -m unittest discover -s tests
 """
 
+import json
 import shutil
 import tempfile
 import unittest
@@ -370,6 +371,83 @@ class TestTwoReportSets(unittest.TestCase):
         self.assertIn("attempt_registry", reports.GROUPS)
         self.assertEqual(reports.CSV_NAME["attempt_registry"], "attempt_registry.csv")
         self.assertEqual(paths.report("attempt_registry").name, "attempt_registry")
+
+
+class TestRunValidity(unittest.TestCase):
+    """Hai cột `valid` và `comparable`: lượt chạy này có dùng được trong bảng so hay không.
+
+    Vì sao cần: một lượt có thể được chấm bằng commit CHƯA merge vào nhánh đã ghim, hoặc bằng một cơ sở
+    đo khác (dữ liệu, không gian nhãn, split, bộ chấm). Đọc thì vẫn ra số, nhưng con số đó không tái lập
+    được từ bản code đã công bố - bảng phải nói ra chứ không để người đọc tự phát hiện.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-validity-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def make_run(self, tag="a1", task=None, experiment=None):
+        directory = write_run(self.root, tag, experiment=experiment or {
+            "model": "model-x", "method": "lora", "exp_id": "exp001"})
+        if task is not None:
+            meta = json.loads((directory / "run_meta.json").read_text(encoding="utf-8"))
+            meta["task"] = task
+            utils.write_json(meta, directory / "run_meta.json")
+        return reports.scan_runs([self.root])[-1]
+
+    def test_commit_on_the_pinned_branch_is_valid(self):
+        with mock.patch.object(reports.repo_module, "ref_exists", return_value=True), \
+                mock.patch.object(reports.repo_module, "is_ancestor", return_value=True):
+            row = reports.experiment_rows([self.make_run()])[0]
+        self.assertEqual(row["valid"], reports.VALID_YES)
+        self.assertEqual(row["invalid_reason"], "")
+
+    def test_commit_outside_the_branch_is_flagged_with_the_reason(self):
+        with mock.patch.object(reports.repo_module, "ref_exists", return_value=True), \
+                mock.patch.object(reports.repo_module, "is_ancestor", return_value=False):
+            row = reports.experiment_rows([self.make_run()])[0]
+        self.assertEqual(row["valid"], reports.VALID_NO)
+        self.assertIn("không nằm trên", row["invalid_reason"])
+
+    def test_a_machine_without_git_is_unknown_not_invalid(self):
+        """"Chưa kiểm được" không được ghi thành "không hợp lệ" - đó là nói dối kiểu khác."""
+        with mock.patch.object(reports.repo_module, "ref_exists",
+                               side_effect=reports.repo_module.RepoError("Máy này không có `git`.")):
+            row = reports.experiment_rows([self.make_run()])[0]
+        self.assertEqual(row["valid"], reports.VALID_UNKNOWN)
+        self.assertIn("git", row["invalid_reason"])
+
+    def test_missing_remote_ref_falls_back_to_the_local_branch(self):
+        """Máy chỉ có nhánh nội bộ (chưa fetch) vẫn kiểm được, thay vì báo "chưa rõ"."""
+        with mock.patch.object(reports.repo_module, "ref_exists",
+                               side_effect=lambda ref: ref == "experiment"), \
+                mock.patch.object(reports.repo_module, "is_ancestor", return_value=True):
+            row = reports.experiment_rows([self.make_run()])[0]
+        self.assertEqual(row["valid"], reports.VALID_YES)
+
+    def test_git_is_asked_once_for_the_same_commit(self):
+        """Nhiều lượt cùng một commit: hỏi git một lần, không gọi lại cho từng dòng."""
+        asked = []
+        with mock.patch.object(reports.repo_module, "ref_exists", return_value=True), \
+                mock.patch.object(reports.repo_module, "is_ancestor",
+                                  side_effect=lambda sha, ref: asked.append(sha) or True):
+            reports.experiment_rows([self.make_run("a1"), self.make_run("b2")])
+        self.assertEqual(len(asked), 1)
+
+    def test_a_different_measurement_basis_is_not_comparable(self):
+        """Hai lượt khác không gian nhãn thì không so được: lệch vì ĐO KHÁC, không phải vì model khác."""
+        first = self.make_run("a1", task={"label_space": "binary", "neutral_policy": "drop"})
+        second = self.make_run("b2", task={"label_space": "full", "neutral_policy": "drop"})
+        with mock.patch.object(reports.repo_module, "ref_exists", return_value=True), \
+                mock.patch.object(reports.repo_module, "is_ancestor", return_value=True):
+            rows = reports.experiment_rows([first, second])
+        self.assertEqual(rows[0]["comparable"], reports.VALID_YES)
+        self.assertEqual(rows[1]["comparable"], reports.VALID_NO)
+        self.assertIn("khác cơ sở đo", rows[1]["invalid_reason"])
+        self.assertIn("full so với binary", rows[1]["invalid_reason"])
+
+    def test_the_three_columns_are_in_the_registry_table(self):
+        for column in ("valid", "comparable", "invalid_reason"):
+            self.assertIn(column, reports.REGISTRY_COLUMNS)
 
 
 if __name__ == "__main__":

@@ -80,6 +80,20 @@ vẽ từ `metrics.json` và `predictions.csv`, không phải do phần chấm �
 và một cột `reference` chứa số của công bố.
 `data/reports/metrics_matrix/prf_by_aspect_sentiment.csv` có cùng định dạng với bảng P R F1 của công bố.
 
+### Hai cột nói lượt chạy có DÙNG ĐƯỢC trong bảng so hay không
+
+`experiment_registry` có thêm ba cột, sinh bằng cách hỏi chính git và chính bản ghi của lượt chạy:
+
+| Cột | Nghĩa | Vì sao cần |
+| --- | --- | --- |
+| `valid` | commit của lượt chạy có nằm trên nhánh đã ghim (`origin/<nhánh>` trong `run_meta.json`) không: `yes` / `no` / `chưa rõ` | lượt chấm bằng commit CHƯA merge vẫn ra số, nhưng không ai tái lập được từ bản code đã công bố |
+| `comparable` | cơ sở đo (`data.ma`, `label_space`, `neutral_policy`, `not_mentioned`, `split`, bộ chấm) có khớp lượt CHUẨN không - lượt chuẩn là lượt `FINISHED` sớm nhất trong bảng | hai cột cạnh nhau mà khác cơ sở đo thì lệch vì ĐO KHÁC, không phải vì model khác |
+| `invalid_reason` | lý do gộp của cả hai cột trên, rỗng khi cả hai đều `yes` | người đọc biết ngay vì sao, không phải mở `run.log` dò |
+
+`chưa rõ` là giá trị riêng, không gộp vào `no`: máy không có git, thiếu ref, hoặc `run_meta.json` không
+ghi commit thì **không kiểm được** - ghi thành "không hợp lệ" là nói dối kiểu khác. Việc gọi git đi qua
+`src/repo.py` và mỗi cặp (commit, nhánh) chỉ hỏi một lần, nên bảng nhiều dòng vẫn chỉ tốn một lệnh.
+
 ### Hai bộ bảng, tách rõ: toàn bộ và chỉ lượt thành công
 
 `python scripts/collect_reports.py` sinh năm nhóm, mỗi nhóm ba định dạng (`.csv`, `.html`, `.md`):

@@ -34,7 +34,7 @@ import html
 import json
 from pathlib import Path
 
-from src import config, dataset as dataset_module, paths, utils, versioning
+from src import config, dataset as dataset_module, paths, repo as repo_module, utils, versioning
 
 NO_DATA = "chưa có dữ liệu"
 
@@ -189,10 +189,89 @@ def _row_count(path):
 # Nhóm 2: experiment_registry
 # ---
 
+# Ba giá trị của hai cột `valid` và `comparable`. Có cả "chưa rõ" vì thiếu git hoặc thiếu thông tin
+# không được coi là hợp lệ (nói dối kiểu khác) mà cũng không được coi là sai.
+VALID_YES = "yes"
+VALID_NO = "no"
+VALID_UNKNOWN = "chưa rõ"
+
+
+def commit_status(sha, branch, cache=None):
+    """Commit của lượt chạy có nằm trên nhánh `branch` của `origin` không: trả `(valid, lý do)`.
+
+    Vì sao cần: một lượt chạy có thể được chấm bằng commit CHƯA merge vào nhánh đã ghim (chạy trước khi
+    merge, hoặc máy khác còn nhánh riêng). Đọc thì vẫn ra số, nhưng không ai tái lập được từ bản code đã
+    công bố - nên bảng phải NÓI RA, thay vì để người đọc tự phát hiện.
+
+    Gọi git qua `src/repo.py` (một chỗ duy nhất biết gọi git). Máy không có git, thiếu ref, hoặc thiếu
+    thông tin trong `run_meta.json` thì trả "chưa rõ" kèm lý do - báo cáo không được chết vì việc phụ.
+    """
+    if not sha:
+        return VALID_UNKNOWN, "run_meta.json không ghi commit"
+    if not branch:
+        return VALID_UNKNOWN, "run_meta.json không ghi nhánh"
+    cache = {} if cache is None else cache
+    if (sha, branch) in cache:
+        return cache[(sha, branch)]
+    try:
+        ref = "origin/{}".format(branch)
+        if not repo_module.ref_exists(ref):
+            # Máy chỉ có nhánh nội bộ (chưa có `origin`): đối chiếu bằng chính ref đó.
+            ref = branch
+            if not repo_module.ref_exists(ref):
+                result = (VALID_UNKNOWN,
+                          "máy này không có ref {!r} để đối chiếu".format(branch))
+                cache[(sha, branch)] = result
+                return result
+        if repo_module.is_ancestor(sha, ref):
+            result = (VALID_YES, "")
+        else:
+            result = (VALID_NO,
+                      "commit {} không nằm trên {} (chạy trước khi merge?)".format(sha[:7], ref))
+    except repo_module.RepoError as exc:
+        result = (VALID_UNKNOWN, str(exc))
+    cache[(sha, branch)] = result
+    return result
+
+
+def measurement_basis(run):
+    """Cơ sở đo của một lượt chạy: khác một trong những thứ này thì hai lượt KHÔNG so được với nhau.
+
+    Không có nó thì bảng đặt hai cột cạnh nhau và người đọc so số của hai phép đo khác nhau - lệch vì
+    ĐO KHÁC chứ không phải vì model khác.
+    """
+    meta = dict(run["meta"] or {})
+    metrics = dict(run["metrics"] or {})
+    task = dict(meta.get("task") or {})
+    return {
+        "dữ liệu": (meta.get("data") or {}).get("ma") or NO_DATA,
+        "không gian nhãn": task.get("label_space") or NO_DATA,
+        "cách xử lý neutral": task.get("neutral_policy") or NO_DATA,
+        "khía cạnh không nhắc tới": task.get("not_mentioned") or NO_DATA,
+        "split": metrics.get("split") or NO_DATA,
+        "bộ chấm": ", ".join(metrics.get("scores_order") or []) or NO_DATA,
+    }
+
+
+def comparable_with(basis, run):
+    """Lượt này so được với lượt CHUẨN không: trả `(comparable, lý do)`.
+
+    Lượt chuẩn là lượt `FINISHED` sớm nhất trong bảng (`build` đã lọc), tức lượt mà các cột khác được
+    đặt cạnh để so.
+    """
+    mine = measurement_basis(run)
+    differ = ["{}: {} so với {}".format(key, mine[key], basis[key])
+              for key in basis if mine[key] != basis[key]]
+    if differ:
+        return VALID_NO, "khác cơ sở đo với lượt chuẩn - " + "; ".join(differ)
+    return VALID_YES, ""
+
+
 REGISTRY_COLUMNS = ("run", "status", "started", "seconds", "model", "method", "exp_id", "split",
                     "prompt", "prompt_sha", "examples_sha", "n_samples", "subset", "decoding",
                     "quant", "max_length", "max_new_tokens", "dataset", "version_id",
-                    "config_sha256", "repo_sha", "mode", "read_percent", "tokens_per_second",
+                    "config_sha256", "repo_sha", "valid", "comparable", "invalid_reason", "mode",
+                    "read_percent", "tokens_per_second",
                     "accuracy_micro", "f1_macro", "exact_match_percent", "out_dir")
 
 
@@ -201,8 +280,15 @@ def experiment_rows(runs):
 
     Con số lấy từ `run_meta.json` (code, dữ liệu, trạng thái) và `metrics.json` (cấu hình, kết quả,
     chi phí) - hai file mà chính lượt chạy đã ghi; không tính lại gì từ dữ liệu gốc.
+
+    Hai cột nói lượt chạy này có DÙNG ĐƯỢC TRONG BẢNG SO hay không: `valid` (commit có nằm trên nhánh đã
+    ghim) và `comparable` (cơ sở đo có khớp lượt chuẩn). `invalid_reason` gộp lý do của cả hai - không
+    có cột này thì người đọc tự phát hiện bằng cách tin vào một con số không tái lập được.
     """
     rows = []
+    # Lượt CHUẨN để đối chiếu: lượt sớm nhất trong bảng (danh sách đã sắp theo thời gian).
+    basis = measurement_basis(runs[0]) if runs else {}
+    git_cache = {}
     for run in runs:
         meta = run["meta"]
         metrics = run["metrics"]
@@ -215,6 +301,11 @@ def experiment_rows(runs):
         subset = dict(metrics.get("subset") or {})
         examples = dict(metrics.get("prompt_examples") or {})
         cost = dict(metrics.get("cost") or {})
+        # Hai câu hỏi khác nhau, cùng quyết định "con số này có nằm chung bảng so được không": commit
+        # có trên nhánh đã ghim không, và cơ sở đo có khớp lượt chuẩn không.
+        valid, git_reason = commit_status(repo.get("sha"), repo.get("branch"), cache=git_cache)
+        comparable, basis_reason = (comparable_with(basis, run) if basis else (VALID_UNKNOWN, ""))
+        invalid_reason = git_reason or basis_reason
         rows.append({
             "run": canonical_label(run),
             "hash": run_info.get("hash") or run["dir"].name,
@@ -240,6 +331,9 @@ def experiment_rows(runs):
             "version_id": data.get("ma"),
             "config_sha256": (config.get("sha256") or "")[:12],
             "repo_sha": (repo.get("sha") or "")[:12],
+            "valid": valid,
+            "comparable": comparable,
+            "invalid_reason": invalid_reason,
             "mode": dict(metrics.get("resume") or {}).get("mode") or "-",
             "read_percent": dict(metrics.get("read_rate") or {}).get("% đọc được"),
             "tokens_per_second": cost.get("token sinh/giây"),
