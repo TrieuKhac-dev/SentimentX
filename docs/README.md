@@ -26,6 +26,7 @@
 | 01_dataset     | `01_raw_data.md`           | dữ liệu gốc: nơi lưu, cách đặt tên, phiên bản    | làm việc với dữ liệu gốc            |
 | 01_dataset     | `02_schema.md`             | schema của dữ liệu và cách khai trong config     | khi đọc hoặc sửa schema             |
 | 01_dataset     | `03_new_dataset.md`        | cách thêm dataset mới                            | khi có dữ liệu mới                  |
+| 01_dataset     | `changelog.md`             | các phiên bản dữ liệu đã sinh: mã, dấu vân tay, lý do | khi tra nguồn gốc dữ liệu     |
 | 02_eda         | `01_flow.md`               | luồng EDA và config đang áp dụng                 | chạy EDA                            |
 | 02_eda         | `02_metrics.md`            | cách tính từng chỉ số EDA                        | đọc kết quả EDA                     |
 | 02_eda         | `03_modules.md`            | chi tiết các module EDA                          | sửa EDA                             |

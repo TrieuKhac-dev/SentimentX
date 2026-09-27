@@ -30,6 +30,7 @@ Nhóm nào chưa có dữ liệu thì vẫn ghi bảng RỖNG kèm một dòng g
 người đọc cần phân biệt "chưa chạy" với "chạy rồi mà không ra gì".
 """
 
+import csv
 import html
 import json
 from pathlib import Path
@@ -55,6 +56,9 @@ TABLE_NAMES = {
 # Nhãn cột của bảng CHƯA có số đo: báo cáo vẫn sinh ra, kèm dấu hiệu RỖNG để người đọc phân biệt
 # "chưa đo" với "đo rồi mà không ra gì".
 EMPTY_TABLE_COLUMN = "model_input"
+
+# Phiên bản dataset không khai `parent`: nó sinh trực tiếp từ dữ liệu gốc, không kế thừa phiên bản nào.
+FROM_RAW = "sinh từ dữ liệu gốc"
 
 MERMAID_HEADER = "```mermaid"
 
@@ -168,6 +172,10 @@ def dataset_rows():
                 "dataset": name,
                 "version": version,
                 "ma": ma,
+                # Dòng dõi: phiên bản NÀY sinh từ phiên bản dataset nào. Không khai `parent` nghĩa là
+                # sinh trực tiếp từ dữ liệu gốc - nói ra thay vì để ô trống, vì ô trống đọc thành
+                # "chưa biết". Người đọc tra tiếp ở `docs/01_dataset/changelog.md`.
+                "parent": str(cfg.get("parent") or FROM_RAW),
                 "on_disk": "yes" if directory.is_dir() else "no",
                 "splits": ", ".join("{}={}".format(key, splits[key]) for key in sorted(splits)),
                 "rows": sum(splits.values()),
@@ -180,9 +188,17 @@ def dataset_rows():
 
 
 def _row_count(path):
-    """Số DÒNG DỮ LIỆU của một file CSV (không đọc cả file vào bộ nhớ)."""
-    with open(path, "r", encoding="utf-8-sig", errors="replace") as handle:
-        return max(sum(1 for _ in handle) - 1, 0)
+    """Số BẢN GHI của một file CSV (không đọc cả file vào bộ nhớ).
+
+    Đếm bằng `csv.reader` chứ KHÔNG đếm dòng: ô văn bản của review có thể chứa xuống dòng, nên đếm dòng
+    cho ra 2.271 trong khi tập `test` chỉ có 1.518 bản ghi - đúng loại lỗi đã gặp ở preflight
+    (`fix(preflight): eval_lock counts records, not lines`). Bảng tổng hợp ghi sai số bản ghi là chuyện
+    về sau không ai phát hiện được, vì con số trông vẫn hợp lý.
+    """
+    with open(path, "r", encoding="utf-8-sig", newline="", errors="replace") as handle:
+        records = csv.reader(handle)
+        next(records, None)          # dòng đầu là tên cột
+        return sum(1 for _ in records)
 
 
 # ---
@@ -773,8 +789,9 @@ def group_tables(name, runs, reference=None):
                           row["ma"]))
             for label in used.get(row["ma"], []):
                 edges.append((row["ma"], "", label))
-        columns = list(rows[0]) if rows else ["dataset", "version", "ma", "on_disk", "splits",
-                                             "rows", "eval_locked", "aspects", "raw_dir", "config"]
+        columns = list(rows[0]) if rows else ["dataset", "version", "ma", "parent", "on_disk",
+                                             "splits", "rows", "eval_locked", "aspects", "raw_dir",
+                                             "config"]
         return {CSV_NAME[name]: (columns, rows)}, mermaid_graph(edges)
     if name == "experiment_registry":
         rows = experiment_rows(runs)

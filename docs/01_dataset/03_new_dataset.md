@@ -10,6 +10,9 @@ Xem hướng dẫn đầy đủ ở [README, mục 7](../README.md). Tóm tắt:
    rồi sửa: `name`, `format`, `raw_dir`, `text_column`, `aspects`, `labels`, `splits`.
 3. Chạy `python run_eda.py --dataset <tên> --raw-version <phiên bản raw>` (và `run_pipeline.py`, `build_report.py`
    tương tự).
+4. Ghi một mục vào [changelog.md](changelog.md): mã phiên bản, file cấu hình + `sha256`, `parent`, **lý do**
+   có phiên bản này, số dòng vào/ra, và `eval_lock` nếu tập đánh giá đổi. Rồi chạy lại
+   `python scripts/collect_reports.py` để cột `parent` trong `dataset_registry.csv` khớp với file đó.
 
 **Tên dataset phải trùng tên file YAML.** Nếu gõ sai tên, công cụ dừng ngay với
 thông báo "không tìm thấy dataset" kèm gợi ý tên gần đúng (mã thoát `2`), chứ không

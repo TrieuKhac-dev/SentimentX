@@ -450,6 +450,80 @@ class TestRunValidity(unittest.TestCase):
             self.assertIn(column, reports.REGISTRY_COLUMNS)
 
 
+class TestDatasetRegistry(unittest.TestCase):
+    """Dòng dõi dataset: phiên bản này sinh từ phiên bản dataset nào.
+
+    `docs/05_config/03_datasets.md` khai `parent` là "phiên bản trước đó, dùng để dựng lại changelog", và
+    `docs/01_dataset/changelog.md` là chỗ người đọc tra. Bảng thiếu cột này thì không biết bản đang dùng
+    kế thừa từ đâu - hoặc tệ hơn, để ô trống và người đọc hiểu là "chưa biết".
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-dataset-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def rows(self, config):
+        with mock.patch.object(reports.dataset_module, "available", return_value=["cosmetics"]), \
+                mock.patch.object(reports.dataset_module, "versions", return_value=["v0.2.0"]), \
+                mock.patch.object(reports.dataset_module, "load_config", return_value=config), \
+                mock.patch.object(reports.dataset_module, "config_path",
+                                  return_value=Path("configs/datasets/cosmetics/v0.2.0.yaml")), \
+                mock.patch.object(reports.versioning, "compute_id", return_value="ma-gia"), \
+                mock.patch.object(reports.versioning, "processed_dir",
+                                  return_value=Path(self.root) / "khong-co"):
+            return reports.dataset_rows()
+
+    def test_a_version_without_a_parent_says_it_comes_from_the_raw_data(self):
+        row = self.rows({"name": "cosmetics", "sources": []})[0]
+        self.assertEqual(row["parent"], reports.FROM_RAW)
+        self.assertIn("gốc", row["parent"])
+
+    def test_a_version_with_a_parent_shows_the_parent_id(self):
+        config = {"name": "cosmetics", "parent": "cosmetics-ds0.1.0-abc12345", "sources": []}
+        self.assertEqual(self.rows(config)[0]["parent"], "cosmetics-ds0.1.0-abc12345")
+
+    def test_the_column_exists_even_when_no_version_is_on_disk(self):
+        """Bảng rỗng vẫn phải khai cột `parent`, nếu không người đọc không biết bảng có cột đó."""
+        with mock.patch.object(reports.dataset_module, "available", return_value=[]):
+            tables, _mermaid = reports.group_tables("dataset_registry", [])
+        self.assertIn("parent", tables["dataset_registry.csv"][0])
+
+
+class TestRowCount(unittest.TestCase):
+    """Số BẢN GHI, không phải số dòng: ô văn bản của review có thể chứa xuống dòng.
+
+    Lỗi thật, bắt được khi chạy `collect_reports.py`: `dataset_registry` báo `test=2271` trong khi
+    `eval_lock.json` ghi 1.518 bản ghi, vì bảng đếm dòng vật lý. Con số trông vẫn hợp lý (không ai ngờ
+    một file CSV lại có ô nhiều dòng) nên nó sống rất lâu - đúng loại lỗi test này khoá lại.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-rowcount-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def test_a_record_with_a_newline_inside_counts_once(self):
+        path = self.root / "co-xuong-dong.csv"
+        path.write_text('text,label\n"hai\ndong",positive\nmot,negative\n', encoding="utf-8")
+        self.assertEqual(reports._row_count(path), 2)
+        # Con số mà cách đếm dòng cho ra, ghi lại để thấy vì sao phải dùng `csv.reader`.
+        self.assertEqual(len(path.read_text(encoding="utf-8").splitlines()), 4)
+
+    def test_the_count_matches_eval_lock_where_the_data_is_on_disk(self):
+        """Đối chiếu với khoá tập đánh giá: đây chính là phép so bắt được lỗi đếm dòng."""
+        checked = 0
+        for directory in sorted(Path(paths.data_root(), "processed").glob("*")):
+            lock = directory / "eval_lock.json"
+            if not lock.is_file():
+                continue
+            for name, item in json.loads(lock.read_text(encoding="utf-8")).items():
+                path = directory / item.get("file", "")
+                if path.is_file() and item.get("rows"):
+                    self.assertEqual(reports._row_count(path), item["rows"], name)
+                    checked += 1
+        if not checked:
+            self.skipTest("máy này chưa có dữ liệu đã xử lý (dữ liệu không nằm trong git)")
+
+
 if __name__ == "__main__":
     unittest.main()
 

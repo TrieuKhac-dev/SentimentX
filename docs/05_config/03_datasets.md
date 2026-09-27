@@ -48,7 +48,7 @@ eval_lock:
 | `full`                  | file gộp toàn bộ dữ liệu, tuỳ chọn                                                                                                    |
 | `schema`                | ánh xạ raw sang dataset: cột văn bản, cột định danh, danh sách khía cạnh, nhãn, cột bỏ, cột giữ                                       |
 | `aspect_policy`         | cách xử lý khi các nguồn có bộ khía cạnh khác nhau: `union` (thiếu thì điền "không nhắc tới" và ghi cảnh báo) hoặc `strict` (báo lỗi) |
-| `parent`                | phiên bản trước đó, dùng để dựng lại changelog                                                                                        |
+| `parent`                | phiên bản trước đó, dùng để dựng lại changelog (`docs/01_dataset/changelog.md`)                                                      |
 | `notes`                 | vì sao có phiên bản này, gồm cả mô tả cách gộp nguồn                                                                                  |
 | `eval_lock`             | dấu vân tay của tập đánh giá, xem mục dưới                                                                                            |
 
