@@ -4,3 +4,15 @@
 # Nếu Git tự đổi kiểu xuống dòng (LF <-> CRLF) thì cùng một file trên hai máy
 # sẽ cho ra hai mã phiên bản khác nhau, dù dữ liệu không hề thay đổi.
 data/** -text
+
+# Notebook: bỏ output trước khi ghi vào git.
+#
+# CI có phép kiểm riêng cho việc này (kiểm 3: notebook còn output là đỏ), nhưng chặn ở MÁY thì rẻ hơn
+# chặn ở CI: người chạy quên Clear All Outputs là một vòng sửa - đẩy - đỏ - sửa nữa.
+#
+# `nbstripout` là công cụ TUỲ CHỌN trên từng máy:
+#     pip install nbstripout
+#     nbstripout --install
+# Máy nào chưa cài thì git để nguyên file - bộ lọc chưa cấu hình KHÔNG làm hỏng gì, chỉ là không có
+# tác dụng. Vì vậy dòng này an toàn khi commit: máy khác clone về vẫn dùng được ngay.
+*.ipynb filter=nbstripout
