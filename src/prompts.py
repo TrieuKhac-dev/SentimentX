@@ -3,7 +3,7 @@
 
 VÌ SAO PROMPT NẰM Ở FILE, KHÔNG NẰM TRONG CODE
 ---
-Prompt là một BIẾN THỰC NGHIỆM: đổi câu chỉ dẫn có thể đổi kết quả, nên phải đổi
+Prompt là một BIẾN THỰC NGHIỆM: đổi prompt có thể đổi kết quả, nên phải đổi
 được mà không phải sửa code. Mỗi prompt một file .txt để:
     - đọc / sửa / so sánh (diff) như văn bản, không phải lồng chuỗi trong Python;
     - giữ NGUYÊN VĂN cả dấu ba nháy, xuống dòng, dấu ngoặc nhọn;
@@ -21,7 +21,7 @@ HỢP ĐỒNG CỦA MỘT FILE PROMPT
        {label_guide}   bảng mã nhãn, sinh từ label_map.json của đúng phiên bản dữ liệu
        {example}       một object JSON mẫu (sinh tự động theo danh sách khía cạnh)
        {examples}      khối ví dụ few-shot, đọc từ configs/prompts/examples/<tên>.txt
-       {system_prompt} khối chỉ dẫn hệ thống dùng chung cho nhiều prompt, đọc từ
+       {system_prompt} system prompt dùng chung cho nhiều prompt, đọc từ
                        configs/prompts/system/<tên>.txt; prompt dùng ô nhớ này thì
                        config của thí nghiệm PHẢI khai khoá `system_prompt`
 
@@ -37,7 +37,7 @@ HỢP ĐỒNG CỦA MỘT FILE PROMPT
    lượt - dạng đang dùng của dự án).
 3. CÓ dòng đánh dấu => tách thành hội thoại NHIỀU LƯỢT, theo đúng thứ tự trong file:
 
-       [SYSTEM]      chỉ dẫn hệ thống
+       [SYSTEM]      system prompt
        [USER]        lượt người dùng
        [ASSISTANT]   lượt của model (dùng cho ví dụ few-shot / prompt CoT)
 
@@ -131,7 +131,7 @@ def examples_path(name):
 
 
 def system_path(name):
-    """Đường dẫn khối chỉ dẫn hệ thống dùng chung (tuỳ chọn, có thể không có).
+    """Đường dẫn system prompt dùng chung (tuỳ chọn, có thể không có).
 
     Tách khỏi file prompt để NHIỀU prompt cùng dùng một câu hệ thống: sửa một chỗ, mọi prompt
     đổi theo. Prompt nào cần thì khai ô nhớ {system_prompt} và khoá `system_prompt` trong config
@@ -359,7 +359,7 @@ class Prompt:
         return info_of_path(self.examples_path, self.examples_value)
 
     def system_text(self):
-        """Khối chỉ dẫn hệ thống, dùng cho ô nhớ `{system_prompt}`."""
+        """System prompt, dùng cho ô nhớ `{system_prompt}`."""
         if not self.system_value:
             raise PromptError(
                 "Prompt {} cần ô nhớ {{system_prompt}} nhưng config của thí nghiệm CHƯA khai khoá "
@@ -602,7 +602,7 @@ def examples(value, base_dir=None):
 
 
 def _system_from_path(path):
-    """Nội dung khối chỉ dẫn hệ thống gửi cho model.
+    """Nội dung system prompt gửi cho model.
 
     Nhận CẢ HAI cách viết cho tiện: file chỉ chứa câu hệ thống (như `templates/prompt/system.txt`),
     hoặc file có mục `[SYSTEM]` như một file prompt nhiều lượt. Có dòng đánh dấu thì lấy đúng mục
@@ -628,7 +628,7 @@ def _system_from_path(path):
 
 
 def system(value, base_dir=None):
-    """Khối chỉ dẫn hệ thống của một prompt (mặc định configs/prompts/system/<tên>.txt).
+    """System prompt của một prompt (mặc định configs/prompts/system/<tên>.txt).
 
     `value` là giá trị khai ở khoá `system_prompt` của thí nghiệm.
     """

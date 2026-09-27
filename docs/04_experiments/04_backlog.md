@@ -25,7 +25,7 @@ viết thêm code chỉ là suy đoán, không phải tái lập.
 (`MODEL_NAME`, `tokenizer`, `encode`, `words`, `info`) để đo được độ dài
 input như 3 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
 
-## 2. Chạy Qwen3 theo hướng CHỈ DẪN (prompt + CoT) - ĐÃ DỰNG (đợt 2)
+## 2. Chạy Qwen3 theo hướng PROMPT (prompt + CoT) - ĐÃ DỰNG (đợt 2)
 
 *Cập nhật 25/09/2026:* ba mức ví dụ của công bố đã thành ba thí nghiệm
 (`qwen3-4b-instruct-2507/prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ) cạnh hai lượt
@@ -37,7 +37,7 @@ lệ JSON hợp lệ và F1. **Không fine-tune.**
 
 **Vì sao đi hướng này:** Qwen3 là LLM 4B tham số, full fine-tune cần ~64-80 GB VRAM (chỉ
 riêng trọng số ở bf16 đã 8 GB) nên **không thể** trên GPU 6 GB của máy này. Hướng đúng bản
-chất phép so sánh của dự án là dùng nó như model đa năng bằng chỉ dẫn - tức "LLM thì thử
+chất phép so sánh của dự án là dùng nó như model đa năng bằng prompt - tức "LLM thì thử
 prompt + CoT", còn PhoBERT (135M) và ViSoBERT (~108M) thì **fine-tune toàn bộ** (hai
 encoder nhỏ này vừa 6 GB và **không cần** LoRA/QLoRA).
 

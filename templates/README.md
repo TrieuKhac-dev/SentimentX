@@ -10,7 +10,7 @@ python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-
 | Thư mục       | Dùng khi nào                                                                 |
 | ------------- | ---------------------------------------------------------------------------- |
 | `experiment/` | Mọi thí nghiệm: config, notebook, README của chính thí nghiệm                 |
-| `prompt/`     | Thí nghiệm dùng model sinh (Qwen3...): câu chỉ dẫn, ví dụ few-shot, khối hệ thống |
+| `prompt/`     | Thí nghiệm dùng model sinh (Qwen3...): prompt, ví dụ few-shot, khối hệ thống |
 
 Model encoder (PhoBERT, ViSoBERT) **không dùng prompt**: chúng học từ dữ liệu, không hỏi bằng câu.
 
@@ -18,9 +18,9 @@ Ba file trong `templates/prompt/`:
 
 | File           | Dùng khi                                                                     |
 | -------------- | ---------------------------------------------------------------------------- |
-| `prompt.txt`   | câu chỉ dẫn, có các ô nhớ `{aspects}`, `{label_guide}`, `{text}`              |
+| `prompt.txt`   | prompt, có các ô nhớ `{aspects}`, `{label_guide}`, `{text}`              |
 | `examples.txt` | khối ví dụ few-shot, khi prompt có ô nhớ `{examples}`                         |
-| `system.txt`   | khối chỉ dẫn hệ thống, khi muốn NHIỀU prompt dùng chung một câu hệ thống      |
+| `system.txt`   | system prompt, khi muốn NHIỀU prompt dùng chung một câu hệ thống      |
 
 `system.txt` chỉ chứa đúng câu gửi cho model (không viết chú thích trong đó: cả file được gửi đi).
 Prompt dùng nó thì viết ô nhớ `{system_prompt}` và khai khoá `system_prompt` trong `config.yaml`.

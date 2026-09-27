@@ -150,7 +150,7 @@ def show_chat_text(text, aspects, label_map, prompt_obj, max_length):
         print("Kết luận            : KHÔNG bị cắt (còn dư {} token).".format(max_length - len(ids)))
         return
     lost = tokenizer.decode(ids[max_length:], skip_special_tokens=False)
-    print("Kết luận            : BỊ CẮT - mất {} token Ở ĐUÔI, đúng phần dễ mất chỉ dẫn nhất."
+    print("Kết luận            : BỊ CẮT - mất {} token Ở ĐUÔI, đúng phần dễ mất nhất - chính là yêu cầu định dạng."
           .format(len(ids) - max_length))
     print("Phần bị mất (dịch lại từ token):\n{}".format(lost))
 

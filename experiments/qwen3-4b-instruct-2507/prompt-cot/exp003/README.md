@@ -11,7 +11,7 @@
 
 | Lựa chọn | Giá trị | Vì sao |
 | --- | --- | --- |
-| Prompt | `configs/prompts/absa_cot_1shot_v1.txt` | Câu chỉ dẫn + ô nhớ `{examples}` |
+| Prompt | `configs/prompts/absa_cot_1shot_v1.txt` | Prompt + ô nhớ `{examples}` |
 | Bộ ví dụ | `configs/prompts/examples/absa_cot_1shot_v1.txt` (1 khối) | Prompt khai bằng ĐƯỜNG DẪN nên file ví dụ phải khai TƯỜNG MINH; test `tests/test_prompts.py` khoá số khối phải khớp tên `1shot` |
 | Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ |
 | Số mẫu | cả split (`n: null`) | Chấm tập con rồi đem so là so hai phép đo khác nhau |

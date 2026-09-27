@@ -31,7 +31,7 @@ KEY_INDEX = COLUMNS.index(KEY)
 
 MENTIONED = "có"
 
-# Cột chỉ có ở đường chạy dùng PROMPT (model chỉ dẫn - LLM): chuỗi ĐÃ GỬI cho model, sau chat
+# Cột chỉ có ở đường chạy dùng PROMPT (model dùng prompt - LLM): chuỗi ĐÃ GỬI cho model, sau chat
 # template và sau khi cắt ở `max_length`. Nhờ nó, muốn biết "mẫu này thành prompt nào rồi model
 # trả lời ra sao" thì đọc thẳng `predictions.csv`, không phải chạy lại gì.
 #

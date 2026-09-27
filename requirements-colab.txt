@@ -12,7 +12,7 @@
 # dự phòng không so ngang được với bộ chính chủ - muốn dùng phải `pip install pyvi` và ghi rõ ra.
 # Hướng Qwen3 (prompt / CoT) không tách từ, nên không cần gói nào trong hai gói đó.
 
-# --- Chạy Qwen3 bằng CHỈ DẪN (prompt / CoT) rồi chấm điểm ---
+# --- Chạy Qwen3 bằng PROMPT (prompt một lượt / CoT) rồi chấm điểm ---
 transformers
 accelerate                # cho device_map="auto" khi VRAM thiếu
 bitsandbytes              # LƯỢNG HÓA 4-BIT lúc chạy - bắt buộc, model config khai quantization: 4bit

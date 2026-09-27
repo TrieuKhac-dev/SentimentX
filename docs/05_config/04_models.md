@@ -32,10 +32,10 @@ inference:
 | định danh  | `model_id`                         | tên dùng cho mọi đường dẫn và nhãn MLflow; trùng tên file                                 |
 | định danh  | `checkpoint`                       | tên model trên Hugging Face, để đối chiếu tránh nhầm model                                |
 | định danh  | `config_version`                   | tăng mỗi khi sửa file này                                                                 |
-| định danh  | `approach`                         | `prompt` (model sinh: gửi câu chỉ dẫn rồi đọc trả lời) hoặc `encoder` (model phân loại: HỌC từ dữ liệu rồi suy luận). Quyết định đường chạy, nên bắt buộc khai. Xem `docs/04_experiments/06_lora_encoder.md` |
+| định danh  | `approach`                         | `prompt` (model sinh: gửi prompt rồi đọc trả lời) hoặc `encoder` (model phân loại: HỌC từ dữ liệu rồi suy luận). Quyết định đường chạy, nên bắt buộc khai. Xem `docs/04_experiments/06_lora_encoder.md` |
 | bài toán   | `task.*`                           | ràng buộc của model, **áp sau tất cả các lớp**: `configs/experiments/task.yaml` không ghi đè được, vì đó là giới hạn của chính model (ví dụ model chỉ làm 2 nhãn) |
 | tiền xử lý | `preprocess.max_length`            | ngưỡng cắt input theo token                                                               |
-| tiền xử lý | `preprocess.add_generation_prompt` | chèn lượt trợ lý rỗng cho model chỉ dẫn                                                   |
+| tiền xử lý | `preprocess.add_generation_prompt` | chèn lượt trợ lý rỗng cho model dùng prompt                                                   |
 | tiền xử lý | `preprocess.segmenter`             | bộ tách từ, chỉ model cần tách từ mới khai (`vncorenlp` cho PhoBERT, `none` cho ViSoBERT)  |
 | huấn luyện | `lora.target_modules`              | tên module được gắn adapter LoRA. **Tên khác nhau theo kiến trúc** (Qwen3: `q_proj`, `k_proj`; PhoBERT và ViSoBERT: `query`, `key`, `value`, `dense`), nên khoá này thuộc config của model chứ không nằm ở file huấn luyện dùng chung |
 | suy luận   | `inference.dtype`                  | `auto` để mã chọn theo máy: bf16 khi GPU hỗ trợ, fp16 khi không (T4), fp32 trên CPU       |

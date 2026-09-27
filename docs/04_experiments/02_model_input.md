@@ -43,7 +43,7 @@ chứ không âm thầm dùng một thứ khác.
 
 ## 2. Prompt nằm ở FILE, không nằm trong code
 
-Câu chỉ dẫn gửi cho Qwen3 là một **biến thực nghiệm**: cùng một dữ liệu, đổi câu chỉ dẫn
+Prompt gửi cho Qwen3 là một **biến thực nghiệm**: cùng một dữ liệu, đổi prompt
 là đổi kết quả. Vì vậy nội dung prompt nằm ở `configs/prompts/<tên>.txt`, còn thí nghiệm
 nào dùng prompt nào do config của chính thí nghiệm quyết định (khoá `prompt`).
 
@@ -239,7 +239,7 @@ bản đang dùng):
   có `% <unk>` cao nhất - tokenizer của PhoBERT là BPE mức TỪ, gặp teencode/emoji là
   thành `<unk>`. Đây là số thật, không phải lỗi: nó cho thấy phần văn bản "lạ" của mạng
   xã hội bị model này nhìn thấy ít hơn hẳn so với ViSoBERT.
-- **Qwen3-4B**: ~230 token là **cả prompt chỉ dẫn** (prompt dài hơn review), nhưng vẫn
+- **Qwen3-4B**: ~230 token là **cả prompt** (prompt dài hơn review), nhưng vẫn
   dưới 1024 nên chưa bị cắt. Cột `% <unk>` là `-` vì tokenizer của Qwen khai báo
   `unk_token = null`: model không có token `<unk>` nào, nên in `0,00` sẽ là nói sai
   (0% ngụ ý "có đo và bằng 0").
@@ -356,7 +356,7 @@ Ba điều đọc ra từ bảng này:
    hơn một nửa so với 2 ví dụ mà vẫn giữ phần suy luận.
 3. Prompt CoT dài nhất cần **2.109 token** ở train (bản 5 ví dụ; val 2.016, test 1.959) nên ngưỡng
    1280 cắt MẤT PHẦN ĐUÔI của **100% review ở cả ba split** khi chạy mức 5 ví dụ - với prompt dạng
-   chat, phần bị cắt chính là yêu cầu định dạng đầu ra, nên mẫu đó mất luôn chỉ dẫn. Ngưỡng
+   chat, phần bị cắt chính là yêu cầu định dạng đầu ra, nên mẫu đó mất luôn yêu cầu định dạng. Ngưỡng
    **2304** giữ 0% bị cắt cho cả bản 2 ví dụ lẫn bản 5 ví dụ. (Bản 2 ví dụ cần 1.195 token ở train
    nên ở ngưỡng 1280 vẫn 0% bị cắt - con số đó vẫn đúng cho bản 2 ví dụ.)
 
@@ -376,7 +376,7 @@ cột độ dài input y hệt nhau giữa hai ngưỡng.
 thật sự đưa input vào model**. Bằng chứng: cùng một ngưỡng thì hai lần đo khác prompt cho ra độ
 dài input y hệt nhau, chỉ khác cột `% review > max_length`. Với prompt dạng chat, phần bị cắt là
 phần CUỐI của hội thoại - mà trong prompt CoT này, phần cuối chính là yêu cầu định dạng đầu ra và
-object JSON mẫu, nên mẫu bị cắt còn mất luôn chỉ dẫn định dạng.
+object JSON mẫu, nên mẫu bị cắt còn mất luôn yêu cầu định dạng.
 
 
 

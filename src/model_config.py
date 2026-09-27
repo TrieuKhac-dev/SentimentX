@@ -13,7 +13,7 @@ MỘT FILE GỒM NHỮNG GÌ
     model_id      : tên dùng cho mọi đường dẫn và nhãn MLflow; phải trùng tên file
     checkpoint    : tên model trên Hugging Face, để đối chiếu tránh nhầm model
     config_version: tăng mỗi khi sửa file
-    approach      : `prompt` (model sinh, nhận câu chỉ dẫn) hoặc `encoder` (model phân loại,
+    approach      : `prompt` (model sinh, nhận prompt) hoặc `encoder` (model phân loại,
                     học từ dữ liệu gán nhãn). Quyết định ĐƯỜNG CHẠY, nên phải khai rõ.
     task.*        : ghi đè `configs/experiments/task.yaml` khi model này cần khác
     preprocess.*  : ngưỡng cắt input, chèn lượt trợ lý, bộ tách từ

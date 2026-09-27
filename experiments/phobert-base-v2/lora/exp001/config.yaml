@@ -28,7 +28,7 @@ data:
 # thí nghiệm này cần KHÁC.
 enabled: true
 
-# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận câu chỉ dẫn.
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
 # Số mẫu chấm lấy từ lớp evaluation (`n: null` = cả split test, đúng 1.518 review).
 #
 # LƯU Ý khi chạy - PhoBERT cần bộ tách từ VnCoreNLP, gồm HAI thứ không có trong git:

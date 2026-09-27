@@ -116,7 +116,7 @@ Danh sách khoá có thể đổi và ý nghĩa từng khoá:
   từng model ([02_model_input.md mục 2](02_model_input.md)): nếu một model bị cắt quá
   nhiều input thì mọi so sánh sau đó đều không công bằng.
 
-## 6. Kết quả đã có - Qwen3 chạy bằng CHỈ DẪN (prompt một lượt vs CoT)
+## 6. Kết quả đã có - Qwen3 chạy bằng PROMPT (prompt một lượt vs CoT)
 
 > **Các số dưới đây là lượt chạy KIỂM ĐƯỜNG CHẠY, không phải kết quả để báo cáo.** Chúng chạy trên
 > `val` (tập LỰA CHỌN) với `n` nhỏ, để trả lời "đường chạy có ra số được không, có đúng ý không".

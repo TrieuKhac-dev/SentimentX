@@ -420,10 +420,10 @@ class RunIdentityTest(unittest.TestCase):
 
 
 class SystemLabelTest(unittest.TestCase):
-    """Nhãn `hệ thống` phải nói ĐÚNG nguồn của khối chỉ dẫn.
+    """Nhãn `hệ thống` phải nói ĐÚNG nguồn của khối prompt.
 
     Bản cũ in `không dùng` cả khi model vẫn nhận một khối `[SYSTEM]` nằm trong chính file prompt -
-    người đọc log tưởng model không có chỉ dẫn nào, trong khi nó có.
+    người đọc log tưởng model không có system prompt nào, trong khi nó có.
     """
 
     BODY = "Danh sách khía cạnh: {aspects}\n{label_guide}\nReview:\n{text}"

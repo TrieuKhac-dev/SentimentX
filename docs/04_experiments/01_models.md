@@ -12,11 +12,11 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 | ----------------- | -------------------------------------------------- | ----------------------------------------- |
 | PhoBERT           | https://huggingface.co/vinai/phobert-base-v2       | encoder tiếng Việt (BERT)                 |
 | ViSoBERT          | https://huggingface.co/uitnlp/visobert             | encoder tiếng Việt (dữ liệu mạng xã hội)  |
-| Qwen3-4B-Instruct | https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507 | mô hình sinh lớn (dùng theo dạng chỉ dẫn) |
+| Qwen3-4B-Instruct | https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507 | mô hình sinh lớn (dùng theo dạng prompt) |
 
 Ba model này đại diện cho **ba hướng tiếp cận khác nhau**, nên so sánh được với nhau:
 hai encoder tiếng Việt (một loại cần tách từ, một loại không) và một mô hình lớn dùng
-theo dạng chỉ dẫn (prompt -> sinh JSON).
+theo dạng prompt (prompt -> sinh JSON).
 
 **ViTASA: gác lại, chưa đưa vào thực nghiệm.** Repo `kh4nh12/ViTASA` hiện chỉ có
 `LICENSE`, `README.md` và 3 file `.jsonl` - không có mã model, không có checkpoint, không
@@ -34,7 +34,7 @@ PROCESSED DATA (data/processed)
         |
         +-- PhoBERT   : tách từ tiếng Việt  ->  tokenizer  ->  input_ids + attention_mask
         +-- ViSoBERT  :                        tokenizer  ->  input_ids + attention_mask
-        \-- Qwen3     : prompt chỉ dẫn      ->  chat template  ->  tokenizer
+        \-- Qwen3     : prompt      ->  chat template  ->  tokenizer
                           (nội dung prompt ở configs/prompts/<tên>.txt)
 ```
 

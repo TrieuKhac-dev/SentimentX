@@ -4,7 +4,7 @@
 Chuỗi bước:
 
     văn bản đã làm sạch
-        -> PROMPT chỉ dẫn   (nội dung ở configs/prompts/<tên>.txt)
+        -> PROMPT   (nội dung ở configs/prompts/<tên>.txt)
         -> chat template    (định dạng hội thoại của Qwen)
         -> tokenizer
         -> input_ids / attention_mask
@@ -16,7 +16,7 @@ PROMPT NẰM Ở FILE, KHÔNG NẰM Ở ĐÂY
 ---
 Nội dung prompt ở configs/prompts/<tên>.txt (cách nạp và kiểm tra: src/prompts.py);
 model dùng cấu hình nào do configs/models/<model_id>.yaml quyết định (src/model_config.py);
-Nhờ vậy đổi câu chỉ dẫn = thêm/sửa một file .txt rồi đổi một dòng YAML, không phải
+Nhờ vậy đổi prompt = thêm/sửa một file .txt rồi đổi một dòng YAML, không phải
 sửa code; và vì prompt KHÔNG nằm trong configs/pipeline.yaml nên đổi prompt không
 làm sinh ra mã phiên bản dữ liệu mới (xem src/versioning.py).
 """
@@ -144,7 +144,7 @@ def values(text, aspects=None, label_map=None, prompt=None):
 
 
 def build_prompt(text, aspects=None, label_map=None, prompt_name=None):
-    """Câu lệnh chỉ dẫn hoàn chỉnh cho một review, ở dạng ĐỌC ĐƯỢC.
+    """Prompt hoàn chỉnh cho một review, ở dạng ĐỌC ĐƯỢC.
 
     Dùng để xem/in ra prompt đang gửi cho model; KHÔNG dùng cho việc đo token, vì việc
     đó cần cả chat template (xem `encode`). Prompt nhiều lượt được in thành bản ghi có

@@ -13,7 +13,7 @@ bước cleaning chung.
 Các file:
     phobert.py    -> tách từ + tokenizer của PhoBERT
     visobert.py   -> tokenizer của ViSoBERT (KHÔNG tách từ)
-    qwen.py       -> prompt chỉ dẫn + chat template + tokenizer
+    qwen.py       -> prompt + chat template + tokenizer
     vitasa.py     -> định dạng theo repo ViTASA (đang gác, xem docs .../04_backlog.md)
     token_stats.py -> ĐO độ dài input thật (p95, % bị cắt, % <unk>) - chạy run_token_stats.py
     loader.py     -> ĐỌC dữ liệu đã xử lý (mọi model dùng chung)

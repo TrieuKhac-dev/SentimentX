@@ -37,7 +37,7 @@ requires_extra: []
 | `data.roles`     | **bắt buộc khai**, không kế thừa: mỗi vai dùng split nào của chính dataset đó                |
 | `prompt`         | đường dẫn file prompt: tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là bốn cấp) |
 | `examples`       | đường dẫn file ví dụ few-shot, bắt buộc khi prompt dùng ô nhớ `{examples}`                   |
-| `system_prompt`  | đường dẫn khối chỉ dẫn hệ thống dùng chung, bắt buộc khi prompt dùng ô nhớ `{system_prompt}`. File nhận cả hai cách viết: chỉ có câu hệ thống, hoặc có mục `[SYSTEM]` |
+| `system_prompt`  | đường dẫn system prompt dùng chung, bắt buộc khi prompt dùng ô nhớ `{system_prompt}`. File nhận cả hai cách viết: chỉ có câu hệ thống, hoặc có mục `[SYSTEM]` |
 | `requires_extra` | danh sách đường dẫn bổ sung mà notebook phải kiểm, cho thứ máy không suy ra được. Mục **bắt đầu bằng `data/`** tính từ GỐC DỮ LIỆU (`SENTIMENTX_DATA_ROOT`) - trên Colab là thư mục Drive; mục khác tính từ gốc repo |
 
 ## Ghi đè lớp dùng chung: được, kể cả ngưỡng cắt input
@@ -83,7 +83,7 @@ Chấm trên `train` bị chặn, vì đó là rò rỉ dữ liệu.
 
 Model encoder (`approach: encoder`) học từ dữ liệu gán nhãn, nên config của nó:
 
-- KHÔNG khai `prompt`, `examples`, `system_prompt` - không có câu chỉ dẫn nào để gửi cho model.
+- KHÔNG khai `prompt`, `examples`, `system_prompt` - không có prompt nào để gửi cho model.
 - Bắt buộc `enabled: true` và đủ ba vai `train`, `val`, `eval`: học từ `train`, chọn `model/best`
   theo `val`, chấm trên `eval`. Thiếu `val` thì không có cơ sở chọn model tốt nhất.
 - Tham số huấn luyện lấy từ `configs/experiments/training.yaml`; phần riêng của kiến trúc (ví dụ
