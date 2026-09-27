@@ -135,6 +135,13 @@ Attempt mở khi lần chạy BẮT ĐẦU (`RUNNING`) và chốt khi kết thú
 kết thúc, nên `finished`/`seconds` để TRỐNG chứ không bịa. Nếu bản ghi cũng chưa kịp ghi (ngắt trong vài
 giây đầu), dấu vết còn lại là dòng `=== lần chạy <thời điểm> - mode=… ===` trong `run.log` và các
 `predictions/part_*.jsonl`.
+
+HAI CON SỐ THỜI GIAN KHÁC NHAU, và cả hai đều đúng:
+
+| Con số | Đo cái gì | Dùng khi |
+| --- | --- | --- |
+| `metrics.json` -> `cost["giây"]` | chỉ phần việc NẶNG: thời gian model sinh câu trả lời (hoặc thời gian huấn luyện ở đường encoder) | so chi phí giữa hai model, hai cấu hình |
+| `run_meta.json` -> `attempts[].seconds` | CẢ phiên: từ lúc mở bản ghi tới lúc chốt, gồm nạp model, chấm điểm và ghi file | biết một phiên chiếm máy bao lâu, tính thời gian chạy lại |
 Mọi đường dẫn trong file đều TÍNH TỪ GỐC REPO, vì thư mục kết quả bị đem từ máy này sang máy khác.
 
 ## Chạy tiếp sau khi bị ngắt

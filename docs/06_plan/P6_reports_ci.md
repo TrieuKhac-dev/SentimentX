@@ -17,6 +17,10 @@ xong T1..T7. Giai đoạn này đóng lại ở đây; việc còn lại của d
 - [x] T1. `scripts/collect_reports.py`: quét `run_meta.json` và các `metrics.csv` để sinh bốn nhóm report
       (`dataset_registry`, `experiment_registry`, `model_input`, `metrics_matrix`), mỗi nhóm có
       `csv` nguồn, `html` trình bày, `md` chỉ chứa sơ đồ Mermaid; nhận nhiều gốc bằng `--root`.
+      *Cập nhật 27/09/2026 - nay NĂM nhóm:* thêm `attempt_registry` (mọi lần thử, kể cả lượt HỎNG, kèm
+      `status`, thời lượng và `reason` đọc từ `errors.json`), và các bảng SỐ mặc định chỉ liệt kê lượt
+      `FINISHED` - lượt hỏng không có `metrics.json` nên mọi ô số của nó đều trống, đưa vào chỉ làm
+      nhiễu bảng dùng để so. Xem `docs/04_experiments/metrics.md` và `--only all`.
       -> `feat(reports): generate registry model input and metrics matrix reports`
       Thư viện là `src/reports.py`, script chỉ là cửa vào mỏng (chọn gốc, chọn nhóm, in kết quả).
       Không chạy model và không đọc dữ liệu gốc: mọi con số đọc lại từ file mà chính lượt chạy đã

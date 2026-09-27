@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Sinh BỐN NHÓM bảng tổng hợp từ bản ghi lần chạy và bảng chỉ số đã có trên đĩa.
+"""Sinh NĂM NHÓM bảng tổng hợp từ bản ghi lần chạy và bảng chỉ số đã có trên đĩa.
 
 VÌ SAO ĐỌC LẠI FILE, KHÔNG TÍNH LẠI
 Mọi con số vào bảng đều lấy từ file mà chính lượt chạy đã ghi (`run_meta.json`, `metrics.json`,
 `metrics.csv`, `model_input.csv`). Tính lại từ dữ liệu gốc là có hai đường tính cho cùng một con số,
 và khi hai đường lệch nhau thì không ai biết đường nào đúng. Bảng tổng hợp chỉ TRÌNH BÀY.
 
-BỐN NHÓM (tên lấy từ `configs/paths.yaml`, xem docs/05_config/01_paths.md)
+NĂM NHÓM (tên lấy từ `configs/paths.yaml`, xem docs/05_config/01_paths.md)
     dataset_registry      mỗi PHIÊN BẢN DỮ LIỆU một dòng: có gì, sinh từ đâu, đang dùng ở đâu
     experiment_registry   mỗi LƯỢT CHẠY một dòng: code, cấu hình, dữ liệu, trạng thái, chi phí
     attempt_registry      MỌI lần thử, kể cả lượt HỎNG: trạng thái, thời lượng, lý do dừng. Đây là
@@ -702,7 +702,7 @@ def mermaid_graph(edges, isolated=()):
 
 
 # ---
-# Ghép lại: bảng của từng nhóm, và sinh cả bốn nhóm
+# Ghép lại: bảng của từng nhóm, và sinh cả năm nhóm
 # ---
 
 GROUPS = tuple(CSV_NAME)

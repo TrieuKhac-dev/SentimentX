@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Sinh BỐN NHÓM bảng tổng hợp từ các lượt chạy đã có trên đĩa.
+"""Sinh NĂM NHÓM bảng tổng hợp từ các lượt chạy đã có trên đĩa.
 
 CÁCH DÙNG
     python scripts/collect_reports.py                        # quét gốc mặc định, ghi vào nhóm report
@@ -21,7 +21,7 @@ Nó chỉ đọc lại file mà từng lượt chạy đã ghi (`run_meta.json`,
 và sinh lại được ở bất cứ máy nào đang có kết quả, kể cả máy không có GPU.
 
 MỘT NHÓM GỒM BA ĐỊNH DẠNG: `<tên>.csv` (nguồn), `<tên>.html` (trình bày), `<tên>.md` (chỉ sơ đồ
-Mermaid). Chi tiết ở `src/reports.py`; bốn nhóm khai trong `configs/paths.yaml`.
+Mermaid). Chi tiết ở `src/reports.py`; năm nhóm khai trong `configs/paths.yaml`.
 """
 
 import argparse
@@ -43,8 +43,8 @@ from src import reports, utils
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Sinh bảng tổng hợp (dataset_registry, experiment_registry, model_input, "
-                    "metrics_matrix) từ kết quả đã có.")
+        description="Sinh bảng tổng hợp (dataset_registry, experiment_registry, attempt_registry, "
+                    "model_input, metrics_matrix) từ kết quả đã có.")
     parser.add_argument("--root", action="append", default=None,
                         help="Gốc chứa lượt chạy; lặp lại để quét nhiều gốc "
                              "(mặc định: gốc kết quả + thư mục đánh giá chạy tay).")

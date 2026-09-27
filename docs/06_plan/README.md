@@ -21,7 +21,7 @@
 | P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
 | P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | xong T1..T6; DoD "kéo code theo sha trên Colab thật" ĐÃ có bằng chứng (hai lần chạy thật); còn DoD "gốc kết quả trên Drive" |
 | P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | xong T1..T7 (T5–T7 đã soát lại 25/09/2026) |
-| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: T1 (dataset `...-e0ccc484`) và T2 (EDA + report) xong; T3 nay gồm NĂM thí nghiệm (2 LoRA + 3 mức ví dụ của công bố) đã dựng, đã ghim và nằm trong gói bàn giao, chờ GPU của Colab để ra số; còn T4, T5 |
+| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: T1 (dataset `...-e0ccc484`) và T2 (EDA + report) xong; T3 (NĂM thí nghiệm: 2 LoRA + 3 mức ví dụ của công bố) đã chạy thật một lượt nhưng kết quả đã XOÁ để chạy lại từ đầu (số tham chiếu + 3 lỗi đã gặp ghi ở mục 2), đang chờ GPU của Colab để ra số mới; còn T4, T5 |
 | -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 
 Bảng trên là **nguồn duy nhất** nói đang ở bước nào: sửa mục 2 của file con thì sửa luôn dòng tương
@@ -35,6 +35,12 @@ Trước khi làm bất cứ việc gì phụ thuộc MLflow, phải đạt **c�
 2. Mở `https://dagshub.com/TrieuKhac-dev/SentimentX` và xác nhận run xuất hiện.
 
 Không đạt thì dừng, báo cáo và đưa giải pháp, không triển khai tiếp phần phụ thuộc MLflow.
+
+*Trạng thái 27/09/2026:* cổng này đạt ở lượt smoke trên máy cá nhân (P4 T7) nhưng **KHÔNG đạt trên Colab**
+trong ba lượt chạy thật đầu tiên: ô bootstrap của notebook cài một danh sách gói cố định mà thiếu `mlflow`,
+nên cả ba lượt đều ghi `[TRACK] không ghi nhận gì (tracker tắt)` và không run nào lên DagsHub. Đã sửa
+(bootstrap cài `mlflow`, ô cuối chỉ in địa chỉ DagsHub khi có dòng `[TRACK]` thành công) - lượt chạy lại
+theo P7 T3 là lần xác nhận cổng này. Chi tiết ở `docs/06_plan/P4_logging_mlflow.md` mục 4.
 
 ## Quy ước chung cho mọi giai đoạn
 

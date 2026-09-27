@@ -12,7 +12,7 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `version`   | phiên bản của chính file cấu hình này                                                       |
 | `roots`     | thư mục gốc: `data`, `configs`, `experiments`, `templates`, `docs`                          |
 | `data`      | `raw`, `processed`, `models`, `reports`, `assets`, `reference_publication`                  |
-| `reports`   | bốn nhóm report: `dataset_registry`, `experiment_registry`, `model_input`, `metrics_matrix` |
+| `reports`   | năm nhóm report: `dataset_registry`, `experiment_registry`, `attempt_registry` (mọi lần thử, kể cả lượt hỏng), `model_input`, `metrics_matrix` |
 | `configs`   | `datasets`, `models`, `prompts`, `pipeline`, `experiment`, `paths`, `dagshub`               |
 | `patterns`  | mẫu tên thư mục và file kết quả                                                             |
 | `colab`     | đường dẫn Drive cần thử, file đánh dấu, đường dẫn file env của Colab                        |

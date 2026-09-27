@@ -41,7 +41,7 @@ RAW DATA (data/raw/<tên>/<phiên bản>/)
              |
              v
     BÁO CÁO TỔNG HỢP: data/reports/  (dataset_registry, experiment_registry,
-    model_input, metrics_matrix)
+    attempt_registry, model_input, metrics_matrix)
 
 (ViTASA đang gác - xem docs/04_experiments/04_backlog.md)
 ```
@@ -231,7 +231,7 @@ Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phi�
 | Dataset đã xử lý | `data/processed/<mã>/train.csv` (kèm `val.csv`, `test.csv`, `label_map.json`) |
 | Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats.csv` |
 | Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<hash8>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
-| Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
+| Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,attempt_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
 
 Mã phiên bản có dạng `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484`: đọc ra được phiên bản
 dataset, phiên bản pipeline, nguồn, và 8 ký tự băm của **nội dung config + nội dung dữ liệu gốc**.
@@ -251,7 +251,7 @@ SentimentX/
 │   │   ├── eda/                # kết quả EDA đo trên dữ liệu ĐÃ xử lý
 │   │   └── pipeline/           # bảng chi tiết từng bước + report.html
 │   ├── models/                 # model tải về (bỏ qua nội dung, giữ README)
-│   ├── reports/                # bảng tổng hợp sinh tự động: 4 nhóm, xem scripts/collect_reports.py
+│   ├── reports/                # bảng tổng hợp sinh tự động: 5 nhóm, xem scripts/collect_reports.py
 │   └── reference_publication/  # số liệu công bố tham chiếu, để so kết quả
 ├── configs/
 │   ├── paths.yaml              # NGUỒN DUY NHẤT của đường dẫn và mẫu tên file
@@ -277,7 +277,7 @@ SentimentX/
 │   ├── preflight.py            # kiểm TRƯỚC khi chạy: dữ liệu, GPU, quyền ghi, NEW hay RESUME
 │   ├── experiment_run.py       # vòng chạy thí nghiệm: plan() không cần GPU -> run()
 │   ├── resume.py               # dừng hay đi tiếp theo các khối predictions/part_*.jsonl
-│   ├── reports.py              # sinh bảng tổng hợp (4 nhóm)
+│   ├── reports.py              # sinh bảng tổng hợp (5 nhóm)
 │   ├── checks.py               # các kiểm tra cấu trúc cho CI
 │   ├── runlog.py               # ghi run.log theo dòng, không đệm
 │   ├── prompts.py              # nạp + KIỂM TRA file prompt

@@ -215,4 +215,23 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 nguyên: luật của dự án cấm viết lại lịch sử sau commit đầu tiên (sha ghim trong notebook phải luôn
 còn hiệu lực). Từ đợt hai trở đi, mọi commit viết tiếng Anh theo đúng quy ước.
 
+## Đợt 27/09/2026 - dọn kết quả cũ và sửa các lỗi lộ ra khi rà soát
+
+Rà bảy thư mục kết quả của lượt chạy đầu tiên rồi chạy lại từ đầu. Ba commit đầu là đợt dọn + sửa lỗi
+chặn; tám commit sau là các mục A1-A11 của đợt giải quyết backlog (`docs/04_experiments/04_backlog.md`).
+
+| Việc | Commit |
+| --- | --- |
+| Giữ lịch sử `attempts[]` (truyền `previous=`), chốt phiên bị ngắt thành `INTERRUPTED`, cài `mlflow` ở ô bootstrap, tách hai bộ bảng report, xoá bảy thư mục kết quả cũ | `feat(tracking,reports): keep the attempt history, install mlflow, split the two report sets` |
+| Ghim năm notebook về bản code vừa sửa | `chore(experiments): hold the five notebooks on the mlflow and attempt-history revision` |
+| Test khoá việc hai đường chạy truyền `previous=` (soi thẳng mã nguồn) | `test(tracking): keep the two run paths wired to the previous record` |
+| `experiment_registry` thêm `valid`, `comparable`, `invalid_reason` (commit có trên nhánh ghim? cơ sở đo có khớp lượt chuẩn?) | `feat(reports): mark runs that are not on the pinned branch` |
+| `dataset_registry` thêm cột `parent`, có `docs/01_dataset/changelog.md`, và sửa lỗi ĐẾM DÒNG thay vì đếm BẢN GHI (`test=2271` so với 1518) | `feat(reports): show dataset lineage and count records, not lines` |
+| `token_stats` thêm cột đếm `số token <unk>` (bảng cũ chỉ có tỉ lệ đã làm tròn) | `feat(preprocessing): count unk tokens instead of only the share` |
+| Ghi lại cơ chế tách từ bằng số đo tái lập được (mục 4.1.1 của `02_model_input.md`) | `docs(experiments): record the segmentation effect with reproducible numbers` |
+| Test cho phần `runner.py` không cần GPU: `chat_template` rỗng và bỏ đệm trái ở cột `prompt` | `test(evaluation): cover the runner parts that need no gpu` |
+| Cho `save.plots` CÓ TÁC DỤNG: ghi `plots/accuracy.html` (HTML tự chứa, không thêm phụ thuộc) | `feat(evaluation): make save.plots write a plot into the run folder` |
+| `nbstripout`: bỏ output notebook ngay ở máy, CI vẫn là chốt cuối | `chore(git): strip notebook outputs with nbstripout` |
+| Đủ 8 nhãn MLflow (sửa lỗi `method`/`exp_id` bị bỏ âm thầm) và tải `plots/accuracy.html` lên artifact | `feat(tracking): carry the eight mlflow tags and upload the plot` |
+
 | Đổi tên cột `lí do` -> `tình trạng đọc`, và ghi chú bốn trạng thái của dataset so với không gian nhãn của thí nghiệm | `refactor(evaluation): name the parse verdict column for what it is` |
