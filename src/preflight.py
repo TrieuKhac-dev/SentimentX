@@ -28,6 +28,7 @@ from pathlib import Path
 
 from src import dataset as dataset_module
 from src import experiments, model_config, paths, resume, runtime, training, utils, versioning
+from src.training import checkpoints
 from src.preprocessing import segmenters
 from src.tracking import run_meta
 
@@ -463,7 +464,9 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
 
 def _training_problems(config, model_id):
     """Đổi danh sách vấn đề của cách huấn luyện thành một ngoại lệ, để `_collect` gom cùng một chỗ."""
-    found = training.check(config, model_id)
+    # Kiểm CẢ chính sách checkpoint: nó không thuộc trainer (`src/training/checkpoints.py`), nên thiếu
+    # khoá ở đó phải lộ ra TRƯỚC khi nạp model, không phải sau khi đã tải xong dữ liệu.
+    found = checkpoints.check(config) + training.check(config, model_id)
     if found:
         raise PreflightError("; ".join(found))
     return True

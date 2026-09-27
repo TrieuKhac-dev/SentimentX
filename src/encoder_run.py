@@ -25,7 +25,7 @@ from src import config, experiments, labels, paths, resume, runlog, runtime, tra
 from src import experiment_run
 from src.evaluation import records, scorers
 from src.preprocessing import loader
-from src.training import lora
+from src.training import checkpoints, lora
 from src.tracking import run_meta
 
 # Vai bắt buộc của một thí nghiệm encoder: học từ train, chọn `model/best` theo val, chấm trên eval.
@@ -278,10 +278,12 @@ def plan(config_data, merged, ds, version_id, split=None, limit=None, model=None
         "label_space": config_data.get("label_space"),
         "neutral_policy": config_data.get("neutral_policy"),
         "not_mentioned": config_data.get("not_mentioned"),
-        "training": {key: found[key] for key in (
+        # Chính sách checkpoint KHÔNG thuộc trainer (`src/training/checkpoints.py`), nên ghi chung
+        # vào đây để `run_meta.json` nói đủ cả cách học lẫn cách lưu.
+        "training": {**{key: found[key] for key in (
             "trainer", "epochs", "batch", "grad_accum", "lr", "weight_decay", "lora_r",
-            "lora_alpha", "lora_dropout", "target_modules", "every_n_steps", "keep_last_k",
-            "quantization", "dtype")},
+            "lora_alpha", "lora_dropout", "target_modules", "quantization", "dtype")},
+            **checkpoints.settings(config_data)},
     }
 
     # Số bản ghi của TỪNG vai và dấu vân tay tập đánh giá: hai thứ người đọc bản ghi cần biết.

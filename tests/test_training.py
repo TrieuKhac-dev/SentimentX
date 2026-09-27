@@ -21,7 +21,7 @@ from src import dataset as dataset_module
 from src import versioning
 from src.evaluation import records
 from src.training import lora
-from src.training import encoders, TRAINERS
+from src.training import checkpoints, encoders, TRAINERS
 
 try:
     import torch
@@ -133,45 +133,64 @@ class SettingsTest(unittest.TestCase):
 
 
 class CheckpointTest(unittest.TestCase):
-    """`model/last` và `model/best` là hợp đồng của một lượt huấn luyện; sai đường dẫn là mất khả
-    năng chạy tiếp, mà không có thông báo nào."""
+    """Chính sách + chỗ lưu checkpoint dùng chung cho mọi cách huấn luyện
+    (`src/training/checkpoints.py`); CÁCH GHI trọng số do writer quyết định (`src/training/savers/`).
+    Sai đường dẫn là mất khả năng chạy tiếp mà không có thông báo nào."""
 
     def setUp(self):
         self.out_dir = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, str(self.out_dir), ignore_errors=True)
+        self.store = checkpoints.Store(self.out_dir, {
+            "every_n_steps": 2, "keep_last_k": 1, "save_last": True, "save_best": True,
+            "delete_intermediate": True})
 
     def test_paths_come_from_the_paths_config(self):
-        self.assertEqual(lora.checkpoint_dir(self.out_dir, "ckpt_last"),
-                         self.out_dir / "model" / "last")
-        self.assertEqual(lora.checkpoint_dir(self.out_dir, "ckpt_best"),
-                         self.out_dir / "model" / "best")
+        self.assertEqual(self.store.last_dir(), self.out_dir / "model" / "last")
+        self.assertEqual(self.store.best_dir(), self.out_dir / "model" / "best")
+        self.assertEqual(self.store.snapshot_dir(30), self.out_dir / "model" / "checkpoint-30")
 
     def test_snapshots_are_sorted_and_pruned(self):
         for step in (30, 10, 20):
-            (self.out_dir / "model" / "checkpoint-{}".format(step)).mkdir(parents=True)
-        self.assertEqual([item.name for item in lora.snapshots(self.out_dir)],
+            self.store.snapshot_dir(step).mkdir(parents=True)
+        self.assertEqual([item.name for item in self.store.snapshots()],
                          ["checkpoint-10", "checkpoint-20", "checkpoint-30"])
-        self.assertEqual(lora.prune_snapshots(self.out_dir, 1),
-                         ["checkpoint-10", "checkpoint-20"])
-        self.assertEqual([item.name for item in lora.snapshots(self.out_dir)], ["checkpoint-30"])
+        self.assertEqual(self.store.prune(), ["checkpoint-10", "checkpoint-20"])
+        self.assertEqual([item.name for item in self.store.snapshots()], ["checkpoint-30"])
 
     def test_resume_state_needs_the_same_fingerprint(self):
-        folder = lora.checkpoint_dir(self.out_dir, "ckpt_last")
+        folder = self.store.last_dir()
         folder.mkdir(parents=True)
-        wanted = {"config_sha256": "a", "data": "d", "sha": "s"}
-        lora.write_state(folder, {"fingerprint": dict(wanted)})
-        self.assertEqual(lora.resume_state(self.out_dir, wanted)["fingerprint"], wanted)
-        with self.assertRaises(lora.TrainingError):
-            lora.resume_state(self.out_dir, {"config_sha256": "b", "data": "d", "sha": "s"})
-        self.assertIsNone(
-            lora.resume_state(self.out_dir, {"config_sha256": "b"}, require=False))
+        wanted = {"config_sha256": "a", "build": "d", "sha": "s"}
+        self.store.write_state(folder, {"fingerprint": dict(wanted)})
+        self.assertEqual(self.store.resume_state(wanted)["fingerprint"], wanted)
+        with self.assertRaises(checkpoints.CheckpointError):
+            self.store.resume_state({"config_sha256": "b", "build": "d", "sha": "s"})
+        self.assertIsNone(self.store.resume_state({"config_sha256": "b"}, require=False))
 
     def test_broken_state_file_counts_as_absent(self):
-        folder = lora.checkpoint_dir(self.out_dir, "ckpt_last")
+        folder = self.store.last_dir()
         folder.mkdir(parents=True)
-        (folder / lora.STATE_FILE).write_text("{ khong-phai-json", encoding="utf-8")
-        self.assertIsNone(lora.resume_state(self.out_dir, {"config_sha256": "a"}))
+        (folder / checkpoints.STATE_FILE).write_text("{ khong-phai-json", encoding="utf-8")
+        self.assertIsNone(self.store.resume_state({"config_sha256": "a"}))
 
+    def test_store_saves_with_any_writer(self):
+        """`Store` chỉ lo thư mục + state; CÁCH GHI trọng số do writer quyết định."""
+        calls = []
+
+        class FakeWriter:
+            def save(self, directory, weights_only=False, **payload):
+                calls.append((directory.name, weights_only, sorted(payload)))
+                (directory / "weights.bin").write_text("x", encoding="utf-8")
+                return directory
+
+        self.store.save(self.store.last_dir(), FakeWriter(), {"fingerprint": {}}, {"model": "m"})
+        self.assertTrue((self.store.last_dir() / "weights.bin").is_file())
+        self.assertEqual(calls, [("last", False, ["model"])])
+
+    def test_policy_must_be_declared(self):
+        with self.assertRaises(checkpoints.CheckpointError) as caught:
+            checkpoints.settings({})
+        self.assertIn("checkpoints.every_n_steps", str(caught.exception))
 
 @needs_torch
 class TorchModelTest(unittest.TestCase):

@@ -13,24 +13,20 @@ không được chấm, nhưng KHÔNG làm mất các khía cạnh khác của c
 (xem `src/preprocessing/loader.project_multi_head`).
 
 CHECKPOINT
-    model/last   adapter + optimizer.pt + scheduler.pt + trainer_state.json  -> đủ để chạy tiếp
-    model/best   CHỈ adapter + head.pt + head_config.json                    -> để suy luận
-`keep_last_k` giữ bao nhiêu ảnh chụp `model/checkpoint-<bước>`; `delete_intermediate` xoá ảnh chụp
-cũ ngay sau mỗi lần lưu để khỏi đầy Drive.
+Phần `model/last`, `model/best`, `model/checkpoint-<bước>` và `trainer_state.json` KHÔNG nằm ở đây:
+LoRA chỉ là MỘT cách huấn luyện, nên chính sách lưu và chỗ lưu dùng chung ở
+`src/training/checkpoints.py`, còn cách ghi trọng số nằm ở writer `src/training/savers/adapter.py`.
 
 `torch`, `transformers`, `peft` được import BÊN TRONG hàm: CI không cài chúng mà vẫn phải import
 được module này để gọi `check()`.
 """
 
-import json
 import math
 import random
-import re
-import shutil
 from pathlib import Path
 
 from src import model_config, paths, utils
-from src.training import encoders
+from src.training import checkpoints, encoders, savers
 
 NAME = "lora"
 DESCRIPTION = "LoRA (peft) trên model encoder, một đầu phân loại cho mỗi khía cạnh."
@@ -40,9 +36,7 @@ DESCRIPTION = "LoRA (peft) trên model encoder, một đầu phân loại cho m�
 REQUIRED_MODEL = ("lora.target_modules", "preprocess.max_length", "inference.batch_size",
                   "inference.dtype")
 REQUIRED_SHARED = ("trainer", "lora.r", "lora.alpha", "lora.dropout", "lr", "batch", "epochs",
-                   "grad_accum", "weight_decay", "checkpoints.every_n_steps",
-                   "checkpoints.keep_last_k", "checkpoints.save_last", "checkpoints.save_best",
-                   "checkpoints.delete_intermediate")
+                   "grad_accum", "weight_decay")
 
 
 def where(key):
@@ -55,13 +49,7 @@ def where(key):
 # Kiểu số hợp lệ. `auto` để mã chọn theo máy: T4 (Turing) không có bf16, nên chọn fp16.
 DTYPES = ("auto", "float16", "bfloat16", "float32")
 
-HEAD_CONFIG = "head_config.json"
-HEAD_WEIGHTS = "head.pt"
-STATE_FILE = "trainer_state.json"
-OPTIMIZER_FILE = "optimizer.pt"
-SCHEDULER_FILE = "scheduler.pt"
-
-SNAPSHOT_PREFIX = "checkpoint-"
+# Tên file của checkpoint nằm ở writer `src/training/savers/adapter.py`.
 
 
 class TrainingError(Exception):
@@ -102,11 +90,7 @@ def settings(config, model_id):
         "epochs": int(_get(config, "epochs")),
         "grad_accum": int(_get(config, "grad_accum")),
         "weight_decay": float(_get(config, "weight_decay")),
-        "every_n_steps": int(_get(config, "checkpoints.every_n_steps")),
-        "keep_last_k": int(_get(config, "checkpoints.keep_last_k")),
-        "save_last": bool(_get(config, "checkpoints.save_last")),
-        "save_best": bool(_get(config, "checkpoints.save_best")),
-        "delete_intermediate": bool(_get(config, "checkpoints.delete_intermediate")),
+
         "max_length": int(_get(config, "preprocess.max_length")),
         "eval_batch": int(_get(config, "inference.batch_size")),
         "dtype": str(_get(config, "inference.dtype")).strip().lower(),
@@ -157,66 +141,6 @@ def check(config, model_id=None):
 # ---
 
 
-def checkpoint_dir(out_dir, key="ckpt_last"):
-    """Thư mục checkpoint trong thư mục kết quả: `model/last` hoặc `model/best`.
-
-    Tên lấy từ `configs/paths.yaml`, nên đổi tên thư mục không phải sửa code.
-    """
-    return Path(out_dir) / paths.pattern(key)
-
-
-def snapshots(out_dir):
-    """Các ảnh chụp trung gian `model/checkpoint-<bước>`, sắp theo số bước tăng dần."""
-    parent = checkpoint_dir(out_dir).parent
-    if not parent.is_dir():
-        return []
-    found = []
-    for path in parent.iterdir():
-        matched = re.match(r"^{}(\d+)$".format(re.escape(SNAPSHOT_PREFIX)), path.name)
-        if path.is_dir() and matched:
-            found.append((int(matched.group(1)), path))
-    return [path for _step, path in sorted(found)]
-
-
-def state_of(directory):
-    """Đọc `trainer_state.json` của một checkpoint; trả về {} nếu chưa có hoặc file hỏng."""
-    path = Path(directory) / STATE_FILE
-    if not path.is_file():
-        return {}
-    try:
-        with open(path, "r", encoding="utf-8") as handle:
-            return json.load(handle) or {}
-    except (OSError, ValueError):
-        return {}
-
-
-def resume_state(out_dir, fingerprint, require=True):
-    """Trạng thái của `model/last` nếu nó thuộc ĐÚNG lượt chạy này; None nếu không dùng lại được.
-
-    Điều kiện là vân tay ba giá trị (cấu hình, dữ liệu, commit) y như lúc checkpoint được ghi,
-    cùng điều kiện với `src/resume.py`. Khác thì chạy lại từ đầu thay vì trộn hai phép đo.
-    """
-    directory = checkpoint_dir(out_dir, "ckpt_last")
-    state = state_of(directory)
-    if not state:
-        return None
-    if dict(state.get("fingerprint") or {}) != dict(fingerprint or {}):
-        if require:
-            raise TrainingError(
-                "Checkpoint {} thuộc một lượt chạy KHÁC (cấu hình hoặc dữ liệu đã đổi). Muốn chạy "
-                "tiếp thì khôi phục đúng bản code và cấu hình cũ; muốn chạy mới thì xoá thư mục "
-                "kết quả {}.".format(utils.rel(directory), utils.rel(out_dir)))
-        return None
-    return state
-
-
-def write_state(directory, state):
-    """Ghi `trainer_state.json` của một checkpoint. Trả về đường dẫn file."""
-    return Path(utils.write_json(state, Path(directory) / STATE_FILE))
-
-
-# ---
-# Chuẩn bị dữ liệu và mô hình
 # ---
 
 
@@ -400,7 +324,7 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
         except ImportError as exc:
             raise _peft_error(exc) from exc
         classifier.head.load_state_dict(
-            torch.load(str(Path(adapter_dir) / HEAD_WEIGHTS), map_location="cpu"))
+            torch.load(str(Path(adapter_dir) / savers.get().HEAD_WEIGHTS), map_location="cpu"))
         return model, classifier.head
 
     if str(found.get("quantization") or "none") == "4bit":
@@ -436,44 +360,12 @@ def _peft_error(exc):
 
 
 def read_head_config(directory):
-    """Đọc `head_config.json` của một checkpoint: số khía cạnh, số lớp, thứ tự khía cạnh."""
-    path = Path(directory) / HEAD_CONFIG
-    if not path.is_file():
-        raise TrainingError(
-            "Checkpoint {} thiếu {}. Không biết nó được huấn luyện với bộ khía cạnh nào thì không "
-            "dùng lại được.".format(utils.rel(directory), HEAD_CONFIG))
-    with open(path, "r", encoding="utf-8") as handle:
-        return json.load(handle) or {}
+    """Đọc `head_config.json` của một checkpoint: số khía cạnh, số lớp, thứ tự khía cạnh.
 
-
-def save_checkpoint(model, head, directory, state, optimizer=None, scheduler=None,
-                    adapter_only=False):
-    """Ghi một checkpoint. `adapter_only` dùng cho `model/best` (chỉ để suy luận, nhẹ nhất)."""
-    import torch
-
-    directory = Path(directory)
-    directory.mkdir(parents=True, exist_ok=True)
-    model.save_pretrained(str(directory))
-    torch.save(head.state_dict(), str(directory / HEAD_WEIGHTS))
-    utils.write_json(dict(state.get("head_config") or {}), directory / HEAD_CONFIG)
-    if not adapter_only:
-        if optimizer is not None:
-            torch.save(optimizer.state_dict(), str(directory / OPTIMIZER_FILE))
-        if scheduler is not None:
-            torch.save(scheduler.state_dict(), str(directory / SCHEDULER_FILE))
-    return write_state(directory, state)
-
-
-def prune_snapshots(out_dir, keep):
-    """Xoá ảnh chụp trung gian cũ, chỉ giữ `keep` cái gần nhất (xem `keep_last_k`)."""
-    keep = int(keep)
-    found = snapshots(out_dir)
-    old = found[:-keep] if keep > 0 else found
-    removed = []
-    for path in old:
-        shutil.rmtree(path, ignore_errors=True)
-        removed.append(path.name)
-    return removed
+    Việc đọc thuộc writer (`src/training/savers/adapter.py`) vì chính nó ghi file đó ra, nên dùng lại
+    checkpoint của một cách huấn luyện khác cũng đi qua đúng chỗ ấy.
+    """
+    return savers.get().read_metadata(directory)
 
 
 def masked_loss(logits, targets, mask, n_codes):
@@ -552,6 +444,11 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     found["device"] = device
     found["source"] = source or found["checkpoint"]
     found["dtype_used"] = str(torch_dtype(found["dtype"], device)).replace("torch.", "")
+    # Chính sách lưu + CÁCH GHI trọng số: dùng chung cho mọi cách huấn luyện, xem
+    # src/training/checkpoints.py (chính sách, chỗ lưu) và src/training/savers/ (writer).
+    policy = checkpoints.settings(config)
+    store = checkpoints.Store(out_dir, policy)
+    writer = savers.get()
 
     random.seed(seed)
     torch.manual_seed(seed)
@@ -561,8 +458,8 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     head_config = {"n_aspects": len(aspects), "n_codes": len(codes),
                    "codes": [int(code) for code in codes],
                    "aspects": [str(name) for name in aspects]}
-    state = resume_state(out_dir, fingerprint, require=False)
-    adapter = checkpoint_dir(out_dir, "ckpt_last") if state else None
+    state = store.resume_state(fingerprint, require=False)
+    adapter = store.last_dir() if state else None
     if adapter is not None and dict(read_head_config(adapter)) != head_config:
         raise TrainingError(
             "Checkpoint {} thuộc một bài toán KHÁC (bộ khía cạnh hoặc số lớp khác). Xoá thư mục kết "
@@ -589,13 +486,13 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
 
     start_epoch, step, best = 0, 0, None
     if state:
-        folder = checkpoint_dir(out_dir, "ckpt_last")
-        if (folder / OPTIMIZER_FILE).is_file():
+        folder = store.last_dir()
+        if (folder / writer.OPTIMIZER_FILE).is_file():
             optimizer.load_state_dict(
-                torch.load(str(folder / OPTIMIZER_FILE), map_location="cpu"))
-        if (folder / SCHEDULER_FILE).is_file():
+                torch.load(str(folder / writer.OPTIMIZER_FILE), map_location="cpu"))
+        if (folder / writer.SCHEDULER_FILE).is_file():
             scheduler.load_state_dict(
-                torch.load(str(folder / SCHEDULER_FILE), map_location="cpu"))
+                torch.load(str(folder / writer.SCHEDULER_FILE), map_location="cpu"))
         start_epoch = int(state.get("epoch") or 0)
         step = int(state.get("step") or 0)
         best = state.get("best") or None
@@ -617,15 +514,24 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             improved = best is None or value > float(best.get("accuracy_cell") or -1)
             if improved:
                 best = {"epoch": epoch_done, "step": step, **metrics}
-                if found["save_best"]:
-                    save_checkpoint(model, head, checkpoint_dir(out_dir, "ckpt_best"),
-                                    payload(epoch_done, metrics), adapter_only=True)
+                if policy["save_best"]:
+                    store.save(store.best_dir(), writer, payload(epoch_done, metrics),
+                               checkpoint_payload(), weights_only=True)
         if snapshot:
-            folder = checkpoint_dir(out_dir).parent / "{}{}".format(SNAPSHOT_PREFIX, step)
-            save_checkpoint(model, head, folder, payload(epoch_done, metrics), optimizer, scheduler)
-            if found["delete_intermediate"]:
-                prune_snapshots(out_dir, found["keep_last_k"])
+            store.save(store.snapshot_dir(step), writer, payload(epoch_done, metrics),
+                       checkpoint_payload())
+            if policy["delete_intermediate"]:
+                store.prune()
         return improved
+
+    def checkpoint_payload():
+        """Đối tượng writer cần để ghi trọng số, cộng mô tả bài toán để dùng lại checkpoint.
+
+        Trainer biết nó có gì, writer biết cách ghi - chỗ nối của hai bên là dict này. Writer khác
+        (ví dụ full fine-tune) sẽ cần đối tượng khác, nên nó nằm ở đây chứ không nằm trong `Store`.
+        """
+        return {"model": model, "head": head, "head_config": head_config,
+                "optimizer": optimizer, "scheduler": scheduler}
 
     def payload(epoch_done, metrics):
         """Nội dung `trainer_state.json`: vân tay, chỗ đã đi tới, và bài toán đang học."""
@@ -649,7 +555,7 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             optimizer.zero_grad(set_to_none=True)
             pending = 0
             step += 1
-            if step % found["every_n_steps"]:
+            if step % policy["every_n_steps"]:
                 continue
             metrics = measure(model, module, val, found, codes, device)
             # `detach()` trước khi đổi sang số: `loss` còn gắn đồ thị tính đạo hàm, và PyTorch cảnh báo
@@ -672,14 +578,13 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
         # tưởng bản đang chấm là bước in ra gần nhất - đã gặp thật: `model/best` ở bước 1153 trong khi
         # console chỉ in "đã lưu model/best" ở bước 1100.
         best_now = record(epoch + 1, metrics, snapshot=False)
-        save_checkpoint(model, head, checkpoint_dir(out_dir, "ckpt_last"), payload(epoch + 1, metrics),
-                        optimizer, scheduler)
+        store.save(store.last_dir(), writer, payload(epoch + 1, metrics), checkpoint_payload())
         print("hết epoch {}/{}: {} bước, val {} | {}".format(
             epoch + 1, found["epochs"], step, value_text(metrics),
             "đã lưu model/best" if best_now else "chưa tốt hơn"))
 
     seconds = round(time.time() - started, 1)
-    if found["save_best"] and best is None:
+    if policy["save_best"] and best is None:
         message = ("Không có `val` để chọn `model/best`: khai `data.roles.val` khi huấn luyện. "
                    "Lượt này chỉ có `model/last`.")
         print("  LƯU Ý: " + message)
@@ -689,9 +594,8 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             "steps": step, "epochs": found["epochs"], "seconds": seconds,
             "trainable_params": trainable, "total_params": total, "best": best,
             "history": history, "settings": found, "head_config": head_config,
-            "last_dir": str(checkpoint_dir(out_dir, "ckpt_last")),
-            "best_dir": (str(checkpoint_dir(out_dir, "ckpt_best"))
-                         if checkpoint_dir(out_dir, "ckpt_best").is_dir() else None)}
+            "last_dir": str(store.last_dir()),
+            "best_dir": (str(store.best_dir()) if store.best_dir().is_dir() else None)}
 
 
 def value_text(metrics):
