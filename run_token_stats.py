@@ -62,6 +62,12 @@ def parse_args(argv=None):
              "nghiệm, không lấy từ config model. Các lệnh --list-* không cần tham số này.",
     )
     parser.add_argument(
+        "--system", default=None,
+        help="Khối system prompt đi kèm prompt: tên trần (-> configs/prompts/system/"
+             "<tên>.txt) hoặc đường dẫn. BẮT BUỘC khi prompt dùng ô nhớ {system_prompt}: "
+             "số token đổi theo nội dung khối hệ thống, nên bỏ nó là đo một phép đo khác.",
+    )
+    parser.add_argument(
         "--segmenter", default=None,
         help="Bộ tách từ cho PhoBERT: auto (mặc định: bộ chính chủ nếu có, không thì "
              "pyvi) | vncorenlp | pyvi | underthesea | none.",
@@ -263,6 +269,8 @@ def build_tag(args, max_length_overrides=None, prompt=None):
             if prompt is not None and "examples" in prompt.placeholders else None)
     if info and info["sha"]:
         parts.append("ex-{}".format(info["sha"]))
+    if args.system:
+        parts.append("sys-{}".format(Path(str(args.system)).stem))
     if args.segmenter:
         parts.append("seg-{}".format(args.segmenter))
     for key, value, _source, from_cli in token_stats.limits(max_length_overrides):
@@ -289,7 +297,7 @@ def main(argv=None):
               "chạy `--list-prompts` để xem các prompt đang có.")
         return 2
     try:
-        prompt = qwen.load_prompt(args.prompt)
+        prompt = qwen.load_prompt(args.prompt, system=args.system)
     except prompts.PromptError as exc:
         print("LỖI: {}".format(exc))
         return 2
