@@ -91,7 +91,10 @@ lỗi** (thận trọng hơn: precision cao hơn, recall thấp hơn). Bảng đ
 
 1. **Tăng cỡ tập con** (300-500 review) và **đo dao động** (`--sample`) - chưa làm, vì một
    lượt CoT 100 review đã tốn 10-12 phút GPU.
-2. **So với 3 encoder**: PhoBERT (× số bộ tách từ) và ViSoBERT vẫn chưa có script huấn luyện.
+2. ~~**So với 3 encoder**: PhoBERT (× số bộ tách từ) và ViSoBERT vẫn chưa có script huấn luyện.~~
+   **ĐÃ LÀM (đợt 2, 25/09/2026):** `src/training/lora.py` (registry `TRAINERS`) và `src/encoder_run.py`,
+   hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Việc còn lại là NHÂN với số bộ
+   tách từ, ghi ở mục 4 (cần GPU).
 3. **Self-consistency** (lấy mẫu nhiều lần rồi bỏ phiếu) là bước mở rộng tự nhiên của CoT
    (Wang et al., 2022) - chưa làm; hạ tầng đã có `--sample --seed`.
 
@@ -129,20 +132,32 @@ khác biệt thật sự chỉ hiện ra ở bước này.
   được nữa. `runner.py` **không có test** vì nó cần GPU + model 8 GB - bù lại, các quyết định ở đó
   (padding_side, chat template, cắt phần đã sinh) đều được kiểm bằng script chạy thật trong quá
   trình làm.
+  **Cập nhật 27/09/2026:** `runner.py` nay CÓ test cho hai quyết định KHÔNG cần GPU
+  (`tests/test_runner.py`: `chat_template` rỗng, và bỏ phần đệm bên trái khi dựng lại cột `prompt`).
+  Phần `generate()` (cắt đúng đoạn model sinh ra) vẫn phải kiểm bằng lượt chạy thật: model giả chỉ
+  chứng minh được phép cắt, không chứng minh phép cắt đó đúng với đầu ra của model.
 - **Bài học về test (đã trả giá):** lỗi hoán vị FP/FN trong `metrics._binary_counts` lọt qua
   27 test đầu tiên vì các ca test lúc đó **đối xứng** (hoặc chỉ có một loại lỗi), mà F1 lại
   đối xứng nên không đổi. Nó chỉ lộ ra khi đối chiếu bảng điểm với **số đếm thô** (cấu hình
   nêu thừa nhiều nhất lại được báo precision cao nhất). Từ nay: hàm chấm điểm phải có ca test
   **bất đối xứng** (chỉ dương tính giả / chỉ âm tính giả), và con số tổng hợp phải được kiểm
   chéo với số đếm. Kết quả đã ghi được chấm lại từ file dự đoán (không cần GPU).
-- **Cột đếm `<unk>`:** bảng `token_stats` chỉ có `% token <unk>` (đã làm tròn), nên muốn nói
+- ~~**Cột đếm `<unk>`:** bảng `token_stats` chỉ có `% token <unk>` (đã làm tròn), nên muốn nói
   "giảm bao nhiêu token `<unk>`" thì phải đo bằng script riêng - đã phải làm vậy một lần
-  (21.886 -> 14.302 token `<unk>` trên train). Thêm cột đếm sẽ không phải suy ngược từ tỉ lệ.
-- **Cơ chế của việc tách từ chưa được lưu thành số liệu:** đã đo trong phiên làm việc là
+  (21.886 -> 14.302 token `<unk>` trên train). Thêm cột đếm sẽ không phải suy ngược từ tỉ lệ.~~
+  **ĐÃ LÀM (27/09/2026):** cột `số token <unk>` đứng cạnh `% token <unk>` trong `token_stats.COLUMNS`
+  (`feat(preprocessing): count unk tokens instead of only the share`). Hai giá trị `-` khi tokenizer
+  không khai báo token `<unk>` (Qwen), KHÁC với `0`.
+- ~~**Cơ chế của việc tách từ chưa được lưu thành số liệu:** đã đo trong phiên làm việc là
   "mảnh/đơn vị 1,618 -> 1,445" cùng vài ca cụ thể (`Công_dụng` = 1 token so với `Công` +
   `dụng` = 2; `dụng:` = 3 mảnh so với `dụng` + `:` = 2), nhưng **chưa ghi vào file/doc nào**
   nên muốn trích dẫn lại thì phải đo lại. Nên đưa thành một script nhỏ hoặc một mục riêng
-  trong [02_model_input.md](02_model_input.md).
+  trong [02_model_input.md](02_model_input.md).~~
+  **ĐÃ LÀM (27/09/2026):** mục 4.1.1 của [02_model_input.md](02_model_input.md) có bảng cơ chế đo lại
+  được (ba ca, kèm lệnh đo) và ba file số liệu `token_stats__…__seg-{vncorenlp,pyvi,none}.csv`
+  (`docs(experiments): record the segmentation effect with reproducible numbers`). Con số "mảnh/đơn vị"
+  cũ không tái lập được nên đã thay bằng cột `subword / từ` của chính bảng: 1,55 khi không tách từ so với
+  1,38 khi dùng bộ chính chủ.
 - **Ví dụ few-shot dạng LƯỢT hội thoại:** hiện `{examples}` là MỘT khối văn bản nằm trong
   lượt người dùng. Muốn ví dụ thành các cặp `[USER]`/`[ASSISTANT]` thật (cách chat model
   thường được dạy) thì cần thêm một khối hoặc ô nhớ mới cho loader prompt.
@@ -158,14 +173,14 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 
 | Việc | Trạng thái | Ghi chú |
 | ---- | ---------- | ------- |
-| Máy kiểm "kết quả trước merge" (`valid`, `invalid_reason`, `comparable` trong `experiment_registry`) | chưa làm | Kế hoạch P6 nêu; cần `git rev-list --ancestry-path` so với `origin/experiment`. Cột hiện chưa có, nên bảng tổng hợp chưa nói được kết quả nào chạy trước khi merge |
-| `dataset_registry` có cột `parent` + changelog người đọc (`docs/01_dataset/changelog.md`) | chưa làm | Hiện có `dataset`, `version`, `ma`, `on_disk`, `splits`, `rows`, `eval_locked`, `aspects`, `raw_dir`, `config`; dòng dõi nằm trong khoá `parent` của file cấu hình |
-| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | làm khác | `kind` (`raw`/`dataset`) kiểm trong `src/dataset.py`; model sinh nạp ở `src/evaluation/runner.py`, model encoder ở `src/preprocessing/`. Chức năng tương đương, khác chỗ đặt |
+| Máy kiểm "kết quả trước merge" (`valid`, `invalid_reason`, `comparable` trong `experiment_registry`) | **ĐÃ LÀM 27/09/2026** | `feat(reports): mark runs that are not on the pinned branch`. `valid` hỏi git qua `src/repo.py` (`merge-base --is-ancestor` so với `origin/<nhánh>` ghi trong `run_meta.json`) - không phải `git rev-list`; `comparable` so cơ sở đo (dữ liệu, không gian nhãn, neutral, split, bộ chấm) với lượt CHUẨN (lượt `FINISHED` sớm nhất); `invalid_reason` gộp lý do. Không có git thì cả hai cột ghi `chưa rõ`, KHÔNG ghi `no` |
+| `dataset_registry` có cột `parent` + changelog người đọc (`docs/01_dataset/changelog.md`) | **ĐÃ LÀM 27/09/2026** | `feat(reports): show dataset lineage and count records, not lines`: cột `parent` (không khai thì ghi "sinh từ dữ liệu gốc", không để ô trống) và `docs/01_dataset/changelog.md` là bản người đọc. Cùng commit đó sửa một lỗi thật: bảng ĐẾM DÒNG thay vì đếm BẢN GHI, nên ghi `test=2271` trong khi `eval_lock` ghi 1.518 |
+| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | **ĐÓNG - làm khác có chủ ý** | `kind` (`raw`/`dataset`) kiểm trong `src/dataset.py`; model sinh nạp ở `src/evaluation/runner.py`, model encoder ở `src/preprocessing/`. Chức năng tương đương, khác chỗ đặt: hai thư mục registry chỉ để gom chỗ ĐẶT, mà chỗ đặt đã có chủ. Không làm nữa |
 | `run_rescore_eval.py` và `config.MODEL_EVAL_REPORT_DIR` | **ĐÃ BỎ 25/09/2026** | Trước đó giữ có chủ ý làm "đường chạy tay". Nay MỌI kết quả đều thuộc một thí nghiệm: `experiments/<model>/<method>/<expNNN>/results/<hash8>/`, thiếu định danh thí nghiệm là lỗi. Muốn tính lại điểm thì chạy lại thí nghiệm (xem [05_predictions.md](05_predictions.md) §5) |
-| `nbstripout` cài trên từng máy | chưa cài | CI kiểm notebook sạch output ở kiểm tra 3, nên vẫn chặn được notebook kèm output |
-| `mlflow_tags` đủ 8 nhãn và `artifacts` có `plots` | làm gọn hơn | Hiện gắn `model`, `method`, `exp_id`; `sha` và `config_sha256` đã nằm trong `run_meta.json` (được tải lên làm artifact) nên tra được từ run |
+| `nbstripout` cài trên từng máy | **ĐÃ CẤU HÌNH 27/09/2026** | `chore(git): strip notebook outputs with nbstripout`: `.gitattributes` khai bộ lọc, máy nào cài `nbstripout` thì git tự bỏ output khi commit; kiểm 3 của CI vẫn là chốt cuối |
+| `mlflow_tags` đủ 8 nhãn và `artifacts` có `plots` | **ĐÃ LÀM 27/09/2026** | `feat(tracking): carry the eight mlflow tags and upload the plot`: nhãn `model`, `method`, `exp_id`, `dataset`, `version_id`, `split`, `repo_sha`, `config_sha256`; phát hiện thêm một lỗi - `resolve_tags` chỉ tra khoá mức ngoài nên `method`/`exp_id` (nằm trong khối `experiment`) bị BỎ ÂM THẦM, nay tra cả khối đó. `artifacts` thêm `plots/accuracy.html` |
 | Thư mục `data/reports/model_eval/**` | **ĐÃ BỎ 25/09/2026** | Bằng chứng của lượt kiểm resume ngày 24/09/2026 nằm ở đó (xem `docs/06_plan/P4_logging_mlflow.md` T8) đã bị xoá cùng lần dựng lại dữ liệu; kết quả của nhóm nay chỉ nằm trong `experiments/**/results/<hash8>/` |
 | Huấn luyện LoRA cho PhoBERT / ViSoBERT | **ĐÃ LÀM (đợt 2, 25/09/2026)** | `src/training/lora.py` (registry `TRAINERS`) và `src/encoder_run.py`, hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Từ đợt này `training.yaml` hết là khai báo suông: `trainer`, `checkpoints.*` đều có nơi đọc |
 | `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/dataset.py` |
-| `save.plots` trong `configs/experiments/evaluation.yaml` | chưa có tác dụng | Biểu đồ do bước sinh báo cáo vẽ từ `metrics.json`; khoá này nay đã được ghi rõ trong `docs/05_config/05_experiments_shared.md` để không ai bật nó mà chờ hình |
+| `save.plots` trong `configs/experiments/evaluation.yaml` | **ĐÃ LÀM 27/09/2026** | `feat(evaluation): make save.plots write a plot into the run folder`: `true` thì lượt chạy ghi `plots/accuracy.html` (độ chính xác từng khía cạnh + ma trận nhầm, HTML tự chứa, không cần `plotly`); `false` thì không tạo thư mục rỗng |
 
