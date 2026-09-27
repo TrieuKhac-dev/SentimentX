@@ -159,8 +159,8 @@ def dataset_rows():
     for name in dataset_module.available():
         for version in dataset_module.versions(name):
             cfg = dataset_module.load_config(name, version)
-            ma = versioning.compute_id(cfg)
-            directory = versioning.processed_dir(ma)
+            build = versioning.compute_id(cfg)
+            directory = versioning.processed_dir(build)
             splits = {}
             if directory.is_dir():
                 for path in sorted(directory.glob("*.csv")):
@@ -171,7 +171,7 @@ def dataset_rows():
             rows.append({
                 "dataset": name,
                 "version": version,
-                "ma": ma,
+                "build": build,
                 # Dòng dõi: phiên bản NÀY sinh từ phiên bản dataset nào. Không khai `parent` nghĩa là
                 # sinh trực tiếp từ dữ liệu gốc - nói ra thay vì để ô trống, vì ô trống đọc thành
                 # "chưa biết". Người đọc tra tiếp ở `docs/01_dataset/changelog.md`.
@@ -260,7 +260,7 @@ def measurement_basis(run):
     metrics = dict(run["metrics"] or {})
     task = dict(meta.get("task") or {})
     return {
-        "dữ liệu": (meta.get("data") or {}).get("ma") or NO_DATA,
+        "dữ liệu": (meta.get("data") or {}).get("build") or NO_DATA,
         "không gian nhãn": task.get("label_space") or NO_DATA,
         "cách xử lý neutral": task.get("neutral_policy") or NO_DATA,
         "khía cạnh không nhắc tới": task.get("not_mentioned") or NO_DATA,
@@ -344,7 +344,7 @@ def experiment_rows(runs):
             "max_length": metrics.get("max_length"),
             "max_new_tokens": generation.get("max_new_tokens"),
             "dataset": data.get("dataset"),
-            "version_id": data.get("ma"),
+            "version_id": data.get("build"),
             "config_sha256": (config.get("sha256") or "")[:12],
             "repo_sha": (repo.get("sha") or "")[:12],
             "valid": valid,
@@ -394,7 +394,7 @@ def attempt_rows(runs):
             "method": experiment.get("method") or "-",
             "exp_id": experiment.get("exp_id") or "-",
             "split": metrics.get("split"),
-            "version_id": data.get("ma"),
+            "version_id": data.get("build"),
             "config_sha256": (config.get("sha256") or "")[:12],
             "repo_sha": (repo.get("sha") or "")[:12],
             "reason": (reasons[0] if reasons else run_info.get("note")) or "",
@@ -781,15 +781,15 @@ def group_tables(name, runs, reference=None):
         rows = dataset_rows()
         used = {}
         for run in runs:
-            ma = (run["meta"].get("data") or {}).get("ma")
-            used.setdefault(ma, []).append(canonical_label(run))
+            build = (run["meta"].get("data") or {}).get("build")
+            used.setdefault(build, []).append(canonical_label(run))
         edges = []
         for row in rows:
             edges.append(("<nguồn {}>".format(row["version"]), "{} dòng".format(row["rows"]),
-                          row["ma"]))
-            for label in used.get(row["ma"], []):
-                edges.append((row["ma"], "", label))
-        columns = list(rows[0]) if rows else ["dataset", "version", "ma", "parent", "on_disk",
+                          row["build"]))
+            for label in used.get(row["build"], []):
+                edges.append((row["build"], "", label))
+        columns = list(rows[0]) if rows else ["dataset", "version", "build", "parent", "on_disk",
                                              "splits", "rows", "eval_locked", "aspects", "raw_dir",
                                              "config"]
         return {CSV_NAME[name]: (columns, rows)}, mermaid_graph(edges)
@@ -807,7 +807,7 @@ def group_tables(name, runs, reference=None):
         return {CSV_NAME[name]: (columns, rows)}, mermaid_graph(edges, isolated=["model_input"])
     if name == "metrics_matrix":
         edges = [(label, "chấm trên",
-                  (run["meta"].get("data") or {}).get("ma") or "chưa rõ dữ liệu")
+                  (run["meta"].get("data") or {}).get("build") or "chưa rõ dữ liệu")
                  for run, label in zip(runs, column_labels(runs))]
         if accuracy_ref or prf_ref:
             edges = [("<công bố>", "so với", source) for source, _label, _target in edges] + edges

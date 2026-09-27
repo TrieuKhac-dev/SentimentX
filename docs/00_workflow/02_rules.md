@@ -39,7 +39,7 @@
     - `config_sha256`: mã băm danh tính của lượt chạy - config đã hợp nhất, văn bản prompt, file ví
       dụ + khối hệ thống, mã phiên bản dữ liệu, và các giá trị chỉ có khi chạy. Nó cũng CHÍNH LÀ tên
       thư mục kết quả (`<hash8>` = 8 ký tự đầu).
-    - `data.ma`: mã phiên bản dữ liệu, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f`.
+    - `data.build`: mã phiên bản dữ liệu, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f`.
     - `repo.sha`: commit đã ghim trong notebook.
 14. Code đổi thì **không resume**: lượt chạy mới có `repo.sha` khác nên rơi vào **thư mục khác**
     (mã băm khác); kết quả cũ giữ nguyên, không bị chuyển đi đâu và không bị ghi đè.

@@ -17,7 +17,7 @@ CÁC KHỐI
                 giá trị CHỈ CÓ KHI CHẠY (split, số mẫu, lượng hoá, ngưỡng cắt, cách sinh, batch).
                 Khối này ghi ngay từ đầu, nên lượt chạy hỏng vẫn tra được nó đã đo bằng gì
     experiment  model, method, exp_id, parent
-    data        dataset, version (bản trong configs/datasets), ma (mã phiên bản dữ liệu), roles
+    data        dataset, version (bản trong configs/datasets), build (mã phiên bản dữ liệu), roles
     repo        url, branch, sha - `sha` là commit ĐÃ GHIM, một trong ba điều kiện resume
     config      sha256 (mã băm danh tính; cũng là điều kiện resume), sources (khoá nào do lớp nào đặt)
     env         colab hay local, python, hệ điều hành; thiết bị, GPU, VRAM, lượng hoá, KIỂU SỐ
@@ -204,7 +204,7 @@ def close_stale_attempts(payload):
 def start_attempt(payload, note=None):
     """Thêm một attempt đang chạy. Trả về attempt vừa thêm.
 
-    Mỗi attempt mang `sha`, `config_sha256` và `data.ma` của CHÍNH lần đó: hai lần chạy vào cùng
+    Mỗi attempt mang `sha`, `config_sha256` và `data.build` của CHÍNH lần đó: hai lần chạy vào cùng
     thư mục có thể khác code hoặc khác config, khi đó kết quả không so được với nhau, và bản ghi
     phải nói ra điều đó thay vì để người đọc tự đoán.
     """
@@ -217,7 +217,7 @@ def start_attempt(payload, note=None):
         "status": STATUS_RUNNING,
         "sha": (payload.get("repo") or {}).get("sha", ""),
         "config_sha256": (payload.get("config") or {}).get("sha256", ""),
-        "data": (payload.get("data") or {}).get("ma", ""),
+        "build": (payload.get("data") or {}).get("build", ""),
         "note": note,
     }
     attempts.append(attempt)

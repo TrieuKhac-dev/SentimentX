@@ -332,12 +332,12 @@ class TestDuplicateGuard(ExperimentCase):
         self.root = Path(self.tmp.name)
         self.version_id = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-deadbeef"
 
-    def write_run_meta(self, folder, config_sha256=None, exp_id=None, ma=None):
+    def write_run_meta(self, folder, config_sha256=None, exp_id=None, build=None):
         prints = experiments.fingerprint(self.load(), self.version_id)
         data = {
             "config_sha256": config_sha256 or prints["config_sha256"],
             "exp_id": exp_id or prints["exp_id"],
-            "data": {"ma": ma or prints["ma"]},
+            "data": {"build": build or prints["build"]},
         }
         path = self.root / folder / "run_meta.json"
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -346,7 +346,7 @@ class TestDuplicateGuard(ExperimentCase):
 
     def test_fingerprint_has_three_values(self):
         prints = experiments.fingerprint(self.load(), self.version_id)
-        self.assertEqual(sorted(prints), ["config_sha256", "exp_id", "ma"])
+        self.assertEqual(sorted(prints), ["build", "config_sha256", "exp_id"])
         self.assertEqual(prints["exp_id"], TEST_EXP)
 
     def test_matching_run_is_found(self):
@@ -357,7 +357,7 @@ class TestDuplicateGuard(ExperimentCase):
     def test_different_config_or_exp_is_not_found(self):
         self.write_run_meta("a", config_sha256="0" * 64)
         self.write_run_meta("b", exp_id="exp999")
-        self.write_run_meta("c", ma="khac")
+        self.write_run_meta("c", build="khac")
         self.assertEqual(experiments.existing_runs(self.load(), self.version_id,
                                                    root=self.root), [])
 

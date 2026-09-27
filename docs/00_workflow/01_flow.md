@@ -122,13 +122,13 @@ Hai quy tắc không được vi phạm:
 Xem `src/runlog.py` để biết cách gọi, và `docs/04_experiments/metrics.md` cho phần chỉ số.
 
 `run_meta.json` là bản ghi của lần chạy: `run` (trạng thái, lúc bắt đầu/kết thúc), `experiment`
-(model, method, exp_id), `data` (dataset, `ma` là mã phiên bản dữ liệu, `roles`, `rows` là số bản
+(model, method, exp_id), `data` (dataset, `build` là mã phiên bản dữ liệu, `roles`, `rows` là số bản
 ghi của từng vai, `eval_lock` là dấu vân tay tập đánh giá đã khai), `repo` (nhánh và `sha` là commit
 đã ghim), `config.sha256`, `task` (không gian nhãn, cách xử lý neutral), `overrides` (khoá bị lớp
 sau đè), `env` (colab hay local, thiết bị, mức lượng hoá, thư viện), `attempts[]` và `files[]`.
-Mỗi phần tử của `attempts[]` là MỘT lần chạy vào thư mục này, mang `sha`, `config_sha256`, `data`
+Mỗi phần tử của `attempts[]` là MỘT lần chạy vào thư mục này, mang `sha`, `config_sha256`, `build`
 của chính lần đó - nhìn là biết hai lần có so được với nhau hay không. Ba giá trị quyết định
-resume nằm ở `config.sha256`, `data.ma` và `repo.sha` (xem [02_rules.md](02_rules.md) mục 13).
+resume nằm ở `config.sha256`, `data.build` và `repo.sha` (xem [02_rules.md](02_rules.md) mục 13).
 
 Attempt mở khi lần chạy BẮT ĐẦU (`RUNNING`) và chốt khi kết thúc: `FINISHED`, `FAILED`, hoặc
 `INTERRUPTED` khi phiên bị NỀN TẢNG ngắt (hết quota Colab, mất kết nối) - lúc đó không ai biết thời điểm
@@ -155,7 +155,7 @@ lệnh cũ sẽ tự nhận ra và đi tiếp:
 | `[RUN] mode=NEW`   | chưa có gì để đi tiếp: chạy từ đầu                                                                 |
 | `[RUN] mode=RESUME` | có kết quả dở, và ba giá trị bên dưới chưa đổi: chỉ chạy những mẫu còn thiếu                        |
 
-Ba giá trị quyết định resume (xem [02_rules.md](02_rules.md) mục 13): `config_sha256`, `data.ma`
+Ba giá trị quyết định resume (xem [02_rules.md](02_rules.md) mục 13): `config_sha256`, `data.build`
 (mã phiên bản dữ liệu) và `repo.sha`. Cả ba đã nằm TRONG mã băm danh tính - tức tên thư mục kết quả
 - nên trong một thư mục thì mọi attempt luôn khớp nhau: **không còn chuyện phải chuyển kết quả cũ đi
 chỗ khác để chạy lại** (`predictions/_bo-qua-*` đã bỏ). Lần chạy trước đã XONG với đúng ba giá trị đó

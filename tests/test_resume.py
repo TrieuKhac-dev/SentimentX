@@ -47,10 +47,10 @@ class TestDecide(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def record(self, status=None, sha="a" * 40, config_sha="b" * 64, ma="cosmetics-ds0.1.0"):
+    def record(self, status=None, sha="a" * 40, config_sha="b" * 64, build="cosmetics-ds0.1.0"):
         payload = run_meta.build(
             self.out_dir, repo={"sha": sha}, config={"sha256": config_sha},
-            data={"ma": ma}, env={})
+            data={"build": build}, env={})
         if status:
             run_meta.finish_attempt(run_meta.attempt_of(payload), status)
         return payload
@@ -84,7 +84,7 @@ class TestDecide(unittest.TestCase):
         self.assertIn("KHÁC", reason)
 
     def test_changed_config_or_data_is_new(self):
-        for kwargs in ({"config_sha": "d" * 64}, {"ma": "cosmetics-ds0.2.0"}):
+        for kwargs in ({"config_sha": "d" * 64}, {"build": "cosmetics-ds0.2.0"}):
             mode, _reason = resume.decide(self.record(run_meta.STATUS_FAILED, **kwargs),
                                           self.want, parts=5)
             self.assertEqual(mode, resume.MODE_NEW, kwargs)

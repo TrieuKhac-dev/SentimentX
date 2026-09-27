@@ -87,7 +87,7 @@ và một cột `reference` chứa số của công bố.
 | Cột | Nghĩa | Vì sao cần |
 | --- | --- | --- |
 | `valid` | commit của lượt chạy có nằm trên nhánh đã ghim (`origin/<nhánh>` trong `run_meta.json`) không: `yes` / `no` / `chưa rõ` | lượt chấm bằng commit CHƯA merge vẫn ra số, nhưng không ai tái lập được từ bản code đã công bố |
-| `comparable` | cơ sở đo (`data.ma`, `label_space`, `neutral_policy`, `not_mentioned`, `split`, bộ chấm) có khớp lượt CHUẨN không - lượt chuẩn là lượt `FINISHED` sớm nhất trong bảng | hai cột cạnh nhau mà khác cơ sở đo thì lệch vì ĐO KHÁC, không phải vì model khác |
+| `comparable` | cơ sở đo (`data.build`, `label_space`, `neutral_policy`, `not_mentioned`, `split`, bộ chấm) có khớp lượt CHUẨN không - lượt chuẩn là lượt `FINISHED` sớm nhất trong bảng | hai cột cạnh nhau mà khác cơ sở đo thì lệch vì ĐO KHÁC, không phải vì model khác |
 | `invalid_reason` | lý do gộp của cả hai cột trên, rỗng khi cả hai đều `yes` | người đọc biết ngay vì sao, không phải mở `run.log` dò |
 
 `chưa rõ` là giá trị riêng, không gộp vào `no`: máy không có git, thiếu ref, hoặc `run_meta.json` không

@@ -8,7 +8,7 @@ chạy sau biết chính xác mẫu nào đã xong.
 
 BA ĐIỀU KIỆN RESUME (docs/00_workflow/02_rules.md mục 13)
     `config_sha256`  dấu vân tay của config đã hợp nhất và văn bản prompt đã hợp nhất
-    `data` (ma)      mã phiên bản dữ liệu
+    `build`          mã phiên bản dữ liệu
     `sha`            commit đã ghim
 Lệch MỘT trong ba giá trị thì kết quả cũ KHÔNG dùng lại được: lượt chạy mới rơi vào THƯ MỤC KHÁC
 (tên thư mục là mã băm danh tính), nên kết quả cũ giữ nguyên tại chỗ - không bị chuyển đi đâu
@@ -30,7 +30,7 @@ MODE_RESUME = "RESUME"
 MODE_STOP = "STOP"
 
 # Ba khoá dùng để so hai lần chạy.
-RESUME_KEYS = ("config_sha256", "data", "sha")
+RESUME_KEYS = ("config_sha256", "build", "sha")
 
 # Số bản ghi tối đa trong một khối. Nhỏ thì an toàn hơn nhưng nhiều file hơn; 50 đủ để một lượt
 # val đầy đủ có vài chục khối.
@@ -39,7 +39,7 @@ RECORDS_PER_PART = 50
 
 def fingerprint(config_sha256, version_id, repo_sha):
     """Bộ ba quyết định resume của LẦN CHẠY NÀY."""
-    return {"config_sha256": config_sha256, "data": version_id, "sha": repo_sha}
+    return {"config_sha256": config_sha256, "build": version_id, "sha": repo_sha}
 
 
 def matches(attempt, want):

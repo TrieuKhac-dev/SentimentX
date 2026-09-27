@@ -680,7 +680,7 @@ def fingerprint(result, version_id):
     """
     return {
         "config_sha256": config_sha256(result),
-        "ma": version_id,
+        "build": version_id,
         "exp_id": result["exp_id"],
     }
 
@@ -702,7 +702,7 @@ def existing_runs(result, version_id, root=None):
         if not data:
             continue
         if (data.get("config_sha256") == want["config_sha256"]
-                and (data.get("data") or {}).get("ma") == want["ma"]
+                and (data.get("data") or {}).get("build") == want["build"]
                 and data.get("exp_id") == want["exp_id"]):
             found.append(path)
     return found

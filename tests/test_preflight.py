@@ -289,7 +289,7 @@ class TestStateAndRun(PreflightCase):
         self.assertTrue(any("dataset:" in note for note in report["notes"]))
         self.assertTrue(any("trạng thái: NEW" in note for note in report["notes"]))
         self.assertEqual(sorted(report["info"]["fingerprint"]),
-                         ["config_sha256", "data", "sha"])
+                         ["build", "config_sha256", "sha"])
 
     def test_full_run_reports_a_broken_config_instead_of_raising(self):
         (self.exp_dir / "config.yaml").write_text(

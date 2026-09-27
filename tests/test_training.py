@@ -235,7 +235,7 @@ class IdentityTest(unittest.TestCase):
         self.assertEqual(found["out_dir"].name, found["hash"])
         self.assertEqual(found["out_dir"].parent.name, "results")
         self.assertEqual(sorted(found["fingerprint"]),
-                         ["config_sha256", "data", "sha"])
+                         ["build", "config_sha256", "sha"])
 
     def test_changing_a_training_knob_changes_the_hash(self):
         first = encoder_run.identity(BASE_CONFIG, "ma-ds0.1.0", "visobert", "lora", "exp001")

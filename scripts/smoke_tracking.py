@@ -173,7 +173,7 @@ def main(argv=None):
         record = run_meta.build(
             out_dir, tag="smoke",
             experiment={"model": "smoke", "method": "smoke", "exp_id": "smoke"},
-            data={"dataset": "smoke", "ma": "smoke"},
+            data={"dataset": "smoke", "build": "smoke"},
             repo=run_meta.repo_info(), files=[], env=run_meta.env_info(env["env"]))
         run_meta.write(out_dir, record)
         log.on_close(run_meta.closer(record, out_dir, log=log))

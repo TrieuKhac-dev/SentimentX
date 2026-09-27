@@ -42,7 +42,7 @@ def write_run(root, tag, experiment=None, status="FINISHED"):
         "version": 1,
         "run": {"hash": "1a2b3c4d", "status": status, "started": "2026-09-24 20:51:05"},
         "experiment": experiment or {"model": "model-x", "method": None, "exp_id": None},
-        "data": {"dataset": "cosmetics", "version": "v0.1.0", "ma": "cosmetics-ma"},
+        "data": {"dataset": "cosmetics", "version": "v0.1.0", "build": "cosmetics-ma"},
         "repo": {"url": "https://example", "branch": "experiment", "sha": "a" * 40},
         "config": {"sha256": "b" * 64},
     }, directory / "run_meta.json")

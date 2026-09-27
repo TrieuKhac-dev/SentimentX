@@ -35,7 +35,7 @@ class TestRecords(unittest.TestCase):
             experiment={"model": "qwen3-4b-instruct-2507", "method": "prompt-cot",
                         "exp_id": "exp001"},
             data={"dataset": "cosmetics", "version": "v0.1.0",
-                  "ma": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-1a2b3c4d"},
+                  "build": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-1a2b3c4d"},
             repo={"url": "https://github.com/example/repo", "branch": "experiment",
                   "sha": "a" * 40},
             config={"sha256": "b" * 64},

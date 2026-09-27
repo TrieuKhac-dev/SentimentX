@@ -396,7 +396,7 @@ def run(plan_data, log=None):
                         "exp_id": plan_data["exp_id"]},
             data={"dataset": plan_data["dataset"]["name"],
                   "version": plan_data["dataset"].get("version"),
-                  "ma": plan_data["version_id"], "roles": dict(plan_data["roles"]),
+                  "build": plan_data["version_id"], "roles": dict(plan_data["roles"]),
                   "rows": dict(plan_data["rows_by_role"]),
                   "eval_lock": dict(plan_data["eval_lock"])},
             repo=plan_data["repo"],
