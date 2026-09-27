@@ -28,5 +28,5 @@ Ba trường hợp cần thêm việc:
 | Bộ nhãn khác (vd thêm `mixed`)  | khai báo thêm trong `labels`; mã nhãn mới được cấp tự động         |
 
 Sau khi thêm dataset, chạy đủ ba nhóm việc theo đúng thứ tự: EDA (khảo sát) -> pipeline
-(xử lý) -> thực nghiệm. Cách chạy từng pha: [02_eda/01_flow.md](../02_eda/01_flow.md) mục 4
+(xử lý) -> thực nghiệm. Cách chạy từng nhóm việc: [02_eda/01_flow.md](../02_eda/01_flow.md) mục 4
 và [03_pipeline/01_flow.md](../03_pipeline/01_flow.md) mục 5.

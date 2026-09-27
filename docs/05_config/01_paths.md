@@ -35,6 +35,18 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `plots`          | `plots`                                                            |                                               |
 | `ckpt_last`      | `model/last`                                                       | đủ để resume                                  |
 | `ckpt_best`      | `model/best`                                                       | chỉ adapter                                   |
+| `ckpt_snapshot`  | `model/checkpoint-{step}`                                          | ảnh chụp trung gian để chạy tiếp               |
+| `token_stats`    | `token_stats.csv`                                                  | số đo input thật, cấu hình mặc định           |
+| `token_stats_tagged` | `token_stats__{tag}.csv`                                       | số đo khi truyền `--prompt`/`--segmenter`     |
+| `raw_meta`       | `raw_meta.yaml`                                                    | nguồn + sha256 của một phiên bản dữ liệu gốc  |
+| `processing_log` | `processing_log.json`                                              | dấu vết của lần chạy pipeline                 |
+| `label_map`      | `label_map.json`                                                   | danh sách khía cạnh + mã nhãn                 |
+| `eval_lock`      | `eval_lock.json`                                                   | khoá tập đánh giá, ghi một lần khi tạo dữ liệu |
+| `eda_dir`        | `eda`                                                              | thư mục kết quả EDA                           |
+| `pipeline_dir`   | `pipeline`                                                         | thư mục báo cáo của lần chạy pipeline         |
+| `experiment_config` | `config.yaml`                                                   | config riêng của một thí nghiệm               |
+| `experiment_tmp` | `_tmp`                                                             | thư mục tạm của một thí nghiệm                |
+
 
 ## Cách dùng trong code
 

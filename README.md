@@ -15,9 +15,9 @@ Ta giải quyết **7 aspect**: `stayingpower`, `texture`, `smell`, `price`, `co
 `shipping`, `packing`. Mỗi aspect nhận 1 trong 4 trạng thái:
 `positive`, `negative`, `neutral`, hoặc **không được nhắc tới**.
 
-## 2. Ba pha độc lập
+## 2. Các nhóm việc độc lập
 
-Dự án tách rõ ba việc khác nhau, **không trộn vào nhau**:
+Dự án tách rõ các nhóm việc khác nhau, **không trộn vào nhau**:
 
 ```
 RAW DATA (data/raw/<tên>/<phiên bản>/)
@@ -33,7 +33,7 @@ RAW DATA (data/raw/<tên>/<phiên bản>/)
              |
              v
     THÍ NGHIỆM (experiments/<model_id>/<method>/<expNNN>/)
-        approach: prompt  -> Qwen3-4B / Qwen3-0.6B: gửi câu chỉ dẫn rồi đọc trả lời
+        approach: prompt  -> Qwen3-4B / Qwen3-0.6B: gửi prompt rồi đọc câu trả lời
         approach: encoder -> PhoBERT / ViSoBERT: học LoRA rồi suy luận
              |
              v
@@ -46,12 +46,12 @@ RAW DATA (data/raw/<tên>/<phiên bản>/)
 (ViTASA đang gác - xem docs/04_experiments/04_backlog.md)
 ```
 
-| Pha | Trả lời câu hỏi | Ở đâu trong repo |
+| Nhóm việc | Trả lời câu hỏi | Ở đâu trong repo |
 |-----|------------------|------------------|
 | **EDA** | Dữ liệu đang như thế nào? | `src/eda/` |
 | **Data Pipeline** | Ta làm gì với dữ liệu? | `src/pipeline/` |
-| **Model preprocessing** | Chuẩn bị input cho từng model ra sao? | `src/preprocessing/` (pha sau) |
-| **Đo input thật** | Input của từng model dài bao nhiêu token, có bị cắt không? | `run_token_stats.py` (pha 3) |
+| **Model preprocessing** | Chuẩn bị input cho từng model ra sao? | `src/preprocessing/` |
+| **Đo input thật** | Input của từng model dài bao nhiêu token, có bị cắt không? | `run_token_stats.py` |
 
 Nguyên tắc quan trọng:
 
@@ -82,7 +82,7 @@ cho Colab (**KHÔNG** cài lại `torch`: Colab đã có bản khớp CUDA của
 CI (rất ngắn, vì CI không chạy model và không đọc dữ liệu). Lý do từng dòng và cách chạy trên Colab:
 `docs/00_workflow/07_colab.md`.
 
-### Riêng pha 3 (đo input thật của model): cần thêm JAVA
+### Riêng việc đo input thật của model: cần thêm JAVA
 
 Bộ tách từ **chính chủ** của PhoBERT (RDRSegmenter, nằm trong VnCoreNLP) là một chương
 trình Java, được gọi từ Python qua pyjnius. Vì vậy máy nào muốn đo / huấn luyện PhoBERT
@@ -110,9 +110,9 @@ vì sao không dùng `py_vncorenlp.download_model`): xem
 [docs/04_experiments/02_model_input.md §5](docs/04_experiments/02_model_input.md).
 
 
-### Riêng pha 4 (chạy Qwen3 bằng chỉ dẫn): cần `torch` bản CUDA
+### Riêng việc chạy Qwen3 bằng prompt: cần `torch` bản CUDA
 
-`transformers` không đủ để chạy model. Pha 4 cần thêm `torch` bản **CUDA** (2,6 GB, phải tải
+`transformers` không đủ để chạy model. Việc chạy Qwen3 bằng prompt cần thêm `torch` bản **CUDA** (2,6 GB, phải tải
 từ kho riêng nên không nằm trong `requirements.txt`), `accelerate` và `bitsandbytes`:
 
 ```bash
@@ -128,8 +128,8 @@ Mạng chậm thì dùng mirror (đã gặp thật: tải từ `download-r2.pyto
 
 **Vì sao cần lượng hóa 4-bit:** Qwen3-4B ở bf16 là **8 GB**, GPU của máy phát triển có **6 GB**.
 Đây là lượng hóa **khi chạy** (không phải để huấn luyện) — dự án **không** fine-tune Qwen3:
-Qwen3 dùng như model đa năng qua **chỉ dẫn**, còn PhoBERT (135M) và ViSoBERT (~108M) thì
-fine-tune toàn bộ, không cần LoRA.
+Qwen3 dùng như model đa năng bằng **prompt**, còn PhoBERT (135M) và ViSoBERT (~108M) học
+bằng **LoRA** (encoder gốc đóng băng, chỉ học adapter hạng thấp) - không full fine-tune.
 
 Phiên bản đã chạy thật ở máy này: `torch 2.14.0+cu126`, `transformers 5.17.0`,
 `accelerate 1.15.0`, `bitsandbytes 0.50.2`.
@@ -167,20 +167,20 @@ python run_pipeline.py --dataset cosmetics
 # 3) Vẽ báo cáo từ file kết quả (không tính lại số liệu; mở luôn 2 file HTML)
 python build_report.py --dataset cosmetics
 
-# 4) (Pha 3) Đo input thật của từng tokenizer trên dữ liệu đã xử lý
+# 4) Đo input thật của từng tokenizer trên dữ liệu đã xử lý
 python run_token_stats.py --dataset cosmetics
 
-# 5) (Pha 3) Xem/phối hợp cấu hình đo: prompt nào, bộ tách từ nào, ngưỡng cắt nào
+# 5) Xem/phối hợp cấu hình đo: prompt nào, bộ tách từ nào, ngưỡng cắt nào
 python run_token_stats.py --list-prompts            # đang có prompt nào (tên + sha)
 python run_token_stats.py --list-segmenters         # máy này cài được bộ tách từ nào
 python run_token_stats.py --prompt absa_direct_v1     # đo với một prompt khác
 python run_token_stats.py --segmenter pyvi          # đo với một bộ tách từ khác
 python run_token_stats.py --max-length qwen=1280    # đo với ngưỡng cắt khác (thử nhanh)
 
-# 6) (Pha 3) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
+# 6) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
 python run_check_examples.py
 
-# 7) (Pha 4) Chạy thí nghiệm Qwen3 bằng chỉ dẫn (prompt một lượt / CoT) rồi chấm điểm
+# 7) Chạy thí nghiệm Qwen3 bằng prompt (prompt một lượt / CoT) rồi chấm điểm
 #    Mở notebook của thí nghiệm và bấm Run all - đó là đường chạy chính, tự kéo đúng commit
 #    đã ghim rồi kiểm trước. (Xem notebooks ở experiments/qwen3-4b-instruct-2507/…)
 
@@ -229,7 +229,7 @@ Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phi�
 | Báo cáo EDA | `data/processed/<mã>/eda/report.html` (đo trên dữ liệu gốc: `data/raw/<tên>/<phiên bản>/eda/`) |
 | Báo cáo Pipeline | `data/processed/<mã>/pipeline/report.html` |
 | Dataset đã xử lý | `data/processed/<mã>/train.csv` (kèm `val.csv`, `test.csv`, `label_map.json`) |
-| Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats.csv` |
+| Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats__<tag>.csv` (bảng tổng hợp: `data/reports/model_input/model_input.csv`) |
 | Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<hash8>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
 | Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,attempt_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
 
@@ -247,7 +247,8 @@ SentimentX/
 ├── data/                       # KHÔNG vào git, trừ metadata và bảng chi tiết (luật 20)
 │   ├── raw/<tên>/<phiên bản>/  # dữ liệu GỐC + raw_meta.yaml + eda/ (kết quả đo, KHÔNG sửa dữ liệu)
 │   ├── processed/<mã>/         # dữ liệu đã xử lý: train.csv, val.csv, test.csv, label_map.json,
-│   │   │                       # processing_log.json (dấu vết của lần chạy pipeline)
+│   │   │                       # processing_log.json (dấu vết của lần chạy pipeline),
+│   │   │                       # eval_lock.json (khoá tập đánh giá)
 │   │   ├── eda/                # kết quả EDA đo trên dữ liệu ĐÃ xử lý
 │   │   └── pipeline/           # bảng chi tiết từng bước + report.html
 │   ├── models/                 # model tải về (bỏ qua nội dung, giữ README)
@@ -289,12 +290,7 @@ SentimentX/
 │   ├── pipeline/               # 7 bước pipeline
 │   ├── evaluation/             # chấm điểm: records, metrics, scorers/ (5 cách chấm)
 │   ├── tracking/               # ghi nhận: mlflow/DagsHub, local_json, run_meta.json
-│   └── preprocessing/          # PHA 3: input riêng cho từng model, bộ tách từ, đo input thật
-├── configs/
-│   ├── pipeline.yaml           # bật/tắt từng phép biến đổi (độc lập dataset)
-│   ├── datasets/cosmetics.yaml # schema của dataset
-│   ├── prompts/<tên>.txt       # NỘI DUNG prompt cho model sinh (sửa không cần đụng code)
-│   └── models/<tên>.yaml       # model dùng prompt nào (mặc định: qwen.yaml)
+│   └── preprocessing/          # input riêng cho từng model, bộ tách từ, đo input thật
 ├── scripts/            # cửa vào dòng lệnh: pin.py (ghim commit vào notebook), new_experiment.py
 │                       # (tạo expNNN), collect_reports.py (bảng tổng hợp), ci_checks.py (kiểm tra
 │                       # cấu trúc), setup_java.ps1 + setup_vncorenlp.ps1 (cài đặt tái lập được)
@@ -303,8 +299,9 @@ SentimentX/
 ├── tests/              # test chạy bằng `unittest`, không cần GPU
 ├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo)
 ├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC ghi rõ --version
-├── run_token_stats.py  # (pha 3) đo input thật của từng tokenizer -> token_stats.csv
+├── run_token_stats.py  # đo input thật của từng tokenizer -> token_stats.csv
 ├── build_report.py     # đọc file kết quả -> Plotly + Jinja2 -> HTML (mở luôn)
+├── run_check_examples.py # kiểm file ví dụ few-shot: cấu trúc, nhãn, rò rỉ với val/test
 ├── requirements.txt        # máy cá nhân (torch cài riêng, xem §3)
 ├── requirements-ci.txt     # CI: rất ngắn, vì CI không chạy model và không đọc dữ liệu
 └── requirements-colab.txt  # Colab: KHÔNG ghim torch (Colab đã có bản khớp CUDA)
