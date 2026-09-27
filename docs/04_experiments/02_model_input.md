@@ -289,6 +289,44 @@ python run_token_stats.py --dataset cosmetics --segmenter none
 Còn thiếu: tác động của việc tách từ lên **kết quả cuối** (F1) - việc đó cần huấn luyện,
 ghi ở [04_backlog.md](04_backlog.md).
 
+#### 4.1.1. Cơ chế: mỗi ca cụ thể đổi bao nhiêu đơn vị (đo lại được)
+
+Bảng trên cho biết tách từ được bao nhiêu trên CẢ split; dưới đây là cơ chế ở mức một ca, để đọc một
+con số bất thường là biết đường tra. Cách đo (chạy được trên máy có Java, không cần GPU):
+
+```bash
+python -c "from src.preprocessing import phobert; t=phobert.tokenizer(); [print(repr(x), \
+  t.convert_ids_to_tokens(phobert.encode([x], segmenter='vncorenlp')[0]), \
+  t.convert_ids_to_tokens(phobert.encode([x], segmenter='none')[0])) for x in ('Công_dụng','Công dụng','dụng:')]"
+```
+
+| Văn bản vào | `vncorenlp` | không tách từ | Đọc ra |
+| --- | --- | --- | --- |
+| `Công dụng` (dấu cách) | **1** đơn vị (`Công_dụng`) | **2** mảnh (`Công`, `dụng`) | đúng ca mà tách từ sinh ra để xử lý: một TỪ tiếng Việt thành một đơn vị |
+| `Công_dụng` (gạch dưới, dạng dữ liệu gốc) | **3** đơn vị (`Công`, `_`, `dụng`) | 1 mảnh (`Công_dụng`) | **dấu `_` là một đơn vị riêng** với bộ tách từ chính chủ |
+| `dụng:` | **2** đơn vị (`dụng`, `:`) | **3** mảnh (`dụ@@`, `ng@@`, `:`) | âm tiết không có trong từ vựng bị chẻ thành nhiều mảnh con khi KHÔNG tách từ |
+
+Hai điều đọc ra từ bảng này:
+
+- Tách từ giúp ở **cả hai đầu**: gộp âm tiết thành từ (ít đơn vị hơn) và **tránh chẻ subword** ở những
+  âm tiết hiếm - đó là nguồn của chênh lệch 21.886 so với 14.302 token `<unk>` ở bảng trên.
+- Dữ liệu gốc nối âm tiết của từ khoá khía cạnh bằng `_` (`Công_dụng`), nhưng bộ tách từ chính chủ coi
+  `_` là một đơn vị riêng: đưa nguyên dạng đó vào thì **đắt hơn** (3 đơn vị thay vì 1). Đây là ghi nhận
+  để lần sau làm lại dữ liệu gốc thì viết `Công dụng`, **không** phải việc sửa bây giờ: đổi văn bản là
+  đổi phiên bản dữ liệu và mọi kết quả đã chạy.
+
+Số liệu của ba lần đo ở bảng trên nằm trong gói kết quả, mỗi bộ tách từ một file (đuôi `seg-<tên>` nên
+không ghi đè nhau):
+
+```
+data/reports/model_input/<mã phiên bản>/token_stats__prompt-absa_direct_v1__seg-vncorenlp.csv
+data/reports/model_input/<mã phiên bản>/token_stats__prompt-absa_direct_v1__seg-pyvi.csv
+data/reports/model_input/<mã phiên bản>/token_stats__prompt-absa_direct_v1__seg-none.csv
+```
+
+Số đếm `<unk>` trong bảng trên nay đọc thẳng từ **cột `số token <unk>`** của ba file đó (mục 4), không
+phải viết script riêng như lần đo đầu tiên.
+
 ### 4.2. Prompt: đo chi phí TRƯỚC khi chạy model (0 / 1 / 2 / 5 ví dụ)
 
 Prompt cũng là một biến thực nghiệm, nên phải biết nó tốn bao nhiêu token trước khi đem đi
