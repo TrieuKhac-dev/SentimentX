@@ -59,8 +59,13 @@ thư mục thí nghiệm trước, rồi tới gốc repo.
 
 ```bash
 python run_token_stats.py --list-prompts          # đang có prompt nào, sha nào
-python run_token_stats.py --prompt absa_direct_v1    # đo một prompt khác mặc định
+python run_token_stats.py --prompt absa_direct_v1    # prompt một lượt, KHÔNG dùng system prompt
+python run_token_stats.py --prompt absa_cot_5shot_v1 --system absa_cot   # prompt dùng {system_prompt}
 ```
+
+Prompt nào dùng ô nhớ `{system_prompt}` thì **phải** truyền `--system <tên|đường dẫn>`: khối hệ thống
+cũng tốn token, nên đo mà bỏ nó là đo một phép đo khác. Tên file sinh ra có thêm `sys-<tên>` để hai lần
+đo khác khối hệ thống không ghi đè nhau.
 
 | Quyết định thiết kế | Vì sao |
 |--------------------|--------|
