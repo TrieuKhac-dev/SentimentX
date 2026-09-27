@@ -359,7 +359,7 @@ def main(argv=None):
 
     unk_index = token_stats.COLUMNS.index("% token <unk>")
     if any(row[unk_index] == token_stats.NOT_APPLICABLE for row in rows):
-        print("\n  Ghi chú: '{}' ở cột '% token <unk>' nghĩa là KHÔNG TÍNH ĐƯỢC, "
+        print("\n  Ghi chú: '{}' ở HAI cột '<unk>' (số đếm và tỉ lệ) nghĩa là KHÔNG TÍNH ĐƯỢC, "
               "không phải bằng 0\n    (tokenizer của model không khai báo token "
               "<unk>).".format(token_stats.NOT_APPLICABLE))
 

@@ -216,6 +216,7 @@ Ba chốt an toàn đi kèm:
 | `token/review TB`, `p50`, `p95`, `p99` | số token (subword) của một input, gồm cả token đặc biệt |
 | `max` | input dài NHẤT trong split - đây mới là con số quyết định `max_length`: muốn **0% bị cắt** thì ngưỡng phải >= `max` của mọi split |
 | `% review > max_length` | tỉ lệ input dài hơn `max_length` của model đó, tức **bị cắt mất phần đuôi** |
+| `số token <unk>` | **số lượng** token không có trong từ vựng (cột đếm). Cần riêng cột đếm vì `% token <unk>` làm tròn nên không suy ngược ra số lượng được - muốn nói "tách từ giảm bao nhiêu token `<unk>`" thì phải có số đếm |
 | `% token <unk>` | tỉ lệ token không có trong từ vựng của model. `-` nghĩa là **không tính được** (tokenizer không khai báo token `<unk>`), KHÁC với `0,00` |
 | `subword / từ` | một "từ" bị chẻ thành bao nhiêu mảnh - càng cao thì input càng dài và tốn tính toán |
 

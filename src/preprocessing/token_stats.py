@@ -117,7 +117,7 @@ COLUMNS = [
     "model", "split",
     "tokenizer", "segmenter", "vocab", "max_length",
     "số review", "token/review TB", "p50", "p95", "p99", "max",
-    "% review > max_length", "% token <unk>", "subword / từ",
+    "% review > max_length", "số token <unk>", "% token <unk>", "subword / từ",
 ]
 
 # Số cột đầu là phần TRUY VẾT (model + cái gì sinh ra số liệu), phần còn lại là số đo
@@ -281,6 +281,10 @@ def measure(spec, texts, context=None):
             round(100 * sum(1 for length in lengths
                             if length > spec["max_length"]) / n_rows, 2)
             if n_rows else 0.0,
+        # Đếm BẰNG SỐ, không chỉ tỉ lệ: `% token <unk>` làm tròn nên không suy ngược ra số lượng
+        # được, mà câu cần trả lời ("tách từ giảm bao nhiêu token <unk>") lại cần số lượng. Đã phải
+        # viết script riêng một lần vì bảng thiếu cột này (21.886 -> 14.302 trên train).
+        "số token <unk>": NOT_APPLICABLE if n_unk is None else n_unk,
         "% token <unk>": NOT_APPLICABLE if n_unk is None else (
             round(100 * n_unk / n_tokens, 2) if n_tokens else 0.0),
         "subword / từ": round(n_tokens / n_words, 2) if n_words else 0.0,
