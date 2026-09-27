@@ -79,3 +79,17 @@ vẽ từ `metrics.json` và `predictions.csv`, không phải do phần chấm �
 `data/reports/metrics_matrix/accuracy_by_aspect.csv` có dòng là khía cạnh, cột là từng thí nghiệm
 và một cột `reference` chứa số của công bố.
 `data/reports/metrics_matrix/prf_by_aspect_sentiment.csv` có cùng định dạng với bảng P R F1 của công bố.
+
+### Hai bộ bảng, tách rõ: toàn bộ và chỉ lượt thành công
+
+`python scripts/collect_reports.py` sinh năm nhóm, mỗi nhóm ba định dạng (`.csv`, `.html`, `.md`):
+
+| Nhóm | Gồm những lượt nào | Dùng để |
+| --- | --- | --- |
+| `attempt_registry` | **MỌI lần thử**, kể cả lượt HỎNG, kèm `status`, thời lượng và `reason` (lý do dừng đọc từ `errors.json`) | bản tổng hợp TOÀN BỘ: đã thử gì, hỏng vì sao, tốn bao lâu |
+| `metrics_matrix`, `experiment_registry`, `model_input`, `dataset_registry` | mặc định **chỉ lượt `FINISHED`** | đọc số và so với công bố |
+
+Vì sao tách: lượt hỏng không có `metrics.json`, nên mọi ô số của nó đều trống - đưa vào bảng số là làm
+nhiễu đúng chỗ dùng để đọc kết quả (đã gặp thật: bảng hiện bốn dòng PhoBERT, ba dòng rỗng). Muốn bảng số
+liệt kê cả lượt hỏng thì thêm `--only all`; nhóm `attempt_registry` thì **luôn** liệt kê đủ, không phụ
+thuộc cờ này.

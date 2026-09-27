@@ -20,7 +20,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import reports, utils
+from src import paths, reports, utils
 
 METRICS_COLUMNS = ["aspect", "sentiment", "metric", "value"]
 METRICS_ROWS = [
@@ -320,6 +320,56 @@ class WriteTest(unittest.TestCase):
         page = reports.html_page("nhom", {"x.csv": (["a"], [{"a": "<script>"}])})
         self.assertIn("&lt;script&gt;", page)
         self.assertNotIn("<script>", page)
+
+
+class TestTwoReportSets(unittest.TestCase):
+    """HAI BỘ BẢNG: `attempt_registry` liệt kê MỌI lần thử, bảng số chỉ lượt THÀNH CÔNG.
+
+    Vì sao cần tách: lượt hỏng không có `metrics.json`, nên mọi ô số của nó đều trống - đưa vào bảng để
+    so là làm nhiễu đúng bảng dùng để đọc kết quả (đã gặp thật: bảng hiện 4 dòng PhoBERT, 3 dòng rỗng).
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.out = self.root / "out"
+        write_run(self.root, "a1", experiment={"model": "model-x", "method": "lora", "exp_id": "exp001"},
+                  status="FINISHED")
+        write_run(self.root, "b2", experiment={"model": "model-x", "method": "lora", "exp_id": "exp002"},
+                  status="FAILED")
+        utils.write_json({"errors": [{"message": "ImportError: Found an incompatible version of torchao"}]},
+                         self.root / "b2" / "errors.json")
+        self.runs = reports.scan_runs([self.root])
+
+    def test_the_attempt_registry_lists_every_attempt_with_the_reason(self):
+        """Nhóm `attempt_registry` là bản tổng hợp TOÀN BỘ: hai lượt, kèm trạng thái và LÝ DO DỪNG."""
+        rows = reports.attempt_rows(self.runs)
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(sorted(row["status"] for row in rows), ["FAILED", "FINISHED"])
+        failed = [row for row in rows if row["status"] == "FAILED"][0]
+        self.assertIn("torchao", failed["reason"])
+
+    def test_number_tables_hold_only_finished_runs(self):
+        """Mặc định bảng SỐ chỉ có lượt `FINISHED`; `--only all` mới liệt kê cả lượt hỏng."""
+        built = reports.build(roots=[self.root], groups=["metrics_matrix", "attempt_registry"],
+                              out_root=self.out)
+        matrix = (self.out / "metrics_matrix" / "accuracy_by_aspect.csv").read_text(encoding="utf-8")
+        self.assertIn("exp001", matrix)
+        self.assertNotIn("exp002", matrix)
+
+        every = reports.build(roots=[self.root], groups=["metrics_matrix"], out_root=self.out,
+                              only="all")
+        self.assertTrue(every)
+        matrix_all = (self.out / "metrics_matrix" / "accuracy_by_aspect.csv").read_text(encoding="utf-8")
+        self.assertIn("exp002", matrix_all)
+        self.assertTrue(built)
+
+    def test_the_new_group_is_declared_and_writable(self):
+        """Nhóm mới phải có trong `GROUPS` và có thư mục report trong `configs/paths.yaml`."""
+        self.assertIn("attempt_registry", reports.GROUPS)
+        self.assertEqual(reports.CSV_NAME["attempt_registry"], "attempt_registry.csv")
+        self.assertEqual(paths.report("attempt_registry").name, "attempt_registry")
 
 
 if __name__ == "__main__":

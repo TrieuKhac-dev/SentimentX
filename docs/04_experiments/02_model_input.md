@@ -362,7 +362,7 @@ Trên Colab/Linux thì ba việc đó là (ô bootstrap của notebook PhoBERT l
 
 ```bash
 pip install -r requirements.txt
-apt-get install -y default-jdk                     # ảnh Colab có JDK 11; 1.8+ là đủ
+apt-get install -y default-jdk                     # ảnh Colab đã có JDK (đã gặp JDK 21); chỉ cần ≥ 1.8
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))   # pyjnius tìm JVM qua biến này
 pip install py-vncorenlp
 # model VnCoreNLP (27 MB): gói bàn giao đã kèm ở data/models/vncorenlp/, và nếu thiếu thì ô bootstrap

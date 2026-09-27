@@ -25,6 +25,7 @@ data:
 reports:
   dataset_registry: reports/dataset_registry
   experiment_registry: reports/experiment_registry
+  attempt_registry: reports/attempt_registry
   model_input: reports/model_input
   metrics_matrix: reports/metrics_matrix
 

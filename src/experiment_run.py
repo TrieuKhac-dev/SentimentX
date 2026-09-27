@@ -572,7 +572,11 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         for row in others:
             print("  {}".format(row))
         print("Lượt này ghi vào thư mục MỚI '{}' (bản code/cấu hình khác). Kết quả cũ không bị "
-              "đụng tới.\n".format(hash8))
+              "đụng tới.".format(hash8))
+        print("Commit đang chạy: {} - cột thứ hai của các dòng trên là commit của từng lượt cũ.".format(
+            str((identity.get("repo") or {}).get("sha", ""))[:7]))
+        print("Muốn CHẠY TIẾP một lượt cũ (RESUME) thì phải giữ nguyên commit + config + dữ liệu của "
+              "lượt đó; ghim lại là thư mục mới.\n")
     if split == "test":
         print("LƯU Ý: đang chạy trên TEST. Tập này chỉ dùng cho con số CUỐI CÙNG, sau khi đã")
         print("       chốt prompt và ngưỡng trên val - chọn theo test là tự lừa mình.\n")
@@ -708,6 +712,7 @@ def run(plan_data, log=None):
             files=plan_data["files"],
             env=run_meta.env_info(kind=runtime.env_name()),
             run_extra=run_record(plan_data),
+            previous=run_meta.read(out_dir),
             note="chạy tiếp" if mode == resume.MODE_RESUME else None)
         run_meta.write(out_dir, record)
         log.on_close(run_meta.closer(record, out_dir, log=log))

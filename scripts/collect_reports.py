@@ -5,8 +5,15 @@ CÁCH DÙNG
     python scripts/collect_reports.py                        # quét gốc mặc định, ghi vào nhóm report
     python scripts/collect_reports.py --root <thư mục>       # thêm gốc khác (lặp lại được)
     python scripts/collect_reports.py --group metrics_matrix  # chỉ một nhóm
+    python scripts/collect_reports.py --only all             # bảng số liệt kê cả lượt HỎNG
     python scripts/collect_reports.py --out-root <thư mục>    # ghi ra chỗ khác (Colab: Drive)
     python scripts/collect_reports.py --dry-run              # chỉ in ra, không ghi
+
+HAI BỘ BẢNG
+    Nhóm `attempt_registry` là BẢN TỔNG HỢP TOÀN BỘ: mọi lần thử, kể cả lượt hỏng, kèm lý do dừng (đọc từ
+    `errors.json`). Bảng SỐ (`metrics_matrix`, `model_input`, `experiment_registry`, `dataset_registry`)
+    mặc định CHỈ liệt kê lượt `FINISHED` - lượt hỏng không có `metrics.json` nên mọi ô số của nó đều
+    trống, đưa vào chỉ làm nhiễu bảng dùng để so. Muốn xem cả lượt hỏng trong bảng số: `--only all`.
 
 CÔNG CỤ NÀY KHÔNG CHẠY MODEL VÀ KHÔNG ĐỌC DỮ LIỆU GỐC
 Nó chỉ đọc lại file mà từng lượt chạy đã ghi (`run_meta.json`, `metrics.json`, `metrics.csv`,
@@ -50,6 +57,9 @@ def parse_args(argv=None):
                         help="Cột nào của bảng công bố dùng làm cột đối chiếu (mặc định 0).")
     parser.add_argument("--dry-run", action="store_true",
                         help="Chỉ in ra sẽ sinh gì, không ghi file.")
+    parser.add_argument("--only", choices=["finished", "all"], default="finished",
+                        help="Lượt nào vào BẢNG SỐ: 'finished' (mặc định) chỉ lượt chạy xong, "
+                             "'all' liệt kê cả lượt hỏng. Nhóm attempt_registry luôn liệt kê đủ.")
     return parser.parse_args(argv)
 
 
@@ -80,7 +90,13 @@ def main(argv=None):
         return 0
 
     result = reports.build(roots=roots, out_root=args.out_root, groups=args.group,
-                           reference=reports.load_reference(shot=args.reference_shot))
+                           reference=reports.load_reference(shot=args.reference_shot),
+                           only=args.only)
+    if args.only == "finished":
+        print("Bảng số  : chỉ lượt FINISHED (dùng --only all để liệt kê cả lượt hỏng)")
+    else:
+        print("Bảng số  : MỌI lượt, kể cả lượt hỏng (--only all)")
+    print("Toàn bộ  : nhóm attempt_registry luôn có đủ mọi lần thử, kèm lý do dừng")
     for name, item in result.items():
         print("{:<20} {} dòng".format(name, item["rows"]))
         for file_name, path in item["csv"].items():

@@ -21,7 +21,9 @@ CÁC KHỐI
     repo        url, branch, sha - `sha` là commit ĐÃ GHIM, một trong ba điều kiện resume
     config      sha256 (mã băm danh tính; cũng là điều kiện resume), sources (khoá nào do lớp nào đặt)
     env         colab hay local, python, hệ điều hành; thiết bị, GPU, VRAM, lượng hoá, KIỂU SỐ
-    attempts    các lần chạy vào cùng thư mục này; mỗi lần có `sha` và `config_sha256` RIÊNG
+    attempts    các lần chạy vào cùng thư mục này; mỗi lần có `sha` và `config_sha256` RIÊNG, và trạng
+                thái riêng: `RUNNING` (đang chạy) / `FINISHED` / `FAILED` / `INTERRUPTED` (phiên bị nền
+                tảng ngắt, chốt ở lần chạy sau - xem `close_stale_attempts`)
     files       file ĐẦU VÀO của lần chạy, kèm `role` (paths, config, prompt, dataset...)
 
 Vì sao trong một thư mục mọi attempt đều giống nhau: tên thư mục LÀ mã băm danh tính (gồm cấu hình,
@@ -56,6 +58,10 @@ ROLE_TRACKING = "tracking"
 STATUS_RUNNING = "RUNNING"
 STATUS_FINISHED = "FINISHED"
 STATUS_FAILED = "FAILED"
+# Phiên bị NỀN TẢNG ngắt (hết quota Colab, mất kết nối) không chạy được phần chốt cuối, nên attempt của
+# nó ở lại RUNNING. Lần chạy sau vào cùng thư mục là lúc biết chắc phiên đó đã kết thúc, và nó được chốt
+# INTERRUPTED ngay tại đây - xem `close_stale_attempts`.
+STATUS_INTERRUPTED = "INTERRUPTED"
 
 
 def relative(path):
@@ -150,7 +156,8 @@ def build(out_dir, hash8=None, experiment=None, data=None, repo=None, config=Non
 
     `previous` là bản ghi cũ (kết quả của `read`). Chạy lại vào cùng thư mục thì các attempt cũ
     được GIỮ LẠI và thêm attempt mới - đó là cách phân biệt "lần thứ ba" với "lần đầu", và là
-    thông tin mà quyết định resume cần.
+    thông tin mà quyết định resume cần. Attempt cũ còn `RUNNING` (phiên bị nền tảng ngắt) được chốt
+    `INTERRUPTED` trước khi mở attempt mới.
 
     `task` và `overrides` là phần TRUY VẾT của cấu hình: bài toán đang giải (không gian nhãn, cách
     xử lý neutral) và những khoá bị lớp sau đè. Bảng ghi đè cũng nằm trong `run.log` (nhãn
@@ -172,8 +179,26 @@ def build(out_dir, hash8=None, experiment=None, data=None, repo=None, config=Non
         "attempts": list((previous or {}).get("attempts") or []),
         "files": list(files or []),
     }
+    close_stale_attempts(payload)
     start_attempt(payload, note=note)
     return payload
+
+
+def close_stale_attempts(payload):
+    """Chốt attempt cuối còn `RUNNING` thành `INTERRUPTED`.
+
+    Vì sao cần: phiên bị nền tảng ngắt (hết quota Colab, mất kết nối) không chạy được phần chốt cuối,
+    nên attempt của nó ở lại `RUNNING` MÃI - bản ghi nói dối rằng có một phiên đang chạy trong khi
+    thực tế đã chết. Lần chạy sau vào cùng thư mục là lúc biết chắc điều đó, nên chốt luôn.
+
+    KHÔNG ghi `finished`/`seconds`: thời điểm phiên chết không ai biết, bịa một con số ở đây là làm
+    hỏng chính bản ghi dùng để tra cứu. `started` vẫn còn, nên vẫn biết phiên đó bắt đầu lúc nào.
+    """
+    attempts = payload.setdefault("attempts", [])
+    if attempts and attempts[-1].get("status") == STATUS_RUNNING:
+        attempts[-1]["status"] = STATUS_INTERRUPTED
+        attempts[-1]["note"] = attempts[-1].get("note") or "phiên trước không chốt được (bị ngắt)"
+    return attempts
 
 
 def start_attempt(payload, note=None):

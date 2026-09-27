@@ -9,9 +9,16 @@ và khi hai đường lệch nhau thì không ai biết đường nào đúng. B
 BỐN NHÓM (tên lấy từ `configs/paths.yaml`, xem docs/05_config/01_paths.md)
     dataset_registry      mỗi PHIÊN BẢN DỮ LIỆU một dòng: có gì, sinh từ đâu, đang dùng ở đâu
     experiment_registry   mỗi LƯỢT CHẠY một dòng: code, cấu hình, dữ liệu, trạng thái, chi phí
+    attempt_registry      MỌI lần thử, kể cả lượt HỎNG: trạng thái, thời lượng, lý do dừng. Đây là
+                          "bản tổng hợp toàn bộ"; bốn nhóm kia mặc định chỉ liệt kê lượt THÀNH CÔNG
     model_input           số đo đầu vào của model (do run_token_stats.py ghi; ở đây trình bày lại)
     metrics_matrix        ma trận chỉ số: dòng là khía cạnh (hoặc khía cạnh × sắc thái), cột là
                           TỪNG LƯỢT CHẠY, kèm cột `reference` chứa số của công bố khi có
+
+HAI BỘ BẢNG, TÁCH RÕ
+Lượt hỏng không có `metrics.json`, nên mọi bảng SỐ đều vô nghĩa với nó: mặc định các nhóm bảng số chỉ
+liệt kê lượt `FINISHED` (`build(..., only="finished")`). Muốn xem cả lượt hỏng thì dùng nhóm
+`attempt_registry` (luôn liệt kê đủ) hoặc `--only all` (xem `scripts/collect_reports.py`).
 
 MỖI NHÓM GHI BA THỨ
     <tên>.csv    bảng nguồn: mở được bằng Excel/pandas, và là thứ người khác đọc lại để kiểm
@@ -36,6 +43,7 @@ NO_DATA = "chưa có dữ liệu"
 CSV_NAME = {
     "dataset_registry": "dataset_registry.csv",
     "experiment_registry": "experiment_registry.csv",
+    "attempt_registry": "attempt_registry.csv",
     "model_input": "model_input.csv",
     "metrics_matrix": "accuracy_by_aspect.csv",
 }
@@ -239,6 +247,47 @@ def experiment_rows(runs):
             "f1_macro": _dig(metrics, "scores", "prf", "macro", "f1"),
             "exact_match_percent": _dig(metrics, "scores", "aggregate", "exact_match", "percent"),
             "out_dir": utils.rel(run["dir"]),
+        })
+    return rows
+
+
+ATTEMPT_COLUMNS = ("run", "status", "mode", "started", "seconds", "model", "method", "exp_id", "split",
+                   "version_id", "config_sha256", "repo_sha", "reason")
+
+
+def attempt_rows(runs):
+    """MỌI lần thử một dòng, kể cả lượt HỎNG: trạng thái, thời lượng và LÝ DO DỪNG.
+
+    Vì sao cần bảng riêng: bảng số (`metrics_matrix`) chỉ có nghĩa với lượt đã chấm xong, nhưng người
+    đọc còn cần biết "đã thử những gì, hỏng vì sao" - nếu không thì mỗi lần hỏng lại phải mở từng
+    `run.log`/`errors.json` để dò. Lý do lấy từ `errors.json` khi có, không thì lấy `note` của lượt
+    chạy (ví dụ "chạy tiếp").
+    """
+    rows = []
+    for run in runs:
+        meta = dict(run["meta"] or {})
+        metrics = dict(run["metrics"] or {})
+        run_info = dict(meta.get("run") or {})
+        experiment = dict(meta.get("experiment") or {})
+        data = dict(meta.get("data") or {})
+        repo = dict(meta.get("repo") or {})
+        config = dict(meta.get("config") or {})
+        errors = _read_json(run["dir"] / paths.pattern("errors"))
+        reasons = [str(item.get("message") or "") for item in (errors.get("errors") or [])]
+        rows.append({
+            "run": canonical_label(run),
+            "status": run_info.get("status"),
+            "mode": run_info.get("mode") or dict(metrics.get("resume") or {}).get("mode") or "-",
+            "started": run_info.get("started"),
+            "seconds": run_info.get("seconds") or dict(metrics.get("cost") or {}).get("giây"),
+            "model": experiment.get("model") or metrics.get("model"),
+            "method": experiment.get("method") or "-",
+            "exp_id": experiment.get("exp_id") or "-",
+            "split": metrics.get("split"),
+            "version_id": data.get("ma"),
+            "config_sha256": (config.get("sha256") or "")[:12],
+            "repo_sha": (repo.get("sha") or "")[:12],
+            "reason": (reasons[0] if reasons else run_info.get("note")) or "",
         })
     return rows
 
@@ -654,21 +703,37 @@ def group_tables(name, runs, reference=None):
         tables = {TABLE_NAMES[name][0]: accuracy_table(runs, accuracy_ref, suffix),
                   TABLE_NAMES[name][1]: prf_table(runs, prf_ref, suffix)}
         return tables, mermaid_graph(edges)
+    if name == "attempt_registry":
+        rows = attempt_rows(runs)
+        edges = [(row["run"], row["status"] or "không rõ",
+                  "commit {}".format(row["repo_sha"] or "?")) for row in rows]
+        return {CSV_NAME[name]: (list(ATTEMPT_COLUMNS), rows)}, mermaid_graph(edges)
     raise ReportError("Không có nhóm report {!r}. Nhóm đang có: {}.".format(
         name, ", ".join(GROUPS)))
 
 
-def build(roots=None, out_root=None, groups=None, reference=None):
+def finished(runs):
+    """Chỉ những lượt đã chạy XONG: bảng số chỉ có nghĩa với lượt này (lượt hỏng không có `metrics.json`)."""
+    return [run for run in runs
+            if dict(run["meta"].get("run") or {}).get("status") == "FINISHED"]
+
+
+def build(roots=None, out_root=None, groups=None, reference=None, only="finished"):
     """Sinh các nhóm report, trả về `{tên nhóm: {csv, html, md, rows}}`.
 
     `roots` là các gốc chứa lượt chạy (mặc định: gốc kết quả của thí nghiệm và thư mục đánh giá chạy
     tay). `out_root` để trống thì ghi vào đúng nhóm report khai trong `configs/paths.yaml`; truyền
     vào khi cần ghi ra chỗ khác (Colab ghi vào Drive - xem docs/06_plan/P6_reports_ci.md mục 5).
+
+    `only` quyết định lượt NÀO vào bảng: `"finished"` (mặc định) chỉ lượt chạy xong, `"all"` liệt kê cả
+    lượt hỏng. Nhóm `attempt_registry` LUÔN nhận đủ mọi lượt, vì việc của nó là kể lại đã thử những gì.
     """
     runs = scan_runs(roots)
     result = {}
     for name in (groups or GROUPS):
-        tables, mermaid = group_tables(name, runs, reference)
+        # `attempt_registry` là "bản tổng hợp toàn bộ"; các nhóm còn lại là bảng để đọc số.
+        subset = runs if (name == "attempt_registry" or only == "all") else finished(runs)
+        tables, mermaid = group_tables(name, subset, reference)
         out_dir = (Path(out_root) / name) if out_root else paths.report(name)
         result[name] = write_group(name, tables, mermaid, out_dir)
     return result

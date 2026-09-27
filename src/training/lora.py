@@ -667,11 +667,16 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
                 log.step(message)
 
         metrics = measure(model, module, val, found, codes, device)
-        record(epoch + 1, metrics, snapshot=False)
+        # Cuối epoch cũng có thể là bước TỐT NHẤT: khối `if improved` trong `record` ghi `model/best`
+        # KHÔNG phụ thuộc `snapshot`, nên bản tốt nhất có thể ở đây. Không nói ra thì người đọc console
+        # tưởng bản đang chấm là bước in ra gần nhất - đã gặp thật: `model/best` ở bước 1153 trong khi
+        # console chỉ in "đã lưu model/best" ở bước 1100.
+        best_now = record(epoch + 1, metrics, snapshot=False)
         save_checkpoint(model, head, checkpoint_dir(out_dir, "ckpt_last"), payload(epoch + 1, metrics),
                         optimizer, scheduler)
-        print("hết epoch {}/{}: {} bước, val {}".format(
-            epoch + 1, found["epochs"], step, value_text(metrics)))
+        print("hết epoch {}/{}: {} bước, val {} | {}".format(
+            epoch + 1, found["epochs"], step, value_text(metrics),
+            "đã lưu model/best" if best_now else "chưa tốt hơn"))
 
     seconds = round(time.time() - started, 1)
     if found["save_best"] and best is None:

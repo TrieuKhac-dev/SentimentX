@@ -111,6 +111,34 @@ class TestRecords(unittest.TestCase):
         run_meta.closer(payload, self.out_dir)(ok=True)
         self.assertIsInstance(run_meta.read(self.out_dir)["attempts"][-1]["seconds"], float)
 
+    def test_interrupted_attempt_is_closed_when_the_next_run_starts(self):
+        """Phiên bị NỀN TẢNG ngắt để lại attempt `RUNNING`; lần chạy sau chốt nó `INTERRUPTED`.
+
+        Lỗi thật: lượt Qwen `prompt-cot/exp002` chạy hai phiên (hết quota Colab giữa chừng), nhưng
+        `run_meta.json` chỉ còn MỘT attempt vì mỗi phiên dựng lại bản ghi từ đầu (thiếu `previous=`).
+        Nay lịch sử được giữ, và phiên chết được chốt TRUNG THỰC: không bịa `finished`/`seconds`, vì
+        thời điểm phiên chết không ai biết.
+        """
+        first = self.build()
+        run_meta.write(self.out_dir, first)          # phiên 1 bị ngắt: không chốt được gì
+
+        second = self.build(previous=run_meta.read(self.out_dir))
+        self.assertEqual([item["n"] for item in second["attempts"]], [1, 2])
+        interrupted = second["attempts"][0]
+        self.assertEqual(interrupted["status"], run_meta.STATUS_INTERRUPTED)
+        self.assertIsNone(interrupted["finished"])
+        self.assertIsNone(interrupted["seconds"])
+        self.assertIn("bị ngắt", interrupted["note"])
+
+    def test_a_finished_attempt_keeps_its_status(self):
+        """Lượt đã xong thì giữ nguyên `FINISHED`: không được đổi thành `INTERRUPTED`."""
+        first = self.build()
+        run_meta.finish_attempt(run_meta.attempt_of(first), run_meta.STATUS_FINISHED)
+        run_meta.write(self.out_dir, first)
+
+        second = self.build(previous=run_meta.read(self.out_dir))
+        self.assertEqual(second["attempts"][0]["status"], run_meta.STATUS_FINISHED)
+
     def test_no_absolute_paths_in_the_file(self):
         """Đường dẫn tuyệt đối của máy này không được lọt vào file."""
         (self.out_dir / "metrics.json").write_text("{}", encoding="utf-8")

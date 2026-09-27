@@ -96,6 +96,17 @@ lần chạy.
 - Ngắt giữa chừng rồi chạy lại: `run.log` có dòng `[RUN] mode=RESUME`, tiếp tục từ mẫu đã dừng.
 - `metrics.json` ghi rõ `label_space`, `neutral_policy`, số ô neutral bị loại.
 - MLflow lỗi thì vẫn có `metrics.json` và `run_meta.json` trong thư mục kết quả.
+- **Trạng thái 26/09/2026 - cổng MLflow CHƯA đạt trên Colab:** cả ba lượt chạy thật đầu tiên đều ghi
+  `[WARN] không dùng được MLflow: chưa cài thư viện mlflow` rồi `[TRACK] không ghi nhận gì (tracker tắt)`,
+  tức **không run nào lên DagsHub** dù token có trong `.env.colab`. Nguyên nhân: ô bootstrap của notebook
+  cài một danh sách gói CỐ ĐỊNH (`transformers`, `accelerate`, `bitsandbytes`, `peft`) mà thiếu `mlflow`.
+  Đã sửa (thêm `mlflow`, và chỉ cài `peft`/gỡ `torchao` khi thí nghiệm có huấn luyện), nên lượt chạy lại
+  sẽ là lần xác nhận cổng này. Ô cuối notebook nay chỉ in địa chỉ DagsHub khi `run.log` có dòng `[TRACK]`
+  báo ghi THÀNH CÔNG.
+- **Lịch sử attempt bị ghi đè (đã sửa):** lượt Qwen `prompt-cot/exp002` chạy hai phiên (hết quota Colab
+  giữa chừng) nhưng `run_meta.json` chỉ còn MỘT attempt, vì hai chỗ gọi `run_meta.build` không truyền
+  `previous=`. Nay truyền, và attempt của phiên bị nền tảng ngắt được chốt `INTERRUPTED` (không bịa
+  `finished`/`seconds`).
 
 ## 5. Rủi ro / lưu ý
 

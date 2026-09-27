@@ -27,7 +27,45 @@ máy cá nhân trước khi ghim; ô cấu hình của notebook và phép kiểm
 được sửa sau lượt chạy thử đầu tiên trên Colab. Năm con số của tập `test` vẫn đang chờ máy GPU của
 Colab.
 
-## 3. Task nhỏ (mỗi task một commit)
+*Cập nhật 26/09/2026 - lượt chạy thật đầu tiên trên Colab (giữ lại làm mốc trước khi dọn):* cả ba
+đường chạy đã chạy trọn vẹn trên T4 và ghi kết quả vào Drive. Bảng dưới là số của tập `test` (1.518
+review, `label_space: binary`, `neutral_policy: drop`, 199 ô neutral bị loại ở cả ba lượt):
+
+| Thí nghiệm | Thư mục kết quả | commit ghim | accuracy macro/micro | when-mentioned | detection F1 (micro) | sentiment F1 macro/micro | exact match | giây |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `visobert/lora/exp001` | `0c458fe4` | `0e9473b` | 97,00 / 97,02 | 92,45 | 0,966 | 0,758 / 0,921 | 82,61 % | 2095 |
+| `phobert-base-v2/lora/exp001` | `5b5f429c` | `0e9473b` | 95,64 / 95,67 | 86,25 | 0,964 | 0,539 / 0,872 | 75,69 % | 2348 |
+| `qwen3-4b-instruct-2507/prompt-cot/exp002` | `6e186300` | `0e9473b` | 93,79 / 93,82 | 82,90 | 0,875 | 0,765 / 0,868 | 66,47 % | 3129 |
+
+Ba ghi chú đọc số:
+
+1. **PhoBERT lặp lại y hệt lần trước**: `6b14bfb8` (commit `b14dc1f`) và `5b5f429c` (commit `0e9473b`) có
+   `metrics.json` khác nhau ĐÚNG hai dòng `giây` (2198,1 so với 2301,0) - mọi chỉ số, từng khía cạnh và
+   confusion matrix giống tuyệt đối. Đường encoder vì vậy là **tái lập được** với seed cố định; lượt
+   `6b14bfb8` là bản lặp, không phải kết quả thứ hai.
+2. **Mặt TIÊU CỰC là chỗ yếu của hai encoder**: `texture` (82 ô âm), `smell` (48), `colour` (54),
+   `price` (6), `packing` (10) đều F1 = 0 ở lượt PhoBERT (model không đoán âm lần nào), trong khi
+   ViSoBERT đoán được: `texture` 0,771, `smell` 0,778, `colour` 0,506, `shipping` 0,939. Đây là chỗ đối
+   chiếu trực tiếp với bảng của công bố.
+3. **Lượt Qwen exp002 chạy hai phiên** (hết quota Colab giữa chừng): `run.log` ghi hai dòng
+   `=== lần chạy … mode=NEW` rồi `mode=RESUME`, `metrics.json` ghi `resume: reused 784, new 734`
+   (784 + 734 = 1.518). Bản ghi `run_meta.json` khi đó chỉ giữ được MỘT attempt vì lỗi ghi đè đã sửa
+   ở P4 (thiếu `previous=`).
+
+Ba lỗi chặn đường của các lượt hỏng (đã xử lý, ghi lại để P7 T5 khỏi vấp lại):
+
+| Thư mục | commit | Lỗi | Đã xử lý bằng |
+| --- | --- | --- | --- |
+| `06517238` | `ab7f53e` | `ImportError: Found an incompatible version of torchao … 0.10.0 … above 0.16.0` | ô bootstrap hỏi chính `peft` rồi **gỡ** `torchao` (từ `63def29`) |
+| `efcdb205` | `ce40cfc` | cùng lỗi torchao | như trên |
+| `c95ca35a` | `63def29` | `RuntimeError: Sizes of tensors must match except in dimension 0. Expected size 107 but got size 164` | `lora.encode` pad mọi lô về cùng độ rộng (từ `b14dc1f`) |
+
+Cả ba lượt hỏng còn có cảnh báo `không dùng được MLflow: chưa cài thư viện mlflow` - tức **không lượt
+nào lên DagsHub**, xem mục "Cổng MLflow" ở `P4_logging_mlflow.md`. Toàn bộ bảy thư mục kết quả cũ đã
+được XOÁ theo yêu cầu (26/09/2026) để chạy lại từ đầu; bảng và bảng lỗi trên là bản ghi duy nhất còn
+lại của đợt đó.
+
+
 
 - [x] T1. Chạy lại pipeline để sinh phiên bản dataset đầu tiên theo cấu trúc mới.
       -> `chore(data): rebuild the dataset under the corrected version id`

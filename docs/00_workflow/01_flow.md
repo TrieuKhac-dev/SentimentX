@@ -129,6 +129,12 @@ sau đè), `env` (colab hay local, thiết bị, mức lượng hoá, thư việ
 Mỗi phần tử của `attempts[]` là MỘT lần chạy vào thư mục này, mang `sha`, `config_sha256`, `data`
 của chính lần đó - nhìn là biết hai lần có so được với nhau hay không. Ba giá trị quyết định
 resume nằm ở `config.sha256`, `data.ma` và `repo.sha` (xem [02_rules.md](02_rules.md) mục 13).
+
+Attempt mở khi lần chạy BẮT ĐẦU (`RUNNING`) và chốt khi kết thúc: `FINISHED`, `FAILED`, hoặc
+`INTERRUPTED` khi phiên bị NỀN TẢNG ngắt (hết quota Colab, mất kết nối) - lúc đó không ai biết thời điểm
+kết thúc, nên `finished`/`seconds` để TRỐNG chứ không bịa. Nếu bản ghi cũng chưa kịp ghi (ngắt trong vài
+giây đầu), dấu vết còn lại là dòng `=== lần chạy <thời điểm> - mode=… ===` trong `run.log` và các
+`predictions/part_*.jsonl`.
 Mọi đường dẫn trong file đều TÍNH TỪ GỐC REPO, vì thư mục kết quả bị đem từ máy này sang máy khác.
 
 ## Chạy tiếp sau khi bị ngắt

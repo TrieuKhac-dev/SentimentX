@@ -47,6 +47,16 @@ vậy thì `torch.cat` ném `RuntimeError: Sizes of tensors must match except in
 tập train có nhiều lô (đã gặp thật với ~4.000 review; phép chạy thử ở máy chỉ có 40 review nên chỉ
 một lô và không lộ ra).
 
+**`model/best` được cập nhật ở HAI chỗ**, không phải một: bước lưu theo chu kỳ (`every_n_steps` - có in
+`đã lưu model/best`), và **cuối mỗi epoch** (cũng có in từ nay). Muốn biết bản đang được chấm là bước
+nào thì đọc `model/best/trainer_state.json` (trường `best.step`): lượt PhoBERT 26/09/2026 có `model/best`
+ở bước **1153** trong khi console chỉ in ở bước 1100.
+
+**Hai `checkpoint-*` trong `model/` là bình thường**, không phải rác: `checkpoints.keep_last_k: 2` cộng
+`delete_intermediate: true` giữ lại đúng hai ảnh chụp gần nhất để chạy tiếp. Với `every_n_steps: 100` và
+1.153 bước thì `model/` gồm `best`, `last`, `checkpoint-1000`, `checkpoint-1100`; ảnh chụp cũ bị xoá
+ngay sau mỗi lần lưu.
+
 ## Chạy trên Colab
 
 Hai notebook LoRA chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa 6 GB VRAM). Ô bootstrap

@@ -315,6 +315,40 @@ class TestBootstrap(unittest.TestCase):
         self.assertIn("lối tắt (shortcut) đang trỏ tới", source)
         self.assertIn("SENTIMENTX_RESULTS_ROOT", source)
 
+    def test_bootstrap_installs_mlflow_and_only_gates_peft_for_training(self):
+        """`mlflow` phải được cài; `peft` (và việc gỡ `torchao`) chỉ khi thí nghiệm có HUẤN LUYỆN.
+
+        Lỗi thật: ba lượt chạy đầu đều ghi `[TRACK] không ghi nhận gì (tracker tắt)` vì máy ảo thiếu
+        `mlflow` - ô bootstrap cài cố định bốn gói, không có `mlflow` - nên KHÔNG lượt nào lên DagsHub
+        dù ô cuối vẫn in địa chỉ DagsHub. Đường prompt cũng không cần `peft`.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        self.assertIn('"transformers", "accelerate", "bitsandbytes", "mlflow"', source)
+        self.assertIn("_needs_training", source)
+        self.assertIn('if _needs_training and importlib.util.find_spec("peft") is not None:', source)
+
+    def test_end_cell_prints_dagshub_only_when_the_run_was_recorded(self):
+        """Địa chỉ DagsHub chỉ được in khi `run.log` có dòng `[TRACK]` báo ghi THÀNH CÔNG.
+
+        Ba lượt chạy đầu in địa chỉ DagsHub trong khi `[TRACK]` nói "không ghi nhận gì" - người đọc
+        tưởng kết quả đã lên máy chủ.
+        """
+        text = "\n".join("".join(cell.get("source") or []) for cell in notebook()["cells"]
+                         if cell.get("cell_type") == "code")
+        self.assertIn("CHƯA ghi nhận lượt này", text)
+        self.assertIn('"[TRACK]" in line', text)
+
+    def test_config_cell_does_not_say_ca_split_mau(self):
+        """Câu in ra phải đọc được: "cả split mẫu" là lỗi chữ ở bản cũ."""
+        for cell in notebook()["cells"]:
+            source = ("".join(cell.get("source") or [])
+                      if cell.get("cell_type") == "code" else "")
+            if "ĐANG DÙNG" in source:
+                self.assertNotIn('or "cả split"', source)
+                self.assertIn("cả split (n: null)", source)
+                return
+        self.fail("không thấy ô cấu hình trong notebook mẫu")
+
     def test_bootstrap_is_the_same_in_every_notebook(self):
         """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
 
