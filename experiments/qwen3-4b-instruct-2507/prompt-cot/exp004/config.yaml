@@ -17,7 +17,7 @@ data:
   roles: {eval: test}
 
 # Prompt 5 ví dụ dài hơn hẳn: số đo ở `docs/04_experiments/02_model_input.md` cho thấy
-# 1.866 token/review trung bình. Ngưỡng cắt đang dùng (`preprocess.max_length: 2304`) đã tính cả
+# 1.877,50 token/review trung bình. Ngưỡng cắt đang dùng (`preprocess.max_length: 2304`) đã tính cả
 # trường hợp này, nên không phải khai lại ở đây.
 prompt: ../../../../configs/prompts/absa_cot_5shot_v1.txt
 system_prompt: ../../../../configs/prompts/system/absa_cot.txt

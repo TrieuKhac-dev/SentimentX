@@ -49,7 +49,7 @@ nào dùng prompt nào do config của chính thí nghiệm quyết định (kho
 
 `configs/prompts/` là **thư viện prompt dùng chung**: file ở đây tái sử dụng được cho nhiều
 model và nhiều thí nghiệm. Vì là thư viện dùng chung nên **tên file đặt theo NỘI DUNG của
-prompt** (`absa_direct_v1`, `absa_cot_v1`, `absa_cot_1shot_v1`), không đặt theo model hay theo
+prompt** (`absa_one_turn_v1`, `absa_cot_v1`, `absa_cot_5shot_v1`), không đặt theo model hay theo
 thí nghiệm: model và phương pháp đã nằm trong đường dẫn `experiments/<model_id>/<method>/<expNNN>/`,
 ghi thêm vào tên file là hai nguồn sự thật cho cùng một việc.
 
@@ -340,29 +340,31 @@ của thư mục phiên bản:
 
 | Prompt | ví dụ | file số liệu | token/review TB | p50 | p95 | p99 | max | % > ngưỡng |
 |--------|-------|--------------|-----------------|-----|-----|-----|-----|----------|
-| `absa_direct_v1` (một lượt) | 0 | `token_stats.csv` | 229,50 | 224 | 268 | 298 | 474 | 0,00 |
-| `absa_cot_zeroshot_v1` | 0 | `...__prompt-absa_cot_zeroshot_v1.csv` | 376,50 | 371 | 415 | 445 | 621 | 0,00 |
-| `absa_cot_1shot_v1` | 1 | `...__prompt-absa_cot_1shot_v1__ex-5d530f7c.csv` | 681,50 | 676 | 720 | 750 | 926 | 0,00 |
-| `absa_cot_v1` | 2 | `...__prompt-absa_cot_v1__ex-c513f5a6.csv` | 950,50 | 945 | 989 | 1.019 | **1.195** | 0,00 |
-| `absa_cot_5shot_v1` | 5 | `...__prompt-absa_cot_5shot_v1__ex-2799b4c8.csv` | 1.864,50 | 1.859 | 1.903 | 1.933 | **2.109** | 0,00 |
+| `absa_one_turn_v1` (một lượt, bản CHÍNH THỨC) | 0 | `...__prompt-absa_one_turn_v1__sys-absa_one_turn.csv` | 257,50 | 252 | 296 | 326 | 502 | 0,00 |
+| `absa_direct_v1` (một lượt, bản cũ - không tách system prompt) | 0 | `...__prompt-absa_direct_v1__seg-vncorenlp.csv` | 229,50 | 224 | 268 | 298 | 474 | 0,00 |
+| `absa_cot_zeroshot_v1` | 0 | `...__prompt-absa_cot_zeroshot_v1__sys-absa_cot.csv` | 372,50 | 367 | 411 | 441 | 617 | 0,00 |
+| `absa_cot_1shot_v1` | 1 | `...__prompt-absa_cot_1shot_v1__ex-5d530f7c__sys-absa_cot.csv` | 721,50 | 716 | 760 | 790 | 966 | 0,00 |
+| `absa_cot_v1` | 2 | `...__prompt-absa_cot_v1__ex-c513f5a6__sys-absa_cot.csv` | 990,50 | 985 | 1.029 | 1.059 | **1.235** | 0,00 |
+| `absa_cot_5shot_v1` | 5 | `...__prompt-absa_cot_5shot_v1__ex-1e7c1be3__sys-absa_cot.csv` | 1.877,50 | 1.872 | 1.916 | 1.946 | **2.122** | 0,00 |
 
-Cột cuối tính theo ngưỡng cắt của **từng lần đo**: bốn dòng đầu đo ở ngưỡng 1280, dòng 5 ví dụ đo
-ở ngưỡng 2304 (ngưỡng hiện tại). Các cột `TB`, `p50`, `p95`, `p99`, `max` là **độ dài input**, không
-phụ thuộc ngưỡng - nên bốn dòng đầu vẫn đúng nguyên giá trị dù ngưỡng đã nâng lên.
+Cột cuối tính theo ngưỡng cắt của **từng lần đo**. Từ 27/09/2026 mọi dòng được đo lại ở ngưỡng hiện
+tại (**2304**) và khối hệ thống đã tách thành file riêng - nên tên file có thêm `sys-...`; các tệp đo
+cũ (không `sys-`, bốn dòng đo ở ngưỡng 1280) vẫn nằm trong thư mục để đối chiếu. Các cột `TB`, `p50`,
+`p95`, `p99`, `max` là **độ dài input**, không phụ thuộc ngưỡng, nên giá trị không đổi giữa hai lần đo.
 
 Ba điều đọc ra từ bảng này:
 
-1. **CoT đắt ở CẢ HAI đầu.** Input 950,50 token/review so với 229,50 của prompt một lượt
-   (gấp 4,1 lần). Chưa hết: model còn phải SINH phần suy luận - theo định dạng trong file
+1. **CoT đắt ở CẢ HAI đầu.** Input 990,50 token/review so với 257,50 của prompt một lượt
+   (gấp 3,8 lần). Chưa hết: model còn phải SINH phần suy luận - theo định dạng trong file
    ví dụ là khoảng 210 token cho mỗi câu trả lời (xem `configs/prompts/examples/`). Cột
    trong bảng này chỉ nói phần INPUT.
-2. **Mỗi ví dụ khoảng 287-305 token, và chi phí cộng thẳng:** 376,50 (0 ví dụ) -> 681,50 (1) ->
-   950,50 (2). Đó là lí do "số ví dụ" là một biến thực nghiệm đáng thử: phương án 0 ví dụ rẻ
+2. **Mỗi ví dụ khoảng 287-305 token, và chi phí cộng thẳng:** 372,50 (0 ví dụ) -> 721,50 (1) ->
+   990,50 (2). Đó là lí do "số ví dụ" là một biến thực nghiệm đáng thử: phương án 0 ví dụ rẻ
    hơn một nửa so với 2 ví dụ mà vẫn giữ phần suy luận.
-3. Prompt CoT dài nhất cần **2.109 token** ở train (bản 5 ví dụ; val 2.016, test 1.959) nên ngưỡng
+3. Prompt CoT dài nhất cần **2.122 token** ở train (bản 5 ví dụ; val 2.016, test 1.959) nên ngưỡng
    1280 cắt MẤT PHẦN ĐUÔI của **100% review ở cả ba split** khi chạy mức 5 ví dụ - với prompt dạng
    chat, phần bị cắt chính là yêu cầu định dạng đầu ra, nên mẫu đó mất luôn yêu cầu định dạng. Ngưỡng
-   **2304** giữ 0% bị cắt cho cả bản 2 ví dụ lẫn bản 5 ví dụ. (Bản 2 ví dụ cần 1.195 token ở train
+   **2304** giữ 0% bị cắt cho cả bản 2 ví dụ lẫn bản 5 ví dụ. (Bản 2 ví dụ cần 1.235 token ở train
    nên ở ngưỡng 1280 vẫn 0% bị cắt - con số đó vẫn đúng cho bản 2 ví dụ.)
 
 Vì vậy có hai lựa chọn ngưỡng cắt, **cả hai đều có số liệu** trong thư mục phiên bản:

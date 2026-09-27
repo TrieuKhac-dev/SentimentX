@@ -67,6 +67,9 @@ lặng: bước lập kế hoạch đọc thẳng file cấu hình model.)
 trong thư viện dùng chung: `configs/prompts/<tên>.txt`, `configs/prompts/examples/<tên>.txt`,
 `configs/prompts/system/<tên>.txt`. Muốn dùng chung một khối hệ thống cho nhiều prompt thì viết câu
 hệ thống một lần ở `configs/prompts/system/<tên>.txt` rồi cho các prompt cùng trỏ vào đó.
+Riêng một thí nghiệm thì trỏ vào file **trong thư mục thí nghiệm** (`system_prompt: system.txt`), và
+**không** viết câu hệ thống vào `prompt.txt`: hai phần phải ở hai file, để đổi khối hệ thống không phải
+sửa phần người dùng gửi model (`system_sha` đổi đúng chỗ, không lẫn vào `prompt_sha`).
 
 ## Quy tắc vai
 
