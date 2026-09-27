@@ -184,3 +184,20 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 | `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/dataset.py` |
 | `save.plots` trong `configs/experiments/evaluation.yaml` | **ĐÃ LÀM 27/09/2026** | `feat(evaluation): make save.plots write a plot into the run folder`: `true` thì lượt chạy ghi `plots/accuracy.html` (độ chính xác từng khía cạnh + ma trận nhầm, HTML tự chứa, không cần `plotly`); `false` thì không tạo thư mục rỗng |
 
+## 7. Mục duy nhất của đợt 27/09/2026 CHƯA làm: báo cáo HTML cho `token_stats`
+
+Mục "Báo cáo HTML cho tiền xử lý cho model" ở mục 5 nói **vẫn mở**, và lý do hoãn cũ không còn: số đo
+đã chốt (mục 4.1 và 4.1.1 của [02_model_input.md](02_model_input.md)) và mỗi bộ tách từ đã có file riêng.
+Việc cần làm, theo đúng đường có sẵn của dự án:
+
+1. `run_token_stats.py` ghi `token_stats_result.json` cạnh CSV, dựng payload bằng
+   `src/reporting/result.make_payload(phase="token_stats", ...)` rồi `write_result` - cùng khuôn với
+   `eda_result.json` / `pipeline_result.json`.
+2. `build_report.py`: thêm `token_stats` vào `PHASE_LABELS` và `--phase`; `resolve_dir` trỏ vào
+   `data/reports/model_input/<mã>/`; `build_one` gọi `render.write_reports`.
+3. Nếu không muốn `render.py` phải biết thêm một loại payload: `src/reports.html_page()` đã dựng được
+   trang bảng tự chứa (không cần `plotly`), đủ cho bảng token theo model × split.
+
+Vì sao chưa làm trong đợt này: đây là đường VẼ mới, còn mọi mục khác của đợt chỉ thêm cột hoặc chú
+thích; làm ẩu cho xong thì ra một báo cáo trông đúng mà số sai - đúng loại lỗi mà cả đợt này đang sửa.
+
