@@ -207,6 +207,9 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
         if not names:
             raise unittest.SkipTest("chưa có prompt nào trong configs/prompts/")
         cls.prompt_name = names[0]
+        # Prompt trong thư viện dùng ô nhớ `{system_prompt}`, nên cấu hình của lượt chạy phải khai khoá
+        # đó - đúng như config của thí nghiệm thật (`experiments/**/config.yaml`).
+        cls.merged["config"]["system_prompt"] = "absa_cot"
 
     def _plan(self, **kwargs):
         # Mọi lượt chạy đều thuộc MỘT thí nghiệm (không còn đường ghi ngoài thí nghiệm), nên bộ ba

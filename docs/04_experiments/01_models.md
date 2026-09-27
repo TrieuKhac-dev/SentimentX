@@ -34,8 +34,10 @@ PROCESSED DATA (data/processed)
         |
         +-- PhoBERT   : tách từ tiếng Việt  ->  tokenizer  ->  input_ids + attention_mask
         +-- ViSoBERT  :                        tokenizer  ->  input_ids + attention_mask
-        \-- Qwen3     : prompt      ->  chat template  ->  tokenizer
-                          (nội dung prompt ở configs/prompts/<tên>.txt)
+        \-- Qwen3     : prompt + system prompt  ->  chat template  ->  tokenizer
+                          (prompt: `configs/prompts/<tên>.txt` hoặc file trong thư mục thí nghiệm;
+                           system prompt: FILE RIÊNG - `configs/prompts/system/<tên>.txt` khi dùng chung,
+                           hoặc `system.txt` trong thư mục thí nghiệm khi chỉ nó dùng)
 ```
 
 Nếu nhét những bước này vào pipeline chung, pipeline sẽ **phụ thuộc vào một model

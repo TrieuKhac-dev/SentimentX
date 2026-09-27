@@ -159,6 +159,14 @@ class TestFingerprint(ExperimentCase):
             "--- Vi du 1 ---\n{aspest}\n--- Vi du 2 ---\n{aspest}\n", encoding="utf-8")
         self.assertNotEqual(before, experiments.config_sha256(result))
 
+    def test_changing_the_system_file_changes_sha(self):
+        """Khối hệ thống ở file riêng vẫn phải vào dấu vân tay: đổi câu hệ thống là đổi phép đo."""
+        result = self.load(extra="system_prompt: system.txt\n")
+        (self.exp_dir / "system.txt").write_text("Bạn là chuyên gia ABSA.\n", encoding="utf-8")
+        before = experiments.config_sha256(result)
+        (self.exp_dir / "system.txt").write_text("Bạn là trợ lí.\n", encoding="utf-8")
+        self.assertNotEqual(before, experiments.config_sha256(result))
+
     def test_reordering_a_list_does_not_change_sha(self):
         result = self.load()
         first = experiments.config_sha256(result)

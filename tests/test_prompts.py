@@ -92,6 +92,27 @@ class SharedSystemTest(unittest.TestCase):
         self.assertIn("ABSA", text)
 
 
+class SystemFileTest(unittest.TestCase):
+    """Quy tắc: system prompt nằm ở FILE RIÊNG, không viết chữ của khối hệ thống vào file prompt.
+
+    Lỗi im lặng mà phép kiểm này chặn: câu hệ thống lẫn trong file prompt thì `prompt_sha` đổi mà
+    `system_sha` không đổi, và không thí nghiệm nào dùng lại được khối hệ thống đó.
+    """
+
+    MARKER = re.compile(r"^\[SYSTEM\]\s*$(.*?)(?=^\[|\Z)", re.M | re.S)
+
+    def test_muc_SYSTEM_chi_chua_o_nho(self):
+        checked = []
+        for name in prompts.available():
+            text = prompts.prompt_path(name).read_text(encoding="utf-8")
+            for body in self.MARKER.findall(text):
+                self.assertEqual(
+                    body.strip(), "{system_prompt}",
+                    "{}: mục [SYSTEM] phải chỉ chứa {{system_prompt}} - câu hệ thống để ở file riêng "
+                    "(configs/prompts/system/<tên>.txt hoặc system.txt của thí nghiệm)".format(name))
+                checked.append(name)
+        self.assertIn("absa_cot_v1", checked, "chưa kiểm được prompt CoT nào")
+
 class CacheKeyTest(unittest.TestCase):
     """Hai thí nghiệm khác file ví dụ thì KHÔNG được dùng chung một prompt đã nhớ."""
 

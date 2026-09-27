@@ -42,6 +42,8 @@ Nếu không muốn dùng lệnh: vẫn có thể copy tay `templates/experiment
    - `config.yaml`: bắt buộc cho mọi thí nghiệm.
    - `prompt.txt` và `examples.txt`: chỉ dùng cho model dạng LLM, ví dụ Qwen3.
      Model encoder như PhoBERT, ViSoBERT không dùng prompt.
+   - `system.txt`: **system prompt của thí nghiệm, ở FILE RIÊNG** - không viết câu hệ thống vào
+     `prompt.txt`. Dùng chung cho nhiều thí nghiệm thì để ở `configs/prompts/system/<tên>.txt`.
 3. Chạy thử trên máy cá nhân: mở `notebook.ipynb` và chạy toàn bộ.
 4. Merge nhánh riêng vào nhánh `experiment` và giải quyết mọi xung đột ở bước này.
 5. Ghim bản code: `python scripts/pin.py <model>/<method>/<expNNN>`.

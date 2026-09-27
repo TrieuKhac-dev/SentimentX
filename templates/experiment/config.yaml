@@ -34,9 +34,12 @@ data:
 #   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
 prompt: prompt.txt
 
+# `prompt.txt` KHÔNG chứa system prompt: câu hệ thống nằm ở FILE RIÊNG (khoá `system_prompt` dưới đây).
+
 # Chỉ khai khi cần:
 # examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
-# system_prompt: ../../../../configs/prompts/system/absa_cot.txt   # khi prompt có {system_prompt}
+# system_prompt: system.txt                   # khối system RIÊNG của thí nghiệm này (file trong thư mục này)
+# system_prompt: ../../../../configs/prompts/system/<tên>.txt   # hoặc khối DÙNG CHUNG nhiều thí nghiệm
 # requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
 #   - data/models/vncorenlp                   # mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU (trên
 #                                             # Colab là thư mục Drive); mục khác tính từ gốc repo

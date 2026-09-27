@@ -24,6 +24,7 @@ data:
 # Prompt lấy từ THƯ VIỆN DÙNG CHUNG, tính từ thư mục thí nghiệm trước rồi tới gốc repo (bốn cấp).
 # Bản 0 ví dụ KHÔNG dùng ô nhớ `{examples}`, nên không khai `examples`.
 prompt: ../../../../configs/prompts/absa_cot_zeroshot_v1.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
 
 # `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
 
