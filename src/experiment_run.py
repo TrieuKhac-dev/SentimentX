@@ -849,7 +849,8 @@ def write_all(plan_data, rows, samples, result, extra, session, log):
                                                            out_dir)
         log.step("ghi {} dòng dự đoán".format(len(rows)))
     shown.update(scorers.write(out_dir, samples, names=result["names"],
-                               save_confusion=bool(save.get("confusion", True)), extra=extra))
+                               save_confusion=bool(save.get("confusion", True)),
+                               save_plots=bool(save.get("plots", True)), extra=extra))
     log.step("đã ghi: {}".format(", ".join(sorted(shown))))
 
     # Ghi nhận SAU khi file đã nằm trên đĩa: máy chủ hỏng thì kết quả vẫn còn. Danh sách file tải

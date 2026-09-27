@@ -62,7 +62,7 @@ của từng đơn vị vẫn nằm trong `metrics.csv` nên cách tính này kh
 | `metrics.json`       | toàn metric, kèm `label_space`, `neutral_policy`, số ô bị loại                |
 | `metrics.csv`        | bảng dài: `aspect`, `sentiment`, `metric`, `value`, để so giữa các thí nghiệm |
 | `mispredictions.csv` | chỉ các dòng đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán                    |
-| `plots/`             | biểu đồ, gồm ma trận nhầm nếu bật                                             |
+| `plots/`             | biểu đồ của lượt chạy: `plots/accuracy.html`, HTML tự chứa, mở được khi không có mạng; tắt bằng `save.plots: false` |
 
 `metrics.json` gồm: `label_space`, `neutral_policy`, `not_mentioned`, `dropped_neutral` (và
 `dropped_neutral_by_aspect`), `n_reviews`, `aspects`, `scores` (mỗi bộ chấm một khối), `tables`

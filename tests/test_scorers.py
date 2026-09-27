@@ -224,14 +224,14 @@ class TestRegistry(unittest.TestCase):
 
 
 class TestWrite(unittest.TestCase):
-    def test_writes_three_files(self):
+    def test_writes_the_run_files(self):
         gold = [{"texture": 1, "price": 3}, {"texture": 2, "price": 1}]
         samples = build(gold, [{"texture": 2, "price": 3}, {"texture": 2, "price": 1}],
                         sample_ids=["r1", "r2"])
         with tempfile.TemporaryDirectory() as folder:
             written = scorers.write(folder, samples, extra={"split": "val"})
             self.assertEqual(sorted(written), ["metrics.csv", "metrics.json",
-                                               "mispredictions.csv"])
+                                               "mispredictions.csv", "plots/accuracy.html"])
             payload = json.loads((Path(folder) / "metrics.json").read_text(encoding="utf-8"))
             self.assertEqual(payload["split"], "val")
             self.assertEqual(payload["label_space"], "binary")
@@ -239,6 +239,26 @@ class TestWrite(unittest.TestCase):
             self.assertEqual(sorted(payload["scores"]), sorted(scorers.available()))
             self.assertIn("confusion", payload["tables"])
             self.assertEqual((Path(folder) / "metrics.csv").exists(), True)
+
+    def test_save_plots_false_writes_no_plot_folder(self):
+        """`save.plots` phải CÓ TÁC DỤNG: tắt thì không được để lại thư mục rỗng."""
+        gold = [{"texture": 1}]
+        samples = build(gold, gold, aspects=["texture"])
+        with tempfile.TemporaryDirectory() as folder:
+            written = scorers.write(folder, samples, save_plots=False)
+            self.assertNotIn("plots/accuracy.html", written)
+            self.assertFalse((Path(folder) / "plots").exists())
+
+    def test_the_plot_carries_the_numbers_and_escapes_text(self):
+        """Trang biểu đồ đọc số từ `metrics.json` và KHÔNG nhận HTML thô từ dữ liệu vào."""
+        gold = [{"texture": 1}, {"texture": 0}]
+        samples = build(gold, gold, aspects=["texture"])
+        with tempfile.TemporaryDirectory() as folder:
+            scorers.write(folder, samples, extra={"model": "<script>x</script>", "split": "val"})
+            page = (Path(folder) / "plots" / "accuracy.html").read_text(encoding="utf-8")
+        self.assertIn("texture", page)
+        self.assertIn("&lt;script&gt;", page)
+        self.assertNotIn("<script>x</script>", page)
 
     def test_extra_cannot_override_projection_facts(self):
         """`extra` là thông tin của lần chạy, không được đè lên phép chiếu nhãn."""
