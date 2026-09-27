@@ -15,7 +15,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import runlog, tracking
+from src import experiments, runlog, tracking
 from src.tracking import base
 
 
@@ -74,6 +74,47 @@ class TestHelpers(unittest.TestCase):
         info = {"model": "qwen3-4b-instruct-2507"}
         self.assertEqual(base.resolve_tags(tags, info),
                          {"model": "qwen3-4b-instruct-2507", "owner": "TrieuKhac-dev"})
+
+    def test_auto_tags_are_looked_up_inside_the_experiment_block(self):
+        """`method` và `exp_id` nằm trong khối `experiment` của `info`, không ở mức ngoài.
+
+        Lỗi thật: chỉ tra khoá mức ngoài thì hai nhãn đó bị BỎ ÂM THẦM - nhãn khai trong
+        `configs/experiments/tracking.yaml` mà chưa bao giờ xuất hiện trên run, và không có cảnh báo
+        nào vì "thiếu khoá thì bỏ nhãn" là hành vi đúng cho trường hợp khác.
+        """
+        info = {"experiment": {"model": "visobert", "method": "lora", "exp_id": "exp001"}}
+        resolved = base.resolve_tags({"model": "auto", "method": "auto", "exp_id": "auto"}, info)
+        self.assertEqual(resolved, {"model": "visobert", "method": "lora", "exp_id": "exp001"})
+
+    def test_the_eight_declared_tags_all_resolve_from_a_real_run(self):
+        """Config khai 8 nhãn; một `info` đầy đủ phải làm cả 8 thành giá trị thật, không còn `auto`.
+
+        Đọc qua `experiments.load` - đúng đường mà lượt chạy đi - nên phép kiểm này cũng xác nhận thí
+        nghiệm THẬT SỰ thừa hưởng danh sách nhãn, chứ không chỉ là file config có khai.
+        """
+        merged = experiments.load("visobert", "lora", "exp001")
+        tags = dict(merged["config"].get("mlflow_tags") or {})
+        self.assertEqual(sorted(tags), ["config_sha256", "dataset", "exp_id", "method", "model",
+                                        "repo_sha", "split", "version_id"])
+        info = {"dataset": "cosmetics", "version_id": "cosmetics-...", "split": "test",
+                "repo_sha": "a" * 40, "config_sha256": "b" * 64,
+                "experiment": {"model": "visobert", "method": "lora", "exp_id": "exp001"}}
+        resolved = base.resolve_tags(tags, info)
+        self.assertEqual(sorted(resolved), sorted(tags))
+        self.assertNotIn("auto", resolved.values())
+
+    def test_the_artifact_list_carries_the_run_files_and_the_plot(self):
+        merged = experiments.load("visobert", "lora", "exp001")
+        names = list(merged["config"].get("artifacts") or [])
+        for name in ("run_meta.json", "metrics.json", "metrics.csv", "plots/accuracy.html"):
+            self.assertIn(name, names)
+        # File nằm trong thư mục con cũng phải lấy được, và file thiếu thì bỏ qua chứ không lỗi.
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder)
+            (folder / "plots").mkdir()
+            (folder / "plots" / "accuracy.html").write_text("<html></html>", encoding="utf-8")
+            found = base.artifact_paths(folder, ["plots/accuracy.html", "khong-co.json"])
+            self.assertEqual([path.name for path in found], ["accuracy.html"])
 
     def test_artifact_paths_skips_missing_files(self):
         with tempfile.TemporaryDirectory() as folder:

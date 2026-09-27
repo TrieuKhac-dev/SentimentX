@@ -12,6 +12,11 @@ mlflow_tags:
   model: auto
   method: auto
   exp_id: auto
+  dataset: auto
+  version_id: auto
+  split: auto
+  repo_sha: auto
+  config_sha256: auto
 
 # File nhỏ được tải lên. KHÔNG tải checkpoint và predictions.csv.
 artifacts:
@@ -20,3 +25,4 @@ artifacts:
   - metrics.csv
   - mispredictions.csv
   - model_input.csv
+  - plots/accuracy.html

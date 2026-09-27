@@ -587,6 +587,9 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "model": model, "quant": quant, "max_length": max_length, "generation": generation,
         "subset": {"limit": limit, "seed": seed}, "n_samples": len(texts),
         "experiment": {"model": model_id, "method": method, "exp_id": exp_id},
+        # Hai giá trị nhận dạng BẢN CODE và BẢN CẤU HÌNH, để chúng thành NHÃN của run trên DagsHub
+        # (tìm được theo nhãn) chứ không chỉ nằm trong `run_meta.json` đã tải lên.
+        "repo_sha": identity["repo"]["sha"], "config_sha256": identity["config_sha256"],
     }
 
     # Chạy mới hay chạy tiếp: quyết định ở MỘT chỗ (`src/resume.py`), dựa trên ba giá trị mà

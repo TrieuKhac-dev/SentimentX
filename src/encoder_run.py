@@ -272,6 +272,9 @@ def plan(config_data, merged, ds, version_id, split=None, limit=None, model=None
         "batch_size": int(batch_size or found["eval_batch"]),
         "subset": {"limit": limit, "seed": seed}, "n_samples": len(texts),
         "experiment": {"model": model_id, "method": method, "exp_id": exp_id},
+        # Hai nhãn nhận dạng bản code và bản cấu hình: trên DagsHub thì TÌM được theo nhãn, còn
+        # `run_meta.json` (đã tải lên) chỉ đọc được khi đã mở đúng run.
+        "repo_sha": repo["sha"], "config_sha256": config_sha,
         "label_space": config_data.get("label_space"),
         "neutral_policy": config_data.get("neutral_policy"),
         "not_mentioned": config_data.get("not_mentioned"),

@@ -125,12 +125,22 @@ def resolve_tags(tags, info):
 
     Thiếu khoá thì BỎ nhãn đó: gắn nhãn "auto" lên máy chủ là gắn một thông tin vô nghĩa, và
     người xem sẽ tưởng đó là giá trị thật.
+
+    Tra CẢ khối `experiment` lồng trong `info`: `model`, `method`, `exp_id` là ba giá trị của thí nghiệm
+    và được ghi theo khối đó (`info["experiment"]["method"]`). Chỉ nhìn khoá ở mức ngoài thì hai nhãn
+    `method` và `exp_id` bị bỏ ÂM THẦM - nhãn khai trong config mà chưa bao giờ xuất hiện trên run.
     """
+    values = dict(info or {})
+    experiment = values.get("experiment")
+    if isinstance(experiment, dict):
+        for key, value in experiment.items():
+            values.setdefault(key, value)
+
     resolved = {}
     for key, value in (tags or {}).items():
         if value == AUTO:
-            if (info or {}).get(key):
-                resolved[str(key)] = as_param(info[key])
+            if values.get(key):
+                resolved[str(key)] = as_param(values[key])
             continue
         resolved[str(key)] = as_param(value)
     return resolved
