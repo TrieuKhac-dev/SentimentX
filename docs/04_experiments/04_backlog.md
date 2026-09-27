@@ -183,6 +183,7 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 | Huấn luyện LoRA cho PhoBERT / ViSoBERT | **ĐÃ LÀM (đợt 2, 25/09/2026)** | `src/training/lora.py` (registry `TRAINERS`) và `src/encoder_run.py`, hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Từ đợt này `training.yaml` hết là khai báo suông: `trainer`, `checkpoints.*` đều có nơi đọc |
 | `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/dataset.py` |
 | `save.plots` trong `configs/experiments/evaluation.yaml` | **ĐÃ LÀM 27/09/2026** | `feat(evaluation): make save.plots write a plot into the run folder`: `true` thì lượt chạy ghi `plots/accuracy.html` (độ chính xác từng khía cạnh + ma trận nhầm, HTML tự chứa, không cần `plotly`); `false` thì không tạo thư mục rỗng |
+| Writer `state_dict` cho full fine-tune (checkpoint đã tách khỏi trainer) | CHƯA LÀM | Chính sách + `Store` đã ở `src/training/checkpoints.py`, writer `adapter` ở `src/training/savers/`. Full fine-tune chỉ cần thêm một writer ghi `state_dict` + một dòng trong `SAVERS` - xem `src/registry.py` mục 11 |
 
 ## 7. Mục duy nhất của đợt 27/09/2026 CHƯA làm: báo cáo HTML cho `token_stats`
 

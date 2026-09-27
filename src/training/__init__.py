@@ -14,8 +14,9 @@ HỢP ĐỒNG CỦA MỘT TRAINER
     fit(...)  -> dict                        huấn luyện, trả số liệu của lượt huấn luyện
     predict(...) -> list[list[int]]          suy luận ra MÃ NHÃN, để phần chấm điểm dùng chung
 
-`fit` phải ghi checkpoint theo `configs/experiments/training.yaml`: `model/last` (đủ để chạy tiếp)
-và `model/best` (chỉ adapter, để suy luận). Đường dẫn hai thư mục đó lấy từ `configs/paths.yaml`.
+`fit` phải ghi checkpoint, nhưng KHÔNG tự quyết định chính sách và chỗ lưu: chính sách + `Store` nằm ở
+`src/training/checkpoints.py`, còn CÁCH GHI trọng số ở một writer trong `src/training/savers/`
+(bây giờ: `adapter` cho LoRA). `fit` chỉ trả `last_dir`/`best_dir` trong kết quả của nó.
 
 Thêm cách huấn luyện mới: viết một module trong thư mục này rồi thêm MỘT dòng vào `TRAINERS`, và
 khai `training.trainer: <tên>` trong config của thí nghiệm.

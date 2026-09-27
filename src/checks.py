@@ -35,7 +35,7 @@ from src import tracking, training
 from src.evaluation import scorers
 from src.labels import LABEL_SPACES
 from src.preprocessing import segmenters
-from src.training import encoders
+from src.training import checkpoints, encoders, savers
 
 # File ĐƯỢC PHÉP nằm trong git dù ở trong `data/` (docs/00_workflow/03_ci.md, luật 20).
 ALLOWED_DATA_NAMES = ("raw_meta.yaml", "processing_log.json", "label_map.json", "eval_lock.json",
@@ -247,13 +247,16 @@ def registries(root=None):
     for label, registry in (("labels", LABEL_SPACES), ("scorers", scorers.SCORERS),
                             ("tracking", tracking.TRACKERS),
                             ("segmenters", segmenters.SEGMENTERS),
-                            ("trainers", training.TRAINERS)):
+                            ("trainers", training.TRAINERS), ("savers", savers.SAVERS)):
         found += _registry_names(registry, label)
     # Encoders: khoá là `model_id` nên tên có gạch ngang; chỉ kiểm "có trỏ tới đâu".
     found += _registry_names(encoders.ENCODERS, "encoders", check_name=False)
     for name in sorted(LABEL_SPACES):
         found += _attempt("labels[{}]".format(name), labels_module.get, name)
     found += _attempt("scorers", scorers.check, scorers.available())
+    found += _attempt("savers", savers.check)
+    # Chính sách checkpoint đọc được từ lớp dùng chung, và mọi mẫu tên phải có trong paths.yaml.
+    found += _attempt("checkpoint", checkpoints.check, experiments.shared("training"))
     found += _attempt("encoders", encoders.check)
     configured = (experiments.shared("tracking") or {}).get("tracker")
     if configured and configured not in tracking.TRACKERS:

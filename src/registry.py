@@ -69,13 +69,20 @@ CÁCH MỞ RỘNG
    - Viết file trong `src/training/`, ví dụ `qlora.py`, theo hợp đồng ở `src/training/__init__.py`
      (`NAME`, `DESCRIPTION`, `check()`, `fit()`, `predict()`).
    - Thêm một dòng vào `TRAINERS`. Thí nghiệm chọn bằng `training.trainer` trong config.
-   - `fit()` phải ghi `model/last` (đủ để chạy tiếp) và `model/best` (chỉ adapter) theo
-     `configs/experiments/training.yaml`; tên thư mục lấy từ `configs/paths.yaml`.
+   - `fit()` KHÔNG tự quyết định chỗ lưu và chính sách: gọi `src/training/checkpoints.py::Store`
+     (chính sách ở `configs/experiments/training.yaml`, tên thư mục ở `configs/paths.yaml`) rồi đưa vào
+     đó một writer (`src/training/savers/`) để ghi trọng số.
 
 10) Thêm một MODEL ENCODER mới cho huấn luyện:
    - Viết module trong `src/preprocessing/` theo hợp đồng ở điểm 5 (thêm `build_inputs()`).
    - Thêm một dòng vào `ENCODERS` trong `src/training/encoders.py`, và một file
      `configs/models/<model_id>.yaml` có `approach: encoder`.
+
+11) Thêm một CÁCH GHI CHECKPOINT mới (ví dụ `state_dict` cho full fine-tune):
+   - Viết file trong `src/training/savers/`, ví dụ `state_dict.py`, theo hợp đồng ở
+     `src/training/savers/base.py` (`NAME`, `DESCRIPTION`, `save()`, `read_metadata()`, `check()`).
+   - Thêm một dòng vào `SAVERS` trong `src/training/savers/__init__.py`. Trainer lấy writer bằng
+     `savers.get(<tên>)`; `adapter` là mặc định nên cấu hình cũ chạy nguyên như trước.
 
 Định dạng file kết quả do run_eda.py / run_pipeline.py ghi ra được mô tả ở
 `src/reporting/result.py`. build_report.py đọc lại file đó để vẽ báo cáo.

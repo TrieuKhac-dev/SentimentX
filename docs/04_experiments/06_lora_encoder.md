@@ -37,6 +37,9 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
 | `model/best` | adapter + `head.pt` + `head_config.json` | suy luận, chấm điểm |
 | `model/checkpoint-<bước>` | như `model/last`, giữ `keep_last_k` cái gần nhất | ảnh chụp trung gian để chạy tiếp |
 
+Phần này KHÔNG nằm trong trainer: chính sách lưu + `Store` ở `src/training/checkpoints.py`, còn CÁCH
+GHI trọng số ở writer `src/training/savers/adapter.py` - nhờ vậy một cách huấn luyện khác (full
+fine-tune) dùng lại đúng chính sách đó mà chỉ cần thêm writer của nó.
 `trainer_state.json` giữ vân tay ba giá trị (`config_sha256`, mã phiên bản dữ liệu, commit đã ghim).
 Chạy tiếp chỉ hợp lệ khi cả ba y nguyên; khác thì báo lỗi và yêu cầu xoá thư mục kết quả, vì trộn
 hai phép đo vào cùng một bảng là lỗi không nhìn thấy được.

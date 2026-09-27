@@ -20,7 +20,9 @@ epochs: 3
 grad_accum: 4
 weight_decay: 0.01
 
-# Chính sách lưu checkpoint. Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là
+# Chính sách lưu checkpoint. Đọc bởi `src/training/checkpoints.py` - KHÔNG phải bởi trainer - nên mọi
+# cách huấn luyện dùng chung; trainer chỉ cung cấp cách ghi trọng số (`src/training/savers/`).
+# Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là
 # tên model trên Hugging Face ở lớp configs/models/<model_id>.yaml - trùng tên thì lớp sau đè
 # mất lớp trước mà không báo gì.
 checkpoints:

@@ -51,7 +51,9 @@ Pipeline giữ nguyên bốn trạng thái.
 | `checkpoints.save_best`                                       | lưu `model/best` theo chỉ số trên `val`                                                 |
 | `checkpoints.delete_intermediate`                             | xoá ngay các `checkpoint-*` trung gian sau mỗi lần lưu, để tiết kiệm Drive              |
 
-Ai đọc những khoá này: `src/training/lora.py` (đường chạy encoder), gọi từ `src/encoder_run.py`.
+Ai đọc những khoá này: `src/training/checkpoints.py` (chính sách + `Store`) - KHÔNG phải trainer, nên
+mọi cách huấn luyện dùng chung. Cách ghi trọng số do writer ở `src/training/savers/` quyết định
+(hiện có `adapter` cho LoRA).
 Chi tiết checkpoint và cách chạy tiếp: `docs/04_experiments/06_lora_encoder.md`.
 
 Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là tên model trên Hugging Face
