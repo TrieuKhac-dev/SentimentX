@@ -6,9 +6,10 @@ Cách dùng:
     python run_pipeline.py --dataset cosmetics
 
 Kết quả:
-    data/processed/*.csv, label_map.json            (dữ liệu đã xử lý)
-    data/reports/pipeline/pipeline_result.json      (số liệu để vẽ báo cáo)
-    data/reports/pipeline/*.csv, *.json             (số liệu chi tiết từng bước)
+    data/processed/<mã>/{train,val,test}.csv   (dữ liệu đã xử lý)
+    data/processed/<mã>/label_map.json, processing_log.json, eval_lock.json
+    data/processed/<mã>/pipeline/              (pipeline_result.json, removed_records.csv, ...)
+(data/reports/ chỉ có 5 nhóm bảng tổng hợp, do scripts/collect_reports.py sinh)
 
 Pipeline gồm 7 bước, chạy tuần tự:
     load -> validate -> clean -> normalize -> transform -> final_validate -> export

@@ -5,10 +5,10 @@ Cách dùng:
     python run_eda.py
     python run_eda.py --dataset cosmetics
 
-Kết quả (trong thư mục theo phiên bản: data/reports/eda/versions/<mã>/):
-    <mã>/eda_result.json   (đủ mọi phần - file build_report.py đọc lại)
-    <mã>/01_*.json ...       (file kết quả riêng của từng phần)
-    <mã>/*.csv             (bảng số liệu chi tiết của từng phần)
+Kết quả ghi NGAY CẠNH thứ được đo:
+data/raw/<tên>/<raw_version>/eda/    khi đo dữ liệu gốc (--raw-version)
+data/processed/<mã>/eda/             khi đo dataset đã xử lý (--version)
+gồm: eda_result.json (đủ mọi phần - file build_report.py đọc lại), 0X_<mục>.json (riêng từng phần), 0X_<mục>_*.csv (bảng số liệu chi tiết).
 
 Bước này KHÔNG sinh HTML. Muốn xem báo cáo, chạy tiếp:
     python build_report.py --phase eda

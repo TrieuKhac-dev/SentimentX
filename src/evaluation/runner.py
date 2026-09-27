@@ -5,7 +5,8 @@ VÌ SAO KHÔNG HUẤN LUYỆN QWEN3
 ---
 Qwen3-4B full fine-tune cần ~64-80 GB VRAM; riêng trọng số bf16 đã 8 GB, trong khi GPU của
 máy này có 6 GB. Hướng đúng bản chất phép so sánh của dự án: Qwen3 dùng như model đa năng
-qua CHỈ DẪN (prompt / CoT), còn PhoBERT (135M) và ViSoBERT (~108M) thì fine-tune toàn bộ.
+bằng PROMPT (prompt / CoT), còn PhoBERT (135M) và ViSoBERT (~108M) học bằng LoRA
+(encoder gốc đóng băng, chỉ học adapter hạng thấp) - không full fine-tune.
 Lượng hóa 4-bit ở đây là để model **VỪA VRAM khi suy luận**, không phải để huấn luyện.
 
 CÁC QUYẾT ĐỊNH KỸ THUẬT VÀ LÍ DO

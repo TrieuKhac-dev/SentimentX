@@ -10,9 +10,11 @@ BA ĐIỀU KIỆN RESUME (docs/00_workflow/02_rules.md mục 13)
     `config_sha256`  dấu vân tay của config đã hợp nhất và văn bản prompt đã hợp nhất
     `data` (ma)      mã phiên bản dữ liệu
     `sha`            commit đã ghim
-Lệch MỘT trong ba giá trị thì kết quả cũ KHÔNG còn so được với kết quả mới: phải chạy lại từ đầu
-và ghi thành attempt mới (mục 14). Kết quả cũ không bị xoá - chỉ được chuyển sang một thư mục con
-để không lẫn vào lượt chạy mới.
+Lệch MỘT trong ba giá trị thì kết quả cũ KHÔNG dùng lại được: lượt chạy mới rơi vào THƯ MỤC KHÁC
+(tên thư mục là mã băm danh tính), nên kết quả cũ giữ nguyên tại chỗ - không bị chuyển đi đâu
+(`predictions/_bo-qua-*` đã bỏ). Code KHÔNG tự dời và KHÔNG tự xoá: muốn chạy lại từ đầu thì xoá
+thư mục kết quả rồi chạy lại; thư mục có `part_*.jsonl` mà bản ghi không khớp là LỖI và cũng phải
+xoá bằng tay.
 """
 
 import json

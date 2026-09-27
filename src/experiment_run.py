@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """Chạy MỘT thí nghiệm: nạp cấu hình, kiểm trước, sinh, chấm điểm, ghi kết quả, ghi nhận.
 
-VÌ SAO LÀ THƯ VIỆN, VÀ `run_qwen_eval.py` CHỈ LÀ CỬA VÀO MỎNG
+VÌ SAO LÀ THƯ VIỆN, VÀ CỬA VÀO CHỈ LÀ VỎ MỎNG
 Thí nghiệm được chạy từ NOTEBOOK (docs/00_workflow/01_flow.md): notebook là thứ được giao cho
 người nhận, bấm Run all. Nếu notebook gọi một script dòng lệnh thì hợp đồng giữa hai bên là TÊN
 CỜ DÒNG LỆNH - đổi tên cờ là hỏng notebook đã giao (mà sau khi ghim thì không được sửa thí
 nghiệm), notebook không nhận lại được gì ngoài mã thoát, và cả hai bên đều tự đọc config.
 
 Ở đây ngược lại: hàm trong file này trả về kết quả CÓ CẤU TRÚC (đường dẫn, chỉ số, chế độ chạy),
-nên notebook dùng tiếp được (in bảng, vẽ, quyết định bước sau). `run_qwen_eval.py` chỉ là cửa vào
-cho lúc muốn chạy nhanh trên dòng lệnh - nó gọi đúng hai hàm dưới đây. Một đường chạy, hai cửa.
+nên notebook dùng tiếp được (in bảng, vẽ, quyết định bước sau). `scripts/run_notebook.py` là cửa vào cho lúc muốn chạy trên máy cá nhân: nó chạy chính notebook, mà notebook gọi đúng hai hàm dưới đây. Một đường chạy, hai cửa.
 
 HAI BƯỚC, CỐ Ý TÁCH RỜI
     plan(...)   đọc dữ liệu và cấu hình, quyết định chạy mới hay chạy tiếp. KHÔNG cần GPU.
@@ -312,12 +311,12 @@ def print_scores(scores):
 
 
 def system_label(prompt_obj, system_info):
-    """Khối chỉ dẫn hệ thống của lượt chạy, nói rõ nó ĐẾN TỪ ĐÂU.
+    """System prompt của lượt chạy, nói rõ nó ĐẾN TỪ ĐÂU.
 
     Hai nguồn: file khối hệ thống dùng chung (khoá `system_prompt` của config), hoặc ngay trong file
     prompt (mục `[SYSTEM]`). In "không dùng" khi prompt có mục `[SYSTEM]` là nói SAI: model vẫn nhận
     một khối hệ thống, chỉ là nó nằm trong chính file prompt - người đọc log dễ tưởng model không có
-    chỉ dẫn nào.
+    prompt nào.
     """
     if system_info:
         return "{} (sha {})".format(system_info["file"], system_info["sha"])
