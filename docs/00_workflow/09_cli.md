@@ -42,7 +42,11 @@ sẵn sàng dán.
 | Xem đang có gì + lệnh copy được | `python build_report.py --list` |
 | Đo input thật của tokenizer | `python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1` |
 | Liệt kê prompt / bộ tách từ | `python run_token_stats.py --list-prompts` · `--list-segmenters` |
+| Đo khi prompt dùng khối hệ thống | `python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --system absa_cot` |
 | Kiểm ví dụ few-shot (rò rỉ) | `python run_check_examples.py --hash e0ccc484` |
+| Kiểm MỘT prompt, hoặc đổi ngưỡng cụm trùng | `python run_check_examples.py --hash e0ccc484 --prompt absa_cot_5shot_v1 --max-overlap 8` |
+| Vẽ báo cáo mở được KHÔNG cần mạng | thêm `--plotlyjs local` (mặc định) hoặc `--plotlyjs cdn` khi muốn dùng CDN |
+| Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
 
