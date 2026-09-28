@@ -187,11 +187,11 @@ python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --max-length qwen
 # 7) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
 python run_check_examples.py --hash e0ccc484
 
-# 7) Chạy thí nghiệm Qwen3 bằng prompt (prompt một lượt / CoT) rồi chấm điểm
+# 8) Chạy thí nghiệm Qwen3 bằng prompt (prompt một lượt / CoT) rồi chấm điểm
 #    Mở notebook của thí nghiệm và bấm Run all - đó là đường chạy chính, tự kéo đúng commit
 #    đã ghim rồi kiểm trước. (Xem notebooks ở experiments/qwen3-4b-instruct-2507/…)
 
-# 8) Test tự động (không cần GPU, không cần model)
+# 9) Test tự động (không cần GPU, không cần model)
 python -m unittest discover -s tests
 ```
 
@@ -277,6 +277,8 @@ SentimentX/
 ├── templates/                  # bản mẫu để tạo thí nghiệm mới (scripts/new_experiment.py dùng)
 ├── src/
 │   ├── paths.py                # API đường dẫn, đọc configs/paths.yaml
+│   ├── config.py               # quy ước KỸ THUẬT dùng chung: tên cột văn bản, mẫu nhận diện nhiễu, ngưỡng
+│   ├── utils.py                # hàm dùng chung: đọc/ghi CSV-JSON, chuẩn hoá văn bản, dựng bảng số
 │   ├── runtime.py              # máy đang chạy (colab/local), nạp biến môi trường, tìm thư mục Drive
 │   ├── repo.py                 # kéo ĐÚNG commit đã ghim rồi kiểm lại
 │   ├── notebooks.py            # đọc/ghi notebook và ô GHIM (dùng chung với scripts/pin.py)
@@ -285,7 +287,8 @@ SentimentX/
 │   ├── dataset.py              # đọc config dataset, đưa dữ liệu về dạng chuẩn nội bộ
 │   ├── versioning.py           # mã phiên bản dữ liệu, guard bất biến, đường dẫn theo phiên bản
 │   ├── preflight.py            # kiểm TRƯỚC khi chạy: dữ liệu, GPU, quyền ghi, NEW hay RESUME
-│   ├── experiment_run.py       # vòng chạy thí nghiệm: plan() không cần GPU -> run()
+│   ├── experiment_run.py       # vòng chạy thí nghiệm đường PROMPT: plan() không cần GPU -> run()
+│   ├── encoder_run.py          # vòng chạy thí nghiệm đường ENCODER: huấn luyện LoRA rồi suy luận
 │   ├── resume.py               # dừng hay đi tiếp theo các khối predictions/part_*.jsonl
 │   ├── reports.py              # sinh bảng tổng hợp (5 nhóm)
 │   ├── checks.py               # các kiểm tra cấu trúc cho CI
@@ -298,6 +301,7 @@ SentimentX/
 │   ├── eda/                    # 5 module EDA
 │   ├── pipeline/               # 7 bước pipeline
 │   ├── evaluation/             # chấm điểm: records, metrics, scorers/ (5 cách chấm)
+│   ├── training/               # huấn luyện: lora.py, encoders.py, checkpoints.py, savers/
 │   ├── tracking/               # ghi nhận: mlflow/DagsHub, local_json, run_meta.json
 │   └── preprocessing/          # input riêng cho từng model, bộ tách từ, đo input thật
 ├── scripts/            # cửa vào dòng lệnh: pin.py (ghim commit vào notebook), new_experiment.py
