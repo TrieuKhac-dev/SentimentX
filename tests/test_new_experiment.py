@@ -294,6 +294,19 @@ class GuardsTest(ToolCase):
         self.assertEqual(code, 2)
         self.assertIn("Nhánh hiện tại CHƯA chứa origin/experiment", output)
 
+    def test_guard_hoi_dung_CHIEU(self):
+        """`is_ancestor(origin/<nhánh>, HEAD)` - tức "nhánh tôi có chứa nhánh ghim không".
+
+        Đảo chiều là lỗi đã mắc thật khi viết guard này: hỏi `is_ancestor(HEAD, origin/<nhánh>)` thì mọi
+        lần chưa push đều bị chặn, dù đó là trạng thái bình thường. Test này khoá chiều của phép hỏi.
+        """
+        with mock.patch.object(repo, "run_git", return_value=(0, "")), \
+                mock.patch.object(repo, "ref_exists", return_value=True), \
+                mock.patch.object(repo, "current_sha", return_value="abc1234"), \
+                mock.patch.object(repo, "is_ancestor", return_value=True) as ancestor:
+            self.run_tool(*self.ARGS)
+        ancestor.assert_called_once_with("origin/experiment", "abc1234")
+
     def test_moi_thu_sach_thi_tao_duoc(self):
         target = self.scratch_dir()
         with mock.patch.object(repo, "worktree_dirty", return_value=[]), \
