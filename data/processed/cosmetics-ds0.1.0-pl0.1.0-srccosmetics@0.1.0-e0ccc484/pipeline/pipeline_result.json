@@ -5,7 +5,7 @@
   "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484",
   "title": "Báo cáo Data Pipeline - ABSA tiếng Việt",
   "subtitle": "Từ dữ liệu gốc đến dữ liệu sẵn sàng cho model",
-  "generated_at": "28/09/2026 09:50",
+  "generated_at": "28/09/2026 10:24",
   "meta": [
     "Dataset: cosmetics (phiên bản v0.1.0)",
     "Pipeline dùng để tạo dataset: v0.1.0",
