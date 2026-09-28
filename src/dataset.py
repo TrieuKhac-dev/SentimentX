@@ -133,6 +133,7 @@ def _normalize(raw, name, path):
     cấu trúc file. Các khoá khai báo như `sources`, `eval_lock` được giữ nguyên để báo cáo
     và phần kiểm tra dùng lại.
     """
+    check_keys(raw, path)
     schema = dict(raw.get("schema") or {})
     text = dict(schema.get("text") or {})
     identifier = dict(schema.get("id") or {})
@@ -185,6 +186,50 @@ def sources_of(cfg):
             "dir": directory,
         })
     return result
+
+
+# Khoá ĐƯỢC PHÉP khai trong file YAML của một phiên bản dataset. Danh sách này là "khoá người viết
+# được phép dùng", KHÁC với các khoá phẳng nội bộ mà `_normalize` sinh ra (`text_column`, `_raw_dir`...).
+CONFIG_KEYS = ("schema_version", "name", "version", "sources", "pipeline_version", "format",
+               "splits", "full", "schema", "aspect_policy", "parent", "notes", "eval_lock")
+SCHEMA_KEYS = ("text", "id", "aspects", "labels", "drop", "keep")
+COLUMN_KEYS = ("column",)
+SOURCE_KEYS = ("kind", "name", "version", "raw_version")
+
+
+def check_keys(raw, path):
+    """Báo lỗi khi file YAML khai khoá mà không code nào đọc.
+
+    VÌ SAO PHẢI KIỂM: `_normalize` làm `cfg = dict(raw)` rồi GHI ĐÈ các khoá phẳng, nên một khoá viết
+    sai tên - hoặc khoá cũ còn sót lại như `raw_dir`, `text_column` - bị BỎ QUA IM LẶNG: cấu hình trông
+    như đã khai mà thực tế không có tác dụng (đã gặp thật: cột `raw_dir` của bảng tổng hợp rỗng suốt,
+    vì khoá đó không còn ai đọc). Cùng một chuẩn với config model (`src/model_config.py`) và config
+    thí nghiệm (`src/experiments.py::check`), hai chỗ đã kiểm khoá lạ.
+    """
+    if not isinstance(raw, dict):
+        return
+    schema = raw.get("schema") if isinstance(raw.get("schema"), dict) else {}
+    groups = [("", raw, CONFIG_KEYS), ("schema.", schema, SCHEMA_KEYS)]
+    for name in ("text", "id"):
+        node = schema.get(name)
+        if isinstance(node, dict):
+            groups.append(("schema.{}.".format(name), node, COLUMN_KEYS))
+    for index, item in enumerate(raw.get("sources") or []):
+        if isinstance(item, dict):
+            groups.append(("sources[{}].".format(index), item, SOURCE_KEYS))
+
+    problems = []
+    for prefix, node, allowed in groups:
+        for key in sorted(node, key=str):
+            text = str(key)
+            if text.startswith("_") or text in allowed:
+                continue
+            hint = difflib.get_close_matches(text, list(allowed), n=1, cutoff=0.5)
+            problems.append("khoá '{}{}' không hợp lệ{}. Khoá được phép: {}".format(
+                prefix, text, " (có phải bạn muốn '{}'?)".format(hint[0]) if hint else "",
+                ", ".join(allowed)))
+    if problems:
+        raise DatasetError("{} (đọc từ {}).".format("; ".join(problems), _display(path)))
 
 
 def _check(cfg):
