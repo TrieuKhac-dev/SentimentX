@@ -1,22 +1,28 @@
 # -*- coding: utf-8 -*-
 """Vẽ lại báo cáo từ FILE KẾT QUẢ (không chạy lại EDA / pipeline).
 
-Cách dùng:
-    python build_report.py                     # cả 2 báo cáo, kết quả mới nhất
-    python build_report.py --dataset cosmetics # 2 báo cáo + TỰ MỞ trình duyệt
-    python build_report.py --phase eda         # chỉ báo cáo EDA
-    python build_report.py --list              # xem kết quả đang có trên đĩa
-    python build_report.py --version <mã> --plotlyjs cdn
+Cách dùng - phải chỉ ĐÍCH DANH đích cần vẽ, hoặc dùng `--all`:
 
-Kết quả: `report.html` nằm ngay trong thư mục chứa file kết quả, nên mở được khi
-không có mạng:
-    data/raw/<name>/<raw_version>/eda/report.html      (EDA đo trên raw)
-    data/processed/<mã>/eda/report.html                (EDA đo trên dataset)
-    data/processed/<mã>/pipeline/report.html
+    python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0
+    python build_report.py --phase eda --on dataset --hash e0ccc484
+    python build_report.py --phase pipeline --on dataset --hash e0ccc484
+    python build_report.py --all                  # mọi nhóm × mọi đích đang có
+    python build_report.py --phase eda --all      # mọi đích EDA (raw + dataset)
+    python build_report.py --all --open           # vẽ hết rồi MỞ hết
+    python build_report.py --list                 # đang có gì + lệnh copy được
+    python build_report.py --version <mã> --plotlyjs cdn   # thiếu --phase/--on nên sẽ báo lỗi
 
-Chỉ định --dataset nghĩa là bạn đang xem một dataset cụ thể, nên công cụ mở luôn file
-HTML của các nhóm vừa vẽ bằng trình duyệt mặc định. Muốn tắt: --no-open.
-Gõ sai tên dataset sẽ báo ngay kèm gợi ý tên gần đúng.
+Kết quả: `report.html` nằm ngay trong thư mục chứa file kết quả, nên mở được khi không có mạng:
+    <gốc dữ liệu>/raw/<tên>/<nhãn raw>/eda/report.html      (EDA đo trên dữ liệu gốc)
+    <gốc dữ liệu>/processed/<mã>/eda/report.html            (EDA đo trên dataset)
+    <gốc dữ liệu>/processed/<mã>/pipeline/report.html
+
+Mặc định KHÔNG tự mở trình duyệt: cuối lượt chạy, công cụ in danh sách link `file://` để bấm
+(Ctrl+Click trong VS Code). Muốn mở hết thì thêm `--open`.
+
+Mã thoát: 0 = có vẽ báo cáo · 1 = đích hợp lệ nhưng CHƯA có kết quả (in lệnh cần chạy trước) ·
+2 = câu lệnh chưa rõ (thiếu `--phase`/`--on`/`--hash`), cú pháp đã bỏ (`--dataset`, `--phase all`),
+hoặc bộ lọc không khớp đích nào.
 
 Lệnh này KHÔNG tính toán lại số liệu. Mọi con số đều đọc từ file
 eda_result.json / pipeline_result.json do run_eda.py / run_pipeline.py ghi ra.
@@ -59,24 +65,26 @@ def _rel(path):
 
 
 def check_dataset(name):
-    """Kiểm tra --dataset có thật không, TRƯỚC khi đi tìm file kết quả.
+    """Kiểm tra `--name` có thật không, TRƯỚC khi đi tìm file kết quả.
 
-    Lệnh này không tự chạy EDA / pipeline, nên nếu tên dataset gõ sai thì không
-    có gì báo lỗi: hệ thống chỉ lọc thư mục phiên bản theo tên đó, không thấy gì
-    rồi kết luận "chưa có file kết quả" - dễ tưởng là lỗi ở khâu chạy. Kiểm tra
-    sớm để chỉ đúng chỗ gõ sai và gợi ý tên gần đúng.
+    VÌ SAO PHẢI KIỂM SỚM: lệnh này không tự chạy EDA / pipeline, nên tên gõ sai thì hệ thống chỉ lọc
+    thư mục theo tên đó, không thấy gì rồi kết luận "chưa có file kết quả" - dễ tưởng là lỗi ở khâu
+    chạy. Kiểm sớm để chỉ đúng chỗ gõ sai và gợi ý tên gần đúng.
+
+    KHÔNG dùng `dataset.config_path(name)` ở đây: hàm đó NÉM lỗi khi tên không tồn tại - đúng tình
+    huống đang kiểm - nên báo lỗi sẽ thành traceback. Tự ghép đường dẫn từ `configs/paths.yaml`.
     """
     names = dataset_config.available()
     if not names:
         print("Chưa có cấu hình dataset nào trong {}.".format(
-            _rel(config.DATASET_CONFIG_DIR)))
-        print("Tạo thư mục <tên>/<version>.yaml ở đó trước, rồi chạy lại.")
+            _rel(paths.config_path("datasets"))))
+        print("Tạo thư mục <tên>/<phiên bản>.yaml ở đó trước, rồi chạy lại.")
         return False
     if name in names:
         return True
 
-    print("Không có dataset tên '{}': thiếu file {}.".format(
-        name, _rel(dataset_config.config_path(name))))
+    print("Không có dataset tên '{}' trong {}.".format(
+        name, _rel(paths.config_path("datasets"))))
     print("Các dataset hiện có: {}".format(", ".join(names)))
     similar = difflib.get_close_matches(name, names, n=3, cutoff=0.6)
     if similar:
@@ -84,130 +92,226 @@ def check_dataset(name):
     return False
 
 
-def eda_dirs(dataset=None):
-    """Thư mục chứa kết quả EDA, mới nhất trước.
+def target_label(target):
+    """Nhãn ngắn của một đích, để in ra: `raw cosmetics@v0.1.0`, `dataset cosmetics@e0ccc484`."""
+    if target["source"] == "raw":
+        return "raw {}@{}".format(target["name"], target["version"])
+    return "dataset {}@{}".format(
+        target["name"], versioning.version_parts(target["version"])[1])
 
-    EDA ghi kết quả ngay cạnh thứ nó đo: `data/raw/<name>/<raw_version>/eda/` khi đo trên
-    raw, hoặc `data/processed/<mã>/eda/` khi đo trên dataset.
+
+def target_command(target):
+    """Lệnh `build_report.py` chỉ đích danh MỘT đích (copy dán là chạy)."""
+    if target["source"] == "raw":
+        return "python build_report.py --phase eda --on raw --name {} --version {}".format(
+            target["name"], target["version"])
+    _, hash8 = versioning.version_parts(target["version"])
+    return "python build_report.py --phase {} --on dataset --hash {}".format(
+        target["phase"], hash8)
+
+
+def raw_targets(dataset=None):
+    """Các đích EDA của dữ liệu GỐC: mỗi phiên bản raw một đích.
+
+    Gồm cả nơi CHƯA có thư mục kết quả EDA: "thiếu" là thông tin phải nói ra, kèm lệnh tạo.
     """
     found = []
     raw_root = paths.data("raw")
-    if raw_root.is_dir():
-        for name_dir in sorted(raw_root.iterdir()):
-            if not name_dir.is_dir() or (dataset and name_dir.name != dataset):
-                continue
-            for version_dir in sorted(name_dir.iterdir()):
-                candidate = version_dir / paths.pattern("eda_dir")
-                if candidate.is_dir():
-                    found.append(candidate)
-    for processed in versioning.dataset_dirs():
-        if dataset and not processed.name.startswith(str(dataset) + "-ds"):
+    if not raw_root.is_dir():
+        return found
+    for name_dir in sorted(raw_root.iterdir()):
+        if not name_dir.is_dir() or (dataset and name_dir.name != dataset):
             continue
-        candidate = processed / paths.pattern("eda_dir")
-        if candidate.is_dir():
-            found.append(candidate)
+        for version_dir in sorted(path for path in name_dir.iterdir() if path.is_dir()):
+            found.append({
+                "phase": "eda",
+                "source": "raw",
+                "name": name_dir.name,
+                "version": version_dir.name,
+                "directory": version_dir / paths.pattern("eda_dir"),
+                "producer": "python run_eda.py --on raw --name {} --version {}".format(
+                    name_dir.name, version_dir.name),
+            })
     return found
 
 
-def pipeline_dirs(dataset=None):
-    """Thư mục chứa kết quả pipeline, mới nhất trước."""
+def processed_targets(dataset=None):
+    """Các đích của dataset ĐÃ XỬ LÝ: EDA và pipeline, mỗi nhóm một đích cho mỗi phiên bản."""
     found = []
     for processed in versioning.dataset_dirs():
-        if dataset and not processed.name.startswith(str(dataset) + "-ds"):
+        name, hash8 = versioning.version_parts(processed.name)
+        if dataset and name != dataset:
             continue
-        found.append(versioning.pipeline_report_dir(processed.name))
+        found.append({
+            "phase": "eda",
+            "source": "dataset",
+            "name": name,
+            "version": processed.name,
+            "directory": processed / paths.pattern("eda_dir"),
+            "producer": "python run_eda.py --on dataset --hash {}".format(hash8),
+        })
+        log = versioning.read_processing_log(processed.name)
+        config_version = (log.get("dataset") or {}).get("version") or "<phiên bản cấu hình>"
+        found.append({
+            "phase": "pipeline",
+            "source": "dataset",
+            "name": name,
+            "version": processed.name,
+            "directory": versioning.pipeline_report_dir(processed.name),
+            "producer": "python run_pipeline.py --name {} --version {}".format(
+                name, config_version),
+        })
     return found
 
 
-def result_dirs(phase, dataset=None):
-    """Các thư mục đang có kết quả của một nhóm báo cáo."""
-    return eda_dirs(dataset) if phase == "eda" else pipeline_dirs(dataset)
+def targets(phase=None, source=None, dataset=None):
+    """Mọi đích khớp bộ lọc, theo thứ tự: EDA dữ liệu gốc, EDA dataset, pipeline."""
+    want_raw_eda = phase in (None, "eda") and source in (None, "raw")
+    want_dataset_eda = phase in (None, "eda") and source in (None, "dataset")
+    want_pipeline = phase in (None, "pipeline") and source in (None, "dataset")
+    found = raw_targets(dataset) if want_raw_eda else []
+    if want_dataset_eda or want_pipeline:
+        processed = processed_targets(dataset)
+        found += [item for item in processed
+                  if (item["phase"] == "eda" and want_dataset_eda)
+                  or (item["phase"] == "pipeline" and want_pipeline)]
+    return found
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Sinh báo cáo HTML/Markdown từ file kết quả."
+        description="Sinh báo cáo HTML/Markdown từ file kết quả.",
+        epilog="Cú pháp đầy đủ: docs/00_workflow/09_cli.md",
     )
     parser.add_argument(
-        "--dataset", default=None,
-        help="Tên dataset (mặc định: mọi dataset).",
+        "--phase", choices=("eda", "pipeline"), default=None,
+        help="Nhóm cần vẽ. Bắt buộc, trừ khi dùng --all.",
     )
     parser.add_argument(
-        "--phase", choices=["eda", "pipeline", "all"], default="all",
-        help="Nhóm cần vẽ báo cáo (mặc định: all).",
+        "--on", dest="where", choices=("raw", "dataset"), default=None,
+        help="Nơi đo: raw = dữ liệu gốc (cần --name + --version), dataset = dataset đã xử lý "
+             "(cần --hash). Bắt buộc, trừ khi dùng --all.",
+    )
+    parser.add_argument(
+        "--name", default=None,
+        help="Tên dataset: bắt buộc với --on raw; với --on dataset thì ghi thêm chỉ để đối chiếu.",
     )
     parser.add_argument(
         "--version", default=None,
-        help="Mã phiên bản cần vẽ (mặc định: bản mới nhất).",
+        help="Nhãn phiên bản dữ liệu GỐC, chỉ dùng với --on raw. KHÔNG phải mã phiên bản dữ liệu "
+             "đã xử lý.",
     )
     parser.add_argument(
-        "--plotlyjs", choices=["local", "cdn"], default="local",
+        "--hash", default=None,
+        help="Phiên bản dữ liệu ĐÃ XỬ LÝ: mã đầy đủ hoặc 8 ký tự hex cuối (ví dụ e0ccc484). "
+             "Bắt buộc khi --on dataset.",
+    )
+    parser.add_argument(
+        "--all", action="store_true",
+        help="Vẽ HẾT mọi đích khớp các bộ lọc còn lại; không kèm bộ lọc nào = mọi nhóm × mọi đích.",
+    )
+    parser.add_argument(
+        "--plotlyjs", choices=("local", "cdn"), default="local",
         help="Nguồn thư viện vẽ: local = mở offline, cdn = cần Internet.",
     )
     parser.add_argument(
+        "--open", dest="open_browser", action="store_true",
+        help="Mở TẤT CẢ báo cáo vừa vẽ bằng trình duyệt (mặc định: chỉ in link file:// để bấm).",
+    )
+    parser.add_argument(
         "--no-open", action="store_true",
-        help="Không tự mở trình duyệt (mặc định: mở khi có --dataset).",
+        help="Không tự mở trình duyệt (nay là mặc định; giữ cờ cho tương thích câu lệnh cũ).",
     )
     parser.add_argument(
         "--list", action="store_true",
-        help="Chỉ liệt kê các phiên bản đã chạy trong mục lục rồi thoát.",
+        help="Liệt kê đích đang có trên đĩa kèm lệnh copy được, rồi thoát.",
     )
     return parser.parse_args(argv)
 
 
-def resolve_dir(phase, version=None, dataset=None):
-    """Thư mục chứa file kết quả của một nhóm.
+def removed_flag_message(argv):
+    """Câu lỗi khi người dùng gõ cú pháp ĐÃ BỎ, thay vì để argparse nói 'unrecognized arguments'."""
+    items = [str(item) for item in argv]
+    for flag in ("--dataset", "--raw-version"):
+        if any(item == flag or item.startswith(flag + "=") for item in items):
+            return ("`{}` đã bỏ: tên dataset nay là `--name`; nhãn dữ liệu gốc nay là "
+                    "`--on raw --name <tên> --version <nhãn>`.".format(flag))
+    if "--phase" in items:
+        index = items.index("--phase")
+        if index + 1 < len(items) and items[index + 1] == "all":
+            return "`--phase all` đã bỏ: dùng `--all`."
+    return None
 
-    Ưu tiên mã chỉ định bằng --version, rồi tới kết quả mới nhất trên đĩa.
-    Với EDA, `version` có thể là mã phiên bản dataset hoặc nhãn `raw_version`.
+
+def plan_targets(args):
+    """Chọn danh sách đích sẽ vẽ theo tham số. Trả về `(danh sách, câu lỗi)`.
+
+    Luật cố ý khắt khe: không có `--all` thì phải chỉ ĐÍCH DANH một đích - "tự chọn đại một cái"
+    là đoán, mà báo cáo vẽ cho một phiên bản khác thì nhìn vào vẫn hợp lý.
     """
-    if version:
-        if phase == "pipeline":
-            return versioning.pipeline_report_dir(version)
-        candidate = paths.processed(version) / paths.pattern("eda_dir")
-        if candidate.is_dir():
-            return candidate
-        raw_root = paths.data("raw")
-        if raw_root.is_dir():
-            for name_dir in sorted(raw_root.iterdir()):
-                candidate = name_dir / version / paths.pattern("eda_dir")
-                if candidate.is_dir():
-                    return candidate
-        return paths.processed(version) / paths.pattern("eda_dir")
+    if not args.all and not args.where:
+        return [], ("thiếu `--on`: ghi rõ nơi đo (`--on raw` hoặc `--on dataset`), hoặc `--all`.")
+    if args.where == "raw":
+        if args.hash:
+            return [], "`--hash` là của dataset đã xử lý; dữ liệu gốc dùng `--name` + `--version`."
+        if "-ds" in str(args.version or ""):
+            return [], ("`--version {}` là MÃ PHIÊN BẢN của dataset đã xử lý, không phải nhãn "
+                        "raw_version.\n      Muốn vẽ dataset: python build_report.py --phase {} "
+                        "--on dataset --hash {}".format(
+                            args.version, args.phase or "eda", args.version))
+        if args.phase == "pipeline":
+            return [], "pipeline chỉ có nguồn là dataset đã xử lý; dùng `--on dataset --hash …`."
+        if not args.all and (not args.name or not args.version):
+            return [], ("`--phase eda --on raw` cần đủ `--name` và `--version` (nhãn raw_version).\n"
+                        "      Ví dụ: python build_report.py --phase eda --on raw "
+                        "--name cosmetics --version v0.1.0")
+    if args.where == "dataset":
+        if args.version:
+            return [], ("`--on dataset` không dùng `--version` (đó là nhãn dữ liệu gốc); dùng "
+                        "`--hash`.")
+        if not args.all and not args.hash:
+            return [], ("`--on dataset` cần `--hash` để chỉ đích danh phiên bản dữ liệu.\n"
+                        "      Ví dụ: python build_report.py --phase {} --on dataset "
+                        "--hash e0ccc484".format(args.phase or "eda"))
+    if not args.all and not args.phase:
+        return [], ("thiếu `--phase`: ghi rõ `--phase eda` hoặc `--phase pipeline`, hoặc `--all`.")
 
-    found = result_dirs(phase, dataset)
-    return found[0] if found else None
+    found = targets(phase=args.phase, source=args.where, dataset=args.name)
+
+    if args.where == "dataset" and args.hash:
+        try:
+            version_id = versioning.find_version(args.hash)
+        except versioning.VersionError as exc:
+            return [], str(exc)
+        name, _ = versioning.version_parts(version_id)
+        if args.name and args.name != name:
+            return [], "`--name {}` không khớp mã {} (tên dataset trong mã là {}).".format(
+                args.name, version_id, name)
+        found = [item for item in found if item["version"] == version_id]
+
+    if args.where == "raw" and args.name and args.version:
+        found = [item for item in found
+                 if item["name"] == args.name and item["version"] == args.version]
+        if not found:
+            available = ["{}@{}".format(item["name"], item["version"]) for item in raw_targets()]
+            return [], "Không có dữ liệu gốc `{}` phiên bản `{}`. Đang có:\n  - {}".format(
+                args.name, args.version, "\n  - ".join(available) or "(không có)")
+
+    if not found:
+        return [], "Bộ lọc không khớp đích nào. Xem đang có gì: python build_report.py --list"
+    return found, None
 
 
-def build_one(phase, version, plotlyjs, dataset):
-    """Vẽ báo cáo của một nhóm. Trả về đường dẫn file HTML, hoặc None."""
-    directory = resolve_dir(phase, version, dataset)
-
-    if directory is None:
-        print("  - {}: chưa có kết quả{} - nhóm này chưa chạy lần nào.".format(
-            phase, " cho dataset '{}'".format(dataset) if dataset else ""))
-        print("    Hãy chạy: python run_{}.py".format(phase))
+def draw(target, plotlyjs):
+    """Vẽ báo cáo của MỘT đích. Trả về đường dẫn file HTML, hoặc None nếu thiếu file kết quả."""
+    directory = target["directory"]
+    path = result_io.result_path(directory, target["phase"])
+    if not path.is_file():
         return None
-
-    path = result_io.result_path(directory, phase)
-
-    if not path.exists():
-        print("  - {}: thư mục này thiếu file kết quả ({})".format(
-            phase, _rel(path)))
-        print("    Hãy chạy: python run_{}.py{}".format(
-            phase, " --dataset {}".format(dataset) if dataset else ""))
-        return None
-
     payload = result_io.read_result(path)
-    if dataset and payload.get("dataset") and payload["dataset"] != dataset:
-        print("  - {}: file kết quả thuộc dataset '{}', bỏ qua.".format(
-            phase, payload["dataset"]))
-        return None
-
     html_path = render.write_reports(payload, directory, plotlyjs=plotlyjs)
-    print("  - {}: {}".format(phase, PHASE_LABELS[phase]))
-    print("      Phiên bản: {}".format(payload.get("version_id") or "(chưa đặt)"))
-    print("      HTML     : {}".format(_rel(html_path)))
+    print("  - [{}] {} -> {}".format(
+        target_label(target), PHASE_LABELS[target["phase"]], _rel(html_path)))
     return html_path
 
 
@@ -223,65 +327,90 @@ def open_reports(paths):
 
 
 def list_versions():
-    """In ra những gì đang có trên đĩa: dataset đã xử lý, kết quả EDA, kết quả pipeline."""
+    """In đang có gì trên đĩa, kèm LỆNH COPY ĐƯỢC cho từng đích.
+
+    Đây là cách khỏi phải nhớ hash8: mở bảng này rồi dán đúng lệnh của đích cần vẽ.
+    """
+    print("Dataset đã xử lý trong {}:".format(_rel(paths.data("processed"))))
     datasets = versioning.dataset_dirs()
     if not datasets:
-        print("Chưa có dataset nào trong {}.".format(_rel(paths.data("processed"))))
-    else:
-        print("Dataset đã xử lý trong {}:".format(_rel(paths.data("processed"))))
-        for path in datasets:
-            log = versioning.read_processing_log(path.name)
-            after = (log.get("record_counts") or {}).get("after") or {}
-            total = sum(after.values()) if after else ""
-            print("  - {:<46} {}".format(path.name, "{} dòng".format(total) if total else ""))
+        print("  (chưa có)")
+    for path in datasets:
+        log = versioning.read_processing_log(path.name)
+        after = (log.get("record_counts") or {}).get("after") or {}
+        total = sum(after.values()) if after else ""
+        print("  - {:<46} {}".format(path.name, "{} dòng".format(total) if total else ""))
 
-    eda = eda_dirs()
-    print("\nKết quả EDA ({}):".format(len(eda)))
-    for path in eda or []:
-        print("  - {}".format(_rel(path)))
-
-    pipeline = pipeline_dirs()
-    print("\nKết quả pipeline ({}):".format(len(pipeline)))
-    for path in pipeline or []:
-        print("  - {}".format(_rel(path)))
+    for phase, title in (("eda", "Đích EDA"), ("pipeline", "Đích pipeline")):
+        found = targets(phase=phase)
+        print("\n{} ({}):".format(title, len(found)))
+        for item in found:
+            ready = result_io.result_path(item["directory"], item["phase"]).is_file()
+            print("  [{}] {}".format(
+                target_label(item), "có kết quả" if ready else "CHƯA có kết quả"))
+            print("      {}".format(_rel(item["directory"])))
+            print("      -> {}".format(target_command(item)))
     return 0
 
 
 def main(argv=None):
-    args = parse_args(argv)
+    argv = list(sys.argv[1:] if argv is None else argv)
 
     print("BUILD REPORT - vẽ báo cáo từ file kết quả")
+
+    # Cú pháp ĐÃ BỎ thì báo rõ cách thay thế, thay vì để argparse nói "unrecognized arguments".
+    removed = removed_flag_message(argv)
+    if removed:
+        print("LỖI: {}".format(removed))
+        return 2
+
+    args = parse_args(argv)
 
     if args.list:
         return list_versions()
 
     print("Thư viện vẽ: {}".format(args.plotlyjs))
-    print("Dataset: {}".format(args.dataset or "(mọi dataset)"))
 
-    # Kiểm tra tên dataset trước khi tìm file kết quả: gõ sai tên thì dừng ngay
-    # và chỉ rõ tên đúng, thay vì báo "chưa có file kết quả" (hiểu nhầm là do
-    # chưa chạy run_eda.py / run_pipeline.py).
-    if args.dataset and not check_dataset(args.dataset):
+    # Gõ sai tên dataset: dừng ngay kèm gợi ý tên đúng, thay vì báo "chưa có file kết quả".
+    if args.name and not check_dataset(args.name):
         return 2
 
-    phases = ["eda", "pipeline"] if args.phase == "all" else [args.phase]
+    plan, mistake = plan_targets(args)
+    if mistake:
+        print("LỖI: {}".format(mistake))
+        return 2
 
-    written = []
-    for phase in phases:
-        print("\nNhóm: {}".format(phase))
-        html_path = build_one(phase, args.version, args.plotlyjs, args.dataset)
+    print("\nĐích sẽ vẽ ({}):".format(len(plan)))
+    for item in plan:
+        ready = result_io.result_path(item["directory"], item["phase"]).is_file()
+        print("  [{}] {}{}".format(
+            target_label(item), _rel(item["directory"]),
+            "" if ready else "   (CHƯA có kết quả)"))
+
+    written, skipped = [], []
+    for item in plan:
+        html_path = draw(item, args.plotlyjs)
         if html_path:
             written.append(html_path)
+        else:
+            skipped.append(item)
+
+    if skipped:
+        print("\nCHƯA CÓ KẾT QUẢ ({} đích) - chạy trước rồi vẽ lại:".format(len(skipped)))
+        for item in skipped:
+            print("  [{}] {}".format(target_label(item), _rel(item["directory"])))
+            print("      chạy trước: {}".format(item["producer"]))
 
     if not written:
-        print("\nKhông có báo cáo nào được sinh. Hãy chạy run_eda.py hoặc "
-              "run_pipeline.py trước.")
+        print("\nKhông vẽ được báo cáo nào.")
         return 1
 
-    print("\nHoàn tất: {} báo cáo.".format(len(written)))
-
-    # Chỉ định --dataset nghĩa là đang xem một dataset cụ thể -> mở luôn báo cáo.
-    if args.dataset and not args.no_open:
+    print("\nĐã vẽ {} báo cáo (Ctrl+Click để mở, hoặc chạy lại với --open):".format(
+        len(written)))
+    for path in written:
+        print("  {}".format(Path(path).resolve().as_uri()))
+        print("    {}".format(_rel(path)))
+    if args.open_browser:
         open_reports(written)
     return 0
 
