@@ -47,7 +47,7 @@ inference:
 | `model_id`               | Ghi chú                             |
 | ------------------------ | ----------------------------------- |
 | `qwen3-4b-instruct-2507` | chỉ dùng cho thí nghiệm prompt      |
-| `qwen3-0.6b`             | bản nhỏ, chạy được cả CPU           |
+| `qwen3-0.6b`             | model THỨ TƯ của thử nghiệm: cùng ba mức ví dụ của công bố để đo khoảng cách của một model nhỏ (chạy được cả CPU) |
 | `phobert-base-v2`        | encoder, huấn luyện LoRA hoặc QLoRA |
 | `visobert`               | encoder, huấn luyện LoRA hoặc QLoRA |
 
