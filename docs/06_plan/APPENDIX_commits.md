@@ -131,6 +131,9 @@ khi mở notebook trên Colab), nên commit thực tế không trùng tên. Ghi 
 | P7 T2 | `feat(data): regenerate eda and pipeline reports` |
 | P7 T5 | `docs(plan): record the prepared handover package` |
 
+Ghi chú lịch sử: dòng `fix(scripts): the documented --title now fills notes` ở trên là bản ghi của một
+commit CÓ THẬT trong git (không viết lại). Cờ đó nay tên là `--notes` - xem `docs/05_config/06_experiment.md`.
+
 Hai điều rút ra từ hai lần chạy notebook trên Colab, ghi lại vì cả hai chỉ lộ ra ở máy MỚI:
 
 - Thứ tự trong ô bootstrap là chịu lực: kéo mã nguồn TRƯỚC khi `import src`, và kéo đúng commit đã
