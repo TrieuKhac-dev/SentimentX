@@ -1,4 +1,4 @@
-# Tải trọng số Qwen3 về máy — dùng chung cho cả nhóm, KHÔNG commit (data/models/ nằm trong
+﻿# Tải trọng số Qwen3 về máy — dùng chung cho cả nhóm, KHÔNG commit (data/models/ nằm trong
 # .gitignore: 8 GB thì không đưa vào git được, nhưng phải tải được CÙNG MỘT BẢN).
 #
 # Cách dùng:

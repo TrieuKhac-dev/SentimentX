@@ -65,6 +65,12 @@ khác nhau, nên `assertEqual(code, 2)` một mình vẫn xanh kể cả khi cô
   thấy "lỗi font".
 - Dùng editor, hoặc `[System.IO.File]::ReadAllText` / `WriteAllText` với `UTF8Encoding` và ghi rõ
   encoding ở cả hai chiều. Code đọc tệp cấu hình bằng `utf-8-sig` để chịu được BOM.
+- Tệp `scripts/*.ps1` có chữ tiếng Việt **phải có BOM UTF-8** (`EF BB BF`). `powershell.exe` 5.1 đọc
+  tệp `.ps1` không BOM theo ANSI, nên chuỗi tiếng Việt vỡ và **script không parse được**. Ca thật:
+  `scripts/setup_qwen_model.ps1` báo `The string is missing the terminator` ở một dòng chỉ có chữ tiếng
+  Việt, trong khi `setup_java.ps1` và `setup_vncorenlp.ps1` (có BOM) chạy bình thường - nghĩa là lệnh
+  `powershell -File scripts\...` mà README hướng dẫn chỉ chạy được khi tệp có BOM. Kiểm nhanh:
+  `[System.IO.File]::ReadAllBytes($p)[0..2] -join ','` → `239,187,191` là có BOM.
 
 ## Dòng lệnh
 
