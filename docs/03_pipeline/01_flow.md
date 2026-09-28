@@ -142,7 +142,7 @@ python build_report.py --phase pipeline --on dataset --hash e0ccc484 --open   # 
 | --- | -------------------------------------------------------------------------------- |
 | `0` | chạy xong                                                                        |
 | `1` | không có gì để vẽ (chưa chạy nhóm việc đó, hoặc phiên bản không có file kết quả) |
-| `2` | dùng sai: **tên dataset không tồn tại** / không có file kết quả nào để vẽ        |
+| `2` | dùng sai: **tên dataset không tồn tại**, hoặc thiếu/không hợp lệ cờ chỉ đích    |
 
 Gõ sai tên dataset (ví dụ `--name consmetics`) sẽ dừng **ngay** với một dòng
 `LỖI: ...` kèm gợi ý tên gần đúng, thay vì chạy tiếp rồi báo nhầm là "chưa có file kết
