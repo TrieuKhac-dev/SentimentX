@@ -143,4 +143,5 @@ lạ trong cấu hình đã hợp nhất.
 Dùng `python scripts/new_experiment.py --model ... --method ... --title "mô tả ngắn"`. Công cụ này tự
 chọn số `expNNN` kế tiếp từ trạng thái đã hợp nhất, nên không thể trùng số với thí nghiệm trước;
 `--title` điền vào `notes` của `config.yaml`. Đổi tiêu đề sau khi đã tạo cũng được - sửa thẳng dòng
-`notes` trong file config.
+`notes` trong file config: khoá này **bị loại khỏi dấu vân tay** (`IDENTITY_SKIP_KEYS` trong
+`src/experiments.py`), nên sửa mô tả KHÔNG đổi `<hash8>` và không đẻ ra thư mục kết quả mới.

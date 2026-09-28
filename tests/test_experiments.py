@@ -381,5 +381,21 @@ class TestDuplicateGuard(ExperimentCase):
         self.assertIn("Chưa có", experiments.describe_runs([])[0])
 
 
+class TestIdentityKeys(ExperimentCase):
+    """Khoá MÔ TẢ không được nằm trong dấu vân tay (và vì thế trong tên thư mục kết quả)."""
+
+    def test_sua_notes_khong_doi_dau_van_tay(self):
+        """Sửa một câu mô tả không phải là một phép đo mới, cũng không được cắt lượt chạy đang tiếp."""
+        before = experiments.config_sha256(self.load())
+        after = experiments.config_sha256(self.load(extra="notes: 'mô tả KHÁC hẳn'\n"))
+        self.assertEqual(before, after)
+
+    def test_doi_mot_khoa_do_thi_dau_van_tay_van_doi(self):
+        """Không được nới lỏng quá mức: `n` là một phần của phép đo nên phải ra thư mục khác."""
+        before = experiments.config_sha256(self.load())
+        after = experiments.config_sha256(self.load(extra="n: 7\n"))
+        self.assertNotEqual(before, after)
+
+
 if __name__ == "__main__":
     unittest.main()

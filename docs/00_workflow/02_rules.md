@@ -39,9 +39,9 @@
 
 13. Resume chỉ hợp lệ khi ba giá trị sau **đều không đổi**. Cả ba đều nằm trong
     `results/<hash8>/run_meta.json`:
-    - `config_sha256`: mã băm danh tính của lượt chạy - config đã hợp nhất, văn bản prompt, file ví
-      dụ + khối hệ thống, mã phiên bản dữ liệu, và các giá trị chỉ có khi chạy. Nó cũng CHÍNH LÀ tên
-      thư mục kết quả (`<hash8>` = 8 ký tự đầu).
+    - `config_sha256`: mã băm danh tính của lượt chạy - config đã hợp nhất (đã **loại các khoá mô tả**
+      như `notes`), văn bản prompt, file ví dụ + khối hệ thống, mã phiên bản dữ liệu, và các giá trị chỉ
+      có khi chạy. Nó cũng CHÍNH LÀ tên thư mục kết quả (`<hash8>` = 8 ký tự đầu).
     - `data.build`: mã phiên bản dữ liệu, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f`.
     - `repo.sha`: commit đã ghim trong notebook.
 14. Code đổi thì **không resume**: lượt chạy mới có `repo.sha` khác nên rơi vào **thư mục khác**

@@ -32,6 +32,7 @@
 | Nội dung prompt / bộ ví dụ few-shot / khối hệ thống đổi | **Khác** | Prompt gửi model đã đổi |
 | Lượng hoá đổi (`4bit` ↔ không lượng hoá), `max_length`, `batch_size`, `max_new_tokens`, cách sinh, `seed`, `n`, `split` | **Khác** | Đổi đầu vào hoặc đầu ra của phép đo |
 | Phiên bản dữ liệu khác | **Khác** | Chấm trên bộ dữ liệu khác |
+| Sửa `notes` của thí nghiệm (chỉ là mô tả) | **CÙNG** | `notes` bị loại khỏi phần băm (`IDENTITY_SKIP_KEYS`): mô tả không phải một phần của phép đo |
 | Máy chạy khác (Colab ↔ local), kiểu số (fp16/bf16), **nguồn trọng số** (id HF hay `data/models/…`) | **CÙNG thư mục** | Ba thứ này không nằm trong mã băm; `run_meta.json` ghi lại (`env.device`, `env.gpu`, `env.dtype`, `env.quantization`) để báo cáo nói rõ máy nào chạy |
 
 Nói gọn: **cái gì đổi phép đo thì đổi thư mục; cái gì chỉ là bản code hay cái máy thì dùng lại chỗ

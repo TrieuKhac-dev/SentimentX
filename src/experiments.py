@@ -268,6 +268,20 @@ def _value(value):
 # ---
 
 
+# Khoá MÔ TẢ: nói thí nghiệm này khác các thí nghiệm khác ở đâu, KHÔNG phải một phần của phép đo. Loại
+# khỏi dấu vân tay (và vì thế khỏi tên thư mục kết quả): sửa một câu mô tả không được làm lượt chạy dài
+# đang chạy tiếp bị coi là lượt MỚI, cũng không được đẻ ra một "phép đo" thứ hai giống hệt lượt trước.
+# Thêm khoá vào đây khi nó cũng chỉ là mô tả (`parent` là ứng viên tiếp theo).
+IDENTITY_SKIP_KEYS = ("notes",)
+
+
+def _identity_config(config):
+    """Bản sao config đã bỏ các khoá mô tả - dùng CHỈ để băm (`config_sha256`)."""
+    if not IDENTITY_SKIP_KEYS:
+        return config
+    return {key: value for key, value in (config or {}).items() if key not in IDENTITY_SKIP_KEYS}
+
+
 def config_sha256(result, prompt_text=None, side_files=None, extra=None):
     """Dấu vân tay của CẤU HÌNH ĐÃ HỢP NHẤT, VĂN BẢN PROMPT, các FILE ĐI KÈM prompt, và PHẦN CHẠY.
 
@@ -292,7 +306,7 @@ def config_sha256(result, prompt_text=None, side_files=None, extra=None):
     """
     digest = hashlib.sha256()
     digest.update(b"config:")
-    digest.update(canonical_bytes(result["config"]))
+    digest.update(canonical_bytes(_identity_config(result["config"])))
     digest.update(b"prompt:")
     text = prompt_text if prompt_text is not None else prompt_merged(result)
     # Chuẩn hoá kiểu xuống dòng trước khi băm: văn bản prompt đọc từ file nên trên Windows là CRLF
