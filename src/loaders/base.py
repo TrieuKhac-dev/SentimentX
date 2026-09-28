@@ -9,7 +9,9 @@ BỐN QUY ƯỚC BẮT BUỘC (phần còn lại của dự án dựa vào nhữ
 
 1. Giữ NGUYÊN tên cột như trong file gốc. Việc đổi tên cột văn bản thành
    "text" là do src/dataset.py làm, KHÔNG phải loader - vì mỗi dataset khai
-   báo tên cột khác nhau ở khoá `text_column` trong configs/datasets/*.yaml.
+   báo tên cột khác nhau ở khoá `schema.text.column` trong
+   configs/datasets/<tên>/<phiên bản>.yaml (khoá phẳng `text_column` mà
+   phần còn lại của dự án dùng là khoá NỘI BỘ do `src/dataset.py` sinh ra).
 
 2. Ô trống giữ nguyên là chuỗi rỗng "", KHÔNG được biến thành NaN.
    Ở cột aspect, ô trống nghĩa là "aspect này không được nhắc tới" (null),

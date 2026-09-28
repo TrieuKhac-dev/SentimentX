@@ -5,9 +5,13 @@
 
 Xem hướng dẫn đầy đủ ở [README, mục 7](../README.md). Tóm tắt:
 
-1. Đặt dữ liệu gốc vào `data/raw/<tên>/` (mỗi dataset một thư mục riêng).
+1. Đặt dữ liệu gốc vào `data/raw/<tên>/<nhãn raw_version>/` (mỗi dataset một thư mục, mỗi phiên
+   bản dữ liệu gốc một thư mục con).
 2. Copy `configs/datasets/cosmetics/v0.1.0.yaml` thành `configs/datasets/<name>/<version>.yaml`
-   rồi sửa: `name`, `format`, `raw_dir`, `text_column`, `aspects`, `labels`, `splits`.
+   rồi sửa: `name`, `version`, `format`, `sources` (`name` + `raw_version`), `pipeline_version`,
+   `splits`, `full`, `schema` (`text.column`, `aspects`, `labels`, `drop`), `eval_lock`, `parent`.
+   Thư mục dữ liệu gốc do `sources` + `configs/paths.yaml` **suy ra**, KHÔNG khai trong config
+   (khoá `raw_dir` đã bỏ ở P1 T5).
 3. Chạy `python run_eda.py --on raw --name <tên> --version <nhãn raw_version>`, rồi
    `python run_pipeline.py --name <tên> --version <phiên bản cấu hình>`; vẽ báo cáo bằng
    `python build_report.py --all` (bảng cú pháp: [../00_workflow/09_cli.md](../00_workflow/09_cli.md)).
@@ -25,7 +29,7 @@ Ba trường hợp cần thêm việc:
 | Trường hợp                      | Cần làm gì                                                         |
 | ------------------------------- | ------------------------------------------------------------------ |
 | Định dạng file mới (vd `.xlsx`) | viết hàm `read(path)` trong `src/loaders/` rồi đăng ký ở `LOADERS` |
-| Tên cột văn bản khác            | sửa khoá `text_column` trong YAML                                  |
+| Tên cột văn bản khác            | sửa khoá `schema.text.column` trong YAML                           |
 | Bộ nhãn khác (vd thêm `mixed`)  | khai báo thêm trong `labels`; mã nhãn mới được cấp tự động         |
 
 Sau khi thêm dataset, chạy đủ ba nhóm việc theo đúng thứ tự: EDA (khảo sát) -> pipeline

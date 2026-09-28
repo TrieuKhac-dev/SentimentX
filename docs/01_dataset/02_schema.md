@@ -10,12 +10,12 @@ trong `configs/datasets/cosmetics/v0.1.0.yaml`:
 
 | Cột            | Kiểu    | Ý nghĩa                                                     |
 | -------------- | ------- | ----------------------------------------------------------- |
-| `data`         | văn bản | nội dung review (khai báo ở khoá `text_column`)             |
+| `data`         | văn bản | nội dung review (khai báo ở `schema.text.column`)          |
 | `stayingpower` | nhãn    | độ bền màu                                                  |
 | `texture`      | nhãn    | kết cấu / chất son                                          |
 | `smell`        | nhãn    | mùi                                                         |
 | `price`        | nhãn    | giá                                                         |
-| `others`       | nhãn    | **đã loại bỏ** (xem mục 2) - khai báo ở khoá `drop_columns` |
+| `others`       | nhãn    | **đã loại bỏ** (xem mục 2) - khai báo ở `schema.drop`      |
 | `colour`       | nhãn    | màu sắc                                                     |
 | `shipping`     | nhãn    | giao hàng                                                   |
 | `packing`      | nhãn    | đóng gói                                                    |
@@ -34,7 +34,7 @@ Khi khảo sát, cột `others` trong tập train chỉ có hai giá trị:
 Nó **không hề có `positive` hay `negative`**, nên hoàn toàn không mang tín hiệu
 phân loại cảm xúc. Giữ lại chỉ làm bài toán phức tạp thêm mà không giúp gì.
 Quyết định này được khai báo tại `configs/datasets/cosmetics/v0.1.0.yaml`
-(`aspects` và `drop_columns`).
+(`schema.aspects` và `schema.drop`).
 
 > **Hệ quả cần nhớ:** trong 2.291 dòng train có `others = neutral`, **2.287 dòng**
 > không có nhãn ở bất kỳ khía cạnh nào khác. Sau khi bỏ `others`, chúng trở thành
