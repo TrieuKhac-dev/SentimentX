@@ -18,9 +18,10 @@ BA VIỆC KIỂM TRƯỚC KHI TẠO
        vì chế độ đó không ghi gì; cờ `--allow-dirty` là đường thoát khi tạo thật (khi đó có cảnh báo).
     2. `git fetch origin <nhánh>` (nhánh ở `configs/experiments/repo.yaml`). Fetch hỏng (mất mạng)
        thì chỉ CẢNH BÁO rồi đi tiếp.
-    3. Nhánh hiện tại phải CHỨA `origin/<nhánh>`, và số `expNNN` kế tiếp tính trên cả thí nghiệm đã
-       nằm trên nhánh đó - hai người làm song song trên hai máy không thể cùng nhận một số
-       (docs/00_workflow/01_flow.md).
+    3. Nhánh hiện tại phải CHỨA `origin/<nhánh>` (hỏi `is_ancestor(origin/<nhánh>, HEAD)` - KHÔNG phải
+       chiều ngược lại, vì "HEAD chưa push" là trạng thái bình thường), và số `expNNN` kế tiếp tính trên
+       cả thí nghiệm đã nằm trên nhánh đó - hai người làm song song trên hai máy không thể cùng nhận một
+       số (docs/00_workflow/01_flow.md).
 
 NÓ KHÔNG TỰ GHIM COMMIT
 Tạo xong, xem lại config (dataset, roles, n, prompt, examples) rồi chạy
@@ -177,7 +178,7 @@ def main(argv=None):
                 "Chưa có {} trong repo: nhánh đã ghim phải có trên remote, nếu không thì commit "
                 "ghim không nằm trên nhánh và kết quả chạy ra không dùng được "
                 "(docs/00_workflow/01_flow.md). Đẩy nhánh lên rồi chạy lại lệnh này.".format(ref))
-        if code == 0 and not repo.is_ancestor(repo.current_sha(), ref):
+        if code == 0 and not repo.is_ancestor(ref, repo.current_sha()):
             raise NewExperimentError(
                 "Nhánh hiện tại CHƯA chứa {}: merge nhánh đó vào trước rồi chạy lại, vì commit ghim "
                 "phải nằm trên nhánh đã ghim (docs/00_workflow/01_flow.md).".format(ref))
