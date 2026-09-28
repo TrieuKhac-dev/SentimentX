@@ -8,8 +8,9 @@ Xem hướng dẫn đầy đủ ở [README, mục 7](../README.md). Tóm tắt:
 1. Đặt dữ liệu gốc vào `data/raw/<tên>/` (mỗi dataset một thư mục riêng).
 2. Copy `configs/datasets/cosmetics/v0.1.0.yaml` thành `configs/datasets/<name>/<version>.yaml`
    rồi sửa: `name`, `format`, `raw_dir`, `text_column`, `aspects`, `labels`, `splits`.
-3. Chạy `python run_eda.py --dataset <tên> --raw-version <phiên bản raw>` (và `run_pipeline.py`, `build_report.py`
-   tương tự).
+3. Chạy `python run_eda.py --on raw --name <tên> --version <nhãn raw_version>`, rồi
+   `python run_pipeline.py --name <tên> --version <phiên bản cấu hình>`; vẽ báo cáo bằng
+   `python build_report.py --all` (bảng cú pháp: [../00_workflow/09_cli.md](../00_workflow/09_cli.md)).
 4. Ghi một mục vào [changelog.md](changelog.md): mã phiên bản, file cấu hình + `sha256`, `parent`, **lý do**
    có phiên bản này, số dòng vào/ra, và `eval_lock` nếu tập đánh giá đổi. Rồi chạy lại
    `python scripts/collect_reports.py` để cột `parent` trong `dataset_registry.csv` khớp với file đó.

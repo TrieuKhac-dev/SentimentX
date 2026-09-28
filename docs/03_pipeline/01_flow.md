@@ -106,11 +106,11 @@ bị loại từ bước xoá nhiễu chạy trước) - xem
 Pipeline cũng tách thành hai việc: **tính** và **vẽ**.
 
 ```bash
-# 1) Xử lý dữ liệu và ghi dataset + file kết quả
-python run_pipeline.py --dataset cosmetics --version v0.1.0
+# 1) Xử lý dữ liệu và ghi dataset + khoá tập đánh giá (lệnh in ra MÃ PHIÊN BẢN)
+python run_pipeline.py --name cosmetics --version v0.1.0
 
-# 2) Vẽ báo cáo từ số liệu đã ghi
-python build_report.py --phase pipeline --dataset cosmetics
+# 2) Vẽ báo cáo từ số liệu đã ghi - phải ghi rõ đích (nhận hash8 hoặc mã đầy đủ)
+python build_report.py --phase pipeline --on dataset --hash e0ccc484
 ```
 
 Kết quả:
@@ -131,8 +131,9 @@ thư mục mới, nên kết quả cũ không bao giờ bị ghi đè.**
 Các lệnh phụ trợ:
 
 ```bash
-python build_report.py --list                            # xem mọi phiên bản đã chạy
-python build_report.py --phase pipeline --no-open        # vẽ nhưng không mở trình duyệt
+python build_report.py --list                            # xem mọi đích + lệnh copy được
+python build_report.py --all                             # vẽ hết; mặc định chỉ in link file://
+python build_report.py --phase pipeline --on dataset --hash e0ccc484 --open   # vẽ rồi mở luôn
 ```
 
 **Mã thoát (exit code) của ba entrypoint** - dùng được trong script:
@@ -143,7 +144,7 @@ python build_report.py --phase pipeline --no-open        # vẽ nhưng không m�
 | `1` | không có gì để vẽ (chưa chạy nhóm việc đó, hoặc phiên bản không có file kết quả) |
 | `2` | dùng sai: **tên dataset không tồn tại** / không có file kết quả nào để vẽ        |
 
-Gõ sai tên dataset (ví dụ `--dataset consmetics`) sẽ dừng **ngay** với một dòng
+Gõ sai tên dataset (ví dụ `--name consmetics`) sẽ dừng **ngay** với một dòng
 `LỖI: ...` kèm gợi ý tên gần đúng, thay vì chạy tiếp rồi báo nhầm là "chưa có file kết
 quả". Chi tiết cách thêm dataset mới: [01_dataset/03_new_dataset.md](../01_dataset/03_new_dataset.md).
 

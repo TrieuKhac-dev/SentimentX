@@ -198,8 +198,8 @@ Việc cần làm, theo đúng đường có sẵn của dự án:
 1. `run_token_stats.py` ghi `token_stats_result.json` cạnh CSV, dựng payload bằng
    `src/reporting/result.make_payload(phase="token_stats", ...)` rồi `write_result` - cùng khuôn với
    `eda_result.json` / `pipeline_result.json`.
-2. `build_report.py`: thêm `token_stats` vào `PHASE_LABELS` và `--phase`; `resolve_dir` trỏ vào
-   `data/reports/model_input/<mã>/`; `build_one` gọi `render.write_reports`.
+2. `build_report.py`: thêm `token_stats` vào `PHASE_LABELS` và `--phase`; `targets()` trỏ vào
+   `data/reports/model_input/<mã>/`; `draw()` gọi `render.write_reports`.
 3. Nếu không muốn `render.py` phải biết thêm một loại payload: `src/reports.html_page()` đã dựng được
    trang bảng tự chứa (không cần `plotly`), đủ cho bảng token theo model × split.
 

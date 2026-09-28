@@ -18,11 +18,12 @@
 | 00_workflow    | `01_flow.md`               | luồng làm việc từ tạo thí nghiệm tới thu kết quả | mới vào nhóm                        |
 | 00_workflow    | `02_rules.md`              | luật bắt buộc: nhánh, ghim code, resume, secret  | trước khi chạy hoặc giao thí nghiệm |
 | 00_workflow    | `03_ci.md`                 | CI kiểm gì, CI không làm gì, cách sửa khi đỏ     | khi CI báo đỏ                       |
-| 00_workflow    | `04_terms.md`              | thuật ngữ, các nhóm việc, hai loại preprocessing | khi gặp từ không rõ                 |
+| 00_workflow    | `04_terms.md`              | thuật ngữ (dữ liệu, cờ dòng lệnh), các nhóm việc, hai loại preprocessing | khi gặp từ không rõ                 |
 | 00_workflow    | `05_git_commits.md`        | quy ước commit và cách chia nhỏ task             | trước khi commit                    |
 | 00_workflow    | `06_conventions.md`        | quy ước code, config, tài liệu                   | khi viết mới                        |
 | 00_workflow    | `07_colab.md`              | chạy notebook trên Colab: Drive, env, thứ tự bước | trước khi chạy trên Colab          |
 | 00_workflow    | `08_local.md`              | chạy notebook trên máy cá nhân có GPU CUDA        | trước khi chạy trên máy cá nhân    |
+| 00_workflow    | `09_cli.md`                | tra cứu dòng lệnh: cú pháp, mã thoát, bốn khái niệm dễ lẫn | khi chạy bất kỳ tool nào     |
 | 01_dataset     | `01_raw_data.md`           | dữ liệu gốc: nơi lưu, cách đặt tên, phiên bản    | làm việc với dữ liệu gốc            |
 | 01_dataset     | `02_schema.md`             | schema của dữ liệu và cách khai trong config     | khi đọc hoặc sửa schema             |
 | 01_dataset     | `03_new_dataset.md`        | cách thêm dataset mới                            | khi có dữ liệu mới                  |

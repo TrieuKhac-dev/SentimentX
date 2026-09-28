@@ -20,7 +20,7 @@ src/
     +-- visobert.py          tokenizer (không tách từ)
     +-- qwen.py              prompt + chat template + tokenizer
     +-- vitasa.py            gác lại - xem [04_backlog.md](04_backlog.md) mục 1
-    +-- token_stats.py       ĐO độ dài input thật (chạy: run_token_stats.py)
+    +-- token_stats.py       ĐO độ dài input thật (chạy: run_token_stats.py --hash <hash8> --prompt <tên>)
     \-- segmenters/          các BỘ TÁCH TỪ có thể thay thế cho nhau
         +-- base.py          hợp đồng của một bộ tách từ
         +-- vncorenlp.py     RDRSegmenter - bộ CHÍNH CHỦ của PhoBERT (cần Java)
@@ -58,9 +58,9 @@ bằng khoá `prompt`; dùng file trong thư viện chung cũng được. Cả h
 thư mục thí nghiệm trước, rồi tới gốc repo.
 
 ```bash
-python run_token_stats.py --list-prompts          # đang có prompt nào, sha nào
-python run_token_stats.py --prompt absa_direct_v1    # prompt một lượt, KHÔNG dùng system prompt
-python run_token_stats.py --prompt absa_cot_5shot_v1 --system absa_cot   # prompt dùng {system_prompt}
+python run_token_stats.py --list-prompts          # đang có prompt nào, sha nào (không cần --hash)
+python run_token_stats.py --hash e0ccc484 --prompt absa_direct_v1    # prompt một lượt, KHÔNG dùng system prompt
+python run_token_stats.py --hash e0ccc484 --prompt absa_cot_5shot_v1 --system absa_cot   # dùng {system_prompt}
 ```
 
 Prompt nào dùng ô nhớ `{system_prompt}` thì **phải** truyền `--system <tên|đường dẫn>`: khối hệ thống
@@ -96,7 +96,7 @@ khuôn để điền, không phải đáp án.
 | `{example}` khác `{examples}` | `{example}` = MỘT object JSON mẫu sinh tự động theo danh sách khía cạnh; `{examples}` = khối ví dụ đọc từ file |
 | **Số ví dụ đổi được mà KHÔNG sửa prompt** | Bỏ/thêm khối `--- Ví dụ n ---` trong file ví dụ là xong. Đây là biến thực nghiệm rẻ nhất của hướng LLM |
 | Truy vết | `prompt_sha` **không đổi** khi đổi số ví dụ (nó chỉ tính nội dung file prompt), nên `prompts.examples_info()` trả thêm `examples_sha` + số ví dụ; tên file CSV có thêm `ex-<sha4>` **kể cả khi chạy bằng cấu hình dự án** - hai bộ ví dụ là hai thí nghiệm, không được ghi cùng một file |
-| Kiểm tra nguồn | `python run_check_examples.py` - kiểm cấu trúc, kiểm khoá/mã JSON có khớp `label_map.json`, và **đối chiếu từng ví dụ với cả 3 split** (trùng nguyên câu, cụm trùng dài nhất) |
+| Kiểm tra nguồn | `python run_check_examples.py --hash <hash8>` - kiểm cấu trúc, kiểm khoá/mã JSON có khớp `label_map.json`, và **đối chiếu từng ví dụ với cả 3 split** (trùng nguyên câu, cụm trùng dài nhất) |
 
 Quy ước dạy định dạng trong prompt CoT là **của dự án** (không phải chuẩn của Qwen):
 khối `SUY LUẬN:` với các dòng `- <khía cạnh>: <trích dẫn> | <lí do ngắn> | mã <số>`, rồi
@@ -107,7 +107,7 @@ sinh theo đúng bộ khía cạnh của phiên bản dữ liệu).
 
 Ví dụ few-shot nằm TRONG prompt, tức là **model đã nhìn thấy nó**: ví dụ lấy từ dữ liệu
 chỉ được lấy từ split **train**; lấy từ val/test là rò rỉ dữ liệu đánh giá. Hai ví dụ
-hiện tại **do người viết dự án tự soạn**, đã kiểm bằng `run_check_examples.py`: không có
+hiện tại **do người viết dự án tự soạn**, đã kiểm bằng `run_check_examples.py --hash <hash8>`: không có
 câu nào trùng val/test, cụm trùng dài nhất chỉ 3-4 từ (các cụm thông dụng như "cầm chắc
 tay", "màu nhạt hơn").
 
@@ -119,8 +119,8 @@ tay", "màu nhạt hơn").
 bao nhiêu" thay vì chỉ trích dẫn khuyến nghị.
 
 ```bash
-python run_token_stats.py --list-segmenters      # máy này cài được bộ nào
-python run_token_stats.py --segmenter pyvi       # chỉ định đích danh một bộ
+python run_token_stats.py --list-segmenters                    # máy này cài được bộ nào (không cần --hash)
+python run_token_stats.py --hash e0ccc484 --segmenter pyvi     # chỉ định đích danh một bộ
 ```
 
 | Bộ | Chính chủ? | Vì sao có mặt |
@@ -153,8 +153,8 @@ model khác, nên độ dài thật phải đo bằng chính tokenizer của mod
 phụ thuộc vào model nào ([02_eda/02_metrics.md mục 9](../02_eda/02_metrics.md)).
 
 ```bash
-python run_token_stats.py --dataset cosmetics
-# -> data/reports/model_input/<mã phiên bản>/token_stats.csv
+python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1
+# -> data/reports/model_input/<mã phiên bản>/token_stats*.csv
 ```
 
 Tên file lấy từ mẫu trong `configs/paths.yaml`; chạy với tham số khác mặc định thì có thêm đuôi
@@ -263,10 +263,10 @@ Cùng một tokenizer (PhoBERT), cùng một tập dữ liệu (train, 12.302 re
 tách từ. Mỗi lần chạy ghi một file riêng nên so sánh luôn còn nguyên cả bốn bên:
 
 ```bash
-python run_token_stats.py --dataset cosmetics --segmenter vncorenlp
-python run_token_stats.py --dataset cosmetics --segmenter pyvi
-python run_token_stats.py --dataset cosmetics --segmenter underthesea
-python run_token_stats.py --dataset cosmetics --segmenter none
+python run_token_stats.py --hash e0ccc484 --segmenter vncorenlp
+python run_token_stats.py --hash e0ccc484 --segmenter pyvi
+python run_token_stats.py --hash e0ccc484 --segmenter underthesea
+python run_token_stats.py --hash e0ccc484 --segmenter none
 ```
 
 | Bộ tách từ | token/review TB | p50 | p95 | p99 | % > max_length | % `<unk>` | subword / từ |

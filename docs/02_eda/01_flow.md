@@ -28,7 +28,7 @@ data/raw/<name>/<raw_version>/data_train.csv, data_val.csv, data_test.csv   (ch�
         |  src/dataset.py + src/loaders/  : đọc bằng utf-8-sig, bỏ cột `drop_columns`,
         |                                   đổi tên cột văn bản thành `text`
         ->
-run_eda.py --dataset <tên> --raw-version <phiên bản raw>
+run_eda.py --on raw --name <tên> --version <nhãn raw_version>
         |   • đọc config: configs/datasets/<name>/<version>.yaml + configs/pipeline/v0.1.0.yaml
         |   • tính mã phiên bản (src/versioning.py) -> thư mục phiên bản
         |   • lần lượt gọi 5 module theo src/registry.py::EDA_MODULES, mỗi module
@@ -44,7 +44,7 @@ data/raw/<name>/<raw_version>/eda/
         0X_<mục>_*.csv       (bảng số liệu chi tiết của từng mục)
         |
         ->
-build_report.py --phase eda --dataset <tên>   ->   report.html   (mở bằng trình duyệt)
+build_report.py --phase eda --on raw --name <tên> --version <nhãn>   ->   report.html
 ```
 
 Bảng dưới đây là **bản đồ 5 mục**; chi tiết từng mục ở
@@ -93,11 +93,13 @@ dùng trong repo**:
 EDA tách thành hai việc: **tính** và **vẽ**.
 
 ```bash
-# 1) Tính toán và ghi số liệu (không sinh HTML)
-python run_eda.py --dataset cosmetics --raw-version v0.1.0
+# 1) Tính toán và ghi số liệu (không sinh HTML): dữ liệu gốc, hoặc dataset đã xử lý
+python run_eda.py --on raw --name cosmetics --version v0.1.0
+python run_eda.py --on dataset --hash e0ccc484        # hash8 mà run_pipeline.py in ra
 
-# 2) Vẽ báo cáo từ số liệu đã ghi
-python build_report.py --phase eda --dataset cosmetics
+# 2) Vẽ báo cáo từ số liệu đã ghi - phải ghi rõ đích
+python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0
+python build_report.py --phase eda --on dataset --hash e0ccc484
 ```
 
 Kết quả nằm trong một thư mục **theo phiên bản**:
@@ -110,9 +112,8 @@ Kết quả nằm trong một thư mục **theo phiên bản**:
 | `data/raw/<name>/<raw_version>/eda/0X_<phần>_*.csv` | số liệu chi tiết từng phần                                 |
 
 Báo cáo chỉ có **một** định dạng là HTML: bản Markdown đã bỏ vì nó lặp lại đúng
-bấy nhiêu số liệu mà không có biểu đồ. Khi chạy
-`python build_report.py --dataset cosmetics`, công cụ **mở luôn hai file HTML**
-(EDA và Pipeline) bằng trình duyệt mặc định; thêm `--no-open` nếu không muốn mở.
+bấy nhiêu số liệu mà không có biểu đồ. `build_report.py` mặc định chỉ **in link `file://`** để bấm
+(Ctrl+Click trong VS Code); thêm `--open` để mở hết, và `--all` để vẽ mọi đích đang có.
 
 Vì bước tính và bước vẽ tách rời, muốn đổi loại biểu đồ hay sửa giao diện chỉ cần
 chạy lại `build_report.py`, **không phải chạy lại EDA**.
@@ -120,16 +121,17 @@ chạy lại `build_report.py`, **không phải chạy lại EDA**.
 Cách mở báo cáo cũ, hoặc danh sách phiên bản đã chạy:
 
 ```bash
-python build_report.py --list                       # xem mọi phiên bản
-python build_report.py --version cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34 --phase eda
+python build_report.py --list                                    # xem mọi đích + lệnh copy được
+python build_report.py --phase eda --on dataset --hash e0ccc484   # vẽ một đích cụ thể
 ```
 
 > Mã phiên bản đổi mỗi khi **config hoặc dữ liệu gốc** đổi (mã hash tính từ cả
 > hai), nên hãy lấy mã đúng từ `--list`. Vì vậy sau mỗi lần sửa
 > `configs/pipeline/v0.1.0.yaml` sẽ có thêm một thư mục phiên bản mới, không ghi đè bản cũ.
 
-Nếu gõ sai tên dataset, `run_eda.py` dừng ngay với dòng `LỖI: ...` kèm gợi ý tên gần
-đúng và trả **mã thoát `2`** (không in traceback, không ghi thư mục rỗng).
+Nếu gõ sai `--name` (hoặc để thiếu `--on`), `run_eda.py` dừng ngay với dòng `LỖI: ...` kèm cách sửa
+và danh sách tên đúng, rồi trả **mã thoát `2`** (không in traceback, không ghi thư mục rỗng). Bảng
+cú pháp: `docs/00_workflow/09_cli.md`.
 
 ## 5. EDA liên hệ với Pipeline như thế nào
 

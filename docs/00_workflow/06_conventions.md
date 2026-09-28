@@ -45,6 +45,16 @@
 - Dùng editor, hoặc `[System.IO.File]::ReadAllText` / `WriteAllText` với `UTF8Encoding` và ghi rõ
   encoding ở cả hai chiều. Code đọc tệp cấu hình bằng `utf-8-sig` để chịu được BOM.
 
+## Dòng lệnh
+
+- Cú pháp của các tool (`run_pipeline.py`, `run_eda.py`, `run_token_stats.py`, `build_report.py`,
+  `run_check_examples.py`) nằm ở [09_cli.md](09_cli.md). Đổi cờ thì sửa đồng thời trang đó, docstring
+  của tool, và `tests/test_cli.py`.
+- Tool phải chỉ ĐÍCH DANH thứ nó tác động (`--name`, `--version`, `--hash`); mặc định kiểu "bản mới
+  nhất" là đoán, nên không được dùng.
+- Mã thoát thống nhất: `0` xong · `1` hợp lệ nhưng chưa có kết quả · `2` câu lệnh chưa rõ.
+- Chuỗi help không viết cứng đường dẫn: dựng từ `configs/paths.yaml` qua `src/paths.py`.
+
 ## Tài liệu
 
 - Mỗi file tài liệu mở đầu bằng **đúng hai dòng**, ngay sau dòng tiêu đề `#`:

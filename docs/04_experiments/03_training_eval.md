@@ -78,11 +78,11 @@ cấu hình cho ra **một thư mục phiên bản riêng** trong `data/processe
 nên ta luôn chỉ ra được khác biệt đến từ phép biến đổi nào:
 
 ```bash
-python run_pipeline.py --dataset cosmetics --version v0.1.0    # -> phiên bản A
+python run_pipeline.py --name cosmetics --version v0.1.0    # -> phiên bản A
 # sửa một tham số trong configs/pipeline/v0.1.0.yaml
-python run_pipeline.py --dataset cosmetics --version v0.1.0    # -> phiên bản B (phiên bản A vẫn còn nguyên)
+python run_pipeline.py --name cosmetics --version v0.1.0    # -> phiên bản B (phiên bản A vẫn còn nguyên)
 
-python build_report.py --list # danh sách mọi phiên bản để đối chiếu
+python build_report.py --list # mọi đích đang có + lệnh copy được, để đối chiếu
 ```
 
 Danh sách khoá có thể đổi và ý nghĩa từng khoá:
@@ -112,7 +112,7 @@ Danh sách khoá có thể đổi và ý nghĩa từng khoá:
   của báo cáo pipeline), không phải số dòng dữ liệu: một phần dữ liệu không có nhãn
   khía cạnh nào nên không đóng góp mẫu huấn luyện nào
   ([02_eda/02_metrics.md mục 11](../02_eda/02_metrics.md)).
-- Trước khi huấn luyện, chạy `python run_token_stats.py` để biết input thật của
+- Trước khi huấn luyện, chạy `python run_token_stats.py --hash <hash8> --prompt <tên>` để biết input thật của
   từng model ([02_model_input.md mục 2](02_model_input.md)): nếu một model bị cắt quá
   nhiều input thì mọi so sánh sau đó đều không công bằng.
 

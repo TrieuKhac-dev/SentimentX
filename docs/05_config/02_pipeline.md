@@ -24,7 +24,7 @@ sẽ mang cùng một nhãn phiên bản, và kết quả cũ không còn tra đ
 
 - `test` chỉ đi qua pipeline ở chế độ không biến đổi văn bản, để so được với công bố tham chiếu.
 - Đổi **code** xử lý thì phải tăng `version` của pipeline, vì logic nằm ở code chứ không nằm ở file này.
-- Chạy phải nói rõ phiên bản: `python run_pipeline.py --dataset cosmetics --version v0.2.0`.
+- Chạy phải nói rõ phiên bản: `python run_pipeline.py --name cosmetics --version v0.2.0`.
 
 ## Liên quan tới mã phiên bản dữ liệu
 

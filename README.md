@@ -51,7 +51,7 @@ RAW DATA (data/raw/<tên>/<phiên bản>/)
 | **EDA** | Dữ liệu đang như thế nào? | `src/eda/` |
 | **Data Pipeline** | Ta làm gì với dữ liệu? | `src/pipeline/` |
 | **Model preprocessing** | Chuẩn bị input cho từng model ra sao? | `src/preprocessing/` |
-| **Đo input thật** | Input của từng model dài bao nhiêu token, có bị cắt không? | `run_token_stats.py` |
+| **Đo input thật** | Input của từng model dài bao nhiêu token, có bị cắt không? | `run_token_stats.py --hash <hash8>` |
 
 Nguyên tắc quan trọng:
 
@@ -158,27 +158,34 @@ Vì sao phải có script riêng thay vì `hf download` (đều là lỗi đã g
 ## 4. Chạy
 
 ```bash
-# 1) Khảo sát dữ liệu — chỉ đọc, không sửa; ghi file kết quả
-python run_eda.py --dataset cosmetics
+# 1) Khảo sát dữ liệu GỐC (chỉ đọc dữ liệu, không sửa); ghi file kết quả vào data/raw/<tên>/<nhãn>/eda/
+python run_eda.py --on raw --name cosmetics --version v0.1.0
 
-# 2) Xử lý dữ liệu theo config; ghi dataset + file kết quả
-python run_pipeline.py --dataset cosmetics
+# 2) Xử lý dữ liệu theo config; ghi dataset + khoá tập đánh giá. Lệnh in ra MÃ PHIÊN BẢN (…-e0ccc484)
+python run_pipeline.py --name cosmetics --version v0.1.0
 
-# 3) Vẽ báo cáo từ file kết quả (không tính lại số liệu; mở luôn 2 file HTML)
-python build_report.py --dataset cosmetics
+# 3) Khảo sát dataset ĐÃ XỬ LÝ (dùng hash8 mà bước 2 in ra)
+python run_eda.py --on dataset --hash e0ccc484
 
-# 4) Đo input thật của từng tokenizer trên dữ liệu đã xử lý
-python run_token_stats.py --dataset cosmetics
+# 4) Vẽ báo cáo. Phải ghi rõ đích, hoặc --all để vẽ hết mọi đích đang có.
+#    Mặc định chỉ in link file:///… (Ctrl+Click trong VS Code); thêm --open để mở hết.
+python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0
+python build_report.py --phase eda --on dataset --hash e0ccc484
+python build_report.py --phase pipeline --on dataset --hash e0ccc484
+python build_report.py --all
 
-# 5) Xem/phối hợp cấu hình đo: prompt nào, bộ tách từ nào, ngưỡng cắt nào
+# 5) Đo input thật của từng tokenizer trên dữ liệu đã xử lý
+python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1
+
+# 6) Phối hợp cấu hình đo: prompt nào, bộ tách từ nào, ngưỡng cắt nào
 python run_token_stats.py --list-prompts            # đang có prompt nào (tên + sha)
 python run_token_stats.py --list-segmenters         # máy này cài được bộ tách từ nào
-python run_token_stats.py --prompt absa_direct_v1     # đo với một prompt khác
-python run_token_stats.py --segmenter pyvi          # đo với một bộ tách từ khác
-python run_token_stats.py --max-length qwen=1280    # đo với ngưỡng cắt khác (thử nhanh)
+python run_token_stats.py --hash e0ccc484 --prompt absa_direct_v1    # đo một prompt khác
+python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --segmenter pyvi
+python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --max-length qwen=1280
 
-# 6) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
-python run_check_examples.py
+# 7) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
+python run_check_examples.py --hash e0ccc484
 
 # 7) Chạy thí nghiệm Qwen3 bằng prompt (prompt một lượt / CoT) rồi chấm điểm
 #    Mở notebook của thí nghiệm và bấm Run all - đó là đường chạy chính, tự kéo đúng commit
@@ -218,9 +225,10 @@ ghi ở config của chính thí nghiệm đó, không ghi ở `configs/models/`
 
 
 
-`--dataset cosmetics` là mặc định nên có thể bỏ qua, nhưng **`--version` thì bắt buộc**: mỗi phiên bản
-dataset cho ra một bộ dữ liệu khác nhau. Tên dataset trùng tên thư mục `configs/datasets/<tên>/`;
-gõ sai (ví dụ `consmetics`) thì lệnh dừng ngay và in ra tên đúng, không đi tìm file kết quả.
+Mỗi lệnh phải ghi rõ nó tác động lên đâu: `--on raw --name <tên> --version <nhãn raw>` cho dữ liệu
+gốc, `--hash <hash8|mã>` cho dataset đã xử lý, `--phase eda|pipeline` cho báo cáo (hoặc `--all`).
+Tên dataset trùng tên thư mục `configs/datasets/<tên>/`; gõ sai (ví dụ `consmetics`) thì lệnh dừng
+ngay và in ra tên đúng. Bảng cú pháp đầy đủ: [docs/00_workflow/09_cli.md](docs/00_workflow/09_cli.md).
 
 Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phiên bản**:
 
@@ -237,8 +245,9 @@ Mã phiên bản có dạng `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc4
 dataset, phiên bản pipeline, nguồn, và 8 ký tự băm của **nội dung config + nội dung dữ liệu gốc**.
 Đổi config hoặc đổi dữ liệu ⇒ mã mới ⇒ **kết quả cũ không bị ghi đè**. Phép băm bỏ qua kiểu xuống
 dòng (CRLF/LF), nên cùng một bộ dữ liệu cho ra cùng một mã trên Windows và trên Colab.
-`build_report.py` vẽ HTML cho EDA và pipeline (mở luôn bằng trình duyệt, thêm `--no-open` nếu không
-muốn); bảng tổng hợp thì có cả `csv` để máy đọc, `html` để người đọc và `md` chứa sơ đồ Mermaid.
+`build_report.py` vẽ HTML cho EDA và pipeline: mặc định chỉ in link `file:///…` để bấm (Ctrl+Click
+trong VS Code), thêm `--open` để mở hết, và `--all` để vẽ mọi đích đang có; bảng tổng hợp thì có cả
+`csv` để máy đọc, `html` để người đọc và `md` chứa sơ đồ Mermaid.
 
 ## 5. Cấu trúc thư mục
 
@@ -297,11 +306,11 @@ SentimentX/
 ├── docs/               # tài liệu: README.md (mục lục) + 00_workflow/, 01_dataset/, 02_eda/,
 │                       # 03_pipeline/, 04_experiments/, 05_config/, 06_plan/
 ├── tests/              # test chạy bằng `unittest`, không cần GPU
-├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo)
-├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC ghi rõ --version
-├── run_token_stats.py  # đo input thật của từng tokenizer -> token_stats.csv
-├── build_report.py     # đọc file kết quả -> Plotly + Jinja2 -> HTML (mở luôn)
-├── run_check_examples.py # kiểm file ví dụ few-shot: cấu trúc, nhãn, rò rỉ với val/test
+├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo) - cần --on raw|dataset
+├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC --name + --version
+├── run_token_stats.py  # đo input thật của từng tokenizer -> token_stats.csv - BẮT BUỘC --hash
+├── build_report.py     # đọc file kết quả -> Plotly + Jinja2 -> HTML - cần --phase + --on, hoặc --all
+├── run_check_examples.py # kiểm file ví dụ few-shot: cấu trúc, nhãn, rò rỉ với val/test - BẮT BUỘC --hash
 ├── requirements.txt        # máy cá nhân (torch cài riêng, xem §3)
 ├── requirements-ci.txt     # CI: rất ngắn, vì CI không chạy model và không đọc dữ liệu
 └── requirements-colab.txt  # Colab: KHÔNG ghim torch (Colab đã có bản khớp CUDA)
@@ -342,10 +351,11 @@ mkdir data/raw/newdata/v0.1.0
 mkdir configs/datasets/newdata
 copy configs\datasets\cosmetics\v0.1.0.yaml configs\datasets\newdata\v0.1.0.yaml
 
-# 3) Chạy như bình thường - mỗi bước phải ghi rõ phiên bản
-python run_eda.py --dataset newdata --raw-version v0.1.0
-python run_pipeline.py --dataset newdata --version v0.1.0
-python build_report.py --dataset newdata --version <mã in ra ở bước 2>
+# 3) Chạy như bình thường - mỗi bước phải ghi rõ đích (xem docs/00_workflow/09_cli.md)
+python run_eda.py --on raw --name newdata --version v0.1.0
+python run_pipeline.py --name newdata --version v0.1.0
+python run_eda.py --on dataset --hash <hash8 in ra ở bước trên>
+python build_report.py --all                  # hoặc chỉ rõ từng đích như mục 4
 python scripts/collect_reports.py
 ```
 

@@ -34,13 +34,17 @@ Nếu gặp tài liệu cũ ghi "xử lý dữ liệu" hay "tiền xử lý cho 
 | Tên                  | Là gì                                                                                                                                                                     | Nằm ở đâu                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | mã phiên bản dữ liệu | Chuỗi định danh một phiên bản dataset, dạng `<name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>`, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f` | Tên thư mục `data/processed/<mã>/` và trường `data.build` trong `run_meta.json` |
+| `hash8`              | 8 ký tự hex **cuối** của mã phiên bản dữ liệu, cũng là 8 ký tự đầu của sha1 trên nội dung config dataset + config pipeline + mọi file dữ liệu gốc. Gõ tắt được ở mọi cờ `--hash`, ví dụ `e0ccc484` | Trong chính mã phiên bản; `run_eda.py` và `run_pipeline.py` in ra khi chạy |
 | `config_sha256`      | Dấu vân tay của config đã hợp nhất, cộng văn bản prompt đã hợp nhất. Đổi config hoặc đổi câu chữ prompt thì dấu vân tay đổi                                               | Trường `config_sha256` trong `run_meta.json`                                 |
 
 ## Từ khoá
 
 | Từ          | Nghĩa                                                                                                                                              |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| raw         | dữ liệu gốc, mỗi phiên bản một thư mục `data/raw/<name>/<raw_version>/`                                                                            |
+| raw | dữ liệu gốc, mỗi phiên bản một thư mục `data/raw/<name>/<raw_version>/`                                                                            |
+| raw_version | nhãn phiên bản dữ liệu gốc, tức tên thư mục trong `data/raw/<name>/`; trên dòng lệnh là `--on raw --version <nhãn>`                             |
+| phiên bản cấu hình dataset | nhãn của file `configs/datasets/<name>/<phiên bản>.yaml`; trên dòng lệnh là `run_pipeline.py --version`                                    |
+| cờ chỉ đích | `--on raw\|dataset` (nơi đo) · `--name` (tên dataset) · `--version` (nhãn raw hoặc phiên bản cấu hình dataset) · `--hash` (phiên bản dữ liệu đã xử lý) · `--all` (mọi đích). Chi tiết: `docs/00_workflow/09_cli.md` |
 | dataset     | kết quả sau khi raw đi qua pipeline                                                                                                                |
 | thí nghiệm  | một định nghĩa gồm config, prompt, examples, notebook; định danh bằng `expNNN`                                                                     |
 | lần chạy    | một lần thực thi một thí nghiệm trên một phiên bản dữ liệu; thư mục `results/<hash8>/`, tên là mã băm danh tính (cấu hình + prompt + ví dụ + dữ liệu + commit) |

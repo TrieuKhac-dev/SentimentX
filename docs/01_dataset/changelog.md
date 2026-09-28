@@ -78,7 +78,7 @@ trong hai bản giống nhau, chỉ mã khác. Số đo của tập đánh giá 
 
 ## Thêm một phiên bản mới thì ghi gì vào đây
 
-1. Chạy pipeline cho phiên bản mới: `python run_pipeline.py --dataset <tên> --version <phiên bản>`.
+1. Chạy pipeline cho phiên bản mới: `python run_pipeline.py --name <tên> --version <phiên bản>`.
 2. Khai `parent` trong `configs/datasets/<tên>/<phiên bản>.yaml` = mã phiên bản trước đó.
 3. Chép vào đây một mục như trên: mã, cấu hình + `sha256`, `parent`, lý do có phiên bản này, số dòng
    vào/ra, và `eval_lock` nếu tập đánh giá đổi. Lý do là phần quan trọng nhất - cột `parent` trong

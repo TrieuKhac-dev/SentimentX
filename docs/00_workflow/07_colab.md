@@ -252,7 +252,7 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `git clone ... -> 128 ... not an empty directory` | thư mục còn từ lần chạy trước | bootstrap bỏ qua bước clone khi thư mục đã là repo; nếu là thư mục lạ thì nó DỪNG kèm `rm -rf` để bạn tự xoá |
 | `Thiếu N file dữ liệu GỐC` | thư mục nhóm trên Drive chưa có dữ liệu gốc | thêm 4 file CSV vào `data/raw/cosmetics/v0.1.0/` (mục 3) |
 | `Model config khai inference.quantization: 4bit nhưng máy chưa có bitsandbytes` | máy ảo thiếu gói | bình thường notebook tự cài (`Thiếu gói bitsandbytes - đang cài...`). Nếu `pip install ->` khác 0 thì đọc dòng lỗi in ngay dưới |
-| `Thiếu tập đánh giá .../test.csv` | thư mục nhóm chưa có dữ liệu đã xử lý | thêm thư mục `data/processed/<mã>/`, hoặc chạy `python run_pipeline.py --dataset cosmetics --version v0.1.0` trong `/content/SentimentX` |
+| `Thiếu tập đánh giá .../test.csv` | thư mục nhóm chưa có dữ liệu đã xử lý | thêm thư mục `data/processed/<mã>/`, hoặc chạy `python run_pipeline.py --name cosmetics --version v0.1.0` trong `/content/SentimentX` |
 | `Nội dung dữ liệu gốc đã ĐỔI so với bản dùng để dựng dataset (N file)` | file gốc trên Drive đã bị sửa hoặc lưu lại (Excel, Notepad, công cụ tải) | đưa lại đúng 4 file CSV của gói, không mở/sửa chúng, rồi chạy lại ô bootstrap. Dòng lỗi in ra tên file và hai dấu vân tay để đối chiếu |
 | `Chưa có dataset đã xử lý ở .../X. Thư mục đang có: .../Y.` | `data/raw` và `data/processed` trên Drive không thuộc cùng một gói (bản cũ) | đối chiếu mã `X` với gói đang dùng; đưa lại **cả** `data/raw` và `data/processed/<mã>` của cùng gói đó |
 | `Đường chạy : encoder` rồi `Prompt : không có` | bình thường với PhoBERT và ViSoBERT | không phải lỗi: model encoder học từ dữ liệu gán nhãn, không nhận prompt |

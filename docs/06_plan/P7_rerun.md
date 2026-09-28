@@ -72,12 +72,13 @@ lại của đợt đó.
       Điều kiện để chạy được trên Colab (đã gặp thật, ghi lại để P7 T5 khỏi vấp lại): dữ liệu GỐC
       KHÔNG nằm trong git (luật 20), nên bản clone sạch không có `data/raw/**/*.csv`. Muốn chạy
       pipeline trên Colab thì phải đưa dữ liệu lên trước (mount Drive, hoặc tải thư mục lên), rồi
-      `python run_pipeline.py --dataset cosmetics --version v0.1.0`. Model `4bit` cần thêm
+      `python run_pipeline.py --name cosmetics --version v0.1.0`. Model `4bit` cần thêm
       `pip install bitsandbytes`. Preflight nay báo đúng việc này ở dòng ĐẦU của danh sách.
 - [x] T2. Chạy lại EDA trên raw và trên dataset; sinh report tương ứng.
       -> `feat(data): regenerate eda and pipeline reports`
-      Chạy thật (25/09/2026): `run_eda.py --raw-version v0.1.0` và `run_eda.py --version <mã>` đều
-      thoát 0, rồi `build_report.py --phase eda` (2 lần) và `--phase pipeline` sinh ba file HTML.
+      Chạy thật (25/09/2026): `run_eda.py --on raw --name cosmetics --version v0.1.0` và
+      `run_eda.py --on dataset --hash <hash8>` đều thoát 0, rồi `build_report.py` cho từng đích (ba
+      lần) và `--all` sinh ba file HTML.
       Phép so quan trọng: diff của kết quả EDA trên dữ liệu gốc CHỈ có `version_id` (mã cũ -> mã mới)
       và `generated_at` - mọi con số giữ nguyên, tức bộ dữ liệu không đổi khi mã phiên bản đổi.
 - [ ] T3. Chạy baseline prompt 0-shot, 1-shot, 5-shot trên tập `test` đúng như công bố.
