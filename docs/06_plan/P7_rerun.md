@@ -141,7 +141,8 @@ lại của đợt đó.
 ## 4. Điều kiện hoàn thành (DoD)
 
 - `data/reports/metrics_matrix/accuracy_by_aspect.csv` có cột `reference` và cột cho từng `expNNN`.
-- Tập `test` không đổi: `sha256` khớp `eval_lock` trong file dataset version.
+- Tập `test` không đổi: `records_sha256` khớp khoá tập đánh giá trong `data/processed/<mã>/eval_lock.json`
+  (`sha256` là dấu vết của bản đã công bố: lệch byte mà vân tay dữ liệu khớp chỉ là ghi chú, không phải lỗi).
 - Một thí nghiệm chạy trọn vẹn trên Colab của giảng viên, kết quả nằm trên Drive và trên DagsHub.
 
 ## 5. Rủi ro / lưu ý

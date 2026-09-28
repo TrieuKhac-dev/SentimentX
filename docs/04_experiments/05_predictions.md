@@ -93,6 +93,10 @@ dòng, nhưng trình xem nào coi "một dòng = một bản ghi" (Notepad, VSCo
 dòng dừng ở giữa và tưởng các cột phía sau biến mất. Văn bản nhiều dòng nguyên gốc vẫn còn trong
 `predictions/part_*.jsonl` và trong `câu trả lời` của `mispredictions.csv`.
 
+Ngoại lệ **có chủ ý**: `{split}.csv` của dataset (`data/processed/<mã>/`) giữ xuống dòng THẬT, vì
+đó là dữ liệu cho model và `eval_lock` băm byte của file - xem
+[03_pipeline/05_output.md mục 2](../03_pipeline/05_output.md).
+
 **Model encoder (PhoBERT, ViSoBERT) KHÔNG có cột `prompt gửi model`.** Chúng học trực tiếp từ chuỗi
 thô chứ không đọc prompt nào, nên bảng của chúng giữ nguyên 14 cột — thêm một cột rỗng vào đó là nói
 sai về dữ liệu. Chi tiết kỹ thuật: `src/evaluation/records.py` (`columns(with_prompt=...)`).

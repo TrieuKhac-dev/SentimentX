@@ -264,7 +264,7 @@ Vào: `context["splits"]` cuối cùng + `label_map` + config đã dùng.
 Làm: ghi dữ liệu đã xử lý và mọi thứ cần để truy vết về sau, rồi ghi phiên bản vào
 mục lục.
 Ra (trong `data/processed/<mã>/`): `train.csv`, `val.csv`, `test.csv`,
-`label_map.json`, `processing_log.json`.
+`label_map.json`, `processing_log.json`, `eval_lock.json`.
 
 `processing_log.json` **nằm cùng thư mục với dataset mà nó mô tả**, nên chép riêng
 thư mục phiên bản đi đâu vẫn giữ đủ dấu vết về cấu hình đã tạo ra nó. Chi tiết từng

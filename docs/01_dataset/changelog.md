@@ -47,6 +47,28 @@ Khoá tập đánh giá (`eval_lock.json`):
 Mọi kết quả trong `docs/06_plan/P7_rerun.md` và mọi thí nghiệm trong `experiments/` chấm trên **đúng**
 `test.csv` này; đổi nó là mọi con số cũ không còn so được.
 
+Cập nhật 28/09/2026 - khoá có thêm **vân tay DỮ LIỆU**:
+
+```json
+{"test": {"schema": 1,
+          "file": "test.csv",
+          "sha256": "e2558137...",
+          "records_sha256": "fa91b1d9...",
+          "rows": 1518}}
+```
+
+`sha256` **không đổi** so với giá trị đã ghi 25/09/2026 (byte của file y nguyên), nên vẫn là dấu vân tay
+byte của bản đã công bố. `records_sha256` là vân tay của **tập bản ghi** và từ nay là căn cứ phán quyết:
+đổi cách ghi file không còn làm mất quyền so với công bố. Xem `docs/03_pipeline/05_output.md` mục 5.
+
+**Sự việc 25/09/2026 - đổi cách ghi CSV làm lệch khoá byte.** Commit
+`fix(utils): keep one CSV record per physical line` (25/09 13:48) đổi `utils.write_csv` để ký tự xuống
+dòng trong ô ra hai ký tự `\n` (để bảng dự đoán đọc được bằng Notepad), và `{train,val,test}.csv` của
+dataset cũng theo đó. Byte đổi nên `sha256` của `test.csv` thành `9ac701de…` dù **1.518 bản ghi y
+nguyên**; lượt chạy 27/09 vì thế dừng ở `VersionError` ("khoá đã có và KHÁC lần này"). Đã sửa theo hai
+hướng: `export` ghi dataset bằng `single_line=False` (byte trở lại đúng `e2558137…`), và khoá thêm
+`records_sha256` để lần sau đổi cách ghi không còn là sự cố.
+
 ### `…-bf68b1c5` - bản đã XOÁ (lỗi băm, 25/09/2026)
 
 Tồn tại rất ngắn: nó ra đời trước khi lỗi băm ở P2 được sửa (`hash8` chưa gồm đủ đầu vào), nên mã phiên

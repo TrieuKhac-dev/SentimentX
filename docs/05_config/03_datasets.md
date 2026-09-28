@@ -60,8 +60,8 @@ chỗ khác nhau vì lý do rất cụ thể:
 | Phần | Nằm ở đâu | Nội dung |
 | --- | --- | --- |
 | Chính sách | file phiên bản dataset (`eval_lock.enforce`, `eval_lock.test.file`) | có khoá tập test hay không, tên file nào |
-| Giá trị MONG ĐỢI (tuỳ chọn) | `eval_lock.test.sha256`, `eval_lock.test.rows` | chỉ khai khi muốn đối chiếu với một tập test bên ngoài (ví dụ tập của công bố) |
-| Số đo ĐÃ CHỐT | `data/processed/<mã>/eval_lock.json` | `{"test": {"file", "sha256", "rows"}}`, ghi MỘT LẦN trong cùng lần chạy sinh ra `test.csv` |
+| Giá trị MONG ĐỢI (tuỳ chọn) | `eval_lock.test.sha256`, `eval_lock.test.records_sha256`, `eval_lock.test.rows` | chỉ khai khi muốn đối chiếu với một tập test bên ngoài (ví dụ tập của công bố) |
+| Số đo ĐÃ CHỐT | `data/processed/<mã>/eval_lock.json` | `{"test": {"schema", "file", "sha256", "records_sha256", "rows"}}`, ghi MỘT LẦN trong cùng lần chạy sinh ra `test.csv` |
 
 Vì sao số đo không nằm trong file phiên bản: `sha256` của `test.csv` chỉ biết được SAU khi pipeline
 chạy, mà file phiên bản thì bất biến (sửa là guard chặn). Ghi số đo cùng dữ liệu nghĩa là **bản dữ
@@ -74,10 +74,15 @@ phiên bản đi vào mã phiên bản dữ liệu, nên sửa một dòng chú 
 
 Cách hoạt động:
 
-- Pipeline ghi `eval_lock.json` khi export. Ghi lần hai với giá trị KHÁC là LỖI kèm hướng dẫn tạo
-  phiên bản dataset mới - cùng một mã phiên bản không thể có hai tập test khác nhau.
-- Preflight (và notebook) đọc khoá và so với `test.csv` đang có: lệch là LỖI. Nếu config có khai
-  `eval_lock.test.sha256` thì giá trị khai được ưu tiên (dùng khi đối chiếu tập test bên ngoài).
+- Pipeline ghi `eval_lock.json` khi export. Ghi lần hai với TẬP BẢN GHI khác là LỖI kèm hướng dẫn tạo
+  phiên bản dataset mới - cùng một mã phiên bản không thể có hai tập test khác nhau. Ghi lần hai với
+  cùng tập bản ghi nhưng khác byte (`sha256`) thì chỉ là GHI CHÚ: dữ liệu y nguyên, chỉ cách ghi file
+  đổi, nên kết quả vẫn so được với công bố.
+- Preflight (và notebook) đọc khoá và so với `test.csv` đang có: lệch `records_sha256` là LỖI, lệch
+  `sha256` là ghi chú. Nếu config có khai `eval_lock.test.records_sha256` hoặc `...test.sha256` thì giá
+  trị khai được ưu tiên (dùng khi đối chiếu tập test bên ngoài), và giá trị khai là **giao kèo cứng**:
+  khai `sha256` mà byte lệch là LỖI kể cả khi dữ liệu khớp - muốn chỉ ràng buộc dữ liệu thì khai
+  `records_sha256`.
 - `eval_lock.enforce: false` thì KHÔNG ghi khoá và chỉ ghi chú: dùng khi cố ý thử biến đổi cả test,
   và khi đó kết quả không còn tính là so được với công bố.
 - `python scripts/collect_reports.py` đọc chính file này để điền cột `eval_locked` trong

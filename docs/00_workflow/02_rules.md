@@ -26,10 +26,13 @@
    là **bất biến**. Muốn đổi thì tạo phiên bản mới.
 10. Mọi biến đổi văn bản của pipeline **chỉ áp cho train và val**.
 11. `test.csv` phải khớp **khoá tập đánh giá**. Khoá do pipeline ghi MỘT LẦN, ngay từ bản dữ liệu
-    đầu tiên, vào `data/processed/<mã>/eval_lock.json` (tên file, số dòng, `sha256` của từng split
-    đã khoá). File config dataset version chỉ khai **chính sách** (`eval_lock.enforce`, tên file) và
-    giá trị **mong đợi** khi cần đối chiếu với một tập test bên ngoài. Lệch khoá là báo lỗi, không
-    chỉ cảnh báo. Chi tiết ở `docs/05_config/03_datasets.md`.
+    đầu tiên, vào `data/processed/<mã>/eval_lock.json`, và gồm HAI dấu vân tay cho từng split đã khoá:
+    `records_sha256` - **tập bản ghi** (đây là KHOÁ: lệch là báo lỗi, không chỉ cảnh báo) và `sha256` -
+    byte của file (dấu vết của bản đã công bố: lệch chỉ là ghi chú, vì đổi cách ghi file không phải là
+    đổi tập đánh giá). Kèm `rows` (số bản ghi) và `schema` (công thức tính vân tay dữ liệu). File config
+    dataset version chỉ khai **chính sách** (`eval_lock.enforce`, tên file) và giá trị **mong đợi** khi
+    cần đối chiếu với một tập test bên ngoài. Chi tiết ở `docs/03_pipeline/05_output.md` và
+    `docs/05_config/03_datasets.md`.
 12. Metric lấy theo công bố tham chiếu, không tự thêm bớt khi so sánh.
 
 ## Resume
