@@ -1,10 +1,13 @@
 ﻿model,split,tokenizer,segmenter,vocab,max_length,số review,token/review TB,p50,p95,p99,max,% review > max_length,số token <unk>,% token <unk>,subword / từ
-phobert,train,PhobertTokenizer,none,64000,256,12302,33.67,28,70,96,315,0.02,21886,5.28,1.55
-phobert,val,PhobertTokenizer,none,64000,256,1524,32.84,28,64,93,204,0.0,2470,4.94,1.54
-phobert,test,PhobertTokenizer,none,64000,256,1518,34.42,28,75,95,169,0.0,2504,4.79,1.56
+phobert-base-v2,train,PhobertTokenizer,none,64000,256,12302,33.67,28,70,96,315,0.02,21886,5.28,1.55
+phobert-base-v2,val,PhobertTokenizer,none,64000,256,1524,32.84,28,64,93,204,0.0,2470,4.94,1.54
+phobert-base-v2,test,PhobertTokenizer,none,64000,256,1518,34.42,28,75,95,169,0.0,2504,4.79,1.56
 visobert,train,XLMRobertaTokenizer,none,15002,256,12302,43.45,36,89,125,229,0.0,596,0.11,2.02
 visobert,val,XLMRobertaTokenizer,none,15002,256,1524,42.74,36,80,125,175,0.0,47,0.07,2.03
 visobert,test,XLMRobertaTokenizer,none,15002,256,1518,44.01,36,97,124,159,0.0,71,0.11,2.02
-qwen,train,Qwen2Tokenizer,none,151643,2304,12302,229.5,224,268,298,474,0.0,-,-,10.68
-qwen,val,Qwen2Tokenizer,none,151643,2304,1524,228.61,224,262,296,381,0.0,-,-,10.87
-qwen,test,Qwen2Tokenizer,none,151643,2304,1518,230.17,224,273,294,324,0.0,-,-,10.55
+qwen3-4b-instruct-2507,train,Qwen2Tokenizer,none,151643,2304,12302,229.5,224,268,298,474,0.0,-,-,10.68
+qwen3-4b-instruct-2507,val,Qwen2Tokenizer,none,151643,2304,1524,228.61,224,262,296,381,0.0,-,-,10.87
+qwen3-4b-instruct-2507,test,Qwen2Tokenizer,none,151643,2304,1518,230.17,224,273,294,324,0.0,-,-,10.55
+qwen3-0.6b,train,Qwen2Tokenizer,none,151643,2304,12302,229.5,224,268,298,474,0.0,-,-,10.68
+qwen3-0.6b,val,Qwen2Tokenizer,none,151643,2304,1524,228.61,224,262,296,381,0.0,-,-,10.87
+qwen3-0.6b,test,Qwen2Tokenizer,none,151643,2304,1518,230.17,224,273,294,324,0.0,-,-,10.55
