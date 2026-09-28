@@ -15,8 +15,8 @@ CÁCH MỞ RỘNG
    - Thêm vào danh sách `PIPELINE_STEPS` theo ĐÚNG THỨ TỰ muốn chạy.
 
 3) Thêm một dataset mới:
-   - Đặt dữ liệu gốc vào `data/raw/<tên>/`.
-   - Tạo file `configs/datasets/<tên>.yaml` (copy từ dataset có sẵn).
+   - Đặt dữ liệu gốc vào `data/raw/<tên>/<nhãn raw_version>/`.
+   - Tạo file `configs/datasets/<tên>/<phiên bản>.yaml` (copy từ dataset có sẵn).
    - Nếu dataset dùng định dạng file mới (ví dụ .xlsx): thêm một loader
      trong `src/loaders/`.
    Không cần sửa EDA, pipeline hay báo cáo.
