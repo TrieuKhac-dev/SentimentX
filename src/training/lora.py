@@ -46,8 +46,9 @@ def where(key):
     return ("file cấu hình huấn luyện dùng chung, khoá `{}` "
             "(docs/05_config/05_experiments_shared.md)".format(key))
 
-# Kiểu số hợp lệ. `auto` để mã chọn theo máy: T4 (Turing) không có bf16, nên chọn fp16.
-DTYPES = ("auto", "float16", "bfloat16", "float32")
+# Kiểu số hợp lệ. Một nguồn duy nhất: `src/model_config.py` (hàm giải `auto` cũng ở đó, dùng chung
+# cho cả đường encoder và đường prompt - xem `model_config.resolve_dtype`).
+DTYPES = model_config.DTYPES
 
 # Tên file của checkpoint nằm ở writer `src/training/savers/adapter.py`.
 
@@ -157,22 +158,14 @@ def device_of():
 
 
 def torch_dtype(name, device):
-    """Kiểu số THẬT SỰ dùng sau khi giải `auto`.
+    """Kiểu số THẬT SỰ dùng sau khi giải `auto` - gọi hàm DÙNG CHUNG với đường prompt.
 
-    `auto` = bf16 khi máy hỗ trợ (Ampere trở lên), fp16 khi không (T4 là Turing), fp32 trên CPU -
-    chọn sai ở T4 làm mất tốc độ, chọn bf16 trên CPU làm sai số học.
+    VÌ SAO KHÔNG CÒN BẢN RIÊNG Ở ĐÂY: bản cũ gọi `torch.cuda.is_bf16_supported()` KHÔNG kèm
+    `including_emulation=False`, nên trên T4 (Turing, không có bf16 phần cứng) nó vẫn chọn bf16 giả
+    lập - chậm bất thường. Nay cả hai đường chạy `src/model_config.resolve_dtype`, nên không thể lệch
+    nhau về cách giải `auto`, và khai tường minh mà máy không đáp ứng được là LỖI chứ không hạ cấp.
     """
-    import torch
-
-    if name == "float32":
-        return torch.float32
-    if name == "float16":
-        return torch.float16
-    if name == "bfloat16":
-        return torch.bfloat16
-    if device == "cuda":
-        return torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
-    return torch.float32
+    return model_config.resolve_dtype(name, device)
 
 
 def encode(module, texts, max_length, batch=64):
