@@ -10,7 +10,9 @@ KIỂM NHỮNG GÌ
     1. Cấu hình thí nghiệm hợp lệ (`experiments.check`): khoá lạ, `data.roles` thiếu, nhiều dataset
     2. Đường dẫn thí nghiệm cần có thật (`experiments.check_requires`): dữ liệu, bảng mã nhãn, prompt
     3. Dataset đã xử lý tồn tại, và mã phiên bản tính từ config khớp mã đang dùng
-    4. `test.csv` khớp `eval_lock` (rules.md mục 11) - lệch thì kết quả không so được với công bố
+    4. `test.csv` khớp khoá tập đánh giá (rules.md mục 11): lệch TẬP BẢN GHI
+       (`records_sha256`) thì kết quả không so được với công bố; lệch cách ghi file (`sha256`)
+       chỉ là ghi chú - xem `eval_lock_report`
     5. Thiết bị: có GPU không, `inference.quantization` khai trong model config có dùng được không
     6. Bộ tách từ mà model cần (ví dụ `vncorenlp` cần Java) chạy được trên máy này không
     7. Ghi được vào gốc kết quả (trên Colab: Drive chưa mount thì chỉ đọc)
@@ -214,8 +216,19 @@ def count_rows(path):
 def eval_lock_report(ds, version_id, problems, notes, info):
     """Kiểm tập đánh giá khớp khoá: đổi tập test là mất quyền so với công bố tham chiếu.
 
-    Khoá đọc theo thứ tự: giá trị MONG ĐỢI khai trong file phiên bản dataset (nếu có, dùng khi muốn
-    đối chiếu với một tập test bên ngoài), rồi tới khoá ĐÃ GHI cùng dữ liệu
+    HAI DẤU VÂN TAY, HAI MỨC
+    - `records_sha256` (khoá, xem `versioning.records_sha256`): vân tay của TẬP BẢN GHI. Lệch là LỖI,
+      vì nội dung đánh giá đã khác - hết quyền so với công bố.
+    - `sha256` (dấu vân tay BYTE của file): lệch chỉ là GHI CHÚ - dữ liệu y nguyên, chỉ cách ghi file
+      đổi (đã xảy ra thật 25/09/2026). Giữ cả hai để vẫn truy vết được bản đã công bố, và để bản code
+      cũ (đã ghim trong notebook, chỉ biết `sha256`) không bị mất guard.
+
+    Một ngoại lệ của mức "ghi chú": giá trị **KHAI trong file phiên bản dataset** (dùng khi đối chiếu
+    với một tập test bên ngoài) là giao kèo cứng - khai `sha256` mà byte lệch thì vẫn là LỖI, kể cả khi
+    tập bản ghi khớp; muốn chỉ ràng buộc dữ liệu thì khai `records_sha256`.
+
+    Khoá đọc theo thứ tự: giá trị khai trong file phiên bản dataset (nếu có - dùng khi muốn đối chiếu
+    với một tập test bên ngoài), rồi tới khoá ĐÃ GHI cùng dữ liệu
     (`data/processed/<mã>/eval_lock.json`) - khoá này có từ bản dữ liệu ĐẦU TIÊN, nên bản v0 cũng
     được kiểm, không phải chờ phiên bản sau.
     """
@@ -228,6 +241,13 @@ def eval_lock_report(ds, version_id, problems, notes, info):
         return None
     measured = {"file": path.name, "sha256": versioning.file_sha256(path),
                 "rows": count_rows(path)}
+    aspects = _locked_split_aspects(version_id, notes)
+    if aspects:
+        try:
+            measured["records_sha256"] = versioning.records_sha256(path, aspects)
+        except versioning.VersionError as exc:
+            problems.append(str(exc))
+            return measured
     info["test"] = measured
 
     if not lock.get("enforce", True):
@@ -236,29 +256,84 @@ def eval_lock_report(ds, version_id, problems, notes, info):
         return measured
 
     stored = versioning.split_lock(version_id, Path(str(declared.get("file") or "test.csv")).stem)
+    want_records = declared.get("records_sha256") or stored.get("records_sha256")
+    want_bytes = declared.get("sha256") or stored.get("sha256")
     source = "khai trong file phiên bản dataset"
-    want = declared.get("sha256")
-    if not want:
-        want = stored.get("sha256")
+    if not (declared.get("sha256") or declared.get("records_sha256")):
         source = "ghi cùng dữ liệu lúc tạo ({})".format(
             utils.rel(versioning.eval_lock_path(version_id or "")))
-    info["eval_lock"] = {"enforce": True, "source": source, "sha256": want,
-                         "rows": stored.get("rows")}
-    if not want:
+    info["eval_lock"] = {"enforce": True, "source": source, "sha256": want_bytes,
+                         "records_sha256": want_records, "rows": stored.get("rows")}
+
+    if not want_records and not want_bytes:
         notes.append(
             "Chưa có khoá tập đánh giá cho phiên bản này. Chạy pipeline để tạo khoá (nó ghi "
             "{} trong cùng lần chạy sinh ra test.csv): `python run_pipeline.py --dataset <tên> "
             "--version <phiên bản>`.".format(utils.rel(versioning.eval_lock_path(version_id or ""))))
         return measured
-    if str(want) != measured["sha256"]:
+
+    records_match = None
+    if want_records and measured.get("records_sha256"):
+        records_match = str(want_records) == measured["records_sha256"]
+    bytes_match = str(want_bytes) == measured["sha256"] if want_bytes else None
+
+    if records_match is False:
+        problems.append(
+            "{} KHÔNG khớp khoá tập đánh giá ({}): tập bản ghi đã ghi {}, đo được {}. Nội dung đánh "
+            "giá đã thay đổi nên kết quả không so được với công bố tham chiếu.".format(
+                measured["file"], source, want_records, measured["records_sha256"]))
+        return measured
+    if records_match is None and bytes_match is False:
+        # Khoá cũ chưa có vân tay dữ liệu (hoặc không đọc được bảng mã nhãn): giữ mức so cũ.
         problems.append(
             "{} KHÔNG khớp khoá tập đánh giá ({}): đã ghi {}, đo được {}. Tập đánh giá đã thay đổi "
             "nên kết quả không so được với công bố tham chiếu.".format(
-                measured["file"], source, want, measured["sha256"]))
-    else:
-        notes.append("{} khớp khoá tập đánh giá ({} dòng; {}).".format(
-            measured["file"], measured["rows"], source))
+                measured["file"], source, want_bytes, measured["sha256"]))
+        return measured
+
+    if bytes_match is False and declared.get("sha256"):
+        # Giá trị KHAI trong file phiên bản là giao kèo với một file bên ngoài (ví dụ tập test của
+        # công bố): phải khớp từng byte. Khác với `sha256` ĐÃ GHI cùng dữ liệu - đó chỉ là dấu vết của
+        # lần chạy trước, nên lệch byte ở đó chỉ là ghi chú.
+        problems.append(
+            "{} KHÔNG khớp giá trị khai trong file phiên bản dataset: `sha256` khai {}, đo được {}{}. "
+            "Nếu chỉ cần khớp DỮ LIỆU thì khai `records_sha256` (đo được {}) thay cho `sha256`.".format(
+                measured["file"], declared.get("sha256"), measured["sha256"],
+                " (tập bản ghi thì khớp)" if records_match else "",
+                measured.get("records_sha256", "")))
+        return measured
+
+    if bytes_match is False:
+        notes.append(
+            "{}: định dạng ghi của file đã đổi (`sha256` đã ghi {}, đo được {}) nhưng TẬP BẢN GHI "
+            "không đổi ({} bản ghi) - vẫn so được với công bố.".format(
+                measured["file"], str(want_bytes)[:8], measured["sha256"][:8], measured["rows"]))
+        return measured
+
+    if want_records and not measured.get("records_sha256"):
+        # Không được báo "khớp" khi thứ quyết định lại chưa đối chiếu được: nói rõ chỉ kiểm được byte.
+        notes.append(
+            "{}: khoá có vân tay tập bản ghi nhưng CHƯA tính được vân tay hiện tại (thiếu "
+            "`label_map.json`?) nên chỉ đối chiếu được byte `sha256`.".format(measured["file"]))
+        return measured
+    notes.append("{} khớp khoá tập đánh giá ({} dòng; {} bản ghi; {}).".format(
+        measured["file"], measured["rows"], measured.get("records_sha256", "")[:8], source))
     return measured
+
+
+def _locked_split_aspects(version_id, notes):
+    """Danh sách aspect của phiên bản, để tính dấu vân tay tập bản ghi.
+
+    Không đọc được `label_map.json` thì VẪN kiểm được bằng dấu vân tay byte (như trước): thiếu file
+    này là chuyện của "chưa chạy pipeline", và preflight không nên nổ vì nó.
+    """
+    from src.preprocessing import loader
+    try:
+        return list(loader.load_label_map(version_id)["aspects"])
+    except Exception as exc:  # noqa: BLE001 - thiếu/hỏng label_map đều cùng một cách xử lý
+        notes.append("Chưa đọc được bảng mã nhãn của {} nên chỉ kiểm dấu vân tay byte: {}".format(
+            version_id, exc))
+        return []
 
 
 def device_report(model_id, problems, notes, info):

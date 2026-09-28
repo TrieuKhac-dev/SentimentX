@@ -208,6 +208,106 @@ class TestEvalLockFromData(unittest.TestCase):
         self.assertTrue(any("đang TẮT" in note for note in notes))
 
 
+class TestEvalLockTwoFingerprints(unittest.TestCase):
+    """Hai dấu vân tay, hai mức: lệch TẬP BẢN GHI là LỖI; lệch cách ghi file chỉ là GHI CHÚ.
+
+    Vì sao phải phân biệt: 25/09/2026 một lần đổi cách ghi CSV làm `test.csv` khác `sha256` dù 1.518
+    bản ghi y nguyên, và khoá cũ (chỉ có `sha256`) chặn nhầm. Khoá theo `records_sha256` nói đúng sự
+    thật: dữ liệu còn nguyên thì vẫn so được với công bố.
+    """
+
+    VERSION_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-abcdef12"
+    ASPECTS = ["stayingpower", "texture"]
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        patcher = mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: self._tmp.name})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.directory = paths.processed(self.VERSION_ID)
+        self.directory.mkdir(parents=True)
+        self.columns = ["text"] + self.ASPECTS
+        self.rows = [["Son đẹp\nShip nhanh", 1, 0], ["Son thường", 0, 2]]
+        utils.write_json(
+            {"aspects": self.ASPECTS, "labels": ["positive", "negative"],
+             "label_to_id": {"positive": 1, "negative": 2},
+             "id_to_label": {"1": "positive", "2": "negative"}},
+            self.directory / "label_map.json")
+        self.test_csv = self.write(single_line=False)
+
+    def write(self, rows=None, **kwargs):
+        return utils.write_csv(rows or self.rows, self.columns,
+                               self.directory / "test.csv", **kwargs)
+
+    def dataset(self, **declared):
+        return {"eval_lock": {"enforce": True,
+                              "test": dict({"file": "test.csv"}, **declared)}}
+
+    def lock(self, **fields):
+        payload = {"file": "test.csv", "rows": len(self.rows)}
+        payload.update(fields)
+        versioning.write_eval_lock(self.VERSION_ID, payload)
+
+    def test_lech_cach_ghi_thi_chi_ghi_chu(self):
+        """Byte khác, bản ghi y nguyên: KHÔNG chặn - chỉ nhắc đã đổi định dạng ghi."""
+        records = versioning.records_sha256(self.test_csv, self.ASPECTS)
+        self.lock(sha256="a" * 64, records_sha256=records)
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertTrue(any("định dạng ghi" in note for note in notes))
+
+    def test_lech_ban_ghi_thi_la_loi(self):
+        records = versioning.records_sha256(self.test_csv, self.ASPECTS)
+        self.lock(sha256=versioning.file_sha256(self.test_csv), records_sha256=records)
+        self.write([["Son khác hẳn", 1, 0], self.rows[1]], single_line=False)
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("tập bản ghi", problems[0])
+
+    def test_khop_ca_hai_thi_bao_khop(self):
+        self.lock(sha256=versioning.file_sha256(self.test_csv),
+                  records_sha256=versioning.records_sha256(self.test_csv, self.ASPECTS))
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertTrue(any("khớp khoá" in note for note in notes))
+
+    def test_gia_tri_khai_theo_ban_ghi_thang_khoa_ghi_cung_du_lieu(self):
+        """Khai `records_sha256` trong file phiên bản (đối chiếu tập test bên ngoài) được ưu tiên."""
+        self.lock(sha256="a" * 64, records_sha256="b" * 64)
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(
+            self.dataset(records_sha256=versioning.records_sha256(self.test_csv, self.ASPECTS)),
+            self.VERSION_ID, problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertIn("khai trong file phiên bản dataset", info["eval_lock"]["source"])
+
+    def test_gia_tri_khai_byte_lech_van_la_loi_du_du_lieu_khop(self):
+        """Giá trị KHAI là giao kèo cứng: byte lệch là LỖI, khớp dữ liệu không thay được byte."""
+        self.lock(sha256=versioning.file_sha256(self.test_csv),
+                  records_sha256=versioning.records_sha256(self.test_csv, self.ASPECTS))
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(sha256="0" * 64), self.VERSION_ID,
+                                   problems, notes, info)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("KHÔNG khớp giá trị khai", problems[0])
+        self.assertIn("(tập bản ghi thì khớp)", problems[0])
+
+
+    def test_thieu_bang_ma_nhan_thi_khong_bao_khop(self):
+        """Không được báo 'khớp' khi chưa đối chiếu được vân tay dữ liệu (thiếu `label_map.json`)."""
+        self.lock(records_sha256=versioning.records_sha256(self.test_csv, self.ASPECTS))
+        (self.directory / "label_map.json").unlink()
+        problems, notes, info = [], [], {}
+        preflight.eval_lock_report(self.dataset(), self.VERSION_ID, problems, notes, info)
+        self.assertEqual(problems, [])
+        self.assertTrue(any("CHƯA tính được vân tay hiện tại" in note for note in notes))
+        self.assertFalse(any("khớp khoá tập đánh giá" in note for note in notes))
+
+
 class TestDeviceAndSegmenter(PreflightCase):
     def test_device_report_shape(self):
         problems, notes, info = [], [], {}
