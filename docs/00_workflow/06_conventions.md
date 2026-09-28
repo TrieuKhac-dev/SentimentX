@@ -23,6 +23,11 @@
 - Tên file, tên thư mục, tên khoá: chữ thường, dùng **gạch dưới** `_`.
   Ví dụ: `01_raw_data.md`, `run_pipeline.py`, `model_input.csv`, `label_space`.
 - Không dùng gạch ngang `-` trong tên file, trừ khi công cụ bắt buộc.
+- Ngoại lệ đã có trong repo, và chỉ có ngoại lệ này: `model_id` và `method` dùng gạch ngang vì
+  chúng là **tên riêng** (`phobert-base-v2`, `qwen3-4b-instruct-2507`, `prompt-cot`,
+  `prompt-one-turn`), đi thẳng vào đường dẫn `experiments/<model_id>/<method>/<expNNN>/`, và tên
+  file `configs/models/<model_id>.yaml` phải trùng `model_id`. Thư mục trọng số tải về
+  (`data/models/Qwen3-4B-Instruct-2507/`) giữ đúng tên trên Hugging Face.
 
 ## Config
 
