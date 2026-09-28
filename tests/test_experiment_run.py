@@ -472,6 +472,34 @@ class MaxLengthTest(unittest.TestCase):
         self.assertEqual(experiment_run.effective_max_length({"preprocess": {}}), qwen.limit()[0])
 
 
+class QuantAndDtypeFromConfigTest(unittest.TestCase):
+    """`effective_quant`/`dtype_of` là một chỗ DUY NHẤT quyết định lượng hoá và kiểu số của lượt chạy.
+
+    Vì sao khoá: cùng giá trị đó đi vào mã băm, dòng `[CONFIG]`, lần nạp model và `metrics.json`. Trước
+    đây `runner.load` nhận giá trị THÔ `"auto"`, nên config khai `quantization: null` vẫn bị lượng hoá
+    4-bit; và khi 4-bit nạp hỏng thì nó âm thầm chạy 16-bit - hai kiểu "hash nói một đằng, chạy một nẻo".
+    """
+
+    def test_auto_lay_theo_config(self):
+        self.assertEqual(
+            experiment_run.effective_quant("auto", {"inference": {"quantization": "4bit"}}),
+            "4bit")
+
+    def test_de_trong_nghia_la_khong_luong_hoa(self):
+        for config in ({"inference": {"quantization": None}}, {"inference": {}}, {}):
+            self.assertIsNone(experiment_run.effective_quant("auto", config))
+
+    def test_tham_so_truyen_vao_de_len_config(self):
+        self.assertEqual(
+            experiment_run.effective_quant("float16", {"inference": {"quantization": "4bit"}}),
+            "float16")
+
+    def test_dtype_doc_tu_config_da_hop_nhat(self):
+        self.assertEqual(experiment_run.dtype_of({"inference": {"dtype": " Bfloat16 "}}), "bfloat16")
+        self.assertEqual(experiment_run.dtype_of({"inference": {"dtype": None}}), "auto")
+        self.assertEqual(experiment_run.dtype_of({}), "auto")
+
+
 if __name__ == "__main__":
     unittest.main()
 

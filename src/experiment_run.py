@@ -236,9 +236,9 @@ def log_config(plan_data, log):
         (plan_data["examples"] or {}).get("sha") or "không dùng",
         "greedy" if not plan_data["sampled"] else "lấy mẫu"))
     generation = dict(plan_data.get("generation") or {})
-    log.config("chạy: max_length={} | max_new_tokens={} | batch={} | do_sample={} "
+    log.config("chạy: dtype={} | max_length={} | max_new_tokens={} | batch={} | do_sample={} "
                "temperature={} top_p={} top_k={} seed={}".format(
-                   plan_data["max_length"], generation.get("max_new_tokens"),
+                   plan_data.get("dtype"), plan_data["max_length"], generation.get("max_new_tokens"),
                    plan_data["batch_size"], generation.get("do_sample"),
                    generation.get("temperature"), generation.get("top_p"),
                    generation.get("top_k"), generation.get("seed")))
@@ -414,6 +414,16 @@ def effective_quant(quant, config_data):
     return str(value) if value else None
 
 
+def dtype_of(config_data):
+    """`inference.dtype` của config ĐÃ HỢP NHẤT (`auto` khi không khai).
+
+    Đọc từ config đã hợp nhất, không đọc thẳng file config model, vì lớp THÍ NGHIỆM là lớp cuối: khai
+    `inference.dtype` trong config thí nghiệm phải có tác dụng (đúng như `effective_max_length`).
+    """
+    value = (config_data.get("inference") or {}).get("dtype")
+    return str(value).strip().lower() if value else "auto"
+
+
 def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=42):
     """Cấu hình sinh HIỆU LỰC của một lượt chạy: `plan()` và `preflight` dùng chung hàm này.
 
@@ -557,8 +567,14 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     # Cách biểu diễn model tính MỘT LẦN: cấu hình sinh ghi vào bản ghi và dấu vân tay đều dùng giá
     # trị hiệu lực, không dùng chữ "auto" - hai chỗ ghi hai giá trị khác nhau là hai dấu vân tay.
     quant_effective = effective_quant(quant, config_data)
-    generation = run_generation(config_data, quant_effective, sampled, max_new_tokens, seed)
+    # MỘT giá trị dùng cho MỌI chỗ: mã băm, dòng `[CONFIG]`, lần nạp model, `metrics.json`. Trước đây
+    # hash và bản ghi dùng giá trị hiệu lực còn `runner.load` nhận giá trị thô `"auto"`, nên với config
+    # khai `quantization: null` thì lượt chạy vẫn bị lượng hoá 4-bit, và nếu 4-bit nạp hỏng thì nó âm
+    # thầm chạy 16-bit - cả hai đều là "hash nói một đằng, chạy một nẻo".
+    quant = quant_effective
+    generation = run_generation(config_data, quant, sampled, max_new_tokens, seed)
     max_length = effective_max_length(config_data, max_length)
+    dtype_name = dtype_of(config_data)
 
     identity = run_identity(config_data, version_id, prompt_obj,
                             model_id=model_id, method=method, exp_id=exp_id,
@@ -583,7 +599,8 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     info = {
         "dataset": ds["name"], "version_id": version_id, "split": split,
         "prompt": prompt_obj.name, "prompt_sha": prompt_obj.sha,
-        "model": model, "quant": quant, "max_length": max_length, "generation": generation,
+        "model": model, "quant": quant, "dtype": dtype_name,
+        "max_length": max_length, "generation": generation,
         "subset": {"limit": limit, "seed": seed}, "n_samples": len(texts),
         "experiment": {"model": model_id, "method": method, "exp_id": exp_id},
         # Hai giá trị nhận dạng BẢN CODE và BẢN CẤU HÌNH, để chúng thành NHÃN của run trên DagsHub
@@ -646,6 +663,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "label_map": label_map, "labels": label_names(label_map), "aspects": aspects,
         "texts": texts, "golds": golds, "row_index": row_index, "generation": generation,
         "sampled": sampled, "max_length": max_length, "model": model, "quant": quant,
+        "dtype": dtype_name,
         "names": names,
         "columns": columns,
         "batch_size": batch_size, "quiet": quiet, "hash": hash8, "out_dir": out_dir,
@@ -729,10 +747,12 @@ def run(plan_data, log=None):
         # hỏng giữa chừng, mà bảng in ra màn hình thì notebook không giữ lại.
         log_config(plan_data, log)
 
-        log.step("nạp model: {} (quant={})".format(info["model"], plan_data["quant"]))
+        log.step("nạp model: {} (quant={}, dtype={})".format(
+            info["model"], plan_data["quant"], plan_data.get("dtype")))
         try:
             model, tokenizer, model_info = runner.load(plan_data["quant"],
-                                                       model_name=plan_data["model"])
+                                                       model_name=plan_data["model"],
+                                                       dtype_name=plan_data.get("dtype"))
         except (ImportError, RuntimeError, OSError) as exc:
             # `requires` là thứ còn thiếu để chạy được, để lần sau không phải đoán.
             log.error("Không nạp được model: {}".format(exc), exc=exc,
