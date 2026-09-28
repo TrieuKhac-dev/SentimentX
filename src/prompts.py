@@ -445,7 +445,18 @@ class Prompt:
             shot = "THIẾU FILE ví dụ"
         else:
             shot = "{} ví dụ (sha {})".format(info["examples"], info["sha"])
-        system = self.system_info() if "system_prompt" in self.placeholders else None
+        # KHÔNG gọi thẳng `system_info()`: prompt đặt ô nhớ `{system_prompt}` nhưng CHƯA được khai
+        # khoá `system_prompt` (việc của config thí nghiệm) sẽ ném lỗi - mà lệnh liệt kê phải liệt kê
+        # được MỌI prompt đang có, kể cả prompt chưa gắn thí nghiệm nào. Đây là cột thông tin, không
+        # phải chỗ kiểm tra điều kiện chạy.
+        if "system_prompt" not in self.placeholders:
+            system_cell = "-"
+        elif not self.system_value:
+            system_cell = "CHƯA khai khoá `system_prompt`"
+        else:
+            system = self.system_info()
+            system_cell = ("THIẾU FILE hệ thống" if system["missing"]
+                           else "{} (sha {})".format(system["file"], system["sha"]))
         return {
             "name": self.name,
             "file": self.where,
@@ -455,9 +466,7 @@ class Prompt:
             if self.multiline else "một lượt",
             "ô nhớ": ", ".join("{" + item + "}" for item in self.placeholders),
             "số ví dụ": shot,
-            "khối hệ thống": ("THIẾU FILE hệ thống" if system["missing"]
-                              else "{} (sha {})".format(system["file"], system["sha"]))
-            if system else "-",
+            "khối hệ thống": system_cell,
         }
 
 

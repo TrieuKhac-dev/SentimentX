@@ -114,6 +114,17 @@ class HashOnlyToolsTest(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("--hash", buffer.getvalue())
 
+    def test_list_prompts_works_without_a_system_key(self):
+        """Liệt kê prompt KHÔNG được đòi khoá `system_prompt` của thí nghiệm.
+
+        Prompt có ô nhớ `{system_prompt}` mà chưa gắn thí nghiệm nào (chưa khai khoá) vẫn là prompt
+        đang có, nên phải hiện ra; trước 28/09/2026 lệnh này ném PromptError và thoát 1 kèm traceback.
+        """
+        with redirect_stdout(io.StringIO()) as buffer:
+            code = run_token_stats.main(["--list-prompts"])
+        self.assertEqual(code, 0)
+        self.assertIn("absa_cot_1shot_v1", buffer.getvalue())
+
 
 class FindVersionTest(unittest.TestCase):
     """`versioning.find_version`: nhận hash8 hoặc mã đầy đủ; không khớp thì báo lỗi rõ."""
