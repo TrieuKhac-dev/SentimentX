@@ -12,7 +12,12 @@ Ba điều được khoá ở đây:
 Chạy: python -m unittest discover -s tests
 """
 
+import contextlib
 import importlib.util
+import io
+import shutil
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -135,43 +140,68 @@ class NextExpIdTest(unittest.TestCase):
                          "exp001")
 
 
-class MainTest(unittest.TestCase):
-    """Chạy công cụ: các trường hợp phải TỪ CHỐI, và chế độ chỉ in ra."""
+class ToolCase(unittest.TestCase):
+    """Chạy `new_experiment.main` và BẮT stdout - dùng chung cho các lớp test của công cụ.
+
+    Vì sao phải bắt stdout: mã thoát `2` được dùng cho nhiều lý do khác nhau, nên chỉ so mã là không
+    chứng minh được điều test nói. Tên hàm có `_tool` vì `TestCase.run` là hàm của thư viện test - đè
+    lên nó là hỏng cả bộ test.
+    """
+
+    def run_tool(self, *args):
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            code = new_experiment.main(list(args))
+        return code, buffer.getvalue()
+
+
+class MainTest(ToolCase):
+    """Chạy công cụ THẬT trên máy đang chạy test: trường hợp phải TỪ CHỐI, và chế độ chỉ in ra.
+
+    Vì sao khẳng định cả LÝ DO, không chỉ mã thoát: mã `2` dùng cho NĂM lý do khác nhau (cây bẩn, thiếu
+    config model, nhánh chưa lên remote, nhánh chưa chứa `origin/<nhánh>`, thư mục thí nghiệm đã có), nên
+    `assertEqual(code, 2)` một mình vẫn xanh kể cả khi công cụ từ chối vì chuyện khác.
+
+    KHÔNG mock trạng thái cây làm việc ở đây: guard "cây sạch" được kiểm ở `GuardsTest`, còn ở đây test
+    chạy trên môi trường thật của người dùng. `--dry-run` không ghi gì nên cây bẩn không ảnh hưởng; test
+    nào không dùng `--dry-run` thì thêm `--allow-dirty` để tiền đề của nó rõ ràng.
+    """
 
     MODEL = "qwen3-4b-instruct-2507"
     METHOD = "prompt-cot"
 
-    def setUp(self):
-        # Cây làm việc của MÁY ĐANG CHẠY test có thể đang bẩn (người dùng đang làm dở). Guard "cây sạch"
-        # được kiểm riêng ở `GuardsTest`; ở đây khoá lại trạng thái sạch để mỗi test chỉ kiểm đúng điều
-        # nó nói, không phụ thuộc trạng thái repo của người chạy.
-        patcher = mock.patch.object(repo, "worktree_dirty", return_value=[])
-        patcher.start()
-        self.addCleanup(patcher.stop)
-
     def test_dry_run_khong_tao_gi(self):
-        code = new_experiment.main(["--model", self.MODEL, "--method", self.METHOD,
-                                    "--exp-id", "exp900", "--dry-run"])
-        self.assertEqual(code, 0)
+        code, output = self.run_tool("--model", self.MODEL, "--method", self.METHOD,
+                                     "--exp-id", "exp900", "--dry-run")
+        self.assertEqual(code, 0, output)
+        self.assertIn("--dry-run nên chưa ghi gì", output)
         self.assertFalse(experiments.experiment_dir(self.MODEL, self.METHOD, "exp900").exists())
 
-    def test_tu_choi_khi_nhanh_chua_co_tren_remote(self):
-        code = new_experiment.main(["--model", self.MODEL, "--method", self.METHOD,
-                                    "--exp-id", "exp901", "--branch", "khong-co-nhanh-nay"])
-        self.assertEqual(code, 2)
-        self.assertFalse(experiments.experiment_dir(self.MODEL, self.METHOD, "exp901").exists())
-
     def test_tu_choi_khi_model_chua_co_config(self):
-        code = new_experiment.main(["--model", "khong-co-model-nay", "--method", self.METHOD])
+        code, output = self.run_tool("--model", "khong-co-model-nay", "--method", self.METHOD)
         self.assertEqual(code, 2)
+        self.assertIn("khong-co-model-nay.yaml", output)
+        self.assertIn("tạo config của model trước", output)
+
+    def test_tu_choi_khi_nhanh_chua_co_tren_remote(self):
+        code, output = self.run_tool("--model", self.MODEL, "--method", self.METHOD,
+                                     "--exp-id", "exp901", "--branch", "khong-co-nhanh-nay",
+                                     "--allow-dirty")
+        self.assertEqual(code, 2)
+        self.assertIn("Chưa có origin/khong-co-nhanh-nay trong repo", output)
+        self.assertFalse(experiments.experiment_dir(self.MODEL, self.METHOD, "exp901").exists())
 
     def test_tu_choi_khi_thi_nghiem_da_co(self):
         existing = experiments.list_experiments()
         if not existing:
             self.skipTest("chưa có thí nghiệm nào để thử")
         model_id, method, exp_id = existing[0]
-        code = new_experiment.main(["--model", model_id, "--method", method, "--exp-id", exp_id])
+        code, output = self.run_tool("--model", model_id, "--method", method, "--exp-id", exp_id,
+                                     "--allow-dirty")
         self.assertEqual(code, 2)
+        self.assertIn("Đã có", output)
+        self.assertIn(exp_id, output)
+        self.assertIn("không ghi đè", output)
 
 
 class NotesFlagTest(unittest.TestCase):
@@ -216,41 +246,108 @@ class RemoteIdsTest(unittest.TestCase):
             self.assertEqual(experiments.next_exp_id("m", "mm", ref="origin/experiment"), "exp005")
 
 
-class GuardsTest(unittest.TestCase):
+class GuardsTest(ToolCase):
     """Ba việc kiểm trước khi tạo: cây sạch, nhánh hiện tại chứa `origin/<nhánh>`, thư mục chưa có.
 
-    Mọi test ở đây dùng `--dry-run`, nên KHÔNG ghi gì vào repo.
+    Ở đây CÓ giả lập tiền đề (mock `worktree_dirty`, `run_git`, `is_ancestor`): test cho một GUARD thì phải
+    làm cho guard đó phát hoả, và không thể trông vào trạng thái repo của máy đang chạy. Mọi test vẫn
+    khẳng định ĐÚNG CÂU THÔNG BÁO, không chỉ mã thoát - xem `docs/00_workflow/06_conventions.md`.
+
+    Mọi test hoặc dùng `--dry-run`, hoặc tạo vào một `expNNN` riêng có dọn dẹp, nên KHÔNG để lại gì.
     """
 
-    ARGS = ["--model", "qwen3-4b-instruct-2507", "--method", "prompt-cot", "--dry-run"]
+    MODEL = "qwen3-4b-instruct-2507"
+    METHOD = "prompt-cot"
+    ARGS = ["--model", MODEL, "--method", METHOD, "--dry-run"]
+    SCRATCH = ("zz-guard-test", "exp999")
 
-    def test_cay_ban_thi_tu_choi(self):
+    def scratch_dir(self, model_id=None):
+        """Thư mục thí nghiệm tạm của lớp này, tự xoá sau mỗi test."""
+        target = experiments.experiment_dir(model_id or self.MODEL, *self.SCRATCH)
+        self.addCleanup(shutil.rmtree, str(target.parent), ignore_errors=True)
+        return target
+
+    def test_cay_ban_thi_tu_choi_khi_tao_that(self):
+        """Tạo THẬT mà cây bẩn ⇒ từ chối, kèm đúng câu thông báo (đây chính là lý do của guard)."""
+        target = self.scratch_dir()
         with mock.patch.object(repo, "worktree_dirty", return_value=["a.txt", "b.txt"]):
-            self.assertEqual(new_experiment.main(list(self.ARGS)), 2)
+            code, output = self.run_tool("--model", self.MODEL, "--method", self.SCRATCH[0],
+                                         "--exp-id", self.SCRATCH[1])
+        self.assertEqual(code, 2)
+        self.assertIn("Cây làm việc còn 2 file đang thay đổi", output)
+        self.assertFalse(target.exists())
+
+    def test_dry_run_mien_guard_cay_sach(self):
+        """`--dry-run` không ghi gì nên cây bẩn không chặn - đây là cách soi công cụ giữa lúc làm dở."""
+        with mock.patch.object(repo, "worktree_dirty") as dirty:
+            code, output = self.run_tool(*self.ARGS)
+        self.assertEqual(code, 0, output)
+        self.assertIn("--dry-run nên chưa ghi gì", output)
+        # Không hỏi git về cây bẩn: ở chế độ này câu trả lời không được dùng tới.
+        self.assertEqual(dirty.call_count, 0)
 
     def test_nhanh_chua_chua_origin_thi_tu_choi(self):
+        with mock.patch.object(repo, "run_git", return_value=(0, "")), \
+                mock.patch.object(repo, "ref_exists", return_value=True), \
+                mock.patch.object(repo, "is_ancestor", return_value=False):
+            code, output = self.run_tool(*self.ARGS)
+        self.assertEqual(code, 2)
+        self.assertIn("Nhánh hiện tại CHƯA chứa origin/experiment", output)
+
+    def test_moi_thu_sach_thi_tao_duoc(self):
+        target = self.scratch_dir()
         with mock.patch.object(repo, "worktree_dirty", return_value=[]), \
                 mock.patch.object(repo, "run_git", return_value=(0, "")), \
                 mock.patch.object(repo, "ref_exists", return_value=True), \
-                mock.patch.object(repo, "is_ancestor", return_value=False):
-            self.assertEqual(new_experiment.main(list(self.ARGS)), 2)
+                mock.patch.object(repo, "is_ancestor", return_value=True):
+            code, output = self.run_tool("--model", self.MODEL, "--method", self.SCRATCH[0],
+                                         "--exp-id", self.SCRATCH[1], "--notes", "chạy trong test")
+        self.assertEqual(code, 0, output)
+        self.assertTrue(target.exists())
+        self.assertNotIn("CẢNH BÁO", output)
 
-    def test_allow_dirty_van_di_tiep_duoc(self):
-        """Cờ thoát cho lúc đang làm dở: công cụ chạy tiếp, nhưng phải NÓI RA là commit sẽ mang theo."""
+    def test_allow_dirty_van_tao_duoc_nhung_co_canh_bao(self):
+        """Cờ thoát lúc đang làm dở: vẫn tạo, nhưng phải NÓI RA là commit sẽ mang theo file khác."""
+        target = self.scratch_dir()
         with mock.patch.object(repo, "worktree_dirty", return_value=["a.txt"]), \
                 mock.patch.object(repo, "run_git", return_value=(0, "")), \
                 mock.patch.object(repo, "ref_exists", return_value=True), \
-                mock.patch.object(repo, "is_ancestor", return_value=True), \
-                mock.patch.object(experiments, "remote_exp_ids", return_value=[]):
-            self.assertEqual(new_experiment.main(list(self.ARGS) + ["--allow-dirty"]), 0)
+                mock.patch.object(repo, "is_ancestor", return_value=True):
+            code, output = self.run_tool("--model", self.MODEL, "--method", self.SCRATCH[0],
+                                         "--exp-id", self.SCRATCH[1], "--allow-dirty")
+        self.assertEqual(code, 0, output)
+        self.assertIn("CẢNH BÁO: cây làm việc còn 1 file", output)
+        self.assertTrue(target.exists())
 
-    def test_moi_thu_sach_thi_dry_run_khong_ghi_gi(self):
-        with mock.patch.object(repo, "worktree_dirty", return_value=[]), \
-                mock.patch.object(repo, "run_git", return_value=(0, "")), \
-                mock.patch.object(repo, "ref_exists", return_value=True), \
-                mock.patch.object(repo, "is_ancestor", return_value=True), \
-                mock.patch.object(experiments, "remote_exp_ids", return_value=[]):
-            self.assertEqual(new_experiment.main(list(self.ARGS)), 0)
+
+class WorktreeDirtyTest(unittest.TestCase):
+    """`repo.worktree_dirty()` đọc `git status --porcelain` THẬT, trên một repo TẠM.
+
+    Vì sao không mock: guard "cây sạch" của `new_experiment.py` dựa vào hàm này, nên nếu nó chỉ được kiểm
+    gián tiếp qua mock thì một lỗi đọc sai định dạng `--porcelain` (cắt nhầm cột, bỏ sót file chưa được
+    theo dõi) sẽ không ai thấy. Repo tạm nên test không phụ thuộc trạng thái repo của người chạy.
+    """
+
+    def setUp(self):
+        if shutil.which("git") is None:
+            self.skipTest("máy này không có git")
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-dirty-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def git(self, *args):
+        subprocess.run(["git"] + list(args), cwd=str(self.root), check=True,
+                       capture_output=True, text=True)
+
+    def test_cay_sach_tra_rong_va_file_chua_theo_doi_duoc_bao(self):
+        self.git("init", "-q")
+        self.git("config", "user.email", "test@example.com")
+        self.git("config", "user.name", "test")
+        (self.root / "a.txt").write_text("x", encoding="utf-8")
+        self.git("add", "a.txt")
+        self.git("commit", "-q", "-m", "first")
+        self.assertEqual(repo.worktree_dirty(self.root), [])
+        (self.root / "b.txt").write_text("y", encoding="utf-8")
+        self.assertEqual(repo.worktree_dirty(self.root), ["b.txt"])
 
 
 if __name__ == "__main__":
