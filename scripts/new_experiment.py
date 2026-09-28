@@ -12,11 +12,14 @@ trỏ đúng `EXP_DIR` đó, và số `expNNN` không được trùng thí nghi�
 nhau lúc nào không biết - mà notebook sai `EXP_DIR` thì kết quả ghi vào thư mục của thí nghiệm
 KHÁC, vẫn ra số bình thường.
 
-HAI VIỆC KIỂM TRƯỚC KHI TẠO
-    1. Nhánh đã ghim (`configs/experiments/repo.yaml`) phải CÓ trên remote (`origin/<branch>`).
-       Chưa có thì đẩy lên trước: commit đã ghim không nằm trên nhánh thì kết quả chạy ra không
-       dùng được (docs/00_workflow/01_flow.md).
-    2. Thư mục thí nghiệm phải CHƯA có. Công cụ này không bao giờ ghi đè thí nghiệm đang có.
+BA VIỆC KIỂM TRƯỚC KHI TẠO
+    1. Cây làm việc phải SẠCH: còn thay đổi chưa commit thì dừng - commit tạo thí nghiệm chỉ được chứa
+       thí nghiệm mới, không được mang theo việc đang làm dở.
+    2. `git fetch origin <nhánh>` (nhánh ở `configs/experiments/repo.yaml`). Fetch hỏng (mất mạng)
+       thì chỉ CẢNH BÁO rồi đi tiếp.
+    3. Nhánh hiện tại phải CHỨA `origin/<nhánh>`, và số `expNNN` kế tiếp tính trên cả thí nghiệm đã
+       nằm trên nhánh đó - hai người làm song song trên hai máy không thể cùng nhận một số
+       (docs/00_workflow/01_flow.md).
 
 NÓ KHÔNG TỰ GHIM COMMIT
 Tạo xong, xem lại config (dataset, roles, n, prompt, examples) rồi chạy
@@ -62,11 +65,16 @@ def parse_args(argv=None):
     parser.add_argument("--parent", default=None,
                         help="Thí nghiệm làm lại từ đâu, dạng <model>/<method>/<expNNN>; "
                              "'none' nếu là bản gốc (mặc định: none).")
-    parser.add_argument("--title", default=None,
-                        help="Mô tả ngắn, ghi vào `notes` của config.yaml. Sửa sau cũng được.")
+    parser.add_argument("--notes", dest="notes", default=None,
+                        help="Mô tả ngắn, ghi vào `notes` của config.yaml. Sửa sau cũng được. "
+                             "Tên cờ trùng tên khoá trong config; tên cũ `--title` đã bỏ.")
     parser.add_argument("--branch", default=None,
                         help="Nhánh đã ghim cần kiểm (mặc định: repo.yaml).")
     parser.add_argument("--dry-run", action="store_true", help="Chỉ in ra, không ghi file.")
+    parser.add_argument("--allow-dirty", action="store_true",
+                        help="Cho phép cây làm việc có file khác đang sửa. Mặc định là TỪ CHỐI: commit "
+                             "tạo thí nghiệm chỉ được chứa thí nghiệm mới. Cờ này để soi công cụ giữa "
+                             "lúc đang làm dở (giống `pin.py --allow-dirty`).")
     return parser.parse_args(argv)
 
 
@@ -81,19 +89,19 @@ def clean_parent(text):
     return "/".join(parts)
 
 
-def config_text(template, model_id, method, exp_id, parent, title=None):
+def config_text(template, model_id, method, exp_id, parent, notes=None):
     """Config của thí nghiệm: sửa ĐÚNG năm dòng định danh, giữ nguyên phần còn lại của bản mẫu.
 
     Sửa theo dòng và kiểm dòng đó CÓ THẬT, thay vì ghép lại cả file: bản mẫu còn nhiều ghi chú giải
     thích, ghép lại là mất hết và tạo nguồn sự thật thứ hai cho các khoá khác.
 
-    `title` đi vào `notes` (một dòng, không xuống dòng) và được ghi bằng JSON để tiêu đề có dấu hai
+    `notes` là mô tả ngắn (một dòng, không xuống dòng) và được ghi bằng JSON để tiêu đề có dấu hai
     chấm hay dấu ngoặc kép vẫn là YAML hợp lệ.
     """
     wanted = {"exp_id": exp_id, "model": model_id, "method": method,
               "parent": "null" if parent is None else parent,
-              "notes": "null" if not title else json.dumps(str(title).strip(),
-                                                            ensure_ascii=False)}
+              "notes": "null" if not notes else json.dumps(str(notes).strip(),
+                                                           ensure_ascii=False)}
     lines, seen = [], set()
     for line in template.splitlines():
         key = line.split(":", 1)[0].strip() if ":" in line else ""
@@ -135,7 +143,43 @@ def main(argv=None):
             raise NewExperimentError(
                 "Chưa có {}: tạo config của model trước, vì thí nghiệm kế thừa lớp model.".format(
                     utils.rel(model_config.config_path(model_id))))
-        exp_id = str(args.exp_id or experiments.next_exp_id(model_id, method)).strip()
+
+        # BA VIỆC KIỂM TRƯỚC KHI TẠO (docs/00_workflow/01_flow.md):
+        #   1. cây làm việc phải SẠCH - commit tạo thí nghiệm chỉ được chứa thí nghiệm mới;
+        #   2. cập nhật ref `origin/<nhánh>` rồi tính `expNNN` trên CẢ nhánh đó, để hai người làm song
+        #      song không chọn trùng số;
+        #   3. nhánh hiện tại phải CHỨA `origin/<nhánh>`, nếu không thì commit ghim không nằm trên nhánh
+        #      đã ghim và kết quả chạy ra không dùng được.
+        dirty = repo.worktree_dirty()
+        if dirty and not args.allow_dirty:
+            raise NewExperimentError(
+                "Cây làm việc còn {} file đang thay đổi: {}. Commit hoặc cất chúng trước, vì commit tạo "
+                "thí nghiệm phải chỉ chứa thí nghiệm mới (muốn soi công cụ giữa lúc đang làm dở thì "
+                "thêm --allow-dirty).".format(len(dirty), ", ".join(dirty[:3])))
+        if dirty:
+            print("CẢNH BÁO: cây làm việc còn {} file đang thay đổi - commit tạo thí nghiệm sẽ mang "
+                  "theo chúng.".format(len(dirty)))
+        settings = experiments.shared("repo")
+        branch = args.branch or settings.get("branch")
+        ref = "origin/{}".format(branch)
+        code, output = repo.run_git(["fetch", "origin", branch])
+        if code != 0:
+            # Mất mạng không phải lỗi của người tạo thí nghiệm: nói ra rồi đi tiếp - nhưng khi đó số
+            # `expNNN` chỉ tính trên cây làm việc và nhánh hiện tại chưa được kiểm.
+            print("CẢNH BÁO: không fetch được `{}` ({}). Số expNNN chỉ tính trên cây làm việc, và chưa "
+                  "kiểm được nhánh hiện tại có chứa `{}`.".format(
+                      branch, output.splitlines()[0] if output else "không rõ lỗi", ref))
+        if not repo.ref_exists(ref):
+            raise NewExperimentError(
+                "Chưa có {} trong repo: nhánh đã ghim phải có trên remote, nếu không thì commit "
+                "ghim không nằm trên nhánh và kết quả chạy ra không dùng được "
+                "(docs/00_workflow/01_flow.md). Đẩy nhánh lên rồi chạy lại lệnh này.".format(ref))
+        if code == 0 and not repo.is_ancestor(repo.current_sha(), ref):
+            raise NewExperimentError(
+                "Nhánh hiện tại CHƯA chứa {}: merge nhánh đó vào trước rồi chạy lại, vì commit ghim "
+                "phải nằm trên nhánh đã ghim (docs/00_workflow/01_flow.md).".format(ref))
+
+        exp_id = str(args.exp_id or experiments.next_exp_id(model_id, method, ref=ref)).strip()
         if not (exp_id.startswith("exp") and exp_id[3:].isdigit()):
             raise NewExperimentError("--exp-id phải có dạng expNNN, ví dụ exp002.")
         parent = clean_parent(args.parent)
@@ -145,17 +189,8 @@ def main(argv=None):
             raise NewExperimentError("Đã có {} - không ghi đè. Chọn --exp-id khác.".format(
                 utils.rel(target)))
 
-        settings = experiments.shared("repo")
-        branch = args.branch or settings.get("branch")
-        ref = "origin/{}".format(branch)
-        if not repo.ref_exists(ref):
-            raise NewExperimentError(
-                "Chưa có {} trong repo: nhánh đã ghim phải có trên remote, nếu không thì commit "
-                "ghim không nằm trên nhánh và kết quả chạy ra không dùng được "
-                "(docs/00_workflow/01_flow.md). Đẩy nhánh lên rồi chạy lại lệnh này.".format(ref))
-
         directory, files = load_templates()
-        config = config_text(files[CONFIG], model_id, method, exp_id, parent, args.title)
+        config = config_text(files[CONFIG], model_id, method, exp_id, parent, args.notes)
         notebook = notebooks.read(directory / NOTEBOOK)
         notebooks.set_exp_dir(notebook, experiment)
     except (NewExperimentError, experiments.ExperimentError, notebooks.NotebookError,

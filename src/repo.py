@@ -175,6 +175,22 @@ def _try(steps, dest, info):
     return True
 
 
+def worktree_dirty(root=None):
+    """Danh sách file đang thay đổi trong cây làm việc (rỗng nghĩa là SẠCH).
+
+    Dùng `status --porcelain`, nên mỗi dòng là một đường dẫn - kể cả file chưa được theo dõi. Công cụ
+    tạo thí nghiệm cần cây sạch TRƯỚC khi ghi: commit tạo thí nghiệm chỉ được chứa thí nghiệm mới, và
+    cây bẩn thì không ai biết commit đó còn mang theo gì.
+
+    Không phải repo, hoặc git hỏng: trả danh sách rỗng (không có gì để phàn nàn) - việc kiểm tra "có
+    phải repo không" là việc khác.
+    """
+    code, output = run_git(["status", "--porcelain"], cwd=root or paths.root())
+    if code != 0:
+        return []
+    return [line[3:].strip() for line in output.splitlines() if line.strip()]
+
+
 def _check_branch(sha, branch, dest, info, require_branch, log):
     """Kiểm commit đã ghim có nằm trên nhánh cho phép.
 

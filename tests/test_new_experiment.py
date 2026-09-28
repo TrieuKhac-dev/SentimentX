@@ -15,10 +15,11 @@ Chạy: python -m unittest discover -s tests
 import importlib.util
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import yaml
 
-from src import experiments, notebooks, paths
+from src import experiments, notebooks, paths, repo
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -140,6 +141,14 @@ class MainTest(unittest.TestCase):
     MODEL = "qwen3-4b-instruct-2507"
     METHOD = "prompt-cot"
 
+    def setUp(self):
+        # Cây làm việc của MÁY ĐANG CHẠY test có thể đang bẩn (người dùng đang làm dở). Guard "cây sạch"
+        # được kiểm riêng ở `GuardsTest`; ở đây khoá lại trạng thái sạch để mỗi test chỉ kiểm đúng điều
+        # nó nói, không phụ thuộc trạng thái repo của người chạy.
+        patcher = mock.patch.object(repo, "worktree_dirty", return_value=[])
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def test_dry_run_khong_tao_gi(self):
         code = new_experiment.main(["--model", self.MODEL, "--method", self.METHOD,
                                     "--exp-id", "exp900", "--dry-run"])
@@ -163,6 +172,85 @@ class MainTest(unittest.TestCase):
         model_id, method, exp_id = existing[0]
         code = new_experiment.main(["--model", model_id, "--method", method, "--exp-id", exp_id])
         self.assertEqual(code, 2)
+
+
+class NotesFlagTest(unittest.TestCase):
+    """Cờ mô tả thí nghiệm tên là `--notes`, TRÙNG tên khoá trong config; `--title` (tên cũ) đã bỏ.
+
+    Vì sao khoá lại: tài liệu cũ, bản mẫu cũ và commit cũ đều nhắc `--title`, nên người đọc tài liệu cũ
+    có thể gõ lại nó. Phải LỖI rõ ràng, không được im lặng bỏ qua - và cũng không được thêm alias ngầm.
+    """
+
+    def test_notes_flag_fills_the_config(self):
+        args = new_experiment.parse_args(["--model", "m", "--method", "mm", "--notes", "mô tả"])
+        self.assertEqual(args.notes, "mô tả")
+
+    def test_the_old_title_flag_is_rejected(self):
+        import contextlib
+        import io
+
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                new_experiment.parse_args(["--model", "m", "--method", "mm", "--title", "x"])
+
+
+class RemoteIdsTest(unittest.TestCase):
+    """Số `expNNN` phải tính CẢ thí nghiệm đã nằm trên nhánh, không chỉ cây làm việc.
+
+    Vì sao khoá: hai người tạo thí nghiệm song song trên hai máy - nếu chỉ nhìn cây làm việc thì cả hai
+    cùng nhận `exp002`, và chỉ lúc merge mới biết (docs/00_workflow/01_flow.md).
+    """
+
+    def test_doc_ten_tu_ls_tree(self):
+        with mock.patch.object(repo, "run_git", return_value=(0, "exp001\nexp004\n")):
+            self.assertEqual(experiments.remote_exp_ids("m", "mm", "origin/experiment"),
+                             ["exp001", "exp004"])
+
+    def test_khong_doc_duoc_thi_tra_danh_sach_rong(self):
+        with mock.patch.object(repo, "run_git", return_value=(128, "lỗi")):
+            self.assertEqual(experiments.remote_exp_ids("m", "mm", "origin/experiment"), [])
+
+    def test_next_exp_id_tinh_ca_so_tren_remote(self):
+        with mock.patch.object(experiments, "list_experiments", return_value=[]), \
+                mock.patch.object(experiments, "remote_exp_ids", return_value=["exp001", "exp004"]):
+            self.assertEqual(experiments.next_exp_id("m", "mm", ref="origin/experiment"), "exp005")
+
+
+class GuardsTest(unittest.TestCase):
+    """Ba việc kiểm trước khi tạo: cây sạch, nhánh hiện tại chứa `origin/<nhánh>`, thư mục chưa có.
+
+    Mọi test ở đây dùng `--dry-run`, nên KHÔNG ghi gì vào repo.
+    """
+
+    ARGS = ["--model", "qwen3-4b-instruct-2507", "--method", "prompt-cot", "--dry-run"]
+
+    def test_cay_ban_thi_tu_choi(self):
+        with mock.patch.object(repo, "worktree_dirty", return_value=["a.txt", "b.txt"]):
+            self.assertEqual(new_experiment.main(list(self.ARGS)), 2)
+
+    def test_nhanh_chua_chua_origin_thi_tu_choi(self):
+        with mock.patch.object(repo, "worktree_dirty", return_value=[]), \
+                mock.patch.object(repo, "run_git", return_value=(0, "")), \
+                mock.patch.object(repo, "ref_exists", return_value=True), \
+                mock.patch.object(repo, "is_ancestor", return_value=False):
+            self.assertEqual(new_experiment.main(list(self.ARGS)), 2)
+
+    def test_allow_dirty_van_di_tiep_duoc(self):
+        """Cờ thoát cho lúc đang làm dở: công cụ chạy tiếp, nhưng phải NÓI RA là commit sẽ mang theo."""
+        with mock.patch.object(repo, "worktree_dirty", return_value=["a.txt"]), \
+                mock.patch.object(repo, "run_git", return_value=(0, "")), \
+                mock.patch.object(repo, "ref_exists", return_value=True), \
+                mock.patch.object(repo, "is_ancestor", return_value=True), \
+                mock.patch.object(experiments, "remote_exp_ids", return_value=[]):
+            self.assertEqual(new_experiment.main(list(self.ARGS) + ["--allow-dirty"]), 0)
+
+    def test_moi_thu_sach_thi_dry_run_khong_ghi_gi(self):
+        with mock.patch.object(repo, "worktree_dirty", return_value=[]), \
+                mock.patch.object(repo, "run_git", return_value=(0, "")), \
+                mock.patch.object(repo, "ref_exists", return_value=True), \
+                mock.patch.object(repo, "is_ancestor", return_value=True), \
+                mock.patch.object(experiments, "remote_exp_ids", return_value=[]):
+            self.assertEqual(new_experiment.main(list(self.ARGS)), 0)
 
 
 if __name__ == "__main__":

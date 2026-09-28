@@ -31,7 +31,7 @@ requires_extra: []
 | `parent`         | thí nghiệm gốc, ghi bằng đường dẫn đầy đủ `<model>/<method>/<expNNN>`; `null` nếu là bản gốc |
 | `model`          | `model_id`, trỏ tới `configs/models/<model_id>.yaml`                                         |
 | `method`         | tên phương pháp, cũng là tên thư mục cha                                                     |
-| `notes`          | một dòng mô tả thí nghiệm khác gì các thí nghiệm khác; `--title` của `new_experiment.py` điền vào đây |
+| `notes`          | một dòng mô tả thí nghiệm khác gì các thí nghiệm khác; `--notes` của `new_experiment.py` điền vào đây |
 | `data.dataset`   | **một** dataset duy nhất. Không được khai danh sách                                          |
 | `data.version`   | phiên bản dataset, trỏ tới `configs/datasets/<name>/<version>.yaml`                          |
 | `data.roles`     | **bắt buộc khai**, không kế thừa: mỗi vai dùng split nào của chính dataset đó                |
@@ -140,8 +140,8 @@ lạ trong cấu hình đã hợp nhất.
 
 ## Tạo thí nghiệm mới
 
-Dùng `python scripts/new_experiment.py --model ... --method ... --title "mô tả ngắn"`. Công cụ này tự
+Dùng `python scripts/new_experiment.py --model ... --method ... --notes "mô tả ngắn"`. Công cụ này tự
 chọn số `expNNN` kế tiếp từ trạng thái đã hợp nhất, nên không thể trùng số với thí nghiệm trước;
-`--title` điền vào `notes` của `config.yaml`. Đổi tiêu đề sau khi đã tạo cũng được - sửa thẳng dòng
+`--notes` điền vào `notes` của `config.yaml`. Đổi tiêu đề sau khi đã tạo cũng được - sửa thẳng dòng
 `notes` trong file config: khoá này **bị loại khỏi dấu vân tay** (`IDENTITY_SKIP_KEYS` trong
 `src/experiments.py`), nên sửa mô tả KHÔNG đổi `<hash8>` và không đẻ ra thư mục kết quả mới.

@@ -131,7 +131,7 @@ Qwen3-4B**, chưa phải so model với model.
 ### 6.1. Cách chạy (tái lập được)
 
 ```bash
-python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --title "CoT 1 shot"
+python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --notes "CoT 1 shot"
 # rồi mở notebook của thí nghiệm và chạy toàn bộ
 ```
 

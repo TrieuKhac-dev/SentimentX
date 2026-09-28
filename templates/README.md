@@ -4,7 +4,7 @@
 bằng lệnh (khuyến nghị, vì nó tự chọn số `expNNN` kế tiếp):
 
 ```bash
-python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --title "CoT 2 ví dụ"
+python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --notes "CoT 2 ví dụ"
 ```
 
 | Thư mục       | Dùng khi nào                                                                 |

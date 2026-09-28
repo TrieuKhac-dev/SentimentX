@@ -672,14 +672,39 @@ def list_experiments(model_id=None, method=None):
     return found
 
 
-def next_exp_id(model_id, method):
+def remote_exp_ids(model_id, method, ref):
+    """Tên các thí nghiệm (`expNNN`) đã có trên MỘT REF của remote, ví dụ `origin/experiment`.
+
+    Đọc bằng `git ls-tree` nên KHÔNG phải checkout nhánh nào. Dùng để chọn số `expNNN` kế tiếp cho
+    không trùng với thí nghiệm người khác đã đẩy lên: chỉ nhìn cây làm việc thì hai người tạo song song
+    trên hai máy sẽ cùng nhận `exp002`, và lúc merge mới biết.
+
+    Không đọc được (mất mạng, ref vừa bị xoá, nhánh chưa có thư mục đó) thì trả danh sách rỗng - người
+    gọi tự nói ra là số kế tiếp chỉ tính trên cây làm việc.
+    """
+    from src import repo as repo_module
+
+    code, output = repo_module.run_git(
+        ["ls-tree", "-d", "--name-only", "{}:experiments/{}/{}".format(ref, model_id, method)])
+    if code != 0:
+        return []
+    return [name.strip() for name in output.splitlines() if name.strip()]
+
+
+def next_exp_id(model_id, method, ref=None):
     """Số `expNNN` kế tiếp của một (model, method): tiếp nối số LỚN NHẤT đã có.
 
     Đọc số lớn nhất chứ không đếm số lượng: xoá một thí nghiệm ở giữa rồi tạo mới sẽ không đụng
     vào số của thí nghiệm khác. Tên không theo dạng `expNNN` bị bỏ qua - không đoán số từ tên lạ.
+
+    `ref` (ví dụ `origin/experiment`): xét THÊM thí nghiệm đã nằm trên nhánh đó, để hai người làm song
+    song không chọn trùng số (docs/00_workflow/01_flow.md).
     """
+    found = list(list_experiments(model_id, method))
+    if ref:
+        found += [(model_id, method, name) for name in remote_exp_ids(model_id, method, ref)]
     highest = 0
-    for _model, _method, exp_id in list_experiments(model_id, method):
+    for _model, _method, exp_id in found:
         text = str(exp_id)
         if text.startswith("exp") and text[3:].isdigit():
             highest = max(highest, int(text[3:]))

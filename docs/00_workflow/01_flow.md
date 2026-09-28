@@ -17,13 +17,14 @@
 ## Tạo thí nghiệm mới
 
 ```bash
-python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --title "CoT 1 shot"
+python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --notes "CoT 1 shot"
 ```
 
 Lệnh này làm 6 việc:
 
-1. Kiểm cây làm việc sạch. Còn thay đổi chưa commit thì dừng.
-2. Chạy `git fetch origin experiment`.
+1. Kiểm cây làm việc sạch. Còn thay đổi chưa commit thì dừng (cờ `--allow-dirty` để soi công cụ giữa
+   lúc đang làm dở - khi đó nó cảnh báo là commit sẽ mang theo cả những file đó).
+2. Chạy `git fetch origin experiment` (fetch hỏng - mất mạng - thì chỉ **cảnh báo** rồi đi tiếp).
 3. Kiểm nhánh hiện tại đã chứa `origin/experiment`. Chưa chứa thì dừng và yêu cầu merge trước.
 4. Quét `experiments/<model>/<method>/exp*` trong cây làm việc và trong `origin/experiment`,
    lấy số `expNNN` kế tiếp.

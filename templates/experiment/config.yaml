@@ -14,7 +14,7 @@ parent: null
 model: qwen3-4b-instruct-2507
 method: prompt-cot
 
-# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --title "..."`
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
 # điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
 notes: null
 
