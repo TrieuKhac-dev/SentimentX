@@ -95,12 +95,28 @@ def _single_line(value):
     return value.replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
 
 
-def write_csv(rows, columns, path):
-    """Ghi danh sách các dòng (list of list) ra CSV, mỗi bản ghi trên MỘT dòng vật lý."""
+def write_csv(rows, columns, path, single_line=True):
+    """Ghi danh sách các dòng (list of list) ra CSV.
+
+    `single_line=True` (MẶC ĐỊNH) - dùng cho BẢNG CHO NGƯỜI ĐỌC: mỗi bản ghi nằm gọn MỘT dòng vật lý,
+    ký tự xuống dòng trong ô được ghi thành hai ký tự `\\n` (xem `_single_line`).
+
+    `single_line=False` - dùng cho DỮ LIỆU của dataset (`data/processed/<mã>/{split}.csv`): giữ nguyên
+    xuống dòng THẬT trong ô (ô được trích dẫn - CSV hợp lệ). Hai lý do, đừng đổi:
+
+    1. `eval_lock` băm BYTE của file (xem `versioning.file_sha256`), nên đổi cách ghi là đổi khoá của
+       mọi tập test đã công bố. Đã xảy ra thật 25/09/2026: một lần đổi chỗ này làm `test.csv` giữ
+       nguyên 1.518 bản ghi nhưng khác `sha256` (`e2558137…` thành `9ac701de…`), và pipeline dừng ở
+       bước ghi khoá. Xem `docs/03_pipeline/05_output.md`.
+    2. `_single_line` là phép biến đổi MẤT MÁT: đọc lại file sẽ ra chuỗi `\\n` hai ký tự thay vì
+       xuống dòng, tức là văn bản đưa cho model khác đi (test của dataset này: 334/1.518 bản ghi có
+       ô nhiều dòng).
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     frame = pd.DataFrame(rows, columns=columns)
-    frame = frame.apply(lambda column: column.map(_single_line))
+    if single_line:
+        frame = frame.apply(lambda column: column.map(_single_line))
     frame.to_csv(path, index=False, encoding="utf-8-sig")
     return path
 

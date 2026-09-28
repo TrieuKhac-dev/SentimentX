@@ -1,7 +1,9 @@
 {
   "test": {
+    "schema": 1,
     "file": "test.csv",
     "sha256": "e25581375bf4573a5781df6a6b004474ab043f97e9a2462a3c62209594a6c67e",
+    "records_sha256": "fa91b1d98e545f460f954cf159ed3487f0798c77c456359574a8aa0293a2c746",
     "rows": 1518
   }
 }

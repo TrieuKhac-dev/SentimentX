@@ -51,8 +51,11 @@ def run(context):
 # ---
     columns = [config.TEXT_COLUMN] + aspects
     for name, rows in transformed["rows_per_split"].items():
+        # single_line=False: dataset giữ xuống dòng THẬT trong ô (ô được trích dẫn). Đổi dòng này là
+        # đổi BYTE của `{split}.csv`, tức là đổi `eval_lock` của tập đánh giá đã công bố:
+        # docs/03_pipeline/05_output.md, `src/utils.py::write_csv`.
         path = utils.write_csv(
-            rows, columns, processed_dir / "{}.csv".format(name)
+            rows, columns, processed_dir / "{}.csv".format(name), single_line=False
         )
         written.append([path.name, len(rows), "multi_head (văn bản + mã nhãn)"])
         row_chart_data.append([name, len(rows)])
@@ -137,34 +140,57 @@ def run(context):
     test_path = processed_dir / "test.csv"
     if test_path.exists():
         lock_rows = {
+            "schema": versioning.RECORDS_LOCK_SCHEMA,
             "file": test_path.name,
             "sha256": versioning.file_sha256(test_path),
+            # Căn cứ của khoá là VÂN TAY DỮ LIỆU: đổi cách ghi file không làm lệch khoá.
+            # `sha256` ở trên chỉ là dấu vân tay byte của bản đã công bố (để truy vết).
+            "records_sha256": versioning.records_sha256(test_path, aspects),
             "rows": len(context["splits"].get("test", [])),
         }
-    declared_matches = (not declared.get("sha256")) or declared["sha256"] == lock_rows.get("sha256")
-    written = False
+    declared_records = declared.get("records_sha256")
+    if declared_records:
+        declared_matches = declared_records == lock_rows.get("records_sha256")
+    else:
+        declared_matches = (not declared.get("sha256")) or declared["sha256"] == lock_rows.get("sha256")
+
+    previous = versioning.split_lock(version_id, "test")
+    lock_written = False
     if lock_rows and enforce:
         versioning.write_eval_lock(version_id, lock_rows)
-        written = True
-        print("  Khoá tập đánh giá: {} ({} dòng) - ghi trong {}".format(
-            lock_rows["sha256"][:8], lock_rows["rows"], utils.rel(lock_file)))
+        lock_written = True
+        print("  Khoá tập đánh giá: dữ liệu {} | byte {} ({} dòng) - ghi trong {}".format(
+            lock_rows["records_sha256"][:8], lock_rows["sha256"][:8], lock_rows["rows"],
+            utils.rel(lock_file)))
+        if (previous and not previous.get("records_sha256")
+                and previous.get("sha256") == lock_rows["sha256"]):
+            print("  Bổ sung dấu vân tay dữ liệu (`records_sha256`) cho khoá đã ghi: "
+                  "`sha256` không đổi.")
+        elif (previous.get("records_sha256") == lock_rows["records_sha256"]
+                and previous.get("sha256") != lock_rows["sha256"]):
+            print("  Ghi chú: định dạng ghi của {} đã đổi (byte {} -> {}), dữ liệu KHÔNG đổi "
+                  "({} bản ghi). Khoá theo `records_sha256` nên vẫn so được với công bố.".format(
+                      test_path.name, str(previous.get("sha256"))[:8],
+                      lock_rows["sha256"][:8], lock_rows["rows"]))
 
     log["eval_lock"] = {
         "enforce": enforce,
         "declared_sha256": declared.get("sha256"),
+        "declared_records_sha256": declared_records,
         "measured": lock_rows,
         "match": declared_matches,
         "lock_file": utils.rel(lock_file),
-        "written": written,
+        "written": lock_written,
     }
     utils.write_json(log, log_path)
 
     if not declared_matches:
         raise ValueError(
-            "test.csv KHÔNG khớp `eval_lock` của {}: khai {}, đo được {}. Tập đánh giá đã "
-            "thay đổi, nên không so được với công bố tham chiếu.".format(
-                utils.rel(dataset_cfg["_path"]), declared.get("sha256"),
-                lock_rows.get("sha256")))
+            "test.csv KHÔNG khớp `eval_lock` của {}: khai `sha256` {}, khai `records_sha256` {}; "
+            "đo được `sha256` {}, đo được `records_sha256` {}. Tập đánh giá đã thay đổi, nên không so "
+            "được với công bố tham chiếu.".format(
+                utils.rel(dataset_cfg["_path"]), declared.get("sha256"), declared_records,
+                lock_rows.get("sha256"), lock_rows.get("records_sha256")))
     if lock_rows and not enforce:
         print("  `eval_lock.enforce` đang TẮT: KHÔNG ghi khoá tập đánh giá, tập test có thể bị đổi.")
 
@@ -176,7 +202,7 @@ def run(context):
             {"label": "Số dòng đầu ra", "value": "{}".format(sum(final.values()))},
             {"label": "Phiên bản pipeline", "value": cfg.get("version", "unknown")},
             {"label": "test.csv khớp eval_lock",
-             "value": "Đạt" if lock_matches else "Không đạt"},
+             "value": "Đạt" if declared_matches else "Không đạt"},
         ],
         "charts": [
             {

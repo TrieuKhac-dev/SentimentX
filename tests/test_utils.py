@@ -6,6 +6,11 @@ dòng vẫn hợp lệ theo chuẩn CSV, nhưng mọi trình xem thông thườn
 coi "một dòng = một bản ghi" - bảng dự đoán có ô dài hàng nghìn ký tự nên một review chiếm hàng chục
 dòng, và người đọc tưởng các cột phía sau biến mất (đã gặp thật 25/09/2026).
 
+NGOẠI LỆ CÓ CHỦ Ý: dữ liệu của dataset (`data/processed/<mã>/{split}.csv`) ghi bằng
+`single_line=False` - giữ xuống dòng THẬT. Hai lý do: `eval_lock` băm byte của file (đổi cách ghi là
+đổi khoá của tập test đã công bố), và việc đổi xuống dòng thành `\\n` là MẤT MÁT với văn bản đưa cho
+model. Xem `tests/test_pipeline_export.py` và `docs/03_pipeline/05_output.md`.
+
 Chạy: python -m unittest discover -s tests
 """
 
@@ -22,10 +27,10 @@ COLUMNS = ["chỉ số", "text", "câu trả lời"]
 
 
 class WriteCsvTest(unittest.TestCase):
-    def write(self, rows):
+    def write(self, rows, **kwargs):
         folder = Path(tempfile.mkdtemp(prefix="sentimentx-utils-"))
         self.addCleanup(shutil.rmtree, str(folder), ignore_errors=True)
-        return utils.write_csv(rows, COLUMNS, folder / "out.csv")
+        return utils.write_csv(rows, COLUMNS, folder / "out.csv", **kwargs)
 
     @staticmethod
     def read(path):
@@ -55,6 +60,20 @@ class WriteCsvTest(unittest.TestCase):
         rows = self.read(path)
         self.assertEqual(rows[1], ["3", "", "1.5"])
         self.assertEqual(len(rows), 2)
+
+    def test_single_line_off_keeps_the_newlines_inside_the_cell(self):
+        """`single_line=False` - dùng cho DỮ LIỆU của dataset: giữ xuống dòng THẬT.
+
+        Vì sao phải có chế độ này: `eval_lock` băm BYTE của `{split}.csv`, nên đổi cách ghi là đổi
+        khoá của tập test đã công bố; và `_single_line` là phép biến đổi MẤT MÁT - đọc lại file sẽ ra
+        chuỗi `\\\\n` hai ký tự thay vì xuống dòng, tức là văn bản đưa cho model khác đi.
+        """
+        path = self.write([[1, "hai\ndòng", "x"]], single_line=False)
+        rows = self.read(path)
+        self.assertEqual(rows[1][1], "hai\ndòng")
+        # Ô nhiều dòng được trích dẫn, nên file có NHIỀU dòng vật lý hơn số bản ghi (1 header + 1
+        # bản ghi nằm trên 2 dòng).
+        self.assertEqual(len(path.read_text(encoding="utf-8-sig").splitlines()), 3)
 
 
 if __name__ == "__main__":
