@@ -1,20 +1,23 @@
-# Cấu hình dùng chung của Qwen3-0.6B: bản nhỏ, dùng để chạy nhanh và chạy được trên CPU.
-# Cùng họ tokenizer với bản 4B nên ngưỡng cắt giống nhau.
+# Cấu hình dùng chung của Qwen3-0.6B: model THỨ TƯ của thử nghiệm, dùng để so với ba mức ví dụ của
+# công bố tham chiếu ở quy mô model nhỏ (xem docs/04_experiments/01_models.md).
+# Tokenizer GIỐNG TỪNG BYTE bản 4B (cùng `tokenizer.json`), nhưng ngưỡng cắt phải khai riêng vì prompt
+# CoT 5 ví dụ dài 1.877,50 token/review trung bình (max 2.122) - để 1280 là mất phần đuôi của MỌI review.
 # Xem docs/05_config/04_models.md.
 
 model_id: qwen3-0.6b
 checkpoint: Qwen/Qwen3-0.6B
-config_version: 2
+config_version: 3
 
 # prompt: model sinh (LLM) nhận prompt rồi trả lời; model này chỉ chạy bằng prompt.
 approach: prompt
 
 preprocess:
-  max_length: 1280
+  max_length: 2304
   add_generation_prompt: true
 
 inference:
-  dtype: float32
-  # Không lượng hoá: bản 0.6B chạy được trên CPU nên không cần.
+  # `auto`: bf16 khi GPU hỗ trợ thật, fp16 trên T4 (Turing), fp32 trên CPU - bản 0.6B chạy được cả CPU.
+  dtype: auto
+  # Không lượng hoá: bản 0.6B quá nhỏ nên không cần.
   quantization: null
   batch_size: 4

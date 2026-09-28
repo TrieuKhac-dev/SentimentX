@@ -31,12 +31,13 @@ MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507"
 # (configs/models/qwen3-0.6b.yaml).
 CONFIG_NAME = "qwen3-4b-instruct-2507"
 
-# Ngưỡng cắt input KHÔNG có hằng số ở đây nữa: nó là `preprocess.max_length` trong
-# configs/models/qwen3-4b-instruct-2507.yaml = 1280. SỐ ĐO để chọn số đó: prompt CoT + 2 ví
-# dụ few-shot tốn 861 token/review, review dài nhất 1.106 token, nên ngưỡng 1024 làm
-# 4/12.302 mẫu train bị cắt mất phần đuôi - mà với prompt dạng chat, phần cuối chính là yêu
-# cầu định dạng đầu ra. Nơi ĐO (token_stats) và nơi DÙNG (build_inputs) đều đọc qua `limit()`
-# nên không thể lệch; lệch là mọi kết luận "input có bị cắt hay không" sai hết.
+# Ngưỡng cắt input KHÔNG có hằng số ở đây: nó là `preprocess.max_length` khai RIÊNG cho từng model
+# trong configs/models/<model_id>.yaml (bản 4B và bản 0.6B dùng cùng module này nhưng hai file cấu
+# hình). SỐ ĐO để chọn số: docs/04_experiments/02_model_input.md mục 4.2 - prompt CoT 5 ví dụ dài
+# 1.877,50 token/review trung bình (max 2.122), nên ngưỡng phải từ 2.304 trở lên mới không cắt mất
+# phần đuôi (mà với prompt dạng chat, phần đuôi chính là yêu cầu định dạng đầu ra). Nơi ĐO
+# (token_stats) và nơi DÙNG (build_inputs) đều đọc qua `limit()` nên không thể lệch; lệch là mọi kết
+# luận "input có bị cắt hay không" sai hết.
 
 _TOKENIZER = None
 

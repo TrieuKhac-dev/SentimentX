@@ -6,7 +6,7 @@ model_id: qwen3-4b-instruct-2507
 checkpoint: Qwen/Qwen3-4B-Instruct-2507
 
 # Tăng số này mỗi khi sửa file.
-config_version: 3
+config_version: 4
 
 # prompt: model sinh (LLM) nhận prompt rồi trả lời. encoder: model phân loại học từ dữ liệu
 # gán nhãn. Giá trị này quyết định đường chạy: `prompt` dùng `src/evaluation/runner.py`.
@@ -25,7 +25,11 @@ preprocess:
   add_generation_prompt: true
 
 inference:
-  dtype: bfloat16
+  # MỘT quy tắc cho cả hai đường chạy, đọc ở `inference.dtype`: `auto` = mã chọn theo máy (bf16 khi GPU
+  # hỗ trợ THẬT, fp16 khi không - T4 là Turing, fp32 trên CPU). Khai tường minh `float16`/`bfloat16`/
+  # `float32` thì chạy ĐÚNG giá trị đó; máy không đáp ứng được là LỖI, không hạ cấp (xem
+  # `src/model_config.resolve_dtype`).
+  dtype: auto
   # Máy đang dùng có 6 GB VRAM nên phải lượng hoá 4-bit.
   quantization: 4bit
   batch_size: 8

@@ -45,6 +45,11 @@ def _word_count(texts, **kwargs):
 # module model, và `limit()` đọc `preprocess.max_length` trong configs/models/<model_id>.yaml.
 # `--max-length` khi chạy đứng trên giá trị đó (xem `effective_limit`). Nhờ vậy con số dùng để
 # ĐO và con số dùng để CẮT lúc huấn luyện (`build_inputs`) luôn là một.
+#
+# Qwen3-0.6B KHÔNG có mục riêng, và đó là chủ ý: `tokenizer.json` + `vocab.json` của nó GIỐNG TỪNG BYTE
+# bản 4B (đã đối chiếu sha256), `max_length` cũng bằng 2304, nên một mục riêng chỉ tạo ra một dòng số
+# liệu TRÙNG trong bảng model_input. Muốn tách thật thì phải sửa `qwen.CONFIG_NAME`/`limit()` cho nhận
+# tham số model; khi nào 0.6B có ngưỡng cắt khác bản 4B thì làm việc đó.
 MODELS = (
     {
         "key": "phobert",
