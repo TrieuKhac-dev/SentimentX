@@ -19,6 +19,7 @@ dữ liệu thì kết quả cũ vẫn còn nguyên để so sánh.
 
 CÂY KẾT QUẢ CỦA MỘT PHIÊN BẢN
     data/processed/<mã>/train.csv, val.csv, test.csv, label_map.json, processing_log.json
+    data/processed/<mã>/eval_lock.json   khoá tập đánh giá: vân tay TẬP BẢN GHI + vân tay BYTE
     data/processed/<mã>/pipeline/   báo cáo của lần chạy pipeline
     data/raw/<name>/<raw_version>/eda/ hoặc data/processed/<mã>/eda/   kết quả EDA
 """
@@ -31,6 +32,14 @@ from src import paths, utils
 
 # Số ký tự hash dùng trong mã phiên bản (đủ để không trùng trên thực tế)
 HASH_LENGTH = 8
+
+# Công thức tính `records_sha256` (dấu vân tay của TẬP BẢN GHI). Số này đi vào `eval_lock.json`, nên
+# đổi công thức là đổi khoá tập đánh giá: bump số ở đây và ghi vào docs/01_dataset/changelog.md.
+RECORDS_LOCK_SCHEMA = 1
+
+# Ký tự ngăn cách khi băm bản ghi: ký tự điều khiển, không thể có trong review nên không nhập nhằng.
+RECORD_FIELD_SEPARATOR = "\x1f"
+RECORD_LINE_SEPARATOR = "\x1e"
 
 # Tên ba file dữ liệu của một dataset đã xử lý. Dùng khi một nguồn là dataset khác.
 DATASET_FILES = ("train.csv", "val.csv", "test.csv")
@@ -238,6 +247,46 @@ def file_sha256(path):
     return digest.hexdigest()
 
 
+def records_sha256(path, aspects, text_column="text"):
+    """Dấu vân tay của TẬP BẢN GHI trong một file dataset - KHÔNG phụ thuộc cách ghi file.
+
+    VÌ SAO CÓ HÀM NÀY
+    `file_sha256` băm byte của file, nên đổi cách ghi (trích dẫn, CRLF/LF, BOM, phiên bản pandas) là
+    đổi khoá dù dữ liệu y nguyên - đã xảy ra thật 25/09/2026: `test.csv` giữ nguyên 1.518 bản ghi
+    nhưng `sha256` đổi từ `e2558137…` thành `9ac701de…`, và pipeline dừng ở bước ghi khoá. Khoá tập
+    đánh giá phải neo vào thứ thật sự quyết định quyền so với công bố: **các bản ghi**.
+
+    CÔNG THỨC (bất biến; đổi là đổi khoá, xem `RECORDS_LOCK_SCHEMA`)
+        `sha256` của: tiền tố `records:<schema>:` rồi, theo ĐÚNG THỨ TỰ trong file, mỗi bản ghi là
+        văn bản (đã chuẩn hoá: bỏ BOM, CRLF/CR -> `\\n`) + mã nhãn của từng aspect nối bằng `\\x1f`;
+        giữa hai bản ghi là `\\x1e`.
+
+    Thứ tự aspect lấy theo ĐỐI SỐ `aspects` (nguồn là `label_map.json` của phiên bản), không lấy theo
+    thứ tự cột trong file: đổi thứ tự cột là chuyện của cách ghi, không phải của dữ liệu.
+
+    `aspects` truyền vào chứ không tự đọc `label_map.json`: `src/preprocessing/loader.py` đã import
+    module này, tự đọc ở đây là tạo vòng import.
+    """
+    columns = [text_column] + [str(aspect) for aspect in aspects]
+    frame = utils.read_csv(path)
+    missing = [name for name in columns if name not in frame.columns]
+    if missing:
+        raise VersionError(
+            "{} thiếu cột {} nên KHÔNG tính được dấu vân tay tập bản ghi. Cột đang có: {}.".format(
+                utils.rel(path), ", ".join(missing), ", ".join(map(str, frame.columns))))
+
+    digest = hashlib.sha256()
+    digest.update("records:{}:".format(RECORDS_LOCK_SCHEMA).encode("utf-8"))
+    for index, row in enumerate(frame[columns].itertuples(index=False, name=None)):
+        if index:
+            digest.update(RECORD_LINE_SEPARATOR.encode("utf-8"))
+        digest.update(utils.normalize_text(str(row[0])).encode("utf-8"))
+        for value in row[1:]:
+            digest.update(RECORD_FIELD_SEPARATOR.encode("utf-8"))
+            digest.update(str(value).encode("utf-8"))
+    return digest.hexdigest()
+
+
 def eval_lock_path(version_id):
     """Đường dẫn `data/processed/<mã>/eval_lock.json`: khoá tập đánh giá của một phiên bản."""
     return processing_log_path(version_id).parent / paths.pattern("eval_lock")
@@ -267,27 +316,62 @@ def split_lock(version_id, split="test"):
     return dict(read_eval_lock(version_id).get(str(split)) or {})
 
 
-def write_eval_lock(version_id, measured):
-    """Ghi khoá tập đánh giá MỘT LẦN cho một phiên bản. Trả về đường dẫn file.
+def _lock_conflict(previous, payload, split, version_id):
+    """Khoá đã ghi có KHÁC lần này không? Trả về câu giải thích, hoặc `None` nếu không có gì để chặn.
 
-    Ghi lần thứ hai với nội dung KHÁC là lỗi: cùng một mã phiên bản nghĩa là cùng một bộ dữ liệu,
+    So theo `records_sha256` khi CẢ HAI bên đều có: đó là tập bản ghi - thứ quyết định quyền so với
+    công bố. Khoá ghi TRƯỚC khi trường đó ra đời thì rơi về so `sha256` (bảo thủ như trước): một khoá
+    đã phát ra không được im lặng nới lỏng, vì khi đó không còn cách nào phân biệt "dữ liệu đổi" với
+    "chỉ cách ghi đổi".
+    """
+    previous_records = previous.get("records_sha256")
+    current_records = payload.get("records_sha256")
+    if previous_records and current_records:
+        if previous_records == current_records:
+            return None
+        return (
+            "Tập BẢN GHI của khoá tập đánh giá ({}) của {} đã có và KHÁC lần này: đã ghi {} "
+            "({} dòng), đo được {} ({} dòng). Tập đánh giá đã thay đổi, nên tạo phiên bản dataset "
+            "mới thay vì ghi đè khoá cũ.".format(
+                split, version_id, previous_records, previous.get("rows"),
+                current_records, payload.get("rows")))
+    if previous.get("sha256") != payload.get("sha256"):
+        return (
+            "Khoá tập đánh giá ({}) của {} đã có và KHÁC lần này: đã ghi {} ({} dòng), đo được {} "
+            "({} dòng). Tập đánh giá đã thay đổi, nên tạo phiên bản dataset mới thay vì ghi đè "
+            "khoá cũ.".format(
+                split, version_id, previous.get("sha256"), previous.get("rows"),
+                payload["sha256"], payload.get("rows")))
+    return None
+
+
+def write_eval_lock(version_id, measured):
+    """Ghi khoá tập đánh giá cho một phiên bản. Trả về đường dẫn file.
+
+    Ghi lần thứ hai với TẬP BẢN GHI khác là lỗi: cùng một mã phiên bản nghĩa là cùng một bộ dữ liệu,
     mà tập đánh giá đã khác thì kết quả cũ không còn so được. Cách sửa đúng là tạo phiên bản dataset
     mới (raw khác, hoặc pipeline khác), chứ không phải ghi đè khoá.
+
+    Ghi lần thứ hai với tập bản ghi GIỐNG nhưng khác `sha256` thì KHÔNG lỗi: dữ liệu y nguyên, chỉ
+    cách ghi file đổi - khoá được cập nhật lại dấu vân tay byte, và `export` in một dòng ghi chú.
+
+    Khoá cũ CHƯA có `records_sha256` (ghi trước khi trường này ra đời, ví dụ `…-e0ccc484`): lần chạy
+    đầu tiên so `sha256` như cũ, khớp thì BỔ SUNG trường mới - không đổi giá trị nào đã ghi.
     """
     path = eval_lock_path(version_id)
     payload = dict(measured or {})
     payload["sha256"] = payload.get("sha256") or ""
+    payload["records_sha256"] = payload.get("records_sha256") or ""
+    payload["schema"] = payload.get("schema") or RECORDS_LOCK_SCHEMA
     split = Path(str(payload.get("file") or "test.csv")).stem
     previous = split_lock(version_id, split)
     if previous:
-        if previous.get("sha256") != payload["sha256"]:
-            raise VersionError(
-                "Khoá tập đánh giá ({}) của {} đã có và KHÁC lần này: đã ghi {} ({} dòng), đo được {} "
-                "({} dòng). Tập đánh giá đã thay đổi, nên tạo phiên bản dataset mới thay vì ghi đè "
-                "khoá cũ.".format(
-                    split, version_id, previous.get("sha256"), previous.get("rows"),
-                    payload["sha256"], payload.get("rows")))
-        if previous.get("rows") == payload.get("rows"):
+        conflict = _lock_conflict(previous, payload, split, version_id)
+        if conflict:
+            raise VersionError(conflict)
+        if (previous.get("sha256") == payload["sha256"]
+                and previous.get("records_sha256") == payload["records_sha256"]
+                and previous.get("rows") == payload.get("rows")):
             return path
     stored = read_eval_lock(version_id)
     stored[split] = payload

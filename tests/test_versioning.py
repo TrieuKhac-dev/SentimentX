@@ -68,6 +68,121 @@ class TestEvalLockFile(unittest.TestCase):
         self.assertIn("phiên bản dataset mới", str(caught.exception))
 
 
+class TestEvalLockByRecords(unittest.TestCase):
+    """Khoá tập đánh giá theo TẬP BẢN GHI (`records_sha256`), không chỉ theo byte của file.
+
+    Vì sao cần trường thứ hai: `sha256` băm byte, nên một lần đổi cách ghi file (25/09/2026: ký tự
+    xuống dòng trong ô được ghi thành hai ký tự `\\n`) làm khoá lệch dù 1.518 bản ghi y nguyên.
+    `records_sha256` là VÂN TAY DỮ LIỆU - căn cứ để nói "còn so được với công bố hay không"; `sha256`
+    giữ lại làm dấu vân tay byte của bản đã công bố (lệch chỉ là ghi chú).
+    """
+
+    VERSION_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-abcdef12"
+    ASPECTS = ["stayingpower", "texture"]
+    COLUMNS = ["text"] + ASPECTS
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        patcher = mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: self.tmp.name})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.folder = Path(self.tmp.name)
+        self.rows = [["Son đẹp\nShip nhanh", 1, 0], ["Son thường", 0, 2]]
+
+    def write(self, rows=None, columns=None, **kwargs):
+        return utils.write_csv(rows or self.rows, columns or self.COLUMNS,
+                               self.folder / "test.csv", **kwargs)
+
+    def test_cung_ban_ghi_khac_cach_ghi_thi_van_cung_van_tay(self):
+        """Đổi trích dẫn / kiểu xuống dòng KHÔNG phải là đổi tập đánh giá."""
+        dataset_style = self.write(single_line=False)
+        one = versioning.records_sha256(dataset_style, self.ASPECTS)
+        # Cùng dữ liệu, ghi kiểu khác: trích dẫn mọi ô và xuống dòng CRLF.
+        quoted = self.folder / "quoted.csv"
+        quoted.write_text("".join(
+            '"{}","{}","{}"\r\n'.format(*row)
+            for row in [[self.COLUMNS[0], self.COLUMNS[1], self.COLUMNS[2]]]
+            + [[str(cell) for cell in row] for row in self.rows]),
+            encoding="utf-8")
+        self.assertNotEqual(versioning.file_sha256(dataset_style),
+                            versioning.file_sha256(quoted))
+        self.assertEqual(one, versioning.records_sha256(quoted, self.ASPECTS))
+
+    def test_thu_tu_cot_khong_lam_lech_van_tay(self):
+        """Thứ tự cột là chuyện của cách ghi; aspect lấy theo `label_map.json`."""
+        normal = self.write()
+        normal_bytes = versioning.file_sha256(normal)
+        normal_records = versioning.records_sha256(normal, self.ASPECTS)
+        # Cùng dữ liệu, chỉ đổi thứ tự cột: [text, stayingpower, texture] -> [texture, text,
+        # stayingpower]. Giá trị của từng aspect đi theo TÊN cột.
+        swapped_rows = [[row[2], row[0], row[1]] for row in self.rows]
+        swapped = self.write(swapped_rows, columns=["texture", "text", "stayingpower"])
+        self.assertNotEqual(normal_bytes, versioning.file_sha256(swapped))
+        self.assertEqual(normal_records, versioning.records_sha256(swapped, self.ASPECTS))
+
+    def test_doi_mot_o_van_ban_thi_lech(self):
+        one = versioning.records_sha256(self.write(), self.ASPECTS)
+        changed = [["Son đẹp\nShip nhanh", 1, 0], ["Son thường!", 0, 2]]
+        self.assertNotEqual(one, versioning.records_sha256(self.write(changed), self.ASPECTS))
+
+    def test_doi_ma_nhan_thi_lech(self):
+        one = versioning.records_sha256(self.write(), self.ASPECTS)
+        changed = [["Son đẹp\nShip nhanh", 2, 0], ["Son thường", 0, 2]]
+        self.assertNotEqual(one, versioning.records_sha256(self.write(changed), self.ASPECTS))
+
+    def test_doi_thu_tu_ban_ghi_thi_lech(self):
+        one = versioning.records_sha256(self.write(), self.ASPECTS)
+        self.assertNotEqual(one, versioning.records_sha256(
+            self.write([self.rows[1], self.rows[0]]), self.ASPECTS))
+
+    def test_thieu_cot_thi_bao_loi_ro_rang(self):
+        self.write([["Son thường", 0]], columns=["text", "stayingpower"])
+        with self.assertRaises(versioning.VersionError) as caught:
+            versioning.records_sha256(self.folder / "test.csv", self.ASPECTS)
+        self.assertIn("texture", str(caught.exception))
+
+    def test_khoa_cu_thieu_van_tay_du_lieu_thi_bo_sung_khong_doi_sha256(self):
+        """Khoá ghi trước khi có `records_sha256`: lần chạy đầu BỔ SUNG, không ghi đè giá trị cũ."""
+        path = self.write()
+        sha = versioning.file_sha256(path)
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": sha, "rows": 2})
+        records = versioning.records_sha256(path, self.ASPECTS)
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": sha,
+                                                     "rows": 2, "records_sha256": records})
+        lock = versioning.split_lock(self.VERSION_ID)
+        self.assertEqual(lock["sha256"], sha)
+        self.assertEqual(lock["records_sha256"], records)
+        self.assertEqual(lock["schema"], versioning.RECORDS_LOCK_SCHEMA)
+
+    def test_chi_lech_cach_ghi_thi_khong_loi_va_cap_nhat_lai_sha256(self):
+        records = versioning.records_sha256(self.write(), self.ASPECTS)
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": "a" * 64,
+                                                     "rows": 2, "records_sha256": records})
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": "b" * 64,
+                                                     "rows": 2, "records_sha256": records})
+        lock = versioning.split_lock(self.VERSION_ID)
+        self.assertEqual(lock["sha256"], "b" * 64)
+        self.assertEqual(lock["records_sha256"], records)
+
+    def test_lech_ban_ghi_thi_van_bao_loi(self):
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": "a" * 64,
+                                                     "rows": 2, "records_sha256": "c" * 64})
+        with self.assertRaises(versioning.VersionError) as caught:
+            versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": "a" * 64,
+                                                         "rows": 2, "records_sha256": "d" * 64})
+        self.assertIn("Tập BẢN GHI", str(caught.exception))
+        self.assertIn("phiên bản dataset mới", str(caught.exception))
+
+    def test_khoa_cu_thieu_van_tay_ma_byte_lech_thi_van_bao_loi(self):
+        """Chưa có `records_sha256` để so thì giữ mức so cũ: không im lặng nới lỏng khoá đã phát ra."""
+        versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": "a" * 64,
+                                                     "rows": 2})
+        with self.assertRaises(versioning.VersionError):
+            versioning.write_eval_lock(self.VERSION_ID, {"file": "test.csv", "sha256": "b" * 64,
+                                                         "rows": 2, "records_sha256": "c" * 64})
+
+
 class TestComputeId(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
