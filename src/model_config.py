@@ -51,7 +51,90 @@ REQUIRED_KEYS = ("model_id", "checkpoint", "config_version", "approach", "prepro
 # (`prompt` -> src/evaluation/runner.py, `encoder` -> src/encoder_run.py) rồi thêm tên vào đây.
 APPROACHES = ("prompt", "encoder")
 
+# Kiểu số hợp lệ cho một lần nạp model. `auto` = mã chọn theo máy (xem `resolve_dtype`).
+DTYPES = ("auto", "float16", "bfloat16", "float32")
+
+# Mức lượng hoá hợp lệ. Ô trống / `null` = KHÔNG lượng hoá (khác `auto`: `auto` là "theo config", và
+# giá trị `4bit` của config mới là thứ đi vào mã băm của lượt chạy).
+QUANTIZATIONS = ("4bit",)
+
 CONFIG_HINT = "Xem configs/models/qwen3-4b-instruct-2507.yaml để biết các khoá cần có."
+
+
+def dtype_name(value):
+    """Tên ngắn của một `torch.dtype` (`bfloat16`, `float16`, `float32`), để ghi vào log/bản ghi."""
+    return str(value).replace("torch.", "")
+
+
+def bf16_supported(torch):
+    """GPU này có bf16 THẬT hay không (T4/Turing: KHÔNG).
+
+    Phải hỏi kèm `including_emulation=False`: mặc định của torch là True, nên GPU không có bf16 vẫn
+    trả về "có" - bf16 chạy bằng giả lập phần mềm, đúng nhưng rất chậm. Đã gặp thật trên T4 với
+    torch 2.11. Thiếu hàm (torch cũ) hoặc driver hỏng thì coi như không hỗ trợ.
+    """
+    try:
+        return bool(torch.cuda.is_available()
+                    and torch.cuda.is_bf16_supported(including_emulation=False))
+    except TypeError:
+        try:
+            return bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
+        except (AttributeError, RuntimeError):
+            return False
+    except (AttributeError, RuntimeError):
+        return False
+
+
+def resolve_dtype(name, device, torch=None):
+    """Kiểu số THẬT SỰ dùng cho một lần nạp model - MỘT chỗ cho CẢ HAI đường chạy.
+
+    Vì sao phải là một chỗ: đường encoder và đường prompt từng có hai bản riêng, và chúng giải `auto`
+    KHÁC NHAU (bản của encoder còn không hỏi `including_emulation=False`) - T4 là chỗ lộ ra.
+
+    `auto`: bf16 khi GPU hỗ trợ THẬT, fp16 khi không, fp32 trên CPU - đây là hợp đồng của `auto`, không
+    phải "hạ cấp".
+    Khai tường minh (`float16`/`bfloat16`/`float32`): chạy ĐÚNG giá trị đó. Máy không đáp ứng được là
+    LỖI nêu rõ phần cứng + khoá cần sửa; TUYỆT ĐỐI không tự đổi sang kiểu khác, vì "config gán một
+    đằng, chạy một nẻo" là lỗi im lặng mà `run_meta.json` cũng không gỡ được.
+    """
+    import torch as torch_module
+
+    torch = torch or torch_module
+    value = str(name or "auto").strip().lower()
+    if value not in DTYPES:
+        raise ValueError(
+            "`inference.dtype` là {!r} nhưng chỉ nhận {}. Khai ở configs/models/<model_id>.yaml, "
+            "khoá `inference.dtype` (docs/05_config/04_models.md).".format(name, ", ".join(DTYPES)))
+    if value == "float32":
+        return torch.float32
+    if device != "cuda":
+        if value == "float16":
+            raise ValueError(
+                "`inference.dtype: float16` nhưng máy đang chạy trên CPU: torch không chạy được fp16 "
+                "trên CPU. Đổi khoá `inference.dtype` trong configs/models/<model_id>.yaml thành "
+                "`float32` hoặc `auto`, hoặc chạy trên máy có GPU.")
+        if value == "bfloat16":
+            return torch.bfloat16        # CPU chạy được bf16, chỉ chậm
+        return torch.float32             # auto trên CPU
+    if value == "float16":
+        return torch.float16
+    if value == "bfloat16":
+        if not bf16_supported(torch):
+            raise ValueError(
+                "`inference.dtype: bfloat16` nhưng GPU này không có bf16 THẬT: {} không hỗ trợ bf16 "
+                "phần cứng. Hoặc đổi `inference.dtype` trong configs/models/<model_id>.yaml thành "
+                "`auto`/`float16`, hoặc chạy trên GPU từ Ampere trở lên (L4, A100, RTX 30xx).".format(
+                    _device_label(torch)))
+        return torch.bfloat16
+    return torch.bfloat16 if bf16_supported(torch) else torch.float16
+
+
+def _device_label(torch):
+    """Tên GPU để thông báo lỗi nói đúng máy nào - người đọc biết ngay mình đang ở đâu."""
+    try:
+        return str(torch.cuda.get_device_name(0))
+    except (AttributeError, RuntimeError):
+        return "GPU này"
 
 
 class ModelConfigError(Exception):
@@ -134,6 +217,27 @@ def load(name):
             "{}: 'approach' là {!r} nhưng chỉ nhận {}. Đây là khoá quyết định ĐƯỜNG CHẠY của "
             "model, nên không đoán hộ.".format(
                 _display(path), cfg["approach"], " hoặc ".join(APPROACHES)))
+
+    # `inference.*` phải kiểm NGAY ở đây: gõ sai `dtype: bf16` mà không kiểm thì cấu hình nằm lại ở
+    # giá trị cũ mà không ai biết (đúng loại lỗi im lặng đã ghi ở đầu file này).
+    inference = cfg.get("inference")
+    if inference is not None and not isinstance(inference, dict):
+        raise ModelConfigError(
+            "{}: 'inference' phải là một nhóm khoá, ví dụ 'inference: {{dtype: auto}}'.".format(
+                _display(path)))
+    if isinstance(inference, dict):
+        dtype_value = str(inference.get("dtype") or "auto").strip().lower()
+        if dtype_value not in DTYPES:
+            hint = difflib.get_close_matches(dtype_value, DTYPES, n=1, cutoff=0.5)
+            raise ModelConfigError(
+                "{}: 'inference.dtype' là {!r} nhưng chỉ nhận {}.{}".format(
+                    _display(path), inference.get("dtype"), ", ".join(DTYPES),
+                    " Có phải bạn muốn '{}'?".format(hint[0]) if hint else ""))
+        quantization = inference.get("quantization")
+        if quantization not in (None, "") and str(quantization).strip().lower() not in QUANTIZATIONS:
+            raise ModelConfigError(
+                "{}: 'inference.quantization' là {!r} nhưng chỉ nhận {} (hoặc để trống = không "
+                "lượng hoá).".format(_display(path), quantization, ", ".join(QUANTIZATIONS)))
 
     value = cfg["preprocess"].get("max_length")
     if value is None:
