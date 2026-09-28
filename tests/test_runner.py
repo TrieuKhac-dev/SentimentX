@@ -173,5 +173,29 @@ class ChatTemplateTest(unittest.TestCase):
         self.assertEqual(tokenizer.chat_template, "CÓ-SẴN")
 
 
+class LoadAttemptsTest(unittest.TestCase):
+    """Danh sách cách nạp model KHÔNG được vượt qua mức lượng hoá/kiểu số.
+
+    Lỗi cũ (đã sửa 27/09/2026): danh sách trộn cả `4-bit` lẫn `bf16/fp16`, nên khi 4-bit nạp hỏng vì lý
+    do runtime thì lượt chạy **âm thầm** dùng 16-bit - thư mục kết quả mang nhãn `4bit` mà số đo là của
+    fp16/bf16. Test này khoá lại: mọi cách thử phải CÙNG một mức.
+    """
+
+    def test_cac_cach_thu_co_luong_hoa_deu_mang_quantization_config(self):
+        attempts = runner._load_attempts("config-4bit", "dtype-fp16", "float16")
+        self.assertTrue(attempts)
+        for _label, kwargs in attempts:
+            self.assertIn("quantization_config", kwargs)
+
+    def test_cac_cach_thu_khong_luong_hoa_thi_khong_bao_gio_mang_quantization_config(self):
+        attempts = runner._load_attempts(None, "dtype-fp16", "float16")
+        self.assertTrue(attempts)
+        for _label, kwargs in attempts:
+            self.assertNotIn("quantization_config", kwargs)
+        # Vẫn phải giữ nhiều biến thể: đó là khác biệt MÔI TRƯỜNG (accelerate có/không, transformers
+        # bản mới dùng `dtype` còn bản cũ `torch_dtype`), không phải khác biệt phép đo.
+        self.assertGreaterEqual(len(attempts), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

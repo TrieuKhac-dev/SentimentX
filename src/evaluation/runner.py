@@ -36,7 +36,7 @@ cần GPU (`python -m unittest discover -s tests`).
 import time
 from pathlib import Path
 
-from src import paths, utils
+from src import model_config, paths, utils
 from src.evaluation import metrics, parse, records
 from src.preprocessing import qwen
 
@@ -285,72 +285,82 @@ def compute_dtype_name(bf16_supported):
 
 
 def _model_dtype(torch):
-    """`(kiểu số, tên)` để nạp model, chọn theo máy đang chạy. Xem `compute_dtype_name`.
+    """`(kiểu số, tên)` để nạp model KHI KHÔNG khai `inference.dtype`: chính là `auto`.
 
-    Phải hỏi bản torch mới bằng `including_emulation=False`: mặc định của tham số này là True, nghĩa
-    là GPU KHÔNG có bf16 thật (T4 là Turing) vẫn trả về "có", vì torch chạy bf16 bằng giả lập phần
-    mềm - đúng và chậm hơn nhiều. Đã gặp thật: lượt chạy trên T4 với torch 2.11 vẫn chọn bf16.
+    Chọn theo máy, qua hàm dùng chung `model_config.resolve_dtype` - nên đường prompt và đường encoder
+    không thể giải `auto` khác nhau.
     """
-    try:
-        supported = bool(torch.cuda.is_available()
-                         and torch.cuda.is_bf16_supported(including_emulation=False))
-    except TypeError:
-        # Bản torch cũ không có tham số này; hàm khi đó vốn chỉ kiểm hỗ trợ PHẦN CỨNG.
-        try:
-            supported = bool(torch.cuda.is_available() and torch.cuda.is_bf16_supported())
-        except (AttributeError, RuntimeError):
-            supported = False
-    except (AttributeError, RuntimeError):
-        # Thiếu hàm, hoặc driver hỏng: coi như không hỗ trợ.
-        supported = False
-    name = compute_dtype_name(supported)
-    return getattr(torch, name), name
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    value = model_config.resolve_dtype("auto", device, torch=torch)
+    return value, model_config.dtype_name(value)
 
 
-def _load_model(model_name, quantization, torch):
-    """Nạp model, thử lần lượt các cách cho tới khi được; ghi lại cách ĐÃ dùng.
+def _load_attempts(quantization, dtype, short):
+    """Danh sách `(nhãn, kwargs)` để nạp model - CHỈ trong CÙNG MỘT MỨC số học.
 
-    Vì sao phải thử lần lượt thay vì chọn một cách: cách nạp phụ thuộc môi trường
-    (`accelerate` có hay không, `transformers` bản nào dùng `dtype` hay `torch_dtype`), và
-    một lỗi ở đây làm hỏng cả buổi chạy. Cách nào THÀNH CÔNG thì được ghi vào mục lục, nên
-    kết quả vẫn truy vết được đã chạy bằng đường nào.
+    Vì sao phải cùng mức: danh sách cũ trộn cả `4-bit` lẫn `bf16/fp16`, nên khi 4-bit nạp hỏng vì lý do
+    runtime (hết VRAM, lỗi phiên bản, thiếu `accelerate`) nó **âm thầm** chạy 16-bit - thư mục kết quả
+    mang nhãn `4bit` mà số đo là của fp16/bf16. Nhiều biến thể trong cùng mức thì vẫn giữ, vì đó là
+    khác biệt MÔI TRƯỜNG (`accelerate` có/không; `transformers` bản mới dùng `dtype`, bản cũ
+    `torch_dtype`), không phải khác biệt phép đo.
+    """
+    if quantization is not None:
+        return [
+            ("4-bit + device_map=auto ({})".format(short),
+             {"dtype": dtype, "quantization_config": quantization, "device_map": "auto"}),
+            ("4-bit ({})".format(short),
+             {"dtype": dtype, "quantization_config": quantization}),
+        ]
+    return [
+        ("{} + device_map=auto".format(short), {"dtype": dtype, "device_map": "auto"}),
+        (short, {"dtype": dtype}),
+        ("{} (torch_dtype, bản transformers cũ)".format(short),
+         {"torch_dtype": dtype, "device_map": "auto"}),
+    ]
+
+
+def _load_model(model_name, quantization, torch, dtype, short):
+    """Nạp model, thử lần lượt các cách NẰM TRONG CÙNG MỘT MỨC số học; ghi lại cách ĐÃ dùng.
+
+    Vì sao thử lần lượt thay vì chọn một cách: cách nạp phụ thuộc môi trường (`accelerate` có hay
+    không, `transformers` bản nào dùng `dtype` hay `torch_dtype`), và một lỗi ở đây làm hỏng cả buổi
+    chạy. Cách nào THÀNH CÔNG thì được ghi vào mục lục, nên kết quả vẫn truy vết được đã chạy bằng
+    đường nào. Danh sách cách thử nằm ở `_load_attempts` - xem ở đó vì sao KHÔNG được thử xuyên mức.
     """
     from transformers import AutoModelForCausalLM
 
-    dtype, short = _model_dtype(torch)
-    attempts = []
-    if quantization is not None:
-        attempts.append(("4-bit + device_map=auto ({})".format(short),
-                         {"dtype": dtype, "quantization_config": quantization,
-                          "device_map": "auto"}))
-        attempts.append(("4-bit ({})".format(short),
-                         {"dtype": dtype, "quantization_config": quantization}))
-    attempts.append(("{} + device_map=auto".format(short), {"dtype": dtype, "device_map": "auto"}))
-    attempts.append((short, {"dtype": dtype}))
-    attempts.append(("{} (torch_dtype, bản transformers cũ)".format(short),
-                     {"torch_dtype": dtype, "device_map": "auto"}))
-
     errors = []
-    for label, kwargs in attempts:
+    for label, kwargs in _load_attempts(quantization, dtype, short):
         try:
             model = AutoModelForCausalLM.from_pretrained(model_name, **kwargs)
             model.eval()
             return model, label
         except Exception as exc:  # noqa: BLE001 - thử cách khác là chủ ý ở đây
             errors.append("{}: {}".format(label, type(exc).__name__))
+    demand = ("lượng hoá 4-bit" if quantization is not None
+              else "kiểu số {}".format(short))
     raise RuntimeError(
-        "Không nạp được {} bằng cách nào. Đã thử: {}. Kiểm tra VRAM (6 GB cần lượng hóa "
-        "4-bit) và đã cài `accelerate`/`bitsandbytes` chưa.".format(
-            model_name, "; ".join(errors)))
+        "Không nạp được {} với {}. Đã thử: {}. Kiểm tra VRAM và đã cài `accelerate`"
+        "{}. Xem `run.log` và `errors.json` của lượt chạy.".format(
+            model_name, demand, "; ".join(errors),
+            "/`bitsandbytes`" if quantization is not None else ""))
 
 
-def load(quant="auto", model_name=None):
+def load(quant="auto", model_name=None, dtype_name=None):
     """Nạp model + tokenizer để SINH. Trả về (model, tokenizer, info).
 
-    `quant`: "4bit" (bắt buộc phải có bitsandbytes) | "bf16" | "auto" (thử 4-bit trước).
+    `quant`: `"4bit"` (bắt buộc phải có `bitsandbytes`) | `None` = KHÔNG lượng hoá | `"auto"` = thử
+    4-bit nếu có `bitsandbytes` (dùng khi gọi tay, không qua config).
+    `dtype_name`: giá trị `inference.dtype` của config ĐÃ HỢP NHẤT (`auto`/`float16`/`bfloat16`/
+    `float32`). Máy không đáp ứng được thì DỪNG kèm việc cần sửa - không tự đổi sang kiểu số khác.
     """
     torch = _require("torch")
-    dtype, short = _model_dtype(torch)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    try:
+        dtype = model_config.resolve_dtype(dtype_name or "auto", device, torch=torch)
+    except ValueError as exc:
+        raise RuntimeError("Không nạp được model: {}".format(exc))
+    short = model_config.dtype_name(dtype)
     model_name = model_name or qwen.MODEL_NAME
     if model_name == qwen.MODEL_NAME:
         tokenizer = qwen.tokenizer()
@@ -385,7 +395,7 @@ def load(quant="auto", model_name=None):
                     "VRAM nếu để bf16). Cài bằng: pip install bitsandbytes\n"
                     "    (trên Windows, bản bitsandbytes >= 0.43 có sẵn bản dựng).") from exc
 
-    model, how = _load_model(model_name, quantization, torch)
+    model, how = _load_model(model_name, quantization, torch, dtype, short)
     # Ghi cả kiểu số THẬT đã dùng: cùng một cấu hình chạy trên T4 (fp16) và trên RTX 30xx (bf16) cho
     # ra hai phép đo khác nhau, nên bản ghi phải nói rõ đã chạy bằng kiểu nào.
     info["quant"] = "4-bit nf4 (tính bằng {})".format(short) \

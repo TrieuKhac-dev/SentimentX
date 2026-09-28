@@ -399,6 +399,19 @@ def device_report(model_id, problems, notes, info):
             "Model config khai `quantization: {}` nhưng VRAM chỉ {:.1f} GB: model 4B ở bf16 cần "
             "khoảng 8 GB. Kiểm lại config hoặc dùng máy khoẻ hơn.".format(
                 quantization, info["vram_gb"]))
+
+    # 5c. Kiểu số: cùng MỘT hàm giải với lúc chạy (`model_config.resolve_dtype`), nên khai tường minh
+    # mà máy không đáp ứng được thì bị chặn NGAY Ở ĐÂY - trước khi tải dữ liệu và nạp model.
+    dtype_value = str(inference.get("dtype") or "auto").strip().lower()
+    try:
+        resolved = model_config.resolve_dtype(dtype_value, "cuda" if cuda else "cpu", torch=torch)
+    except ValueError as exc:
+        problems.append(str(exc))
+    else:
+        resolved_name = model_config.dtype_name(resolved)
+        notes.append("kiểu số: {} (từ `inference.dtype: {}`)".format(resolved_name, dtype_value))
+        if resolved_name == "bfloat16" and not cuda:
+            notes.append("bf16 trên CPU chạy được nhưng rất chậm; dùng GPU nếu có.")
     return info
 
 
