@@ -14,7 +14,7 @@ approach: prompt
 
 preprocess:
   # Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). 2304 vì SỐ ĐO (25/09/2026): prompt CoT + 2 ví
-  # dụ few-shot tốn 950 token/review, nhưng bản 5 ví dụ (`absa_cot_5shot_v1`, mức mà công bố so) tốn
+  # dụ few-shot tốn 990,50 token/review, nhưng bản 5 ví dụ (`absa_cot_5shot_v1`, mức mà công bố so) tốn
   # 1.877,50 token/review trung bình và 2.122 token ở mẫu dài nhất. Ở ngưỡng 1280 thì 100% review của
   # CẢ BA split bị cắt mất phần đuôi - mà với prompt dạng chat, phần cuối chính là yêu cầu định dạng
   # đầu ra và object JSON mẫu, nên mọi mẫu mất luôn yêu cầu định dạng. Ở ngưỡng 1024 trước đây thì 4/12.302
