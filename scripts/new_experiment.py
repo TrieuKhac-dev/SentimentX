@@ -14,7 +14,8 @@ KHÁC, vẫn ra số bình thường.
 
 BA VIỆC KIỂM TRƯỚC KHI TẠO
     1. Cây làm việc phải SẠCH: còn thay đổi chưa commit thì dừng - commit tạo thí nghiệm chỉ được chứa
-       thí nghiệm mới, không được mang theo việc đang làm dở.
+       thí nghiệm mới, không được mang theo việc đang làm dở. Ở `--dry-run` thì MIỄN điều kiện này,
+       vì chế độ đó không ghi gì; cờ `--allow-dirty` là đường thoát khi tạo thật (khi đó có cảnh báo).
     2. `git fetch origin <nhánh>` (nhánh ở `configs/experiments/repo.yaml`). Fetch hỏng (mất mạng)
        thì chỉ CẢNH BÁO rồi đi tiếp.
     3. Nhánh hiện tại phải CHỨA `origin/<nhánh>`, và số `expNNN` kế tiếp tính trên cả thí nghiệm đã
@@ -150,7 +151,9 @@ def main(argv=None):
         #      song không chọn trùng số;
         #   3. nhánh hiện tại phải CHỨA `origin/<nhánh>`, nếu không thì commit ghim không nằm trên nhánh
         #      đã ghim và kết quả chạy ra không dùng được.
-        dirty = repo.worktree_dirty()
+        # `--dry-run` KHÔNG ghi gì, nên điều kiện "commit chỉ chứa thí nghiệm mới" không áp dụng: ở chế
+        # độ soi công cụ thì cây bẩn là chuyện bình thường, không cần cảnh báo.
+        dirty = [] if args.dry_run else repo.worktree_dirty()
         if dirty and not args.allow_dirty:
             raise NewExperimentError(
                 "Cây làm việc còn {} file đang thay đổi: {}. Commit hoặc cất chúng trước, vì commit tạo "
