@@ -41,6 +41,22 @@
 - Mỗi registry có hàm `check()` báo lỗi rõ, và có lệnh `--list-*` để liệt kê.
 - Thêm registry mới thì cập nhật `src/registry.py`, vì đó là hướng dẫn mở rộng trung tâm.
 
+## Sửa một test đang đỏ
+
+Một guard mới làm đỏ test cũ thì chỉ có **ba cách hợp lệ**:
+
+1. Test cũ **không nói về** điều kiện mới: ghi rõ tiền đề của nó (thêm cờ/điều kiện tường minh), **và**
+   khẳng định **đúng lý do** chứ không chỉ mã thoát.
+2. Guard **quá rộng**: thu hẹp guard (ví dụ điều kiện chỉ áp cho việc GHI, không áp cho `--dry-run`).
+3. Guard là thật sự mới: viết test mới cho nó, dựng **môi trường thật** (repo tạm trong `tempfile`),
+   không giả lập.
+
+**Cấm**: xoá assertion, hạ độ chặt, `skipTest` để tránh đỏ, hoặc mock môi trường chỉ để test xanh -
+mock không chứng minh được gì về môi trường thật và che mất hành vi vừa thêm.
+
+Khẳng định **lý do** là bắt buộc với mọi test "phải từ chối": mã thoát `2` được dùng cho nhiều lý do
+khác nhau, nên `assertEqual(code, 2)` một mình vẫn xanh kể cả khi công cụ từ chối **vì chuyện khác**.
+
 ## Sửa tệp văn bản có chữ tiếng Việt (Windows)
 
 - Không sửa bằng `Get-Content` rồi `Set-Content` mặc định của PowerShell 5.1: `Get-Content` đọc tệp
