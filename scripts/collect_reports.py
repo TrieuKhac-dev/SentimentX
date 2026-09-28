@@ -15,6 +15,11 @@ HAI BỘ BẢNG
     mặc định CHỈ liệt kê lượt `FINISHED` - lượt hỏng không có `metrics.json` nên mọi ô số của nó đều
     trống, đưa vào chỉ làm nhiễu bảng dùng để so. Muốn xem cả lượt hỏng trong bảng số: `--only all`.
 
+CỘT CÔNG BỐ CHỌN THEO TỪNG LƯỢT
+`metrics_matrix` so mỗi lượt với cột của công bố ứng với ĐÚNG mức ví dụ của lượt đó (0/1/5-shot, đọc
+từ `metrics.json -> prompt_examples.examples`); cờ `--reference-shot` chỉ dùng cho lượt không suy ra
+được mức ví dụ (model encoder, lượt chạy tay).
+
 CÔNG CỤ NÀY KHÔNG CHẠY MODEL VÀ KHÔNG ĐỌC DỮ LIỆU GỐC
 Nó chỉ đọc lại file mà từng lượt chạy đã ghi (`run_meta.json`, `metrics.json`, `metrics.csv`,
 `model_input.csv`). Nhờ vậy bảng tổng hợp luôn nói đúng con số đã đo - không có đường tính thứ hai -
@@ -54,7 +59,9 @@ def parse_args(argv=None):
                         help="Ghi vào <thư mục>/<tên nhóm> thay vì nhóm report trong paths.yaml.")
     parser.add_argument("--reference-shot", dest="reference_shot", type=int, default=0,
                         choices=[0, 1, 5],
-                        help="Cột nào của bảng công bố dùng làm cột đối chiếu (mặc định 0).")
+                        help="Cột công bố dùng cho lượt KHÔNG suy ra được mức ví dụ (model encoder, "
+                             "lượt chạy tay); mặc định 0. Lượt có prompt luôn được so với cột đúng "
+                             "mức ví dụ của chính nó, không dùng cờ này.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Chỉ in ra sẽ sinh gì, không ghi file.")
     parser.add_argument("--only", choices=["finished", "all"], default="finished",

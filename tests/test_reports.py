@@ -33,11 +33,18 @@ METRICS_ROWS = [
 ]
 
 
-def write_run(root, tag, experiment=None, status="FINISHED"):
-    """Dựng một thư mục lượt chạy tối thiểu: đủ file mà báo cáo đọc."""
+def write_run(root, tag, experiment=None, status="FINISHED", prompt="absa_cot_v1", examples=None):
+    """Dựng một thư mục lượt chạy tối thiểu: đủ file mà báo cáo đọc.
+
+    `examples`: số ví dụ few-shot đã dùng. Có giá trị thì báo cáo chọn cột công bố THEO MỨC VÍ DỤ của
+    lượt đó (`reports.shot_of`), nên fixture phải ghi được nó để khoá hành vi này lại.
+    """
     directory = Path(root) / tag
     directory.mkdir(parents=True, exist_ok=True)
     utils.write_csv(METRICS_ROWS, METRICS_COLUMNS, directory / "metrics.csv")
+    prompt_examples = {"sha": "c513f5a6"}
+    if examples is not None:
+        prompt_examples["examples"] = examples
     utils.write_json({
         "version": 1,
         "run": {"hash": "1a2b3c4d", "status": status, "started": "2026-09-24 20:51:05"},
@@ -48,11 +55,11 @@ def write_run(root, tag, experiment=None, status="FINISHED"):
     }, directory / "run_meta.json")
     utils.write_json({
         "dataset": "cosmetics", "version_id": "cosmetics-ma", "split": "val",
-        "prompt": "absa_cot_v1", "prompt_sha": "3abf6934",
+        "prompt": prompt, "prompt_sha": "3abf6934",
         "model": "data/models/Qwen3-4B-Instruct-2507", "quant": "4bit", "max_length": 1280,
         "generation": {"max_new_tokens": 400, "do_sample": False},
         "subset": {"limit": 4, "seed": 42}, "n_samples": 4,
-        "prompt_examples": {"sha": "c513f5a6"},
+        "prompt_examples": prompt_examples,
         "cost": {"giây": 12.5, "token sinh/giây": 17.7},
         "read_rate": {"% đọc được": 100.0},
         "resume": {"mode": "RESUME", "reused": 1, "new": 3},
@@ -522,6 +529,55 @@ class TestRowCount(unittest.TestCase):
                     checked += 1
         if not checked:
             self.skipTest("máy này chưa có dữ liệu đã xử lý (dữ liệu không nằm trong git)")
+
+
+class MetricsMatrixShotTest(unittest.TestCase):
+    """Bảng `metrics_matrix` phải so mỗi lượt với ĐÚNG cột công bố của mức ví dụ của nó.
+
+    Lỗi đã có trước 27/09/2026: `--reference-shot` mặc định 0 nên lượt 0 ví dụ, 1 ví dụ và 5 ví dụ đều
+    bị đem so với cột `COT+0-shot` - so sai mà bảng vẫn trông hợp lý.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-shot-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+        write_run(self.root, "exp002", examples=0,
+                  experiment={"model": "model-x", "method": "prompt-cot", "exp_id": "exp002"})
+        write_run(self.root, "exp004", examples=5,
+                  experiment={"model": "model-x", "method": "prompt-cot", "exp_id": "exp004"})
+        self.runs = reports.scan_runs([self.root])
+
+    def test_shot_of_reads_the_example_count(self):
+        self.assertEqual([reports.shot_of(run) for run in self.runs], [0, 5])
+
+    def test_shot_of_falls_back_to_the_prompt_name(self):
+        self.assertEqual(reports.shot_of({"metrics": {"prompt": "absa_cot_1shot_v1"}}), 1)
+        self.assertEqual(reports.shot_of({"metrics": {"prompt": "absa_cot_zeroshot_v1"}}), 0)
+        # Prompt 2 ví dụ không phải một mức của công bố, và lượt của model encoder không có ví dụ nào.
+        self.assertIsNone(reports.shot_of({"metrics": {"prompt": "absa_cot_v1"}}))
+        self.assertIsNone(reports.shot_of({"metrics": {}}))
+
+    def test_each_shot_level_gets_its_own_reference_column(self):
+        tables, _mermaid = reports.group_tables("metrics_matrix", self.runs,
+                                               reports.load_reference(shot=0))
+        columns, rows = tables["accuracy_by_aspect.csv"]
+        for name in ("exp002", "exp004", "COT+0-shot", "COT+5-shot"):
+            self.assertIn(name, columns)
+        colour = [row for row in rows if row["aspect"] == "colour"][0]
+        self.assertEqual(colour["COT+0-shot"], reports.load_reference(shot=0)[0]["colour"])
+        self.assertEqual(colour["COT+5-shot"], reports.load_reference(shot=5)[0]["colour"])
+        self.assertEqual(colour["exp002"], 75.0)
+        self.assertEqual(colour["exp004"], 75.0)
+        # Dòng `aspect_detection` của công bố vẫn ở CUỐI bảng sau khi ghép hai nhóm mức ví dụ.
+        self.assertEqual(rows[-1]["aspect"], "aspect_detection")
+
+    def test_no_run_still_shows_the_reference_rows(self):
+        """Bảng rỗng vẫn hiện mốc công bố, để người đọc thấy đích cần vượt."""
+        tables, _mermaid = reports.group_tables("metrics_matrix", [],
+                                               reports.load_reference(shot=0))
+        columns, rows = tables["accuracy_by_aspect.csv"]
+        self.assertEqual(columns, ["aspect", "COT+0-shot"])
+        self.assertTrue(rows)
 
 
 if __name__ == "__main__":

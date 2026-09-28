@@ -181,7 +181,10 @@ def dataset_rows():
                 "rows": sum(splits.values()),
                 "eval_locked": ", ".join(locked) or NO_DATA,
                 "aspects": ", ".join(cfg.get("aspects") or []),
-                "raw_dir": str(cfg.get("raw_dir") or ""),
+                # Khoá khai `raw_dir` đã bị bỏ ở P1 T5; thư mục dữ liệu gốc nay do `src/dataset.py`
+                # SUY RA thành `_raw_dir` (chỉ khi có đúng một nguồn `raw`). Đọc khoá cũ thì cột này
+                # luôn rỗng - lỗi im lặng đã vào tận bảng đã commit.
+                "raw_dir": utils.rel(cfg["_raw_dir"]) if cfg.get("_raw_dir") else "",
                 "config": utils.rel(dataset_module.config_path(name, version)),
             })
     return rows
@@ -284,7 +287,7 @@ def comparable_with(basis, run):
 
 
 REGISTRY_COLUMNS = ("run", "status", "started", "seconds", "model", "method", "exp_id", "split",
-                    "prompt", "prompt_sha", "examples_sha", "n_samples", "subset", "decoding",
+                    "prompt", "prompt_sha", "examples_sha", "shot", "n_samples", "subset", "decoding",
                     "quant", "max_length", "max_new_tokens", "dataset", "version_id",
                     "config_sha256", "repo_sha", "valid", "comparable", "invalid_reason", "mode",
                     "read_percent", "tokens_per_second",
@@ -317,6 +320,8 @@ def experiment_rows(runs):
         subset = dict(metrics.get("subset") or {})
         examples = dict(metrics.get("prompt_examples") or {})
         cost = dict(metrics.get("cost") or {})
+        # Mức ví dụ few-shot của lượt này: dùng để so với ĐÚNG cột của công bố (`shot_of`).
+        shot = shot_of(run)
         # Hai câu hỏi khác nhau, cùng quyết định "con số này có nằm chung bảng so được không": commit
         # có trên nhánh đã ghim không, và cơ sở đo có khớp lượt chuẩn không.
         valid, git_reason = commit_status(repo.get("sha"), repo.get("branch"), cache=git_cache)
@@ -335,6 +340,7 @@ def experiment_rows(runs):
             "prompt": metrics.get("prompt"),
             "prompt_sha": metrics.get("prompt_sha"),
             "examples_sha": examples.get("sha") or "-",
+            "shot": "-" if shot is None else shot,
             "n_samples": metrics.get("n_samples"),
             "subset": "limit={} seed={}".format(subset.get("limit") or "cả split",
                                                 subset.get("seed", "-")),
@@ -511,6 +517,32 @@ def short_model(run):
     return text.split("/")[-1] if text else ""
 
 
+def shot_of(run):
+    """Số VÍ DỤ few-shot của một lượt chạy (để so với ĐÚNG cột của công bố), hoặc None.
+
+    Nguồn tin cậy là `metrics.json -> prompt_examples.examples`: con số mà chính lượt chạy đã dùng
+    (`prompts.examples_info()`), nên không phải suy đoán. Không có (lượt của model encoder, hoặc
+    lượt chạy tay) thì trả None - khi đó bảng dùng cột công bố do `--reference-shot` chọn.
+
+    Vì sao phải theo TỪNG LƯỢT: ba mức 0/1/5 ví dụ có chi phí input rất khác nhau (372,50 / 721,50 /
+    1.877,50 token/review), nên đem cả ba so với cột `COT+0-shot` là so sai - đúng lỗi đã nằm trong
+    bảng `metrics_matrix` trước 27/09/2026.
+    """
+    metrics = run.get("metrics") or {}
+    value = dict(metrics.get("prompt_examples") or {}).get("examples")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        value = None
+    if value is not None:
+        return int(value)
+    name = str(metrics.get("prompt") or "").lower()
+    if "zeroshot" in name or "zero_shot" in name or "zero-shot" in name:
+        return 0
+    for shot in (1, 5):
+        if "{}shot".format(shot) in name or "{}_shot".format(shot) in name:
+            return shot
+    return None
+
+
 def metric_map(run):
     """Bảng `(aspect, sentiment, metric) -> giá trị` của một lượt chạy, đọc từ `metrics.csv`.
 
@@ -536,14 +568,18 @@ def _number(value):
         return value
 
 
-def accuracy_table(runs, reference=None, suffix=None):
+def accuracy_table(runs, reference=None, suffix=None, labels=None):
     """Dòng là KHÍA CẠNH, cột là từng lượt chạy, kèm cột của công bố khi có.
 
     Giá trị lấy từ dòng `(khía cạnh, all, accuracy)` của `metrics.csv` - độ chính xác trên mọi ô
     của khía cạnh đó, đúng cách bảng của công bố đếm. Khía cạnh CHỈ CÓ trong bảng công bố vẫn được
     giữ thành một dòng (ô của các lượt chạy để trống), để thấy ngay còn thiếu gì.
+
+    `labels`: nhãn cột đã tính sẵn cho CẢ BỘ lượt chạy (xem `column_labels`). Phải truyền vào khi
+    ghép bảng của nhiều mức ví dụ: tính lại trong từng nhóm thì hai nhóm có thể ra cùng một nhãn và
+    bảng ghép sẽ có hai cột trùng tên - đúng loại lỗi `column_labels` sinh ra để chặn.
     """
-    labels = column_labels(runs)
+    labels = list(labels) if labels is not None else column_labels(runs)
     maps = [metric_map(run) for run in runs]
     aspects = sorted({key[0].lower() for item in maps for key in item
                       if key[1:] == ("all", "accuracy")})
@@ -572,14 +608,16 @@ def accuracy_table(runs, reference=None, suffix=None):
     return columns, rows
 
 
-def prf_table(runs, reference=None, suffix=None):
+def prf_table(runs, reference=None, suffix=None, labels=None):
     """Dòng là (khía cạnh, sắc thái), cột là precision/recall/f1 của từng lượt chạy.
 
     Cùng định dạng với bảng P R F1 của công bố: mỗi khía cạnh một dòng cho mỗi sắc thái CÓ NHÃN
     (không gộp `all`, không lấy dòng `mentioned` - đó là cách đếm khác, xem metrics.md). Ô nào của
     công bố mà lượt chạy chưa có thì vẫn thành một dòng, với ô của lượt chạy để trống.
+
+    `labels`: như ở `accuracy_table` - nhãn cột đã tính sẵn cho cả bộ lượt chạy.
     """
-    labels = column_labels(runs)
+    labels = list(labels) if labels is not None else column_labels(runs)
     maps = [metric_map(run) for run in runs]
     cells = {(key[0].lower(), key[1].lower()) for item in maps for key in item
              if key[2] in ("precision", "recall", "f1")
@@ -774,6 +812,29 @@ def _scale(value):
     return value
 
 
+def merge_tables(tables, keys):
+    """Ghép nhiều bảng cùng khoá dòng thành MỘT bảng, giữ thứ tự cột.
+
+    Dùng cho `metrics_matrix`: mỗi mức ví dụ có cột công bố riêng (0/1/5-shot), nên bảng của từng
+    nhóm được ghép lại thành một bảng - cột của nhóm nào đối chiếu cột công bố của chính nhóm đó, mà
+    không phải tách thành ba bảng cho khó đọc hơn.
+
+    Dòng `aspect_detection` (nếu có) luôn xuống CUỐI, đúng như `accuracy_table` đặt nó.
+    """
+    columns, seen, merged = list(keys), set(keys), {}
+    for table_columns, rows in tables:
+        for item in table_columns:
+            if item not in seen:
+                seen.add(item)
+                columns.append(item)
+        for row in rows:
+            key = tuple(str(row.get(part, "")) for part in keys)
+            target = merged.setdefault(key, {part: "" for part in keys})
+            target.update(row)
+    order = sorted(merged, key=lambda key: (key[-1] == "aspect_detection", key))
+    return columns, [merged[key] for key in order]
+
+
 def group_tables(name, runs, reference=None):
     """Bảng và sơ đồ của MỘT nhóm, để `build()` chỉ còn việc ghi và báo."""
     accuracy_ref, prf_ref, suffix = reference or (None, None, None)
@@ -800,19 +861,49 @@ def group_tables(name, runs, reference=None):
         return {CSV_NAME[name]: (list(REGISTRY_COLUMNS), rows)}, mermaid_graph(edges)
     if name == "model_input":
         rows, columns = model_input_rows()
-        edges = []
-        for row in rows:
-            file_name = Path(str(row.get("file") or "")).parent.name or "model_input"
-            edges.append((file_name, "", row.get("model_id") or row.get("model") or "model"))
+        # Mỗi DÒNG số đo là một dòng của bảng, KHÔNG phải một cung: khử trùng cặp (thư mục phiên
+        # bản, model) trước khi vẽ. Không khử thì sơ đồ lặp cùng một cung hàng chục lần (đã vào tận
+        # file .md đã commit) và node `model_input` đứng cô lập.
+        pairs = sorted({(Path(str(row.get("file") or "")).parent.name or "model_input",
+                         row.get("model_id") or row.get("model") or "model") for row in rows})
+        edges = [(source, "", target) for source, target in pairs]
         return {CSV_NAME[name]: (columns, rows)}, mermaid_graph(edges, isolated=["model_input"])
     if name == "metrics_matrix":
-        edges = [(label, "chấm trên",
-                  (run["meta"].get("data") or {}).get("build") or "chưa rõ dữ liệu")
-                 for run, label in zip(runs, column_labels(runs))]
-        if accuracy_ref or prf_ref:
-            edges = [("<công bố>", "so với", source) for source, _label, _target in edges] + edges
-        tables = {TABLE_NAMES[name][0]: accuracy_table(runs, accuracy_ref, suffix),
-                  TABLE_NAMES[name][1]: prf_table(runs, prf_ref, suffix)}
+        # Cột đối chiếu công bố chọn THEO TỪNG LƯỢT, theo đúng mức ví dụ của lượt đó (0/1/5-shot).
+        # Lượt không suy ra được mức (model encoder, lượt chạy tay) dùng cột do `--reference-shot`
+        # chọn - nhờ vậy không mức nào bị so nhầm cột, và lượt cũ vẫn giữ cách đối chiếu như trước.
+        labels = column_labels(runs)
+        groups = {}
+        for run, label in zip(runs, labels):
+            groups.setdefault(shot_of(run), []).append((run, label))
+        accuracy_parts, prf_parts, edges = [], [], []
+        for shot in sorted(groups, key=lambda item: (item is None, item if item is not None else 0)):
+            items = groups[shot]
+            group_runs = [run for run, _label in items]
+            group_labels = [label for _run, label in items]
+            chosen = load_reference(shot=shot) if shot is not None else (
+                accuracy_ref, prf_ref, suffix)
+            if not any(chosen):
+                # Mức ví dụ này không có cột trong bảng công bố (ví dụ prompt 2 ví dụ của dự án):
+                # không có cột đối chiếu còn hơn gán một cột không tồn tại.
+                chosen = (None, None, None)
+            accuracy_parts.append(accuracy_table(group_runs, chosen[0], chosen[2],
+                                                 labels=group_labels))
+            prf_parts.append(prf_table(group_runs, chosen[1], chosen[2],
+                                       labels=group_labels))
+            if chosen[2]:
+                edges += [("<công bố {}>".format(chosen[2]), "so với", label)
+                          for label in group_labels]
+        if not groups and any((accuracy_ref, prf_ref, suffix)):
+            # Chưa có lượt chạy nào (hoặc bảng đang rỗng): vẫn hiện cột công bố để người đọc thấy
+            # mốc cần vượt thay vì một bảng trắng - giữ đúng hành vi của bảng đã commit.
+            accuracy_parts.append(accuracy_table([], accuracy_ref, suffix))
+            prf_parts.append(prf_table([], prf_ref, suffix))
+        edges += [(label, "chấm trên",
+                   (run["meta"].get("data") or {}).get("build") or "chưa rõ dữ liệu")
+                  for run, label in zip(runs, labels)]
+        tables = {TABLE_NAMES[name][0]: merge_tables(accuracy_parts, ("aspect",)),
+                  TABLE_NAMES[name][1]: merge_tables(prf_parts, ("aspect", "sentiment"))}
         return tables, mermaid_graph(edges)
     if name == "attempt_registry":
         rows = attempt_rows(runs)
