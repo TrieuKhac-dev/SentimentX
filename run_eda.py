@@ -1,17 +1,26 @@
 # -*- coding: utf-8 -*-
 """Chạy toàn bộ EDA và GHI FILE KẾT QUẢ (không vẽ báo cáo).
 
-Cách dùng:
-    python run_eda.py
-    python run_eda.py --dataset cosmetics
+Cách dùng - BẮT BUỘC chọn đúng MỘT nơi đo:
+
+    # Đo dữ liệu GỐC: cần tên dataset + nhãn raw_version
+    python run_eda.py --on raw --name cosmetics --version v0.1.0
+
+    # Đo dataset ĐÃ XỬ LÝ: cần phiên bản dữ liệu (hash8 hoặc mã đầy đủ)
+    python run_eda.py --on dataset --hash e0ccc484
+    python run_eda.py --on dataset --hash cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484
 
 Kết quả ghi NGAY CẠNH thứ được đo:
-data/raw/<tên>/<raw_version>/eda/    khi đo dữ liệu gốc (--raw-version)
-data/processed/<mã>/eda/             khi đo dataset đã xử lý (--version)
+data/raw/<tên>/<raw_version>/eda/    khi --on raw
+data/processed/<mã>/eda/             khi --on dataset
 gồm: eda_result.json (đủ mọi phần - file build_report.py đọc lại), 0X_<mục>.json (riêng từng phần), 0X_<mục>_*.csv (bảng số liệu chi tiết).
 
+Vì sao không có mặc định: để tool tự chọn "bản mới nhất" là ĐOÁN - khi có phiên bản thứ hai thì số
+liệu rơi vào thư mục của một bản khác mà nhìn vào vẫn hợp lý. Xem docs/00_workflow/09_cli.md.
+
 Bước này KHÔNG sinh HTML. Muốn xem báo cáo, chạy tiếp:
-    python build_report.py --phase eda
+    python build_report.py --phase eda --on raw --name <tên> --version <nhãn raw>
+    python build_report.py --phase eda --on dataset --hash <hash8|mã>
 """
 
 import argparse
@@ -32,25 +41,69 @@ from src import config, dataset, paths, registry, utils, versioning
 from src.preprocessing import loader
 from src.reporting import result as result_io
 
+# Thư mục cấu hình dataset, dựng từ `configs/paths.yaml` (không viết cứng trong chuỗi help:
+# `tests/test_paths.py` chặn đường dẫn viết cứng trong source).
+DATASET_CONFIG_DIR = utils.rel(paths.config_path("datasets"))
+
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Khảo sát dữ liệu (EDA) và ghi file kết quả."
+        description="Khảo sát dữ liệu (EDA) và ghi file kết quả.",
+        epilog="Cú pháp đầy đủ: docs/00_workflow/09_cli.md",
     )
     parser.add_argument(
-        "--dataset", default=None,
-        help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).",
+        "--on", dest="where", choices=("raw", "dataset"), default=None,
+        help="Nơi đo: raw = dữ liệu gốc (data/raw/<tên>/<nhãn>/) hoặc "
+             "dataset = dataset đã xử lý (data/processed/<mã>/). Bắt buộc.",
     )
     parser.add_argument(
-        "--raw-version", default=None,
-        help="Đo trên dữ liệu gốc: data/raw/<tên>/<phiên bản>/. Bắt buộc ghi rõ một trong "
-             "hai nơi đo, vì kết quả nằm cạnh thứ được đo.",
+        "--name", default=None,
+        help="Tên dataset = thư mục {}/<tên>/. Bắt buộc khi --on raw "
+             "(khi --on dataset thì suy ra từ mã, ghi thêm chỉ để đối chiếu).".format(
+                 DATASET_CONFIG_DIR),
     )
     parser.add_argument(
         "--version", default=None,
-        help="Đo trên dataset đã xử lý: data/processed/<mã>/.",
+        help="Nhãn phiên bản của dữ liệu GỐC: data/raw/<tên>/<nhãn>/. Bắt buộc khi --on raw. "
+             "KHÔNG phải mã phiên bản dữ liệu đã xử lý.",
+    )
+    parser.add_argument(
+        "--hash", default=None,
+        help="Phiên bản dữ liệu ĐÃ XỬ LÝ: 8 ký tự hex cuối mã (ví dụ e0ccc484) hoặc mã đầy đủ "
+             "(ví dụ cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484). Bắt buộc khi "
+             "--on dataset.",
     )
     return parser.parse_args(argv)
+
+
+def check_args(args):
+    """Kiểm tham số trước khi chạy; trả về câu lỗi, hoặc None nếu hợp lệ.
+
+    Tách riêng để test được mà không phải chạy EDA. Mọi dạng thiếu/thừa/nhầm đều có gợi ý cụ thể:
+    nhầm mã phiên bản dữ liệu với nhãn raw_version là lỗi hay gặp nhất.
+    """
+    if not args.where:
+        return ("thiếu `--on`: chọn đúng một nơi đo.\n"
+                "      Đo dữ liệu GỐC : python run_eda.py --on raw --name <tên> --version <nhãn raw>\n"
+                "      Đo dataset     : python run_eda.py --on dataset --hash <hash8|mã đầy đủ>")
+    if args.where == "raw":
+        if args.hash:
+            return ("`--hash` là của dataset đã xử lý; đo dữ liệu gốc dùng `--name` + `--version`.")
+        if not args.name or not args.version:
+            return ("`--on raw` cần đủ `--name` và `--version` (nhãn raw_version).\n"
+                    "      Ví dụ: python run_eda.py --on raw --name cosmetics --version v0.1.0")
+        if "-ds" in str(args.version):
+            return ("{!r} là MÃ PHIÊN BẢN của dữ liệu đã xử lý, không phải nhãn raw_version.\n"
+                    "      Muốn đo dataset: python run_eda.py --on dataset --hash {}".format(
+                        args.version, args.version))
+        return None
+    if args.version:
+        return ("`--on dataset` không dùng `--version` (đó là nhãn raw_version của dữ liệu gốc).\n"
+                "      Dùng: python run_eda.py --on dataset --hash <hash8|mã đầy đủ>")
+    if not args.hash:
+        return ("`--on dataset` cần `--hash` để chỉ đích danh phiên bản dữ liệu.\n"
+                "      Ví dụ: python run_eda.py --on dataset --hash e0ccc484")
+    return None
 
 
 def load_raw(name, raw_version):
@@ -113,22 +166,26 @@ def main(argv=None):
 
     print("EDA - Khảo sát dữ liệu (chỉ đo lường, KHÔNG sửa dữ liệu)")
 
-    # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
-    # (kèm gợi ý tên đúng) thay vì để traceback che mất thông báo.
-    if bool(args.raw_version) == bool(args.version):
-        print("LỖI: chọn đúng MỘT nơi đo: --raw-version <phiên bản> (đo dữ liệu gốc) "
-              "hoặc --version <mã> (đo dataset đã xử lý).")
+    # Gõ sai tham số là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn kèm cách sửa,
+    # thay vì để traceback che mất thông báo.
+    mistake = check_args(args)
+    if mistake:
+        print("LỖI: {}".format(mistake))
         return 2
 
     try:
-        if args.version:
-            ds, splits, full, missing = load_processed(args.dataset, args.version)
-            version_id = args.version
+        if args.where == "dataset":
+            version_id = versioning.find_version(args.hash)
+            name, _ = versioning.version_parts(version_id)
+            if args.name and args.name != name:
+                print("LỖI: `--name {}` không khớp mã {} (tên dataset trong mã là {}).".format(
+                    args.name, version_id, name))
+                return 2
+            ds, splits, full, missing = load_processed(name, version_id)
             out_dir = versioning.processed_dir(version_id) / paths.pattern("eda_dir")
             where = "dataset đã xử lý"
         else:
-            name = args.dataset or dataset.default_name()
-            ds, splits, full, missing = load_raw(name, args.raw_version)
+            ds, splits, full, missing = load_raw(args.name, args.version)
             pipeline_cfg = utils.load_pipeline_config(ds.get("pipeline_version"))
             versioning.guard_versions(ds, pipeline_cfg)
             version_id = versioning.compute_id(ds, pipeline_cfg)
@@ -138,9 +195,12 @@ def main(argv=None):
         print("LỖI: {}".format(exc))
         return 2
 
+    # In ĐÍCH đã chốt trước khi đo: nhầm phiên bản là lỗi im lặng đắt nhất của EDA.
+    _, hash8 = versioning.version_parts(version_id)
     print("Dataset: {} (cấu hình: {})".format(ds["name"], utils.rel(ds["_path"])))
     print("Đang đọc {} từ: {}".format(where, utils.rel(ds["_raw_dir"])))
-    print("Mã phiên bản: {}".format(version_id))
+    print("Phiên bản dữ liệu: {} (hash8 {})".format(version_id, hash8))
+    print("Thư mục kết quả: {}".format(utils.rel(out_dir)))
 
     for name, df in splits.items():
         print("  - {:5s}: {:>6,} dòng x {} cột".format(name, len(df), len(df.columns)))
@@ -210,7 +270,11 @@ def main(argv=None):
                   for index, section in enumerate(payload["sections"], start=1))))
     print("  - Thư mục : {}".format(utils.rel(out_dir)))
     print("\nBước tiếp theo - vẽ báo cáo:")
-    print("  python build_report.py --phase eda")
+    if args.where == "dataset":
+        print("  python build_report.py --phase eda --on dataset --hash {}".format(hash8))
+    else:
+        print("  python build_report.py --phase eda --on raw --name {} --version {}".format(
+            ds["name"], args.version))
 
 
 if __name__ == "__main__":

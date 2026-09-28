@@ -440,7 +440,7 @@ class TestRawSource(unittest.TestCase):
         preflight.raw_source_report(self.make("khong/co/thu-muc-nay"), problems, notes, info)
         self.assertEqual(len(problems), 2)
         self.assertIn("dữ liệu GỐC", problems[0])
-        self.assertIn("--dataset cosmetics --version v0.1.0", problems[0])
+        self.assertIn("--name cosmetics --version v0.1.0", problems[0])
         self.assertEqual(len(info["raw_missing"]), 4)
         self.assertEqual(notes, [])
 
@@ -473,7 +473,7 @@ class TestRawSource(unittest.TestCase):
 
     def test_pipeline_command_has_both_required_arguments(self):
         self.assertEqual(preflight.pipeline_command({"name": "cosmetics", "version": "v0.1.0"}),
-                         "`python run_pipeline.py --dataset cosmetics --version v0.1.0`")
+                         "`python run_pipeline.py --name cosmetics --version v0.1.0`")
         self.assertIn("<tên dataset>", preflight.pipeline_command(None))
 
 

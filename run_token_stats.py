@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Đo tokenizer THẬT của từng model trên dữ liệu ĐÃ XỬ LÝ (tiền xử lý cho model).
 
-Cách dùng:
-    python run_token_stats.py
-    python run_token_stats.py --dataset cosmetics
-    python run_token_stats.py --prompt absa_direct_v1      # đo một prompt khác
-    python run_token_stats.py --segmenter vncorenlp      # chọn bộ tách từ cho PhoBERT
-    python run_token_stats.py --list-prompts             # xem đang có prompt nào
-    python run_token_stats.py --list-segmenters          # xem máy đã cài bộ tách từ nào
+Cách dùng - `--hash` là BẮT BUỘC khi đo (chỉ đích danh phiên bản dữ liệu):
+    python run_token_stats.py --hash e0ccc484 --prompt absa_direct_v1     # đo một prompt khác
+    python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --system absa_cot
+    python run_token_stats.py --hash cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 \
+        --prompt absa_cot_v1
+    python run_token_stats.py --hash e0ccc484 --segmenter vncorenlp     # bộ tách từ cho PhoBERT
+    python run_token_stats.py --list-prompts        # xem đang có prompt nào (không cần --hash)
+    python run_token_stats.py --list-segmenters     # xem máy đã cài bộ tách từ nào (không cần --hash)
 
 Vì sao cần: EDA đếm TỪ (utils.tokenize) để khảo sát dữ liệu, nhưng model đọc SUBWORD
 của tokenizer riêng. Cùng một review có thể thành 20 token với model này và 60 token
@@ -42,6 +43,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 from src import config, dataset, prompts, utils, versioning
 from src.preprocessing import qwen, segmenters, token_stats
+from src.tracking import run_meta
 
 
 def parse_args(argv=None):
@@ -49,12 +51,10 @@ def parse_args(argv=None):
         description="Đo tokenizer thật của từng model trên dữ liệu đã xử lý."
     )
     parser.add_argument(
-        "--dataset", default=None,
-        help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).",
-    )
-    parser.add_argument(
-        "--version", default=None,
-        help="Mã phiên bản dữ liệu đã xử lý (mặc định: bản mới nhất).",
+        "--hash", default=None,
+        help="Phiên bản dữ liệu ĐÃ XỬ LÝ: 8 ký tự hex cuối mã (ví dụ e0ccc484) hoặc mã đầy đủ. "
+             "BẮT BUỘC khi đo (trừ --list-prompts / --list-segmenters): để tool tự chọn bản mới "
+             "nhất là đoán, mà số liệu ghi vào thư mục theo phiên bản nên đoán sai là im lặng.",
     )
     parser.add_argument(
         "--prompt", default=None,
@@ -279,6 +279,19 @@ def build_tag(args, max_length_overrides=None, prompt=None):
     return "__".join(parts) or None
 
 
+def print_runs_using(version_id):
+    """Nói rõ bảng số liệu này phục vụ lượt chạy nào (thông tin, không chặn)."""
+    used = run_meta.runs_using(version_id)
+    if not used:
+        print("Chưa có lượt chạy nào dùng phiên bản này "
+              "(đo để tham chiếu thì bỏ qua dòng này).\n")
+        return
+    print("Lượt chạy đã dùng phiên bản này ({}):".format(len(used)))
+    for directory in used[:5]:
+        print("  - {}".format(utils.rel(directory)))
+    print()
+
+
 def main(argv=None):
     args = parse_args(argv)
 
@@ -295,6 +308,11 @@ def main(argv=None):
     if not args.prompt:
         print("LỖI: thiếu --prompt. Prompt thuộc config của thí nghiệm nên phải ghi rõ; "
               "chạy `--list-prompts` để xem các prompt đang có.")
+        return 2
+    if not args.hash:
+        print("LỖI: thiếu --hash: phải chỉ đích danh phiên bản dữ liệu, ví dụ "
+              "`--hash e0ccc484` (hoặc mã đầy đủ). Mã do `python run_pipeline.py "
+              "--name <tên> --version <phiên bản>` in ra.")
         return 2
     try:
         prompt = qwen.load_prompt(args.prompt, system=args.system)
@@ -315,15 +333,20 @@ def main(argv=None):
         return 2
 
     try:
-        ds = dataset.load_config(args.dataset)
+        version_id = versioning.find_version(args.hash)
+    except versioning.VersionError as exc:
+        print("LỖI: {}".format(exc))
+        return 2
+    name, _ = versioning.version_parts(version_id)
+    try:
+        ds = dataset.load_config(name)
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = args.version or versioning.compute_id(
-        ds)
-    print("Dataset: {} (phiên bản dữ liệu: {})".format(ds["name"], version_id))
+    print("Dataset: {} (phiên bản dữ liệu: {})".format(name, version_id))
     print("Nguồn dữ liệu: {}\n".format(
         utils.rel(versioning.processed_dir(version_id))))
+    print_runs_using(version_id)
     print_config(prompt, args.segmenter, max_length_overrides)
 
     rows, skipped, context = token_stats.run(

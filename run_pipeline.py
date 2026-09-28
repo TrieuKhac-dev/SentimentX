@@ -2,8 +2,12 @@
 """Chạy toàn bộ Data Pipeline và GHI FILE KẾT QUẢ (không vẽ báo cáo).
 
 Cách dùng:
-    python run_pipeline.py
-    python run_pipeline.py --dataset cosmetics
+    python run_pipeline.py --name cosmetics --version v0.1.0
+
+`--name` là THƯ MỤC cấu hình dataset: `configs/datasets/<tên>/`.
+`--version` là TÊN FILE cấu hình trong thư mục đó: `configs/datasets/<tên>/<phiên bản>.yaml`.
+Cả hai đều bắt buộc: mỗi tổ hợp cho ra một bộ dữ liệu khác nhau. Lưu ý `--version` ở đây KHÔNG phải
+mã phiên bản dữ liệu đã xử lý (mã đó do pipeline in ra, dạng ...-e0ccc484).
 
 Kết quả:
     data/processed/<mã>/{train,val,test}.csv   (dữ liệu đã xử lý)
@@ -15,7 +19,7 @@ Pipeline gồm 7 bước, chạy tuần tự:
     load -> validate -> clean -> normalize -> transform -> final_validate -> export
 
 Bước này KHÔNG sinh HTML. Muốn xem báo cáo, chạy tiếp:
-    python build_report.py --phase pipeline
+    python build_report.py --phase pipeline --on dataset --hash <hash8|mã>
 """
 
 import argparse
@@ -32,22 +36,31 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, registry, utils, versioning
+from src import config, dataset, paths, registry, utils, versioning
 from src.reporting import result as result_io
+
+# Thư mục cấu hình dataset, dựng từ `configs/paths.yaml` (không viết cứng trong chuỗi help:
+# `tests/test_paths.py` chặn đường dẫn viết cứng trong source).
+DATASET_CONFIG_DIR = utils.rel(paths.config_path("datasets"))
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Xử lý dữ liệu theo config và ghi file kết quả."
+        description="Xử lý dữ liệu theo config và ghi file kết quả.",
+        epilog="Cú pháp đầy đủ: docs/00_workflow/09_cli.md",
     )
     parser.add_argument(
-        "--dataset", default=None,
-        help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).",
+        "--name", required=True,
+        help="Tên dataset = THƯ MỤC cấu hình: {}/<tên>/ "
+             "(ví dụ --name cosmetics -> {}/cosmetics/).".format(
+                 DATASET_CONFIG_DIR, DATASET_CONFIG_DIR),
     )
     parser.add_argument(
         "--version", required=True,
-        help="Phiên bản dataset cần dùng, tức tên file trong configs/datasets/<tên>/. "
-             "Bắt buộc ghi rõ: mỗi phiên bản cho ra một bộ dữ liệu khác nhau.",
+        help="Tên FILE cấu hình dataset trong thư mục đó: {}/<tên>/<phiên bản>.yaml "
+             "(ví dụ --version v0.1.0 -> {}/cosmetics/v0.1.0.yaml). Bắt buộc: mỗi phiên bản cho ra "
+             "một bộ dữ liệu khác nhau. KHÔNG phải mã phiên bản dữ liệu đã xử lý.".format(
+                 DATASET_CONFIG_DIR, DATASET_CONFIG_DIR),
     )
     return parser.parse_args(argv)
 
@@ -60,7 +73,7 @@ def main(argv=None):
     # Gõ sai tên dataset là lỗi hay gặp nhất khi mới dùng: in một dòng lỗi gọn
     # (kèm gợi ý tên đúng) thay vì để traceback che mất thông báo.
     try:
-        ds = dataset.load_config(args.dataset, args.version)
+        ds = dataset.load_config(args.name, args.version)
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
@@ -74,11 +87,16 @@ def main(argv=None):
     processed_dir = versioning.processed_dir(version_id)
     out_dir = versioning.pipeline_report_dir(version_id)
 
+    # In ĐÍCH đã chốt: `--version` ở đây là file cấu hình dataset, KHÔNG phải mã phiên bản,
+    # nên in thẳng đường dẫn config ra để người chạy đối chiếu bằng mắt.
+    _, hash8 = versioning.version_parts(version_id)
     print("Dataset: {} (dữ liệu gốc: {})".format(
         ds["name"], utils.rel(ds["_raw_dir"])))
+    print("Config dataset: {}   (--name {} --version {})".format(
+        utils.rel(ds["_path"]), args.name, args.version))
     print("Config pipeline: {} - phiên bản {}".format(
         utils.rel(cfg["_path"]), cfg.get("version", "unknown")))
-    print("Mã phiên bản: {}".format(version_id))
+    print("Mã phiên bản: {} (hash8 {})".format(version_id, hash8))
 
     context = {
         "config": cfg,
@@ -127,7 +145,7 @@ def main(argv=None):
     print("  - File kết quả: {}".format(utils.rel(path)))
     print("  - Báo cáo     : {}".format(utils.rel(out_dir)))
     print("\nBước tiếp theo - vẽ báo cáo:")
-    print("  python build_report.py --phase pipeline --version {}".format(version_id))
+    print("  python build_report.py --phase pipeline --on dataset --hash {}".format(hash8))
 
 
 if __name__ == "__main__":

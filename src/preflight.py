@@ -105,7 +105,7 @@ def pipeline_command(ds):
     """
     name = (ds or {}).get("name") or "<tên dataset>"
     version = (ds or {}).get("version") or "<phiên bản>"
-    return "`python run_pipeline.py --dataset {} --version {}`".format(name, version)
+    return "`python run_pipeline.py --name {} --version {}`".format(name, version)
 
 
 def _raw_paths(ds):
@@ -268,7 +268,7 @@ def eval_lock_report(ds, version_id, problems, notes, info):
     if not want_records and not want_bytes:
         notes.append(
             "Chưa có khoá tập đánh giá cho phiên bản này. Chạy pipeline để tạo khoá (nó ghi "
-            "{} trong cùng lần chạy sinh ra test.csv): `python run_pipeline.py --dataset <tên> "
+            "{} trong cùng lần chạy sinh ra test.csv): `python run_pipeline.py --name <tên> "
             "--version <phiên bản>`.".format(utils.rel(versioning.eval_lock_path(version_id or ""))))
         return measured
 

@@ -264,6 +264,26 @@ def read(out_dir):
         return json.load(handle)
 
 
+def runs_using(build):
+    """Các thư mục kết quả (đã có `run_meta.json`) đo trên MỘT mã phiên bản dữ liệu.
+
+    Dùng để nói rõ "bảng số liệu này là số đo input cho lượt chạy nào": nhìn `data.build` trong
+    bản ghi là biết, thay vì phải tin vào việc người chạy đã gõ đúng `--hash`.
+    """
+    found = []
+    root = paths.results_root()
+    if not root.is_dir():
+        return found
+    for path in sorted(root.rglob(paths.pattern("run_meta"))):
+        try:
+            payload = read(path.parent)
+        except (OSError, ValueError):
+            continue
+        if ((payload or {}).get("data") or {}).get("build") == build:
+            found.append(path.parent)
+    return found
+
+
 def closer(payload, out_dir, log=None):
     """Hàm chốt bản ghi lúc đóng log, để đưa cho `runlog.on_close`.
 

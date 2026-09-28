@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Kiểm tra file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test.
 
-Cách dùng:
-    python run_check_examples.py                       # kiểm mọi prompt có file ví dụ
-    python run_check_examples.py --prompt absa_cot_v1
-    python run_check_examples.py --max-overlap 5        # siết ngưỡng cảnh báo
+Cách dùng - `--hash` là BẮT BUỘC (chỉ đích danh phiên bản dữ liệu đã xử lý):
+    python run_check_examples.py --hash e0ccc484
+    python run_check_examples.py --hash e0ccc484 --prompt absa_cot_v1
+    python run_check_examples.py --hash cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 \
+        --max-overlap 5
 
 VÌ SAO CẦN PHÉP KIỂM NÀY
 ---
@@ -23,6 +24,7 @@ KIỂM NHỮNG GÌ
 
 Kết quả: mã thoát 1 khi có lỗi (cấu trúc/nhãn, hoặc ví dụ trùng nguyên câu trong val/test,
 hoặc cụm trùng >= --max-overlap trong val/test) để dùng được trong kiểm tra tự động.
+Mã thoát: 0 = không lỗi · 1 = có lỗi ví dụ / rò rỉ · 2 = tham số sai (thiếu hoặc sai --hash).
 """
 
 import argparse
@@ -43,6 +45,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 from src import config, dataset, prompts, utils, versioning
 from src.preprocessing import loader
+from src.tracking import run_meta
 
 SPLITS = ("train", "val", "test")
 
@@ -56,15 +59,14 @@ _BLOCK_RE = re.compile(r"^\s*---.*---\s*$")
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(
-        description="Kiểm cấu trúc + rò rỉ dữ liệu của các file ví dụ few-shot."
+        description="Kiểm cấu trúc + rò rỉ dữ liệu của các file ví dụ few-shot.",
+        epilog="Cú pháp đầy đủ: docs/00_workflow/09_cli.md",
     )
     parser.add_argument(
-        "--dataset", default=None,
-        help="Tên dataset (mặc định: dataset đầu tiên trong configs/datasets/).",
-    )
-    parser.add_argument(
-        "--version", default=None,
-        help="Mã phiên bản dữ liệu đã xử lý (mặc định: bản mới nhất).",
+        "--hash", default=None,
+        help="Phiên bản dữ liệu ĐÃ XỬ LÝ: 8 ký tự hex cuối mã (ví dụ e0ccc484) hoặc mã đầy đủ. "
+             "BẮT BUỘC: phép kiểm này kết luận về rò rỉ của ĐÚNG bộ split đã chọn, nên để tool tự "
+             "chọn bản mới nhất là kết luận sai mà vẫn tin là đúng.",
     )
     parser.add_argument(
         "--prompt", default=None,
@@ -274,20 +276,42 @@ def print_table(rows, columns):
         print(line(row))
 
 
+def print_runs_using(version_id):
+    """Nói rõ phép kiểm này thuộc lượt chạy nào (thông tin, không chặn)."""
+    used = run_meta.runs_using(version_id)
+    if not used:
+        print("Chưa có lượt chạy nào dùng phiên bản này "
+              "(kiểm để tham chiếu thì bỏ qua dòng này).\n")
+        return
+    print("Lượt chạy đã dùng phiên bản này ({}):".format(len(used)))
+    for directory in used[:5]:
+        print("  - {}".format(utils.rel(directory)))
+    print()
+
+
 def main(argv=None):
     args = parse_args(argv)
 
     print("KIỂM VÍ DỤ FEW-SHOT - cấu trúc, nhãn, rò rỉ với val/test")
 
+    if not args.hash:
+        print("LỖI: thiếu --hash: phải chỉ đích danh phiên bản dữ liệu, ví dụ "
+              "`--hash e0ccc484` (hoặc mã đầy đủ).")
+        return 2
     try:
-        ds = dataset.load_config(args.dataset)
+        version_id = versioning.find_version(args.hash)
+    except versioning.VersionError as exc:
+        print("LỖI: {}".format(exc))
+        return 2
+    name, _ = versioning.version_parts(version_id)
+    try:
+        ds = dataset.load_config(name)
     except dataset.DatasetError as exc:
         print("LỖI: {}".format(exc))
         return 2
-    version_id = args.version or versioning.compute_id(ds)
 
     try:
-        label_map = loader.load_label_map(version_id, dataset=ds["name"])
+        label_map = loader.load_label_map(version_id, dataset=name)
     except FileNotFoundError as exc:
         print("LỖI: {}".format(exc))
         return 2
@@ -308,6 +332,7 @@ def main(argv=None):
     index = build_split_index(frames)
 
     print("Dataset  : {} (phiên bản dữ liệu: {})".format(ds["name"], version_id))
+    print_runs_using(version_id)
     print("Đối chiếu: câu đã chuẩn hoá theo TỪ (utils.tokenize) với 3 split đã xử lý.\n")
 
     columns = ["prompt", "ví dụ", "số từ", "trùng câu", "cụm (train)", "cụm (val/test)",

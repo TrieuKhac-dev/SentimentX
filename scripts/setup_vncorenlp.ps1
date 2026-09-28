@@ -159,4 +159,4 @@ Remove-Item $smoke -Force
 Write-Host ""
 Write-Host "Xong. Kiểm tra lại bằng:" -ForegroundColor Cyan
 Write-Host "    python run_token_stats.py --list-segmenters"
-Write-Host "    python run_token_stats.py --dataset cosmetics"
+Write-Host "    python run_token_stats.py --hash <hash8> --prompt <ten prompt>   # hash8 in ra khi chay run_pipeline.py"

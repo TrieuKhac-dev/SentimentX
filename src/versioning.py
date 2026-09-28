@@ -26,12 +26,16 @@ CÂY KẾT QUẢ CỦA MỘT PHIÊN BẢN
 
 import hashlib
 import json
+import re
 from pathlib import Path
 
 from src import paths, utils
 
 # Số ký tự hash dùng trong mã phiên bản (đủ để không trùng trên thực tế)
 HASH_LENGTH = 8
+
+# Dạng viết tắt của mã phiên bản: đúng `HASH_LENGTH` ký tự hex (xem `find_version`).
+VERSION_HASH_PATTERN = re.compile("^[0-9a-f]{{{}}}$".format(HASH_LENGTH))
 
 # Công thức tính `records_sha256` (dấu vân tay của TẬP BẢN GHI). Số này đi vào `eval_lock.json`, nên
 # đổi công thức là đổi khoá tập đánh giá: bump số ở đây và ghi vào docs/01_dataset/changelog.md.
@@ -232,6 +236,63 @@ def latest_dataset(dataset=None):
         if dataset is None or path.name.startswith(str(dataset) + "-ds"):
             return path.name
     return None
+
+
+def version_parts(version_id):
+    """Tách mã phiên bản thành `(tên dataset, hash8)` để in cho người đọc."""
+    text = str(version_id or "")
+    return text.split("-ds", 1)[0], text.rsplit("-", 1)[-1]
+
+
+def known_versions_text():
+    """Danh sách phiên bản đã xử lý đang có trên đĩa, để ghép vào thông báo lỗi."""
+    known = sorted(directory.name for directory in dataset_dirs())
+    return "\n  - ".join(known) if known else "(chưa có phiên bản nào trong data/processed/)"
+
+
+def find_version(hash_or_id):
+    """Tìm mã phiên bản dữ liệu ĐÃ XỬ LÝ từ hash8 hoặc mã đầy đủ.
+
+    VÌ SAO BẮT BUỘC PHẢI GHI RÕ
+    Mọi tool chạy sau pipeline đều đo / kiểm / ghi số liệu gắn với MỘT phiên bản dữ liệu. Để tool
+    tự chọn "bản mới nhất" là đoán: khi có phiên bản thứ hai, kết quả rơi vào thư mục của một bản
+    khác mà nhìn vào vẫn hợp lý. Nên tham số là bắt buộc, và hàm này chỉ nhận đúng hai cách viết:
+
+        e0ccc484                                              8 ký tự hex cuối mã
+        cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484  mã đầy đủ
+
+    Không khớp gì - hoặc hash8 khớp NHIỀU phiên bản - đều là LỖI kèm danh sách đang có, không đoán.
+    """
+    text = str(hash_or_id or "").strip()
+    if not text:
+        raise VersionError(
+            "Thiếu `--hash`: phải ghi rõ phiên bản dữ liệu, ví dụ `--hash e0ccc484` hoặc "
+            "`--hash <mã đầy đủ>`. Đang có:\n  - {}".format(known_versions_text()))
+
+    known = [directory.name for directory in dataset_dirs()]
+    if "-ds" in text:
+        if text in known:
+            return text
+        raise VersionError(
+            "Không có phiên bản dữ liệu {!r} trong {}. Đang có:\n  - {}".format(
+                text, utils.rel(paths.data("processed")), known_versions_text()))
+
+    if not VERSION_HASH_PATTERN.match(text.lower()):
+        raise VersionError(
+            "`--hash` phải là {} ký tự hex (ví dụ `e0ccc484`) hoặc mã phiên bản đầy đủ "
+            "(chứa `-ds`); đang nhận {!r}. Đang có:\n  - {}".format(
+                HASH_LENGTH, text, known_versions_text()))
+
+    matches = [name for name in known if name.lower().endswith(text.lower())]
+    if not matches:
+        raise VersionError(
+            "Không phiên bản dữ liệu nào kết thúc bằng {!r}. Đang có:\n  - {}".format(
+                text, known_versions_text()))
+    if len(matches) > 1:
+        raise VersionError(
+            "hash8 {!r} khớp NHIỀU phiên bản nên không đoán được bản nào:\n  - {}".format(
+                text, "\n  - ".join(sorted(matches))))
+    return matches[0]
 
 
 def file_sha256(path):
