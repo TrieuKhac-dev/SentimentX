@@ -13,10 +13,23 @@ Test chạy KHÔNG cần GPU, không cần tokenizer thật: `measure()` chỉ c
 Chạy: python -m unittest discover -s tests
 """
 
+import importlib.util
 import unittest
+from pathlib import Path
 from unittest import mock
 
+from src import model_config
 from src.preprocessing import token_stats
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def load_script(name):
+    """Nạp một script ở gốc repo như module, để gọi thẳng hàm cần kiểm."""
+    spec = importlib.util.spec_from_file_location(name, ROOT / "{}.py".format(name))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class FakeTokenizer:
@@ -36,7 +49,7 @@ class NoUnkTokenizer:
 def spec_for(tokenizer, encode, words=("vài", "từ")):
     """Spec tối thiểu mà `token_stats.measure` cần."""
     return {
-        "key": "fake-model",
+        "model_id": "fake-model",
         "model_name": "fake-model",
         "max_length": 128,
         "tokenizer": lambda: tokenizer,
@@ -73,6 +86,46 @@ class CountUnkTest(unittest.TestCase):
                          - token_stats.COLUMNS.index("số token <unk>"), 1)
         # Cả hai đều là cột SỐ ĐO (không phải cột truy vết), nên phải nằm trong phần số đo.
         self.assertIn("số token <unk>", token_stats.METRIC_COLUMNS)
+
+
+class SpecsTest(unittest.TestCase):
+    """Mỗi mục đo phải trỏ tới MỘT file cấu hình model có thật, và tên file là danh tính của mục đó.
+
+    Vì sao khoá: cột `model` của bảng số liệu CHÍNH LÀ `model_id`, nên một mục ghi sai tên (hoặc trỏ
+    tới model không còn file cấu hình) thì bảng số liệu mang một cái tên không tra được ra cấu hình nào,
+    mà không có gì báo lỗi.
+    """
+
+    def test_moi_muc_tro_toi_mot_config_model_co_that(self):
+        for spec in token_stats.MODELS:
+            name = spec["model_id"]
+            path = model_config.config_path(name)
+            self.assertTrue(path.is_file(), "thiếu config {}".format(path))
+            self.assertEqual(model_config.load(name)["model_id"], name)
+
+    def test_dong_duoc_ghi_voi_model_id(self):
+        spec = {"model_id": "qwen3-0.6b", "max_length": 2304}
+        metrics = {column: 0 for column in token_stats.METRIC_COLUMNS}
+        meta = {column: "-" for column in token_stats.TRACE_COLUMNS}
+        self.assertEqual(token_stats._row(spec, "test", metrics, meta)[0], "qwen3-0.6b")
+
+
+class MaxLengthNameTest(unittest.TestCase):
+    """`--max-length` nhận TÊN FILE CẤU HÌNH; tên ngắn cũ (`qwen`) đã bỏ và phải lỗi kèm gợi ý."""
+
+    def setUp(self):
+        self.script = load_script("run_token_stats")
+
+    def test_ten_ngan_cu_bi_tu_choi_kem_goi_y(self):
+        with self.assertRaises(ValueError) as caught:
+            self.script.parse_max_length(["qwen=1280"], ["qwen3-4b-instruct-2507"])
+        self.assertIn("qwen3-4b-instruct-2507", str(caught.exception))
+
+    def test_ten_model_id_duoc_nhan(self):
+        with mock.patch.object(token_stats, "position_limits", return_value={}):
+            self.assertEqual(
+                self.script.parse_max_length(["qwen3-0.6b=1024"], ["qwen3-0.6b"]),
+                {"qwen3-0.6b": 1024})
 
 
 if __name__ == "__main__":

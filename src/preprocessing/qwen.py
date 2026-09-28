@@ -28,8 +28,22 @@ MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507"
 
 # Tên file cấu hình trong configs/models/ (không cần đuôi .yaml); phải trùng `model_id`
 # khai trong file đó. Bản 0.6B dùng cùng module này nhưng có file cấu hình riêng
-# (configs/models/qwen3-0.6b.yaml).
+# (configs/models/qwen3-0.6b.yaml), nên MỌI hàm dưới đây nhận `model_id` (mặc định: bản 4B).
 CONFIG_NAME = "qwen3-4b-instruct-2507"
+
+
+def config_name(model_id=None):
+    """Tên file cấu hình của model đang nói tới; không truyền thì là bản 4B.
+
+    Một chỗ duy nhất quyết định "đang nói về model nào", để ngưỡng cắt, tokenizer và thông tin truy vết
+    đều hỏi cùng một nguồn.
+    """
+    return str(model_id or CONFIG_NAME).strip()
+
+
+def checkpoint(model_id=None):
+    """Tên model trên Hugging Face của `model_id`, đọc từ config của chính model đó."""
+    return model_config.checkpoint(config_name(model_id))
 
 # Ngưỡng cắt input KHÔNG có hằng số ở đây: nó là `preprocess.max_length` khai RIÊNG cho từng model
 # trong configs/models/<model_id>.yaml (bản 4B và bản 0.6B dùng cùng module này nhưng hai file cấu
@@ -39,12 +53,14 @@ CONFIG_NAME = "qwen3-4b-instruct-2507"
 # (token_stats) và nơi DÙNG (build_inputs) đều đọc qua `limit()` nên không thể lệch; lệch là mọi kết
 # luận "input có bị cắt hay không" sai hết.
 
-_TOKENIZER = None
+# Tokenizer của TỪNG model: bản 4B và bản 0.6B dùng chung họ tokenizer nhưng là hai model, nên nhớ
+# chung một chỗ thì lần đo thứ hai nhận nhầm tokenizer của model kia mà không có gì báo lỗi.
+_TOKENIZERS = {}
 
 
-def limit():
-    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - đọc từ file cấu hình của model."""
-    return model_config.max_length(CONFIG_NAME)
+def limit(model_id=None):
+    """Ngưỡng cắt đang dùng: (giá trị, nguồn) - đọc từ file cấu hình của model đó."""
+    return model_config.max_length(config_name(model_id))
 
 
 # ---
@@ -52,18 +68,18 @@ def limit():
 # ---
 
 
-def config():
-    """Cấu hình dùng chung của model (configs/models/<CONFIG_NAME>.yaml)."""
-    return model_config.load(CONFIG_NAME)
+def config(model_id=None):
+    """Cấu hình dùng chung của model (configs/models/<model_id>.yaml)."""
+    return model_config.load(config_name(model_id))
 
 
-def default_add_generation_prompt():
+def default_add_generation_prompt(model_id=None):
     """Giá trị mặc định của `add_generation_prompt`, lấy từ config của model.
 
     Đặt tên có `default_` vì trong `encode()`/`build_inputs()` còn một THAM SỐ cùng tên; gọi
     trùng tên sẽ bị che và không gọi được hàm.
     """
-    return bool(model_config.preprocess(CONFIG_NAME)["add_generation_prompt"])
+    return bool(model_config.preprocess(config_name(model_id))["add_generation_prompt"])
 
 
 _PROMPTS = {}
@@ -171,8 +187,8 @@ def conversations(texts, aspects=None, label_map=None, prompt_name=None):
 
 
 
-def use_tokenizer(found):
-    """Ép dùng MỘT tokenizer cụ thể cho mọi hàm của module này.
+def use_tokenizer(found, model_id=None):
+    """Ép dùng MỘT tokenizer cụ thể cho các hàm của module này, theo TỪNG model.
 
     Vì sao cần: đường vào model và đường vào tokenizer phải là MỘT. Khi chạy với model nạp
     từ thư mục cục bộ (biến môi trường `SENTIMENTX_MODEL`), nếu prompt vẫn đi qua
@@ -180,15 +196,15 @@ def use_tokenizer(found):
     model đã có sẵn trên đĩa, (b) tokenizer có thể là của BẢN KHÁC với model đang chạy -
     chat template khác nhau thì phép so sánh mất ý nghĩa mà không có gì báo lỗi.
     """
-    global _TOKENIZER
-    _TOKENIZER = found
+    _TOKENIZERS[config_name(model_id)] = found
     return found
 
 
-def tokenizer():
-    """Nạp tokenizer (kèm chat template) của Qwen3 một lần duy nhất."""
-    global _TOKENIZER
-    if _TOKENIZER is None:
+def tokenizer(model_id=None):
+    """Nạp tokenizer (kèm chat template) của model; nhớ lại theo TỪNG `model_id`."""
+    name = config_name(model_id)
+    found = _TOKENIZERS.get(name)
+    if found is None:
         try:
             from transformers import AutoTokenizer
         except ImportError as exc:  # pragma: no cover - phụ thuộc môi trường
@@ -196,8 +212,9 @@ def tokenizer():
                 "Thiếu thư viện transformers. Cài bằng:\n"
                 "    pip install transformers torch"
             ) from exc
-        _TOKENIZER = AutoTokenizer.from_pretrained(MODEL_NAME)
-    return _TOKENIZER
+        found = AutoTokenizer.from_pretrained(checkpoint(name))
+        _TOKENIZERS[name] = found
+    return found
 
 
 def _check_encoded(rows):
@@ -222,7 +239,7 @@ def _check_encoded(rows):
 
 
 def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
-           prompt_name=None):
+           prompt_name=None, model_id=None):
     """Chuỗi id token của prompt ĐÃ bọc chat template (CHƯA pad, CHƯA cắt).
 
     Không cần torch, nên dùng được cho việc ĐO độ dài input thật trước khi huấn
@@ -231,10 +248,13 @@ def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
     `add_generation_prompt` mặc định lấy từ `preprocess.add_generation_prompt` của config model
     - giá trị này phải GIỐNG giá trị lúc huấn luyện, nếu không số token đo được sẽ lệch đúng
     một lượt hội thoại.
+
+    `model_id` để đo/đếm cho một model Qwen3 cụ thể (bản 4B hoặc 0.6B): ngưỡng cắt và tokenizer đều
+    tra theo nó, nên hai bản không thể lẫn số liệu của nhau.
     """
     if add_generation_prompt is None:
-        add_generation_prompt = default_add_generation_prompt()
-    return _check_encoded(tokenizer().apply_chat_template(
+        add_generation_prompt = default_add_generation_prompt(model_id)
+    return _check_encoded(tokenizer(model_id).apply_chat_template(
         conversations(texts, aspects, label_map, prompt_name),
         tokenize=True,
         add_generation_prompt=add_generation_prompt,
@@ -243,7 +263,7 @@ def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
 
 
 def build_inputs(texts, max_length=None, add_generation_prompt=None,
-                 aspects=None, label_map=None, prompt_name=None):
+                 aspects=None, label_map=None, prompt_name=None, model_id=None):
     """Chuyển danh sách văn bản thành input cho Qwen3.
 
     Trả về dict của tokenizer. Nhờ `apply_chat_template`, prompt được bọc đúng
@@ -254,10 +274,10 @@ def build_inputs(texts, max_length=None, add_generation_prompt=None,
     không thể lệch nhau. Truyền số cụ thể khi muốn ép cho một lần gọi.
     """
     if add_generation_prompt is None:
-        add_generation_prompt = default_add_generation_prompt()
+        add_generation_prompt = default_add_generation_prompt(model_id)
     if max_length is None:
-        max_length = limit()[0]
-    return tokenizer().apply_chat_template(
+        max_length = limit(model_id)[0]
+    return tokenizer(model_id).apply_chat_template(
         conversations(texts, aspects, label_map, prompt_name),
         tokenize=True,
         add_generation_prompt=add_generation_prompt,
@@ -268,7 +288,7 @@ def build_inputs(texts, max_length=None, add_generation_prompt=None,
     )
 
 
-def info(prompt_name=None):
+def info(prompt_name=None, model_id=None):
     """Thông tin để TRUY VẾT số liệu đo được: tokenizer, từ vựng, prompt, ngưỡng cắt.
 
     Nơi gọi truyền tên prompt đang dùng để dòng số liệu ghi đúng prompt nào đã sinh
@@ -280,9 +300,9 @@ def info(prompt_name=None):
     nội dung file prompt). Không ghi mã của file ví dụ thì ba thí nghiệm mang cùng dấu vết.
     Khối hệ thống dùng chung cũng vậy, nên nó có `system_sha` riêng.
     """
-    found = tokenizer()
+    found = tokenizer(model_id)
     template = load_prompt(prompt_name)
-    value, source = limit()
+    value, source = limit(model_id)
     examples = template.examples_info() or {}
     system = template.system_info() or {}
     return {

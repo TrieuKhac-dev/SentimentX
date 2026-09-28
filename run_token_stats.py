@@ -74,11 +74,12 @@ def parse_args(argv=None):
     )
     parser.add_argument(
         "--max-length", dest="max_length", action="append", default=None,
-        metavar="N|MODEL=N",
+        metavar="N|MODEL_ID=N",
         help="Ghi đè ngưỡng cắt input cho một lần chạy. Dạng 'N' (áp cho mọi model, "
-             "báo lỗi nếu vượt trần của model nào) hoặc 'qwen=1280' (chỉ model đó; lặp "
-             "lại được nhiều lần). Ngưỡng mặc định: preprocess.max_length trong file "
-             "cấu hình của model (configs/models/<model_id>.yaml).",
+             "báo lỗi nếu vượt trần của model nào) hoặc 'qwen3-4b-instruct-2507=1280' (chỉ model "
+             "đó; lặp lại được nhiều lần). Tên model là TÊN FILE cấu hình của model "
+             "(configs/models/<model_id>.yaml). Ngưỡng mặc định: preprocess.max_length trong "
+             "file cấu hình của model.",
     )
     parser.add_argument(
         "--list-prompts", action="store_true",
@@ -92,11 +93,15 @@ def parse_args(argv=None):
 
 
 def parse_max_length(values, model_keys):
-    """Đọc các giá trị `--max-length` thành dict {tên model: số token}.
+    """Đọc các giá trị `--max-length` thành dict {model_id: số token}.
 
     Nhận hai dạng:
-        --max-length 128         đặt 128 cho MỌI model
-        --max-length qwen=1280   chỉ đặt cho model 'qwen' (lặp lại được nhiều lần)
+        --max-length 128                              đặt 128 cho MỌI model
+        --max-length qwen3-4b-instruct-2507=1280      chỉ đặt cho model đó (lặp lại được nhiều lần)
+
+    Tên model là **tên file cấu hình** (`configs/models/<model_id>.yaml`), cũng chính là giá trị ở cột
+    `model` của bảng số liệu. Tên ngắn kiểu `qwen`/`phobert` đã bỏ: một model một tên, để bảng số liệu
+    và dòng lệnh không thể nói hai chuyện khác nhau.
 
     Kiểm tra ngay tại đây, trước khi tải dữ liệu (mỗi lần chạy tốn vài phút): tên model
     phải có thật, giá trị phải là số nguyên dương, và KHÔNG được vượt trần kiến trúc của
@@ -117,7 +122,7 @@ def parse_max_length(values, model_keys):
         except ValueError:
             raise ValueError(
                 "Giá trị của --max-length phải là số nguyên, đang nhận '{}'. Ví dụ: "
-                "--max-length 128 hoặc --max-length qwen=1280.".format(text))
+                "--max-length 128 hoặc --max-length qwen3-4b-instruct-2507=1280.".format(text))
         if value <= 0:
             raise ValueError(
                 "Giá trị của --max-length phải lớn hơn 0, đang nhận {}.".format(value))
@@ -125,11 +130,15 @@ def parse_max_length(values, model_keys):
         targets = [name.strip().lower()] if name.strip() else list(model_keys)
         for key in targets:
             if key not in model_keys:
-                hint = difflib.get_close_matches(key, model_keys, n=1, cutoff=0.5)
+                # Gợi ý theo hai cách: gần đúng về chữ, và cùng TIỀN TỐ - người quen tên ngắn cũ
+                # (`qwen`) sẽ được chỉ đúng tên file cấu hình mà không cần mở tài liệu.
+                hints = difflib.get_close_matches(key, model_keys, n=2, cutoff=0.5)
+                hints += [name for name in model_keys if name.startswith(key) and name not in hints]
                 raise ValueError(
                     "Không có model '{}' trong --max-length. Các model đang đo: {}.{}"
                     .format(key, ", ".join(model_keys),
-                            " Có phải bạn muốn '{}'?".format(hint[0]) if hint else ""))
+                            " Có phải bạn muốn '{}'?".format("' hoặc '".join(hints))
+                            if hints else ""))
 
             ceiling = ceilings.get(key)
             if ceiling and value > ceiling:
@@ -238,7 +247,7 @@ def print_config(prompt, segmenter_spec, max_length_overrides=None):
     print("               (chỉ PhoBERT dùng; ViSoBERT và Qwen đọc văn bản nguyên bản)")
     print("  max_length :")
     for key, value, source, _from_cli in token_stats.limits(max_length_overrides):
-        print("      {:<9}{:>7} token   nguồn: {}   trần model: {}".format(
+        print("      {:<26}{:>7} token   nguồn: {}   trần model: {}".format(
             key, value, source,
             ceilings.get(key) or "không rõ"))
     print()
@@ -327,7 +336,7 @@ def main(argv=None):
             return 2
     try:
         max_length_overrides = parse_max_length(
-            args.max_length, [spec["key"] for spec in token_stats.MODELS])
+            args.max_length, [spec["model_id"] for spec in token_stats.MODELS])
     except ValueError as exc:
         print("LỖI: {}".format(exc))
         return 2

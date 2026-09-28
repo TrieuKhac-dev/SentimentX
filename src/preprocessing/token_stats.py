@@ -28,7 +28,7 @@ nên `info()` của Qwen trả thêm `examples_sha` (mã của file ví dụ, xe
 
 import inspect
 
-from src import config, paths, prompts, utils, versioning
+from src import config, model_config, paths, prompts, utils, versioning
 from src.preprocessing import loader, phobert, qwen, segmenters, visobert
 
 def _word_count(texts, **kwargs):
@@ -46,13 +46,31 @@ def _word_count(texts, **kwargs):
 # `--max-length` khi chạy đứng trên giá trị đó (xem `effective_limit`). Nhờ vậy con số dùng để
 # ĐO và con số dùng để CẮT lúc huấn luyện (`build_inputs`) luôn là một.
 #
-# Qwen3-0.6B KHÔNG có mục riêng, và đó là chủ ý: `tokenizer.json` + `vocab.json` của nó GIỐNG TỪNG BYTE
-# bản 4B (đã đối chiếu sha256), `max_length` cũng bằng 2304, nên một mục riêng chỉ tạo ra một dòng số
-# liệu TRÙNG trong bảng model_input. Muốn tách thật thì phải sửa `qwen.CONFIG_NAME`/`limit()` cho nhận
-# tham số model; khi nào 0.6B có ngưỡng cắt khác bản 4B thì làm việc đó.
+# DANH TÍNH CỦA MỘT MỤC LÀ `model_id`, tức TÊN FILE cấu hình `configs/models/<model_id>.yaml`: cột
+# `model` của bảng số liệu ghi thẳng giá trị này và `--max-length <model_id>=<số>` cũng dùng nó.
+# Không còn tên ngắn (`qwen`, `phobert`): một model một tên, và tên nào cũng tra ra được file cấu hình.
+def _qwen_spec(model_id):
+    """Mục đo cho MỘT model Qwen3.
+
+    Bản 4B và bản 0.6B dùng CÙNG module `qwen`, nên mọi hàm ở đây được gọi kèm `model_id`: ngưỡng cắt
+    và tokenizer tra theo config của chính bản đó. Hiện hai bản có cùng tokenizer (cùng `tokenizer.json`)
+    và cùng ngưỡng cắt 2304, nên số liệu của chúng GIỐNG NHAU - đó là điều đúng cần ghi lại, không
+    phải lỗi trùng lặp, và mỗi dòng vẫn phân biệt được nhờ cột `model`.
+    """
+    return {
+        "model_id": model_id,
+        "model_name": model_config.checkpoint(model_id),
+        "limit": lambda mid=model_id: model_config.max_length(mid),
+        "encode": qwen.encode,
+        "words": _word_count,
+        "tokenizer": lambda mid=model_id: qwen.tokenizer(mid),
+        "info": qwen.info,
+    }
+
+
 MODELS = (
     {
-        "key": "phobert",
+        "model_id": "phobert-base-v2",
         "model_name": phobert.MODEL_NAME,
         "limit": phobert.limit,
         "encode": phobert.encode,
@@ -61,7 +79,7 @@ MODELS = (
         "info": phobert.info,
     },
     {
-        "key": "visobert",
+        "model_id": "visobert",
         "model_name": visobert.MODEL_NAME,
         "limit": visobert.limit,
         "encode": visobert.encode,
@@ -69,15 +87,8 @@ MODELS = (
         "tokenizer": visobert.tokenizer,
         "info": visobert.info,
     },
-    {
-        "key": "qwen",
-        "model_name": qwen.MODEL_NAME,
-        "limit": qwen.limit,
-        "encode": qwen.encode,
-        "words": _word_count,
-        "tokenizer": qwen.tokenizer,
-        "info": qwen.info,
-    },
+    _qwen_spec("qwen3-4b-instruct-2507"),
+    _qwen_spec("qwen3-0.6b"),
 )
 
 
@@ -94,7 +105,7 @@ def effective_limit(spec, overrides=None):
     (`build_inputs`) không thể lệch nhau. Nguồn được giữ lại để IN RA và GHI VÀO số liệu: một
     ngưỡng cắt không rõ từ đâu ra thì đọc bảng số liệu xong vẫn không biết nó thuộc thí nghiệm nào.
     """
-    override = (overrides or {}).get(spec["key"])
+    override = (overrides or {}).get(spec["model_id"])
     if override:
         return int(override), "--max-length khi chạy", True
     value, source = spec["limit"]()
@@ -112,7 +123,7 @@ def limits(overrides=None):
     result = []
     for spec in MODELS:
         value, source, from_cli = effective_limit(spec, overrides)
-        result.append((spec["key"], value, source, from_cli))
+        result.append((spec["model_id"], value, source, from_cli))
     return result
 
 SPLITS = ("train", "val", "test")
@@ -168,7 +179,7 @@ def _encode(spec, texts, context):
     if len(rows) == 0 or not isinstance(rows[0], (list, tuple)):
         raise TypeError(
             "encode() của {} phải trả về list[list[int]] (không pad, không tensor) để "
-            "đo được độ dài thật.".format(spec["key"])
+            "đo được độ dài thật.".format(spec["model_id"])
         )
     lengths = [len(row) for row in rows]
     limit = spec["max_length"]
@@ -176,7 +187,7 @@ def _encode(spec, texts, context):
         raise ValueError(
             "encode() của {} trả về MỌI dòng đều đúng {} token - gần như chắc chắn hàm "
             "encode đang bật truncation/padding sẵn (không đo được độ dài thật).".format(
-                spec["key"], limit)
+                spec["model_id"], limit)
         )
     return rows
 
@@ -213,17 +224,17 @@ def position_limits():
         except ImportError:  # pragma: no cover - phụ thuộc môi trường
             AutoConfig = None
         for spec in MODELS:
-            limits[spec["key"]] = None
+            limits[spec["model_id"]] = None
             if AutoConfig is None:
                 continue
             try:
                 config = AutoConfig.from_pretrained(spec["model_name"])
                 value = getattr(config, "max_position_embeddings", None)
-                limits[spec["key"]] = int(value) if value else None
+                limits[spec["model_id"]] = int(value) if value else None
             except Exception:  # noqa: BLE001
                 # Không đọc được config (mạng, cache thiếu, config đổi khoá) thì bỏ qua:
                 # mất một phép kiểm còn hơn làm hỏng cả phép đo.
-                limits[spec["key"]] = None
+                limits[spec["model_id"]] = None
         _POSITION_LIMITS = limits
     return _POSITION_LIMITS
 
@@ -238,13 +249,13 @@ def _check_max_length(spec, tokenizer):
     """
     supplied = getattr(tokenizer, "model_max_length", None)
     concrete = isinstance(supplied, int) and 0 < supplied < _SENTINEL_LIMIT
-    limit = supplied if concrete else position_limits().get(spec["key"])
+    limit = supplied if concrete else position_limits().get(spec["model_id"])
     if limit and spec["max_length"] > limit:
         raise ValueError(
             "MAX_LENGTH của {} ({}) lớn hơn giới hạn của model ({}). Phần vượt sẽ bị "
             "model cắt hoặc sai vị trí mà bảng số liệu vẫn báo 0% bị cắt - sửa hằng số "
             "MAX_LENGTH trong module model, hoặc rút ngắn prompt.".format(
-                spec["key"], spec["max_length"], limit)
+                spec["model_id"], spec["max_length"], limit)
         )
     return limit
 
@@ -359,14 +370,18 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
         for name in SPLITS:
             texts = frames[name][config.TEXT_COLUMN].astype(str).tolist()
             try:
-                metrics, meta = measure(spec, texts, measure_context)
+                # `model_id` đi vào NGỮ CẢNH của phép đo: `_matching_kwargs` sẽ chuyển nó cho những
+                # hàm thật sự nhận (Qwen: ngưỡng cắt + tokenizer theo từng bản; PhoBERT/ViSoBERT:
+                # không nhận, nên bỏ qua).
+                metrics, meta = measure(spec, texts,
+                                        dict(measure_context, model_id=spec["model_id"]))
             except (ImportError, OSError, segmenters.SegmenterError) as exc:
                 # Thiếu thư viện (transformers / bộ tách từ), thiếu Java, thiếu model
                 # VnCoreNLP, hoặc không tải được tokenizer: bỏ qua model này kèm lí do,
                 # không ghi số liệu sai.
-                skipped.append((spec["key"], _reason(exc)))
+                skipped.append((spec["model_id"], _reason(exc)))
                 break
-            models[spec["key"]] = meta
+            models[spec["model_id"]] = meta
             rows.append(_row(spec, name, metrics, meta))
 
     return rows, skipped, {
@@ -377,8 +392,8 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
         "examples": (prompts.examples_info(qwen.load_prompt(prompt_name).examples_value)
                      if "examples" in qwen.load_prompt(prompt_name).placeholders else None),
         "segmenter": _resolved_segmenter(segmenter),
-        "limits": {spec["key"]: {"value": spec["max_length"],
-                                 "source": spec["max_length_source"]}
+        "limits": {spec["model_id"]: {"value": spec["max_length"],
+                                      "source": spec["max_length_source"]}
                    for spec in specs},
         "models": models,
     }
@@ -386,7 +401,7 @@ def run(dataset=None, version_id=None, prompt_name=None, segmenter=None, max_len
 
 def _row(spec, split, metrics, meta):
     """Một dòng của bảng, theo ĐÚNG thứ tự COLUMNS."""
-    return ([spec["key"], split]
+    return ([spec["model_id"], split]
             + [meta.get(column, NOT_APPLICABLE) for column in TRACE_COLUMNS]
             + [spec["max_length"]]
             + [metrics[column] for column in METRIC_COLUMNS])
@@ -403,9 +418,10 @@ def _resolved_segmenter(spec):
 def file_name(tag=None):
     """Tên file CSV của một lần đo, lấy từ mẫu tên trong `configs/paths.yaml`.
 
-    Có `tag` khi chạy với prompt hoặc bộ tách từ KHÁC mặc định: mỗi cấu hình một file
-    riêng để hai thí nghiệm không ghi đè lên nhau. Không có tag thì giữ tên cũ
-    (`token_stats.csv`), nhờ vậy các bản chạy trước vẫn tra cứu được.
+    `tag` ghi rõ lần đo này khác mặc định ở chỗ nào (prompt, khối hệ thống, bộ tách từ, bộ ví dụ,
+    `--max-length`): mỗi cấu hình một file riêng để hai phép đo không ghi đè lên nhau. Vì `--prompt`
+    là BẮT BUỘC, tên file thực tế luôn có ít nhất tag `prompt-<tên>`; tên trần `token_stats.csv` chỉ
+    dùng cho lần gọi không truyền tag (giữ lại để các bản chạy rất cũ vẫn tra cứu được).
 
     Mẫu tên nằm trong `configs/paths.yaml` vì bảng tổng hợp `model_input` cũng phải tìm đúng
     những file này; chép tên vào hai chỗ là hai chỗ có thể lệch nhau.

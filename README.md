@@ -182,7 +182,7 @@ python run_token_stats.py --list-prompts            # đang có prompt nào (tê
 python run_token_stats.py --list-segmenters         # máy này cài được bộ tách từ nào
 python run_token_stats.py --hash e0ccc484 --prompt absa_direct_v1    # đo một prompt khác
 python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --segmenter pyvi
-python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --max-length qwen=1280
+python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --max-length qwen3-4b-instruct-2507=1280
 
 # 7) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
 python run_check_examples.py --hash e0ccc484
@@ -397,7 +397,7 @@ Mỗi nhóm có **một file luồng riêng** (`01_flow.md`) ghi luồng tổng 
 
 ```bash
 # 1) Tạo thí nghiệm mới (tự chọn expNNN kế tiếp, từ chối nếu nhánh chưa có origin/experiment)
-python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --title "CoT 1 shot"
+python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-cot --notes "CoT 1 shot"
 
 # 2) Viết config.yaml của thí nghiệm, rồi chạy thử ở MÁY CÁ NHÂN: mở notebook.ipynb và bấm Run all
 

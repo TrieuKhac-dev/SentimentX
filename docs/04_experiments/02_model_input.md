@@ -177,24 +177,34 @@ Ngưỡng cắt `max_length` đọc theo thứ tự **trên xuống** - cả hai
 
 | # | Nguồn | Dùng khi nào | Đổi có làm bẩn version dữ liệu? |
 |---|-------|--------------|--------------------------------|
-| 1 | `--max-length 128` hoặc `--max-length qwen=1280` | thử nhanh một lần, không phải sửa file | không |
+| 1 | `--max-length 128` hoặc `--max-length qwen3-4b-instruct-2507=1280` | thử nhanh một lần, không phải sửa file | không |
 | 2 | `preprocess.max_length` trong `configs/models/<model_id>.yaml` | cấu hình của dự án | **không** - file này KHÔNG nằm trong hash sinh mã phiên bản dữ liệu |
 
 Khi chạy, ngưỡng hiệu lực được in ra kèm **nguồn** và **trần của model**:
 
 ```
   max_length :
-      phobert      256 token   nguồn: configs/models/phobert-base-v2.yaml   trần model: 258
-      visobert     256 token   nguồn: configs/models/visobert.yaml          trần model: 514
-      qwen        1280 token   nguồn: configs/models/qwen3-4b-instruct-2507.yaml   trần model: 262144
+      phobert-base-v2               256 token   nguồn: configs/models/phobert-base-v2.yaml   trần model: 258
+      visobert                      256 token   nguồn: configs/models/visobert.yaml   trần model: 514
+      qwen3-4b-instruct-2507       2304 token   nguồn: configs/models/qwen3-4b-instruct-2507.yaml   trần model: 262144
 ```
+
+Tên model trong bảng này là **tên file cấu hình** (`configs/models/<model_id>.yaml`) - cũng chính là giá
+trị ở cột `model` của bảng số liệu, và là thứ `--max-length` nhận. Dòng cho `qwen3-0.6b` cũng có mặt vì
+0.6B là model thử nghiệm chính thức (xem [01_models.md](01_models.md)); số liệu của nó **giống hệt** bản
+4B vì dùng cùng tokenizer và cùng ngưỡng cắt - đó là điều đúng cần ghi lại, không phải lỗi trùng lặp.
+
+*Ghi chú về số dòng:* mỗi lần đo hiện ra **4 model × 3 split = 12 dòng**, nhưng 8 trong 9 file
+`token_stats__*.csv` của phiên bản đã được đo **trước** khi Qwen3-0.6B vào thử nghiệm nên vẫn chỉ có
+9 dòng. Chạy lại đúng lệnh của file đó (ví dụ `--prompt absa_direct_v1 --segmenter vncorenlp`) để nó có
+dòng thứ tư; file đã chạy lại (`--segmenter none`) là mẫu cho thấy 12 dòng trông thế nào.
 
 Ba chốt an toàn đi kèm:
 
 1. **Không vượt trần kiến trúc** của model (PhoBERT 258, ViSoBERT 514, Qwen 262.144): vượt
-   là bị chặn ngay, kèm gợi ý dùng `--max-length <model>=<số>`.
-2. **Cờ dòng lệnh thì tên file có thêm `maxlen-<model>-<số>`** (ví dụ
-   `token_stats__prompt-absa_cot_v1__maxlen-qwen-1024.csv`) -> chạy thử một giá trị
+   là bị chặn ngay, kèm gợi ý dùng `--max-length <model_id>=<số>`.
+2. **Cờ dòng lệnh thì tên file có thêm `maxlen-<model_id>-<số>`** (ví dụ
+   `token_stats__prompt-absa_cot_v1__maxlen-qwen3-4b-instruct-2507-1024.csv`) -> chạy thử một giá trị
    khác không ghi đè lên số liệu của cấu hình chính. Ngược lại, sửa `preprocess.max_length`
    trong `configs/models/<model_id>.yaml` là đổi **cấu hình của dự án**, nên vẫn ghi vào file
    mặc định (`token_stats.csv`) - nếu không, chỉ đổi một dòng YAML là file mặc định biến mất,
@@ -226,9 +236,10 @@ Ba chốt an toàn đi kèm:
 | `subword / từ` | một "từ" bị chẻ thành bao nhiêu mảnh - càng cao thì input càng dài và tốn tính toán |
 
 
-Số liệu đã đo cho dataset `cosmetics` (split `train`, phiên bản `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34`,
-bộ tách từ `vncorenlp`, prompt `absa_direct_v1`; bản đầy đủ cả 3 split nằm trong
-`token_stats.csv`. Cấu hình có thể đã đổi, hãy chạy lại lệnh trên để lấy số của phiên
+Số liệu đã đo cho dataset `cosmetics` (split `train`, phiên bản `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-…`,
+bộ tách từ `vncorenlp`, prompt `absa_direct_v1`; bản đầy đủ cả 3 split nằm ở file có tag của lượt đo —
+`token_stats__prompt-absa_direct_v1__seg-<bộ tách từ>.csv`, vì `--prompt` là bắt buộc nên tên file luôn
+có ít nhất tag `prompt-<tên>`. Cấu hình có thể đã đổi, hãy chạy lại lệnh trên để lấy số của phiên
 bản đang dùng):
 
 | Model | max_length | token/review TB | p95 | p99 | % > max_length | % `<unk>` | subword / từ |
@@ -369,11 +380,11 @@ Ba điều đọc ra từ bảng này:
 
 Vì vậy có hai lựa chọn ngưỡng cắt, **cả hai đều có số liệu** trong thư mục phiên bản:
 
-| Ngưỡng cắt | File | Ảnh hưởng thật |
+| Ngưỡng cắt | Số liệu trong repo | Ảnh hưởng thật |
 |-----------|------|----------------|
-| 2304 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | `token_stats__prompt-absa_cot_5shot_v1__ex-2799b4c8.csv` | 0 mẫu bị cắt ở **mọi** split, cho cả bản 2 ví dụ lẫn bản 5 ví dụ |
-| 1280 (ngưỡng cho tới 25/09/2026) | `...__prompt-absa_cot_v1__ex-c513f5a6.csv` | bản 2 ví dụ: 0 mẫu bị cắt; bản **5 ví dụ: 100% review ở cả ba split** mất phần đuôi - tức mất yêu cầu định dạng |
-| 1024 (phương án đã cân nhắc, giữ lại để đối chiếu) | `...__ex-c513f5a6__maxlen-qwen-1024.csv` (chạy bằng `--max-length qwen=1024`) | 82/12.302 mẫu **train** mất phần đuôi (0,67%); val 0,59%; test 0,53% |
+| 2304 (**đang dùng**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`) | mọi file `token_stats__*.csv` của phiên bản, ví dụ `token_stats__prompt-absa_cot_5shot_v1__ex-2799b4c8.csv` | 0 mẫu bị cắt ở **mọi** split, cho cả bản 2 ví dụ lẫn bản 5 ví dụ |
+| 1280 (ngưỡng cho tới 25/09/2026) | **không còn trong repo**: các file đã được đo lại ở ngưỡng 2304 | bản 2 ví dụ: 0 mẫu bị cắt; bản **5 ví dụ: 100% review ở cả ba split** mất phần đuôi - tức mất yêu cầu định dạng |
+| 1024 (phương án đã cân nhắc, không giữ số liệu) | chạy lại bằng `--max-length qwen3-4b-instruct-2507=1024` nếu cần đối chiếu | 82/12.302 mẫu **train** mất phần đuôi (0,67%); val 0,59%; test 0,53% |
 
 **Quyết định:** dùng **2304** - mức 5 ví dụ (mức mà công bố so) chỉ chạy được ở đây với 0% bị cắt, và
 nâng ngưỡng **không làm đổi phép đo**: cột `% review > max_length` bằng 0 ở ngưỡng 2304, còn các
