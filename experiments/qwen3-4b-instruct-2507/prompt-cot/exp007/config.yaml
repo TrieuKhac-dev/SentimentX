@@ -1,0 +1,55 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp007
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp004
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Doi chieu fp16 cua exp004 (4-bit): cung prompt 5 vi du, cung tap test, chi khac luong hoa"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.1.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi training.enabled: true.
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
+prompt: ../../../../configs/prompts/absa_cot_5shot_v1.txt
+# Khối ví dụ few-shot ở thư viện dùng chung. Khai TƯỜNG MINH vì `prompt` ghi bằng đường dẫn: suy theo
+# tên chỉ đúng khi prompt gọi bằng tên.
+examples: ../../../../configs/prompts/examples/absa_cot_5shot_v1.txt
+# Khối hệ thống ở thư viện dùng chung: câu hệ thống KHÔNG nằm trong file prompt.
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# ĐỐI CHỨNG LƯỢNG HOÁ (lớp config này đè `configs/models/qwen3-4b-instruct-2507.yaml`).
+# `quantization: null` = nạp thẳng trọng số, KHÔNG lượng hoá 4-bit. Khoá này đi vào mã băm danh tính,
+# nên kết quả nằm ở thư mục riêng chứ không đè lên lượt chạy 4-bit của exp004.
+inference:
+  quantization: null
+  # Khai tường minh thay vì `auto`: T4 không có bf16, và khai rõ thì máy nào cũng ra cùng cấu hình.
+  # `dtype` KHÔNG nằm trong mã băm (05_predictions.md §1.1) nên nó không tách thư mục kết quả giúp mình.
+  dtype: float16
+  # Nhỏ hơn `8` của config model vì bản fp16 tốn gấp ~4 lần bộ nhớ; mức 5 ví dụ còn dài hơn hai mức kia
+  # nên đây là lượt dễ hết bộ nhớ nhất (prompt trung bình 1.877,5 token, dài nhất 2.122).
+  batch_size: 4
+# requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
+#   - data/models/vncorenlp                   # mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU (trên
+#                                             # Colab là thư mục Drive); mục khác tính từ gốc repo
