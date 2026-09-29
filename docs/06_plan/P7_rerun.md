@@ -65,6 +65,24 @@ nào lên DagsHub**, xem mục "Cổng MLflow" ở `P4_logging_mlflow.md`. Toàn
 được XOÁ theo yêu cầu (26/09/2026) để chạy lại từ đầu; bảng và bảng lỗi trên là bản ghi duy nhất còn
 lại của đợt đó.
 
+*Cập nhật 29/09/2026 - đợt thí nghiệm thứ ba (lưới MƯỜI HAI lượt):* T3 nay gồm **mười hai** thí nghiệm,
+vẫn ghim CÙNG một bản code: năm lượt của đợt hai, thêm một lượt Qwen3 `prompt-one-turn/exp001` (prompt MỘT
+LƯỢT, 0 ví dụ - mốc so với ba mức CoT), ba lượt Qwen3-0.6B (`qwen3-0.6b/prompt-cot/exp001` đến `exp003`,
+đúng ba mức ví dụ, nên câu hỏi "model nhỏ hơn 10 lần mất bao nhiêu điểm" trả lời được mà không đổi thứ gì
+khác - bản 0.6B có `tokenizer.json` giống từng byte), và ba lượt **đối chứng KHÔNG lượng hoá** cho model
+4B (`qwen3-4b-instruct-2507/prompt-cot/exp005` đến `exp007`, `parent` trỏ đúng lượt 4-bit của cùng mức ví
+dụ, khai thêm `inference.quantization: null`, `dtype: float16`, `batch_size: 4`). Nhóm fp16 trả lời câu
+"lượng hoá 4-bit làm mất bao nhiêu điểm" - lượt 4-bit vốn bị ép bởi 6 GB VRAM của máy cá nhân chứ không
+phải một lựa chọn phương pháp. Lưu ý khi đọc số của nhóm này: `batch_size` cũng nằm trong mã băm danh
+tính (`05_predictions.md` mục 2), nên phải so từng dòng `predictions.csv` với lượt 4-bit tương ứng, đừng
+gán hết chênh lệch cho lượng hoá.
+
+Đợt này cũng sửa hai lỗi hạ tầng lộ ra khi dựng lượt chạy 0.6B: trọng số Qwen3-0.6B trên máy cá nhân bị
+cắt cụt (838.852.608 byte trong khi header safetensors đòi 1.503.300.328, tức thiếu 44%) và đã tải lại
+trọn vẹn, và `scripts/setup_qwen_model.ps1` phải thêm BOM UTF-8 mới parse được bằng `powershell.exe`
+(xem `docs/00_workflow/06_conventions.md`).
+
+## 3. Task nhỏ (mỗi task một commit)
 
 
 - [x] T1. Chạy lại pipeline để sinh phiên bản dataset đầu tiên theo cấu trúc mới.
@@ -94,18 +112,22 @@ lại của đợt đó.
       repo không bị đụng) và `scripts/show_prompt.py` (in prompt thật gửi cho model). Muốn tra từng
       mẫu thì đọc cột `prompt gửi model` trong `predictions.csv`
       (`docs/04_experiments/05_predictions.md`).
+      *Cập nhật 29/09/2026:* phạm vi nay là **MƯỜI HAI** thí nghiệm (thêm một lượt `prompt-one-turn`, ba
+      lượt `qwen3-0.6b/prompt-cot/exp001..003`, và ba lượt đối chứng fp16 `prompt-cot/exp005..007`) -
+      xem mục 2 và `docs/00_workflow/07_colab.md` mục 3.
 - [ ] T4. Sinh bảng so sánh với cột `reference`; ghi lại kết quả và khoảng cách.
       -> `docs(experiments): record baseline results against reference`
 - [ ] T5. Giao notebook cho giảng viên: đẩy dữ liệu, notebook và `.env.colab` lên Drive, gửi hướng dẫn.
       (không tạo commit)
-      Gói bàn giao đã dựng lại (25/09/2026): **năm** notebook (hai lượt LoRA và ba mức ví dụ của công
-      bố) cộng README của từng thí nghiệm, cây đúng như `docs/00_workflow/07_colab.md` mục 2:
+      Gói bàn giao đã dựng lại (lần cuối 29/09/2026, ghim `a7ac72a`): **mười hai** notebook (hai lượt LoRA,
+      một lượt prompt một lượt, ba mức ví dụ của công bố trên bản 4B, ba lượt 0.6B, ba lượt đối chứng fp16)
+      cộng README của từng thí nghiệm, cây đúng như `docs/00_workflow/07_colab.md` mục 2:
 
       ```
       .sentimentx_root                      README.md  (hướng dẫn người chạy)
       env/.env.colab  env/.env.colab.example
-      notebooks/<model_id>/<method>/expNNN.ipynb          (năm notebook)
-      experiments/<model_id>/<method>/expNNN/README.md    (năm thí nghiệm)
+      notebooks/<model_id>/<method>/expNNN.ipynb          (mười hai notebook)
+      experiments/<model_id>/<method>/expNNN/README.md    (mười hai thí nghiệm)
       data/raw/cosmetics/v0.1.0/            4 CSV + raw_meta.yaml
       data/processed/<mã>/                  train, val, test, label_map.json, processing_log.json,
                                             eval_lock.json

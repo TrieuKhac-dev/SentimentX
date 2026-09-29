@@ -23,7 +23,7 @@ viết thêm code chỉ là suy đoán, không phải tái lập.
 đúng định dạng đầu vào của nó (khung đã có: `to_absa_tuples`, `to_label_ids`,
 `describe_format`), rồi thêm một dict vào `MODELS` trong `src/preprocessing/token_stats.py`
 (`MODEL_NAME`, `tokenizer`, `encode`, `words`, `info`) để đo được độ dài
-input như 3 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
+input như 4 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
 
 ## 2. Chạy Qwen3 theo hướng PROMPT (prompt + CoT) - ĐÃ DỰNG (đợt 2)
 
@@ -31,6 +31,13 @@ input như 3 model còn lại. Docstring của `vitasa.py` ghi sẵn 4 bước.
 (`qwen3-4b-instruct-2507/prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ) cạnh hai lượt
 LoRA cho encoder. Cả năm chấm trên tập `test` và đã ghim cùng một bản code, chờ máy GPU của Colab để ra
 số. Phần mô tả dưới đây giữ nguyên vì nó giải thích VÌ SAO đi hướng này.
+
+*Cập nhật 29/09/2026:* hướng prompt nay có **bảy** thí nghiệm trên bản 4B (ba mức ví dụ 4-bit
+`prompt-cot/exp002..004`, prompt MỘT LƯỢT `prompt-one-turn/exp001`, và ba lượt đối chứng KHÔNG lượng hoá
+`prompt-cot/exp005..007` của đúng ba mức ví dụ đó), cộng **ba** lượt `qwen3-0.6b/prompt-cot/exp001..003`
+cho model thứ tư - model nhỏ, cùng tokenizer, để đo khoảng cách do quy mô. Mười lượt này cùng hai lượt
+LoRA cho encoder chấm trên cùng tập `test` và ghim cùng một bản code; xem `docs/06_plan/P7_rerun.md` mục 2
+cho lý do của từng nhóm.
 
 **Việc:** cho Qwen3 trả lời tập test bằng prompt (zero-shot / few-shot / CoT), rồi đo tỉ
 lệ JSON hợp lệ và F1. **Không fine-tune.**
