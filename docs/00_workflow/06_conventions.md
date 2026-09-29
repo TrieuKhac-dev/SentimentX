@@ -71,6 +71,12 @@ khác nhau, nên `assertEqual(code, 2)` một mình vẫn xanh kể cả khi cô
   Việt, trong khi `setup_java.ps1` và `setup_vncorenlp.ps1` (có BOM) chạy bình thường - nghĩa là lệnh
   `powershell -File scripts\...` mà README hướng dẫn chỉ chạy được khi tệp có BOM. Kiểm nhanh:
   `[System.IO.File]::ReadAllBytes($p)[0..2] -join ','` → `239,187,191` là có BOM.
+- Mọi tool CLI (`run_*.py`, `scripts/*.py`) tự gọi
+  `sys.stdout.reconfigure(encoding="utf-8", errors="replace")` trước khi in. Cần vậy vì khi CHUYỂN HƯỚNG
+  output ra tệp hoặc pipe trên Windows, Python dùng codepage hệ thống (cp1252 ở máy này) và chữ tiếng Việt
+  làm chết chương trình: `UnicodeEncodeError: 'charmap' codec can't encode character '\u0111'`. Ca thật,
+  tái hiện được: `python -c "print('đ')" > out.txt`. Script tự viết mà gọi thẳng hàm trong `src/` (ví dụ
+  `experiment_run.plan` có `print`) thì tự đặt `PYTHONUTF8=1`, hoặc gọi `reconfigure` y như các tool.
 
 ## Dòng lệnh
 

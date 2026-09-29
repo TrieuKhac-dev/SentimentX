@@ -82,6 +82,16 @@ Trước khi ghi, `pin.py` còn kiểm **cây làm việc phải sạch ngoài f
 giảng viên chạy xong (P5, mục rủi ro). Hệ quả cần nhớ: sửa code thì phải **ghim lại**, và từ lúc giao
 notebook (P7 T5) thư mục thí nghiệm **đóng băng** - mọi thay đổi sau đó đều phải đi qua một lần ghim
 mới, nếu không notebook của người nhận vẫn chạy bản cũ.
+**Ghim lại CẢ BỘ (khi bản code đổi):** notebook ghim *bản code*, nên HEAD nhích thì MỌI notebook phải
+ghim lại cùng lúc, không chỉ cái vừa sửa. Cách làm: đẩy commit code lên nhánh trước, rồi chạy
+`python scripts/pin.py <exp> --allow-dirty` cho từng thí nghiệm và commit đúng những file
+`notebook.ipynb` đó trong MỘT commit. Ở đây `--allow-dirty` là hợp lệ và có chủ ý: cây đang bẩn CHÍNH
+VÌ các notebook vừa ghim, mà commit ghim lại chỉ được chứa notebook - cờ này không được dùng để trộn
+lần ghim với thay đổi khác. Commit ghim lại nằm SAU commit code (sha ghi trong notebook trỏ về commit
+code, không phải về commit ghim lại); `ci_checks.py` mục 6 chỉ đòi sha đó **nằm trên** nhánh
+(`repo.is_ancestor`), nên commit ghim lại không cần nằm trong sha đã ghim.
+
+
 
 ## Ba điều quan trọng nhất
 
