@@ -122,6 +122,25 @@ Việc này là của **nhóm làm dự án**, không phải của người ch�
 `README.md` của thí nghiệm, dữ liệu gốc (4 CSV **và** `raw_meta.yaml`), dữ liệu đã xử lý (train, val,
 test, `label_map.json`, `processing_log.json`). Đưa lên bằng cách mở Drive, tạo thư mục, rồi kéo từng
 thư mục vào đúng chỗ.
+**Danh sách notebook phải có trên Drive** - mười hai cái, một cái cho mỗi thí nghiệm đã ghim, tất cả đều
+chấm trên cùng tập `test` (1.518 review), thời gian ước tính trên T4:
+
+| Nhóm | Notebook | Ước tính một lượt |
+| --- | --- | --- |
+| LoRA (encoder) | `phobert-base-v2/lora/exp001`, `visobert/lora/exp001` | 30 đến 90 phút |
+| Prompt 4-bit, ba mức ví dụ | `qwen3-4b-instruct-2507/prompt-cot/exp002`, `exp003`, `exp004` | 60 đến 120 phút |
+| Prompt một lượt (mốc so sánh) | `qwen3-4b-instruct-2507/prompt-one-turn/exp001` | 45 đến 70 phút |
+| Model nhỏ, ba mức ví dụ | `qwen3-0.6b/prompt-cot/exp001`, `exp002`, `exp003` | 20 đến 40 phút |
+| Đối chứng KHÔNG lượng hoá (fp16) | `qwen3-4b-instruct-2507/prompt-cot/exp005`, `exp006`, `exp007` | 120 đến 180 phút |
+
+Ba notebook **fp16** là bản đối chứng của ba mức ví dụ 4-bit (`parent` trỏ đúng lượt 4-bit tương ứng):
+cùng model, cùng prompt, cùng tập test, chỉ khác cách nạp trọng số - nên chúng trả lời câu "lượng hoá
+4-bit làm mất bao nhiêu điểm". Đây là nhóm NẶNG NHẤT (bản không lượng hoá tốn gấp ~4 lần bộ nhớ) và
+chậm nhất, nên chạy khi phiên Colab còn đủ thời gian. Ba notebook **0.6B** thì ngược lại: model nhỏ
+hơn 10 lần, cùng tokenizer với bản 4B, dùng để đo khoảng cách do quy mô - chạy nhanh nên thích hợp để
+thử trước khi vào nhóm nặng.
+
+
 
 File `.sentimentx_root` (**không bắt buộc**, nhưng nên có để máy nhận ra chắc chắn) phải tạo bằng code
 (web Drive không tạo được tên bắt đầu bằng dấu chấm). Sau khi đã mount Drive trong Colab:
@@ -264,9 +283,9 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | `DỪNG: chưa thấy thư mục nhóm trên Drive` | Colab không thấy thư mục nhóm (thiếu `.sentimentx_root`) hoặc chưa bấm **Allow** | làm theo 3 việc in ngay dưới: kiểm file đánh dấu (mục 3), Restart session rồi Run all và bấm Allow; nếu cố ý để dữ liệu trong máy ảo thì khai `SENTIMENTX_DATA_ROOT` trong `env/.env.colab` |
 | `Thiếu N file dữ liệu gốc ... nên KHÔNG tính được mã phiên bản` | gốc dữ liệu đang trỏ vào chỗ không có file gốc, thường là máy ảo (xem dòng `Gốc dữ liệu` in ngay trên) | đưa dữ liệu gốc lên Drive rồi bấm **Allow** khi Colab hỏi (mục 3). Lỗi in ra ĐÚNG tên file còn thiếu |
 | `Mã phiên bản đang dùng (...) khác mã tính từ config` | dữ liệu gốc trên Drive khác bản ở máy | dùng đúng 4 file của `cosmetics/v0.1.0`. Khác kiểu xuống dòng CRLF/LF **không** còn làm lệch mã |
-| `CUDA out of memory` | batch quá lớn cho GPU của máy ảo | giảm `batch` trong `configs/experiments/training.yaml` |
+| `CUDA out of memory` | batch quá lớn cho GPU của máy ảo, nặng nhất ở ba notebook **fp16** (bản không lượng hoá tốn gấp ~4 lần bộ nhớ: khoảng 8 GB chỉ riêng trọng số) | đường huấn luyện: giảm `batch` trong `configs/experiments/training.yaml`. Đường prompt: giảm `inference.batch_size` (của model config, hoặc khai đè trong config thí nghiệm). Nhớ: `batch_size` **nằm trong mã băm danh tính** lượt chạy (`05_predictions.md` mục 2), nên đổi nó là một lượt chạy KHÁC - ghim lại và ghi lý do, đừng chỉnh lặng lẽ |
 | `Máy KHÔNG thấy GPU (torch.cuda.is_available() = False)` | phiên Colab đang ở chế độ CPU, hoặc torch đã bị cài đè bằng bản CPU | Runtime > Change runtime type > **T4 GPU** > Save, rồi **Restart session** và Run all. Kiểm bằng `!nvidia-smi` và `import torch; torch.cuda.is_available()`: có GPU trong `nvidia-smi` mà torch vẫn `False` nghĩa là torch là bản CPU, mở phiên mới (đừng `pip install torch`) |
-| Chạy trên T4 chậm bất thường | T4 là Turing, **không** hỗ trợ bf16, mà bf16 là kiểu số mặc định của model config | Không cần làm gì: `runner._model_dtype` tự chọn fp16 khi máy không hỗ trợ bf16, và ghi kiểu đã dùng vào `run.log`/`run_meta.json` (`4-bit nf4 (tính bằng float16)`) |
+| Chạy trên T4 chậm bất thường | T4 là Turing, **không** hỗ trợ bf16, còn model config để `inference.dtype: auto` | Không cần làm gì: `auto` nghĩa là mã tự chọn, và `src/model_config.resolve_dtype` chọn fp16 khi máy không hỗ trợ bf16 (kiểu đã dùng được ghi vào `run.log`/`run_meta.json`: `4-bit nf4 (tính bằng float16)`). Nhưng nếu config khai TƯỜNG MINH `float16`/`bfloat16`/`float32` thì máy phải đáp ứng được giá trị đó - không đáp ứng là **LỖI**, không tự hạ cấp (ba notebook fp16 khai thẳng `float16`, đúng thứ T4 làm được) |
 | Vẫn `ModuleNotFoundError: No module named 'src'` | kernel còn nhớ kết luận "không có gói `src`" từ lúc máy trống | Runtime -> Restart session rồi Run all; ô bootstrap đã tự xoá bộ nhớ đệm import |
 | `MyDrive: ...` / `Shareddrives: ...` (`CHƯA thấy gốc Drive: .../Shareddrives`) in ra rồi dừng vì không thấy thư mục nhóm | (a) phiên này mount Drive của **tài khoản Google KHÁC**; (b) thư mục nhóm do **A chia sẻ** mà người nhận **chưa bấm "Add shortcut to My Drive"**; (c) thư mục nhóm nằm trong **Shared drive** chưa được chia sẻ; (d) thiếu `.sentimentx_root` và thư mục cũng không có cấu trúc gói | (a) `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản**; (b) bấm `Organize > Add shortcut` một lần rồi chạy lại (mục 3, "Cách 2"); (c) xin chia sẻ shared drive với quyền **đủ ghi**; (d) tạo file đánh dấu (mục 3). Hoặc chỉ định thẳng `SENTIMENTX_DATA_ROOT`/`SENTIMENTX_RESULTS_ROOT` trong `env/.env.colab` (mục 3, "Cách 3") |
 | `Muốn chạy lại từ đầu` | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên. Thư mục của lượt HỎNG (không có `metrics.json`) xoá được ngay |
