@@ -27,6 +27,32 @@ hoặc bỏ qua khía cạnh nhưng đoán đúng các khía cạnh còn lại.
 | Ma trận nhầm theo khía cạnh                      | `confusion`                 | bảng đếm nhãn đúng so với nhãn đoán, dùng để vẽ                          |
 | Tỉ lệ đọc được                                   | không phải chỉ số chấm điểm | tỉ lệ kết quả đọc được, kèm phân bố lí do lỗi                            |
 
+## Hai cơ sở đo
+
+Mỗi lượt chạy được chấm **hai lần trên cùng một đầu ra model**, và hai con số KHÁC NHAU:
+
+| Cơ sở   | Giữ ô nào                                                    | Mẫu số phụ thuộc | Ghi ở đâu |
+| ------- | ------------------------------------------------------------ | ---------------- | --------- |
+| `all`   | mọi ô có nhãn đúng khác `neutral` - quy ước của dự án         | chỉ nhãn đúng    | `scores`, `tables`; dòng `basis=all` của `metrics.csv` |
+| `paper` | chỉ ô mà **cả** nhãn đúng **và** nhãn đoán là `positive`/`negative` | cả nhãn đoán | `scores_paper`, `tables_paper`, `paper`; dòng `basis=paper` |
+
+- `paper` là cách **công bố** đếm (bài loại `neutral` và `OTHERS` khỏi phần đánh giá chính), nên đây
+  là cơ sở dùng để so với cột tham chiếu trong `data/reports/metrics_matrix/`.
+- Mẫu số của `paper` **phụ thuộc chất lượng model**: ô model trả lời `neutral` hoặc "không nhắc tới"
+  bị loại, nên điểm cao hơn `all` một cách máy móc. Vì thế phải đọc kèm khoá `paper` của
+  `metrics.json`:
+  - `label_filter` (`positive`, `negative`) và `codes`: bộ lọc viết theo **TÊN nhãn** rồi tra mã qua
+    `label_map.json` của phiên bản dữ liệu, nên dataset đổi cách đánh số thì bộ lọc vẫn đúng;
+  - `cells`: số ô còn lại;
+  - `dropped_not_two_sided`: số ô bị loại vì nhãn đúng hoặc nhãn **đoán** không phải hai cực đó;
+  - `dropped_unreadable`: số ô bị loại vì model trả lời không đọc được;
+  - hai con số cuối đều có bản theo khía cạnh (`..._by_aspect`).
+- `aspect_detection` **không** có trên cơ sở `paper`: mọi ô giữ lại đều "có nhắc tới", nên câu hỏi
+  đó không còn gì để đo (bài cũng không có bảng số cho nó). Danh sách chỉ số của cơ sở này khai ở
+  `evaluation.scores_paper`; bỏ khoá đó thì suy ra từ `scores` (mọi chỉ số trừ `aspect_detection`).
+- Lượt chạy cũ (trước 01/10/2026) chỉ có cơ sở `all`; hai lượt khác cơ sở này bị cột `comparable`
+  đánh dấu là không so được (xem bảng dưới).
+
 ## Quy ước bắt buộc
 
 - Ô không đọc được tính là **sai**, không được bỏ khỏi mẫu số. Bỏ đi thì tỉ lệ lỗi định dạng
@@ -59,14 +85,16 @@ của từng đơn vị vẫn nằm trong `metrics.csv` nên cách tính này kh
 
 | File                 | Nội dung                                                                      |
 | -------------------- | ----------------------------------------------------------------------------- |
-| `metrics.json`       | toàn metric, kèm `label_space`, `neutral_policy`, số ô bị loại                |
-| `metrics.csv`        | bảng dài: `aspect`, `sentiment`, `metric`, `value`, để so giữa các thí nghiệm |
+| `metrics.json`       | toàn metric, kèm `label_space`, `neutral_policy`, số ô bị loại, và CẢ HAI cơ sở đo (`scores` cho `all`, `scores_paper` + `paper` cho `paper`) |
+| `metrics.csv`        | bảng dài: `aspect`, `sentiment`, `metric`, `value`, `basis`, để so giữa các thí nghiệm        |
 | `mispredictions.csv` | chỉ các dòng đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán                    |
 | `plots/`             | biểu đồ của lượt chạy: `plots/accuracy.html`, HTML tự chứa, mở được khi không có mạng; tắt bằng `save.plots: false` |
 
 `metrics.json` gồm: `label_space`, `neutral_policy`, `not_mentioned`, `dropped_neutral` (và
-`dropped_neutral_by_aspect`), `n_reviews`, `aspects`, `scores` (mỗi bộ chấm một khối), `tables`
-(ma trận nhầm theo khía cạnh), và thông tin của lần chạy (prompt, model, cách sinh, chi phí).
+`dropped_neutral_by_aspect`), `n_reviews`, `aspects`, `scores` (mỗi bộ chấm một khối, cơ sở `all`),
+`tables` (ma trận nhầm theo khía cạnh), `scores_order_paper`, `scores_paper`, `tables_paper` và
+`paper` (cơ sở đo của công bố, xem mục "Hai cơ sở đo"), và thông tin của lần chạy (prompt, model,
+cách sinh, chi phí).
 Khoá `rescored` xuất hiện khi file được chấm lại từ `predictions.csv` thay vì chạy lại model - công cụ
 chấm lại (`run_rescore_eval.py`) đã bỏ 25/09/2026, nên khoá này chỉ còn trong các file cũ.
 
@@ -79,6 +107,9 @@ vẽ từ `metrics.json` và `predictions.csv`, không phải do phần chấm �
 `data/reports/metrics_matrix/accuracy_by_aspect.csv` có dòng là khía cạnh, cột là từng thí nghiệm
 và một cột `reference` chứa số của công bố.
 `data/reports/metrics_matrix/prf_by_aspect_sentiment.csv` có cùng định dạng với bảng P R F1 của công bố.
+Số của **lượt chạy** trong hai bảng này lấy ở **cơ sở đo `paper`** - đúng cách công bố đo, nên cột
+`reference` mới có nghĩa; cơ sở `all` vẫn nằm trong `metrics.json`/`metrics.csv` của từng lượt. Trang
+HTML của nhóm này cũng in ghi chú đó ở đầu trang (`src/reporting/reports.py::COMPARISON_NOTE`).
 
 ### Hai cột nói lượt chạy có DÙNG ĐƯỢC trong bảng so hay không
 
@@ -87,7 +118,7 @@ và một cột `reference` chứa số của công bố.
 | Cột | Nghĩa | Vì sao cần |
 | --- | --- | --- |
 | `valid` | commit của lượt chạy có nằm trên nhánh đã ghim (`origin/<nhánh>` trong `run_meta.json`) không: `yes` / `no` / `chưa rõ` | lượt chấm bằng commit CHƯA merge vẫn ra số, nhưng không ai tái lập được từ bản code đã công bố |
-| `comparable` | cơ sở đo (`data.build`, `label_space`, `neutral_policy`, `not_mentioned`, `split`, bộ chấm) có khớp lượt CHUẨN không - lượt chuẩn là lượt `FINISHED` sớm nhất trong bảng | hai cột cạnh nhau mà khác cơ sở đo thì lệch vì ĐO KHÁC, không phải vì model khác |
+| `comparable` | cơ sở đo (`data.build`, `label_space`, `neutral_policy`, `not_mentioned`, `split`, bộ chấm, **bộ chấm + nhãn lọc của cơ sở `paper`**) có khớp lượt CHUẨN không - lượt chuẩn là lượt `FINISHED` sớm nhất trong bảng | hai cột cạnh nhau mà khác cơ sở đo thì lệch vì ĐO KHÁC, không phải vì model khác. Lượt cũ chưa có cơ sở `paper` bị đánh dấu `no` khi đứng cạnh lượt mới |
 | `invalid_reason` | lý do gộp của cả hai cột trên, rỗng khi cả hai đều `yes` | người đọc biết ngay vì sao, không phải mở `run.log` dò |
 
 `chưa rõ` là giá trị riêng, không gộp vào `no`: máy không có git, thiếu ref, hoặc `run_meta.json` không

@@ -23,6 +23,15 @@ scores:
   - aggregate
   - confusion
 
+# Chỉ số chấm trên CƠ SỞ ĐO CỦA CÔNG BỐ (khoá `scores_paper` trong `metrics.json`): chỉ giữ ô mà
+# CẢ nhãn đúng VÀ nhãn đoán là positive/negative, đúng cách công bố đếm. `aspect_detection` KHÔNG
+# có mặt vì trên cơ sở này mọi ô còn lại đều "có nhắc tới", nên nó không còn gì để đo (bài cũng
+# không có bảng số cho nó). Bỏ hẳn khoá này thì suy ra từ `scores` (mọi chỉ số trừ `aspect_detection`).
+scores_paper:
+  - accuracy
+  - prf
+  - aggregate
+
 # Chiều phân rã bảng chỉ số.
 group_by:
   - aspect

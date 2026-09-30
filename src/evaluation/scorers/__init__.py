@@ -38,13 +38,24 @@ SCORERS = {
 }
 
 # Cột của file kết quả. Bảng dài để nối kết quả nhiều thí nghiệm vào cùng một bảng.
-CSV_COLUMNS = ["aspect", "sentiment", "metric", "value"]
+# `basis` là CƠ SỞ ĐO của dòng đó (`all` hoặc `paper`): cùng một ô được đo hai lần, nên thiếu cột
+# này thì hai con số khác nhau của cùng một ô nằm lẫn trong một bảng mà không ai thấy.
+CSV_COLUMNS = ["aspect", "sentiment", "metric", "value", "basis"]
 MISPREDICTION_COLUMNS = ["review", "aspect", "gold", "pred"]
+
+# Khoá của `metrics.json` nói về cơ sở đo thứ hai (`paper`). Ghi kèm hai con số đếm ô bị loại, vì
+# trên cơ sở này mẫu số phụ thuộc chất lượng model - đọc số mà không đọc hai con số đó là đoán.
+PAPER_META_KEYS = ("variant", "label_filter", "codes", "cells", "dropped_not_two_sided",
+                   "dropped_not_two_sided_by_aspect", "dropped_unreadable",
+                   "dropped_unreadable_by_aspect")
 
 # Xuất lại những gì chỗ gọi cần, để không phải với vào `base`.
 Samples = base.Samples
 ScorerError = base.ScorerError
 UNREADABLE = base.UNREADABLE
+ALL = base.ALL
+PAPER = base.PAPER
+BASES = base.BASES
 
 
 def available():
@@ -122,18 +133,37 @@ def table(rows, metrics=None):
             for key in order], columns
 
 
-def write(out_dir, samples, names=None, save_confusion=True, save_plots=True, extra=None):
+def paper_names(names=None):
+    """Các chỉ số chấm trên CƠ SỞ ĐO CỦA CÔNG BỐ (`paper`).
+
+    Mặc định: mọi chỉ số đang bật TRỪ `aspect_detection` - trên cơ sở này mọi ô còn lại đều "có
+    nhắc tới", nên câu hỏi "có nhận ra khía cạnh hay không" không còn gì để đo (bài cũng không có
+    bảng số cho nó). Muốn chấm thêm chỉ số khác thì khai `evaluation.scores_paper` trong config.
+    """
+    names = list(names) if names else available()
+    return [name for name in names if name != aspect_detection.NAME]
+
+
+def write(out_dir, samples, names=None, paper=None, save_confusion=True, save_plots=True,
+          extra=None):
     """Ghi các file chỉ số vào một thư mục kết quả. Trả về {tên file: đường dẫn}.
 
     `extra` là thông tin của lần chạy (prompt, split, cách sinh...). Số liệu về phép chiếu nhãn
     (`label_space`, `neutral_policy`, số ô bị loại) do `samples` quyết định và KHÔNG bị `extra`
     đè lên - đó là sự thật của tập đánh giá, không phải lựa chọn của người gọi hàm.
 
+    HAI CƠ SỞ ĐO trong CÙNG một lượt chạy: `scores`/`tables` là cơ sở `all` (cách đo của dự án),
+    `scores_paper`/`tables_paper` là cơ sở `paper` (cách đo của công bố, xem `Samples.paper()`).
+    `metrics.csv` có cột `basis` để hai cơ sở không lẫn vào nhau. `paper` là danh sách chỉ số của
+    cơ sở thứ hai; `None` nghĩa là suy ra từ `names` (xem `paper_names`).
+
     `save_confusion` và `save_plots` là hai khoá trong `configs/experiments/evaluation.yaml`
     (`save.confusion`, `save.plots`); nơi gọi đọc config và truyền vào, hàm này không tự đọc.
     """
     out_dir = Path(out_dir)
     result = run_all(samples, names=names)
+    samples_paper = samples.paper()
+    result_paper = run_all(samples_paper, names=check(paper) if paper else paper_names(result["names"]))
 
     payload = dict(extra or {})
     payload.update(samples.meta)
@@ -141,15 +171,20 @@ def write(out_dir, samples, names=None, save_confusion=True, save_plots=True, ex
     payload["aspects"] = result["aspects"]
     payload["scores"] = result["scores"]
     payload["tables"] = result["tables"] if save_confusion else {}
+    payload["scores_order_paper"] = result_paper["names"]
+    payload["scores_paper"] = result_paper["scores"]
+    payload["tables_paper"] = result_paper["tables"] if save_confusion else {}
+    payload["paper"] = {key: samples_paper.meta[key] for key in PAPER_META_KEYS}
 
     written = {}
     json_name = paths.pattern("metrics_json")
     written[json_name] = utils.write_json(payload, out_dir / json_name)
 
     csv_name = paths.pattern("metrics_csv")
+    rows = [(ALL, item) for item in result["rows"]] + [(PAPER, item) for item in result_paper["rows"]]
     written[csv_name] = utils.write_csv(
-        [[item["aspect"], item["sentiment"], item["metric"], item["value"]]
-         for item in result["rows"]],
+        [[item["aspect"], item["sentiment"], item["metric"], item["value"], basis]
+         for basis, item in rows],
         CSV_COLUMNS, out_dir / csv_name)
 
     mis_name = paths.pattern("mispredictions")
@@ -223,7 +258,11 @@ def _plot_page(payload, summary, aspects, confusion):
         "</style></head><body>",
         "<h1>{}</h1>".format(html.escape(title)),
         "<p>Sinh từ <code>metrics.json</code> của lượt chạy, không tính lại. "
-        "Số liệu gốc nằm ở <code>metrics.csv</code>.</p>",
+        "Số liệu gốc nằm ở <code>metrics.csv</code> - cột <code>basis</code> nói dòng nào thuộc "
+        "cơ sở đo nào.</p>",
+        "<p>Biểu đồ vẽ CƠ SỞ ĐO <code>{}</code> (cách đo của dự án). Cơ sở <code>{}</code> (cách "
+        "công bố đo: chỉ ô mà cả nhãn đúng và nhãn đoán là positive/negative) nằm ở khoá "
+        "<code>scores_paper</code> trong <code>metrics.json</code>.</p>".format(base.ALL, base.PAPER),
     ]
     if summary or aspects:
         lines.append("<h2>Độ chính xác (%)</h2><table>")

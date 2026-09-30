@@ -816,6 +816,10 @@ def finish(plan_data, rows, cost, model_info, info, session, log):
     if samples.meta["dropped_neutral"]:
         log.step("loại {} ô neutral theo neutral_policy={}".format(
             samples.meta["dropped_neutral"], config_data["neutral_policy"]))
+    paper = samples.paper()
+    log.step("cơ sở đo paper: {} ô giữ lại, loại {} ô không phải hai chiều, {} ô không đọc được"
+             .format(paper.meta["cells"], paper.meta["dropped_not_two_sided"],
+                     paper.meta["dropped_unreadable"]))
 
     print("\nĐọc kết quả:")
     for key, value in read.items():
@@ -870,12 +874,14 @@ def write_all(plan_data, rows, samples, result, extra, session, log):
     """
     out_dir = plan_data["out_dir"]
     save = dict(plan_data["config"].get("save") or {})
+    paper = list(plan_data["config"].get("scores_paper") or [])
     shown = {}
     if save.get("predictions", True):
         shown[paths.pattern("predictions")] = runner.write(rows, plan_data["columns"],
                                                            out_dir)
         log.step("ghi {} dòng dự đoán".format(len(rows)))
     shown.update(scorers.write(out_dir, samples, names=result["names"],
+                               paper=paper or None,
                                save_confusion=bool(save.get("confusion", True)),
                                save_plots=bool(save.get("plots", True)), extra=extra))
     log.step("đã ghi: {}".format(", ".join(sorted(shown))))

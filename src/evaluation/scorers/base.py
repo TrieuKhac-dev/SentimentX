@@ -19,17 +19,31 @@ QUY ƯỚC BẮT BUỘC - xem docs/04_experiments/metrics.md
        loại được ghi vào `metrics.json`.
     4. MỌI PHÉP ĐẾM NẰM Ở LỚP `Samples`. Scorer chỉ định dạng lại con số, không đếm lại - nhờ
        vậy hai scorer không thể đưa ra hai con số khác nhau cho cùng một đại lượng.
+    5. MỘT LƯỢT CHẠY ĐƯỢC ĐO TRÊN HAI CƠ SỞ (`Samples.basis()`): `all` là cách đo của dự án,
+       `paper` là cách đo của công bố (chỉ giữ ô mà cả nhãn đúng và nhãn đoán là positive/negative).
+       Hai cơ sở cho hai con số KHÁC NHAU trên cùng một đầu ra model, nên bảng đọc số phải nói rõ
+       đang ở cơ sở nào và phải đọc kèm hai con số đếm ô bị loại ở `Samples.paper().meta`.
 
 VÌ SAO LÀ REGISTRY
 Thêm một cách chấm mới (ví dụ chỉ số theo công bố khác) là thêm một module và một dòng trong
 `SCORERS`; không phải sửa scorer đang có.
 """
 
-from src.labels import NOT_MENTIONED, project as project_labels
+from src.labels import NOT_MENTIONED, PAPER_LABELS, keep_two_sided, named_codes
+from src.labels import base as labels_base
+from src.labels import project as project_labels
 
 # Nhãn cho ô mà model trả lời KHÔNG đọc được. Chỉ dùng khi in bảng (ma trận nhầm), không phải
 # một mã nhãn của dataset - nhờ vậy ma trận nhầm vẫn đếm đủ mọi ô.
 UNREADABLE = "không đọc được"
+
+# HAI CƠ SỞ ĐO của cùng một lượt chạy (xem docs/04_experiments/metrics.md):
+#   all    cách đo của dự án: mọi ô có nhãn đúng khác neutral, ô không đọc được tính là SAI
+#   paper  cách đo của CÔNG BỐ: chỉ giữ ô mà cả nhãn đúng và nhãn đoán là positive/negative
+# Một lượt chạy được đo trên CẢ HAI, nên mọi bảng đọc số phải nói rõ đang ở cơ sở nào.
+ALL = "all"
+PAPER = "paper"
+BASES = (ALL, PAPER)
 
 TASK_KEYS = ("label_space", "neutral_policy", "not_mentioned")
 
@@ -225,6 +239,63 @@ class Samples:
         return self._memo("kept:" + aspect,
                           lambda: kept_indexes(self.raw_gold.get(aspect, []),
                                                self.cells[aspect][0]))
+
+    # --- hai cơ sở đo ---
+
+    def basis(self):
+        """Cơ sở đo của chính bộ dữ liệu này: `all` (cách của dự án) hay `paper` (cách công bố)."""
+        return self.meta.get("variant") or ALL
+
+    def codes_named(self, names):
+        """Mã nhãn ứng với các TÊN nhãn, tra qua bảng tên của lượt chạy (`label_map.json`)."""
+        if not self.labels:
+            raise ScorerError(
+                "Thiếu bảng tên nhãn (`label_map.json`) nên không tra được tên {} thành mã. "
+                "Bảng tên phải được truyền vào `Samples.build(..., labels=...)`.".format(
+                    ", ".join(names)))
+        try:
+            return named_codes(self.labels, names)
+        except labels_base.LabelError as exc:
+            raise ScorerError("Không tra được mã nhãn theo tên: {}".format(exc))
+
+    def restrict(self, codes, variant, label_filter=()):
+        """Bản sao chỉ giữ ô mà CẢ nhãn đúng VÀ nhãn đoán thuộc `codes`.
+
+        Số ô bị loại và số ô không đọc được ghi vào `meta` của bản sao (tổng và theo khía cạnh):
+        đây là hai con số duy nhất nói được mẫu số nhỏ đi vì LÝ DO GÌ, nên bảng so phải đọc kèm.
+        """
+        cells, dropped, unreadable = {}, {}, {}
+        total_dropped = total_unreadable = 0
+        for aspect in self.aspects:
+            gold, pred = self.cells[aspect]
+            kept_gold, kept_pred, item_dropped, item_unreadable = keep_two_sided(gold, pred, codes)
+            cells[aspect] = (kept_gold, kept_pred)
+            dropped[aspect] = item_dropped
+            unreadable[aspect] = item_unreadable
+            total_dropped += item_dropped
+            total_unreadable += item_unreadable
+        meta = dict(self.meta)
+        meta.update({
+            "variant": variant,
+            "label_filter": list(label_filter),
+            "codes": sorted(int(code) for code in codes),
+            "cells": sum(len(cells[aspect][0]) for aspect in self.aspects),
+            "dropped_not_two_sided": total_dropped,
+            "dropped_not_two_sided_by_aspect": dict(dropped),
+            "dropped_unreadable": total_unreadable,
+            "dropped_unreadable_by_aspect": dict(unreadable),
+        })
+        return Samples(self.aspects, cells, raw_gold=self.raw_gold, meta=meta,
+                       labels=self.labels, sample_ids=self.sample_ids,
+                       n_reviews=self.n_reviews, dropped=self.dropped)
+
+    def paper(self):
+        """Biến thể đo theo CÔNG BỐ: chỉ giữ ô mà cả nhãn đúng và nhãn đoán là positive/negative.
+
+        Mẫu số vì vậy PHỤ THUỘC CHẤT LƯỢNG MODEL (ô model trả lời neutral hoặc "không nhắc tới"
+        không nằm trong mẫu số) - đúng như công bố đếm, và chính vì thế phải đọc kèm số ô bị loại.
+        """
+        return self.restrict(self.codes_named(PAPER_LABELS), PAPER, label_filter=PAPER_LABELS)
 
     # --- các phép đếm ---
 

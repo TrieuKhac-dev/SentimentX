@@ -278,6 +278,82 @@ class TestWrite(unittest.TestCase):
             self.assertEqual(payload["tables"], {})
 
 
+class TestPaperBasis(unittest.TestCase):
+    """CƠ SỞ ĐO `paper` - cách công bố đếm: chỉ giữ ô mà CẢ nhãn đúng VÀ nhãn đoán là hai cực.
+
+    Đây là cách lọc HAI CHIỀU duy nhất của dự án: mẫu số nhỏ đi theo cả NHÃN ĐOÁN, nên hai con số
+    đếm ô bị loại phải luôn đi kèm - thiếu chúng thì một model trả lời hỏng định dạng trông như
+    model đoán giỏi hơn, và mẫu số nhỏ hơn của họ không còn giải thích được.
+    """
+
+    GOLD = [{"texture": 1}, {"texture": 2}, {"texture": 0}]
+    PRED = [{"texture": 1}, {"texture": 1}, {"texture": 1}]
+
+    def test_chi_giu_o_hai_cuc(self):
+        samples = build(self.GOLD, self.PRED, aspects=["texture"])
+        paper = samples.paper()
+        self.assertEqual(samples.basis(), "all")
+        self.assertEqual(paper.basis(), "paper")
+        self.assertEqual(paper.cells["texture"], ([1, 2], [1, 1]))
+        self.assertEqual(paper.meta["codes"], [1, 2])
+        self.assertEqual(paper.meta["label_filter"], ["positive", "negative"])
+
+    def test_hai_co_so_cho_hai_con_so_khac_nhau(self):
+        samples = build(self.GOLD, self.PRED, aspects=["texture"])
+        all_basis = scorers.run_all(samples, names=["accuracy"])["scores"]["accuracy"]
+        paper_basis = scorers.run_all(samples.paper(), names=["accuracy"])["scores"]["accuracy"]
+        self.assertEqual(all_basis["micro"], 33.33)          # 1 ô đúng trên 3 ô
+        self.assertEqual(paper_basis["micro"], 50.0)         # 1 ô đúng trên 2 ô giữ lại
+
+    def test_dem_rieng_o_khong_doc_duoc(self):
+        paper = build([{"texture": 1}, {"texture": 1}], [{"texture": 1}, None],
+                      aspects=["texture"]).paper()
+        self.assertEqual(paper.meta["cells"], 1)
+        self.assertEqual(paper.meta["dropped_not_two_sided"], 0)
+        self.assertEqual(paper.meta["dropped_unreadable"], 1)
+
+    def test_o_doan_am_tren_khia_canh_khong_nhac_khong_con_la_duong_tinh_gia(self):
+        gold = [{"texture": 2}, {"texture": 0}]
+        pred = [{"texture": 2}, {"texture": 2}]
+        samples = build(gold, pred, aspects=["texture"])
+        all_prf = scorers.run_all(samples, names=["prf"])["scores"]["prf"]
+        paper_prf = scorers.run_all(samples.paper(), names=["prf"])["scores"]["prf"]
+        self.assertEqual(all_prf["by_aspect"]["texture"]["negative"]["precision"], 0.5)
+        self.assertEqual(paper_prf["by_aspect"]["texture"]["negative"]["precision"], 1.0)
+
+    def test_khong_gian_full_van_loai_neutral_va_khong_nhac(self):
+        task = {"label_space": "full", "neutral_policy": "keep", "not_mentioned": "as_class"}
+        gold = [{"texture": 1}, {"texture": 3}, {"texture": 0}]
+        pred = [{"texture": 1}, {"texture": 3}, {"texture": 2}]
+        paper = build(gold, pred, aspects=["texture"], task=task).paper()
+        self.assertEqual(paper.cells["texture"], ([1], [1]))
+        self.assertEqual(paper.meta["dropped_not_two_sided"], 2)
+
+    def test_thieu_bang_ten_nhan_thi_bao_loi(self):
+        """Bộ lọc viết theo TÊN nhãn, nên thiếu bảng tên là LỖI - không được lọc im lặng."""
+        samples = build([{"texture": 1}], [{"texture": 1}], aspects=["texture"])
+        samples.labels = {}
+        with self.assertRaises(scorers.ScorerError):
+            samples.paper()
+        samples.labels = {0: "không nhắc", 1: "tích cực", 2: "tiêu cực"}
+        with self.assertRaises(scorers.ScorerError):
+            samples.paper()
+
+    def test_write_ghi_ca_hai_co_so(self):
+        samples = build(self.GOLD, self.PRED, aspects=["texture"])
+        with tempfile.TemporaryDirectory() as folder:
+            scorers.write(folder, samples, paper=["accuracy"])
+            payload = json.loads((Path(folder) / "metrics.json").read_text(encoding="utf-8"))
+            rows = utils.read_csv(Path(folder) / "metrics.csv")
+        self.assertEqual(payload["paper"]["cells"], 2)
+        self.assertEqual(payload["paper"]["dropped_not_two_sided"], 1)
+        self.assertEqual(payload["paper"]["codes"], [1, 2])
+        self.assertEqual(sorted(payload["scores_paper"]), ["accuracy"])
+        # Cơ sở `paper` KHÔNG có `aspect_detection`: mọi ô giữ lại đều "có nhắc tới".
+        self.assertNotIn("aspect_detection", payload["scores_paper"])
+        self.assertEqual({row["basis"] for _i, row in rows.iterrows()}, {"all", "paper"})
+
+
 class TestMetricsContract(unittest.TestCase):
     """Các cam kết trong docs/04_experiments/metrics.md, kiểm từng cái một."""
 

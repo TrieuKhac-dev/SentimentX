@@ -89,3 +89,64 @@ def split_mentioned(gold, pred):
     polarity_gold, polarity_pred, _dropped = keep_when(
         gold, pred, lambda code: code != NOT_MENTIONED)
     return (detection_gold, detection_pred), (polarity_gold, polarity_pred)
+
+
+# ---
+# Bộ lọc của CÔNG BỐ - biến thể đo `paper`
+# ---
+
+# Hai nhãn mà công bố giữ lại khi đo (bài loại neutral và OTHERS khỏi phần đánh giá chính). Ghi
+# bằng TÊN nhãn chứ không bằng mã số: bảng nhãn của dataset có thể đánh số khác, còn tên thì không.
+PAPER_LABELS = ("positive", "negative")
+
+
+def named_codes(id_to_label, names):
+    """Mã nhãn ứng với các TÊN nhãn, tra trong bảng tên của dataset (`label_map.json`).
+
+    Bảng tên đi kèm mỗi phiên bản dữ liệu nên tra qua nó là cách duy nhất còn đúng khi dataset đổi
+    cách đánh số. Thiếu tên là LỖI chứ không bỏ qua: thiếu tên thì bộ lọc không lọc được gì và
+    người đọc số không có cách nào biết mình đang đọc số của một đường đo khác.
+    """
+    wanted = {str(name).strip().lower() for name in names}
+    found, have = set(), set()
+    for code, label in (id_to_label or {}).items():
+        key = str(label).strip().lower()
+        if key not in wanted:
+            continue
+        try:
+            found.add(int(code))
+        except (TypeError, ValueError):
+            continue
+        have.add(key)
+    missing = sorted(wanted - have)
+    if missing:
+        raise LabelError(
+            "Bảng nhãn của dataset không có tên {} (đang có: {}). Bộ lọc hai chiều viết theo TÊN "
+            "nhãn nên thiếu tên là không đo được.".format(
+                ", ".join(missing),
+                ", ".join(sorted(str(value) for value in (id_to_label or {}).values()))))
+    return found
+
+
+def keep_two_sided(gold, pred, codes):
+    """Giữ ô mà CẢ nhãn đúng VÀ nhãn đoán thuộc `codes` - cách lọc HAI CHIỀU của công bố.
+
+    Trả về `(gold, pred, bị loại, không đọc được)`:
+        bị loại         nhãn đúng hoặc nhãn đoán nằm ngoài `codes` (kể cả "không nhắc tới")
+        không đọc được  ô mà model trả lời không đọc được (`pred` là None)
+
+    Hai con số đếm RIÊNG vì đây là cách lọc duy nhất bỏ ô theo NHÃN ĐOÁN: không đếm thì tỉ lệ lỗi
+    định dạng trở thành một cách nâng điểm im lặng.
+    """
+    wanted = set(codes)
+    kept_gold, kept_pred, dropped, unreadable = [], [], 0, 0
+    for gold_code, pred_code in zip(gold, pred):
+        if pred_code is None:
+            unreadable += 1
+            continue
+        if gold_code not in wanted or pred_code not in wanted:
+            dropped += 1
+            continue
+        kept_gold.append(gold_code)
+        kept_pred.append(pred_code)
+    return kept_gold, kept_pred, dropped, unreadable
