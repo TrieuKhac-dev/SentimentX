@@ -16,7 +16,7 @@ notes: "CoT 0 ví dụ (zero-shot): đúng mức COT+0-shot của công bố, ch
 
 data:
   dataset: cosmetics
-  version: v0.1.0
+  version: v0.2.0
 
   # Chỉ chấm (model sinh không học): vai `eval` là bắt buộc, `train`/`val` chỉ cần khi huấn luyện.
   roles: {eval: test}

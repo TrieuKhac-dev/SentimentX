@@ -17,7 +17,7 @@ notes: "LoRA cơ bản trên ViSoBERT, chấm trên test để so trực tiếp 
 data:
   # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
   dataset: cosmetics
-  version: v0.1.0
+  version: v0.2.0
 
   # Model encoder HỌC trước rồi mới trả lời, nên cần đủ ba vai:
   #   train - học;  val - chọn `model/best`;  eval - con số cuối cùng (split test của công bố).

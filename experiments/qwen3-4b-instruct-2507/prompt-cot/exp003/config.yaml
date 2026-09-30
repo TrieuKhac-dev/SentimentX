@@ -13,7 +13,7 @@ notes: "CoT 1 ví dụ: đúng mức COT+1-shot của công bố, chấm trên t
 
 data:
   dataset: cosmetics
-  version: v0.1.0
+  version: v0.2.0
   roles: {eval: test}
 
 # Prompt và bộ ví dụ đều ở THƯ VIỆN DÙNG CHUNG; đường dẫn tính từ thư mục thí nghiệm trước (bốn

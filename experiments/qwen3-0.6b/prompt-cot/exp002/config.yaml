@@ -21,7 +21,7 @@ notes: "CoT 1 vi du tren Qwen3-0.6B, cham tren test - muc COT+1-shot cua cong bo
 data:
   # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
   dataset: cosmetics
-  version: v0.1.0
+  version: v0.2.0
 
   # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
   # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.

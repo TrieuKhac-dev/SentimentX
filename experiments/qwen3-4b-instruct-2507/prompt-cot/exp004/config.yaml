@@ -13,7 +13,7 @@ notes: "CoT 5 ví dụ: đúng mức COT+5-shot của công bố, chấm trên t
 
 data:
   dataset: cosmetics
-  version: v0.1.0
+  version: v0.2.0
   roles: {eval: test}
 
 # Prompt 5 ví dụ dài hơn hẳn: số đo ở `docs/04_experiments/02_model_input.md` cho thấy
