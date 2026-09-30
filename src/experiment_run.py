@@ -678,6 +678,27 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     }
 
 
+class _EndSessionOnFailure:
+    """Ngắt phiên Colab khi lượt chạy HỎNG - và chỉ khi đó.
+
+    Đặt TRƯỚC `runlog.start(...)` trong cùng một câu `with`, nên khi có lỗi thì nhật ký đóng TRƯỚC
+    (run.log, errors.json, run_meta.json đã ghi xong - đó chính là thứ người đọc cần để biết vì sao
+    hỏng) rồi mới ngắt phiên. Ngắt trước khi đóng log là làm mất chính dấu vết cần giữ.
+
+    KHÔNG ngắt khi người dùng bấm Stop (`KeyboardInterrupt`) hay khi chương trình chủ động dừng
+    (`SystemExit`): cả hai là `BaseException` chứ không phải `Exception`, và lúc đó người dùng đang
+    ngồi trước máy - giữ phiên lại cho họ.
+    """
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, kind, exc, traceback):
+        if isinstance(exc, Exception):
+            print(runtime.end_session())
+        return False
+
+
 def run(plan_data, log=None):
     """Nạp model, sinh, chấm điểm, ghi kết quả, ghi nhận. CẦN GPU. TRẢ VỀ kết quả (dict).
 
@@ -708,7 +729,7 @@ def run(plan_data, log=None):
     # nhận vẫn báo "thiếu token" - một lỗi im lặng rất khó đoán.
     runtime.load_env()
 
-    with runlog.start(out_dir, mode=mode, info=info) as active:
+    with _EndSessionOnFailure(), runlog.start(out_dir, mode=mode, info=info) as active:
         log = log or active
         # Bản ghi lần chạy: ghi NGAY từ đầu, để lần chạy hỏng vẫn còn dấu vết (đang ở attempt nào,
         # với code và config nào). Chốt lại lúc đóng log; việc chốt chạy TRƯỚC phần ghi nhận nên

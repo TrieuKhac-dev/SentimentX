@@ -18,7 +18,9 @@ Chạy: python -m unittest discover -s tests
 import io
 import os
 import shutil
+import sys
 import tempfile
+import types
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -498,6 +500,81 @@ class QuantAndDtypeFromConfigTest(unittest.TestCase):
         self.assertEqual(experiment_run.dtype_of({"inference": {"dtype": " Bfloat16 "}}), "bfloat16")
         self.assertEqual(experiment_run.dtype_of({"inference": {"dtype": None}}), "auto")
         self.assertEqual(experiment_run.dtype_of({}), "auto")
+
+
+class FailureEndsSessionTest(NoRootOverrideMixin, unittest.TestCase):
+    """Lượt chạy HỎNG thì ngắt phiên Colab; người dùng bấm Stop thì KHÔNG.
+
+    VÌ SAO KHOÁ HAI CA NÀY: một lượt chạy tốn hàng chục phút GPU. Hỏng giữa chừng mà để phiên sống
+    tiếp là mất hạn mức vô ích - nhưng ngắt cả khi người dùng cố ý dừng thì lại cướp phiên họ đang
+    cần. Cùng một luật, hai mặt.
+
+    Lượt chạy ở đây HỎNG THẬT (không giả lập bước sinh): chỗ hỏng được đặt đúng ranh giới GPU -
+    `runner.load` - nên không cần GPU mà vẫn đi qua đủ đường: mở nhật ký, ghi bản ghi, ghi lỗi.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.merged = experiments.load_shared(qwen.CONFIG_NAME)
+        names = prompts.available()
+        if not names:
+            raise unittest.SkipTest("chưa có prompt nào trong configs/prompts/")
+        cls.prompt_name = names[0]
+        cls.merged["config"]["system_prompt"] = "absa_cot"
+
+    def _plan(self, **kwargs):
+        options = {"model_id": "model", "method": "method", "exp_id": "exp001"}
+        options.update(kwargs)
+        try:
+            return experiment_run.plan(self.merged, split="val", limit=1,
+                                       prompt=self.prompt_name, **options)
+        except (FileNotFoundError, dataset.DatasetError) as exc:
+            self.skipTest("chưa có dữ liệu đã xử lý trên máy này: {}".format(exc))
+
+    def fake_colab(self):
+        """`google.colab` GIẢ, y như Colab thật xuất hiện với Python; trả về các lần gọi `unassign`."""
+        calls = []
+
+        def unassign():
+            calls.append("unassign")
+
+        colab_runtime = types.ModuleType("google.colab.runtime")
+        colab_runtime.unassign = unassign
+        package = types.ModuleType("google.colab")
+        package.runtime = colab_runtime
+        patcher = mock.patch.dict(sys.modules, {"google.colab": package,
+                                                "google.colab.runtime": colab_runtime})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return calls
+
+    def test_luot_chay_hong_thi_ngat_phien(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.dict(os.environ, {paths.ENV_RESULTS_ROOT: tmp}):
+                plan = self._plan()
+                calls = self.fake_colab()
+                with mock.patch.object(experiment_run.runner, "load",
+                                       side_effect=RuntimeError("không nạp được model")):
+                    with redirect_stdout(io.StringIO()):
+                        with self.assertRaises(experiment_run.RunError):
+                            experiment_run.run(plan)
+                # Dấu vết phải còn NGUYÊN: ngắt phiên không được làm mất thứ cần để biết vì sao hỏng.
+                self.assertTrue((plan["out_dir"] / paths.pattern("run_log")).is_file())
+                self.assertTrue((plan["out_dir"] / paths.pattern("errors")).is_file())
+            self.assertEqual(calls, ["unassign"])
+
+    def test_nguoi_dung_bam_stop_thi_khong_ngat(self):
+        """`KeyboardInterrupt` là người đang ngồi trước máy: giữ phiên lại cho họ."""
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.dict(os.environ, {paths.ENV_RESULTS_ROOT: tmp}):
+                plan = self._plan()
+                calls = self.fake_colab()
+                with mock.patch.object(experiment_run.runner, "load",
+                                       side_effect=KeyboardInterrupt()):
+                    with redirect_stdout(io.StringIO()):
+                        with self.assertRaises(KeyboardInterrupt):
+                            experiment_run.run(plan)
+            self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":
