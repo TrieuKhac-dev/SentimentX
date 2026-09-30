@@ -33,6 +33,16 @@ class TestDefaultPaths(unittest.TestCase):
     def test_root_contains_paths_config(self):
         self.assertTrue((paths.root() / "configs" / "paths.yaml").is_file())
 
+    def test_root_is_the_repo_root_at_the_right_depth(self):
+        """`ROOT_DIR` suy từ `__file__` (nay `parents[2]`), nên ĐỔI ĐỘ SÂY của `paths.py` là gốc repo
+        sai LẶNG LẼ - không có gì báo, chỉ mọi đường dẫn lệch đi. Khoá lại bằng HAI dấu hiệu: file cấu
+        hình đường dẫn, và gói `src` nằm ngay dưới gốc.
+        """
+        self.assertEqual(paths.ROOT_DIR, paths.root(), "ROOT_DIR và root() phải là một")
+        self.assertTrue((paths.root() / "configs" / "paths.yaml").is_file())
+        self.assertTrue((paths.root() / "src" / "__init__.py").is_file())
+        self.assertEqual(paths.ROOT_DIR.name, "SentimentX")
+
     def test_data_group(self):
         root = paths.root()
         self.assertEqual(paths.data_root(), root / "data")

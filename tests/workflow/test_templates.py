@@ -370,6 +370,23 @@ class TestExperimentNotebooks(unittest.TestCase):
         with open(path, encoding="utf-8") as handle:
             return json.load(handle)
 
+    def test_moi_notebook_co_dung_mot_o_chay_mang_dau(self):
+        """ĐÚNG MỘT ô mang `RUN_MARKER`, và nó là ô gọi thí nghiệm.
+
+        `scripts/run_notebook.py --preflight-only` tìm ô cần dừng bằng dấu này: hai ô mang dấu thì nó
+        dừng quá sớm (chạy thiếu), không ô nào mang dấu là nó dừng NGAY (không chạy gì) - và cả hai
+        đều là lỗi im lặng nếu không có phép kiểm này.
+        """
+        for path in self.every_experiment_notebook():
+            with self.subTest(notebook=path.parent.name):
+                data = self.read(path)
+                found = [cell for cell in data["cells"]
+                         if cell.get("cell_type") == "code"
+                         and notebooks.RUN_MARKER in notebooks.source_of(cell)]
+                self.assertEqual(len(found), 1,
+                                 "phải có ĐÚNG MỘT ô mang dấu ô chạy trong {}".format(path))
+                self.assertIn("experiment_run.run(", notebooks.source_of(found[0]))
+
     def test_moi_notebook_ghim_dung_thi_nghiem_cua_no(self):
         for path in self.every_experiment_notebook():
             experiment = path.parent.relative_to(paths.root() / "experiments").as_posix()
