@@ -59,6 +59,14 @@ Cột `class` cho biết gói này mang file đó vì lý do gì:
 | `kept` | **không** có trong gói: bản bạn đang giữ vẫn đúng, không phải làm gì |
 | `deleted` | **hãy XOÁ** khỏi thư mục Drive của bạn - bản cũ không còn dùng nữa |
 
+**Áp gói theo THỨ TỰ.** Cột `depends_on` cho biết gói này phải giải nén **sau** gói nào (gói `001` để
+trống vì nó là gói gốc). Gói sau giả định bạn đã có gói trước - bỏ qua một gói thì thiếu file, mà
+không có gì báo cho bạn biết ngay lúc giải nén.
+
+Nếu thiếu file thì **ô kiểm trước trong notebook sẽ báo**: nó liệt kê đường dẫn còn thiếu trong danh
+sách việc phải sửa, trước khi nạp model. Đó là lúc nên giải nén lại gói còn thiếu, chứ không phải chạy
+tiếp.
+
 ## Notebook tự làm gì (bạn sẽ thấy in ra)
 
 | Việc | Dòng in ra |
