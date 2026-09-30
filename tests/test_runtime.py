@@ -5,11 +5,17 @@
 phải bằng tên. MyDrive và Shared drives trông giống nhau, mà chỉ một trong hai là thư mục giảng
 viên cấp; đoán theo tên thì notebook ghi kết quả vào chỗ không ai tìm thấy.
 
+Phần cuối khoá `end_session`: ngắt phiên Colab khi lượt chạy xong. Hàm này chạy ở CUỐI một lượt
+chạy đã tốn hàng chục phút, nên nó không được phép ném lỗi ra ngoài - và chỉ được ngắt khi CHẮC
+CHẮN đang ở Colab và cấu hình cho phép.
+
 Chạy: python -m unittest discover -s tests
 """
 
 import os
+import sys
 import tempfile
+import types
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -306,6 +312,118 @@ class TestDriveDir(unittest.TestCase):
 
     def test_env_file_is_none_without_drive(self):
         self.assertIsNone(runtime.drive_env_file(folder="nhom", candidates=self.candidates()))
+
+
+class TestEndSession(unittest.TestCase):
+    """`runtime.end_session`: ngắt phiên Colab khi lượt chạy xong.
+
+    VÌ SAO KHOÁ NHỮNG CA NÀY: hàm chạy ở CUỐI một lượt chạy đã tốn hàng chục phút, nên nó KHÔNG
+    được phép ném lỗi ra ngoài (hỏng bước ngắt phiên mà làm chết lượt chạy thì mất cả lượt), và nó
+    chỉ được ngắt khi CHẮC CHẮN đang ở Colab và cấu hình cho phép - ngắt máy cá nhân là vô nghĩa,
+    còn ngắt khi người dùng đã đặt `0` là làm sai ý họ.
+    """
+
+    def setUp(self):
+        # `is_colab()` còn nhìn hai biến môi trường này, nên ca "máy cá nhân" phải xoá chúng.
+        patcher = mock.patch.dict(os.environ, {}, clear=False)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self._clear()
+
+    def _clear(self):
+        for name in ("COLAB_RELEASE_TAG", "COLAB_GPU", runtime.ENV_END_SESSION):
+            os.environ.pop(name, None)
+
+    def install_fake_colab(self, error=None):
+        """Nhét một `google.colab` GIẢ vào `sys.modules`; trả về danh sách các lần gọi `unassign`.
+
+        Bắt chước đúng cách Colab thật xuất hiện với Python: một gói `google.colab` có module con
+        `runtime`. Không có gói này thì `is_colab()` trả False - và đó là ca máy cá nhân.
+        """
+        calls = []
+
+        def unassign():
+            calls.append("unassign")
+            if error is not None:
+                raise error
+
+        runtime_module = types.ModuleType("google.colab.runtime")
+        runtime_module.unassign = unassign
+        package = types.ModuleType("google.colab")
+        package.runtime = runtime_module
+        patcher = mock.patch.dict(sys.modules, {
+            "google.colab": package, "google.colab.runtime": runtime_module})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return calls
+
+    @staticmethod
+    def fake_log():
+        """Ghi lại những gì hàm báo vào một đối tượng cùng hình dạng với `runlog.RunLog`."""
+
+        class _Log:
+            def __init__(self):
+                self.steps = []
+                self.warnings = []
+
+            def step(self, message, seconds=None):
+                self.steps.append(message)
+
+            def warn(self, message, context=None):
+                self.warnings.append(message)
+
+        return _Log()
+
+    def test_o_may_ca_nhan_thi_khong_ngat(self):
+        """Không ở Colab: không làm gì, và nói rõ vì sao - để `run.log` không im lặng."""
+        message = runtime.end_session()
+        self.assertIn("máy cá nhân", message)
+
+    def test_o_colab_thi_ngat_dung_mot_lan(self):
+        calls = self.install_fake_colab()
+        message = runtime.end_session()
+        self.assertEqual(calls, ["unassign"])
+        self.assertIn("Đã ngắt", message)
+
+    def test_dat_bien_thanh_0_thi_khong_ngat(self):
+        """`SENTIMENTX_END_SESSION=0` là ý người dùng: giữ phiên lại."""
+        calls = self.install_fake_colab()
+        os.environ[runtime.ENV_END_SESSION] = "0"
+        message = runtime.end_session()
+        self.assertEqual(calls, [])
+        self.assertIn(runtime.ENV_END_SESSION, message)
+
+    def test_dat_bien_thanh_1_thi_ngat(self):
+        calls = self.install_fake_colab()
+        os.environ[runtime.ENV_END_SESSION] = "1"
+        message = runtime.end_session()
+        self.assertEqual(calls, ["unassign"])
+        self.assertIn("Đã ngắt", message)
+
+    def test_gia_tri_bien_la_thi_bao_ro_va_khong_ngat(self):
+        """Giá trị lạ thì KHÔNG đoán ý người dùng: báo rõ và giữ phiên lại."""
+        calls = self.install_fake_colab()
+        os.environ[runtime.ENV_END_SESSION] = "yes"
+        message = runtime.end_session()
+        self.assertEqual(calls, [])
+        self.assertIn("không hợp lệ", message)
+        self.assertIn("0 hoặc 1", message)
+
+    def test_loi_ngat_phien_khong_lam_chet_luot_chay(self):
+        """Colab không ngắt được (mạng, phiên đã hết) thì báo, KHÔNG ném ra ngoài."""
+        self.install_fake_colab(error=RuntimeError("Boom"))
+        log = self.fake_log()
+        message = runtime.end_session(log=log)
+        self.assertIn("Boom", message)
+        self.assertEqual(log.warnings, [message])
+        self.assertEqual(log.steps, [])
+
+    def test_thong_bao_duoc_ghi_vao_log(self):
+        self.install_fake_colab()
+        log = self.fake_log()
+        message = runtime.end_session(log=log)
+        self.assertEqual(log.steps, [message])
+        self.assertEqual(log.warnings, [])
 
 
 if __name__ == "__main__":

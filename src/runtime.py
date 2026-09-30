@@ -13,6 +13,12 @@ THỨ TỰ NẠP BIẾN MÔI TRƯỜNG
 
 Giá trị nào gặp trước thì được dùng trước. Hàm trả về danh sách tên biến đã có và
 còn thiếu, để notebook in ra. Không bao giờ in giá trị, vì đó là secret.
+
+NGẮT PHIÊN COLAB
+Chạy xong mà không ngắt phiên thì máy ảo vẫn bị tính vào hạn mức GPU. `end_session()` gọi API chính
+thức `google.colab.runtime.unassign()` để tự ngắt, bật/tắt bằng `SENTIMENTX_END_SESSION` (bỏ trống
+hoặc `1` là bật, `0` là tắt). Hàm này KHÔNG BAO GIỜ ném lỗi ra ngoài: nó chạy ở cuối một lượt chạy
+đã tốn hàng chục phút.
 """
 
 import os
@@ -21,6 +27,9 @@ import time
 from pathlib import Path
 
 ENV_NAME = "SENTIMENTX_ENV"
+
+# Bật/tắt việc ngắt phiên Colab khi lượt chạy xong (`end_session`). Chỉ có tác dụng trên Colab.
+ENV_END_SESSION = "SENTIMENTX_END_SESSION"
 
 # Biến notebook cần, dùng để kiểm và in ra khi thiếu.
 REQUIRED_ON_COLAB = ("DAGSHUB_TOKEN",)
@@ -40,6 +49,69 @@ def env_name():
     if value in ("colab", "local"):
         return value
     return "colab" if is_colab() else "local"
+
+
+def end_session(enabled=None, log=None):
+    """Ngắt phiên Colab để GPU thôi bị tính vào hạn mức. Trả về câu thông báo.
+
+    VÌ SAO CÓ HÀM NÀY
+    Chạy xong một lượt thí nghiệm mà không ai ngắt phiên thì máy ảo vẫn được cấp và vẫn tính vào
+    hạn mức GPU, dù không ai lập trình nữa. Trước đây việc này phụ thuộc vào NGƯỜI: ô bootstrap chỉ
+    in ra lời nhắc "Runtime > Disconnect and delete runtime". Nay notebook tự làm.
+
+    CÁCH NGẮT: API chính thức của Colab - `google.colab.runtime.unassign()`, docstring của nó ghi
+    đúng mục đích này: "programmatically end the notebook's session ... save resources by
+    disconnecting soon after execution is finished". Hàm đó gửi yêu cầu ngắt tới dịch vụ quản lý
+    phiên rồi gọi `google.colab.kernel.disconnect()`, nên sau lời gọi này kernel mất kết nối.
+
+    HAI LUẬT CỦA HÀM NÀY, ĐỪNG ĐỔI
+    1. KHÔNG BAO GIỜ ném lỗi ra ngoài. Hàm chạy ở cuối một lượt chạy đã tốn hàng chục phút; hỏng
+       bước ngắt phiên mà làm chết lượt chạy thì mất cả lượt. Mọi lỗi được trả về dưới dạng câu
+       thông báo.
+    2. Chỉ ngắt khi CHẮC CHẮN đang ở Colab và cấu hình cho phép. Trên máy cá nhân thì không có gì
+       để ngắt; còn `SENTIMENTX_END_SESSION=0` là ý người dùng muốn giữ phiên. Giá trị LẠ thì báo
+       rõ và giữ phiên lại, KHÔNG đoán ý (đoán sai thì hoặc mất quota, hoặc ngắt phiên người ta
+       đang cần).
+
+    `enabled=None` (mặc định) nghĩa là đọc `SENTIMENTX_END_SESSION`: bỏ trống hoặc `1` là bật, `0`
+    là tắt. `log` nhận một đối tượng có `.step()` / `.warn()` (`runlog.RunLog`); câu trả về cũng
+    chính là câu đã ghi vào `log`.
+    """
+    if enabled is None:
+        raw = os.environ.get(ENV_END_SESSION, "").strip()
+        if raw in ("", "1"):
+            enabled = True
+        elif raw == "0":
+            enabled = False
+        else:
+            return _report(
+                "KHÔNG ngắt phiên: {}={!r} không hợp lệ (chỉ nhận 0 hoặc 1).".format(
+                    ENV_END_SESSION, raw), "warn", log)
+    if not is_colab():
+        return _report(
+            "Không ngắt phiên: đang chạy trên máy cá nhân, không phải phiên Colab.", "step", log)
+    if not enabled:
+        return _report("Không ngắt phiên: {} đang đặt 0.".format(ENV_END_SESSION), "step", log)
+    try:
+        from google.colab import runtime as colab_runtime  # type: ignore
+        colab_runtime.unassign()
+    except Exception as exc:  # noqa: BLE001 - xem luật 1 ở docstring
+        return _report("KHÔNG ngắt được phiên Colab ({}: {}).".format(
+            type(exc).__name__, exc), "warn", log)
+    return _report("Đã ngắt phiên Colab để giữ quota GPU.", "step", log)
+
+
+def _report(message, level, log):
+    """Ghi câu thông báo vào `log` (nếu có) rồi trả lại chính câu đó.
+
+    MỘT CÂU, HAI ĐƯỜNG: `run.log` cần thấy nó, và người mở notebook cũng cần thấy nó. Hàm trả về
+    chuỗi để nơi gọi tự chọn cách in; ghi thêm qua `log` khi nơi gọi có logger.
+    """
+    if log is not None:
+        write = getattr(log, level, None)
+        if callable(write):
+            write(message)
+    return message
 
 
 def load_env(colab_env_file=None):
