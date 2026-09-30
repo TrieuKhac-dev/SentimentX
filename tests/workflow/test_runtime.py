@@ -21,6 +21,7 @@ from pathlib import Path
 from unittest import mock
 
 from src.workflow import runtime
+from src.core import paths
 
 MARKER = ".sentimentx_root"
 
@@ -424,6 +425,28 @@ class TestEndSession(unittest.TestCase):
         message = runtime.end_session(log=log)
         self.assertEqual(log.steps, [message])
         self.assertEqual(log.warnings, [])
+
+    def test_hai_tep_env_mau_deu_khai_co_ngat_phien(self):
+        """Cờ `SENTIMENTX_END_SESSION` phải có trong HAI tệp mẫu (`.env`, `.env.colab`).
+
+        Vì sao khoá: đây là cách duy nhất người chạy biết có khoá này mà tắt/bật. Hai tệp THẬT
+        (`.env`, `.env.colab`) không test được - chúng không vào git và mỗi máy một khác - nên tệp
+        mẫu là chỗ duy nhất giữ được lời hứa "cờ này tồn tại".
+
+        Tệp `.env.colab.example` phải là UTF-8 KÈM BOM: nó được gửi kèm gói bàn giao, mở bằng Notepad
+        hoặc trình xem trong WinRAR phải hiện đúng chữ tiếng Việt (06_conventions.md).
+        """
+        for name, expect_bom in ((".env.example", False), (".env.colab.example", True)):
+            path = paths.root() / name
+            text = path.read_text(encoding="utf-8-sig")
+            with self.subTest(file=name):
+                self.assertIn("{}={}".format(runtime.ENV_END_SESSION, 1), text,
+                              "thiếu dòng khai cờ trong {}".format(name))
+                comments = [line for line in text.splitlines()
+                            if line.strip().startswith("#") and runtime.ENV_END_SESSION in line]
+                self.assertTrue(comments, "thiếu dòng chú thích giải thích cờ trong {}".format(name))
+                self.assertEqual(path.read_bytes()[:3] == b"\xef\xbb\xbf", expect_bom,
+                                 "BOM của {} không đúng quy ước".format(name))
 
 
 if __name__ == "__main__":
