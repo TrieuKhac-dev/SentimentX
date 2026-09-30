@@ -94,6 +94,10 @@ thư mục chưa theo dõi đều còn nguyên - cuối lượt chạy script t�
 | Ghi thêm toàn bộ đầu ra ra file | thêm `--log <đường dẫn>` |
 | Giữ thư mục code tạm để soi | thêm `--keep` |
 
+Ô nào lỗi thì notebook **in xong dấu vết rồi tự ngắt phiên Colab**. Trên máy cá nhân hàm ngắt phiên
+không làm gì, nên bạn sẽ thấy dòng `Không ngắt phiên: đang chạy trên máy cá nhân, không phải phiên
+Colab.` - đó là bình thường (`docs/00_workflow/07_colab.md` mục 4.3).
+
 Notebook gồm những ô nào, thứ tự ra sao, và sửa một ô thì phải làm gì:
 `docs/00_workflow/10_template_notebook.md`.
 

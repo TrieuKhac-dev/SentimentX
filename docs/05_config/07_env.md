@@ -17,6 +17,13 @@ env chỉ cần khi muốn chỉ đích danh thư mục, ghi đè đường dẫ
 | `.env.colab.example` | có        | Colab, bản mẫu            | tên biến, giá trị để trống |
 | `.env.colab`         | **không** | Colab, bản gửi giảng viên | **đầy đủ khoá secret**     |
 
+**Env là nguồn TRONG REPO.** Hai tệp mẫu (`.env.example`, `.env.colab.example`) là nơi DUY NHẤT khai
+một biến mới, và chúng phải luôn đủ khoá - người chạy đọc chúng để biết có khoá gì. Hai tệp thật
+(`.env`, `.env.colab`) nằm cùng chỗ, không commit, và là nguồn cho gói bàn giao: `scripts/build_package.py`
+chép chúng vào `env/.env.colab` và `env/.env.colab.example` của gói, nên **không sửa tay hai tệp trong
+gói**. Tệp `.env.colab*` là UTF-8 **kèm BOM** (để Notepad và trình xem trong WinRAR hiện đúng chữ tiếng
+Việt); tệp `.env*` của máy cá nhân để UTF-8 không BOM.
+
 ## Các biến
 
 | Biến                      | Ý nghĩa                                                       |
@@ -27,6 +34,7 @@ env chỉ cần khi muốn chỉ đích danh thư mục, ghi đè đường dẫ
 | `SENTIMENTX_ENV`          | `colab` hoặc `local`                                          |
 | `HF_HOME`                 | nơi cache model; trên Colab để ở đĩa tạm, không để trên Drive |
 | `SENTIMENTX_MODEL`        | đường dẫn bản trọng số có sẵn trên máy (ô chạy của notebook đọc biến này); bỏ trống thì dùng `checkpoint` trong `configs/models/<model_id>.yaml` |
+| `SENTIMENTX_END_SESSION`  | `1` (mặc định) = ngắt phiên Colab khi chạy xong / khi một ô lỗi / khi ô kiểm trước dừng; `0` = giữ phiên lại. Trên máy cá nhân không có tác dụng. Giá trị lạ thì notebook báo rõ và **giữ** phiên |
 
 ## Thứ tự nạp
 

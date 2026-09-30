@@ -48,6 +48,14 @@ Nếu gặp tài liệu cũ ghi "xử lý dữ liệu" hay "tiền xử lý cho 
 | dataset     | kết quả sau khi raw đi qua pipeline                                                                                                                |
 | thí nghiệm  | một định nghĩa gồm config, prompt, examples, notebook; định danh bằng `expNNN`                                                                     |
 | lần chạy    | một lần thực thi một thí nghiệm trên một phiên bản dữ liệu; thư mục `results/<hash8>/`, tên là mã băm danh tính (cấu hình + prompt + ví dụ + dữ liệu + commit) |
+
+## Ngắt phiên (end session)
+
+| Từ | Nghĩa |
+| -- | ----- |
+| ngắt phiên | Notebook tự gọi Colab để kết thúc phiên (`google.colab.runtime.unassign()`) nhằm thôi tính thời gian GPU vào hạn mức. Chỉ có tác dụng trên Colab; trên máy cá nhân hàm này không làm gì. Xảy ra ở ba lúc: chạy xong, một ô bất kỳ lỗi, và ô kiểm trước tìm ra việc phải sửa - luôn **sau** khi đã in xong. Không xảy ra khi người dùng bấm Stop. Tắt bằng `SENTIMENTX_END_SESSION=0` (`docs/00_workflow/07_colab.md` mục 4.3) |
+| khối bảo vệ ô | `runtime.end_session_on_error()`, bọc thân các ô code của notebook: nó in dấu vết (hoặc câu `DỪNG: ...` của chính ô) rồi ngắt phiên, rồi ném lỗi tiếp. Một luật, một chỗ: `src/workflow/runtime.py` |
+
 | attempt     | một lần thử trong cùng một lần chạy: `NEW` hoặc `RESUME`                                                                                         |
 | ghim code   | ghi sha của commit vào notebook để luôn kéo đúng bản đó                                                                                            |
 | role        | vai của một split: `train`, `val`, `eval`                                                                                                          |

@@ -211,6 +211,7 @@ Hết. Ô bootstrap tự làm phần còn lại và in ra bằng chứng:
 | Đặt gốc dữ liệu và gốc kết quả vào Drive | `Gốc dữ liệu : .../data`, `Gốc kết quả : .../experiments` |
 | Kéo ĐÚNG commit đã ghim | `Code : dùng bản code đang có | /content/SentimentX | <sha>` |
 | Cài gói máy ảo còn thiếu | `Thiếu gói bitsandbytes - đang cài...` |
+| **Ngắt phiên khi chạy xong, khi MỘT Ô nào đó lỗi, hoặc khi ô preflight dừng** | `Đã ngắt phiên Colab để giữ quota GPU.` |
 
 Tên thư mục trên Drive không quan trọng: "SentimentX", "SentimentX (1)", hay tên giảng viên đặt đều
 được. Nếu trong Drive có nhiều thư mục cùng mang file đánh dấu, code chọn thư mục **có `data/`** -
@@ -226,7 +227,29 @@ chưa đạt yêu cầu bàn giao.
 ### 4.2. Nếu ô preflight vẫn báo có việc phải sửa
 
 Đọc danh sách nó in ra: dòng đầu là nguyên nhân gốc (thường là thiếu dữ liệu gốc trên Drive). Bảng ở
-mục 7 có cách xử lý cho từng dòng.
+mục 7 có cách xử lý cho từng dòng. Sau khi in xong, notebook **tự ngắt phiên** (mục 4.3): sửa việc
+xong thì mở phiên mới rồi Run all.
+
+### 4.3. Phiên Colab tự kết thúc (và cách giữ lại)
+
+Phiên Colab được cấp GPU và **tính vào hạn mức theo thời gian mở**, kể cả khi không ai lập trình nữa.
+Nên notebook tự ngắt phiên ở ba lúc:
+
+- chạy xong cả notebook (ô kết thúc),
+- **một ô bất kỳ lỗi** - kể cả lỗi bất ngờ trong ô cấu hình hay ô kiểm trước,
+- ô kiểm trước tìm ra việc phải sửa (ngắt **sau** khi đã in danh sách).
+
+Ngắt luôn xảy ra **sau khi đã in xong** và sau khi kết quả đã ghi lên Drive; dòng
+`Đã ngắt phiên Colab để giữ quota GPU.` là bằng chứng. Muốn GIỮ phiên (ví dụ để chạy tiếp một ô, hoặc
+để đọc kết quả rồi sửa), đặt trong tệp env:
+
+```
+SENTIMENTX_END_SESSION=0
+```
+
+Bấm **Stop** giữa chừng thì notebook **không** ngắt phiên: lúc đó người chạy đang ngồi trước máy và
+cần phiên để sửa rồi chạy lại. Hai đường duy nhất còn lại không ngắt được là hai lỗi ở ô bootstrap
+xảy ra TRƯỚC khi máy kéo được mã nguồn (không gọi được hàm ngắt phiên vì `src/` chưa tồn tại).
 
 ## 5. Coi là thành công khi thấy gì
 
@@ -244,6 +267,8 @@ mục 7 có cách xử lý cho từng dòng.
   nhau. Thư mục của lượt HỎNG không có `metrics.json`: xoá được ngay, không mất gì để so. Thư mục có
   `metrics.json` là bằng chứng của một lượt đã chạy - giữ lại.
 - Mở `run.log` trước: nó ghi từng bước, và ghi rõ khi chạy tiếp (`[RUN] mode=RESUME`).
+- Ô kết thúc in `Đã ngắt phiên Colab để giữ quota GPU.` rồi phiên kết thúc: đó là **thành công**, không
+  phải lỗi (mục 4.3). Colab báo phiên đã ngắt là điều bình thường sau khi chạy xong.
 
 Máy đứt giữa chừng thì cứ Run all lần nữa: phần đã xong nằm trong `predictions/part_*.jsonl` và
 điểm số vẫn tính trên cả split.
@@ -289,6 +314,8 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 | Vẫn `ModuleNotFoundError: No module named 'src'` | kernel còn nhớ kết luận "không có gói `src`" từ lúc máy trống | Runtime -> Restart session rồi Run all; ô bootstrap đã tự xoá bộ nhớ đệm import |
 | `MyDrive: ...` / `Shareddrives: ...` (`CHƯA thấy gốc Drive: .../Shareddrives`) in ra rồi dừng vì không thấy thư mục nhóm | (a) phiên này mount Drive của **tài khoản Google KHÁC**; (b) thư mục nhóm do **A chia sẻ** mà người nhận **chưa bấm "Add shortcut to My Drive"**; (c) thư mục nhóm nằm trong **Shared drive** chưa được chia sẻ; (d) thiếu `.sentimentx_root` và thư mục cũng không có cấu trúc gói | (a) `Runtime > Disconnect and delete runtime`, Run all lại và **chọn đúng tài khoản**; (b) bấm `Organize > Add shortcut` một lần rồi chạy lại (mục 3, "Cách 2"); (c) xin chia sẻ shared drive với quyền **đủ ghi**; (d) tạo file đánh dấu (mục 3). Hoặc chỉ định thẳng `SENTIMENTX_DATA_ROOT`/`SENTIMENTX_RESULTS_ROOT` trong `env/.env.colab` (mục 3, "Cách 3") |
 | `Muốn chạy lại từ đầu` | | Xoá thư mục kết quả `results/<hash8>/` trên Drive rồi Run all. Muốn lượt chạy MỚI vì lý do khác (ví dụ đã sửa code) thì cứ ghim lại - mã băm danh tính sẽ khác và lượt chạy rơi vào thư mục mới, kết quả cũ giữ nguyên. Thư mục của lượt HỎNG (không có `metrics.json`) xoá được ngay |
+| Phiên **tự kết thúc ngay khi chạy xong** (`Đã ngắt phiên Colab để giữ quota GPU.` rồi mất kết nối) | **bình thường** - notebook tự ngắt phiên để thôi tính vào hạn mức GPU (mục 4.3) | không cần làm gì. Muốn GIỮ phiên thì đặt `SENTIMENTX_END_SESSION=0` trong `env/.env.colab` (hoặc `.env` khi chạy máy cá nhân) rồi chạy lại |
+| Phiên kết thúc khi một ô vừa báo lỗi | notebook ngắt phiên sau khi ô đó in xong dấu vết (mục 4.3) | đọc dấu vết ở ô vừa lỗi (và `run.log`/`errors.json` nếu lượt chạy đã mở nhật ký), sửa rồi mở phiên mới và Run all |
 
 ## 8. Đừng đổi thứ tự nếu chưa hiểu vì sao
 
