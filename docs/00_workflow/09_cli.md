@@ -27,6 +27,10 @@ Không khớp gì, hoặc `hash8` khớp nhiều phiên bản, đều là LỖI 
 nên khi dán vào shell thì để trong nháy đơn, hoặc chạy `python build_report.py --list` để lấy lệnh
 sẵn sàng dán.
 
+`<hash8>` trong tên thư mục `results/<hash8>/` là chuyện KHÁC: đó là mã băm danh tính của LƯỢT
+CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhận giá trị đó - xem
+`docs/00_workflow/04_terms.md`.
+
 ## 2. Lệnh hợp lệ
 
 | Việc | Lệnh |

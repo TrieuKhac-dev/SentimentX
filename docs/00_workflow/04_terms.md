@@ -29,13 +29,24 @@ Nếu gặp tài liệu cũ ghi "xử lý dữ liệu" hay "tiền xử lý cho 
 | Đi vào mã phiên bản dữ liệu | có                                              | không, chỉ vào `config_sha256`                                                     |
 | Ví dụ                       | lọc trùng, chuẩn hoá teencode, chuyển dạng ABSA | tách từ, tokenizer, dựng prompt, cắt `max_length`, lược neutral                    |
 
-## Hai mã dùng để tra cứu
+## Ba mã dùng để tra cứu
 
 | Tên                  | Là gì                                                                                                                                                                     | Nằm ở đâu                                                                    |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
 | mã phiên bản dữ liệu | Chuỗi định danh một phiên bản dataset, dạng `<name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>`, ví dụ `cosmetics-ds0.3.0-pl0.2.0-srccosmetics@0.2.0-9c0d1e2f` | Tên thư mục `data/processed/<mã>/` và trường `data.build` trong `run_meta.json` |
-| `hash8`              | 8 ký tự hex **cuối** của mã phiên bản dữ liệu, cũng là 8 ký tự đầu của sha1 trên nội dung config dataset + config pipeline + mọi file dữ liệu gốc. Gõ tắt được ở mọi cờ `--hash`, ví dụ `e0ccc484` | Trong chính mã phiên bản; `run_eda.py` và `run_pipeline.py` in ra khi chạy |
+| `hash8`              | 8 ký tự hex **cuối** của mã phiên bản dữ liệu, cũng là 8 ký tự đầu của sha1 trên nội dung config dataset + config pipeline + mọi file dữ liệu gốc. Gõ tắt được ở mọi cờ `--hash`, ví dụ `e0ccc484`. Đây là `hash8` của DỮ LIỆU, **không** phải `hash8` của lượt chạy (xem ghi chú dưới bảng) | Trong chính mã phiên bản; `run_eda.py` và `run_pipeline.py` in ra khi chạy |
 | `config_sha256`      | Dấu vân tay của config đã hợp nhất, cộng văn bản prompt đã hợp nhất. Đổi config hoặc đổi câu chữ prompt thì dấu vân tay đổi                                               | Trường `config_sha256` trong `run_meta.json`                                 |
+
+> **Đừng lẫn hai `hash8`: chúng không liên quan nhau.** Tài liệu viết `<hash8>` ở hai chỗ với hai
+> nghĩa khác nhau:
+>
+> | Cách viết | Là gì | Dùng ở đâu |
+> | --- | --- | --- |
+> | `hash8` (của dữ liệu) | 8 hex **cuối** của mã phiên bản dữ liệu - vân tay của config dataset + config pipeline + nội dung dữ liệu gốc | cờ `--hash`, và nằm luôn trong chính mã phiên bản |
+> | `<hash8>` (của lượt chạy) | 8 hex **ĐẦU** của `config_sha256` - mã băm danh tính (cấu hình + prompt + ví dụ + dữ liệu + commit) | **tên thư mục** `results/<hash8>/` |
+>
+> Cờ `--hash` chỉ nhận giá trị thứ nhất. Truyền `hash8` của lượt chạy vào `--hash` thì công cụ báo
+> "không khớp phiên bản nào" - đó là hành vi đúng, không phải lỗi công cụ.
 
 ## Từ khoá
 
@@ -47,7 +58,7 @@ Nếu gặp tài liệu cũ ghi "xử lý dữ liệu" hay "tiền xử lý cho 
 | cờ chỉ đích | `--on raw\|dataset` (nơi đo) · `--name` (tên dataset) · `--version` (nhãn raw hoặc phiên bản cấu hình dataset) · `--hash` (phiên bản dữ liệu đã xử lý) · `--all` (mọi đích). Chi tiết: `docs/00_workflow/09_cli.md` |
 | dataset     | kết quả sau khi raw đi qua pipeline                                                                                                                |
 | thí nghiệm  | một định nghĩa gồm config, prompt, examples, notebook; định danh bằng `expNNN`                                                                     |
-| lần chạy    | một lần thực thi một thí nghiệm trên một phiên bản dữ liệu; thư mục `results/<hash8>/`, tên là mã băm danh tính (cấu hình + prompt + ví dụ + dữ liệu + commit) |
+| lần chạy    | một lần thực thi một thí nghiệm trên một phiên bản dữ liệu; thư mục `results/<hash8>/` (8 hex **đầu** của `config_sha256`), tức mã băm danh tính (cấu hình + prompt + ví dụ + dữ liệu + commit) |
 
 ## Ngắt phiên (end session)
 

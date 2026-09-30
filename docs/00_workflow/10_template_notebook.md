@@ -32,7 +32,11 @@ trong ô).
 
 ## 2. Một notebook gồm những ô nào
 
-Thứ tự này là hợp đồng giữa notebook, `scripts/pin.py` và `scripts/run_notebook.py`:
+Bảng dưới là **sáu ô CODE**, theo đúng thứ tự; thứ tự đó là hợp đồng giữa notebook,
+`scripts/pin.py` và `scripts/run_notebook.py`. Notebook ĐẦY ĐỦ có **tám ô**: sáu ô code này
+cộng **hai ô markdown** - ô mở đầu (giới thiệu notebook) và ô "Kết quả nằm ở đâu" (ngay
+trước ô kết thúc). Hai ô markdown không nằm trong hợp đồng, nhưng đừng xoá: đó là phần
+người nhận đọc trước tiên.
 
 | # | Ô | Nội dung | Nhận ra bằng |
 | --- | --- | --- | --- |

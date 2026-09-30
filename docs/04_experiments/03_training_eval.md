@@ -124,9 +124,9 @@ Danh sách khoá có thể đổi và ý nghĩa từng khoá:
 > chạy trên `test` của `prompt-cot/exp002`, `exp003`, `exp004` (xem README của từng thí nghiệm
 > và `docs/06_plan/P7_rerun.md` T3/T4). Giữ bảng này lại vì nó là dấu vết của bước dựng đường chạy.
 
-Đây là phần đầu tiên của nhóm thí nghiệm có số liệu CHẤT LƯỢNG thật. Ba model encoder (PhoBERT,
-ViSoBERT) chưa có script huấn luyện, nên bảng dưới đây so **bốn cách hỏi cùng một model
-Qwen3-4B**, chưa phải so model với model.
+Đây là phần đầu tiên của nhóm thí nghiệm có số liệu CHẤT LƯỢNG thật. Bảng dưới đây so **bốn
+cách hỏi cùng một model Qwen3-4B**, chưa phải so model với model; ở thời điểm chạy các lượt
+này, hai encoder (PhoBERT, ViSoBERT) chưa có đường huấn luyện - đường đó nay ĐÃ có, xem mục 7.
 
 ### 6.1. Cách chạy (tái lập được)
 
@@ -186,8 +186,11 @@ Bốn điều đọc ra từ bảng này:
 - **Tập con 100 review** (seed 42): đủ để thấy xu hướng, chưa đủ để chốt con số.
 - **Một lần chạy greedy** cho mỗi cấu hình: chưa đo dao động giữa các lần chạy.
 - **Lượng hóa 4-bit** để vừa VRAM; chưa đối chiếu bf16 (GPU 6 GB không chạy nổi bf16).
-- **Chưa so với PhoBERT / ViSoBERT** - hai model này chưa có script huấn luyện, nên bảng
-  trên chưa có dòng nào để so model với model.
+- **Bảng trên chưa có dòng của PhoBERT / ViSoBERT** - nó chỉ gồm các lượt Qwen3 chạy trước
+  khi có đường huấn luyện. Đường đó nay ĐÃ có: `src/training/lora.py` với hai thí nghiệm
+  `visobert/lora/exp001` và `phobert-base-v2/lora/exp001` (xem mục 7), nên việc còn thiếu là
+  CHẠY hai thí nghiệm đó rồi chạy `python scripts/collect_reports.py`, không phải viết thêm
+  script.
 - **Chưa chạy trên test**: đúng nguyên tắc - test chỉ dùng cho con số cuối sau khi chốt.
 
 ## 7. Việc còn thiếu của nhóm thí nghiệm
