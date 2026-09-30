@@ -78,6 +78,12 @@ khác nhau, nên `assertEqual(code, 2)` một mình vẫn xanh kể cả khi cô
   làm chết chương trình: `UnicodeEncodeError: 'charmap' codec can't encode character '\u0111'`. Ca thật,
   tái hiện được: `python -c "print('đ')" > out.txt`. Script tự viết mà gọi thẳng hàm trong `src/` (ví dụ
   `experiment_run.plan` có `print`) thì tự đặt `PYTHONUTF8=1`, hoặc gọi `reconfigure` y như các tool.
+- Cùng họ đó khi TIẾN TRÌNH CHA đọc output của con: `subprocess.run(..., text=True)` mà không khai
+  `encoding` thì Python giải mã bằng codepage hệ thống (cp1252 ở máy này), trong khi tool in UTF-8 -
+  `stdout` thành `None` và lỗi hiện ra ở một dòng chẳng liên quan. Khai `encoding="utf-8"` (xem
+  `src/workflow/checks.py` và `tests/workflow/test_clean.py`), và trên Windows thì chạy
+  `$env:PYTHONUTF8=1; python -m unittest discover -s tests`. Hiện tượng và cách chạy:
+  `docs/00_workflow/03_ci.md`.
 
 ## Dòng lệnh
 

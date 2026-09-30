@@ -105,9 +105,9 @@ class ModeTest(CleanCase):
         self.write("a/__pycache__/x.pyc")
         script = paths.root() / "scripts" / "clean.py"
         first = subprocess.run([sys.executable, str(script), "--root", str(self.root)],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, encoding="utf-8")
         second = subprocess.run([sys.executable, str(script), "--root", str(self.root)],
-                                capture_output=True, text=True)
+                                capture_output=True, text=True, encoding="utf-8")
         self.assertIn("Đã xoá 1 mục.", first.stdout)
         self.assertIn("Không có gì để xoá.", second.stdout)
         self.assertEqual(second.returncode, 0)
