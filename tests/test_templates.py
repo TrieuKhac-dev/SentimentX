@@ -97,8 +97,9 @@ class TestNotebookTemplate(unittest.TestCase):
         self.assertIn("experiment_run.run", text)
         self.assertNotIn("run_qwen_eval", text)
         self.assertIn("preflight.run", text)
-        self.assertIn("repo.prepare", text)
-        self.assertIn("runtime.load_env", text)
+        # Việc chuẩn bị môi trường cũng gọi thư viện, không còn nằm trong ô (Batch 5b).
+        self.assertIn("from src.api import bootstrap", text)
+        self.assertIn("bootstrap.verify_checkout", text)
 
     def test_it_stops_when_the_preflight_finds_problems(self):
         text = json.dumps(notebook(), ensure_ascii=False)
@@ -142,7 +143,10 @@ class TestBootstrap(unittest.TestCase):
         clone = first('git("clone"')
         fetch = first('"fetch"')
         checkout = first('"checkout"')
-        imported = first("from src import")
+        # Ô bootstrap có thể import qua MẶT TIỀN (`from src.api import ...`) hoặc thẳng vào gói:
+        # cả hai đều là "đã import src", nên nhận cả hai dạng.
+        imported = next((index for index, line in enumerate(lines)
+                         if "from src" in line and "import" in line), None)
         for name, index in (("clone", clone), ("fetch", fetch), ("checkout", checkout),
                             ("import src", imported)):
             self.assertIsNotNone(index, "{}: thiếu bước {}".format(label, name))
@@ -160,7 +164,10 @@ class TestBootstrap(unittest.TestCase):
         # `experiment`, nên `git clone` trần có thể không có `src/` nào cả.
         self.assertIn("--no-checkout", source)
         self.assertIn('"checkout", "--detach", REPO_SHA', source)
-        self.assertIn("repo.prepare", source)
+        # Sau khi có mã nguồn, việc chuẩn bị (mount Drive, đặt gốc, cài gói, kiểm sha, tài nguyên
+        # model) do THƯ VIỆN làm - `repo.prepare` nằm trong `bootstrap.verify_checkout`.
+        self.assertIn("from src.api import bootstrap", source)
+        self.assertIn("bootstrap.verify_checkout(", source)
 
     def test_every_experiment_notebook_fetches_before_importing_src(self):
         found = sorted((paths.root() / "experiments").rglob("notebook.ipynb"))
@@ -186,147 +193,6 @@ class TestBootstrap(unittest.TestCase):
         # Thư mục có sẵn mà KHÔNG phải repo thì phải DỪNG kèm cách sửa, không kéo đè lên dữ liệu lạ.
         self.assertIn("rm -rf", source)
 
-    def test_bootstrap_does_the_whole_colab_setup_itself(self):
-        """Ô bootstrap tự mount Drive, tự đặt gốc, tự cài gói thiếu - người chạy chỉ bấm Run all.
-
-        Đây là yêu cầu của thiết kế bàn giao: "copy thư mục vào Drive rồi bấm Run all". Mỗi bước bị
-        chuyển ra thành thao tác tay là một bước sẽ bị bỏ qua hoặc làm sai thứ tự, nên chúng bị khoá ở đây.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("drive.mount", source)
-        self.assertIn("SENTIMENTX_DATA_ROOT", source)
-        self.assertIn("SENTIMENTX_RESULTS_ROOT", source)
-        self.assertIn("find_spec", source)
-        lines = [line for line in source.splitlines() if not line.lstrip().startswith("#")]
-        mount = next(index for index, line in enumerate(lines) if "drive.mount" in line)
-        lookup = next(index for index, line in enumerate(lines)
-                      if "runtime.drive_dir()" in line)
-        self.assertLess(mount, lookup, "mount Drive phải chạy TRƯỚC khi tìm thư mục nhóm")
-        # Cài đặt chỉ trên Colab, và phải là `pip install`, không phải lệnh nào khác.
-        self.assertIn("IN_COLAB", source)
-        self.assertIn('"-m", "pip", "install"', source)
-
-    def test_bootstrap_downloads_the_tokenizer_assets_when_missing(self):
-        """Ô bootstrap phải TỰ có model VnCoreNLP, không bắt người chạy chép tay.
-
-        Lỗi thật trên Colab: preflight dừng vì thiếu `data/models/vncorenlp`, trong khi gói bàn giao
-        đã có thư mục đó - người chạy chép thiếu một thư mục là cả lượt chạy không bắt đầu được.
-        Nay ô bootstrap tự tải ba file cần thiết vào GỐC DỮ LIỆU khi thiếu, cùng nguồn và cùng mức
-        kích thước tối thiểu như `scripts/setup_vncorenlp.ps1`.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("urlretrieve", source)
-        self.assertIn("VnCoreNLP-1.2.jar", source)
-        self.assertIn("models/wordsegmenter/vi-vocab", source)
-        self.assertIn("models/wordsegmenter/wordsegmenter.rdr", source)
-        # Tải về chỗ mà preflight và bộ tách từ cùng đọc: gốc dữ liệu, không phải thư mục khác.
-        self.assertIn('paths.data("models")', source)
-
-    def test_bootstrap_stops_when_the_group_folder_is_missing(self):
-        """Colab không thấy thư mục nhóm là DỪNG, không chạy tiếp rồi chết ở ô cấu hình.
-
-        Máy ảo Colab không chứa dữ liệu gốc, nên chạy tiếp chỉ tạo ra thêm hai thông báo khó hiểu
-        (thiếu dữ liệu, kết quả ghi vào chỗ mất khi hết phiên). Lượt chạy thật đã rơi vào đúng cảnh
-        đó. Việc dừng phải nằm SAU bước tìm thư mục nhóm, và phải nhường chỗ cho trường hợp người
-        chạy cố ý khai `SENTIMENTX_DATA_ROOT`.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("chưa thấy thư mục nhóm trên Drive", source)
-        self.assertIn('os.environ.get("SENTIMENTX_DATA_ROOT"', source)
-        lines = [line for line in source.splitlines() if not line.lstrip().startswith("#")]
-        lookup = next(index for index, line in enumerate(lines) if "runtime.drive_dir()" in line)
-        stop = next(index for index, line in enumerate(lines)
-                    if "chưa thấy thư mục nhóm trên Drive" in line)
-        self.assertLess(lookup, stop, "phải tìm thư mục nhóm TRƯỚC khi kết luận là không có")
-
-    def test_bootstrap_waits_before_giving_up_on_drive(self):
-        """Drive vừa mount thì danh sách thư mục có thể chưa đủ: phải chờ rồi thử lại.
-
-        Lỗi thật: cùng một phiên Colab, notebook này thấy thư mục nhóm còn notebook kia thì không -
-        lượt chạy sau đó rơi vào máy ảo và báo thiếu dữ liệu gốc.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("attempts=10, delay=3", source)
-
-    def test_bootstrap_removes_a_torchao_that_breaks_peft(self):
-        """`peft` ném ImportError khi máy có torchao cũ, nên ô bootstrap phải gỡ nó.
-
-        Lỗi thật trên Colab: torchao 0.10.0 so với ngưỡng 0.16.0 của peft, và lượt chạy LoRA chết sau
-        khi đã nạp xong model. Hỏi thẳng `peft.import_utils` thay vì tự so phiên bản trong notebook.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("from peft.import_utils import is_torchao_available", source)
-        self.assertIn('"uninstall", "-y", "-q", "torchao"', source)
-        self.assertIn('sys.modules.pop("torchao", None)', source)
-
-    def test_bootstrap_shows_what_it_sees_when_the_drive_lookup_fails(self):
-        """Không thấy thư mục nhóm thì phải in DANH SÁCH thư mục đang thấy (từng gốc, kèm lối tắt).
-
-        `runtime.drive_listing()` là nguồn duy nhất cho dòng đó, nên dòng in ra và việc chọn thư mục
-        (`runtime.drive_dir`) không thể lệch nhau.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("runtime.drive_listing()", source)
-        self.assertIn("lối tắt (shortcut) đang trỏ tới", source)
-
-    def test_bootstrap_says_when_it_used_the_package_structure(self):
-        """Nhận ra thư mục nhóm bằng CẤU TRÚC GÓI thì phải NÓI RA.
-
-        Mô hình của nhóm: A chỉ chia sẻ thư mục (không tạo `.sentimentx_root` - web Drive không tạo được
-        tên bắt đầu bằng dấu chấm), b/c/d bấm lối tắt. Notebook vẫn chạy, và nói rõ nó nhận ra bằng cách
-        nào, kèm cách làm cho chắc chắn hơn.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("CẤU TRÚC GÓI", source)
-        self.assertIn("runtime.folder_marker()", source)
-
-    def test_bootstrap_lists_each_drive_root_separately(self):
-        """MyDrive và Shareddrives là hai gốc khác nhau: phải in từng gốc khi không thấy thư mục nhóm.
-
-        Thư mục nhóm của nhóm/giảng viên có thể nằm trong SHARED DRIVE, nên câu hỏi "gốc nào có gì"
-        phải trả lời được ngay từ dòng notebook in ra - nếu gộp chung thì không biết `Shareddrives`
-        rỗng hay tài khoản chưa được chia sẻ.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("runtime.drive_listing()", source)
-        self.assertIn("SHARED DRIVE", source)
-        self.assertIn("Shareddrives", source)
-
-    def test_bootstrap_says_which_account_to_pick_when_the_drive_has_nothing(self):
-        """Thấy toàn thư mục lạ thì phải nói tới chuyện chọn nhầm TÀI KHOẢN Google.
-
-        Lỗi thật: một phiên Colab mount Drive của tài khoản khác, nên chỉ thấy `Colab Notebooks`,
-        `artifacts_backup3`... và notebook kết luận "chưa thấy thư mục nhóm". Nguyên nhân nằm ở lần
-        Colab hỏi chọn tài khoản khi mount, mà điều đó chỉ người chạy sửa được.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("MỘT TÀI KHOẢN GOOGLE KHÁC", source)
-        self.assertIn("Disconnect and delete runtime", source)
-
-    def test_bootstrap_explains_the_shared_folder_case(self):
-        """A chia sẻ thư mục cho b/c/d: notebook phải nói bước "Add shortcut to My Drive".
-
-        Được chia sẻ thôi thì Drive của người nhận vẫn KHÔNG chứa thư mục đó ("Shared with me" không
-        nằm trong `MyDrive`), nên nếu notebook không nói bước này thì lượt chạy dừng mà không ai biết
-        phải làm gì. Kèm theo là lối tắt được in ra và hai khoá env để chỉ định thẳng đường dẫn.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn("Add shortcut to My Drive", source)
-        self.assertIn("lối tắt (shortcut) đang trỏ tới", source)
-        self.assertIn("SENTIMENTX_RESULTS_ROOT", source)
-
-    def test_bootstrap_installs_mlflow_and_only_gates_peft_for_training(self):
-        """`mlflow` phải được cài; `peft` (và việc gỡ `torchao`) chỉ khi thí nghiệm có HUẤN LUYỆN.
-
-        Lỗi thật: ba lượt chạy đầu đều ghi `[TRACK] không ghi nhận gì (tracker tắt)` vì máy ảo thiếu
-        `mlflow` - ô bootstrap cài cố định bốn gói, không có `mlflow` - nên KHÔNG lượt nào lên DagsHub
-        dù ô cuối vẫn in địa chỉ DagsHub. Đường prompt cũng không cần `peft`.
-        """
-        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        self.assertIn('"transformers", "accelerate", "bitsandbytes", "mlflow"', source)
-        self.assertIn("_needs_training", source)
-        self.assertIn('if _needs_training and importlib.util.find_spec("peft") is not None:', source)
-
     def test_end_cell_prints_dagshub_only_when_the_run_was_recorded(self):
         """Địa chỉ DagsHub chỉ được in khi `run.log` có dòng `[TRACK]` báo ghi THÀNH CÔNG.
 
@@ -348,6 +214,61 @@ class TestBootstrap(unittest.TestCase):
                 self.assertIn("cả split (n: null)", source)
                 return
         self.fail("không thấy ô cấu hình trong notebook mẫu")
+
+
+    def cell_with(self, needle):
+        """Ô CODE chứa `needle` trong notebook MẪU (để kiểm quan hệ thứ tự giữa các dòng)."""
+        for cell in notebook()["cells"]:
+            if cell.get("cell_type") == "code" and needle in notebooks.source_of(cell):
+                return notebooks.source_of(cell)
+        self.fail("không thấy ô code nào chứa {!r}".format(needle))
+
+    def test_o_bootstrap_mong_va_goi_thu_vien_theo_dung_thu_tu(self):
+        """Ô bootstrap chỉ còn việc KÉO mã nguồn; phần chuẩn bị gọi 4 hàm thư viện, đúng thứ tự cũ.
+
+        Đây là điều khiến việc sửa logic KHÔNG phải sửa 12 notebook: logic ở `src/bootstrap.py`.
+        Thứ tự cũng là hợp đồng: mount Drive/đặt gốc trước, rồi cài gói, rồi kiểm sha (trước khi tải
+        27 MB tài nguyên model), và DỪNG ngay sau `prepare` khi thiếu thư mục nhóm.
+        """
+        source = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
+        order = ["bootstrap.prepare()", "bootstrap.install_packages(", "bootstrap.verify_checkout(",
+                 "bootstrap.model_assets("]
+        positions = [source.index(needle) for needle in order]
+        self.assertEqual(positions, sorted(positions), "gọi thư viện SAI thứ tự: {}".format(order))
+        stop = source.index('if info["stop"]:')
+        self.assertLess(stop, source.index("bootstrap.install_packages("),
+                        "phải DỪNG ngay sau `prepare` khi thiếu thư mục nhóm, không chạy tiếp")
+        # Ô này KHÔNG được mọc lại logic đã chuyển vào thư viện.
+        for moved in ("drive.mount", "find_spec", "urlretrieve", "apt-get", '"pip", "install"'):
+            self.assertNotIn(moved, source, "'{}' phải nằm ở src/bootstrap.py".format(moved))
+
+    def test_o_chay_mang_dau_va_chi_mot_o(self):
+        """Ô CHẠY mang DẤU để `run_notebook.py --preflight-only` tìm ra (không dò theo câu chữ)."""
+        found = [cell for cell in notebook()["cells"] if cell.get("cell_type") == "code"
+                 and notebooks.RUN_MARKER in notebooks.source_of(cell)]
+        self.assertEqual(len(found), 1, "phải có ĐÚNG MỘT ô mang dấu ô chạy")
+        self.assertIn("experiment_run.run(", notebooks.source_of(found[0]))
+
+    def test_o_kiem_truoc_ngat_phien_SAU_khi_in_va_TRUOC_khi_dung(self):
+        """Ô kiểm trước: in danh sách việc phải sửa -> NGẮT PHIÊN -> dừng.
+
+        Thứ tự là chịu lực: ngắt phiên làm kernel mất kết nối, nên ngắt trước khi in là giấu mất thứ
+        người đọc cần nhất (sửa gì để chạy được).
+        """
+        source = self.cell_with("preflight.print_report")
+        printed = source.index("preflight.print_report(")
+        stopped = source.index("print(end_session())")
+        raised = source.index("raise SystemExit(")
+        self.assertLess(printed, stopped, "phải IN danh sách việc phải sửa TRƯỚC khi ngắt phiên")
+        self.assertLess(stopped, raised, "phải ngắt phiên TRƯỚC khi dừng")
+        self.assertIn("from src.api import end_session", source)
+
+    def test_o_ket_thuc_ngat_phien_o_cuoi_cung(self):
+        """Ô kết thúc: ngắt phiên là việc CUỐI (sau khi in kết quả và địa chỉ DagsHub)."""
+        source = self.cell_with("KẾT THÚC")
+        lines = [line.strip() for line in source.splitlines() if line.strip()]
+        self.assertEqual(lines[-1], "print(end_session())")
+        self.assertIn("from src.api import end_session", source)
 
 
 class TestConfigCell(unittest.TestCase):

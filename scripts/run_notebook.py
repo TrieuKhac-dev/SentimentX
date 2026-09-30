@@ -147,22 +147,28 @@ def code_cells(notebook):
 def keep_cells(sources, preflight_only):
     """Cắt bỏ từ ô CHẠY thí nghiệm trở đi khi chỉ muốn kiểm trước.
 
-    Ô đó được nhận ra bằng chính lời gọi thư viện (`experiment_run.run(`), không theo số thứ tự:
-    notebook có thể thêm/bớt ô, mà ô nào nạp model thì phải là ô đó. Các ô SAU nó cũng bỏ, vì chúng
-    đọc kết quả của nó (`run_result`) - chạy nốt sẽ báo lỗi vô nghĩa và làm người đọc tưởng hỏng.
+    Ô đó được nhận ra bằng DẤU nằm trong chính nó (`notebooks.RUN_MARKER`), không theo số thứ tự và
+    không theo câu chữ: notebook có thể thêm/bớt ô, mà ô nào nạp model thì phải là ô đó. Các ô SAU nó
+    cũng bỏ, vì chúng đọc kết quả của nó (`run_result`) - chạy nốt sẽ báo lỗi vô nghĩa và làm người
+    đọc tưởng hỏng.
+
+    CÒN NHẬN RA BẰNG LỜI GỌI `experiment_run.run(` khi notebook chưa mang dấu - 12 notebook đã ghim
+    trước Batch 5b là bản cũ. Nhánh dự phòng này bị xoá ở chặng dựng lại 12 notebook; từ đó thiếu dấu
+    là LỖI kèm cách sửa.
     """
     if not preflight_only:
         return sources
     for index, source in enumerate(sources):
-        if "experiment_run.run(" in source:
+        if notebooks.RUN_MARKER in source or "experiment_run.run(" in source:
             if index == 0:
                 raise RunNotebookError(
                     "Ô chạy thí nghiệm nằm ở NGAY ô đầu tiên - notebook này lạ, kiểm lại trước khi "
                     "dùng `--preflight-only`.")
             return sources[:index]
     raise RunNotebookError(
-        "Không tìm thấy ô chạy thí nghiệm (không có lời gọi `experiment_run.run(`) nên "
-        "`--preflight-only` sẽ chạy cả lượt thật. Kiểm lại notebook.")
+        "Không tìm thấy ô chạy thí nghiệm (không có dấu {!r}) nên `--preflight-only` sẽ chạy cả lượt "
+        "thật. Dựng lại notebook từ bản mẫu mới: xem docs/00_workflow/10_template_notebook.md."
+        .format(notebooks.RUN_MARKER))
 
 
 def forward_env(basename=".env"):

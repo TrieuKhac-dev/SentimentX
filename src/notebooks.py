@@ -17,6 +17,11 @@ import json
 
 MARKER = "# --- BẢN CODE ĐÃ GHIM (do scripts/pin.py ghi; sửa tay sẽ bị ghi đè) ---"
 
+# Ô CHẠY thí nghiệm: `scripts/run_notebook.py --preflight-only` phải biết ô nào NẠP MODEL để dừng
+# trước nó. Trước đây nó dò theo lời gọi `experiment_run.run(` - đổi câu chữ trong ô là tool hỏng
+# trong im lặng. Nay ô mang DẤU này và tool tìm theo dấu, y như ô GHIM ở trên.
+RUN_MARKER = "# --- Ô CHẠY THÍ NGHIỆM (scripts/run_notebook.py tìm theo dấu này) ---"
+
 EXP_DIR_PREFIX = "EXP_DIR = "
 
 
@@ -59,6 +64,18 @@ def pinned_cell(notebook, required=False):
     if required:
         raise NotebookError("Notebook không có ô ghim ({}). Sửa bằng `python scripts/pin.py`."
                             .format(MARKER))
+    return None
+
+
+def run_cell(notebook):
+    """Ô CHẠY thí nghiệm (ô mã có dấu `RUN_MARKER`), hoặc None nếu notebook không có.
+
+    VÌ SAO TÌM THEO DẤU: ô chạy là ô NẠP MODEL. Đoán sai nó thì `--preflight-only` chạy cả lượt
+    thật, hoặc dừng sai chỗ. Dấu nằm trong chính ô nên không phụ thuộc số thứ tự hay câu chữ.
+    """
+    for cell in notebook.get("cells") or []:
+        if cell.get("cell_type") == "code" and RUN_MARKER in source_of(cell):
+            return cell
     return None
 
 
