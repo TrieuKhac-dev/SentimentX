@@ -5,7 +5,7 @@ CHỈ re-export - không viết logic ở đây (test `tests/api/test_api.py` ch
 """
 
 from src.workflow import bootstrap, checks, notebooks, preflight, repo, resume, runtime  # noqa: F401
-from src.workflow.runtime import end_session  # noqa: F401
+from src.workflow.runtime import end_session, end_session_on_error  # noqa: F401
 
-__all__ = ["bootstrap", "checks", "end_session", "notebooks", "preflight", "repo", "resume",
-           "runtime"]
+__all__ = ["bootstrap", "checks", "end_session", "end_session_on_error", "notebooks", "preflight",
+           "repo", "resume", "runtime"]

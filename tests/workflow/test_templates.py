@@ -250,19 +250,41 @@ class TestBootstrap(unittest.TestCase):
         self.assertEqual(len(found), 1, "phải có ĐÚNG MỘT ô mang dấu ô chạy")
         self.assertIn("experiment_run.run(", notebooks.source_of(found[0]))
 
-    def test_o_kiem_truoc_ngat_phien_SAU_khi_in_va_TRUOC_khi_dung(self):
-        """Ô kiểm trước: in danh sách việc phải sửa -> NGẮT PHIÊN -> dừng.
+    def test_o_kiem_truoc_in_xong_roi_moi_ngat_phien(self):
+        """Ô kiểm trước: IN danh sách việc phải sửa -> (khối bảo vệ) NGẮT PHIÊN -> dừng.
 
         Thứ tự là chịu lực: ngắt phiên làm kernel mất kết nối, nên ngắt trước khi in là giấu mất thứ
-        người đọc cần nhất (sửa gì để chạy được).
+        người đọc cần nhất (sửa gì để chạy được). Việc ngắt do `end_session_on_error` làm, và nó chạy
+        SAU khi thân ô đã in xong - nên trong ô, `print_report` phải đứng trước lệnh dừng.
         """
         source = self.cell_with("preflight.print_report")
         printed = source.index("preflight.print_report(")
-        stopped = source.index("print(end_session())")
         raised = source.index("raise SystemExit(")
-        self.assertLess(printed, stopped, "phải IN danh sách việc phải sửa TRƯỚC khi ngắt phiên")
-        self.assertLess(stopped, raised, "phải ngắt phiên TRƯỚC khi dừng")
-        self.assertIn("from src.api import end_session", source)
+        self.assertLess(printed, raised, "phải IN danh sách việc phải sửa TRƯỚC khi dừng")
+        self.assertIn("with end_session_on_error():", source,
+                      "ô này phải nằm trong khối bảo vệ để lỗi bất ngờ cũng ngắt được phiên")
+        self.assertIn("from src.api import end_session_on_error", source)
+
+    def test_moi_o_co_the_loi_deu_co_khoi_bao_ve(self):
+        """LUẬT CỦA BẢN MẪU: ô nào lỗi cũng phải IN XONG rồi mới NGẮT PHIÊN Colab.
+
+        Ô không bọc mà lỗi thì Jupyter dừng ngay tại đó, các ô sau - kể cả ô kết thúc - không chạy, và
+        phiên vẫn giữ GPU cho tới khi Colab tự thu hồi. Nên mọi ô CODE có thể lỗi đều phải bọc.
+
+        NGOẠI LỆ CÓ LÝ DO: lời gọi `experiment_run.run(plan)`. Đường lỗi của LƯỢT CHẠY đã do chính thư
+        viện ngắt (nhật ký đóng TRƯỚC rồi mới ngắt), nên bọc thêm là ngắt hai lần cho cùng một lượt.
+        """
+        data = notebook()
+        guarded = [index for index, cell in enumerate(data["cells"])
+                   if cell.get("cell_type") == "code"
+                   and "with end_session_on_error():" in notebooks.source_of(cell)]
+        self.assertEqual(guarded, [2, 3, 4, 5, 7],
+                         "các ô phải có khối bảo vệ (bootstrap, cấu hình, kiểm trước, chạy, kết thúc): "
+                         "{}".format(guarded))
+
+        run_cell = self.cell_with("experiment_run.run(")
+        self.assertIn("run_result = experiment_run.run(plan)", run_cell,
+                      "lời gọi chạy thật phải ở mức ngoài cùng, KHÔNG nằm trong khối bảo vệ")
 
     def test_o_ket_thuc_ngat_phien_o_cuoi_cung(self):
         """Ô kết thúc: ngắt phiên là việc CUỐI (sau khi in kết quả và địa chỉ DagsHub)."""

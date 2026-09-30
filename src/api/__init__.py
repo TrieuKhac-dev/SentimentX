@@ -22,11 +22,11 @@ from src.api.experiments import (encoder_run, experiment_run, experiments,  # no
                                  model_config, prompts)
 from src.api.reporting import reports  # noqa: F401
 from src.api.tracking import run_meta, tracking  # noqa: F401
-from src.api.workflow import (bootstrap, checks, end_session, notebooks, preflight,  # noqa: F401
-                              repo, resume, runtime)
+from src.api.workflow import (bootstrap, checks, end_session, end_session_on_error,  # noqa: F401
+                              notebooks, preflight, repo, resume, runtime)
 
 __all__ = ["bootstrap", "checks", "config", "dataset", "encoder_run", "end_session",
-           "experiment_run", "experiments", "model_config", "notebooks", "paths", "preflight",
-           "prompts", "registry", "repo", "reports", "resume", "run_meta", "runlog", "runtime",
-           "tracking", "utils", "versioning"]
+           "end_session_on_error", "experiment_run", "experiments", "model_config", "notebooks",
+           "paths", "preflight", "prompts", "registry", "repo", "reports", "resume", "run_meta",
+           "runlog", "runtime", "tracking", "utils", "versioning"]
 

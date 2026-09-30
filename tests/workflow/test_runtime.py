@@ -12,6 +12,8 @@ CHẮN đang ở Colab và cấu hình cho phép.
 Chạy: python -m unittest discover -s tests
 """
 
+import contextlib
+import io
 import os
 import sys
 import tempfile
@@ -447,6 +449,86 @@ class TestEndSession(unittest.TestCase):
                 self.assertTrue(comments, "thiếu dòng chú thích giải thích cờ trong {}".format(name))
                 self.assertEqual(path.read_bytes()[:3] == b"\xef\xbb\xbf", expect_bom,
                                  "BOM của {} không đúng quy ước".format(name))
+
+
+class EndSessionOnErrorTest(unittest.TestCase):
+    """Khối `runtime.end_session_on_error` - dùng ở mọi ô notebook để "ô nào lỗi cũng ngắt phiên".
+
+    VÌ SAO KHOÁ NHỮNG CA NÀY: khối này là thứ duy nhất khiến một ô notebook lỗi giữa chừng không bỏ
+    lại phiên Colab đang giữ GPU. Ba mặt của nó: lỗi thường (ngắt + còn dấu vết), ô TỰ dừng bằng
+    `SystemExit` (ngắt, nhưng không in thêm khi không có lời nhắn), và người dùng bấm Stop
+    (`KeyboardInterrupt` - KHÔNG ngắt, vì họ ngồi trước máy và cần phiên để sửa).
+    """
+
+    def setUp(self):
+        patcher = mock.patch.dict(os.environ, {}, clear=False)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        for name in ("COLAB_RELEASE_TAG", "COLAB_GPU", runtime.ENV_END_SESSION):
+            os.environ.pop(name, None)
+
+    def install_fake_colab(self):
+        """`google.colab` GIẢ; trả về danh sách các lần gọi `unassign`."""
+        calls = []
+
+        def unassign():
+            calls.append("unassign")
+
+        colab_runtime = types.ModuleType("google.colab.runtime")
+        colab_runtime.unassign = unassign
+        package = types.ModuleType("google.colab")
+        package.runtime = colab_runtime
+        patcher = mock.patch.dict(sys.modules, {"google.colab": package,
+                                                "google.colab.runtime": colab_runtime})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return calls
+
+    def test_than_khoi_thanh_cong_thi_khong_ngat(self):
+        calls = self.install_fake_colab()
+        with contextlib.redirect_stdout(io.StringIO()):
+            with runtime.end_session_on_error():
+                pass
+        self.assertEqual(calls, [])
+
+    def test_loi_thuong_thi_in_dau_vet_Roi_moi_ngat(self):
+        calls = self.install_fake_colab()
+        buffer = io.StringIO()
+        with self.assertRaises(RuntimeError):
+            with contextlib.redirect_stderr(buffer):
+                with runtime.end_session_on_error():
+                    raise RuntimeError("hỏng giữa chừng")
+        self.assertEqual(calls, ["unassign"])
+        self.assertIn("hỏng giữa chừng", buffer.getvalue(), "dấu vết phải còn nguyên")
+
+    def test_o_tu_dung_thi_in_ly_do_roi_moi_ngat(self):
+        calls = self.install_fake_colab()
+        buffer = io.StringIO()
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stdout(buffer):
+                with runtime.end_session_on_error():
+                    raise SystemExit("DỪNG: còn 2 việc phải sửa")
+        self.assertEqual(calls, ["unassign"])
+        self.assertIn("DỪNG: còn 2 việc phải sửa", buffer.getvalue())
+
+    def test_systemexit_khong_loi_nhan_thi_khong_in_them(self):
+        """`SystemExit(1)` chỉ là mã thoát: ô đã in lý do rồi, in thêm số 1 là vô nghĩa."""
+        calls = self.install_fake_colab()
+        buffer = io.StringIO()
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stdout(buffer):
+                with runtime.end_session_on_error():
+                    raise SystemExit(1)
+        self.assertEqual(calls, ["unassign"])
+        self.assertNotIn("1", [line.strip() for line in buffer.getvalue().splitlines()])
+
+    def test_nguoi_dung_bam_stop_thi_khong_ngat(self):
+        calls = self.install_fake_colab()
+        with self.assertRaises(KeyboardInterrupt):
+            with contextlib.redirect_stdout(io.StringIO()):
+                with runtime.end_session_on_error():
+                    raise KeyboardInterrupt()
+        self.assertEqual(calls, [])
 
 
 if __name__ == "__main__":

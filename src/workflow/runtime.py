@@ -21,9 +21,11 @@ hoặc `1` là bật, `0` là tắt). Hàm này KHÔNG BAO GIỜ ném lỗi ra n
 đã tốn hàng chục phút.
 """
 
+import contextlib
 import os
 import sys
 import time
+import traceback
 from pathlib import Path
 
 ENV_NAME = "SENTIMENTX_ENV"
@@ -99,6 +101,38 @@ def end_session(enabled=None, log=None):
         return _report("KHÔNG ngắt được phiên Colab ({}: {}).".format(
             type(exc).__name__, exc), "warn", log)
     return _report("Đã ngắt phiên Colab để giữ quota GPU.", "step", log)
+
+
+@contextlib.contextmanager
+def end_session_on_error(log=None):
+    """Ngắt phiên Colab khi THÂN KHỐI lỗi hoặc tự dừng - và chỉ sau khi đã IN xong.
+
+    VÌ SAO CÓ Ở CÁC Ô NOTEBOOK: ô nào lỗi thì Jupyter dừng ngay tại ô đó, nên mọi việc ở các ô SAU -
+    kể cả việc ngắt phiên ở ô cuối - không bao giờ chạy, và phiên vẫn giữ GPU. Bọc thân ô bằng khối
+    này thì ô nào lỗi cũng ngắt phiên.
+
+    THỨ TỰ LÀ CHỊU LỰC: IN trước (dấu vết lỗi, hoặc câu "DỪNG: ..." của chính ô), rồi mới NGẮT. Ngắt
+    trước là kernel mất kết nối, và người đọc mất đúng thứ họ cần để sửa.
+
+    KHÔNG ngắt khi người dùng bấm Stop: `KeyboardInterrupt` là `BaseException`, không nằm trong cặp
+    `(Exception, SystemExit)` dưới đây - lúc đó họ ngồi trước máy và cần giữ phiên để sửa rồi chạy lại.
+
+    `SystemExit(1)` (không kèm lời nhắn) thì không in gì thêm: chính ô đã in lý do trước khi dừng.
+    Việc gọi `end_session` lần hai cũng không phải vấn đề: hàm đó chỉ ngắt khi còn phiên để ngắt.
+    """
+    try:
+        yield
+    except (Exception, SystemExit) as exc:
+        if isinstance(exc, SystemExit):
+            # Chỉ in khi mã thoát CÓ LỜI NHẮN: `SystemExit(1)` chỉ là mã thoát (ô đã in lý do trước
+            # khi dừng), còn `SystemExit("DỨNG: ...")` mới là câu cần đọc.
+            if isinstance(exc.code, str) and exc.code.strip():
+                print(exc.code)
+        else:
+            # Dấu vết ra stderr - Jupyter hiện cả hai luồng trong ô, và đây là quy ước của Python.
+            traceback.print_exc()
+        print(end_session(log=log))
+        raise
 
 
 def _report(message, level, log):
