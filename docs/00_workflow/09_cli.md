@@ -49,6 +49,7 @@ sẵn sàng dán.
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
+| Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
 
 ## 3. Câu lệnh bị từ chối, và mã thoát
 

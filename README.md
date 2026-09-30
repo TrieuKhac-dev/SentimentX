@@ -193,6 +193,10 @@ python run_check_examples.py --hash e0ccc484
 
 # 9) Test tự động (không cần GPU, không cần model)
 python -m unittest discover -s tests
+
+# 10) Dọn rác máy sinh ra trong cây làm việc (__pycache__, *.pyc, .ipynb_checkpoints).
+#     Không bao giờ xoá file đang được git theo dõi; --dry-run để xem trước.
+python scripts/clean.py
 ```
 
 Mọi kết quả đều thuộc một thí nghiệm và nằm ở
