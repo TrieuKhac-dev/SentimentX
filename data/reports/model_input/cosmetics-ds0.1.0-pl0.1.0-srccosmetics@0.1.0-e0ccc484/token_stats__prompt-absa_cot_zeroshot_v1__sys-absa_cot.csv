@@ -8,3 +8,6 @@ visobert,test,XLMRobertaTokenizer,none,15002,256,1518,44.01,36,97,124,159,0.0,71
 qwen3-4b-instruct-2507,train,Qwen2Tokenizer,none,151643,2304,12302,372.5,367,411,441,617,0.0,-,-,17.33
 qwen3-4b-instruct-2507,val,Qwen2Tokenizer,none,151643,2304,1524,371.61,367,405,439,524,0.0,-,-,17.67
 qwen3-4b-instruct-2507,test,Qwen2Tokenizer,none,151643,2304,1518,373.17,367,416,437,467,0.0,-,-,17.1
+qwen3-0.6b,train,Qwen2Tokenizer,none,151643,2304,12302,372.5,367,411,441,617,0.0,-,-,17.33
+qwen3-0.6b,val,Qwen2Tokenizer,none,151643,2304,1524,371.61,367,405,439,524,0.0,-,-,17.67
+qwen3-0.6b,test,Qwen2Tokenizer,none,151643,2304,1518,373.17,367,416,437,467,0.0,-,-,17.1
