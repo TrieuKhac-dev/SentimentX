@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test bảy kiểm tra tĩnh của CI (src/workflow/checks.py, scripts/ci_checks.py).
+"""Test tám kiểm tra tĩnh của CI (src/workflow/checks.py, scripts/ci_checks.py).
 
 Mỗi kiểm tra được thử theo HAI chiều: cây sạch thì không báo gì, và cây CỐ TÌNH vi phạm thì báo
 đúng chỗ. Chiều thứ hai mới là chiều đáng test - một kiểm tra không bao giờ báo lỗi thì cũng không
@@ -9,6 +9,7 @@ Chạy: python -m unittest discover -s tests
 """
 
 import json
+import os
 import shutil
 import tempfile
 import unittest
@@ -244,6 +245,40 @@ class DocumentationLinksTest(unittest.TestCase):
     def test_khong_co_readme_thi_khong_bao_loi(self):
         (self.root / "README.md").unlink()
         self.assertEqual(checks.documentation_links(self.root), [])
+
+
+class OrphanShardsTest(unittest.TestCase):
+    """Kiểm 8: bảng số đo mồ côi - file ví dụ bị sửa tại chỗ thì bảng cũ không tái lập được nữa.
+
+    Vì sao cần: `collect_reports.py` quét MỌI `token_stats*.csv` của phiên bản để dựng
+    `model_input.csv`, nên bảng mồ côi vẫn được trình bày như một phép đo hợp lệ. Phép kiểm này cũng
+    là chiều "cây sạch": bảng đang commit phải khớp cặp prompt + ví dụ hiện tại.
+    """
+
+    VERSION = "cosmetics-ds0.1.0-pl0.1.0-srcx@0.1.0-abc12345"
+
+    def write_version(self, root, name):
+        version = Path(root).joinpath("reports", "model_input", self.VERSION)
+        version.mkdir(parents=True, exist_ok=True)
+        (version / name).write_text("model,split\n", encoding="utf-8")
+        return version
+
+    def test_cay_that_thi_khong_bao(self):
+        self.assertEqual(checks.orphan_shards(), [])
+
+    def test_bang_lech_bo_vi_du_thi_bao(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.write_version(tmp, "token_stats__prompt-absa_cot_v1__ex-deadbeef__sys-absa_cot.csv")
+            with mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: tmp}):
+                found = checks.orphan_shards()
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("deadbeef", found[0])
+
+    def test_chua_co_bang_nao_thi_khong_bao(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            Path(tmp).joinpath("reports", "model_input").mkdir(parents=True)
+            with mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: tmp}):
+                self.assertEqual(checks.orphan_shards(), [])
 
 
 if __name__ == "__main__":

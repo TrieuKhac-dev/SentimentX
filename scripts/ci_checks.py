@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Bảy kiểm tra tĩnh cho CI: chạy ở máy trước khi push, và tự động trên nhánh `experiment`.
+"""Tám kiểm tra tĩnh cho CI: chạy ở máy trước khi push, và tự động trên nhánh `experiment`.
 
 CÁCH DÙNG
     python scripts/ci_checks.py            # mã thoát 0 nếu sạch, 1 nếu còn việc phải sửa
     python scripts/ci_checks.py --quiet    # chỉ in khi có việc phải sửa
 
-BẢY KIỂM TRA (chi tiết ở src/workflow/checks.py và docs/00_workflow/03_ci.md)
+TÁM KIỂM TRA (chi tiết ở src/workflow/checks.py và docs/00_workflow/03_ci.md)
     dữ liệu bị git theo dõi, quy tắc .gitignore, notebook sạch output, registry hợp lệ,
-    config thí nghiệm hợp lệ, REPO_SHA đã ghim, link trong tài liệu.
+    config thí nghiệm hợp lệ, REPO_SHA đã ghim, link trong tài liệu, bảng số đo mồ côi.
 
 KHÔNG CHẠY MODEL, KHÔNG ĐỌC DỮ LIỆU, KHÔNG GỌI MẠNG
 CI không có GPU và không có dữ liệu; những thứ phụ thuộc dữ liệu (thiếu file, thiếu GPU) do
@@ -33,7 +33,7 @@ from src.core import paths, utils
 
 
 def parse_args(argv=None):
-    parser = argparse.ArgumentParser(description="Bảy kiểm tra tĩnh cho CI (không cần GPU/dữ liệu).")
+    parser = argparse.ArgumentParser(description="Tám kiểm tra tĩnh cho CI (không cần GPU/dữ liệu).")
     parser.add_argument("--root", default=None, help="Gốc repo cần kiểm (mặc định: gốc dự án).")
     parser.add_argument("--quiet", action="store_true", help="Chỉ in khi có việc phải sửa.")
     return parser.parse_args(argv)

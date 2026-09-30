@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""BẢY kiểm tra tĩnh cho CI: không cần GPU, không cần dữ liệu, không gọi mạng.
+"""TÁM kiểm tra tĩnh cho CI: không cần GPU, không cần dữ liệu, không gọi mạng.
 
-BẢY KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
+TÁM KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
     1. Không file DỮ LIỆU nào bị git theo dõi (ngoài bảng chi tiết trong `pipeline/`, `eda/` và
        metadata/report được phép) - chặn việc vô tình commit dữ liệu nặng.
     2. `.gitignore` đúng: dữ liệu nặng bị bỏ qua, nhưng metadata và report thì KHÔNG - mất metadata
@@ -16,6 +16,8 @@ BẢY KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
        không được bản code nào, mà lỗi chỉ lộ ra lúc chạy.
     7. Link trong tài liệu (`README.md`, `docs/**/*.md`) trỏ tới file có thật - người mới đọc tài
        liệu trước tiên, mà không ai kiểm đường dẫn trong đó.
+    8. Không có BẢNG SỐ ĐO mồ côi: bảng của một bộ ví dụ/khối hệ thống đã bị sửa tại chỗ thì không tái
+       lập được nữa, mà `collect_reports.py` vẫn quét nó vào `model_input.csv`.
 
 Logic nằm ở đây chứ không nằm trong script vì CI chạy `python scripts/ci_checks.py` còn test chạy
 thẳng hàm trong file này - hai bên kiểm đúng cùng một thứ, không phải hai bản.
@@ -30,7 +32,7 @@ import subprocess
 from pathlib import Path
 
 from src.core import dataset as dataset_module, paths, utils, versioning
-from src.experiments import experiments
+from src.experiments import experiments, prompts
 from src.workflow import notebooks, repo
 from src import labels as labels_module
 from src import tracking, training
@@ -68,7 +70,7 @@ class CheckError(Exception):
 
 
 def run(root=None, log=None):
-    """Chạy bảy kiểm tra, trả về `{problems, notes, info}`. KHÔNG ném."""
+    """Chạy tám kiểm tra, trả về `{problems, notes, info}`. KHÔNG ném."""
     root = Path(root or paths.root())
     problems, notes, info = [], [], {"root": utils.rel(root)}
 
@@ -395,7 +397,7 @@ def pinned_value(source, name):
     return matched.group(1).strip() if matched else None
 
 
-# Bảy kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
+# Tám kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
 # `run()` phía trên vẫn dùng được) để bên gọi - script in số việc, test đếm số nhóm - cùng đọc MỘT
 # danh sách: thêm một kiểm tra nữa thì không phải đi sửa chỗ nào đếm số nữa.
 # ---
@@ -450,6 +452,32 @@ def documentation_links(root):
     return found
 
 
+# ---
+# 8. Bảng số đo mồ côi
+# ---
+
+
+def orphan_shards(root=None):
+    """Bảng số đo KHÔNG còn tái lập được với prompt + bộ ví dụ hiện tại.
+
+    `collect_reports.py` quét MỌI bảng số đo trong `model_input/` (kể cả thư mục con) để dựng
+    `model_input.csv`, nên một bảng mồ côi vẫn được trình bày như một phép đo hợp lệ. Lỗi thật đã
+    gặp: file ví dụ bị sửa nội dung tại chỗ, `ex-<sha8>` trong tên bảng đổi, bảng cũ ở lại một mình.
+
+    `root` KHÔNG dùng: bảng số đo nằm ở gốc DỮ LIỆU (đổi được bằng `SENTIMENTX_DATA_ROOT`), không nằm
+    trong gốc repo - cùng lý do với các phép kiểm đọc config/dataset ở trên.
+    """
+    directory = paths.report("model_input")
+    if not directory.is_dir():
+        return []
+    found = []
+    for version in sorted(path for path in directory.iterdir() if path.is_dir()):
+        names = [path.name for path in version.glob("*.csv")]
+        for item in prompts.orphan_tables(names):
+            found.append("{}: {}".format(utils.rel(version), item))
+    return found
+
+
 CHECKS = (
     ("dữ liệu bị git theo dõi", data_tracked),
     ("quy tắc .gitignore", gitignore_rules),
@@ -458,6 +486,7 @@ CHECKS = (
     ("config thí nghiệm", experiment_configs),
     ("REPO_SHA đã ghim", pinned_shas),
     ("link trong tài liệu", documentation_links),
+    ("bảng số đo mồ côi", orphan_shards),
 )
 
 
