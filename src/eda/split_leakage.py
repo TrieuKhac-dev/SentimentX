@@ -21,7 +21,7 @@ Báo cáo chỉ có số liệu: mỗi số liệu xuất hiện một lần (b�
 
 from collections import Counter, defaultdict
 
-from src import config, utils
+from src.core import config, utils
 
 # Nhãn hiển thị cho ô trống (review không nhắc tới aspect đó)
 NULL_TEXT = "(không nhắc tới)"

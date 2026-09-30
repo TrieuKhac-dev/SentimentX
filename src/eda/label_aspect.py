@@ -20,7 +20,7 @@ Báo cáo chỉ có số liệu: mỗi số liệu xuất hiện một lần (b�
 
 from collections import Counter
 
-from src import utils
+from src.core import utils
 
 # Thứ tự nhãn hiển thị trong biểu đồ và bảng
 LABEL_ORDER = ("positive", "negative", "neutral")

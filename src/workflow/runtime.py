@@ -142,7 +142,7 @@ def load_env(colab_env_file=None):
 
 def _local_env_path():
     """File `.env` ở gốc repo, không phụ thuộc thư mục đang đứng."""
-    from src import paths
+    from src.core import paths
     return str(paths.root() / ".env")
 
 
@@ -172,7 +172,7 @@ def drive_dir(folder=None, candidates=None, attempts=1, delay=0.0):
 
     Trả về `Path` hoặc None (chưa mount, hoặc chưa có thư mục nào khớp).
     """
-    from src import paths
+    from src.core import paths
 
     folder = folder if folder is not None else os.environ.get("SENTIMENTX_DRIVE_FOLDER", "")
     settings = paths.cfg().get("colab") or {}
@@ -224,7 +224,7 @@ def drive_candidates(places=None, limit=40):
     tắt xét trước lượt thứ ba vì nó chỉ đọc một thư mục ẩn nhỏ, còn lượt thứ ba phải đi hết cây một cấp
     của MyDrive - đúng chỗ tốn thời gian nhất.
     """
-    from src import paths
+    from src.core import paths
 
     settings = paths.cfg().get("colab") or {}
     marker = str(settings.get("folder_marker") or "")
@@ -286,7 +286,7 @@ def folder_marker():
     Notebook cần tên này chỉ để NÓI RA khi thư mục được nhận bằng cấu trúc gói chứ không bằng dấu
     (`drive_dir` đã đọc cấu hình cho việc tìm). Không viết cứng tên file ở hai chỗ.
     """
-    from src import paths
+    from src.core import paths
 
     return str((paths.cfg().get("colab") or {}).get("folder_marker") or "")
 
@@ -298,7 +298,7 @@ def drive_roots(places=None):
     ở gốc riêng, nên khi không thấy thư mục nhóm thì phải in TỪNG gốc - người đọc cần biết gốc nào
     rỗng, gốc nào có thư mục lạ.
     """
-    from src import paths
+    from src.core import paths
 
     settings = paths.cfg().get("colab") or {}
     places = list(places if places is not None else settings.get("drive_candidates") or [])
@@ -324,7 +324,7 @@ def drive_listing(places=None, limit=12):
     chia sẻ rồi mà notebook bảo chưa thấy" - khi đó hoặc chưa bấm "Add shortcut to My Drive", hoặc lối
     tắt đã có mà thư mục đích không có dấu hiệu nào của gói.
     """
-    from src import paths
+    from src.core import paths
 
     settings = paths.cfg().get("colab") or {}
     shortcut = str(settings.get("shortcut_dir") or "")
@@ -358,7 +358,7 @@ def looks_like_group_dir(path):
 
 def drive_env_file(folder=None, candidates=None):
     """File env trên Drive (`<Drive>/env/.env.colab`), hoặc None nếu chưa thấy Drive."""
-    from src import paths
+    from src.core import paths
 
     root = drive_dir(folder=folder, candidates=candidates)
     if root is None:
@@ -374,7 +374,7 @@ def _apply_file(path):
     Đặt biến thành chuỗi rỗng thì thư viện bên dưới không hiểu là "chưa cấu hình": `huggingface_hub`
     ghép `os.path.join("", "hub")` thành thư mục `hub` TƯƠNG ĐỐI, và tải model vào ngay trong repo
     (đã gặp thật: 6,3 GB cache nằm trong cây làm việc). Khoá để trống nghĩa là "không đặt", đúng quy
-    ước của `src/paths.py` với hai gốc đường dẫn.
+    ước của `src/core/paths.py` với hai gốc đường dẫn.
 
     VÌ SAO ĐỌC BẰNG `utf-8-sig`: tệp env gửi cho người chạy được ghi kèm BOM để công cụ Windows
     (Notepad, trình xem trong WinRAR) hiện đúng chữ tiếng Việt. `utf-8-sig` bỏ BOM nếu có và hành xử

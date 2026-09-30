@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test sinh bảng tổng hợp (src/reports.py, scripts/collect_reports.py).
+"""Test sinh bảng tổng hợp (src/reporting/reports.py, scripts/collect_reports.py).
 
 Điều quan trọng nhất được khoá ở đây:
 
@@ -21,7 +21,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import paths, reports, utils
+from src.core import paths, utils
+from src.reporting import reports
 
 METRICS_COLUMNS = ["aspect", "sentiment", "metric", "value"]
 METRICS_ROWS = [

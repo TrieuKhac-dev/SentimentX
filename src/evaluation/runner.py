@@ -36,7 +36,8 @@ cần GPU (`python -m unittest discover -s tests`).
 import time
 from pathlib import Path
 
-from src import model_config, paths, utils
+from src.experiments import model_config
+from src.core import paths, utils
 from src.evaluation import metrics, parse, records
 from src.preprocessing import qwen
 
@@ -194,7 +195,7 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
     nơi chấm điểm dùng ĐÚNG kết quả mà bộ đọc đã phân tích - nếu không, việc chấm điểm và
     việc báo cáo tỉ lệ đọc được có thể nói hai chuyện khác nhau.
 
-    `store` (tuỳ chọn) là `src.resume.Parts`: mỗi lô xong được ghi xuống đĩa NGAY, nên bị ngắt
+    `store` (tuỳ chọn) là `src.workflow.resume.Parts`: mỗi lô xong được ghi xuống đĩa NGAY, nên bị ngắt
     giữa chừng thì lần chạy sau biết mẫu nào đã xong. Không truyền thì kết quả chỉ nằm trong bộ
     nhớ cho tới lúc ghi file cuối cùng.
 

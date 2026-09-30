@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test tầng config thí nghiệm (src/experiments.py).
+"""Test tầng config thí nghiệm (src/experiments/experiments.py).
 
 Chạy: python -m unittest discover -s tests
 
@@ -18,7 +18,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import experiments, model_config, paths
+from src.experiments import experiments, model_config
+from src.core import paths
 
 TEST_MODEL = "zz-test-model"
 TEST_METHOD = "test-method"

@@ -16,7 +16,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import paths
+from src.core import paths
 from src.tracking import run_meta
 
 
@@ -142,12 +142,12 @@ class TestRecords(unittest.TestCase):
     def test_both_run_paths_pass_the_previous_record(self):
         """Hai đường chạy đều phải truyền `previous=` - thiếu nó là `attempts[]` bị ghi đè.
 
-        Lỗi thật: cả `src/experiment_run.py` lẫn `src/encoder_run.py` gọi `run_meta.build` mà không truyền
+        Lỗi thật: cả `src/experiments/experiment_run.py` lẫn `src/experiments/encoder_run.py` gọi `run_meta.build` mà không truyền
         `previous`, nên mỗi phiên dựng lại bản ghi từ đầu và lịch sử attempt biến mất. Không kiểm được
         bằng cách chạy (cần model thật), nên soi thẳng hai chỗ gọi trong mã nguồn.
         """
-        for name in ("experiment_run.py", "encoder_run.py"):
-            text = (paths.root() / "src" / name).read_text(encoding="utf-8")
+        for name in ("src/experiments/experiment_run.py", "src/experiments/encoder_run.py"):
+            text = (paths.root() / name).read_text(encoding="utf-8")
             self.assertIn("previous=run_meta.read(out_dir)", text, name)
 
     def test_no_absolute_paths_in_the_file(self):

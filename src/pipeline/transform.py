@@ -19,7 +19,7 @@ Bước này KHÔNG đọc/ghi file - việc ghi do bước Export đảm nhiệ
 
 from collections import Counter
 
-from src import config
+from src.core import config
 
 
 def _label_id(value, label_to_id):

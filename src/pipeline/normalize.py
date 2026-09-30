@@ -18,7 +18,7 @@ Cuối bước có kiểm tra "dấu vân tay nhãn" trước và sau để ch�
 
 import hashlib
 
-from src import config, utils
+from src.core import config, utils
 
 
 def labels_signature(splits, aspects):

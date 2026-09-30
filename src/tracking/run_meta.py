@@ -39,7 +39,7 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from src import paths, runlog, utils
+from src.core import paths, runlog, utils
 
 # Phiên bản cấu trúc của file này. Đổi cấu trúc thì tăng số, để chỗ đọc biết cách đọc.
 SCHEMA_VERSION = 1

@@ -15,7 +15,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import paths
+from src.core import paths
 
 SPEC = importlib.util.spec_from_file_location("pin", paths.root() / "scripts" / "pin.py")
 pin = importlib.util.module_from_spec(SPEC)

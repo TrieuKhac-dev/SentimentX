@@ -14,14 +14,14 @@ mà **mô tả bài toán bằng lời** rồi để model sinh ra JSON.
 
 PROMPT NẰM Ở FILE, KHÔNG NẰM Ở ĐÂY
 ---
-Nội dung prompt ở configs/prompts/<tên>.txt (cách nạp và kiểm tra: src/prompts.py);
-model dùng cấu hình nào do configs/models/<model_id>.yaml quyết định (src/model_config.py);
+Nội dung prompt ở configs/prompts/<tên>.txt (cách nạp và kiểm tra: src/experiments/prompts.py);
+model dùng cấu hình nào do configs/models/<model_id>.yaml quyết định (src/experiments/model_config.py);
 Nhờ vậy đổi prompt = thêm/sửa một file .txt rồi đổi một dòng YAML, không phải
 sửa code; và vì prompt KHÔNG nằm trong configs/pipeline.yaml nên đổi prompt không
-làm sinh ra mã phiên bản dữ liệu mới (xem src/versioning.py).
+làm sinh ra mã phiên bản dữ liệu mới (xem src/core/versioning.py).
 """
 
-from src import model_config, prompts
+from src.experiments import model_config, prompts
 from src.preprocessing import loader
 
 MODEL_NAME = "Qwen/Qwen3-4B-Instruct-2507"
@@ -177,7 +177,7 @@ def conversations(texts, aspects=None, label_map=None, prompt_name=None):
 
     Prompt một lượt (không có dòng đánh dấu) cho ra MỘT message người dùng như trước;
     prompt có [SYSTEM]/[USER]/[ASSISTANT] cho ra hội thoại nhiều lượt (few-shot/CoT) -
-    hợp đồng file prompt ghi ở src/prompts.py.
+    hợp đồng file prompt ghi ở src/experiments/prompts.py.
     """
     template = load_prompt(prompt_name)
     return [

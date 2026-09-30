@@ -10,7 +10,7 @@ import importlib.util
 import json
 from pathlib import Path
 
-from src import utils
+from src.core import utils
 
 NAME = "adapter"
 DESCRIPTION = "LoRA (peft): adapter + một đầu phân loại cho mỗi khía cạnh."

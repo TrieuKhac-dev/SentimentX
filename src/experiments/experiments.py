@@ -27,7 +27,8 @@ from pathlib import Path
 
 import yaml
 
-from src import model_config, paths, utils
+from src.experiments import model_config
+from src.core import paths, utils
 
 # Năm file cấu hình dùng chung, theo đúng thứ tự hợp nhất.
 SHARED = ("repo", "task", "evaluation", "training", "tracking")
@@ -101,7 +102,7 @@ def load_shared(model_id=None):
     """Hợp nhất các lớp ĐANG CÓ khi chưa có thư mục thí nghiệm.
 
     Dùng cho công cụ cần đọc một lớp dùng chung mà không đi qua thí nghiệm (`scripts/pin.py`,
-    `scripts/new_experiment.py`, `src/checks.py`). Chạy một THÍ NGHIỆM thì luôn dùng `load()`.
+    `scripts/new_experiment.py`, `src/workflow/checks.py`). Chạy một THÍ NGHIỆM thì luôn dùng `load()`.
 
     Không thay thế được `load()`: thiếu lớp thí nghiệm nghĩa là thiếu `data.roles` và thiếu prompt
     của thí nghiệm, nên bản ghi lần chạy phải nói rõ đang chạy bằng cấu hình dùng chung.
@@ -543,7 +544,7 @@ def _splits_of(data, dataset, dataset_cfg):
         return None
     if dataset_cfg is not None:
         return dataset_cfg.get("splits") or {}
-    from src import dataset as dataset_module
+    from src.core import dataset as dataset_module
     try:
         return dataset_module.load_config(
             dataset, data.get("version")).get("splits") or {}
@@ -597,7 +598,7 @@ def _data_prefix():
     """Tiền tố nhận ra một mục `requires_extra` tính từ GỐC DỮ LIỆU.
 
     Đọc tên thư mục từ `configs/paths.yaml` (`roots.data`) chứ không viết cứng: đổi cấu trúc thư mục
-    thì chỉ sửa file cấu hình - đúng quy ước của `src/paths.py`. Test `tests/test_paths.py` khoá lại
+    thì chỉ sửa file cấu hình - đúng quy ước của `src/core/paths.py`. Test `tests/test_paths.py` khoá lại
     điều này.
     """
     return str(paths.cfg()["roots"]["data"]).replace("\\", "/").strip("/") + "/"
@@ -682,7 +683,7 @@ def remote_exp_ids(model_id, method, ref):
     Không đọc được (mất mạng, ref vừa bị xoá, nhánh chưa có thư mục đó) thì trả danh sách rỗng - người
     gọi tự nói ra là số kế tiếp chỉ tính trên cây làm việc.
     """
-    from src import repo as repo_module
+    from src.workflow import repo as repo_module
 
     code, output = repo_module.run_git(
         ["ls-tree", "-d", "--name-only", "{}:experiments/{}/{}".format(ref, model_id, method)])

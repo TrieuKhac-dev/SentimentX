@@ -35,7 +35,8 @@ import html
 import json
 from pathlib import Path
 
-from src import config, dataset as dataset_module, paths, repo as repo_module, utils, versioning
+from src.core import config, dataset as dataset_module, paths, utils, versioning
+from src.workflow import repo as repo_module
 
 NO_DATA = "chưa có dữ liệu"
 
@@ -181,7 +182,7 @@ def dataset_rows():
                 "rows": sum(splits.values()),
                 "eval_locked": ", ".join(locked) or NO_DATA,
                 "aspects": ", ".join(cfg.get("aspects") or []),
-                # Khoá khai `raw_dir` đã bị bỏ ở P1 T5; thư mục dữ liệu gốc nay do `src/dataset.py`
+                # Khoá khai `raw_dir` đã bị bỏ ở P1 T5; thư mục dữ liệu gốc nay do `src/core/dataset.py`
                 # SUY RA thành `_raw_dir` (chỉ khi có đúng một nguồn `raw`). Đọc khoá cũ thì cột này
                 # luôn rỗng - lỗi im lặng đã vào tận bảng đã commit.
                 "raw_dir": utils.rel(cfg["_raw_dir"]) if cfg.get("_raw_dir") else "",
@@ -222,7 +223,7 @@ def commit_status(sha, branch, cache=None):
     merge, hoặc máy khác còn nhánh riêng). Đọc thì vẫn ra số, nhưng không ai tái lập được từ bản code đã
     công bố - nên bảng phải NÓI RA, thay vì để người đọc tự phát hiện.
 
-    Gọi git qua `src/repo.py` (một chỗ duy nhất biết gọi git). Máy không có git, thiếu ref, hoặc thiếu
+    Gọi git qua `src/workflow/repo.py` (một chỗ duy nhất biết gọi git). Máy không có git, thiếu ref, hoặc thiếu
     thông tin trong `run_meta.json` thì trả "chưa rõ" kèm lý do - báo cáo không được chết vì việc phụ.
     """
     if not sha:

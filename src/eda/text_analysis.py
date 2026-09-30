@@ -13,7 +13,7 @@ dữ liệu (3 split).
 import re
 from collections import Counter
 
-from src import config, utils
+from src.core import config, utils
 
 # Một số từ rất phổ biến nhưng ít mang thông tin, loại ra để bảng dễ đọc.
 # Đây KHÔNG phải stopword dùng cho pipeline - pipeline không xoá stopword.

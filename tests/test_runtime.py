@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test nhận biết nơi đang chạy và nạp biến môi trường (src/runtime.py).
+"""Test nhận biết nơi đang chạy và nạp biến môi trường (src/workflow/runtime.py).
 
 Điều quan trọng nhất được khoá ở đây: **thư mục Drive phải nhận ra bằng FILE ĐÁNH DẤU**, không
 phải bằng tên. MyDrive và Shared drives trông giống nhau, mà chỉ một trong hai là thư mục giảng
@@ -20,7 +20,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import runtime
+from src.workflow import runtime
 
 MARKER = ".sentimentx_root"
 

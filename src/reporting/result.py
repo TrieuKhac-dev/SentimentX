@@ -44,7 +44,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from src import config
+from src.core import config
 
 # Phiên bản định dạng file kết quả. Tăng khi cấu trúc thay đổi
 # để build_report.py biết file cũ có đọc được hay không.

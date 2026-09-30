@@ -8,7 +8,7 @@ CÁCH DÙNG
 
 VÌ SAO CELL ĐẦU CHỈ CÓ HẰNG SỐ
 Cell đầu chứa `REPO_URL`, `REPO_BRANCH`, `REPO_SHA`, `EXP_DIR`. Phần kéo code nằm ở cell
-bootstrap do `templates/` sinh ra và gọi `src/repo.prepare()`. Tách như vậy để đổi CÁCH kéo code
+bootstrap do `templates/` sinh ra và gọi `src/workflow/repo.prepare()`. Tách như vậy để đổi CÁCH kéo code
 thì không phải ghim lại mọi notebook đã giao, còn thứ phải đổi theo từng thí nghiệm (bản code nào,
 thí nghiệm nào) thì nằm đúng một chỗ.
 
@@ -39,10 +39,12 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import experiments, notebooks, paths, repo, utils
+from src.experiments import experiments
+from src.workflow import notebooks, repo
+from src.core import paths, utils
 
 NOTEBOOK = "notebook.ipynb"
-# Ô GHIM: định nghĩa nằm ở `src/notebooks.py`, để `scripts/new_experiment.py` dùng ĐÚNG cùng một ô.
+# Ô GHIM: định nghĩa nằm ở `src/workflow/notebooks.py`, để `scripts/new_experiment.py` dùng ĐÚNG cùng một ô.
 MARKER = notebooks.MARKER
 
 

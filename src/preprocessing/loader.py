@@ -20,7 +20,8 @@ khía cạnh - dùng nhầm phiên bản là prompt mô tả sai bài toán mà 
 
 import json
 
-from src import config, labels, utils, versioning
+from src.core import config, utils, versioning
+from src import labels
 
 
 def _require(path):

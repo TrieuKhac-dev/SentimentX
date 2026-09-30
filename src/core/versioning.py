@@ -29,7 +29,7 @@ import json
 import re
 from pathlib import Path
 
-from src import paths, utils
+from src.core import paths, utils
 
 # Số ký tự hash dùng trong mã phiên bản (đủ để không trùng trên thực tế)
 HASH_LENGTH = 8
@@ -363,7 +363,7 @@ def read_eval_lock(version_id):
     kế tiếp mới biết tập đánh giá là tập nào.
 
     Khoá theo TÊN SPLIT để sau này khoá thêm split khác cũng được, và để bảng tổng hợp đọc thẳng ra
-    được split nào đang được khoá (xem `src/reports.py`).
+    được split nào đang được khoá (xem `src/reporting/reports.py`).
     """
     path = eval_lock_path(version_id or "")
     if not path.is_file():

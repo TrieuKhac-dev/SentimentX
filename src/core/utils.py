@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from src import config, paths
+from src.core import config, paths
 
 # ---
 # 0. BĂM NỘI DUNG FILE

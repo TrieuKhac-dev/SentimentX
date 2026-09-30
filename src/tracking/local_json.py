@@ -12,7 +12,7 @@ gom lại để so.
 
 from pathlib import Path
 
-from src import paths, runlog, utils
+from src.core import paths, runlog, utils
 from src.tracking import base
 
 NAME = "local_json"

@@ -28,7 +28,9 @@ import subprocess
 import sys
 import urllib.request
 
-from src import experiments, model_config, paths, repo, runtime
+from src.experiments import experiments, model_config
+from src.core import paths
+from src.workflow import repo, runtime
 
 # Gói mà một lượt chạy cần. `peft` chỉ cho đường HUẤN LUYỆN (LoRA); `mlflow` thì luôn cần: thiếu nó,
 # phần ghi nhận tự hạ cấp và lượt chạy KHÔNG lên DagsHub (đã gặp thật ở cả ba lượt chạy đầu).

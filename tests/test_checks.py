@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test sáu kiểm tra tĩnh của CI (src/checks.py, scripts/ci_checks.py).
+"""Test sáu kiểm tra tĩnh của CI (src/workflow/checks.py, scripts/ci_checks.py).
 
 Mỗi kiểm tra được thử theo HAI chiều: cây sạch thì không báo gì, và cây CỐ TÌNH vi phạm thì báo
 đúng chỗ. Chiều thứ hai mới là chiều đáng test - một kiểm tra không bao giờ báo lỗi thì cũng không
@@ -15,7 +15,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import checks, paths
+from src.workflow import checks
+from src.core import paths
 
 
 def notebook(cell_sources, outputs=None, execution_counts=None):
@@ -53,7 +54,7 @@ class DataTrackedTest(unittest.TestCase):
         ]), [])
 
     def test_file_ngoai_data_thi_khong_lien_quan(self):
-        self.assertEqual(self._found(["src/checks.py", "docs/README.md"]), [])
+        self.assertEqual(self._found(["src/workflow/checks.py", "docs/README.md"]), [])
 
 
 class GitignoreTest(unittest.TestCase):
@@ -85,7 +86,7 @@ class GitignoreTest(unittest.TestCase):
         self._write("\n".join(list(checks.REQUIRED_IGNORES) + ["data/reports/x/**"]))
         with mock.patch.object(checks, "tracked_files",
                                return_value=["_ut.txt", "_m24.txt", "src/__init__.py",
-                                             "src/reports.py"]):
+                                             "src/reporting/reports.py"]):
             found = checks.gitignore_rules(self.root)
         self.assertEqual(len(found), 2, found)
         self.assertIn("_ut.txt", found[0])

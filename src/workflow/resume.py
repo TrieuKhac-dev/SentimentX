@@ -20,7 +20,7 @@ xoá bằng tay.
 import json
 from pathlib import Path
 
-from src import paths, runlog
+from src.core import paths, runlog
 from src.evaluation import records
 from src.tracking import run_meta
 

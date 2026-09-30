@@ -23,12 +23,13 @@ trong `info()` và trong tên file CSV khi chạy với `--prompt`/`--segmenter`
 Bộ ví dụ few-shot là biến thí nghiệm THỨ HAI của Qwen và cũng phải truy vết được: cùng
 một prompt đi với 0/1/2 ví dụ cho ra ba số liệu khác nhau mà `prompt_sha` lại giống nhau,
 nên `info()` của Qwen trả thêm `examples_sha` (mã của file ví dụ, xem
-`src/prompts.examples_info`) và tên file CSV có thêm `ex-<sha4>` khi prompt dùng ví dụ.
+`src/experiments/prompts.examples_info`) và tên file CSV có thêm `ex-<sha4>` khi prompt dùng ví dụ.
 """
 
 import inspect
 
-from src import config, model_config, paths, prompts, utils, versioning
+from src.core import config, paths, utils, versioning
+from src.experiments import model_config, prompts
 from src.preprocessing import loader, phobert, qwen, segmenters, visobert
 
 def _word_count(texts, **kwargs):

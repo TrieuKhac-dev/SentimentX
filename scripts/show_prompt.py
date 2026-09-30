@@ -36,7 +36,9 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, experiments, labels, model_config, paths, versioning
+from src.core import config, dataset, paths, versioning
+from src.experiments import experiments, model_config
+from src import labels
 from src.preprocessing import loader, qwen
 
 

@@ -18,7 +18,8 @@ from pathlib import Path
 
 import yaml
 
-from src import config, loaders, paths
+from src.core import config, paths
+from src import loaders
 
 DATASET_ERROR_HINT = (
     "Xem một file configs/datasets/<tên>/<version>.yaml để biết các khoá cần có."
@@ -203,8 +204,8 @@ def check_keys(raw, path):
     VÌ SAO PHẢI KIỂM: `_normalize` làm `cfg = dict(raw)` rồi GHI ĐÈ các khoá phẳng, nên một khoá viết
     sai tên - hoặc khoá cũ còn sót lại như `raw_dir`, `text_column` - bị BỎ QUA IM LẶNG: cấu hình trông
     như đã khai mà thực tế không có tác dụng (đã gặp thật: cột `raw_dir` của bảng tổng hợp rỗng suốt,
-    vì khoá đó không còn ai đọc). Cùng một chuẩn với config model (`src/model_config.py`) và config
-    thí nghiệm (`src/experiments.py::check`), hai chỗ đã kiểm khoá lạ.
+    vì khoá đó không còn ai đọc). Cùng một chuẩn với config model (`src/experiments/model_config.py`) và config
+    thí nghiệm (`src/experiments/experiments.py::check`), hai chỗ đã kiểm khoá lạ.
     """
     if not isinstance(raw, dict):
         return

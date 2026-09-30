@@ -23,7 +23,10 @@ import json
 import random
 from pathlib import Path
 
-from src import config, dataset, experiments, labels, model_config, paths, prompts, resume, runlog, runtime, tracking, utils, versioning
+from src.core import config, dataset, paths, runlog, utils, versioning
+from src.experiments import experiments, model_config, prompts
+from src import labels, tracking
+from src.workflow import resume, runtime
 from src.evaluation import metrics, records, runner, scorers
 from src.preprocessing import loader, qwen
 from src.tracking import run_meta
@@ -521,7 +524,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     # Model encoder đi đường khác: nó phải HỌC trước khi trả lời, và không có prompt nào để ghim.
     # Phần chấm điểm và ghi kết quả thì dùng chung, nên ở đây chỉ rẽ nhánh phần LẬP KẾ HOẠCH.
     if model_config.approach_of(config_data, model_id) == "encoder":
-        from src import encoder_run
+        from src.experiments import encoder_run
 
         return encoder_run.plan(config_data, merged, ds=ds, version_id=version_id, split=split,
                                 limit=limit, model=model_override, seed=seed, batch_size=batch_size,
@@ -608,7 +611,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "repo_sha": identity["repo"]["sha"], "config_sha256": identity["config_sha256"],
     }
 
-    # Chạy mới hay chạy tiếp: quyết định ở MỘT chỗ (`src/resume.py`), dựa trên ba giá trị mà
+    # Chạy mới hay chạy tiếp: quyết định ở MỘT chỗ (`src/workflow/resume.py`), dựa trên ba giá trị mà
     # docs/00_workflow/02_rules.md mục 13 yêu cầu giống nhau (cấu hình, dữ liệu, mã repo). Ba giá
     # trị đó lấy từ `run_identity` - cùng hàm mà preflight gọi, nên hai bên không thể lệch nhau.
     repo = identity["repo"]
@@ -643,7 +646,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     # hiểu con số trước mặt. Đếm bằng `preflight.count_rows` (đếm BẢN GHI, không đếm dòng - review
     # trong dữ liệu này có xuống dòng bên trong ô được trích dẫn), nhập muộn để cấp module của file
     # này không phụ thuộc preflight.
-    from src import preflight
+    from src.workflow import preflight
     roles = dict((config_data.get("data") or {}).get("roles") or {})
     rows_by_role = {}
     for role, name in sorted(roles.items()):
@@ -720,7 +723,7 @@ def run(plan_data, log=None):
     # Đường chạy encoder có vòng đời riêng (huấn luyện rồi mới suy luận): nó tự mở nhật ký và bản
     # ghi, rồi quay lại `finish` của file này để chấm điểm và ghi kết quả - một bản chấm, hai đường.
     if plan_data.get("approach") == "encoder":
-        from src import encoder_run
+        from src.experiments import encoder_run
 
         return encoder_run.run(plan_data, log=log)
 

@@ -29,7 +29,7 @@ CÁCH MỞ RỘNG
    - Viết file trong `src/preprocessing/`, ví dụ `my_model.py`, cung cấp:
          MODEL_NAME    tên trên Hugging Face
          CONFIG_NAME   tên file cấu hình trong configs/models/; `limit()` đọc
-                       `preprocess.max_length` từ file đó (xem src/model_config.py)
+                       `preprocess.max_length` từ file đó (xem src/experiments/model_config.py)
          tokenizer()   nạp tokenizer một lần
          encode()      -> list[list[int]] CHƯA pad, CHƯA cắt
          info()        -> dict ghi lại tokenizer / từ vựng / ngưỡng cắt / bộ tách từ
@@ -88,13 +88,7 @@ CÁCH MỞ RỘNG
 `src/reporting/result.py`. build_report.py đọc lại file đó để vẽ báo cáo.
 """
 
-from src.eda import (
-    label_aspect,
-    overview,
-    quality_noise,
-    split_leakage,
-    text_analysis,
-)
+from src.eda import label_aspect, overview, quality_noise, split_leakage, text_analysis
 
 # ---
 # Thứ tự chạy EDA = thứ tự xuất hiện trong báo cáo
@@ -117,15 +111,7 @@ EDA_MODULES = [
 
 def pipeline_steps():
     """Trả về danh sách các bước pipeline theo ĐÚNG THỨ TỰ thực thi."""
-    from src.pipeline import (
-        clean,
-        export,
-        final_validate,
-        load,
-        normalize,
-        transform,
-        validate,
-    )
+    from src.pipeline import clean, export, final_validate, load, normalize, transform, validate
 
     return [
         load,             # 1. đọc dữ liệu gốc

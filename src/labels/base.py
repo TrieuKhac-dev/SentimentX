@@ -19,7 +19,7 @@ Thêm một không gian nhãn mới (ví dụ gộp neutral vào negative) là t
 đăng ký trong `src/labels/__init__.py`; metric không phải sửa.
 """
 
-# Bốn mã nhãn của dataset (xem src/config.py::LABEL_TO_ID).
+# Bốn mã nhãn của dataset (xem src/core/config.py::LABEL_TO_ID).
 NOT_MENTIONED = 0
 POSITIVE = 1
 NEGATIVE = 2

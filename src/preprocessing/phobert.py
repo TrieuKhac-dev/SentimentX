@@ -24,7 +24,7 @@ Tokenizer của PhoBERT KHÔNG đổi trong mọi thí nghiệm; chỉ bộ tác
 
 from functools import lru_cache
 
-from src import model_config
+from src.experiments import model_config
 from src.preprocessing import segmenters
 
 MODEL_NAME = "vinai/phobert-base-v2"

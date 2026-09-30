@@ -24,7 +24,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import paths, utils, versioning
+from src.core import paths, utils, versioning
 from src.pipeline import export
 
 VERSION_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-abcdef12"

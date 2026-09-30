@@ -43,7 +43,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, prompts, utils, versioning
+from src.core import config, dataset, utils, versioning
+from src.experiments import prompts
 from src.preprocessing import loader
 from src.tracking import run_meta
 

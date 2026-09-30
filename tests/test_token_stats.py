@@ -18,7 +18,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import model_config
+from src.experiments import model_config
 from src.preprocessing import token_stats
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -26,7 +26,7 @@ Nó chỉ đọc lại file mà từng lượt chạy đã ghi (`run_meta.json`,
 và sinh lại được ở bất cứ máy nào đang có kết quả, kể cả máy không có GPU.
 
 MỘT NHÓM GỒM BA ĐỊNH DẠNG: `<tên>.csv` (nguồn), `<tên>.html` (trình bày), `<tên>.md` (chỉ sơ đồ
-Mermaid). Chi tiết ở `src/reports.py`; năm nhóm khai trong `configs/paths.yaml`.
+Mermaid). Chi tiết ở `src/reporting/reports.py`; năm nhóm khai trong `configs/paths.yaml`.
 """
 
 import argparse
@@ -43,7 +43,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import reports, utils
+from src.reporting import reports
+from src.core import utils
 
 
 def parse_args(argv=None):

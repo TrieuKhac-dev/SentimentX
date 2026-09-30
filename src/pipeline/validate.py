@@ -11,7 +11,7 @@ Mọi lỗi được ghi ra validation_report.csv để xem lại.
 
 from collections import Counter
 
-from src import config, dataset, utils
+from src.core import config, dataset, utils
 
 
 def run(context):

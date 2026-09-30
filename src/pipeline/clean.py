@@ -14,7 +14,7 @@ Nguyên tắc:
 
 from collections import Counter
 
-from src import config, utils
+from src.core import config, utils
 
 
 def _build_records(splits, aspects):

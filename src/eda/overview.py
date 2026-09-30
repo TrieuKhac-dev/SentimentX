@@ -11,7 +11,7 @@ Ghi chú thiết kế: mỗi số liệu chỉ được trình bày MỘT lần 
 luôn nằm ở file CSV.
 """
 
-from src import config, utils
+from src.core import config, utils
 
 # Các khoảng độ dài (số ký tự) dùng để vẽ phân bố.
 LENGTH_BINS = [

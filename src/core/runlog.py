@@ -42,7 +42,7 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
-from src import paths, utils
+from src.core import paths, utils
 
 # Các mục được phép. Mục lạ là lỗi lập trình, không phải lỗi lúc chạy.
 # `CONFIG` là cấu hình ĐANG dùng: khoá nào bị lớp nào đè, và giá trị hiệu lực của các khoá quyết

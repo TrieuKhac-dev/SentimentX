@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test công cụ tạo thí nghiệm (`scripts/new_experiment.py`, `src/notebooks.py`).
+"""Test công cụ tạo thí nghiệm (`scripts/new_experiment.py`, `src/workflow/notebooks.py`).
 
 Ba điều được khoá ở đây:
 
@@ -24,7 +24,9 @@ from unittest import mock
 
 import yaml
 
-from src import experiments, notebooks, paths, repo
+from src.experiments import experiments
+from src.workflow import notebooks, repo
+from src.core import paths
 
 ROOT = Path(__file__).resolve().parents[1]
 

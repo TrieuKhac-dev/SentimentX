@@ -23,7 +23,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import notebooks, paths
+from src.workflow import notebooks
+from src.core import paths
 
 SPEC = importlib.util.spec_from_file_location(
     "run_notebook", paths.root() / "scripts" / "run_notebook.py")

@@ -4,7 +4,7 @@
 VÌ SAO TÁCH KHỎI configs/pipeline.yaml
 ---
 `pipeline.yaml` mô tả "ta xử lý DỮ LIỆU thế nào", và nội dung file đó được đưa vào
-hash để sinh MÃ PHIÊN BẢN DỮ LIỆU (src/versioning.py). Còn file ở đây mô tả "MODEL
+hash để sinh MÃ PHIÊN BẢN DỮ LIỆU (src/core/versioning.py). Còn file ở đây mô tả "MODEL
 đọc dữ liệu thế nào" (dùng prompt nào, có chèn lượt assistant hay không) - đổi
 prompt không làm đổi một dòng dữ liệu nào, nên không được nằm trong hash đó. Để
 chung một file sẽ sinh ra những mã phiên bản mới vô nghĩa cho cùng một dataset.
@@ -38,7 +38,7 @@ import difflib
 
 import yaml
 
-from src import config
+from src.core import config
 
 # Khoá được phép dùng trong configs/models/<tên>.yaml
 KNOWN_KEYS = ("model_id", "checkpoint", "config_version", "approach", "task", "preprocess",
@@ -48,7 +48,7 @@ KNOWN_KEYS = ("model_id", "checkpoint", "config_version", "approach", "task", "p
 REQUIRED_KEYS = ("model_id", "checkpoint", "config_version", "approach", "preprocess")
 
 # Cách một model được DÙNG trong thí nghiệm. Thêm một cách mới thì thêm module chạy tương ứng
-# (`prompt` -> src/evaluation/runner.py, `encoder` -> src/encoder_run.py) rồi thêm tên vào đây.
+# (`prompt` -> src/evaluation/runner.py, `encoder` -> src/experiments/encoder_run.py) rồi thêm tên vào đây.
 APPROACHES = ("prompt", "encoder")
 
 # Kiểu số hợp lệ cho một lần nạp model. `auto` = mã chọn theo máy (xem `resolve_dtype`).

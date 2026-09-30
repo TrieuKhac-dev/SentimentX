@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test hợp đồng file prompt (src/prompts.py, src/preprocessing/qwen.py).
+"""Test hợp đồng file prompt (src/experiments/prompts.py, src/preprocessing/qwen.py).
 
 Ba điều được khoá ở đây, đều là lỗi im lặng nếu sai:
 
@@ -19,7 +19,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import labels, prompts
+from src import labels
+from src.experiments import prompts
 from src.preprocessing import qwen
 
 PROMPT_WITH_EXAMPLES = "[USER]\nXet review:\n{text}\n{examples}\n"

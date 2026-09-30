@@ -5,7 +5,7 @@ CÁCH DÙNG
     python scripts/ci_checks.py            # mã thoát 0 nếu sạch, 1 nếu còn việc phải sửa
     python scripts/ci_checks.py --quiet    # chỉ in khi có việc phải sửa
 
-BẢY KIỂM TRA (chi tiết ở src/checks.py và docs/00_workflow/03_ci.md)
+BẢY KIỂM TRA (chi tiết ở src/workflow/checks.py và docs/00_workflow/03_ci.md)
     dữ liệu bị git theo dõi, quy tắc .gitignore, notebook sạch output, registry hợp lệ,
     config thí nghiệm hợp lệ, REPO_SHA đã ghim, link trong tài liệu.
 
@@ -28,7 +28,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import checks, paths, utils
+from src.workflow import checks
+from src.core import paths, utils
 
 
 def parse_args(argv=None):

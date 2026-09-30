@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test lớp config dataset (src/dataset.py).
+"""Test lớp config dataset (src/core/dataset.py).
 
 Điều được khoá ở đây: file YAML khai khoá mà KHÔNG code nào đọc thì phải BÁO LỖI, không được bỏ qua.
 
@@ -13,7 +13,7 @@ Chạy: python -m unittest discover -s tests
 
 import unittest
 
-from src import dataset
+from src.core import dataset
 
 
 class CheckKeysTest(unittest.TestCase):

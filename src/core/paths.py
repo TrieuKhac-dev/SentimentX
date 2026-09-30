@@ -26,7 +26,9 @@ import yaml
 ENV_DATA_ROOT = "SENTIMENTX_DATA_ROOT"
 ENV_RESULTS_ROOT = "SENTIMENTX_RESULTS_ROOT"
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+# `parents[2]` vì file này nằm trong gói con: `src/core/paths.py` -> `src/core` -> `src` -> gốc repo.
+# (Trước Batch 5b file nằm phẳng ở `src/paths.py` nên chỉ cần `parent.parent`.)
+ROOT_DIR = Path(__file__).resolve().parents[2]
 PATHS_CONFIG_PATH = ROOT_DIR / "configs" / "paths.yaml"
 
 

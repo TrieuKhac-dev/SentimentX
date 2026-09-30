@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test nhật ký lần chạy (src/runlog.py).
+"""Test nhật ký lần chạy (src/core/runlog.py).
 
 Ba điều được khoá ở đây, vì đều là thứ chỉ phát hiện được khi đã hỏng thật:
     - `run.log` phải LUÔN có, và phải có dòng `[RUN] mode=...` ở đầu dòng (DoD của P4 T8).
@@ -14,7 +14,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import runlog
+from src.core import runlog
 
 
 class TestRunLog(unittest.TestCase):

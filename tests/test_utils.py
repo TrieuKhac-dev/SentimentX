@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test các hàm dùng chung (src/utils.py).
+"""Test các hàm dùng chung (src/core/utils.py).
 
 Điều được khoá ở đây: **file CSV phải có MỘT bản ghi trên MỘT dòng vật lý**. Ô để nguyên ký tự xuống
 dòng vẫn hợp lệ theo chuẩn CSV, nhưng mọi trình xem thông thường (Notepad, VSCode, công cụ tự viết)
@@ -21,7 +21,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import utils
+from src.core import utils
 
 COLUMNS = ["chỉ số", "text", "câu trả lời"]
 

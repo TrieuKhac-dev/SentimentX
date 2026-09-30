@@ -3,7 +3,7 @@
 
     lora    LoRA (peft) trên model encoder, thêm một đầu phân loại cho mỗi khía cạnh
 
-CÁCH DÙNG (`src/encoder_run.py` gọi; notebook không gọi trực tiếp)
+CÁCH DÙNG (`src/experiments/encoder_run.py` gọi; notebook không gọi trực tiếp)
 
     trainer = training.get(config["trainer"])
     report = trainer.fit(config, model_id=..., out_dir=..., train=..., val=..., ...)

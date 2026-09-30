@@ -27,7 +27,7 @@ from pathlib import Path
 
 import yaml
 
-from src import paths, utils
+from src.core import paths, utils
 
 # Giá trị dài hơn mức này bị cắt khi gửi lên MLflow: MLflow giới hạn độ dài tham số, vượt là lỗi
 # cả lần ghi nhận - mà tham số dài thường chỉ là đường dẫn hoặc văn bản, không cần nguyên vẹn.

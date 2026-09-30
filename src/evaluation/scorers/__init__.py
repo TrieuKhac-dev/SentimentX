@@ -18,7 +18,7 @@ THÊM MỘT BỘ CHẤM MỚI
 import html
 from pathlib import Path
 
-from src import paths, utils
+from src.core import paths, utils
 from src.evaluation.scorers import (
     accuracy,
     aggregate,

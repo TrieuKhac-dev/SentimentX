@@ -22,7 +22,7 @@ import json
 import shutil
 from pathlib import Path
 
-from src import paths, utils
+from src.core import paths, utils
 
 STATE_FILE = "trainer_state.json"
 

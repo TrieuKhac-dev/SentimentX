@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test kiểm trước khi chạy (src/preflight.py).
+"""Test kiểm trước khi chạy (src/workflow/preflight.py).
 
 Điều quan trọng nhất được khoá ở đây: **kiểm trước phải chỉ ra đúng việc còn thiếu, và không bao
 giờ ném ra ngoài**. Một lượt val tốn hàng chục phút, nên phát hiện thiếu `test.csv` hay Drive chỉ
@@ -19,8 +19,10 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import dataset as dataset_module
-from src import experiments, model_config, paths, preflight, utils, versioning
+from src.core import dataset as dataset_module
+from src.experiments import experiments, model_config
+from src.core import paths, utils, versioning
+from src.workflow import preflight
 
 TEST_MODEL = "zz-test-model"
 TEST_METHOD = "test-method"

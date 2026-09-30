@@ -12,7 +12,8 @@ Kết quả chỉ so được với công bố tham chiếu khi dùng `label_spa
 Đổi hai giá trị đó là đổi bài toán, không phải đổi cách trình bày.
 """
 
-from src.labels import base, binary, full
+from src.labels import base
+from src.labels import binary, full
 
 # Bốn mã nhãn của dataset, xuất lại cho nơi gọi dùng mà không phải với vào `base`.
 NOT_MENTIONED = base.NOT_MENTIONED

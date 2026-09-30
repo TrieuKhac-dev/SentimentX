@@ -5,6 +5,6 @@ CHỈ re-export - không viết logic ở đây (test `tests/api/test_api.py` ch
 thì sửa file này; chuyển nhà KHÁC nhóm thì sửa file này + `src/api/__init__.py`.
 """
 
-from src import config, dataset, paths, registry, runlog, utils, versioning  # noqa: F401
+from src.core import config, dataset, paths, registry, runlog, utils, versioning  # noqa: F401
 
 __all__ = ["config", "dataset", "paths", "registry", "runlog", "utils", "versioning"]

@@ -25,7 +25,8 @@ import math
 import random
 from pathlib import Path
 
-from src import model_config, paths, utils
+from src.experiments import model_config
+from src.core import paths, utils
 from src.training import checkpoints, encoders, savers
 
 NAME = "lora"
@@ -46,7 +47,7 @@ def where(key):
     return ("file cấu hình huấn luyện dùng chung, khoá `{}` "
             "(docs/05_config/05_experiments_shared.md)".format(key))
 
-# Kiểu số hợp lệ. Một nguồn duy nhất: `src/model_config.py` (hàm giải `auto` cũng ở đó, dùng chung
+# Kiểu số hợp lệ. Một nguồn duy nhất: `src/experiments/model_config.py` (hàm giải `auto` cũng ở đó, dùng chung
 # cho cả đường encoder và đường prompt - xem `model_config.resolve_dtype`).
 DTYPES = model_config.DTYPES
 
@@ -162,7 +163,7 @@ def torch_dtype(name, device):
 
     VÌ SAO KHÔNG CÒN BẢN RIÊNG Ở ĐÂY: bản cũ gọi `torch.cuda.is_bf16_supported()` KHÔNG kèm
     `including_emulation=False`, nên trên T4 (Turing, không có bf16 phần cứng) nó vẫn chọn bf16 giả
-    lập - chậm bất thường. Nay cả hai đường chạy `src/model_config.resolve_dtype`, nên không thể lệch
+    lập - chậm bất thường. Nay cả hai đường chạy `src/experiments/model_config.resolve_dtype`, nên không thể lệch
     nhau về cách giải `auto`, và khai tường minh mà máy không đáp ứng được là LỖI chứ không hạ cấp.
     """
     return model_config.resolve_dtype(name, device)

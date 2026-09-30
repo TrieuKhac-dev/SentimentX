@@ -17,7 +17,7 @@ Báo cáo HTML do build_report.py sinh ra từ file kết quả, vì chỉ ở �
 tất cả các bước.
 """
 
-from src import config, utils, versioning
+from src.core import config, utils, versioning
 
 
 def _source_log(dataset_cfg, source):
@@ -53,7 +53,7 @@ def run(context):
     for name, rows in transformed["rows_per_split"].items():
         # single_line=False: dataset giữ xuống dòng THẬT trong ô (ô được trích dẫn). Đổi dòng này là
         # đổi BYTE của `{split}.csv`, tức là đổi `eval_lock` của tập đánh giá đã công bố:
-        # docs/03_pipeline/05_output.md, `src/utils.py::write_csv`.
+        # docs/03_pipeline/05_output.md, `src/core/utils.py::write_csv`.
         path = utils.write_csv(
             rows, columns, processed_dir / "{}.csv".format(name), single_line=False
         )

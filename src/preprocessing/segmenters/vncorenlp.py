@@ -24,7 +24,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from src import config
+from src.core import config
 
 NAME = "vncorenlp"
 OFFICIAL = True

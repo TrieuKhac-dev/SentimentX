@@ -44,8 +44,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, paths, versioning
-from src import dataset as dataset_config
+from src.core import config, paths, versioning
+from src.core import dataset as dataset_config
 
 from src.reporting import render
 from src.reporting import result as result_io

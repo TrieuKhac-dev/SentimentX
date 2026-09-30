@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test lớp CHẠY THÍ NGHIỆM (src/experiment_run.py) và việc nhận prompt theo tên/đường dẫn.
+"""Test lớp CHẠY THÍ NGHIỆM (src/experiments/experiment_run.py) và việc nhận prompt theo tên/đường dẫn.
 
 Ba điều được khoá ở đây:
 
@@ -26,8 +26,10 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
-from src import (config, dataset, experiment_run, experiments, paths, preflight, prompts, resume,
-                 runlog, versioning)
+from src.core import config, dataset, paths, runlog, versioning
+from src.experiments import experiment_run, experiments, prompts
+from src.preprocessing import qwen
+from src.workflow import preflight, resume
 from src.preprocessing import qwen
 
 ROOT = Path(__file__).resolve().parents[1]

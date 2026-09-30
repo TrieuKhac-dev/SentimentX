@@ -19,7 +19,7 @@ from pathlib import Path
 from unittest import mock
 
 import build_report as br
-from src import paths
+from src.core import paths
 
 RAW = "v0.1.0"
 RAW_PENDING = "v0.2.0"

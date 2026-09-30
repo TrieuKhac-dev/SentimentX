@@ -41,7 +41,10 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import experiments, paths, runlog, runtime, tracking, utils
+from src.experiments import experiments
+from src.core import paths, runlog, utils
+from src.workflow import runtime
+from src import tracking
 from src.tracking import base as tracking_base
 from src.tracking import run_meta
 

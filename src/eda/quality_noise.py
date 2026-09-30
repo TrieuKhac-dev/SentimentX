@@ -23,7 +23,7 @@ lần (bảng HOẶC biểu đồ), bản đầy đủ nằm ở CSV.
 import random
 from collections import Counter
 
-from src import config, utils
+from src.core import config, utils
 
 # Số mục phổ biến nhất đưa vào bảng/biểu đồ
 TOP_N = 20

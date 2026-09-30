@@ -15,7 +15,7 @@ import importlib.util
 import os
 from pathlib import Path
 
-from src import utils
+from src.core import utils
 from src.tracking import base
 
 NAME = "mlflow"

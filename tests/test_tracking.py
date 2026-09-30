@@ -15,7 +15,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import experiments, runlog, tracking
+from src.experiments import experiments
+from src.core import runlog
+from src import tracking
 from src.tracking import base
 
 

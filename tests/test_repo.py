@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test ghim bản code (src/repo.py).
+"""Test ghim bản code (src/workflow/repo.py).
 
 Điều quan trọng nhất được khoá ở đây: **không bao giờ chạy trên bản code không rõ là bản nào**.
 Thư mục không đúng commit đã ghim thì phải dừng, chứ không im lặng chạy tiếp; commit không nằm
@@ -15,7 +15,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import paths, repo
+from src.core import paths
+from src.workflow import repo
 
 
 class TestGitHelpers(unittest.TestCase):

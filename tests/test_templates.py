@@ -14,7 +14,8 @@ import unittest
 
 import yaml
 
-from src import notebooks, paths
+from src.workflow import notebooks
+from src.core import paths
 
 SPEC = importlib.util.spec_from_file_location("pin", paths.root() / "scripts" / "pin.py")
 pin = importlib.util.module_from_spec(SPEC)
@@ -91,7 +92,7 @@ class TestNotebookTemplate(unittest.TestCase):
 
     def test_notebook_calls_the_library_and_the_preflight(self):
         text = json.dumps(notebook(), ensure_ascii=False)
-        # Notebook gọi THƯ VIỆN (`src/experiment_run.py`), KHÔNG gọi script dòng lệnh: hợp đồng
+        # Notebook gọi THƯ VIỆN (`src/experiments/experiment_run.py`), KHÔNG gọi script dòng lệnh: hợp đồng
         # giữa notebook đã ghim và thí nghiệm không được là tên cờ dòng lệnh.
         self.assertIn("experiment_run.plan", text)
         self.assertIn("experiment_run.run", text)
@@ -226,7 +227,7 @@ class TestBootstrap(unittest.TestCase):
     def test_o_bootstrap_mong_va_goi_thu_vien_theo_dung_thu_tu(self):
         """Ô bootstrap chỉ còn việc KÉO mã nguồn; phần chuẩn bị gọi 4 hàm thư viện, đúng thứ tự cũ.
 
-        Đây là điều khiến việc sửa logic KHÔNG phải sửa 12 notebook: logic ở `src/bootstrap.py`.
+        Đây là điều khiến việc sửa logic KHÔNG phải sửa 12 notebook: logic ở `src/workflow/bootstrap.py`.
         Thứ tự cũng là hợp đồng: mount Drive/đặt gốc trước, rồi cài gói, rồi kiểm sha (trước khi tải
         27 MB tài nguyên model), và DỪNG ngay sau `prepare` khi thiếu thư mục nhóm.
         """
@@ -240,7 +241,7 @@ class TestBootstrap(unittest.TestCase):
                         "phải DỪNG ngay sau `prepare` khi thiếu thư mục nhóm, không chạy tiếp")
         # Ô này KHÔNG được mọc lại logic đã chuyển vào thư viện.
         for moved in ("drive.mount", "find_spec", "urlretrieve", "apt-get", '"pip", "install"'):
-            self.assertNotIn(moved, source, "'{}' phải nằm ở src/bootstrap.py".format(moved))
+            self.assertNotIn(moved, source, "'{}' phải nằm ở src/workflow/bootstrap.py".format(moved))
 
     def test_o_chay_mang_dau_va_chi_mot_o(self):
         """Ô CHẠY mang DẤU để `run_notebook.py --preflight-only` tìm ra (không dò theo câu chữ)."""

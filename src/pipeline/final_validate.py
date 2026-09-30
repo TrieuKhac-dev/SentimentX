@@ -15,7 +15,7 @@ Kiểm tra:
 5. Toàn vẹn - số dòng khớp giữa các bước.
 """
 
-from src import config, dataset, utils
+from src.core import config, dataset, utils
 from src.pipeline.normalize import labels_signature, normalize_steps
 
 

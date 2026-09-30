@@ -14,7 +14,8 @@ THÊM MỘT ĐỊNH DẠNG MỚI
 Phần còn lại của dự án (EDA, pipeline, báo cáo) không cần biết gì thêm.
 """
 
-from src.loaders import base, csv_loader, jsonl_loader, parquet_loader
+from src.loaders import base
+from src.loaders import csv_loader, jsonl_loader, parquet_loader
 
 LOADERS = {
     "csv": csv_loader,

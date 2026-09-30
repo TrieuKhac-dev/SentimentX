@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test việc chuẩn bị môi trường chạy notebook (src/bootstrap.py).
+"""Test việc chuẩn bị môi trường chạy notebook (src/workflow/bootstrap.py).
 
 CÁC PHÉP KIỂM NÀY Ở ĐÂU RA: trước Batch 5b chúng soi CHUỖI trong Ô BOOTSTRAP
 (`tests/test_templates.py::TestBootstrap`). Ô đó nay mỏng, logic nằm ở thư viện, nên phép kiểm
@@ -21,7 +21,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import bootstrap
+from src.workflow import bootstrap
 
 
 class Recorder:

@@ -17,7 +17,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import utils
+from src.core import utils
 from src.evaluation import scorers
 
 TASK = {"label_space": "binary", "neutral_policy": "drop", "not_mentioned": "separate"}

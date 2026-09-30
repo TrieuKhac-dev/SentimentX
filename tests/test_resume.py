@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test chạy tiếp sau khi bị ngắt (src/resume.py) và bảng dự đoán (src/evaluation/records.py).
+"""Test chạy tiếp sau khi bị ngắt (src/workflow/resume.py) và bảng dự đoán (src/evaluation/records.py).
 
 Bốn điều được khoá ở đây, vì đều chỉ phát hiện được khi đã hỏng thật:
     - Chỉ RESUME khi ba giá trị (`config_sha256`, mã phiên bản, `repo.sha`) trùng khít; lệch một
@@ -16,7 +16,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src import resume
+from src.workflow import resume
 from src.evaluation import records
 from src.tracking import run_meta
 

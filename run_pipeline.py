@@ -36,7 +36,7 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import config, dataset, paths, registry, utils, versioning
+from src.core import config, dataset, paths, registry, utils, versioning
 from src.reporting import result as result_io
 
 # Thư mục cấu hình dataset, dựng từ `configs/paths.yaml` (không viết cứng trong chuỗi help:

@@ -16,7 +16,7 @@ KIỂM NHỮNG GÌ
     5. Thiết bị: có GPU không, `inference.quantization` khai trong model config có dùng được không
     6. Bộ tách từ mà model cần (ví dụ `vncorenlp` cần Java) chạy được trên máy này không
     7. Ghi được vào gốc kết quả (trên Colab: Drive chưa mount thì chỉ đọc)
-    8. Trạng thái FRESH hay RESUME, và lí do - dùng chung `src/resume.py` với lúc chạy thật
+    8. Trạng thái FRESH hay RESUME, và lí do - dùng chung `src/workflow/resume.py` với lúc chạy thật
 
 CÁCH BÁO
 `run()` KHÔNG ném: nó gom hết vấn đề vào `problems` để notebook in ra một lần, kèm cả những việc
@@ -28,8 +28,11 @@ import csv
 import importlib.util
 from pathlib import Path
 
-from src import dataset as dataset_module
-from src import experiments, model_config, paths, resume, runtime, training, utils, versioning
+from src.core import dataset as dataset_module
+from src.experiments import experiments, model_config
+from src.core import paths, utils, versioning
+from src.workflow import resume, runtime
+from src import training
 from src.training import checkpoints
 from src.preprocessing import segmenters
 from src.tracking import run_meta
@@ -437,7 +440,7 @@ def segmenter_report(model_id, problems, notes, info):
 
 
 def state_report(out_dir, want, problems, notes, info, force_new=False):
-    """FRESH hay RESUME, dùng CHUNG quyết định với lúc chạy thật (`src/resume.py`)."""
+    """FRESH hay RESUME, dùng CHUNG quyết định với lúc chạy thật (`src/workflow/resume.py`)."""
     if not out_dir:
         notes.append("Không truyền `out_dir` nên chưa biết lần này là chạy mới hay chạy tiếp.")
         return None
@@ -458,7 +461,7 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
     `method`/`exp_id`: khai khi kiểm cho một thí nghiệm - nhờ chúng mà việc kiểm "chạy mới hay chạy
     tiếp" nhìn ĐÚNG thư mục của lượt chạy (`results/<mã>/<hậu tố>/`), không phải thư mục phiên bản.
     """
-    from src import repo
+    from src.workflow import repo
 
     problems, notes, info = [], [], {}
     config = result.get("config") or {}
@@ -574,13 +577,13 @@ def _fingerprint(result, version_id, model_id=None, method=None, exp_id=None, ou
 
     Trả về (thư mục kết quả, bộ ba) - thư mục là thư mục của LƯỢT CHẠY, không phải thư mục phiên bản.
     """
-    from src import experiment_run
+    from src.experiments import experiment_run
 
     config = dict(result.get("config") or {})
     # Model encoder không có prompt, nên phần "cấu hình + prompt" phải tính bằng hàm của đường đó:
     # băm thiếu một phần là preflight và lượt chạy thật nhìn vào hai thư mục khác nhau.
     if model_id and model_config.approach_of(config, model_id) == "encoder":
-        from src import encoder_run
+        from src.experiments import encoder_run
 
         found = encoder_run.identity(config, version_id, model_id, method, exp_id)
         return found["out_dir"], found["fingerprint"]

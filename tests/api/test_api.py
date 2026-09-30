@@ -24,7 +24,9 @@ import json
 import re
 import unittest
 
-from src import api, notebooks, paths
+from src import api
+from src.workflow import notebooks
+from src.core import paths
 
 API_DIR = paths.root() / "src" / "api"
 TEMPLATE = paths.root() / "templates" / "experiment" / "notebook.ipynb"
@@ -119,6 +121,31 @@ class SurfaceTest(unittest.TestCase):
                         continue
                     self.fail("{} dòng {}: file mặt tiền chỉ được re-export, không viết logic".format(
                         path.name, getattr(node, "lineno", "?")))
+
+
+    def test_ten_tren_mat_tien_khong_tro_vao_chinh_src_api(self):
+        """Không tên nào trên mặt tiền được là MỘT FILE TRONG `src/api/`.
+
+        Lỗi thật đã suýt lọt: file vùng viết `from src.api import experiments` (import chính nó), nên
+        tên `experiments` trên mặt tiền trỏ vào FILE VÙNG thay vì gói `src/experiments` - notebook gọi
+        `experiments.load(...)` sẽ chết trên Colab, mà test cũ vẫn xanh vì tên thì "có tồn tại".
+        """
+        for name in api.__all__:
+            value = getattr(api, name)
+            if hasattr(value, "__name__") and getattr(value, "__file__", None):
+                with self.subTest(name=name):
+                    self.assertNotIn(str(API_DIR), value.__file__,
+                                     "{} đang trỏ vào file mặt tiền, không phải module thật".format(name))
+
+    def test_vung_khong_import_tu_chinh_src_api(self):
+        """File vùng chỉ được import từ GÓI THẬT của nó, không được `from src.api import ...`."""
+        for path in api_files():
+            if path.name == "__init__.py":
+                continue        # hub là chỗ DUY NHẤT được phép nói tới `src.api`
+            for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+                if line.strip().startswith("from src.api"):
+                    self.fail("{} dòng {}: vùng không được import từ src.api ({})".format(
+                        path.name, number, line.strip()))
 
 
 class NoCycleTest(unittest.TestCase):

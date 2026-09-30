@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Kiểm tra `src/paths.py`: đường dẫn mặc định, ghi đè bằng biến môi trường, mẫu tên.
+"""Kiểm tra `src/core/paths.py`: đường dẫn mặc định, ghi đè bằng biến môi trường, mẫu tên.
 
 Test cuối cùng kiểm luật của P1: trong `src/` và các `run_*.py` không còn đường dẫn
 dạng `data/...` viết cứng.
@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import paths
+from src.core import paths
 
 
 class TestDefaultPaths(unittest.TestCase):

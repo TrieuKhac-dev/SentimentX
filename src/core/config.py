@@ -12,12 +12,12 @@ KHÔNG nằm ở đây mà nằm trong configs/datasets/<tên>.yaml.
 Nhờ vậy thêm dataset mới không phải sửa file này.
 """
 
-from src import paths
+from src.core import paths
 
 # ---
 # 1. ĐƯỜNG DẪN
 # ---
-# Mọi đường dẫn lấy từ configs/paths.yaml qua src/paths.py, KHÔNG viết cứng ở đây.
+# Mọi đường dẫn lấy từ configs/paths.yaml qua src/core/paths.py, KHÔNG viết cứng ở đây.
 # Đổi cây thư mục thì sửa configs/paths.yaml: docs/05_config/01_paths.md.
 ROOT_DIR = paths.root()
 
@@ -55,7 +55,7 @@ TEXT_COLUMN = "text"
 NULL_LABEL = ""
 
 # Bảng mã nhãn chuẩn của dự án (dùng để chuyển nhãn chữ <-> mã số cho model).
-# Dataset có nhãn mới sẽ được cấp mã tiếp theo, xem src/dataset.py.
+# Dataset có nhãn mới sẽ được cấp mã tiếp theo, xem src/core/dataset.py.
 LABEL_TO_ID = {
     NULL_LABEL: 0,   # không nhắc tới aspect
     "positive": 1,

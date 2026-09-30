@@ -9,7 +9,7 @@ Thêm một encoder mới: viết module trong `src/preprocessing/` theo hợp �
 vào `ENCODERS`. Không phải sửa `lora.py`.
 """
 
-from src import model_config
+from src.experiments import model_config
 from src.preprocessing import phobert, visobert
 
 # Tên khoá là `model_id`, trùng tên file config của model.

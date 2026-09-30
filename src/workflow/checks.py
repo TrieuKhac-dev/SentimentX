@@ -29,7 +29,9 @@ import re
 import subprocess
 from pathlib import Path
 
-from src import dataset as dataset_module, experiments, notebooks, paths, repo, utils, versioning
+from src.core import dataset as dataset_module, paths, utils, versioning
+from src.experiments import experiments
+from src.workflow import notebooks, repo
 from src import labels as labels_module
 from src import tracking, training
 from src.evaluation import scorers

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test lớp config model (src/model_config.py): giải kiểu số và kiểm giá trị.
+"""Test lớp config model (src/experiments/model_config.py): giải kiểu số và kiểm giá trị.
 
 Ba điều được khoá ở đây, đều là chỗ đã hoặc sẽ IM LẶNG làm sai kết quả:
 
@@ -18,7 +18,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import model_config
+from src.experiments import model_config
 
 
 class FakeCuda:

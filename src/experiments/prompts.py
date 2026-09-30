@@ -56,7 +56,7 @@ import string
 from pathlib import Path
 from functools import lru_cache
 
-from src import config, utils
+from src.core import config, utils
 
 # Ô nhớ được phép dùng trong file prompt
 PLACEHOLDERS = ("text", "aspects", "label_guide", "example", "examples", "system_prompt")

@@ -22,7 +22,7 @@ import run_check_examples
 import run_eda
 import run_pipeline
 import run_token_stats
-from src import paths, versioning
+from src.core import paths, versioning
 
 HASH8 = "e0ccc484"
 FULL_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-" + HASH8

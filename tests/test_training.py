@@ -15,13 +15,15 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import model_config, paths
-from src import encoder_run
-from src import dataset as dataset_module
-from src import versioning
+from src.experiments import model_config
+from src.core import paths
+from src.experiments import encoder_run
+from src.core import dataset as dataset_module
+from src.core import versioning
 from src.evaluation import records
 from src.training import lora
-from src.training import checkpoints, encoders, TRAINERS
+from src.training import checkpoints, encoders
+from src.training import TRAINERS
 
 try:
     import torch

@@ -12,7 +12,7 @@ báo lại ở bước Validate.
 Bước này KHÔNG sửa nội dung ô: chỉ đọc, đổi tên cột và chọn cột.
 """
 
-from src import config, dataset
+from src.core import config, dataset
 
 
 def run(context):

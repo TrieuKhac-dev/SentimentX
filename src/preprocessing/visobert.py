@@ -16,7 +16,7 @@ của ViSoBERT luôn ghi `segmenter = none` - không phải "quên tách từ" m
 cột đó giúp phân biệt hai trường hợp khi đọc lại số liệu.
 """
 
-from src import model_config
+from src.experiments import model_config
 
 MODEL_NAME = "uitnlp/visobert"
 

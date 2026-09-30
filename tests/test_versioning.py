@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test mã phiên bản dữ liệu và đường dẫn kết quả (src/versioning.py).
+"""Test mã phiên bản dữ liệu và đường dẫn kết quả (src/core/versioning.py).
 
 Chạy: python -m unittest discover -s tests
 
@@ -19,7 +19,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src import paths, utils, versioning
+from src.core import paths, utils, versioning
 
 ID_PATTERN = re.compile(
     r"^cosmetics-ds0\.1\.0-pl0\.1\.0-srccosmetics@0\.1\.0-[0-9a-f]{8}$")

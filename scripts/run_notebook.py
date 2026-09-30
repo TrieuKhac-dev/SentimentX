@@ -21,7 +21,7 @@ file chưa commit, file chưa `git add`, thư mục chưa theo dõi đều còn 
 Kết quả vẫn về thẳng repo: `SENTIMENTX_RESULTS_ROOT` trỏ vào `<repo>/experiments`, nên thư mục kết
 quả nằm ngay trong repo như mọi lần chạy khác, kèm `run.log` và `run_meta.json`.
 
-LUẬT KÉO CODE VẪN CHỈ CÓ MỘT BẢN: script gọi `src.repo.prepare()` - đúng hàm mà ô bootstrap của
+LUẬT KÉO CODE VẪN CHỈ CÓ MỘT BẢN: script gọi `src.workflow.repo.prepare()` - đúng hàm mà ô bootstrap của
 notebook gọi - nên không có bản luật thứ hai để lệch nhau.
 """
 
@@ -44,7 +44,8 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import notebooks, paths, repo
+from src.workflow import notebooks, repo
+from src.core import paths
 
 NOTEBOOK_NAME = "notebook.ipynb"
 CONFIG_NAME = "config.yaml"
@@ -55,7 +56,7 @@ ROOT_KEYS = ("SENTIMENTX_DATA_ROOT", "SENTIMENTX_RESULTS_ROOT", "SENTIMENTX_ENV"
 
 LIMIT_PRELUDE = '''\
 # --- CHẠY THỬ do scripts/run_notebook.py chèn (không có trong file notebook) ---
-import src.experiments as _sx_experiments
+import src.experiments.experiments as _sx_experiments
 
 _sx_original_load = _sx_experiments.load
 
@@ -288,7 +289,7 @@ def run_cell(kc, source, sink=None):
 def already_finished(text):
     """Ô chạy có nói `Chế độ chạy: STOP` - cấu hình này đã xong, không có gì để chạy lại.
 
-    Đây KHÔNG phải lỗi: `src/experiment_run.py` cố ý dừng để không chạy lại một phép đo đã có. Nhưng
+    Đây KHÔNG phải lỗi: `src/experiments/experiment_run.py` cố ý dừng để không chạy lại một phép đo đã có. Nhưng
     nó thoát bằng `SystemExit`, và ô kết thúc phía sau sẽ lỗi `NameError: run_result` vì chưa có kết
     quả - nên script phải nhận ra và dừng luôn ở đó thay vì kể hai lỗi giả.
     """

@@ -19,8 +19,8 @@ Các file:
     loader.py     -> ĐỌC dữ liệu đã xử lý (mọi model dùng chung)
 
 Nội dung thay đổi được KHÔNG nằm trong Python:
-    configs/prompts/<tên>.txt   nội dung prompt  (nạp/kiểm tra: src/prompts.py)
-    configs/models/<model_id>.yaml  ngưỡng cắt input, cách nạp model (đọc: src/model_config.py)
+    configs/prompts/<tên>.txt   nội dung prompt  (nạp/kiểm tra: src/experiments/prompts.py)
+    configs/models/<model_id>.yaml  ngưỡng cắt input, cách nạp model (đọc: src/experiments/model_config.py)
 
 Bộ tách từ (word segmentation) nằm ở một gói riêng, THAY ĐƯỢC:
     segmenters/   các bộ tách từ có thể chọn (chính chủ: VnCoreNLP/RDRSegmenter)

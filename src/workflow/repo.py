@@ -30,7 +30,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from src import paths
+from src.core import paths
 
 
 class RepoError(Exception):

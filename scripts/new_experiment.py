@@ -44,7 +44,9 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src import experiments, model_config, notebooks, paths, repo, utils
+from src.experiments import experiments, model_config
+from src.workflow import notebooks, repo
+from src.core import paths, utils
 
 TEMPLATE_DIR = ("experiment",)
 FILES = ("config.yaml", "README.md", "notebook.ipynb")

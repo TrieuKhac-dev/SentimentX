@@ -14,15 +14,18 @@ HAI BƯỚC, CỐ Ý TÁCH RỜI (giống `experiment_run`)
 
 CHẠY TIẾP
     Huấn luyện: ở mức CHECKPOINT (`model/last` + `trainer_state.json`, vân tay ba giá trị).
-    Suy luận: ở mức MẪU, dùng chung `predictions/part_*.jsonl` với đường prompt (`src/resume.py`),
+    Suy luận: ở mức MẪU, dùng chung `predictions/part_*.jsonl` với đường prompt (`src/workflow/resume.py`),
     nên đứt phiên giữa lúc chấm vẫn không phải chạy lại từ đầu.
 """
 
 import json
 import random
 
-from src import config, experiments, labels, paths, resume, runlog, runtime, tracking, training, utils
-from src import experiment_run
+from src.core import config, paths, runlog, utils
+from src.experiments import experiments
+from src import labels, tracking, training
+from src.workflow import resume, runtime
+from src.experiments import experiment_run
 from src.evaluation import records, scorers
 from src.preprocessing import loader
 from src.training import checkpoints, lora
@@ -288,7 +291,7 @@ def plan(config_data, merged, ds, version_id, split=None, limit=None, model=None
 
     # Số bản ghi của TỪNG vai và dấu vân tay tập đánh giá: hai thứ người đọc bản ghi cần biết.
     # Nhập muộn để cấp module của file này không phụ thuộc preflight.
-    from src import preflight
+    from src.workflow import preflight
 
     rows_by_role = {}
     for role, name in sorted(roles.items()):
