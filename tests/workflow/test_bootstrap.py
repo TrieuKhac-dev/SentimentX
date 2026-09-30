@@ -2,7 +2,7 @@
 """Test việc chuẩn bị môi trường chạy notebook (src/workflow/bootstrap.py).
 
 CÁC PHÉP KIỂM NÀY Ở ĐÂU RA: trước Batch 5b chúng soi CHUỖI trong Ô BOOTSTRAP
-(`tests/test_templates.py::TestBootstrap`). Ô đó nay mỏng, logic nằm ở thư viện, nên phép kiểm
+(`tests/workflow/test_templates.py::TestBootstrap`). Ô đó nay mỏng, logic nằm ở thư viện, nên phép kiểm
 chuyển về đây - cùng câu chữ, cùng nhánh, nhưng kiểm HÀNH VI (gọi hàm với điểm tiêm) thay vì đọc
 chuỗi trong notebook. Kiểm hành vi bắt được lỗi mà đọc chuỗi không bắt được: một dòng in ra ở nhánh
 sai, một bước bị bỏ qua, một lệnh không được gọi.
@@ -288,7 +288,7 @@ class InstallPackagesTest(EnvCase):
 class VerifyCheckoutTest(EnvCase):
     """`verify_checkout`: lệch sha là DỪNG, và câu in phải nói rõ đang chạy bản code nào.
 
-    `repo.prepare` được vá ở đây vì nó gọi git thật (đã có test riêng ở `tests/test_repo.py`);
+    `repo.prepare` được vá ở đây vì nó gọi git thật (đã có test riêng ở `tests/workflow/test_repo.py`);
     phần được kiểm ở đây là CÂU IN và cách xử lý cảnh báo.
     """
 

@@ -12,10 +12,10 @@ trị mặc định trong code:
 | `approach` | Model | Đường chạy | Cần gì |
 | --- | --- | --- | --- |
 | `prompt` | `qwen3-4b-instruct-2507`, `qwen3-0.6b` | `src/evaluation/runner.py`: gửi prompt rồi đọc câu trả lời | GPU, prompt của thí nghiệm |
-| `encoder` | `visobert`, `phobert-base-v2` | `src/encoder_run.py`: huấn luyện LoRA rồi suy luận | GPU, `peft`, ba vai |
+| `encoder` | `visobert`, `phobert-base-v2` | `src/experiments/encoder_run.py`: huấn luyện LoRA rồi suy luận | GPU, `peft`, ba vai |
 
 Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng nó bắt buộc khai
-`training.enabled: true` (guard ở `src/experiments.py::check`).
+`training.enabled: true` (guard ở `src/experiments/experiments.py::check`).
 
 ## Một lượt chạy encoder gồm gì
 

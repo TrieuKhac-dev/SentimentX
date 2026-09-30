@@ -18,15 +18,15 @@ xong
       `training.yaml`, `tracking.yaml`.
 - [x] T1b. Chuẩn hoá `configs/models/<model_id>.yaml` theo cấu trúc mới (`model_id`, `checkpoint`,
       `config_version`, `task.*`, `preprocess.*`, `inference.*`), đổi tên file theo `model_id`;
-      cập nhật `src/model_config.py` và các module đang đọc khoá cũ. Thêm `qwen3-0.6b.yaml`.
+      cập nhật `src/experiments/model_config.py` và các module đang đọc khoá cũ. Thêm `qwen3-0.6b.yaml`.
       Prompt không còn nằm trong config model: `--prompt` là bắt buộc khi đo/chạy Qwen3.
-- [x] T2. `src/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá, in bảng
+- [x] T2. `src/experiments/experiments.py`: hợp nhất 7 lớp theo thứ tự, ghi lại nguồn của từng khoá, in bảng
       ghi đè. Ghi chú: khoá đè dùng ĐÚNG đường dẫn khoá trong cấu hình đã hợp nhất; khoá lạ do
       ghi sai đường dẫn sẽ bị T4 chặn.
 - [x] T3. `config_sha256`: băm JSON chuẩn hoá của config đã hợp nhất, cộng văn bản prompt đã hợp
       nhất (`prompt_merged` = khối hệ thống + file prompt + file ví dụ). Chuẩn hoá: khoá sắp xếp,
       mọi danh sách coi là tập hợp và sắp xếp, trừ danh sách khai trong `canonical.ordered_lists`.
-- [x] T4. Kiểm tra trong `src/experiments.py::check()`: khoá lạ (gõ sai tên hoặc ghi sai đường
+- [x] T4. Kiểm tra trong `src/experiments/experiments.py::check()`: khoá lạ (gõ sai tên hoặc ghi sai đường
       dẫn), `roles` bắt buộc khai, một dataset duy nhất, vai phải trỏ vào split có thật trong file
       phiên bản dataset, và chặn `eval` trỏ vào `train`. Kèm theo: hợp nhất báo LỖI khi hai lớp
       dùng cùng tên khoá với hai kiểu khác nhau (đã gặp thật: `checkpoint`), và khối `task` của
@@ -36,7 +36,7 @@ xong
 - [x] T6. Guard trùng: `fingerprint()` = (config_sha256, mã phiên bản dữ liệu, exp_id);
       `existing_runs()` quét mọi `run_meta.json` để biết lần chạy này đã có chưa.
 - [x] T7. Test cho thứ tự hợp nhất, nguồn từng khoá, bảng ghi đè, vân tay cấu hình, các lỗi của
-      `check()`, `requires`/`check_requires`, và guard trùng (`tests/test_experiments.py`, 32 test).
+      `check()`, `requires`/`check_requires`, và guard trùng (`tests/experiments/test_experiments.py`, 32 test).
 
 ## 4. Điều kiện hoàn thành (DoD)
 

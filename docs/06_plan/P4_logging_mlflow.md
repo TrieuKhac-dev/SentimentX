@@ -26,7 +26,7 @@ tiết ở T8. Không còn mục nào phải chờ P7.
 - [x] T3. `src/evaluation/scorers/`: registry `SCORERS` gồm `accuracy`, `aspect_detection`, `prf`,
       `aggregate`, `confusion`; ghi `metrics.json` và `metrics.csv`.
       -> `feat(evaluation): add scorers registry`
-- [x] T4. `src/runlog.py`: `run.log` luôn có, `errors.json` chỉ khi có lỗi, ghi được khi crash.
+- [x] T4. `src/core/runlog.py`: `run.log` luôn có, `errors.json` chỉ khi có lỗi, ghi được khi crash.
       -> `feat(runlog): write run log and error file only on failure`
 - [x] T5. `src/tracking/`: registry `TRACKERS` gồm `mlflow`, `local_json`, `none`.
       -> `feat(tracking): add trackers registry`

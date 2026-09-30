@@ -2,8 +2,8 @@
 # .gitignore: 8 GB thì không đưa vào git được, nhưng phải tải được CÙNG MỘT BẢN).
 #
 # Cách dùng:
-#     powershell -ExecutionPolicy Bypass -File scripts\setup_qwen_model.ps1
-#     powershell -ExecutionPolicy Bypass -File scripts\setup_qwen_model.ps1 -Model Qwen/Qwen3-0.6B
+#     powershell -ExecutionPolicy Bypass -File scripts\setup\setup_qwen_model.ps1
+#     powershell -ExecutionPolicy Bypass -File scripts\setup\setup_qwen_model.ps1 -Model Qwen/Qwen3-0.6B
 #
 # VÌ SAO PHẢI CÓ SCRIPT NÀY (đã gặp thật trong lúc làm)
 # ----------------------------------------------------

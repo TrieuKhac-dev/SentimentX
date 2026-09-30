@@ -14,7 +14,7 @@ gì" trong `docs/00_workflow/07_colab.md`, và cách người đọc dò lỗi �
 
 MỌI HÀM NHẬN `log` (mặc định `print`) VÀ CÁC ĐIỂM TIÊM (`mount`, `run`, `which`, `download`):
 máy cá nhân không có Colab, nên nhánh chỉ-làm-trên-Colab mà không tiêm được thì không bao giờ được
-kiểm. Test nằm ở `tests/test_bootstrap.py`.
+kiểm. Test nằm ở `tests/workflow/test_bootstrap.py`.
 
 CHÍNH SÁCH DỪNG Ở LẠI NƠI GỌI: `prepare()` không ném `SystemExit` khi thiếu thư mục nhóm - nó TRẢ
 `stop` (câu thông báo) để ô notebook quyết định dừng. Thư viện không được tự giết kernel.
@@ -38,7 +38,7 @@ WANTED_PACKAGES = ("transformers", "accelerate", "bitsandbytes", "mlflow")
 TRAINING_PACKAGES = ("peft",)
 
 # Ba file của model VnCoreNLP, kèm kích thước TỐI THIỂU để phát hiện trường hợp mạng trả về một trang
-# HTML vài KB rồi tưởng là xong. Đúng bằng `scripts/setup_vncorenlp.ps1` tải trên Windows.
+# HTML vài KB rồi tưởng là xong. Đúng bằng `scripts/setup/setup_vncorenlp.ps1` tải trên Windows.
 VNCORENLP_FILES = (("VnCoreNLP-1.2.jar", 10 * 1024 * 1024),
                    ("models/wordsegmenter/vi-vocab", 100 * 1024),
                    ("models/wordsegmenter/wordsegmenter.rdr", 50 * 1024))

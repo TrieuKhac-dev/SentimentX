@@ -1,7 +1,7 @@
 # Chi tiết từng bước Pipeline
 
 > Đọc file này khi: sửa một bước của pipeline.
-> Liên quan: `docs/03_pipeline/01_flow.md`, `src/registry.py`
+> Liên quan: `docs/03_pipeline/01_flow.md`, `src/core/registry.py`
 
 Mỗi bước là một module trong `src/pipeline/` với hàm `run(context)`. `context` mà
 mọi bước nhận và trả về:

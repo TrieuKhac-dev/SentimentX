@@ -24,6 +24,7 @@
 | 00_workflow    | `07_colab.md`              | chạy notebook trên Colab: Drive, env, thứ tự bước | trước khi chạy trên Colab          |
 | 00_workflow    | `08_local.md`              | chạy notebook trên máy cá nhân có GPU CUDA        | trước khi chạy trên máy cá nhân    |
 | 00_workflow    | `09_cli.md`                | tra cứu dòng lệnh: cú pháp, mã thoát, bốn khái niệm dễ lẫn | khi chạy bất kỳ tool nào     |
+| 00_workflow    | `10_template_notebook.md`  | các ô của notebook, luật thêm/sửa/xoá ô, quy trình đổi bản mẫu | khi sửa notebook hoặc bản mẫu |
 | 01_dataset     | `01_raw_data.md`           | dữ liệu gốc: nơi lưu, cách đặt tên, phiên bản    | làm việc với dữ liệu gốc            |
 | 01_dataset     | `02_schema.md`             | schema của dữ liệu và cách khai trong config     | khi đọc hoặc sửa schema             |
 | 01_dataset     | `03_new_dataset.md`        | cách thêm dataset mới                            | khi có dữ liệu mới                  |

@@ -14,6 +14,9 @@ python scripts/new_experiment.py --model qwen3-4b-instruct-2507 --method prompt-
 
 Model encoder (PhoBERT, ViSoBERT) **không dùng prompt**: chúng học từ dữ liệu, không hỏi bằng câu.
 
+Notebook gồm những ô nào, sửa một ô thì phải làm gì, và vì sao notebook của thí nghiệm đã chạy
+không dựng lại theo bản mẫu: `docs/00_workflow/10_template_notebook.md`.
+
 Ba file trong `templates/prompt/`:
 
 | File           | Dùng khi                                                                     |

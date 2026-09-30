@@ -77,7 +77,7 @@ cũng tốn token, nên đo mà bỏ nó là đo một phép đo khác. Tên fil
 Các ô nhớ được phép dùng: `{text}` (bắt buộc), `{aspects}`, `{label_guide}`,
 `{example}`, `{examples}`. Prompt một lượt là mặc định; prompt nhiều lượt (few-shot) dùng
 các dòng đánh dấu `[SYSTEM]`, `[USER]`, `[ASSISTANT]` - chi tiết ghi ở đầu
-`src/prompts.py`. Bảng mã nhãn trong prompt (`{label_guide}`) **sinh từ
+`src/experiments/prompts.py`. Bảng mã nhãn trong prompt (`{label_guide}`) **sinh từ
 `label_map.json`** của đúng phiên bản dữ liệu, nên dataset khác bộ nhãn thì prompt đổi
 theo, **và bị lọc theo `label_space` + `neutral_policy`** của thí nghiệm: bài toán
 `binary` + `drop` thì bảng mã chỉ còn `0/1/2` (lỗi đã sửa 25/09/2026: trước đó bảng mã vẫn
@@ -409,10 +409,10 @@ Ba việc, theo đúng thứ tự:
 pip install -r requirements.txt
 
 # 2) JAVA cho bộ tách từ chính chủ: JDK 17 LTS (Temurin) - KHÔNG cần quyền admin
-powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1
+powershell -ExecutionPolicy Bypass -File scripts\setup\setup_java.ps1
 
 # 3) Thư viện Python + model VnCoreNLP (jar + model tách từ)
-powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1
+powershell -ExecutionPolicy Bypass -File scripts\setup\setup_vncorenlp.ps1
 ```
 
 Trên Colab/Linux thì ba việc đó là (ô bootstrap của notebook PhoBERT làm tự động, không phải gõ tay):
@@ -433,7 +433,7 @@ Vì sao cần Java, và vì sao phải là script chứ không phải "cài gì 
 | Bộ tách từ chính chủ là chương trình **Java** | RDRSegmenter nằm trong `VnCoreNLP-1.2.jar`; `py-vncorenlp` gọi nó qua **pyjnius (JNI)**, không phải qua lệnh `java` |
 | pyjnius tìm JVM qua biến môi trường | `JDK_HOME` rồi `JAVA_HOME`; không thấy thì báo `"Unable to find JAVA_HOME"` - một lỗi chung chung, dễ làm sập cả phép đo. Vì vậy dự án **kiểm tra Java trước** và báo lỗi kèm đúng lệnh cần chạy |
 | Vì sao cài bằng ZIP thay vì `winget` | Cài vào `%USERPROFILE%\.jdks\temurin-17`: không cần quyền admin, gỡ ra chỉ cần xoá thư mục, và **mọi máy dùng cùng một dòng 17.0.x LTS** (script tải từ Adoptium API và kiểm SHA256) |
-| Vì sao không dùng `py_vncorenlp.download_model()` | Hàm đó gọi `wget` qua `os.system`, mà Windows không có wget -> không tải được gì rồi báo lỗi khó hiểu. `scripts\setup_vncorenlp.ps1` tải bằng PowerShell và **kiểm kích thước từng file**. Trên Colab/Linux hàm đó chạy được, nhưng gói bàn giao vẫn kèm sẵn model để lượt chạy không phụ thuộc vào mạng |
+| Vì sao không dùng `py_vncorenlp.download_model()` | Hàm đó gọi `wget` qua `os.system`, mà Windows không có wget -> không tải được gì rồi báo lỗi khó hiểu. `scripts\setup\setup_vncorenlp.ps1` tải bằng PowerShell và **kiểm kích thước từng file**. Trên Colab/Linux hàm đó chạy được, nhưng gói bàn giao vẫn kèm sẵn model để lượt chạy không phụ thuộc vào mạng |
 | Phiên bản đang dùng | JDK: Temurin **17** (script in ra bản cụ thể khi cài; đã kiểm: 17.0.20.1). Model: `VnCoreNLP-1.2.jar` + `models/wordsegmenter/{vi-vocab, wordsegmenter.rdr}` trong `data/models/vncorenlp/` - thư mục này nằm trong `.gitignore`, cài lại bằng script chứ không commit |
 
 Kiểm tra sau khi cài (không khởi động JVM nên rất nhanh):

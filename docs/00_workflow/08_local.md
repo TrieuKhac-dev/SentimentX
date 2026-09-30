@@ -94,6 +94,9 @@ thư mục chưa theo dõi đều còn nguyên - cuối lượt chạy script t�
 | Ghi thêm toàn bộ đầu ra ra file | thêm `--log <đường dẫn>` |
 | Giữ thư mục code tạm để soi | thêm `--keep` |
 
+Notebook gồm những ô nào, thứ tự ra sao, và sửa một ô thì phải làm gì:
+`docs/00_workflow/10_template_notebook.md`.
+
 `--limit N` hoạt động bằng cách ép `n = N` ngay trong RAM sau khi nạp config, nên tên thư mục kết quả
 có `nN` và không lẫn với lượt chạy đủ; config trong git vẫn nguyên.
 

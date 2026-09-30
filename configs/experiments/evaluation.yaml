@@ -8,7 +8,7 @@ n: null
 #
 # Hai giá trị dưới đây để null nghĩa là CHƯA KHAI: chạy ở chế độ sample thì dùng đúng khuyến nghị
 # trong model card của Qwen3 (temperature 0.7, top_p 0.8, top_k 20 - `CARD_SETTINGS` trong
-# src/experiment_run.py). Khai số cụ thể ở đây là ĐÈ lên khuyến nghị đó, nên chỉ khai khi có lý do,
+# src/experiments/experiment_run.py). Khai số cụ thể ở đây là ĐÈ lên khuyến nghị đó, nên chỉ khai khi có lý do,
 # và ghi lý do ngay cạnh.
 decoding:
   mode: greedy

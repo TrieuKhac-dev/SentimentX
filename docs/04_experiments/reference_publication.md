@@ -62,7 +62,7 @@ và metric. Mục tiêu là kết quả **nhỉnh hơn** công bố, không ch�
 
 `data/reports/metrics_matrix/accuracy_by_aspect.csv` có **cột công bố theo từng mức ví dụ**
 (`COT+0-shot`, `COT+1-shot`, `COT+5-shot`). Mỗi lượt chạy được so với cột của **đúng mức ví dụ của
-chính nó** (đọc từ `metrics.json -> prompt_examples.examples`, suy ra trong `src/reports.py::shot_of`);
+chính nó** (đọc từ `metrics.json -> prompt_examples.examples`, suy ra trong `src/reporting/reports.py::shot_of`);
 lượt không có mức ví dụ (model encoder, lượt chạy tay) dùng cột do
 `python scripts/collect_reports.py --reference-shot <0|1|5>` chọn. So cột của từng lượt với cột công
 bố cùng mức để thấy khoảng cách theo từng khía cạnh.

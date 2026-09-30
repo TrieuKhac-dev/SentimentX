@@ -1,7 +1,7 @@
 # 05.01. Cấu hình đường dẫn
 
 > Đọc file này khi: đổi cấu trúc thư mục, hoặc thêm một loại file kết quả mới.
-> Liên quan: `docs/00_workflow/06_conventions.md`, `src/paths.py`
+> Liên quan: `docs/00_workflow/06_conventions.md`, `src/core/paths.py`
 
 File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường dẫn của dự án.
 

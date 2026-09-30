@@ -18,7 +18,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
 
 ## 3. Task nhỏ (mỗi task một commit)
 
-- [x] T1. `src/repo.py`: `prepare()` kéo đúng commit đã ghim (fetch theo sha, có phương án dự phòng
+- [x] T1. `src/workflow/repo.py`: `prepare()` kéo đúng commit đã ghim (fetch theo sha, có phương án dự phòng
       `clone --filter=blob:none`), kiểm `git rev-parse HEAD`, đọc config từ chính commit đó.
       -> `feat(repo): fetch and verify pinned commit`
 - [x] T2. `scripts/pin.py`: ghi `REPO_URL`, `REPO_SHA`, `EXP_DIR` vào cell đầu của notebook
@@ -32,7 +32,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       -> `feat(templates): add experiment and prompt templates`
       Notebook mẫu có 8 ô: tiêu đề, ô GHIM (do `pin.py` ghi), bootstrap (`repo.prepare` +
       `runtime.load_env` + tìm Drive), cấu hình đang dùng, preflight (dừng nếu có việc phải sửa),
-      chạy qua chính `src/experiment_run.py` (`plan` rồi `run`) - notebook gọi THƯ VIỆN, không gọi
+      chạy qua chính `src/experiments/experiment_run.py` (`plan` rồi `run`) - notebook gọi THƯ VIỆN, không gọi
       script dòng lệnh (mọi kết quả phải do notebook đã ghim sinh ra, nên không có cửa dòng lệnh
       chạy thí nghiệm nào khác), kết quả nằm ở đâu, và ô kết thúc.
       Kèm hai thứ mà bootstrap cần: `runtime.drive_dir()`/`drive_env_file()` (nhận Drive bằng FILE
@@ -47,7 +47,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       (`clone --filter=blob:none --no-checkout` -> `fetch --depth 1 origin <sha>` ->
       `checkout --detach <sha>`): có `src/`, và `repo.prepare()` báo "dùng bản code đang có",
       trên nhánh, không cảnh báo. Test khoá thứ tự này cho cả notebook mẫu và mọi notebook
-      thí nghiệm (`tests/test_templates.py::TestBootstrap`).
+      thí nghiệm (`tests/workflow/test_templates.py::TestBootstrap`).
       **Lần chạy Colab thật thứ hai (25/09/2026, exp001, commit 8e79c0d)** xác nhận phần kéo code:
       `fetch -> 0`, `checkout -> 0`, `repo.prepare()` báo "dùng bản code đang có | trên nhánh |
       8e79c0d5". Hai việc còn lại lộ ra trong cùng lần chạy đó, đều đã sửa:
@@ -100,7 +100,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
 - [x] T6. `scripts/new_experiment.py`: tạo thí nghiệm mới, tự chọn số `expNNN` kế tiếp từ trạng thái
       đã hợp nhất, từ chối nếu nhánh hiện tại chưa chứa `origin/experiment`.
       -> `feat(experiments): add scripts/new_experiment.py to scaffold an experiment`
-      Kèm `src/notebooks.py` (một định nghĩa ô ghim dùng chung với `pin.py`, để hai công cụ không
+      Kèm `src/workflow/notebooks.py` (một định nghĩa ô ghim dùng chung với `pin.py`, để hai công cụ không
       thể hiểu ô ghim khác nhau) và `experiments.list_experiments()`/`next_exp_id()` trong thư viện
       (chọn số kế tiếp theo số LỚN NHẤT đã có, nên xoá một thí nghiệm ở giữa không đụng số khác).
       Từ chối khi: thí nghiệm đã có, config model chưa có, nhánh ghim chưa lên remote.
@@ -114,7 +114,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
 
 ## 5. Rủi ro / lưu ý
 
-- GitHub phải cho phép fetch theo sha. Nếu không, dùng phương án dự phòng trong `src/repo.py`.
+- GitHub phải cho phép fetch theo sha. Nếu không, dùng phương án dự phòng trong `src/workflow/repo.py`.
 - Sau khi giao notebook, không sửa `experiments/**/expNNN/**` cho tới khi giảng viên chạy xong.
 
 ## 6. Phụ thuộc

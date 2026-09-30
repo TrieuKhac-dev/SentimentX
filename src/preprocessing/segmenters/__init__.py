@@ -42,8 +42,8 @@ SEGMENTERS = {
 
 INSTALL_HINT = (
     "Cách cài bộ chính chủ (Windows, không cần quyền admin):\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup_java.ps1\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup_vncorenlp.ps1"
+    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_java.ps1\n"
+    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_vncorenlp.ps1"
 )
 
 

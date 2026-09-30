@@ -1,7 +1,7 @@
 # Thêm một mục EDA mới
 
 > Đọc file này khi: thêm một mục EDA mới.
-> Liên quan: `docs/02_eda/03_modules.md`, `src/registry.py`
+> Liên quan: `docs/02_eda/03_modules.md`, `src/core/registry.py`
 
 ## 1. Ba bước
 
@@ -39,7 +39,7 @@ def run(context):
     }
 ```
 
-3. Mở `src/registry.py`, import và thêm vào `EDA_MODULES`:
+3. Mở `src/core/registry.py`, import và thêm vào `EDA_MODULES`:
 
 ```python
 from src.eda import emoji_deep

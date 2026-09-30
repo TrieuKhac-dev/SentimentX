@@ -31,7 +31,7 @@
 
 ## Config
 
-- Không hardcode đường dẫn: đọc từ `configs/paths.yaml` qua `src/paths.py`.
+- Không hardcode đường dẫn: đọc từ `configs/paths.yaml` qua `src/core/paths.py`.
 - Không đặt giá trị mặc định trong code. Thiếu khoá thì báo lỗi rõ kèm danh sách file đã đọc.
 - Mọi khoá có thể thay đổi theo thí nghiệm phải nằm trong `configs/**`.
 
@@ -39,7 +39,8 @@
 
 - Mọi trục mở rộng là một registry: thêm mới thì thêm một module và một dòng đăng ký.
 - Mỗi registry có hàm `check()` báo lỗi rõ, và có lệnh `--list-*` để liệt kê.
-- Thêm registry mới thì cập nhật `src/registry.py`, vì đó là hướng dẫn mở rộng trung tâm.
+- Thêm registry mới thì cập nhật `src/core/registry.py`, vì đó là hướng dẫn mở rộng trung tâm.
+- Sửa ô notebook (thêm, sửa, xoá) là việc riêng, có luật riêng: `docs/00_workflow/10_template_notebook.md`.
 
 ## Sửa một test đang đỏ
 
@@ -67,7 +68,7 @@ khác nhau, nên `assertEqual(code, 2)` một mình vẫn xanh kể cả khi cô
   encoding ở cả hai chiều. Code đọc tệp cấu hình bằng `utf-8-sig` để chịu được BOM.
 - Tệp `scripts/*.ps1` có chữ tiếng Việt **phải có BOM UTF-8** (`EF BB BF`). `powershell.exe` 5.1 đọc
   tệp `.ps1` không BOM theo ANSI, nên chuỗi tiếng Việt vỡ và **script không parse được**. Ca thật:
-  `scripts/setup_qwen_model.ps1` báo `The string is missing the terminator` ở một dòng chỉ có chữ tiếng
+  `scripts/setup/setup_qwen_model.ps1` báo `The string is missing the terminator` ở một dòng chỉ có chữ tiếng
   Việt, trong khi `setup_java.ps1` và `setup_vncorenlp.ps1` (có BOM) chạy bình thường - nghĩa là lệnh
   `powershell -File scripts\...` mà README hướng dẫn chỉ chạy được khi tệp có BOM. Kiểm nhanh:
   `[System.IO.File]::ReadAllBytes($p)[0..2] -join ','` → `239,187,191` là có BOM.
@@ -82,11 +83,11 @@ khác nhau, nên `assertEqual(code, 2)` một mình vẫn xanh kể cả khi cô
 
 - Cú pháp của các tool (`run_pipeline.py`, `run_eda.py`, `run_token_stats.py`, `build_report.py`,
   `run_check_examples.py`) nằm ở [09_cli.md](09_cli.md). Đổi cờ thì sửa đồng thời trang đó, docstring
-  của tool, và `tests/test_cli.py`.
+  của tool, và `tests/workflow/test_cli.py`.
 - Tool phải chỉ ĐÍCH DANH thứ nó tác động (`--name`, `--version`, `--hash`); mặc định kiểu "bản mới
   nhất" là đoán, nên không được dùng.
 - Mã thoát thống nhất: `0` xong · `1` hợp lệ nhưng chưa có kết quả · `2` câu lệnh chưa rõ.
-- Chuỗi help không viết cứng đường dẫn: dựng từ `configs/paths.yaml` qua `src/paths.py`.
+- Chuỗi help không viết cứng đường dẫn: dựng từ `configs/paths.yaml` qua `src/core/paths.py`.
 
 ## Tài liệu
 

@@ -92,7 +92,7 @@ và một cột `reference` chứa số của công bố.
 
 `chưa rõ` là giá trị riêng, không gộp vào `no`: máy không có git, thiếu ref, hoặc `run_meta.json` không
 ghi commit thì **không kiểm được** - ghi thành "không hợp lệ" là nói dối kiểu khác. Việc gọi git đi qua
-`src/repo.py` và mỗi cặp (commit, nhánh) chỉ hỏi một lần, nên bảng nhiều dòng vẫn chỉ tốn một lệnh.
+`src/workflow/repo.py` và mỗi cặp (commit, nhánh) chỉ hỏi một lần, nên bảng nhiều dòng vẫn chỉ tốn một lệnh.
 
 ### Hai bộ bảng, tách rõ: toàn bộ và chỉ lượt thành công
 

@@ -205,7 +205,7 @@ def list_segmenters():
     for row in rows:
         print("\n  - {}: {}".format(row["tên"], row["ghi chú"]))
     print("\nBộ tách từ chỉ áp dụng cho PhoBERT (ViSoBERT và Qwen đọc văn bản nguyên "
-          "bản).\nBộ chính chủ: {}. Cách cài: chạy scripts\\setup_vncorenlp.ps1.".format(
+          "bản).\nBộ chính chủ: {}. Cách cài: chạy scripts\\setup\\setup_vncorenlp.ps1.".format(
               ", ".join(segmenters.official_names())))
     return 0
 

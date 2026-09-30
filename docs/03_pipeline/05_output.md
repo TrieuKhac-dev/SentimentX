@@ -9,7 +9,7 @@
 vì: dữ liệu chỉ ~16k dòng nên tốc độ đọc/ghi không phải vấn đề; CSV mở được bằng
 Excel để kiểm tra bằng mắt; và `git diff` đọc được từng dòng khi dữ liệu gốc thay đổi.
 
-Muốn đổi kết quả sang Parquet: cài `pyarrow`, thêm hàm ghi Parquet trong `src/utils.py`
+Muốn đổi kết quả sang Parquet: cài `pyarrow`, thêm hàm ghi Parquet trong `src/core/utils.py`
 rồi gọi ở bước Export (`src/pipeline/export.py`) thay cho `write_csv`. Lưu ý mã phiên
 bản chỉ tính từ **config + dữ liệu gốc**, không tính mã nguồn - nên đổi định dạng đầu
 ra sẽ ghi đè chính thư mục phiên bản đó; muốn giữ lại bản CSV cũ để so sánh thì tăng

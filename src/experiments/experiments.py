@@ -598,7 +598,7 @@ def _data_prefix():
     """Tiền tố nhận ra một mục `requires_extra` tính từ GỐC DỮ LIỆU.
 
     Đọc tên thư mục từ `configs/paths.yaml` (`roots.data`) chứ không viết cứng: đổi cấu trúc thư mục
-    thì chỉ sửa file cấu hình - đúng quy ước của `src/core/paths.py`. Test `tests/test_paths.py` khoá lại
+    thì chỉ sửa file cấu hình - đúng quy ước của `src/core/paths.py`. Test `tests/core/test_paths.py` khoá lại
     điều này.
     """
     return str(paths.cfg()["roots"]["data"]).replace("\\", "/").strip("/") + "/"

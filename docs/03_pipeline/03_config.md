@@ -10,7 +10,7 @@
 - Cấu hình được **ghi lại nguyên vẹn** vào `processing_log.json` mỗi lần chạy, và in
   thành bảng "Cấu hình đã dùng cho lần chạy này" ở cuối báo cáo pipeline - nên luôn
   truy vết được một phiên bản dữ liệu được tạo ra bằng cấu hình nào.
-- Nếu file thiếu một bước bắt buộc, `src/utils.py::load_pipeline_config` **báo lỗi kèm tên
+- Nếu file thiếu một bước bắt buộc, `src/core/utils.py::load_pipeline_config` **báo lỗi kèm tên
   file**, KHÔNG tự điền giá trị mặc định: điền mặc định là che mất lỗi cấu hình, người chạy sẽ
   tưởng một bước đã bật trong khi thực ra nó chưa từng được khai.
 - Trạng thái **đang chạy** (bảng tóm tắt) nằm ở [01_flow.md mục 3](01_flow.md). File này

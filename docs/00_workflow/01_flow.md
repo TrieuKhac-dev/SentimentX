@@ -67,8 +67,8 @@ ghim) và `EXP_DIR` (thư mục thí nghiệm). `python scripts/pin.py <model>/<
 giá trị đó; ô đã ghim được tìm **theo dấu**, nên ghim lại thì cập nhật đúng ô cũ chứ không thêm ô
 thứ hai.
 
-Cell bootstrap (do `templates/` sinh ra) gọi `src.repo.prepare(...)` để kéo **đúng** commit đó rồi
-mới `import src`. Nhờ vậy:
+Cell bootstrap (do `templates/` sinh ra) gọi `repo.prepare(...)` - qua mặt tiền `src.api` - để kéo
+**đúng** commit đó rồi mới `import src`. Nhờ vậy:
 
 - Notebook chạy trên máy cá nhân: thư mục code đang đúng commit rồi nên **không cần mạng**.
 - Notebook chạy trên Colab: kéo code theo sha (fetch theo sha, không được thì
@@ -76,6 +76,10 @@ mới `import src`. Nhờ vậy:
   đúng sha - lệch thì dừng, không chạy trên bản code không rõ là bản nào.
 - Commit đã ghim phải nằm trên nhánh cho phép (mặc định `experiment`); chưa thì cảnh báo, vì không
   ai khác tải lại được đúng bản code đã sinh ra kết quả.
+
+Notebook của một thí nghiệm đã chạy là **bản ghi** của lượt chạy đó: đừng dựng lại nó theo bản mẫu,
+và đừng sửa ô của nó. Quy tắc thêm/sửa/xoá ô, thứ tự các ô, và quy trình 5 bước để đổi bản mẫu:
+`docs/00_workflow/10_template_notebook.md`.
 
 Trước khi ghi, `pin.py` còn kiểm **cây làm việc phải sạch ngoài file notebook**: commit ghim chỉ
 được đổi đúng một file. Sau khi ghim thì không sửa `experiments/**/expNNN/**` nữa cho tới khi
@@ -132,7 +136,7 @@ Hai quy tắc không được vi phạm:
 - `errors.json` KHÔNG được tạo khi không có lỗi. File rỗng làm người đọc tưởng đã từng có lỗi,
   còn thiếu file thì rõ ràng là không lỗi.
 
-Xem `src/runlog.py` để biết cách gọi, và `docs/04_experiments/metrics.md` cho phần chỉ số.
+Xem `src/core/runlog.py` để biết cách gọi, và `docs/04_experiments/metrics.md` cho phần chỉ số.
 
 `run_meta.json` là bản ghi của lần chạy: `run` (trạng thái, lúc bắt đầu/kết thúc), `experiment`
 (model, method, exp_id), `data` (dataset, `build` là mã phiên bản dữ liệu, `roles`, `rows` là số bản
@@ -181,7 +185,7 @@ và `resume.new` để người đọc biết con số trước mặt sinh ra t�
 
 ## Kiểm trước khi chạy
 
-Cell preflight của notebook gọi `src/preflight.py` TRƯỚC khi nạp model. Một lượt val tốn hàng chục
+Cell preflight của notebook gọi `src/workflow/preflight.py` TRƯỚC khi nạp model. Một lượt val tốn hàng chục
 phút, nên phát hiện thiếu Java, thiếu `test.csv` hay Drive chỉ đọc ở mẫu thứ 800 là mất cả buổi.
 Preflight kiểm trong vài giây:
 

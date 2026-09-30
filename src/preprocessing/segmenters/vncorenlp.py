@@ -16,7 +16,7 @@ rõ ràng chứ không làm hỏng phép đo của các model khác.
 
 `py_vncorenlp.download_model()` KHÔNG dùng được trên Windows: nó gọi `wget` qua
 `os.system`. Trên Windows phải tải jar + model bằng PowerShell - xem
-`scripts/setup_vncorenlp.ps1`.
+`scripts/setup/setup_vncorenlp.ps1`.
 """
 
 import os
@@ -71,7 +71,7 @@ _BOUNDARY_RE = re.compile(r"(^|\s)_(?=\w)")
 
 MODEL_DIR = config.MODEL_ASSETS_DIR / "vncorenlp"
 
-# Nơi scripts/setup_java.ps1 cài JDK (cài trong thư mục người dùng, không cần admin)
+# Nơi scripts/setup/setup_java.ps1 cài JDK (cài trong thư mục người dùng, không cần admin)
 USER_JDK_DIR = Path(os.environ.get("USERPROFILE", str(Path.home()))) / ".jdks"
 
 # Vài nơi JDK hay được cài trên Windows (winget / choco / bản tải tay)
@@ -93,8 +93,8 @@ INSTALL_HINT = (
     "    pip install py-vncorenlp\n"
     "    (model VnCoreNLP nằm trong {} - gói bàn giao đã kèm sẵn)\n"
     "Trên Windows (không cần quyền admin, cài trong thư mục người dùng):\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup_java.ps1\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup_vncorenlp.ps1\n"
+    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_java.ps1\n"
+    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_vncorenlp.ps1\n"
     "Hoặc cài tay:\n"
     "    winget install EclipseAdoptium.Temurin.17.JDK   (nhớ đặt JAVA_HOME)\n"
     "    pip install py-vncorenlp\n"
@@ -247,14 +247,14 @@ def _rdr():
 def available():
     """Java + model + thư viện đã sẵn sàng chưa (KHÔNG khởi động JVM)."""
     if _java_home() is None:
-        return False, "chưa cài Java (JDK/JRE 1.8+); chạy scripts/setup_java.ps1"
+        return False, "chưa cài Java (JDK/JRE 1.8+); chạy scripts/setup/setup_java.ps1"
     try:
         import py_vncorenlp  # noqa: F401
     except ImportError:
         return False, "thiếu thư viện py-vncorenlp; cài bằng 'pip install py-vncorenlp'"
     missing = missing_files()
     if missing:
-        return False, "thiếu model VnCoreNLP ({}); chạy scripts/setup_vncorenlp.ps1".format(
+        return False, "thiếu model VnCoreNLP ({}); chạy scripts/setup/setup_vncorenlp.ps1".format(
             ", ".join(path.name for path in missing))
     return True, ""
 

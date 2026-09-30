@@ -23,10 +23,10 @@
   Tải lại kể cả khi file đã có.
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1
+  powershell -ExecutionPolicy Bypass -File scripts\setup\setup_vncorenlp.ps1
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1 -All -Force
+  powershell -ExecutionPolicy Bypass -File scripts\setup\setup_vncorenlp.ps1 -All -Force
 #>
 
 [CmdletBinding()]
@@ -91,7 +91,7 @@ if (-not (Test-JavaHome $jdk)) {
 }
 if (-not (Test-JavaHome $jdk)) {
     throw ("Chưa thấy JDK (cần có bin\server\jvm.dll). Chạy trước:`n" +
-           "    powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1")
+           "    powershell -ExecutionPolicy Bypass -File scripts\setup\setup_java.ps1")
 }
 # Đặt cho tiến trình PowerShell này để pyjnius (chạy trong python bên dưới) tìm thấy.
 $env:JAVA_HOME = $jdk

@@ -105,7 +105,7 @@ lỗi** (thận trọng hơn: precision cao hơn, recall thấp hơn). Bảng đ
 1. **Tăng cỡ tập con** (300-500 review) và **đo dao động** (`--sample`) - chưa làm, vì một
    lượt CoT 100 review đã tốn 10-12 phút GPU.
 2. ~~**So với 3 encoder**: PhoBERT (× số bộ tách từ) và ViSoBERT vẫn chưa có script huấn luyện.~~
-   **ĐÃ LÀM (đợt 2, 25/09/2026):** `src/training/lora.py` (registry `TRAINERS`) và `src/encoder_run.py`,
+   **ĐÃ LÀM (đợt 2, 25/09/2026):** `src/training/lora.py` (registry `TRAINERS`) và `src/experiments/encoder_run.py`,
    hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Việc còn lại là NHÂN với số bộ
    tách từ, ghi ở mục 4 (cần GPU).
 3. **Self-consistency** (lấy mẫu nhiều lần rồi bỏ phiếu) là bước mở rộng tự nhiên của CoT
@@ -131,7 +131,7 @@ khác biệt thật sự chỉ hiện ra ở bước này.
 ## 5. Task nhỏ đã biết
 
 - **JDK 11 dự phòng:** nếu VnCoreNLP gặp lỗi lạ với JDK 17 trên máy khác, chạy
-  `powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1 -Major 11 -Force`
+  `powershell -ExecutionPolicy Bypass -File scripts\setup\setup_java.ps1 -Major 11 -Force`
   (jar VnCoreNLP là bản 2020; tài liệu của gói chỉ yêu cầu Java 1.8+).
 - **Báo cáo HTML cho tiền xử lý cho model:** `run_token_stats.py` mới ghi CSV + in console, chưa có
   `*_result.json` để `build_report.py` vẽ như EDA/pipeline. Chưa làm vì phép đo còn đang
@@ -146,7 +146,7 @@ khác biệt thật sự chỉ hiện ra ở bước này.
   (padding_side, chat template, cắt phần đã sinh) đều được kiểm bằng script chạy thật trong quá
   trình làm.
   **Cập nhật 27/09/2026:** `runner.py` nay CÓ test cho hai quyết định KHÔNG cần GPU
-  (`tests/test_runner.py`: `chat_template` rỗng, và bỏ phần đệm bên trái khi dựng lại cột `prompt`).
+  (`tests/evaluation/test_runner.py`: `chat_template` rỗng, và bỏ phần đệm bên trái khi dựng lại cột `prompt`).
   Phần `generate()` (cắt đúng đoạn model sinh ra) vẫn phải kiểm bằng lượt chạy thật: model giả chỉ
   chứng minh được phép cắt, không chứng minh phép cắt đó đúng với đầu ra của model.
 - **Bài học về test (đã trả giá):** lỗi hoán vị FP/FN trong `metrics._binary_counts` lọt qua
@@ -177,7 +177,7 @@ khác biệt thật sự chỉ hiện ra ở bước này.
 - ~~Mục lục có thể trỏ tới file báo cáo đã bị xoá~~ - **đã xử lý:** `versioning.prune_missing()`
   bỏ những dòng có `report` không còn tồn tại, và `record()` gọi hàm này mỗi lần ghi nên mục
   lục tự dọn (đã dùng để dọn 2 dòng trỏ tới các lần chạy thử `n4`/`n8`). Có test riêng:
-  `tests/test_versioning.py` (4 ca, dùng manifest trong thư mục tạm, không đụng mục lục thật).
+  `tests/core/test_versioning.py` (4 ca, dùng manifest trong thư mục tạm, không đụng mục lục thật).
 
 ## 6. Chưa làm so với kế hoạch refactor (ghi 25/09/2026)
 
@@ -186,17 +186,17 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 
 | Việc | Trạng thái | Ghi chú |
 | ---- | ---------- | ------- |
-| Máy kiểm "kết quả trước merge" (`valid`, `invalid_reason`, `comparable` trong `experiment_registry`) | **ĐÃ LÀM 27/09/2026** | `feat(reports): mark runs that are not on the pinned branch`. `valid` hỏi git qua `src/repo.py` (`merge-base --is-ancestor` so với `origin/<nhánh>` ghi trong `run_meta.json`) - không phải `git rev-list`; `comparable` so cơ sở đo (dữ liệu, không gian nhãn, neutral, split, bộ chấm) với lượt CHUẨN (lượt `FINISHED` sớm nhất); `invalid_reason` gộp lý do. Không có git thì cả hai cột ghi `chưa rõ`, KHÔNG ghi `no` |
+| Máy kiểm "kết quả trước merge" (`valid`, `invalid_reason`, `comparable` trong `experiment_registry`) | **ĐÃ LÀM 27/09/2026** | `feat(reports): mark runs that are not on the pinned branch`. `valid` hỏi git qua `src/workflow/repo.py` (`merge-base --is-ancestor` so với `origin/<nhánh>` ghi trong `run_meta.json`) - không phải `git rev-list`; `comparable` so cơ sở đo (dữ liệu, không gian nhãn, neutral, split, bộ chấm) với lượt CHUẨN (lượt `FINISHED` sớm nhất); `invalid_reason` gộp lý do. Không có git thì cả hai cột ghi `chưa rõ`, KHÔNG ghi `no` |
 | `dataset_registry` có cột `parent` + changelog người đọc (`docs/01_dataset/changelog.md`) | **ĐÃ LÀM 27/09/2026** | `feat(reports): show dataset lineage and count records, not lines`: cột `parent` (không khai thì ghi "sinh từ dữ liệu gốc", không để ô trống) và `docs/01_dataset/changelog.md` là bản người đọc. Cùng commit đó sửa một lỗi thật: bảng ĐẾM DÒNG thay vì đếm BẢN GHI, nên ghi `test=2271` trong khi `eval_lock` ghi 1.518 |
-| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | **ĐÓNG - làm khác có chủ ý** | `kind` (`raw`/`dataset`) kiểm trong `src/dataset.py`; model sinh nạp ở `src/evaluation/runner.py`, model encoder ở `src/preprocessing/`. Chức năng tương đương, khác chỗ đặt: hai thư mục registry chỉ để gom chỗ ĐẶT, mà chỗ đặt đã có chủ. Không làm nữa |
+| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | **ĐÓNG - làm khác có chủ ý** | `kind` (`raw`/`dataset`) kiểm trong `src/core/dataset.py`; model sinh nạp ở `src/evaluation/runner.py`, model encoder ở `src/preprocessing/`. Chức năng tương đương, khác chỗ đặt: hai thư mục registry chỉ để gom chỗ ĐẶT, mà chỗ đặt đã có chủ. Không làm nữa |
 | `run_rescore_eval.py` và `config.MODEL_EVAL_REPORT_DIR` | **ĐÃ BỎ 25/09/2026** | Trước đó giữ có chủ ý làm "đường chạy tay". Nay MỌI kết quả đều thuộc một thí nghiệm: `experiments/<model>/<method>/<expNNN>/results/<hash8>/`, thiếu định danh thí nghiệm là lỗi. Muốn tính lại điểm thì chạy lại thí nghiệm (xem [05_predictions.md](05_predictions.md) §5) |
 | `nbstripout` cài trên từng máy | **ĐÃ CẤU HÌNH 27/09/2026** | `chore(git): strip notebook outputs with nbstripout`: `.gitattributes` khai bộ lọc, máy nào cài `nbstripout` thì git tự bỏ output khi commit; kiểm 3 của CI vẫn là chốt cuối |
 | `mlflow_tags` đủ 8 nhãn và `artifacts` có `plots` | **ĐÃ LÀM 27/09/2026** | `feat(tracking): carry the eight mlflow tags and upload the plot`: nhãn `model`, `method`, `exp_id`, `dataset`, `version_id`, `split`, `repo_sha`, `config_sha256`; phát hiện thêm một lỗi - `resolve_tags` chỉ tra khoá mức ngoài nên `method`/`exp_id` (nằm trong khối `experiment`) bị BỎ ÂM THẦM, nay tra cả khối đó. `artifacts` thêm `plots/accuracy.html` |
 | Thư mục `data/reports/model_eval/**` | **ĐÃ BỎ 25/09/2026** | Bằng chứng của lượt kiểm resume ngày 24/09/2026 nằm ở đó (xem `docs/06_plan/P4_logging_mlflow.md` T8) đã bị xoá cùng lần dựng lại dữ liệu; kết quả của nhóm nay chỉ nằm trong `experiments/**/results/<hash8>/` |
-| Huấn luyện LoRA cho PhoBERT / ViSoBERT | **ĐÃ LÀM (đợt 2, 25/09/2026)** | `src/training/lora.py` (registry `TRAINERS`) và `src/encoder_run.py`, hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Từ đợt này `training.yaml` hết là khai báo suông: `trainer`, `checkpoints.*` đều có nơi đọc |
-| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/dataset.py` |
+| Huấn luyện LoRA cho PhoBERT / ViSoBERT | **ĐÃ LÀM (đợt 2, 25/09/2026)** | `src/training/lora.py` (registry `TRAINERS`) và `src/experiments/encoder_run.py`, hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Từ đợt này `training.yaml` hết là khai báo suông: `trainer`, `checkpoints.*` đều có nơi đọc |
+| `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/core/dataset.py` |
 | `save.plots` trong `configs/experiments/evaluation.yaml` | **ĐÃ LÀM 27/09/2026** | `feat(evaluation): make save.plots write a plot into the run folder`: `true` thì lượt chạy ghi `plots/accuracy.html` (độ chính xác từng khía cạnh + ma trận nhầm, HTML tự chứa, không cần `plotly`); `false` thì không tạo thư mục rỗng |
-| Writer `state_dict` cho full fine-tune (checkpoint đã tách khỏi trainer) | CHƯA LÀM | Chính sách + `Store` đã ở `src/training/checkpoints.py`, writer `adapter` ở `src/training/savers/`. Full fine-tune chỉ cần thêm một writer ghi `state_dict` + một dòng trong `SAVERS` - xem `src/registry.py` mục 11 |
+| Writer `state_dict` cho full fine-tune (checkpoint đã tách khỏi trainer) | CHƯA LÀM | Chính sách + `Store` đã ở `src/training/checkpoints.py`, writer `adapter` ở `src/training/savers/`. Full fine-tune chỉ cần thêm một writer ghi `state_dict` + một dòng trong `SAVERS` - xem `src/core/registry.py` mục 11 |
 
 ## 7. Mục duy nhất của đợt 27/09/2026 CHƯA làm: báo cáo HTML cho `token_stats`
 
@@ -215,3 +215,28 @@ Việc cần làm, theo đúng đường có sẵn của dự án:
 Vì sao chưa làm trong đợt này: đây là đường VẼ mới, còn mọi mục khác của đợt chỉ thêm cột hoặc chú
 thích; làm ẩu cho xong thì ra một báo cáo trông đúng mà số sai - đúng loại lỗi mà cả đợt này đang sửa.
 
+## 8. Nợ phát hiện khi làm Batch 5b (ghi 30/09/2026)
+
+Đợt Batch 5b (thêm tự ngắt phiên Colab; dời logic notebook vào thư viện; mặt tiền `src/api/`; bản mẫu
+là MẪU chứ không phải chuẩn; xếp lại `src/` + `tests/`; công cụ dọn rác; gói bàn giao tăng dần) để lại
+những khoản dưới đây. Ghi lại để người sau không phải phát hiện lại, và để không ai đọc kế hoạch mà
+tưởng đã xong hết.
+
+### 8.1. Nợ ảnh hưởng tới SỐ ĐÃ BÁO CÁO
+
+| Việc | Trạng thái | Ghi chú |
+| ---- | ---------- | ------- |
+| 12 notebook thí nghiệm còn ghim `a7ac72a` (bản code TRƯỚC Batch 5b) | CHƯA LÀM - có kế hoạch | Số đã báo cáo vẫn tra được từ đúng commit đó, nên chưa sai gì. Đợt dựng lại sẽ dựng lại ô của cả 12 theo bản mẫu mới rồi ghim lại trong CÙNG một commit (`docs/06_plan/P7_rerun.md` §2) |
+| Đổi một tệp TRONG phiên bản dữ liệu đã gửi | Có chốt chặn từ 30/09/2026 | `scripts/build_package.py` DỪNG (mã thoát 3): người nhận đang giữ cùng một mã phiên bản với nội dung khác, nên kết quả họ chạy không còn so được. Cách sửa đúng là tạo phiên bản dữ liệu MỚI |
+| Đổi `config.yaml` của một thí nghiệm ĐÃ chạy | KHÔNG chặn, chỉ ghi lại | `run_meta.json` giữ `config_sha256` lúc chạy, nên sửa file sau đó là bản ghi không còn dựng lại được từ chính file đó. Chưa có phép kiểm nào chặn; luật là: sửa thì phải chạy lại và nói rõ |
+| Token DagsHub nằm trong gói bàn giao | Đã biết, cố ý | Đổi/ thu hồi là việc THỦ CÔNG khi kết thúc đồ án. Sổ gói không chứa token (`docs/05_config/07_env.md` §Bảo mật) |
+
+### 8.2. Nợ kỹ thuật
+
+| Việc | Vì sao để lại | Cách sửa khi cần |
+| ---- | ------------- | ---------------- |
+| Tên module TRÙNG nhau giữa các gói (`base` ở 5 nơi, `loader` ở 2, `metrics`/`qwen` ở 2) | Việc chuyển nhà `src/` phải sửa tay ba lượt vì không thể suy ra gói từ tên; hai file vùng mặt tiền còn tự import chính mình, mà test cũ vẫn xanh vì tên "có tồn tại" | `tests/api/test_api.py` nay chặn hai lỗi đó. Muốn hết tận gốc thì đổi tên file theo gói (`label_base.py`, ...) - việc riêng, đổi tên file là đổi `run_meta` của các lượt sau |
+| `paths.ROOT_DIR` suy từ `__file__` (nay `parents[2]`) | Đổi ĐỘ SÂY của `src/core/paths.py` là gốc repo sai LẶNG LẼ, không có gì báo | Thêm một phép kiểm `assignments/<file cấu hình>` lúc import, hoặc suy gốc từ `paths.yaml` tìm ngược lên |
+| CI không kiểm tài liệu trỏ đúng file | 37 file tài liệu trỏ `src/<file>.py` và `tests/test_*.py` cũ sau khi chuyển nhà; phải quét bằng script một lần | Thêm một check trong `scripts/ci_checks.py`: mọi đường dẫn dạng `src/...py` và `tests/...py` nhắc trong tài liệu phải tồn tại |
+| Sổ bàn giao chưa kiểm phía NGƯỜI NHẬN | Sổ ghi được là nhóm đã GỬI gì, không biết người nhận đã xoá đúng những mục `deleted` chưa | Thêm một cột "đã xác nhận" vào `handover/ledger.csv`, hoặc một hàm so thư mục Drive nhận được với manifest |
+| `scripts/` vẫn còn 8 công cụ `.py` phẳng | Ba file cài đặt `.ps1` đã vào `scripts/setup/`; các công cụ `.py` chưa chia nhóm | Chia tiếp khi số công cụ tăng: `scripts/notebook/`, `scripts/data/` |

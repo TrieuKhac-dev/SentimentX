@@ -25,13 +25,13 @@ EDA không sửa dữ liệu ở cả hai trường hợp.
 ```
 data/raw/<name>/<raw_version>/data_train.csv, data_val.csv, data_test.csv   (chỉ đọc)
         |
-        |  src/dataset.py + src/loaders/  : đọc bằng utf-8-sig, bỏ cột `drop_columns`,
+        |  src/core/dataset.py + src/loaders/  : đọc bằng utf-8-sig, bỏ cột `drop_columns`,
         |                                   đổi tên cột văn bản thành `text`
         ->
 run_eda.py --on raw --name <tên> --version <nhãn raw_version>
         |   • đọc config: configs/datasets/<name>/<version>.yaml + configs/pipeline/v0.1.0.yaml
-        |   • tính mã phiên bản (src/versioning.py) -> thư mục phiên bản
-        |   • lần lượt gọi 5 module theo src/registry.py::EDA_MODULES, mỗi module
+        |   • tính mã phiên bản (src/core/versioning.py) -> thư mục phiên bản
+        |   • lần lượt gọi 5 module theo src/core/registry.py::EDA_MODULES, mỗi module
         |     nhận cùng một `context` và trả về một MỤC báo cáo (dict)
         ->
 EDA 01 overview -> EDA 02 label_aspect -> EDA 03 quality_noise -> EDA 04 text_analysis
@@ -70,11 +70,11 @@ dùng trong repo**:
 | Tham số                               | Nơi khai báo                     | Giá trị hiện tại                                                                 | Ảnh hưởng                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `steps.clean.deduplicate.ignore_diacritics` | `configs/pipeline/v0.1.0.yaml`   | **`false`** (TẮT)                                                                | khoá so trùng của EDA 03 và EDA 05 **giữ dấu tiếng Việt** - đúng bằng khoá mà pipeline dùng, nên hai bên không bao giờ lệch nhau. Đây là **config duy nhất** của pipeline mà EDA đọc |
-| `GIBBERISH_RATIO_THRESHOLD`           | `src/config.py`                  | `0.5`                                                                            | review bị coi là "ứng viên gibberish" khi >= 50% token không giống từ (định nghĩa token bất thường: [02_metrics.md](02_metrics.md) mục 4)                                                |
-| `REPEATED_CHAR_MIN`                   | `src/config.py`                  | `3`                                                                              | ký tự lặp liên tiếp từ 3 lần trở lên mới tính là "có ký tự lặp"                                                                                                                      |
-| `AD_PATTERNS`                         | `src/config.py`                  | 11 mẫu gõ tay (`[qc]`, `[tb]`, `viettel`, `http(s)://`, `bit.ly`, `soạn ... gửi`...) | nhóm "có dấu hiệu quảng cáo"                                                                                                                                                         |
-| `CODE_PATTERNS`                       | `src/config.py`                  | 6 mẫu (thẻ HTML, entity HTML, SQL, `function(`, `#include <`...)                   | nhóm "có dấu hiệu code / HTML"                                                                                                                                                       |
-| quy tắc teencode                      | `src/utils.py::teencode_reasons` | 5 quy tắc cấu trúc                                                               | bảng từ bị gắn cờ (mức TOKEN, không phải mức review)                                                                                                                                 |
+| `GIBBERISH_RATIO_THRESHOLD`           | `src/core/config.py`                  | `0.5`                                                                            | review bị coi là "ứng viên gibberish" khi >= 50% token không giống từ (định nghĩa token bất thường: [02_metrics.md](02_metrics.md) mục 4)                                                |
+| `REPEATED_CHAR_MIN`                   | `src/core/config.py`                  | `3`                                                                              | ký tự lặp liên tiếp từ 3 lần trở lên mới tính là "có ký tự lặp"                                                                                                                      |
+| `AD_PATTERNS`                         | `src/core/config.py`                  | 11 mẫu gõ tay (`[qc]`, `[tb]`, `viettel`, `http(s)://`, `bit.ly`, `soạn ... gửi`...) | nhóm "có dấu hiệu quảng cáo"                                                                                                                                                         |
+| `CODE_PATTERNS`                       | `src/core/config.py`                  | 6 mẫu (thẻ HTML, entity HTML, SQL, `function(`, `#include <`...)                   | nhóm "có dấu hiệu code / HTML"                                                                                                                                                       |
+| quy tắc teencode                      | `src/core/utils.py::teencode_reasons` | 5 quy tắc cấu trúc                                                               | bảng từ bị gắn cờ (mức TOKEN, không phải mức review)                                                                                                                                 |
 | `TOP_N`                               | `src/eda/quality_noise.py`       | `20`                                                                             | số mục nhiều nhất đưa vào bảng / biểu đồ                                                                                                                                             |
 | `MIN_CANDIDATE_COUNT`                 | `src/eda/quality_noise.py`       | `3`                                                                              | từ lạ phải xuất hiện >= 3 lần mới vào bảng                                                                                                                                            |
 | `AUDIT_TOP_WORDS`                     | `src/eda/quality_noise.py`       | `300`                                                                            | số từ phổ biến nhất đem ra **tự kiểm dương tính giả**                                                                                                                                |
@@ -82,7 +82,7 @@ dùng trong repo**:
 | `EXAMPLES_PER_SPLIT_TABLE` / `_CSV`   | `src/eda/quality_noise.py`       | `1` / `3`                                                                        | số ví dụ mỗi nhóm mỗi split trên bảng / trong CSV                                                                                                                                    |
 | `TOP_WORDS` / `TOP_BIGRAMS`           | `src/eda/text_analysis.py`       | `25` / `5`                                                                       | số từ hay gặp và số cụm 2 từ mỗi khía cạnh                                                                                                                                           |
 
-> **Muốn đổi cách đo** thì sửa hằng số trong `src/config.py` (ngưỡng dùng chung cho
+> **Muốn đổi cách đo** thì sửa hằng số trong `src/core/config.py` (ngưỡng dùng chung cho
 > cả EDA lẫn pipeline) hoặc trong `src/eda/*.py` (chỉ EDA dùng). Những thay đổi này
 > **không** làm đổi mã phiên bản dữ liệu, vì mã phiên bản chỉ tính từ config dataset
 >

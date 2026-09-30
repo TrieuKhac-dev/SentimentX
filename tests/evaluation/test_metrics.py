@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test phần ĐỌC KẾT QUẢ của model (src/evaluation/metrics.py).
 
-Chỉ số đánh giá đã chuyển sang registry `src/evaluation/scorers/` - test ở `tests/test_scorers.py`.
+Chỉ số đánh giá đã chuyển sang registry `src/evaluation/scorers/` - test ở `tests/evaluation/test_scorers.py`.
 
 Chạy: python -m unittest discover -s tests
 """

@@ -26,10 +26,10 @@
   Cài lại kể cả khi đã có JDK dùng được.
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1
+  powershell -ExecutionPolicy Bypass -File scripts\setup\setup_java.ps1
 
 .EXAMPLE
-  powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1 -Major 11 -Force
+  powershell -ExecutionPolicy Bypass -File scripts\setup\setup_java.ps1 -Major 11 -Force
 #>
 
 [CmdletBinding()]
@@ -168,6 +168,6 @@ Write-Ok ("jvm.dll có mặt: " + (Test-Path (Join-Path $target 'bin\server\jvm.
 
 Write-Host ""
 Write-Host "Xong. Bước tiếp theo (tải model tách từ chính chủ):" -ForegroundColor Cyan
-Write-Host "    powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1"
+Write-Host "    powershell -ExecutionPolicy Bypass -File scripts\setup\setup_vncorenlp.ps1"
 Write-Host "Cửa sổ terminal đang mở chưa thấy JAVA_HOME mới, nhưng dự án tự tìm JDK trong"
 Write-Host "%USERPROFILE%\.jdks nên chạy được ngay, không cần mở lại terminal."

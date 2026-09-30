@@ -22,7 +22,7 @@ thí nghiệm (thí nghiệm CoT 2 ví dụ `prompt-cot/exp001` đã được xo
 đẩy lên nhánh `experiment` và nằm trong gói bàn giao: hai lượt LoRA cho encoder
 (`visobert/lora/exp001`, `phobert-base-v2/lora/exp001`) và ba mức ví dụ của công bố trên Qwen3
 (`prompt-cot/exp002` 0 ví dụ, `exp003` 1 ví dụ, `exp004` 5 ví dụ). Đường huấn luyện encoder được thêm
-trong đợt này (`src/encoder_run.py`, `src/training/lora.py`) và đã chạy trọn vẹn một lượt thu nhỏ trên
+trong đợt này (`src/experiments/encoder_run.py`, `src/training/lora.py`) và đã chạy trọn vẹn một lượt thu nhỏ trên
 máy cá nhân trước khi ghim; ô cấu hình của notebook và phép kiểm dữ liệu gốc trong preflight cũng đã
 được sửa sau lượt chạy thử đầu tiên trên Colab. Năm con số của tập `test` vẫn đang chờ máy GPU của
 Colab.
@@ -79,11 +79,24 @@ gán hết chênh lệch cho lượng hoá.
 
 Đợt này cũng sửa hai lỗi hạ tầng lộ ra khi dựng lượt chạy 0.6B: trọng số Qwen3-0.6B trên máy cá nhân bị
 cắt cụt (838.852.608 byte trong khi header safetensors đòi 1.503.300.328, tức thiếu 44%) và đã tải lại
-trọn vẹn, và `scripts/setup_qwen_model.ps1` phải thêm BOM UTF-8 mới parse được bằng `powershell.exe`
+trọn vẹn, và `scripts/setup/setup_qwen_model.ps1` phải thêm BOM UTF-8 mới parse được bằng `powershell.exe`
 (xem `docs/00_workflow/06_conventions.md`).
 
-## 3. Task nhỏ (mỗi task một commit)
+*Cập nhật 30/09/2026 - gói bàn giao nay gửi TĂNG DẦN (Batch 5b):* vòng bàn giao không còn là "nén cả
+cây rồi gửi lại". `scripts/build_package.py` dựng gói `NNN` chỉ chứa file MỚI hoặc ĐÃ ĐỔI, kèm sổ
+trong git: `handover/files.csv` (ứng viên hiện tại), `handover/ledger.csv` (đã gửi file nào, băm nào,
+ở gói nào), `handover/packages/<NNN>/manifest.csv` (nội dung từng gói, bốn lớp
+`new`/`changed`/`kept`/`deleted`; `deleted` là danh sách người nhận phải xoá). Ứng viên suy từ cấu
+hình thí nghiệm chứ không chép tay, và gói zip nằm ở `handover/out/` (không vào git). Một luật an
+toàn mới: đổi nội dung một file TRONG phiên bản dữ liệu đã gửi thì công cụ DỪNG (mã thoát 3) và chỉ
+đường tạo phiên bản dữ liệu mới - vì kết quả người nhận đã chạy không còn so được với lần chạy mới.
 
+*Việc còn lại của vòng bàn giao (đợt sau):* 12 notebook thí nghiệm vẫn ghim commit `a7ac72a` (bản code
+TRƯỚC Batch 5b). Đợt dựng lại sẽ: dựng lại các ô của cả 12 notebook theo bản mẫu mới (logic đã dời vào
+thư viện, ô nay mỏng) rồi ghim lại trong CÙNG một commit, sau đó dựng gói `001` làm gói gốc. Gói
+`a7ac72a` cũ và thư mục `_ban_giao/` bên ngoài repo sẽ bị xoá khi gói `001` đã được kiểm.
+
+## 3. Task nhỏ (mỗi task một commit)
 
 - [x] T1. Chạy lại pipeline để sinh phiên bản dataset đầu tiên theo cấu trúc mới.
       -> `chore(data): rebuild the dataset under the corrected version id`

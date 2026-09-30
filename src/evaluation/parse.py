@@ -10,7 +10,7 @@ hợp lí. Vì vậy:
 
     - hàm đọc là hàm THUẦN (không I/O, không model) nên kiểm được bằng test;
     - mọi trường hợp KHÔNG đọc được đều trả về lí do CỤ THỂ, không âm thầm trả nhãn 0;
-    - có test ở tests/test_parse.py (`python -m unittest discover -s tests`).
+    - có test ở tests/evaluation/test_parse.py (`python -m unittest discover -s tests`).
 
 HAI ĐỊNH DẠNG ĐẦU RA CẦN ĐỌC
 ---

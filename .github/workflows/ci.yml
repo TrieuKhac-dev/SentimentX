@@ -31,6 +31,6 @@ jobs:
 
       - name: Chạy test
         # Bản clone sạch KHÔNG có dữ liệu (luật 20), nên nhóm test cần dataset đã xử lý tự bỏ qua ở
-        # đây (xem `HAS_DATASET` trong tests/test_preflight.py). Trên máy cá nhân, nơi có dữ liệu,
+        # đây (xem `HAS_DATASET` trong tests/workflow/test_preflight.py). Trên máy cá nhân, nơi có dữ liệu,
         # chúng vẫn chạy đủ.
         run: python -m unittest discover -s tests

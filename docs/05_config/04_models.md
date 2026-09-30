@@ -55,4 +55,4 @@ inference:
 
 1. Viết một module trong `src/preprocessing/` theo hợp đồng ở `src/preprocessing/__init__.py`.
 2. Thêm file YAML trong `configs/models/` với `model_id` trùng tên file.
-3. Đăng ký module vào registry `MODELS` và cập nhật `src/registry.py`.
+3. Đăng ký module vào registry `MODELS` và cập nhật `src/core/registry.py`.

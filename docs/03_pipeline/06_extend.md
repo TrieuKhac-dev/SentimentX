@@ -1,7 +1,7 @@
 # Thêm một bước Pipeline mới
 
 > Đọc file này khi: thêm một bước pipeline mới.
-> Liên quan: `docs/03_pipeline/02_steps.md`, `src/registry.py`
+> Liên quan: `docs/03_pipeline/02_steps.md`, `src/core/registry.py`
 
 1. Tạo file mới trong `src/pipeline/`, ví dụ `dedup_cross_split.py`.
 
@@ -15,7 +15,7 @@
    Muốn ghi kết quả ra thư mục dữ liệu đã xử lý thì dùng `context["processed_dir"]`
    (đã trỏ sẵn vào `data/processed/<mã phiên bản>`).
 
-3. Mở `src/registry.py`, thêm vào `pipeline_steps()` **đúng vị trí** mong muốn.
+3. Mở `src/core/registry.py`, thêm vào `pipeline_steps()` **đúng vị trí** mong muốn.
 
 Không cần sửa `run_pipeline.py` hay `build_report.py`.
 
@@ -34,7 +34,7 @@ Không cần sửa `run_pipeline.py` hay `build_report.py`.
   ([01_flow.md mục 4](01_flow.md)).
 - **Thêm config cho bước mới** ngay trong `configs/pipeline/v0.1.0.yaml` (theo quy ước
   `true` = BẬT) rồi khai giá trị dự phòng an toàn trong
-  `src/utils.py::load_pipeline_config`; nếu không, bước mới sẽ bật vô điều kiện và
+  `src/core/utils.py::load_pipeline_config`; nếu không, bước mới sẽ bật vô điều kiện và
   việc thực nghiệm (đổi một config một lần) không làm được nữa
   ([03_config.md mục 6](03_config.md)).
 

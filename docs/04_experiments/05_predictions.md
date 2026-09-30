@@ -41,7 +41,7 @@ cũ** (…trừ commit: commit nằm trong mã băm, nên bản code khác là t
 ### 1.2. Chạy tiếp (RESUME) hay chạy mới
 
 Một thư mục kết quả giữ được nhiều "attempt" (mỗi lần chạy ghi một mục vào `run_meta.json`). Quyết
-định nằm ở MỘT chỗ (`src/resume.py`) và dựa trên **bộ ba**: `config_sha256`, mã phiên bản dữ liệu, và
+định nằm ở MỘT chỗ (`src/workflow/resume.py`) và dựa trên **bộ ba**: `config_sha256`, mã phiên bản dữ liệu, và
 commit đã ghim - cả ba đã nằm TRONG mã băm (tên thư mục), nên trong một thư mục thì mọi attempt luôn
 khớp nhau.
 
@@ -89,7 +89,7 @@ Hai cột `prompt gửi model` và `câu trả lời` nằm cạnh nhau, nên đ
 **câu hỏi → câu trả lời → nhãn đọc được**.
 
 **Mỗi bản ghi nằm gọn trên MỘT dòng vật lý.** Ô có ký tự xuống dòng thật (prompt, câu trả lời) được
-ghi thành hai ký tự `\n` khi ra CSV (`src/utils.py`, hàm `write_csv`). Chuẩn CSV cho phép ô nhiều
+ghi thành hai ký tự `\n` khi ra CSV (`src/core/utils.py`, hàm `write_csv`). Chuẩn CSV cho phép ô nhiều
 dòng, nhưng trình xem nào coi "một dòng = một bản ghi" (Notepad, VSCode, công cụ tự viết) sẽ thấy
 dòng dừng ở giữa và tưởng các cột phía sau biến mất. Văn bản nhiều dòng nguyên gốc vẫn còn trong
 `predictions/part_*.jsonl` và trong `câu trả lời` của `mispredictions.csv`.

@@ -22,7 +22,7 @@ xong T1..T7. Giai đoạn này đóng lại ở đây; việc còn lại của d
       `FINISHED` - lượt hỏng không có `metrics.json` nên mọi ô số của nó đều trống, đưa vào chỉ làm
       nhiễu bảng dùng để so. Xem `docs/04_experiments/metrics.md` và `--only all`.
       -> `feat(reports): generate registry model input and metrics matrix reports`
-      Thư viện là `src/reports.py`, script chỉ là cửa vào mỏng (chọn gốc, chọn nhóm, in kết quả).
+      Thư viện là `src/reporting/reports.py`, script chỉ là cửa vào mỏng (chọn gốc, chọn nhóm, in kết quả).
       Không chạy model và không đọc dữ liệu gốc: mọi con số đọc lại từ file mà chính lượt chạy đã
       ghi, nên không có đường tính thứ hai.
       Chạy thật (24/09/2026): quét 2 gốc được 2 lượt chạy; `dataset_registry` 1 dòng,
@@ -36,7 +36,7 @@ xong T1..T7. Giai đoạn này đóng lại ở đây; việc còn lại của d
 - [x] T2. `scripts/ci_checks.py`: sáu kiểm tra (không có dữ liệu bị git theo dõi, `.gitignore` đúng,
       notebook sạch output, mọi registry hợp lệ, mọi config thí nghiệm hợp lệ, `REPO_SHA` hợp lệ và tồn tại).
       -> `feat(ci): add repository checks script`
-      Thư viện là `src/checks.py`, script chỉ là cửa vào mỏng (mã thoát 0/1 để CI đọc được). Không
+      Thư viện là `src/workflow/checks.py`, script chỉ là cửa vào mỏng (mã thoát 0/1 để CI đọc được). Không
       chạy model, không đọc `data/`, không gọi mạng - đúng như mục "CI không làm gì" của 03_ci.md.
       Chạy thật: 6/6 sạch trên cây hiện tại. Lần chạy đầu bắt được hai việc thật: `data/models/README.md`
       bị coi là dữ liệu (README trong `data/` là metadata, đã thêm vào danh sách cho phép và vào bảng
@@ -85,7 +85,7 @@ xong T1..T7. Giai đoạn này đóng lại ở đây; việc còn lại của d
 - [x] T6. Docs tham chiếu cấu hình: `05_config/01..07`.
       -> `docs(config): add configuration reference`
       Soát cùng lượt: 7 file đều tồn tại và có nội dung thật (33-86 dòng). Đối chiếu code:
-      `CARD_SETTINGS` đúng ở `src/experiment_run.py`, năm scorer đúng tên module trong
+      `CARD_SETTINGS` đúng ở `src/experiments/experiment_run.py`, năm scorer đúng tên module trong
       `src/evaluation/scorers/`, `TRACKERS` đúng ba trình ghi nhận, thứ tự hợp nhất bảy lớp đúng.
       Sửa một lỗi thật: `06_experiment.md` ghi `prompt` "tính từ gốc repo", trong khi
       `experiments.requires` tính từ THƯ MỤC THÍ NGHIỆM trước rồi tới gốc repo - đúng loại lỗi làm

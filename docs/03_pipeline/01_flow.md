@@ -30,7 +30,7 @@ RAW DATA (data/raw/<tên>/data_train.csv, data_val.csv, data_test.csv)
 PROCESSED DATA (data/processed/<mã>/)
 ```
 
-Thứ tự này **đúng bằng** `src/registry.py::pipeline_steps()`. Trên báo cáo, tiêu đề
+Thứ tự này **đúng bằng** `src/core/registry.py::pipeline_steps()`. Trên báo cáo, tiêu đề
 mỗi mục là **"Step n - ..."** (Step 1 ... Step 7) cho khớp với thứ tự đó; số `n` không
 phải số hiệu phiên bản.
 

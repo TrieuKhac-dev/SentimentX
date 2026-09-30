@@ -5,7 +5,7 @@
 
 Mỗi module trong `src/eda/` là một **mục báo cáo**: nhận cùng một `context` từ
 `run_eda.py` và trả về một dict mô tả mục đó. Thứ tự dưới đây **đúng bằng** thứ tự
-trên báo cáo (`src/registry.py::EDA_MODULES`).
+trên báo cáo (`src/core/registry.py::EDA_MODULES`).
 
 `context` mà mọi module nhận được:
 

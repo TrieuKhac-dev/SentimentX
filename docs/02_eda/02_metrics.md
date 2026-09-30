@@ -44,7 +44,7 @@ dòng tiêu đề). Muốn mở đúng dòng đó trong Excel: cộng thêm 1 ch
 
 ## 4. "Ứng viên gibberish" là POLICY, không phải chuẩn đo
 
-Ngưỡng nhận diện nằm trong `src/config.py` và `src/pipeline/clean.py`, không phải
+Ngưỡng nhận diện nằm trong `src/core/config.py` và `src/pipeline/clean.py`, không phải
 một chuẩn học thuật: một review bị coi là gibberish khi **>= 50% token "không giống
 từ"**, trong đó token bị coi bất thường nếu (dài hơn 2 ký tự và không có nguyên âm)
 hoặc (dài từ 15 ký tự); token <= 2 ký tự luôn được coi là bình thường, và review
@@ -77,7 +77,7 @@ so, mà so **khoá so trùng** do `utils.dedup_key()` tạo. Khoá này đi qua 
 > | ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 > | Sửa văn bản thật? | **Có**                                                         | **Không** - chỉ để so                                                                                   |
 > | Làm gì            | chữ thường (tuỳ chọn), NFC, khoảng trắng, ký tự lặp (tuỳ chọn) | lower, NFC, khoảng trắng, bỏ dấu câu - **bỏ dấu tiếng Việt chỉ khi bật `ignore_diacritics` (đang TẮT)** |
-> | Ở đâu             | `src/pipeline/normalize.py`                                    | `src/utils.py`, dùng bởi bước Clean                                                                     |
+> | Ở đâu             | `src/pipeline/normalize.py`                                    | `src/core/utils.py`, dùng bởi bước Clean                                                                     |
 >
 > Bước Normalize **không bao giờ bỏ dấu tiếng Việt**. Văn bản đi vào model vẫn là
 > `"Son đẹp lắm"`, không phải `"son dep lam"`.

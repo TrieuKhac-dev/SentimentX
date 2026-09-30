@@ -98,7 +98,7 @@ in **đích đã resolve** trước khi làm việc, và hai tool đo/kiểm cò
   là `--hash`.
 - Mã thoát: `0` xong, `1` hợp lệ nhưng chưa có kết quả (hoặc phép kiểm phát hiện lỗi), `2` câu lệnh
   chưa rõ hoặc cú pháp không còn được nhận. Không để ngoại lệ thoát ra thành traceback.
-- Đổi cờ thì sửa đồng thời: trang này, docstring của tool, và `tests/test_cli.py`.
-- Không viết cứng đường dẫn trong chuỗi help: dựng từ `configs/paths.yaml` qua `src/paths.py`
-  (`tests/test_paths.py` chặn).
+- Đổi cờ thì sửa đồng thời: trang này, docstring của tool, và `tests/workflow/test_cli.py`.
+- Không viết cứng đường dẫn trong chuỗi help: dựng từ `configs/paths.yaml` qua `src/core/paths.py`
+  (`tests/core/test_paths.py` chặn).
 - `docs/06_plan/P0..P2` là bản ghi lịch sử: đừng copy lệnh từ đó.

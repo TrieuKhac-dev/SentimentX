@@ -9,7 +9,7 @@ dòng, và người đọc tưởng các cột phía sau biến mất (đã gặ
 NGOẠI LỆ CÓ CHỦ Ý: dữ liệu của dataset (`data/processed/<mã>/{split}.csv`) ghi bằng
 `single_line=False` - giữ xuống dòng THẬT. Hai lý do: `eval_lock` băm byte của file (đổi cách ghi là
 đổi khoá của tập test đã công bố), và việc đổi xuống dòng thành `\\n` là MẤT MÁT với văn bản đưa cho
-model. Xem `tests/test_pipeline_export.py` và `docs/03_pipeline/05_output.md`.
+model. Xem `tests/pipeline/test_pipeline_export.py` và `docs/03_pipeline/05_output.md`.
 
 Chạy: python -m unittest discover -s tests
 """

@@ -91,10 +91,10 @@ bản (không cần quyền admin, gỡ ra chỉ cần xoá thư mục):
 
 ```bash
 # JDK 17 LTS (Temurin) -> %USERPROFILE%\.jdks\temurin-17, có kiểm SHA256
-powershell -ExecutionPolicy Bypass -File scripts\setup_java.ps1
+powershell -ExecutionPolicy Bypass -File scripts\setup\setup_java.ps1
 
 # Thư viện py-vncorenlp + model VnCoreNLP -> data/models/vncorenlp (đã có trong .gitignore)
-powershell -ExecutionPolicy Bypass -File scripts\setup_vncorenlp.ps1
+powershell -ExecutionPolicy Bypass -File scripts\setup\setup_vncorenlp.ps1
 ```
 
 Kiểm tra: `python run_token_stats.py --list-segmenters` — dòng `vncorenlp` phải hiện
@@ -137,7 +137,7 @@ Phiên bản đã chạy thật ở máy này: `torch 2.14.0+cu126`, `transforme
 ### Tải trọng số Qwen3 (8 GB) — cả nhóm dùng cùng một bản
 
 ```bash
-powershell -ExecutionPolicy Bypass -File scripts\setup_qwen_model.ps1
+powershell -ExecutionPolicy Bypass -File scripts\setup\setup_qwen_model.ps1
 ```
 
 Script tải trọng số từ **ModelScope** (mirror chính thức của Qwen), chia mỗi file thành nhiều

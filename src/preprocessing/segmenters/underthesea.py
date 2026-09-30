@@ -22,7 +22,7 @@ INSTALL_HINT = (
     "Thiếu thư viện tách từ 'underthesea'. Cài bằng:\n"
     "    pip install underthesea\n"
     "Bộ tách từ CHÍNH CHỦ của PhoBERT là RDRSegmenter (VnCoreNLP) và cần Java:\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup_vncorenlp.ps1"
+    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_vncorenlp.ps1"
 )
 
 _MODEL = None

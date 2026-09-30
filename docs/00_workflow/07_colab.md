@@ -14,7 +14,7 @@
 | **Gốc kết quả** | `SENTIMENTX_RESULTS_ROOT`, mặc định `<repo>/experiments` | `<Drive>/experiments` |
 | **Định nghĩa thí nghiệm** (`expNNN/config.yaml`, notebook) | luôn trong repo | trong repo |
 
-Cách code tìm Drive (`src/runtime.py`): thử `/content/drive/MyDrive/{folder}` rồi
+Cách code tìm Drive (`src/workflow/runtime.py`): thử `/content/drive/MyDrive/{folder}` rồi
 `/content/drive/Shareddrives/{folder}`, trong đó `{folder}` là biến `SENTIMENTX_DRIVE_FOLDER`, và
 **chỉ nhận nếu thư mục đó có file đánh dấu `.sentimentx_root`**. Không đoán theo tên thư mục, vì
 `MyDrive` và Shared drives trông giống nhau.
@@ -60,7 +60,7 @@ theo dõi trong git ở `data/processed/<mã>/`).
 một chương trình Java (`VnCoreNLP-1.2.jar` + `models/wordsegmenter/`), mà git không chứa file model
 (`.gitignore` chặn `data/models/**`). Gói bàn giao có sẵn thư mục này, nhưng **không bắt buộc phải
 chép lên Drive**: nếu thiếu, ô bootstrap tự tải ba file về đúng gốc dữ liệu (cùng nguồn và cùng mức
-kích thước tối thiểu như `scripts/setup_vncorenlp.ps1`) - nên người chạy không phải chép tay. Nếu
+kích thước tối thiểu như `scripts/setup/setup_vncorenlp.ps1`) - nên người chạy không phải chép tay. Nếu
 mạng chặn, dòng `model VnCoreNLP: ... (THIẾU ...)` in ra hướng dẫn chép thư mục từ gói vào Drive.
 
 Mục `requires_extra` **bắt đầu bằng `data/`** tính từ **gốc dữ liệu** (trên Colab là thư mục Drive),
@@ -90,7 +90,7 @@ HF_HOME=/content/hf_cache
 ```
 
 VÌ SAO HAI KHOÁ GỐC PHẢI ĐỂ TRỐNG: ô bootstrap nạp file này TRƯỚC (`runtime.load_env`), rồi mới tự
-đặt hai gốc theo thư mục Drive mà nó tìm được. `src/runtime.py::_apply_file` dùng `os.environ.setdefault`,
+đặt hai gốc theo thư mục Drive mà nó tìm được. `src/workflow/runtime.py::_apply_file` dùng `os.environ.setdefault`,
 nên khoá nào CÓ trong file - kể cả để trống - sẽ **thắng** giá trị notebook tự dò. Khai một tên thư mục
 trong file là tự trói notebook vào tên đó; sai tên thì dữ liệu và kết quả rơi vào máy ảo (mất khi hết
 phiên), đúng triệu chứng `Gốc dữ liệu : /content/SentimentX/data` ở mục 7. Chỉ bỏ chú thích hai dòng
@@ -301,7 +301,7 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 - **Chỉ định thư mục bằng `SENTIMENTX_DRIVE_FOLDER` hay `env/.env.colab` thì phải xong TRƯỚC ô
   bootstrap:** biến môi trường đọc lúc chạy, còn file env nằm *trong* Drive nên không thể nói Drive ở đâu.
 - **Ô bootstrap kéo code TRƯỚC khi `import src`,** và kéo đúng commit đã ghim. Test
-  `tests/test_templates.py::TestBootstrap` khoá thứ tự này cho mọi notebook thí nghiệm.
+  `tests/workflow/test_templates.py::TestBootstrap` khoá thứ tự này cho mọi notebook thí nghiệm.
 - **`HF_HOME` để ở `/content`,** không để trên Drive.
 - Sau khi ghim, **không sửa** `experiments/**/expNNN/**` cho tới khi người nhận chạy xong
   (`docs/00_workflow/02_rules.md`).

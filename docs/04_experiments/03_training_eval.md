@@ -41,7 +41,7 @@ sẽ che mất kiểu lỗi thật:
 | Model có **nhận ra** khía cạnh nào được nhắc tới? | `P nhắc`, `R nhắc`, `F1 nhắc` (nhị phân 0 vs khác 0) | Model 4B hay "thấy" khía cạnh không có, hoặc bỏ sót khía cạnh có - đây là lỗi khác hẳn với chọn sai sắc thái |
 | Khi đã nhận ra, có chọn **đúng mã** cảm xúc?      | `acc`, `acc khi có nhắc`                             | Chọn sai 1 (tích cực) thành 2 (tiêu cực) không làm giảm `F1 nhắc`                                            |
 
-Quy ước đếm (khoá bằng test trong `tests/test_metrics.py`):
+Quy ước đếm (khoá bằng test trong `tests/evaluation/test_metrics.py`):
 
 ```
 TP: nhãn đúng != 0 và model đoán != 0     -> tìm đúng khía cạnh có được nhắc

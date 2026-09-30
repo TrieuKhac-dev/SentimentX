@@ -203,7 +203,7 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | ---- | ------ |
 | `approach` thành khoá bắt buộc của config model; `lora.target_modules` về config model (tên module khác nhau theo kiến trúc); `trainer` được whitelist; bỏ khối chết sau `config_sha256` | `feat(models): declare the run approach and per-model LoRA targets` |
 | Registry `TRAINERS` và `src/training/lora.py`: LoRA, loss có mask cho ô neutral bị loại, checkpoint `model/last` + `model/best` | `feat(training): add the LoRA trainer registry for encoder models` |
-| `src/encoder_run.py` và chỗ rẽ nhánh trong `experiment_run`; phần chấm điểm và ghi kết quả dùng chung với đường prompt | `feat(experiments): run encoder experiments with LoRA training` |
+| `src/experiments/encoder_run.py` và chỗ rẽ nhánh trong `experiment_run`; phần chấm điểm và ghi kết quả dùng chung với đường prompt | `feat(experiments): run encoder experiments with LoRA training` |
 | Preflight tính CÙNG dấu vân tay với lượt chạy encoder và kiểm config huấn luyện trước khi nạp dữ liệu | `feat(preflight): check encoder runs without a prompt` |
 | Test cho `approach`, khoá huấn luyện, checkpoint, loss có mask, dấu vân tay encoder, cột dự đoán dùng chung | `test(training): cover the approach key, checkpoints and the encoder path` |
 | Ô bootstrap cài `peft` và `default-jdk` khi model của thí nghiệm cần | `feat(notebook): install peft and a JDK when the run needs them` |

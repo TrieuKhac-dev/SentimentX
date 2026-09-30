@@ -119,7 +119,7 @@ def _ensure_chat_template(tokenizer, model_name):
             "Tokenizer của '{0}' KHÔNG có chat template, nên prompt sẽ rỗng và model sinh "
             "ra rác. Template thường nằm ở file 'chat_template.jinja' (phải có nội dung) "
             "hoặc khoá 'chat_template' trong tokenizer_config.json - tải lại bằng:\n"
-            "    powershell -ExecutionPolicy Bypass -File scripts\\setup_qwen_model.ps1"
+            "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_qwen_model.ps1"
             .format(model_name))
     return tokenizer
 
