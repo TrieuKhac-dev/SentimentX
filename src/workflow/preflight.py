@@ -16,7 +16,7 @@ KIỂM NHỮNG GÌ
     5. Thiết bị: có GPU không, `inference.quantization` khai trong model config có dùng được không
     6. Bộ tách từ mà model cần (ví dụ `vncorenlp` cần Java) chạy được trên máy này không
     7. Ghi được vào gốc kết quả (trên Colab: Drive chưa mount thì chỉ đọc)
-    8. Trạng thái FRESH hay RESUME, và lí do - dùng chung `src/workflow/resume.py` với lúc chạy thật
+    8. Trạng thái NEW, RESUME hay STOP, và lí do - dùng chung `src/workflow/resume.py` với lúc chạy thật
 
 CÁCH BÁO
 `run()` KHÔNG ném: nó gom hết vấn đề vào `problems` để notebook in ra một lần, kèm cả những việc
@@ -440,7 +440,7 @@ def segmenter_report(model_id, problems, notes, info):
 
 
 def state_report(out_dir, want, problems, notes, info, force_new=False):
-    """FRESH hay RESUME, dùng CHUNG quyết định với lúc chạy thật (`src/workflow/resume.py`)."""
+    """NEW, RESUME hay STOP - dùng CHUNG quyết định với lúc chạy thật (`src/workflow/resume.py`)."""
     if not out_dir:
         notes.append("Không truyền `out_dir` nên chưa biết lần này là chạy mới hay chạy tiếp.")
         return None

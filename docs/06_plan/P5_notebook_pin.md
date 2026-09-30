@@ -90,7 +90,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       (đúng loại lỗi preflight sinh ra để bắt), và `preflight.run()` để lỗi đó thoát ra thành
       traceback thay vì kể thành việc-phải-sửa.
 - [x] T5. Preflight: kiểm `requires` và `requires_extra`, mã phiên bản, `roles`, GPU và quantization,
-      Java khi cần, quyền ghi Drive, trạng thái FRESH hay RESUME.
+      Java khi cần, quyền ghi Drive, trạng thái NEW hay RESUME.
       -> `feat(preflight): check paths device and drive`
       Làm TRƯỚC T3 để template notebook gọi được hàm đã có sẵn. Chạy thử trên máy thật: nhận ra
       dataset đang có, `test.csv` chưa chốt `eval_lock` (đo được `64dbf812...`, 2271 dòng - con số
