@@ -72,14 +72,25 @@ class TestPathsAndConstants(unittest.TestCase):
 
 
 class TestCellSelection(unittest.TestCase):
-    CELLS = ["a", "experiment_run.run(plan, ...)", "print(run_result)", "b"]
+    """`--preflight-only` cắt ở Ô CHẠY, và nhận ra ô đó bằng DẤU nằm trong chính nó."""
+
+    RUN = notebooks.RUN_MARKER + "\nexperiment_run.run(plan, ...)"
+    CELLS = ["a", RUN, "print(run_result)", "b"]
 
     def test_preflight_only_stops_before_the_run_cell(self):
-        self.assertEqual(run_notebook.keep_cells(self.CELLS, True),
-                         ["a"])
+        self.assertEqual(run_notebook.keep_cells(self.CELLS, True), ["a"])
 
     def test_without_the_flag_all_cells_run(self):
         self.assertEqual(run_notebook.keep_cells(self.CELLS, False), self.CELLS)
+
+    def test_mot_o_chi_nhac_loi_goi_thi_KHONG_phai_o_chay(self):
+        """Đổi câu chữ trong ô chạy không được làm tool đoán bừa.
+
+        Trước Batch 5b tool dò theo chuỗi `experiment_run.run(` - bỏ dấu đúng chỗ là `--preflight-only`
+        chạy cả lượt thật (tốn GPU) mà không ai thấy gì. Nay thiếu dấu là LỖI kèm cách sửa.
+        """
+        with self.assertRaises(run_notebook.RunNotebookError):
+            run_notebook.keep_cells(["a", "experiment_run.run(plan, ...)", "b"], True)
 
     def test_no_run_cell_is_an_error(self):
         with self.assertRaises(run_notebook.RunNotebookError):
@@ -87,7 +98,7 @@ class TestCellSelection(unittest.TestCase):
 
     def test_run_cell_first_is_an_error(self):
         with self.assertRaises(run_notebook.RunNotebookError):
-            run_notebook.keep_cells(["experiment_run.run(x)", "b"], True)
+            run_notebook.keep_cells([self.RUN, "b"], True)
 
 
 class TestEnvironmentAndState(unittest.TestCase):

@@ -12,8 +12,8 @@ không sửa được nữa. Năm phép kiểm dưới đây là toàn bộ lu�
     (d) file trong `src/api/` chỉ chứa docstring + import + `__all__` (không logic)
     (e) mã trong `src/` KHÔNG được import `src.api` (chặn vòng import)
 
-Ở chặng này (a) mới áp cho notebook MẪU: 12 notebook đã ghim là bản cũ, được dựng lại ở chặng sau và
-khi đó (a) mở rộng cho tất cả.
+(a) và (b) áp cho notebook MẪU **và cả 12 notebook thí nghiệm** - chúng được dựng lại theo bản mẫu mới
+trong Batch 5b, nên từ nay không còn notebook nào đi thẳng vào ruột `src/`.
 
 Chạy: python -m unittest discover -s tests
 """
@@ -45,8 +45,27 @@ def api_files():
     return sorted(API_DIR.glob("*.py"))
 
 
+def notebooks_of_the_repo():
+    """Notebook MẪU và MỌI notebook thí nghiệm.
+
+    Luật (a) áp cho TẤT CẢ, không riêng bản mẫu: 12 notebook thí nghiệm đã được dựng lại theo bản mẫu
+    mới (Batch 5b), nên từ nay không còn notebook nào đi thẳng vào ruột `src/`.
+    """
+    found = [TEMPLATE]
+    found.extend(sorted(paths.experiments_dir().glob("*/*/*/notebook.ipynb")))
+    return [path for path in found if path.is_file()]
+
+
 class ImportRuleTest(unittest.TestCase):
     """(a) + (b): ô notebook chỉ đi qua mặt tiền, và tên gọi phải có thật."""
+
+    def test_luat_a_ap_cho_ban_mau_va_moi_notebook_thi_nghiem(self):
+        """Chính phép kiểm này cũng phải được canh: glob hỏng là luật (a) lặng lẽ chỉ còn soi bản mẫu."""
+        found = notebooks_of_the_repo()
+        self.assertIn(TEMPLATE, found)
+        experiments_found = [path for path in found if path != TEMPLATE]
+        self.assertGreaterEqual(len(experiments_found), 12,
+                                "phải thấy đủ 12 notebook thí nghiệm: {}".format(found))
 
     def imports_of(self, source):
         return [line.strip() for line in source.splitlines()
@@ -54,25 +73,27 @@ class ImportRuleTest(unittest.TestCase):
 
     def test_o_notebook_chi_import_tu_mat_tien(self):
         wrong = []
-        for source in code_cells(TEMPLATE):
-            for line in self.imports_of(source):
-                if not ALLOWED.match(line):
-                    wrong.append(line)
+        for path in notebooks_of_the_repo():
+            for source in code_cells(path):
+                for line in self.imports_of(source):
+                    if not ALLOWED.match(line):
+                        wrong.append("{}: {}".format(path.relative_to(paths.root()), line))
         self.assertEqual(wrong, [], "ô notebook phải import qua `src.api`: {}".format(wrong))
 
     def test_moi_ten_import_tu_mat_tien_deu_that(self):
         missing = []
-        for source in code_cells(TEMPLATE):
-            for line in self.imports_of(source):
-                if not line.startswith("from src.api import"):
-                    continue
-                for name in [item.strip() for item in line.split("import", 1)[1].split(",")]:
-                    if not name or "." in name or " as " in name:
+        for path in notebooks_of_the_repo():
+            for source in code_cells(path):
+                for line in self.imports_of(source):
+                    if not line.startswith("from src.api import"):
                         continue
-                    if not hasattr(api, name):
-                        missing.append(name)
-                    elif name not in api.__all__:
-                        missing.append(name + " (thiếu trong __all__)")
+                    for name in [item.strip() for item in line.split("import", 1)[1].split(",")]:
+                        if not name or "." in name or " as " in name:
+                            continue
+                        if not hasattr(api, name):
+                            missing.append("{}: {}".format(path.name, name))
+                        elif name not in api.__all__:
+                            missing.append("{}: {} (thiếu trong __all__)".format(path.name, name))
         self.assertEqual(missing, [], "tên không có trên mặt tiền: {}".format(missing))
 
 

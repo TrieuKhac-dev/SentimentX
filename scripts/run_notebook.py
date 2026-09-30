@@ -153,14 +153,14 @@ def keep_cells(sources, preflight_only):
     cũng bỏ, vì chúng đọc kết quả của nó (`run_result`) - chạy nốt sẽ báo lỗi vô nghĩa và làm người
     đọc tưởng hỏng.
 
-    CÒN NHẬN RA BẰNG LỜI GỌI `experiment_run.run(` khi notebook chưa mang dấu - 12 notebook đã ghim
-    trước Batch 5b là bản cũ. Nhánh dự phòng này bị xoá ở chặng dựng lại 12 notebook; từ đó thiếu dấu
-    là LỖI kèm cách sửa.
+    CÒN NHẬN RA BẰNG LỜI GỌI `experiment_run.run(` KHÔNG? Không. Nó từng là nhánh dự phòng cho 12
+    notebook ghim trước Batch 5b; các notebook đó đã được dựng lại (chặng 10 của Batch 5b) nên từ đây
+    thiếu dấu là LỖI kèm cách sửa.
     """
     if not preflight_only:
         return sources
     for index, source in enumerate(sources):
-        if notebooks.RUN_MARKER in source or "experiment_run.run(" in source:
+        if notebooks.RUN_MARKER in source:
             if index == 0:
                 raise RunNotebookError(
                     "Ô chạy thí nghiệm nằm ở NGAY ô đầu tiên - notebook này lạ, kiểm lại trước khi "
