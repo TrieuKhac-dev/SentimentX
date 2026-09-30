@@ -118,13 +118,27 @@ class TableTest(unittest.TestCase):
                                 {"aspect": "price", "exp001": 50.0}])
 
     def test_cot_cong_bo_duoc_them_va_dung_thang_do(self):
-        reference = {"colour": 94.12, "aspect_detection": 100.0}
+        reference = {"colour": 94.12}
         columns, rows = reports.accuracy_table(self.runs, reference, "COT+0-shot")
         self.assertEqual(columns, ["aspect", "exp001", "COT+0-shot"])
         self.assertEqual(rows[0], {"aspect": "colour", "exp001": 75.0, "COT+0-shot": 94.12})
-        # Dòng `Aspect` của công bố điền bằng bộ chấm `aspect_detection` của lượt chạy, ở CUỐI bảng.
+        # `aspect_detection` là chỉ số RIÊNG của dự án: số lấy từ LƯỢT CHẠY, và vì bài không có bảng
+        # số cho nó nên ô công bố TRỐNG. Dòng này vẫn ở CUỐI bảng.
         self.assertEqual(rows[-1]["aspect"], "aspect_detection")
         self.assertEqual(rows[-1]["exp001"], 89.29)
+        self.assertEqual(rows[-1]["COT+0-shot"], "")
+
+    def test_cong_bo_co_so_phat_hien_thi_o_do_van_dien(self):
+        """Nếu file công bố CÓ số cho dòng phát hiện khía cạnh thì điền, không bỏ trống oan."""
+        _columns, rows = reports.accuracy_table(self.runs, {"aspect_detection": 100.0}, "COT+0-shot")
+        self.assertEqual(rows[-1]["aspect"], "aspect_detection")
+        self.assertEqual(rows[-1]["exp001"], 89.29)
+        self.assertEqual(rows[-1]["COT+0-shot"], 100.0)
+
+    def test_bang_khong_co_cot_cong_bo_thi_khong_them_dong_phat_hien(self):
+        """Bảng của riêng dự án (không có cột công bố) chỉ có dòng khía cạnh, không thêm dòng chỉ số."""
+        _columns, rows = reports.accuracy_table(self.runs)
+        self.assertEqual([row["aspect"] for row in rows], ["colour", "price"])
 
     def test_bang_prf_co_ba_cot_moi_luot_chay(self):
         columns, rows = reports.prf_table(self.runs)
@@ -147,21 +161,37 @@ class ReferenceTest(unittest.TestCase):
     def setUp(self):
         self.root = Path(tempfile.mkdtemp(prefix="sentimentx-reference-"))
         self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+        # Cấu trúc ĐÚNG như file thật: đủ tên khía cạnh, KHÔNG có hàng `Aspect`. Bản nhận 24/09/2026
+        # bị lệch một hàng (thiếu `Smell`, hàng cuối ghi `Aspect`) - xem test_reference_file.py.
         (self.root / "accuracy_by_aspect.csv").write_text(
-            "Aspect,COT+0-shot,COT+1-shot\nPrice,94.59,96.15\nTexture,97.22,100\n"
-            "Aspect,100,98.89\n", encoding="utf-8")
+            "Aspect,COT+0-shot,COT+1-shot\nSmell,94.59,96.15\nPrice,97.22,100\n"
+            "Texture,94.12,100\n", encoding="utf-8")
         (self.root / "prf_by_aspect_sentiment_0shot.csv").write_text(
             "Aspect,Sentiment,Precision,Recall,F1\nSMELL,positive,97.06,97.06,97.06\n",
             encoding="utf-8")
 
     def test_chon_cot_theo_so_vi_du(self):
         accuracy, _prf, suffix = reports.load_reference(self.root, shot=0)
-        self.assertEqual(accuracy["price"], 94.59)
-        self.assertEqual(accuracy["aspect_detection"], 100.0)
+        self.assertEqual(accuracy["smell"], 94.59)
         self.assertEqual(suffix, "COT+0-shot")
         accuracy, _prf, suffix = reports.load_reference(self.root, shot=1)
-        self.assertEqual(accuracy["price"], 96.15)
+        self.assertEqual(accuracy["smell"], 96.15)
         self.assertEqual(suffix, "COT+1-shot")
+
+    def test_hang_ten_aspect_khong_thanh_chi_so_nao(self):
+        """Chữ `Aspect` là chữ tiêu đề: bộ đọc KHÔNG đổi nó thành chỉ số `aspect_detection` nữa.
+
+        Lỗi cũ (tới 01/10/2026): hàng `Aspect` của bản nhận được đọc thành `aspect_detection`, nên
+        một hàng LỆCH NHÃN hiện ra như một chỉ số nghe hợp lý - đó là đường đi của con số sai vào
+        bảng so công bố. Nay hàng lạ hiện ra đúng tên nó (thấy được), và file thật bị khoá bởi
+        `tests/reporting/test_reference_file.py`.
+        """
+        (self.root / "accuracy_by_aspect.csv").write_text(
+            "Aspect,COT+0-shot\nPrice,94.59\nAspect,100\n", encoding="utf-8")
+        accuracy, _prf, _suffix = reports.load_reference(self.root, shot=0)
+        self.assertEqual(accuracy["price"], 94.59)
+        self.assertNotIn("aspect_detection", accuracy)
+        self.assertEqual(accuracy["aspect"], 100.0)
 
     def test_ten_khia_canh_duoc_dua_ve_chu_thuong(self):
         _accuracy, prf, _suffix = reports.load_reference(self.root, shot=0)
@@ -569,8 +599,12 @@ class MetricsMatrixShotTest(unittest.TestCase):
         self.assertEqual(colour["COT+5-shot"], reports.load_reference(shot=5)[0]["colour"])
         self.assertEqual(colour["exp002"], 75.0)
         self.assertEqual(colour["exp004"], 75.0)
-        # Dòng `aspect_detection` của công bố vẫn ở CUỐI bảng sau khi ghép hai nhóm mức ví dụ.
+        # Dòng `aspect_detection` (chỉ số riêng của dự án, số lấy từ LƯỢT CHẠY) vẫn ở CUỐI bảng sau
+        # khi ghép hai nhóm mức ví dụ; ô công bố của dòng này TRỐNG vì bài không có bảng số cho nó.
         self.assertEqual(rows[-1]["aspect"], "aspect_detection")
+        for column in columns:
+            if column.startswith("COT+"):
+                self.assertEqual(rows[-1][column], "")
 
     def test_no_run_still_shows_the_reference_rows(self):
         """Bảng rỗng vẫn hiện mốc công bố, để người đọc thấy đích cần vượt."""

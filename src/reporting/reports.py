@@ -576,6 +576,10 @@ def accuracy_table(runs, reference=None, suffix=None, labels=None):
     của khía cạnh đó, đúng cách bảng của công bố đếm. Khía cạnh CHỈ CÓ trong bảng công bố vẫn được
     giữ thành một dòng (ô của các lượt chạy để trống), để thấy ngay còn thiếu gì.
 
+    Khi bảng CÓ cột công bố, cuối bảng thêm MỘT dòng `aspect_detection` - chỉ số RIÊNG của dự án
+    (bài nêu task phát hiện khía cạnh nhưng không có bảng số cho nó), nên số lấy từ lượt chạy và ô
+    công bố của dòng đó để TRỐNG.
+
     `labels`: nhãn cột đã tính sẵn cho CẢ BỘ lượt chạy (xem `column_labels`). Phải truyền vào khi
     ghép bảng của nhiều mức ví dụ: tính lại trong từng nhóm thì hai nhóm có thể ra cùng một nhãn và
     bảng ghép sẽ có hai cột trùng tên - đúng loại lỗi `column_labels` sinh ra để chặn.
@@ -597,14 +601,18 @@ def accuracy_table(runs, reference=None, suffix=None, labels=None):
         if reference_column:
             row[reference_column] = _blank((reference or {}).get(aspect))
         rows.append(row)
-    if reference and "aspect_detection" in reference:
-        # Dòng `Aspect` của công bố là PHÁT HIỆN khía cạnh (review có nhắc khía cạnh đó hay không),
-        # không phải độ chính xác của một khía cạnh. Để ở CUỐI bảng, không xen vào danh sách khía cạnh.
+    detected = [_dig(run.get("metrics") or {}, "scores", "aspect_detection", "micro", "accuracy")
+                for run in runs]
+    reference_detection = (reference or {}).get("aspect_detection")
+    if reference_column and (reference_detection is not None
+                             or any(value is not None for value in detected)):
+        # `aspect_detection` là chỉ số RIÊNG của dự án: bài nêu task phát hiện khía cạnh nhưng KHÔNG
+        # có bảng số cho nó, nên số lấy từ LƯỢT CHẠY và ô công bố để trống - hiện một con số vào ô
+        # đó là hứa một phép so không tồn tại. Vẫn để ở CUỐI bảng, không xen vào danh sách khía cạnh.
         row = {"aspect": "aspect_detection"}
-        for label, run in zip(labels, runs):
-            row[label] = _blank(_dig(run.get("metrics") or {}, "scores", "aspect_detection",
-                                     "micro", "accuracy"))
-        row[reference_column] = _blank(reference["aspect_detection"])
+        for label, value in zip(labels, detected):
+            row[label] = _blank(value)
+        row[reference_column] = _blank(reference_detection)
         rows.append(row)
     return columns, rows
 
@@ -758,6 +766,12 @@ def load_reference(directory=None, shot=0):
     nên P/R/F1 của công bố được chia 100 khi đọc vào - để hai bên cùng thang đo rồi mới so. Độ chính
     xác thì cả hai bên đều theo phần trăm, không đổi gì.
 
+    Cột nhãn của file này từng bị LỆCH MỘT HÀNG so với Table 3 của bài (bản nhận 24/09/2026): hàng
+    cuối ghi `Aspect` trong khi đó là số của `Shipping`, còn hàng `Smell` bị thiếu - đã chữa ngày
+    01/10/2026 sau khi đối chiếu từng số với Table 3. Bộ đọc KHÔNG đổi tên hàng nào, nên một file
+    lệch sẽ hiện thành một dòng sai tên (nhìn thấy được) thay vì thành một chỉ số mang tên khác
+    (không nhìn thấy được); `tests/reporting/test_reference_file.py` khoá cấu trúc file thật lại.
+
     `shot` chọn cột 0/1/5-shot của công bố. Chưa có file thì trả về `(None, None, None)` và cột công
     bố KHÔNG xuất hiện - thà thiếu cột còn hơn hiện một cột toàn ô trống.
     """
@@ -773,10 +787,11 @@ def load_reference(directory=None, shot=0):
             for row in frame.to_dict("records"):
                 name = str(row.get("Aspect") or row.get("aspect") or "").strip().lower()
                 if name:
-                    # Dòng `Aspect` của công bố là PHÁT HIỆN khía cạnh (có nhắc tới hay không),
-                    # không phải độ chính xác của một khía cạnh - đổi tên cho khỏi lẫn.
-                    accuracy["aspect_detection" if name == "aspect" else name] = _number(
-                        row.get(column))
+                    # Tên hàng KHÔNG được đổi thành chỉ số nào: chữ `Aspect` là chữ tiêu đề, không
+                    # phải tên một khía cạnh. Hàng `Aspect` của bản nhận 24/09/2026 là hàng `Shipping`
+                    # bị ghi nhầm nhãn (xem docstring); đổi tên nó thành `aspect_detection` chính là
+                    # cách một con số lệch nhãn lọt vào bảng so công bố mà bảng vẫn trông hợp lý.
+                    accuracy[name] = _number(row.get(column))
             suffix = str(column)
 
     path = directory / "prf_by_aspect_sentiment_{}shot.csv".format(shot)
