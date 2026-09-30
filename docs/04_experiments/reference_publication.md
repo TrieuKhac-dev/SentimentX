@@ -33,16 +33,42 @@ theo `neutral_policy: drop`.
 
 `data/reference_publication/` gồm năm file số liệu, chép nguyên từ thư mục `observation_announcement/`
 do giảng viên cung cấp. Nội dung gốc của thư mục đó lưu ở `observation_announcement.md` trong cùng thư mục này.
+Bản thân bài báo (Table 3 và Tables 4-6) lưu ở `announcement.md`, dùng làm nguồn đối chiếu số.
 
 | File                                | Nội dung                                                                                                       |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `accuracy_by_aspect.csv`            | accuracy theo khía cạnh, cột là 0-shot, 1-shot, 5-shot, cộng dòng `Aspect` là độ chính xác phát hiện khía cạnh |
+| `accuracy_by_aspect.csv`            | accuracy theo khía cạnh, bảy hàng, cột là 0-shot, 1-shot, 5-shot                                                |
 | `prf_by_aspect_sentiment_0shot.csv` | Precision, Recall, F1 theo khía cạnh và sắc thái, biến thể 0-shot                                              |
 | `prf_by_aspect_sentiment_1shot.csv` | như trên, biến thể 1-shot                                                                                      |
 | `prf_by_aspect_sentiment_5shot.csv` | như trên, biến thể 5-shot                                                                                      |
 | `sentiment_distribution.csv`        | phân bố nhãn của dataset                                                                                       |
 
-Các file này là số liệu tham chiếu, **không** được sinh tự động và không sửa.
+Các file này là số liệu tham chiếu, **không** được sinh tự động và không sửa - trừ **một lần chữa cột
+nhãn** ngày 01/10/2026 (số không đổi, xem ngay dưới).
+
+### Lần chữa cột nhãn ngày 01/10/2026
+
+Bản `accuracy_by_aspect.csv` nhận ngày 24/09/2026 bị **lệch cột nhãn đúng một hàng** so với Table 3
+của bài: hàng `Smell` bị thiếu, hàng cuối bị ghi tên `Aspect`, và số của mỗi hàng là số của khía cạnh
+ĐỨNG TRƯỚC nó trong Table 3. Hệ quả: mọi khía cạnh đều bị đem so với số của một khía cạnh khác (ví dụ
+`colour` bị so với 94,12 vốn là số của `Smell`) - và bảng vẫn trông hợp lý, nên lỗi nằm im từ 24/09
+đến 01/10/2026. Hàng `Aspect` đó thật ra là số của `Shipping` (100 / 98,89 / 96,70).
+
+Cách chữa: đối chiếu **từng số** với Table 3 rồi đặt lại tên bảy hàng (`Smell`, `Price`, `Texture`,
+`Colour`, `Stayingpower`, `Packing`, `Shipping`) - **không sửa một con số nào** - và bỏ hàng `Aspect`
+vì đó là tên sai của `Shipping`. Ba file `prf_*` kiểm lại thì **không** lệch (khớp Tables 4-6).
+
+Hai chốt chặn để lỗi này không tái diễn:
+
+1. `tests/reporting/test_reference_file.py` đọc **file thật** và khoá lại đúng bảy tên khía cạnh cùng
+   từng con số của Table 3, và bộ khía cạnh của Tables 4-6.
+2. `src/reporting/reports.py::load_reference` **không** đổi tên hàng nào nữa (trước đây hàng `Aspect`
+   được đọc thành chỉ số `aspect_detection`, nên một hàng lệch nhãn hiện ra như một chỉ số nghe hợp
+   lý - đó chính là đường đi của con số sai vào bảng so công bố).
+
+Chỉ số `aspect_detection` thì **không** lấy từ file công bố: bài có nêu task phát hiện khía cạnh nhưng
+**không có bảng số** cho nó, nên dòng `aspect_detection` trong `metrics_matrix` lấy số từ **lượt chạy**
+và để **trống** ô công bố.
 
 ## Điều kiện để so sánh hợp lệ
 
@@ -57,6 +83,23 @@ Các file này là số liệu tham chiếu, **không** được sinh tự độ
 
 Phần **huấn luyện và pipeline xử lý dữ liệu thì được tự do thay đổi**, miễn là giữ tập test
 và metric. Mục tiêu là kết quả **nhỉnh hơn** công bố, không chỉ tái hiện.
+
+## Khác biệt có thể làm lệch số
+
+Ba khác biệt giữa cách công bố đo và cách dự án đo - đọc trước khi so từng con số:
+
+1. **Phép lọc ô: một chiều so với hai chiều.** Cách đo cũ của dự án lọc theo MỘT chiều: giữ mọi ô có
+   nhãn đúng khác `neutral`, kể cả ô mà model trả lời "không nhắc tới" hay một sắc thái khác. Công bố
+   lọc theo HAI chiều: chỉ giữ ô mà **cả** nhãn đúng **và** nhãn đoán đều là `positive` hoặc
+   `negative`. Ô bị loại không nằm trong mẫu số của họ, nên mẫu số của họ phụ thuộc chất lượng model,
+   còn mẫu số của ta thì không.
+2. **Ô không đọc được.** Cách đo cũ của dự án tính ô model trả lời không đọc được là **SAI** và vẫn
+   giữ nó trong mẫu số; công bố không nêu cách xử lý các ô này.
+3. **Lớp âm của Precision/Recall/F1.** Lớp âm của công bố chỉ gồm các ô có nhãn đúng âm; khi thêm ô
+   "không nhắc tới" vào lớp âm thì mẫu số lớn hơn hẳn và chỉ số thấp đi một cách máy móc.
+
+Vì ba khác biệt này, hai con số cùng tên "accuracy theo khía cạnh" **không** tự động so được với nhau;
+phải nói rõ đang đo bằng cách nào.
 
 ## Cách so
 
