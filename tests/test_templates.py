@@ -14,7 +14,7 @@ import unittest
 
 import yaml
 
-from src import paths
+from src import notebooks, paths
 
 SPEC = importlib.util.spec_from_file_location("pin", paths.root() / "scripts" / "pin.py")
 pin = importlib.util.module_from_spec(SPEC)
@@ -349,23 +349,6 @@ class TestBootstrap(unittest.TestCase):
                 return
         self.fail("không thấy ô cấu hình trong notebook mẫu")
 
-    def test_bootstrap_is_the_same_in_every_notebook(self):
-        """Ô bootstrap của notebook thí nghiệm phải GIỐNG HỆT bản mẫu, từng ký tự.
-
-        Sửa cách kéo code ở bản mẫu mà quên notebook đã giao là notebook đó mãi mãi chạy phiên bản
-        cũ - mà nó đã được ghim, người nhận không tự sửa được. So từng ký tự để việc quên đó lộ ra
-        ngay tại đây, kèm đúng đường dẫn cần chép lại.
-        """
-        template = self.bootstrap_source(TEMPLATES / "experiment" / "notebook.ipynb")
-        found = sorted((paths.root() / "experiments").rglob("notebook.ipynb"))
-        self.assertTrue(found, "chưa có notebook thí nghiệm nào để so")
-        for path in found:
-            with self.subTest(notebook=str(path)):
-                self.assertEqual(
-                    self.bootstrap_source(path), template,
-                    "{}: ô bootstrap khác bản mẫu - chép lại từ {}".format(
-                        path, TEMPLATES / "experiment" / "notebook.ipynb"))
-
 
 class TestConfigCell(unittest.TestCase):
     """Ô CẤU HÌNH ĐANG DÙNG phải in được cấu hình cho CẢ HAI đường chạy.
@@ -410,15 +393,61 @@ class TestConfigCell(unittest.TestCase):
                 self.assertIn('.get("prompt")', source)
                 self.assertIn('config.get("trainer")', source)
 
-    def test_it_compiles_and_matches_the_template(self):
-        template = self.config_cell(TEMPLATES / "experiment" / "notebook.ipynb")
-        compile(template, "<cell-config>", "exec")
+    def test_it_compiles_in_every_notebook(self):
+        """Ô cấu hình phải BIÊN DỊCH được ở mọi notebook.
+
+        Trước đây test này còn so ô cấu hình với bản mẫu. Bỏ phần so đó ở Batch 5b: bản mẫu là mẫu,
+        không phải chuẩn (xem `TestExperimentNotebooks`). Cái còn lại mới là thứ làm hỏng lượt chạy:
+        một ô không biên dịch được chỉ lộ ra khi bấm Run all.
+        """
         for path in self.every_notebook():
             with self.subTest(notebook=str(path)):
-                self.assertEqual(
-                    self.config_cell(path), template,
-                    "{}: ô cấu hình khác bản mẫu - chép lại từ {}".format(
-                        path, TEMPLATES / "experiment" / "notebook.ipynb"))
+                compile(self.config_cell(path), "<cell-config>", "exec")
+
+
+class TestExperimentNotebooks(unittest.TestCase):
+    """Mỗi notebook thí nghiệm phải nhất quán VỚI CHÍNH NÓ - không so với bản mẫu.
+
+    BẢN MẪU LÀ MẪU, KHÔNG PHẢI CHUẨN (`docs/00_workflow/10_template_notebook.md`): notebook sinh ra
+    thuộc về chính thí nghiệm đó, và sửa bản mẫu để phục vụ thí nghiệm mới KHÔNG bắt notebook của
+    thí nghiệm đã chạy xong phải cập nhật theo - làm vậy là đổi công thức đứng sau con số đã công bố.
+
+    Ba thứ dưới đây vẫn kiểm, vì chúng làm HỎNG lượt chạy thật: `EXP_DIR` trỏ sai thí nghiệm (kết quả
+    ghi vào thư mục của thí nghiệm khác), thiếu ô GHIM (không biết đang chạy bản code nào), và ô code
+    không biên dịch được (chỉ lộ ra khi bấm Run all).
+    """
+
+    def every_experiment_notebook(self):
+        found = sorted((paths.root() / "experiments").rglob("notebook.ipynb"))
+        self.assertTrue(found, "chưa có notebook thí nghiệm nào để kiểm")
+        return found
+
+    def read(self, path):
+        with open(path, encoding="utf-8") as handle:
+            return json.load(handle)
+
+    def test_moi_notebook_ghim_dung_thi_nghiem_cua_no(self):
+        for path in self.every_experiment_notebook():
+            experiment = path.parent.relative_to(paths.root() / "experiments").as_posix()
+            with self.subTest(notebook=experiment):
+                source = notebooks.source_of(notebooks.pinned_cell(self.read(path), required=True))
+                self.assertIn(notebooks.EXP_DIR_PREFIX + "'{}'".format(experiment), source)
+
+    def test_o_ghim_la_o_code_dau_tien(self):
+        for path in self.every_experiment_notebook():
+            with self.subTest(notebook=str(path)):
+                cells = [cell for cell in self.read(path)["cells"]
+                         if cell.get("cell_type") == "code"]
+                self.assertTrue(cells, "{}: không có ô code nào".format(path))
+                self.assertIn(notebooks.MARKER, notebooks.source_of(cells[0]))
+
+    def test_moi_o_code_bien_dich_duoc(self):
+        for path in self.every_experiment_notebook():
+            for index, cell in enumerate(self.read(path)["cells"]):
+                if cell.get("cell_type") != "code":
+                    continue
+                with self.subTest(notebook=str(path), cell=index):
+                    compile(notebooks.source_of(cell), "<cell {}>".format(index), "exec")
 
 
 if __name__ == "__main__":
