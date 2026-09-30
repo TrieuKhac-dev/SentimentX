@@ -117,6 +117,22 @@ class TableTest(unittest.TestCase):
         self.assertEqual(rows, [{"aspect": "colour", "exp001": 75.0},
                                 {"aspect": "price", "exp001": 50.0}])
 
+    def test_metric_map_doc_theo_co_so_do(self):
+        """Lượt chạy mới ghi HAI cơ sở đo trong `metrics.csv`; bảng so công bố lấy cơ sở `paper`.
+
+        Lượt chạy cũ (trước 01/10/2026) chưa có cột `basis` thì đọc hết như trước - nếu không thì
+        bảng đã commit sẽ trắng.
+        """
+        directory = self.root / "exp-basis"
+        directory.mkdir()
+        utils.write_csv(
+            [["colour", "all", "accuracy", 60.0, "all"],
+             ["colour", "all", "accuracy", 80.0, "paper"]],
+            ["aspect", "sentiment", "metric", "value", "basis"], directory / "metrics.csv")
+        run = {"dir": directory}
+        self.assertEqual(reports.metric_map(run)[("colour", "all", "accuracy")], 80.0)
+        self.assertEqual(reports.metric_map(run, basis="all")[("colour", "all", "accuracy")], 60.0)
+
     def test_cot_cong_bo_duoc_them_va_dung_thang_do(self):
         reference = {"colour": 94.12}
         columns, rows = reports.accuracy_table(self.runs, reference, "COT+0-shot")

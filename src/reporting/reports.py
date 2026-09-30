@@ -259,10 +259,15 @@ def measurement_basis(run):
 
     Không có nó thì bảng đặt hai cột cạnh nhau và người đọc so số của hai phép đo khác nhau - lệch vì
     ĐO KHÁC chứ không phải vì model khác.
+
+    Hai khoá cuối nói về CƠ SỞ ĐO THỨ HAI (`paper`, xem docs/04_experiments/metrics.md): một lượt
+    chạy ghi trước 01/10/2026 chưa có cơ sở đó (`chưa có`), nên nó không so được với lượt có - số
+    `paper` của lượt cũ đơn giản là không tồn tại, không phải bằng 0.
     """
     meta = dict(run["meta"] or {})
     metrics = dict(run["metrics"] or {})
     task = dict(meta.get("task") or {})
+    paper = dict(metrics.get("paper") or {})
     return {
         "dữ liệu": (meta.get("data") or {}).get("build") or NO_DATA,
         "không gian nhãn": task.get("label_space") or NO_DATA,
@@ -270,6 +275,8 @@ def measurement_basis(run):
         "khía cạnh không nhắc tới": task.get("not_mentioned") or NO_DATA,
         "split": metrics.get("split") or NO_DATA,
         "bộ chấm": ", ".join(metrics.get("scores_order") or []) or NO_DATA,
+        "bộ chấm paper": ", ".join(metrics.get("scores_order_paper") or []) or NO_DATA,
+        "nhãn lọc paper": ", ".join(paper.get("label_filter") or []) or NO_DATA,
     }
 
 
@@ -544,18 +551,32 @@ def shot_of(run):
     return None
 
 
-def metric_map(run):
+# Cơ sở đo dùng cho bảng ĐEM SO VỚI CÔNG BỐ. `metrics.csv` có cột `basis` (xem metrics.md); bảng
+# `metrics_matrix` lấy số ở cơ sở `paper` vì cột công bố cũng đo theo cách đó.
+PAPER_BASIS = "paper"
+
+
+def metric_map(run, basis=None):
     """Bảng `(aspect, sentiment, metric) -> giá trị` của một lượt chạy, đọc từ `metrics.csv`.
 
     Đọc lại file mà lượt chạy đã ghi, không tính lại: `metrics.csv` là bảng dài nên nó là nguồn
     duy nhất cho mọi cách nhìn khác nhau (theo khía cạnh, theo sắc thái, tổng hợp).
+
+    `basis` chọn CƠ SỞ ĐO (xem docs/04_experiments/metrics.md). Mặc định là `paper` - cách công bố
+    đếm - vì bảng `metrics_matrix` là bảng ĐEM SO VỚI CÔNG BỐ, nên số của lượt chạy trong đó phải
+    cùng cơ sở. Lượt chạy ghi trước 01/10/2026 chưa có cột `basis` (chỉ có một cơ sở đo), khi đó
+    đọc hết như cũ.
     """
     path = run["dir"] / paths.pattern("metrics_csv")
     if not path.is_file():
         return {}
     frame = utils.read_csv(path)
+    columns = list(frame.columns)
+    wanted = PAPER_BASIS if basis is None else basis
     result = {}
     for record in frame.to_dict("records"):
+        if "basis" in columns and str(record.get("basis")) != wanted:
+            continue
         key = (str(record.get("aspect")), str(record.get("sentiment")), str(record.get("metric")))
         result[key] = _number(record.get("value"))
     return result
@@ -686,8 +707,26 @@ def write_group(name, tables, mermaid, out_dir=None):
     return {"csv": written, "html": html_path, "md": md_path, "rows": total}
 
 
+# Ghi chú in đầu trang HTML của nhóm bảng ĐEM SO VỚI CÔNG BỐ. Cùng một ô được đo trên hai cơ sở,
+# nên trang phải nói rõ đang đọc cơ sở nào - nếu không thì người đọc so số `all` với số công bố.
+COMPARISON_NOTE = {
+    "metrics_matrix": (
+        "Cột công bố là cột của ĐÚNG mức ví dụ của từng lượt (lượt không có mức ví dụ dùng cột do "
+        "<code>--reference-shot</code> chọn). Số của lượt chạy ở đây là <b>cơ sở đo "
+        "<code>paper</code></b> - cách công bố đếm: chỉ giữ ô mà CẢ nhãn đúng VÀ nhãn đoán là "
+        "positive/negative. Mẫu số vì thế nhỏ hơn cơ sở <code>all</code>; số ô bị loại nằm ở khoá "
+        "<code>paper</code> trong <code>metrics.json</code> của từng lượt, và cơ sở "
+        "<code>all</code> nằm ở khoá <code>scores</code>."),
+}
+
+
 def html_page(name, tables, empty=False):
-    """Trang HTML tự chứa: chỉ bảng, không Plotly, không mạng, không thư viện ngoài."""
+    """Trang HTML tự chứa: chỉ bảng, không Plotly, không mạng, không thư viện ngoài.
+
+    Nhóm bảng đem so với công bố (`metrics_matrix`) có thêm một ghi chú in ở đầu trang: người đọc
+    số phải biết số của lượt chạy đang ở CƠ SỞ ĐO nào, vì cùng một ô được đo hai lần (xem
+    `docs/04_experiments/metrics.md`).
+    """
     parts = ["<!DOCTYPE html>", '<html lang="vi">', "<head>", '<meta charset="utf-8">',
              "<title>{}</title>".format(html.escape(name)), "<style>",
              "body{font-family:system-ui,Segoe UI,Arial,sans-serif;margin:24px;color:#222}",
@@ -695,10 +734,14 @@ def html_page(name, tables, empty=False):
              "th,td{border:1px solid #ccc;padding:4px 8px;text-align:left;vertical-align:top}",
              "th{background:#f2f2f2}", "caption{text-align:left;font-weight:600;padding:6px 0}",
              ".scroll{overflow:auto;max-height:70vh}", ".empty{color:#a00}",
+             ".note{background:#fffbe6;border:1px solid #e6d9a2;padding:8px 10px;max-width:900px}",
              "</style>", "</head>", "<body>", "<h1>{}</h1>".format(html.escape(name)),
              "<p>Sinh tự động bằng <code>python scripts/collect_reports.py</code>. Số liệu đọc lại "
              "từ file của từng lượt chạy; sơ đồ quan hệ nằm ở <code>{}.md</code>.</p>".format(
                  html.escape(name))]
+    note = COMPARISON_NOTE.get(name)
+    if note:
+        parts.append('<p class="note">{}</p>'.format(note))
     if empty:
         parts.append('<p class="empty">{}</p>'.format(html.escape(NO_DATA.upper())))
     for file_name, (columns, rows) in tables.items():

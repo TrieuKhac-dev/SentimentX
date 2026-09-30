@@ -32,6 +32,7 @@ Pipeline giữ nguyên bốn trạng thái.
 | `n`                | số mẫu dùng để chấm; `null` nghĩa là toàn bộ split                                                          |
 | `decoding`         | cách sinh văn bản: `greedy` chọn token xác suất cao nhất nên tất định; `sample` lấy `temperature`/`top_p`, và để `null` nghĩa là dùng khuyến nghị trong model card (`CARD_SETTINGS` của `src/experiments/experiment_run.py`) |
 | `scores`           | danh sách tên chỉ số cần tính; tên phải có trong registry `SCORERS`, thiếu tên thì báo lỗi                  |
+| `scores_paper`     | danh sách chỉ số chấm thêm trên CƠ SỞ ĐO CỦA CÔNG BỐ (`scores_paper` trong `metrics.json`); mặc định bỏ `aspect_detection` vì trên cơ sở này mọi ô giữ lại đều "có nhắc tới". Bỏ hẳn khoá này thì suy ra từ `scores`. Xem `docs/04_experiments/metrics.md` mục "Hai cơ sở đo" |
 | `group_by`         | chiều phân rã bảng chỉ số, ví dụ theo `aspect` và `sentiment`                                               |
 | `save.predictions` | ghi `predictions.csv` hay không                                                                             |
 | `save.plots`       | giữ chỗ cho biểu đồ sinh kèm lượt chạy; hiện biểu đồ do bước sinh báo cáo vẽ từ `metrics.json`, nên khoá này chưa có tác dụng và không nên bật với hy vọng có thêm hình               |

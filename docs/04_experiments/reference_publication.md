@@ -95,8 +95,10 @@ Ba khác biệt giữa cách công bố đo và cách dự án đo - đọc trư
    còn mẫu số của ta thì không.
 2. **Ô không đọc được.** Cách đo cũ của dự án tính ô model trả lời không đọc được là **SAI** và vẫn
    giữ nó trong mẫu số; công bố không nêu cách xử lý các ô này.
-3. **Lớp âm của Precision/Recall/F1.** Lớp âm của công bố chỉ gồm các ô có nhãn đúng âm; khi thêm ô
-   "không nhắc tới" vào lớp âm thì mẫu số lớn hơn hẳn và chỉ số thấp đi một cách máy móc.
+3. **Lớp âm của Precision/Recall/F1.** Cách đo cũ tính ô mà model đoán âm trong khi nhãn đúng là
+   "không nhắc tới" là **dương tính giả** của lớp âm, nên Precision/Recall/F1 của lớp âm bị kéo
+   xuống một cách máy móc; bảng của công bố chỉ có hai lớp `positive`/`negative`, không có ô
+   "không nhắc tới" nào.
 
 Vì ba khác biệt này, hai con số cùng tên "accuracy theo khía cạnh" **không** tự động so được với nhau;
 phải nói rõ đang đo bằng cách nào.
@@ -109,6 +111,12 @@ chính nó** (đọc từ `metrics.json -> prompt_examples.examples`, suy ra tro
 lượt không có mức ví dụ (model encoder, lượt chạy tay) dùng cột do
 `python scripts/collect_reports.py --reference-shot <0|1|5>` chọn. So cột của từng lượt với cột công
 bố cùng mức để thấy khoảng cách theo từng khía cạnh.
+
+Số của công bố được so với **biến thể `paper`** trên **tập `test` nguyên bản**: hai bảng của
+`metrics_matrix` lấy số của lượt chạy ở cơ sở đo `paper` (chỉ giữ ô mà cả nhãn đúng và nhãn đoán là
+`positive`/`negative` - đúng cách công bố đếm), còn `scores` trong `metrics.json` của mỗi lượt là cơ
+sở `all` của dự án. Hai cơ sở này cho hai con số khác nhau trên cùng một đầu ra model, nên đọc số phải
+biết đang đọc cơ sở nào - xem `docs/04_experiments/metrics.md` mục "Hai cơ sở đo".
 
 ## Kết quả dự kiến theo giai đoạn
 
