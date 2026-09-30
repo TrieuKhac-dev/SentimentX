@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Test sáu kiểm tra tĩnh của CI (src/workflow/checks.py, scripts/ci_checks.py).
+"""Test bảy kiểm tra tĩnh của CI (src/workflow/checks.py, scripts/ci_checks.py).
 
 Mỗi kiểm tra được thử theo HAI chiều: cây sạch thì không báo gì, và cây CỐ TÌNH vi phạm thì báo
 đúng chỗ. Chiều thứ hai mới là chiều đáng test - một kiểm tra không bao giờ báo lỗi thì cũng không

@@ -395,9 +395,9 @@ def pinned_value(source, name):
     return matched.group(1).strip() if matched else None
 
 
-# Sáu kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
+# Bảy kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
 # `run()` phía trên vẫn dùng được) để bên gọi - script in số việc, test đếm số nhóm - cùng đọc MỘT
-# danh sách: thêm kiểm tra thứ bảy thì không phải đi sửa chỗ nào đếm số nữa.
+# danh sách: thêm một kiểm tra nữa thì không phải đi sửa chỗ nào đếm số nữa.
 # ---
 # 7. Link trong tài liệu
 # ---

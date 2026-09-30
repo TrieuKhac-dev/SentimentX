@@ -47,7 +47,8 @@ def main(argv=None):
     checks.print_report(report)
     print("\nGốc kiểm tra: {}".format(utils.rel(paths.root() if not args.root else args.root)))
     if report["problems"]:
-        print("Bước tiếp: sửa từng việc ở trên rồi chạy lại lệnh này, và `pytest -q tests/`.")
+        print("Bước tiếp: sửa từng việc ở trên rồi chạy lại lệnh này, và "
+              "`python -m unittest discover -s tests`.")
         return 1
     print("Sạch. Tiếp theo: chạy `python -m unittest discover -s tests`.")
     return 0
