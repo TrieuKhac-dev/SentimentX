@@ -110,9 +110,10 @@ IN_ZIP = (CLASS_NEW, CLASS_CHANGED)
 DATA_ROOTS = ("data/processed/", "data/raw/")
 
 FILES_FIELDS = ("package_path", "source", "group", "sha256", "size")
-LEDGER_FIELDS = ("package_path", "sha256", "size", "package", "group", "source", "sent_at")
+LEDGER_FIELDS = ("package_path", "sha256", "size", "group", "source", "first_package",
+                 "last_package", "mtime", "sent_at")
 MANIFEST_FIELDS = ("package_path", "class", "group", "sha256", "size", "source",
-                   "sent_package", "note")
+                   "sent_package", "note", "depends_on")
 
 # File đánh dấu là file RỖNG (đúng như gói cũ), nên băm của nó cố định và nó không bị coi là "đổi"
 # ở mọi gói sau.
@@ -154,13 +155,15 @@ def entry(package_path, source, group):
             "source": utils.rel(path) if under(path, paths.root()) else str(path),
             "group": group,
             "sha256": versioning.file_sha256(path),
-            "size": path.stat().st_size}
+            "size": path.stat().st_size,
+            "mtime": datetime.datetime.fromtimestamp(path.stat().st_mtime).isoformat(
+                timespec="seconds")}
 
 
 def marker_entry():
     """Dòng cho file đánh dấu thư mục nhóm - file RỖNG, sinh ra lúc đóng gói."""
     return {"package_path": MARKER_NAME, "source": "", "group": "marker",
-            "sha256": EMPTY_SHA256, "size": 0}
+            "sha256": EMPTY_SHA256, "size": 0, "mtime": ""}
 
 
 def collect(root=None, data_root=None, readme=None, list_experiments=None, load=None,
@@ -323,7 +326,7 @@ def classify(entries, ledger):
     for item in entries:
         row = dict(item)
         sent = ledger.get(item["package_path"])
-        row["sent_package"] = sent["package"] if sent else ""
+        row["sent_package"] = sent["last_package"] if sent else ""
         if sent is None:
             row["class"] = CLASS_NEW
         elif sent["sha256"] != item["sha256"]:
@@ -337,7 +340,7 @@ def classify(entries, ledger):
             continue
         rows.append({"package_path": package_path, "source": sent.get("source", ""),
                      "group": sent.get("group", ""), "sha256": sent.get("sha256", ""),
-                     "size": sent.get("size", ""), "sent_package": sent.get("package", ""),
+                     "size": sent.get("size", ""), "sent_package": sent.get("last_package", ""),
                      "class": CLASS_DELETED})
     return sorted(rows, key=lambda row: row["package_path"])
 
@@ -394,17 +397,33 @@ def update_ledger(ledger, rows, number, sent_at):
 
     Bỏ file đã xoá khỏi sổ là có chủ ý: nếu sau này file đó quay lại với nội dung cũ, nó phải được
     gửi như file MỚI - người nhận đã xoá nó theo manifest nên không còn bản nào để dùng.
+
+    `first_package` giữ nguyên qua các gói (biết file đó vào tay người nhận từ gói nào), `last_package`
+    là gói gần nhất chứa nó, `mtime` là thời điểm file được sửa ở máy - dấu hiệu phụ để tra khi hai lần
+    băm cho cùng kết quả mà người đọc vẫn muốn biết file đã bị chạm hay chưa.
     """
     updated = dict(ledger)
     for row in rows:
         if row["class"] in IN_ZIP:
+            previous = ledger.get(row["package_path"]) or {}
             updated[row["package_path"]] = {
                 "package_path": row["package_path"], "sha256": row["sha256"],
-                "size": row["size"], "package": "{:03d}".format(number),
-                "group": row["group"], "source": row.get("source", ""), "sent_at": sent_at}
+                "size": row["size"], "group": row["group"], "source": row.get("source", ""),
+                "first_package": previous.get("first_package") or "{:03d}".format(number),
+                "last_package": "{:03d}".format(number),
+                "mtime": row.get("mtime", ""), "sent_at": sent_at}
         elif row["class"] == CLASS_DELETED:
             updated.pop(row["package_path"], None)
     return updated
+
+
+def depends_on(number):
+    """Gói này phải áp SAU gói nào: `NNN-1`, hoặc rỗng với gói đầu.
+
+    Gói gửi tăng dần chỉ có nghĩa khi áp đúng thứ tự (gói sau giả định người nhận đã có gói trước), nên
+    manifest ghi rõ nó phụ thuộc gói nào thay vì để người nhận tự đoán.
+    """
+    return "" if number <= 1 else "{:03d}".format(number - 1)
 
 
 def next_number(packages_dir):
@@ -469,14 +488,16 @@ def zip_package(staging, zip_path):
     return zip_path
 
 
-def zip_name(number, sha=None):
-    """Tên file gói, có kèm commit hiện tại: biết ngay gói này thuộc bản code nào.
+def zip_name(number, sha=None, today=None):
+    """Tên file gói: số gói, commit lúc đóng gói (7 ký tự) và NGÀY gửi.
 
-    Notebook trong gói đã ghim commit riêng, nhưng dữ liệu và README thì không, nên tên gói ghi
-    commit lúc đóng gói là cách duy nhất tra lại về sau.
+    Notebook trong gói đã ghim commit riêng, nhưng dữ liệu và README thì không, nên tên gói ghi commit
+    lúc đóng gói là cách tra lại về sau. Ngày gửi để hai gói cùng nội dung nhưng gửi cách xa nhau không
+    bị nhìn nhầm là một.
     """
-    short = (sha or "")[:8] or "nogit"
-    return "SentimentX-goi-ban-giao-{:03d}-{}.zip".format(number, short)
+    short = (sha or "")[:7] or "nogit"
+    stamp = (today or datetime.date.today()).strftime("%y%m%d")
+    return "SentimentX-goi-{:03d}-{}-{}.zip".format(number, short, stamp)
 
 
 def report(rows, number, flags, log=print):
@@ -588,7 +609,8 @@ def main(argv=None, log=print, collector=None):
         notes = {line.split(" (")[0]: "CẢNH BÁO ĐỎ: " + line for line in flags}
     manifest_path = write_csv(
         folder / MANIFEST_CSV, MANIFEST_FIELDS,
-        [dict(row, note=notes.get(row["package_path"], "")) for row in rows])
+        [dict(row, note=notes.get(row["package_path"], ""),
+              depends_on=depends_on(number)) for row in rows])
 
     zip_path = None
     if not args.no_zip:

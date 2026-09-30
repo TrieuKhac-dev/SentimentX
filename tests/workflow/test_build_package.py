@@ -178,6 +178,23 @@ class CandidateTest(HandoverCase):
             self.collect()
         self.assertIn("notebook.ipynb", str(caught.exception))
 
+    def test_ung_vien_chi_gom_thu_git_khong_cho_duoc(self):
+        """Không file nào của `src/`, `configs/`, `docs/` vào gói - và do đó cũng không được BĂM.
+
+        Gói chỉ chở thứ git không chở được; mã nguồn và cấu hình đến từ commit đã ghim. Đây cũng là
+        điều kiện để công cụ chạy nhanh: nó băm vài chục ứng viên, không băm cả repo.
+        """
+        self.experiment_files()
+        self.data_files()
+        entries = self.collect(load=self.fake_load(extra=["configs/prompts/absa_cot_v1.txt"]))
+        sources = [item["source"].replace("\\", "/") for item in entries]
+        self.assertEqual([s for s in sources
+                          if "/src/" in s or "/configs/" in s or "/docs/" in s], [],
+                         "chỉ gửi thứ git không chở được")
+        groups = sorted({item["group"] for item in entries})
+        self.assertEqual(groups, ["data", "data_raw", "env", "experiment_readme", "marker",
+                                  "notebook", "package_readme"])
+
     def test_thi_nghiem_chua_co_dataset_thi_bo_qua_kem_ly_do(self):
         """Chưa chạy pipeline thì không có dữ liệu để gửi: bỏ qua kèm lý do, không nổ."""
         self.experiment_files()
@@ -307,7 +324,8 @@ class DeltaTest(FlowCase):
         self.assertEqual(rows["a.txt"]["class"], "kept")
         self.assertEqual(rows["data/processed/x/test.csv"]["class"], "kept")
         self.assertEqual(self.zip_names(2), ["MANIFEST.csv", "b.txt"])
-        self.assertEqual(self.ledger()["b.txt"]["package"], "002")
+        self.assertEqual(self.ledger()["b.txt"]["last_package"], "002")
+        self.assertEqual(self.ledger()["b.txt"]["first_package"], "001")
 
     def test_file_bien_mat_thi_vao_manifest_de_nguoi_nhan_xoa(self):
         self.first_package()
@@ -342,7 +360,7 @@ class RedFlagTest(FlowCase):
         self.assertIn("CẢNH BÁO ĐỎ", out.text())
         self.assertIn("tạo phiên bản dữ liệu MỚI", out.text())
         self.assertFalse((self.handover / "packages" / "002").exists())
-        self.assertNotIn("002", self.ledger()["data/processed/x/test.csv"]["package"])
+        self.assertNotEqual("002", self.ledger()["data/processed/x/test.csv"]["last_package"])
 
     def test_xoa_du_lieu_da_gui_cung_la_canh_bao_do(self):
         self.first_package()
@@ -372,6 +390,22 @@ class RedFlagTest(FlowCase):
 
 class NumberTest(FlowCase):
     """Số gói: tự tăng, và số đã dùng thì không ghi đè."""
+
+    def test_goi_dau_khong_phu_thuoc_goi_nao_va_goi_sau_phu_thuoc_goi_truoc(self):
+        """`depends_on` là điều kiện để gói tăng dần áp đúng thứ tự: gói sau giả định đã có gói trước."""
+        self.write("a.txt", "goc")
+        self.build(self.candidates(["a.txt"]))
+        self.assertEqual(self.manifest(number=1)["a.txt"]["depends_on"], "")
+        self.write("a.txt", "moi")
+        self.build(self.candidates(["a.txt"]))
+        rows = self.manifest(number=2)
+        self.assertEqual(rows["a.txt"]["depends_on"], "001")
+        self.assertEqual(rows["a.txt"]["sent_package"], "001",
+                         "manifest ghi gói ĐÃ GỬI bản trước, để tra ngược")
+        entry = self.ledger()["a.txt"]
+        self.assertEqual((entry["first_package"], entry["last_package"]), ("001", "002"),
+                         "vào tay người nhận từ gói 001, bản mới nhất ở gói 002")
+        self.assertTrue(entry["mtime"], "mtime là dấu hiệu phụ để tra khi băm không đổi")
 
     def test_so_ke_tiep_va_tu_choi_so_da_dung(self):
         self.write("a.txt")
