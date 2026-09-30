@@ -14,7 +14,51 @@ nhãn `v0.1.0` mà sửa dữ liệu gốc là ra mã KHÁC (`docs/05_config/03_
 
 ## cosmetics
 
-### `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484` - bản dùng cho mọi kết quả hiện có
+### `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3` - bản so được với công bố (01/10/2026)
+
+| Thứ | Giá trị |
+| --- | --- |
+| Cấu hình dataset | `configs/datasets/cosmetics/v0.2.0.yaml`, `sha256` `a5cae2b8…` |
+| Cấu hình pipeline | `configs/pipeline/v0.2.0.yaml`, `sha256` `b7f6e8fc…` |
+| `parent` | `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484` |
+| Lý do có phiên bản này | `test` phải bằng ĐÚNG dữ liệu gốc thì con số mới đặt được cạnh bảng của công bố, và rò rỉ dữ liệu phải được xử lý ở phía tập HỌC để điểm của lượt học không bị "phồng" |
+
+Dữ liệu gốc đi vào: **y như bản trên** - cùng bốn file, cùng `sha256` (đổi cách xử lý, không đổi đầu vào).
+
+Đi ra (`data/processed/<mã>/`): `train.csv` 12.268 dòng, `val.csv` 1.535, `test.csv` **1.623**.
+
+**Khác bản v0.1.0 đúng một điều**: Clean và Normalize chỉ SỬA `train` và `val`
+(`steps.clean.apply_to: [train, val]`, `steps.normalize.apply_to: [train, val]`), nên `test.csv` giữ
+nguyên từng ký tự của dữ liệu gốc. Ba phép kiểm bằng máy:
+
+- 1.623 dòng, **0 dòng lệch văn bản và 0 ô lệch nhãn** so với `data_test.csv`;
+- bước Final Validate của chính pipeline in: *"1623 dòng thuộc test bằng ĐÚNG bản gốc, không bị sửa ký
+  tự nào"*;
+- **0 cặp trùng** theo `utils.dedup_key` giữa ba tập: `train∩val = train∩test = val∩test = 0`.
+
+Rò rỉ dữ liệu vì vậy được xử lý ở phía tập HỌC: `steps.clean.leakage.keep_priority: [test, val, train]`
+giữ bản ghi ở tập ưu tiên cao hơn và loại khỏi các tập thấp hơn, nên `test` không bao giờ bị loại. Số
+dòng bị loại của bước Clean: `train` 706 (trong đó 226 dòng trùng `test`, 23 dòng trùng `val`),
+`val` 86, `test` **0**.
+
+Ba tập đều khác bản cũ: `train` −34 dòng, `val` +11 dòng, `test` +105 dòng (69 dòng nhiễu mà bản cũ đã
+bỏ khỏi test, cộng các dòng trùng train mà bản cũ cũng bỏ khỏi test). Bản v0.1.0 **giữ nguyên** trong
+`data/processed/` làm dấu vết, không xoá.
+
+Khoá tập đánh giá (`eval_lock.json`) - hai giá trị này đã khai trong config TRƯỚC lần chạy chính thức:
+
+```json
+{"test": {"schema": 1, "file": "test.csv",
+          "sha256": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38",
+          "records_sha256": "73d39d84536b14e35c07bc2012e8059ee9867165629b029ed24bddcf3eda3cb6",
+          "rows": 1623}}
+```
+
+Cách so với công bố: `test` nguyên bản + **cơ sở đo `paper`** - xem
+`docs/04_experiments/reference_publication.md` mục "Cách so" và `docs/04_experiments/metrics.md` mục
+"Hai cơ sở đo". Cả 12 thí nghiệm trong `experiments/` đã chuyển sang phiên bản này.
+
+### `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484` - bản cũ, giữ làm dấu vết
 
 | Thứ | Giá trị |
 | --- | --- |
@@ -44,8 +88,10 @@ Khoá tập đánh giá (`eval_lock.json`):
           "rows": 1518}}
 ```
 
-Mọi kết quả trong `docs/06_plan/P7_rerun.md` và mọi thí nghiệm trong `experiments/` chấm trên **đúng**
-`test.csv` này; đổi nó là mọi con số cũ không còn so được.
+Mọi kết quả trong `docs/06_plan/P7_rerun.md` mục 2 và mọi thí nghiệm trong `experiments/` **trước
+01/10/2026** chấm trên *đúng* `test.csv` này; đổi nó là mọi con số cũ không còn so được. Từ 01/10/2026,
+`experiments/` chấm trên bản `…-e616c1e3` ở trên (test = dữ liệu gốc, 1.623 dòng); bản này giữ nguyên
+trong `data/processed/` như dấu vết của cơ sở so sánh cũ.
 
 Cập nhật 28/09/2026 - khoá có thêm **vân tay DỮ LIỆU**:
 

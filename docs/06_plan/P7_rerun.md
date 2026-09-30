@@ -96,6 +96,17 @@ bootstrap mỏng, có khối bảo vệ ngắt phiên, sửa đường dẫn cũ
 `a7ba8fc`; gói `001` là gói GỐC của sổ bàn giao, và gói zip `a7ac72a` cũ cùng thư mục `_ban_giao/` bên
 ngoài repo đã bị xoá.
 
+*Cập nhật 01/10/2026 - dữ liệu nay là `v0.2.0`, test nguyên bản:* bản cũ (`...-e0ccc484`, `test.csv`
+1.518 dòng) đã được thay bằng `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3`: pipeline
+v0.2.0 không sửa `test` (`steps.clean.apply_to`/`steps.normalize.apply_to` = `[train, val]`), nên
+`test.csv` bằng ĐÚNG dữ liệu gốc (1.623 dòng, 0 dòng lệch văn bản, 0 ô lệch nhãn) và so được với công
+bố; rò rỉ dữ liệu chuyển sang xử lý ở phía tập HỌC (`leakage.keep_priority: [test, val, train]`, còn
+0 cặp trùng giữa ba tập). Cả 12 `experiments/**/config.yaml` đã trỏ `data.version: v0.2.0`, 12 notebook
+đã ghim lại commit `8df7830`, và 8 bảng số đo + EDA của phiên bản mới đã sinh xong. Gói bàn giao kế
+tiếp là **gói 003** (chở dữ liệu v0.2.0 và 12 notebook ghim lại) và phải gửi **TRƯỚC** khi Batch 6 chạy:
+notebook đọc config từ đúng commit nó ghim. Mọi số ở mục 2 (1.518 dòng, mã `e0ccc484`) là số của **bản
+cũ** - giữ làm mốc lịch sử, không dùng để so với công bố nữa.
+
 **Việc còn lại của P7, đặt tên là đợt tiếp theo:**
 
 - **Batch 6 - chạy lưới để lấy KẾT QUẢ THẬT:** chạy lần lượt 12 notebook trên Colab, copy **5 tệp nhẹ**

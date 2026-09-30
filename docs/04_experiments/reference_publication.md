@@ -24,7 +24,12 @@ toàn bộ bài toán ABSA đa lớp.
 ## Dữ liệu của ta và của công bố
 
 `data/raw/cosmetics/v0.1.0/` với `train`, `val`, `test`, `full` là dữ liệu lấy từ công bố.
-Vì vậy split `test` của ta **chính là** tập test của công bố, và ta so sánh **trực tiếp**.
+Split `test` của ta **chính là** tập test của công bố, và ta so sánh **trực tiếp**.
+
+Lưu ý theo phiên bản dữ liệu: điều đó chỉ đúng khi `test` KHÔNG bị sửa. Bản pipeline `v0.1.0` (dữ liệu
+`...-e0ccc484`) có sửa `test` - nó bỏ 105 dòng khỏi tập này - nên số của bản đó **không** so được với
+công bố. Bản `v0.2.0` (`...-e616c1e3`) để `test` nguyên bản (1.623 dòng) và từ 01/10/2026 là bản mọi
+thí nghiệm dùng; xem `docs/01_dataset/changelog.md`.
 
 Hai điểm đã khớp sẵn: cột `others` bị loại trong schema của dataset, và neutral bị loại
 theo `neutral_policy: drop`.

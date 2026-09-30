@@ -24,15 +24,22 @@
 
 9. File config của phiên bản (`configs/pipeline/<v>.yaml`, `configs/datasets/<name>/<v>.yaml`)
    là **bất biến**. Muốn đổi thì tạo phiên bản mới.
-10. Mọi biến đổi văn bản của pipeline **chỉ áp cho train và val**.
+10. Mọi biến đổi văn bản của pipeline **chỉ áp cho train và val**: mỗi bước khai phạm vi của mình ở
+    `steps.<tên>.apply_to`, và `test` không được có tên trong đó (pipeline `v0.2.0` khai
+    `apply_to: [train, val]`). Bước Final Validate chứng minh điều này **từng dòng**: dòng của split
+    không nằm trong `apply_to` phải bằng ĐÚNG văn bản gốc. Rò rỉ dữ liệu vì thế được xử lý ở phía TẬP
+    HỌC (`steps.clean.leakage.keep_priority: [test, val, train]` giữ bản ghi ở tập ưu tiên cao hơn và
+    loại khỏi các tập thấp hơn), chứ không loại khỏi tập đánh giá - xem
+    `docs/03_pipeline/02_steps.md` và `docs/05_config/02_pipeline.md`.
 11. `test.csv` phải khớp **khoá tập đánh giá**. Khoá do pipeline ghi MỘT LẦN, ngay từ bản dữ liệu
     đầu tiên, vào `data/processed/<mã>/eval_lock.json`, và gồm HAI dấu vân tay cho từng split đã khoá:
     `records_sha256` - **tập bản ghi** (đây là KHOÁ: lệch là báo lỗi, không chỉ cảnh báo) và `sha256` -
     byte của file (dấu vết của bản đã công bố: lệch chỉ là ghi chú, vì đổi cách ghi file không phải là
     đổi tập đánh giá). Kèm `rows` (số bản ghi) và `schema` (công thức tính vân tay dữ liệu). File config
     dataset version chỉ khai **chính sách** (`eval_lock.enforce`, tên file) và giá trị **mong đợi** khi
-    cần đối chiếu với một tập test bên ngoài. Chi tiết ở `docs/03_pipeline/05_output.md` và
-    `docs/05_config/03_datasets.md`.
+    cần đối chiếu với một tập test bên ngoài. Giá trị mong đợi (`sha256`, `rows`) phải điền TRƯỚC lần
+    chạy chính thức - chạy thử một lượt lấy số rồi điền, vì file phiên bản là bất biến sau khi dùng. Chi
+    tiết ở `docs/03_pipeline/05_output.md` và `docs/05_config/03_datasets.md`.
 12. Metric lấy theo công bố tham chiếu, không tự thêm bớt khi so sánh.
 
 ## Resume

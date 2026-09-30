@@ -76,7 +76,7 @@ văn bản); `quarantine_records.csv` (dòng bị cách ly).
 | **rỗng**          | `text.strip() == ""`                                                                                                                                                    | `Loại do nhiễu`                                                          |
 | **nhiễu**         | `utils.is_gibberish` (>=50% token "không giống từ") hoặc `utils.is_advertisement` (khớp `AD_PATTERNS`) hoặc `utils.is_code_like` (khớp `CODE_PATTERNS`, config đang BẬT) | `Loại do nhiễu` (cosmetics: 487 gibberish + 78 quảng cáo + 1 code = 566) |
 | **trùng lặp**     | hai lượt: khoá = **văn bản nguyên văn** (chính xác), rồi khoá = `utils.dedup_key`                                                                                       | `Loại do trùng chính xác` / `Loại do trùng theo khoá so trùng`           |
-| **rò rỉ dữ liệu** | khoá so trùng của dòng val/test đã có trong tập khoá của train                                                                                                          | `Loại do rò rỉ dữ liệu`                                                  |
+| **rò rỉ dữ liệu** | review xuất hiện ở NHIỀU tập (so bằng khoá so trùng): giữ ở tập có ưu tiên cao hơn, loại khỏi tập thấp hơn - xem luật ở dưới | `Loại do rò rỉ dữ liệu`                                                  |
 
 Nhóm "rỗng + nhiễu" được gộp chung vào thẻ `Loại do nhiễu` và tách riêng trong biểu
 đồ "Số dòng bị loại theo lý do" (`removed_records.csv` giữ nguyên văn bản từng dòng
@@ -114,22 +114,31 @@ nhiều lần với nhãn khác nhau - EDA 05 đã liệt kê đúng những ô 
 Giá trị khác của khoá này là `keep_first` (giữ bản ghi đầu tiên, bỏ phần còn lại);
 chi tiết: [03_config.md mục 3](03_config.md).
 
-### Xử lý rò rỉ dữ liệu (`steps.clean.leakage.remove_eval_overlap`)
+### Xử lý rò rỉ dữ liệu (`steps.clean.leakage`)
 
-EDA 05 phát hiện có review xuất hiện ở **cả train và val/test** (18 cặp trùng chính
-xác giữa train và val, 18 cặp giữa train và test). Nếu để nguyên, điểm đánh giá model
-sẽ **cao giả tạo** vì model đã thấy trước dữ liệu đó.
+EDA 05 phát hiện có review xuất hiện ở **nhiều hơn một tập** (trên cosmetics: 91 dòng ở mức EDA). Nếu
+để nguyên, điểm đánh giá sẽ **cao giả tạo** ở những lượt có HUẤN LUYỆN, vì model đã thấy trước câu hỏi;
+lượt chỉ hỏi model (prompt) thì không "học" gì nên không bị ảnh hưởng.
 
-Cách xử lý: **giữ trong train, loại khỏi val/test**. Lý do:
+Có **hai luật**, và file cấu hình chỉ được khai MỘT:
 
-- tập train cần dữ liệu để học, xoá đi sẽ mất thông tin;
-- tập đánh giá phải "sạch" thì con số đo mới đáng tin.
+| Luật             | Khai bằng                                | Loại ở đâu                                            | Dùng cho |
+| ---------------- | ---------------------------------------- | ----------------------------------------------------- | -------- |
+| Ưu tiên (v0.2.0) | `keep_priority: [test, val, train]`       | tập ĐỨNG SAU trong danh sách (ưu tiên thấp hơn)       | bản đang dùng |
+| Cũ (v0.1.0)      | `remove_eval_overlap: true`               | luôn ở val/test, giữ trong train                      | chỉ để bản dữ liệu cũ tái lập được |
 
-Bật mặc định (`true`). Nếu muốn giữ nguyên dữ liệu gốc để đối chứng, đặt `false`.
+Vì sao đổi sang luật ưu tiên: `test` phải bằng **đúng** dữ liệu gốc thì con số mới so được với công bố,
+nên rò rỉ được xử lý ở phía tập HỌC. Luật cũ sửa tập đánh giá - nó là lý do `test.csv` của bản v0.1.0
+chỉ còn 1.518 dòng thay vì 1.623.
 
-**Vì sao con số rò rỉ ở pipeline nhỏ hơn con số của EDA:** Clean xoá nhiễu **trước**
-rồi mới xử lý rò rỉ, nên những dòng đã bị loại vì nhiễu không còn xuất hiện trong
-bước này (cosmetics: EDA đếm 91 dòng, pipeline loại 84 dòng). Chi tiết:
+Khai **cả hai** luật, hoặc `keep_priority` thiếu/ thừa tên split, là **lỗi cấu hình** (không đoán ý).
+Quy tắc đòi loại khỏi một split **ngoài** `apply_to` cũng là lỗi, vì split đó phải giữ nguyên bản gốc.
+
+Số dòng bị loại (cosmetics): bản v0.2.0 loại `train` 706 dòng (226 dòng trùng `test`, 23 dòng trùng
+`val`), `val` 86, `test` **0**; bản v0.1.0 loại 84 dòng (36 ở test, 48 ở val).
+
+**Vì sao con số rò rỉ ở pipeline nhỏ hơn con số của EDA:** Clean xoá nhiễu **trước** rồi mới xử lý rò rỉ,
+nên những dòng đã bị loại vì nhiễu không còn xuất hiện trong bước này. Chi tiết:
 [02_eda/02_metrics.md mục 12](../02_eda/02_metrics.md).
 
 ## 4. Step 4 - Normalize (`src/pipeline/normalize.py`)

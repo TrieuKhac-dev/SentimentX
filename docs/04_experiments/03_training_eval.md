@@ -183,6 +183,11 @@ Bốn điều đọc ra từ bảng này:
 
 ### 6.3. Hạn chế của kết quả này
 
+- **Đo trên `val` của bản dữ liệu `v0.1.0`** (`...-e0ccc484`, `val` 1.524 dòng): bản `v0.2.0` dùng từ
+  01/10/2026 có `val` 1.535 dòng, nên tập con 100 review (seed 42) **không** rút lại y hệt. Số ở mục
+  6.1-6.2 vì vậy là bản ghi lịch sử của đợt khảo sát prompt, **không** phải số so với công bố; số so
+  với công bố nằm ở cột `reference` của `data/reports/metrics_matrix/` (đo trên `test`) và sẽ được ghi
+  lại sau Batch 6 của `docs/06_plan/P7_rerun.md`.
 - **Tập con 100 review** (seed 42): đủ để thấy xu hướng, chưa đủ để chốt con số.
 - **Một lần chạy greedy** cho mỗi cấu hình: chưa đo dao động giữa các lần chạy.
 - **Lượng hóa 4-bit** để vừa VRAM; chưa đối chiếu bf16 (GPU 6 GB không chạy nổi bf16).
