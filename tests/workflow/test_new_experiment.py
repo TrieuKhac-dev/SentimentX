@@ -28,7 +28,7 @@ from src.experiments import experiments
 from src.workflow import notebooks, repo
 from src.core import paths
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_script(name):

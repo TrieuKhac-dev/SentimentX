@@ -21,7 +21,7 @@ from unittest import mock
 from src.experiments import model_config
 from src.preprocessing import token_stats
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def load_script(name):

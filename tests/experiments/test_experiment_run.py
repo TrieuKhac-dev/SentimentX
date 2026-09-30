@@ -32,7 +32,7 @@ from src.preprocessing import qwen
 from src.workflow import preflight, resume
 from src.preprocessing import qwen
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 class NoRootOverrideMixin:
