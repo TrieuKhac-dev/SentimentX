@@ -436,3 +436,30 @@ def write(rows, version_id, tag=None):
     out_dir = config.MODEL_INPUT_REPORT_DIR / version_id
     return utils.write_csv(rows, COLUMNS, out_dir / file_name(tag))
 
+
+def directory(version_id):
+    """Thư mục số đo của một phiên bản dữ liệu."""
+    return config.MODEL_INPUT_REPORT_DIR / version_id
+
+
+def existing_shards(version_id):
+    """Tên các bảng số đo ĐÃ CÓ của một phiên bản (mọi bảng theo mẫu `token_stats`).
+
+    Dùng để phát hiện bảng mồ côi TRƯỚC khi ghi bảng mới (`prompts.orphan_tables`). Trả về tên file
+    chứ không phải đường dẫn: chỗ gọi chỉ cần đọc thẻ trong tên.
+    """
+    out_dir = directory(version_id)
+    if not out_dir.is_dir():
+        return []
+    stem = paths.pattern("token_stats").rsplit(".", 1)[0]
+    return sorted(path.name for path in out_dir.glob("{}*.csv".format(stem)))
+
+
+def archive_dir(version_id):
+    """Kho LỊCH SỬ của một phiên bản: bảng không còn tái lập được thì chuyển vào đây.
+
+    Nằm NGOÀI `model_input/` nên `scripts/collect_reports.py` (nó quét cả thư mục con của
+    `model_input`) không tính bảng cũ vào `model_input.csv`. Nội dung thư mục này không vào git -
+    xem `.gitignore` và `docs/04_experiments/02_model_input.md`.
+    """
+    return config.MODEL_INPUT_REPORT_DIR.parent / paths.pattern("archive_dir") / version_id

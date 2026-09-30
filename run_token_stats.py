@@ -406,6 +406,19 @@ def main(argv=None):
 
 
     tag = build_tag(args, max_length_overrides, prompt)
+
+    # Kiểm TRƯỚC khi ghi: thư mục phiên bản có thể đang giữ bảng của một bộ ví dụ/khối hệ thống KHÁC
+    # (file ví dụ bị sửa nội dung tại chỗ). Bảng đó không tái lập được nữa, mà `collect_reports.py`
+    # vẫn quét nó vào bảng gộp - nên phải nói ra, KHÔNG tự xoá và không tự dời (xem orphan_tables).
+    orphans = prompts.orphan_tables(token_stats.existing_shards(version_id))
+    if orphans:
+        print("\n  LƯU Ý: phiên bản dữ liệu này đang có {} bảng KHÔNG còn tái lập được:".format(
+            len(orphans)))
+        for item in orphans:
+            print("      - {}".format(item))
+        print("      Chuyển chúng vào kho lịch sử (ngoài `model_input/`): {}".format(
+            utils.rel(token_stats.archive_dir(version_id))))
+
     path = token_stats.write(rows, version_id, tag=tag)
 
     print("Hoàn tất. Đã ghi số liệu:")

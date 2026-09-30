@@ -56,7 +56,7 @@ import string
 from pathlib import Path
 from functools import lru_cache
 
-from src.core import config, utils
+from src.core import config, paths, utils
 
 # Ô nhớ được phép dùng trong file prompt
 PLACEHOLDERS = ("text", "aspects", "label_guide", "example", "examples", "system_prompt")
@@ -572,6 +572,93 @@ def info_of_path(path, value=None):
         "note": note,
         "missing": False,
     }
+
+
+def tag_parts(name):
+    """Tách tên file một bảng số đo thành các mảnh của thẻ.
+
+    Tên do `run_token_stats.build_tag` ghép:
+    `token_stats__prompt-<tên>__ex-<sha8>__sys-<tên>__seg-<tên>__maxlen-<model>-<số>.csv`. Chỗ này
+    đọc lại ĐÚNG cách ghép đó, nên nó nói được một bảng cũ thuộc bộ ví dụ nào - điều kiện để phát
+    hiện bảng không còn tái lập được (xem `orphan_tables`). Trả về `{}` nếu tên không phải bảng số đo.
+    """
+    stem = Path(str(name)).stem
+    prefix = Path(paths.pattern("token_stats")).stem
+    if not stem.startswith(prefix + "__"):
+        return {}
+    parts = {}
+    for chunk in stem[len(prefix) + 2:].split("__"):
+        key, _separator, value = chunk.partition("-")
+        if key and value:
+            parts[key] = value
+    return parts
+
+
+def orphan_tables(names):
+    """Các bảng số đo KHÔNG còn tái lập được ("mồ côi"), kèm lý do - mỗi mục một câu.
+
+    `names` là tên file các bảng đang có của MỘT phiên bản dữ liệu. Một bảng là mồ côi khi thẻ của
+    nó ghi bộ ví dụ (`ex-<sha8>`) hoặc khối hệ thống (`sys-<tên>`) KHÁC với thứ prompt cùng tên đang
+    có, hoặc khi prompt đó không còn - khi đó không lệnh nào sinh lại được nó nữa, mà
+    `scripts/collect_reports.py` vẫn quét nó vào `model_input.csv` như một phép đo hợp lệ.
+
+    VÌ SAO CHỈ BÁO, KHÔNG TỰ XOÁ/DỜI: bảng cũ là số đo thật của một bộ ví dụ từng tồn tại. Code không
+    tự xoá và không tự dời kết quả (docs/00_workflow/02_rules.md); người đọc quyết định chuyển nó
+    vào kho lịch sử hay tạo cặp prompt + ví dụ phiên bản mới.
+
+    GIỚI HẠN ĐÃ BIẾT: `sys-` chỉ ghi TÊN khối hệ thống, không ghi băm nội dung, nên đổi NỘI DUNG mà
+    giữ nguyên tên file thì tên bảng không đổi và bảng cũ bị GHI ĐÈ - ca đó phép kiểm này không thấy
+    (ghi ở docs/04_experiments/04_backlog.md).
+    """
+    found = []
+    for name in names:
+        parts = tag_parts(name)
+        if "prompt" not in parts:
+            continue
+        what = "{} (prompt {})".format(Path(str(name)).name, parts["prompt"])
+        try:
+            prompt = load(parts["prompt"])
+        except PromptError:
+            found.append("{}: prompt không còn trong thư viện nên không tái lập được".format(what))
+            continue
+        current_ex = None
+        if "examples" in prompt.placeholders:
+            current_ex = prompt.examples_info().get("sha")
+        if parts.get("ex") != current_ex:
+            found.append(
+                "{}: đo với bộ ví dụ {} nhưng bộ ví dụ hiện tại là {} - bảng này KHÔNG tái lập được; "
+                "chuyển nó vào kho lịch sử hoặc tạo cặp prompt + ví dụ phiên bản mới".format(
+                    what, parts.get("ex") or "(không có)", current_ex or "(không dùng ví dụ)"))
+        # Khối hệ thống KHÔNG suy được từ tên prompt (config/CLI mới chọn nó), nên chỉ đối chiếu ở mức
+        # TÊN: bảng phải có `sys-` khi prompt cần, không có khi prompt không cần, và cái tên đó phải
+        # còn file. Đổi NỘI DUNG khối hệ thống mà giữ tên thì phép kiểm này không thấy - xem docstring.
+        wants_system = "system_prompt" in prompt.placeholders
+        name_sys = parts.get("sys")
+        if wants_system and not name_sys:
+            found.append(
+                "{}: prompt dùng {{system_prompt}} mà tên bảng không ghi `sys-` - bảng này KHÔNG tái "
+                "lập được".format(what))
+        elif not wants_system and name_sys:
+            found.append(
+                "{}: đo với khối hệ thống {} nhưng prompt hiện KHÔNG dùng {{system_prompt}} - bảng "
+                "này KHÔNG tái lập được".format(what, name_sys))
+        elif name_sys and not _system_file_exists(name_sys):
+            found.append(
+                "{}: khối hệ thống {} không còn file trong thư viện `system/`".format(what, name_sys))
+    return found
+
+
+def _system_file_exists(name):
+    """Có file khối hệ thống nào tên đó trong thư viện dùng chung không.
+
+    Tên TRẦN được giải theo ĐÚNG quy ước của `resolve` (thư viện `system/`), nên chỗ kiểm và chỗ nạp
+    không thể lệch nhau về ý nghĩa của một cái tên.
+    """
+    try:
+        _name, path = resolve(name, None, system=True)
+    except PromptError:
+        return False
+    return Path(path).exists()
 
 
 def examples_info(value, base_dir=None):

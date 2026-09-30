@@ -190,5 +190,72 @@ class BangMaNhanTest(unittest.TestCase):
         self.assertIn("neutral", prompts.label_guide(filtered))
 
 
+class BangSoDoMoCoiTest(unittest.TestCase):
+    """Tên bảng số đo phải khớp cặp prompt + ví dụ + khối hệ thống ĐANG có.
+
+    Vì sao khoá điều này: `ex-<sha8>` là băm NỘI DUNG file ví dụ, nên sửa file ví dụ tại chỗ là bảng
+    cũ thành "mồ côi" - không lệnh nào tái lập được nó nữa, mà `collect_reports.py` vẫn quét nó vào
+    `model_input.csv`. Phép kiểm phải IM LẶNG với tên đúng và BÁO với mọi cách lệch.
+    """
+
+    # `absa_cot_v1` dùng cả `{examples}` và `{system_prompt}`; `absa_direct_v1` dùng cả hai đều không.
+    PROMPT = "absa_cot_v1"
+    PLAIN = "absa_direct_v1"
+
+    def shard(self, prompt_name, ex=None, system=None, segmenter=None):
+        """Dựng tên bảng theo ĐÚNG cách `run_token_stats.build_tag` ghép."""
+        prompt = prompts.load(prompt_name)
+        parts = ["prompt-" + prompt_name]
+        if ex is None and "examples" in prompt.placeholders:
+            ex = prompt.examples_info()["sha"]
+        if ex:
+            parts.append("ex-" + ex)
+        if system:
+            parts.append("sys-" + system)
+        if segmenter:
+            parts.append("seg-" + segmenter)
+        return "token_stats__" + "__".join(parts) + ".csv"
+
+    def test_ten_dung_thi_im_lang(self):
+        self.assertEqual(prompts.orphan_tables([self.shard(self.PROMPT, system="absa_cot")]), [])
+
+    def test_bo_vi_du_cu_thi_bao(self):
+        found = prompts.orphan_tables([self.shard(self.PROMPT, ex="deadbeef", system="absa_cot")])
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("bộ ví dụ", found[0])
+        self.assertIn("deadbeef", found[0])
+
+    def test_prompt_khong_con_trong_thu_vien_thi_bao(self):
+        found = prompts.orphan_tables(["token_stats__prompt-khong_co_that__sys-absa_cot.csv"])
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("không còn trong thư viện", found[0])
+
+    def test_prompt_can_khoi_he_thong_ma_ten_bang_thieu_sys(self):
+        found = prompts.orphan_tables([self.shard(self.PROMPT)])
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("sys-", found[0])
+
+    def test_prompt_khong_dung_he_thong_ma_ten_bang_co_sys(self):
+        found = prompts.orphan_tables([self.shard(self.PLAIN, system="absa_cot")])
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("KHÔNG dùng", found[0])
+
+    def test_khoi_he_thong_khong_con_file_thi_bao(self):
+        found = prompts.orphan_tables([self.shard(self.PROMPT, system="khong_co_file_nay")])
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("không còn file", found[0])
+
+    def test_tag_parts_doc_dung_cac_manh(self):
+        self.assertEqual(prompts.tag_parts("token_stats__prompt-absa_direct_v1__seg-pyvi.csv"),
+                         {"prompt": "absa_direct_v1", "seg": "pyvi"})
+        self.assertEqual(prompts.tag_parts("token_stats__prompt-absa_cot_v1__ex-c513f5a6__sys-absa_cot.csv"),
+                         {"prompt": "absa_cot_v1", "ex": "c513f5a6", "sys": "absa_cot"})
+
+    def test_ten_khong_phai_bang_so_do_thi_bo_qua(self):
+        for name in ("model_input.csv", "token_stats.csv", "readme.md"):
+            self.assertEqual(prompts.tag_parts(name), {}, name)
+            self.assertEqual(prompts.orphan_tables([name]), [], name)
+
+
 if __name__ == "__main__":
     unittest.main()

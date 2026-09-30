@@ -53,6 +53,10 @@ patterns:
   # theo hai mẫu tên này, nên đổi tên ở đây là đủ.
   token_stats: "token_stats.csv"
   token_stats_tagged: "token_stats__{tag}.csv"
+  # Kho LỊCH SỬ bảng số đo: bảng của một bộ ví dụ/khối hệ thống KHÔNG còn tái lập được thì chuyển
+  # vào đây (xem docs/04_experiments/02_model_input.md). Nằm NGOÀI `model_input/` nên bảng gộp không
+  # quét tới; nội dung thư mục này không vào git.
+  archive_dir: "_archive"
   plots: "plots"
   ckpt_last: "model/last"
   ckpt_best: "model/best"
