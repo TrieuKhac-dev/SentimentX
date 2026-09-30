@@ -67,8 +67,9 @@ ghim) và `EXP_DIR` (thư mục thí nghiệm). `python scripts/pin.py <model>/<
 giá trị đó; ô đã ghim được tìm **theo dấu**, nên ghim lại thì cập nhật đúng ô cũ chứ không thêm ô
 thứ hai.
 
-Cell bootstrap (do `templates/` sinh ra) gọi `repo.prepare(...)` - qua mặt tiền `src.api` - để kéo
-**đúng** commit đó rồi mới `import src`. Nhờ vậy:
+Cell bootstrap (do `templates/` sinh ra) kéo **đúng** commit đó rồi mới `import src`; phần chuẩn bị môi
+trường nằm trong `src/workflow/bootstrap.py` (ô chỉ gọi 4 hàm qua mặt tiền `src.api`, bên trong
+`bootstrap.prepare()` mới gọi `repo.prepare(...)`). Nhờ vậy:
 
 - Notebook chạy trên máy cá nhân: thư mục code đang đúng commit rồi nên **không cần mạng**.
 - Notebook chạy trên Colab: kéo code theo sha (fetch theo sha, không được thì
@@ -80,6 +81,23 @@ Cell bootstrap (do `templates/` sinh ra) gọi `repo.prepare(...)` - qua mặt t
 Notebook của một thí nghiệm đã chạy là **bản ghi** của lượt chạy đó: đừng dựng lại nó theo bản mẫu,
 và đừng sửa ô của nó. Quy tắc thêm/sửa/xoá ô, thứ tự các ô, và quy trình 5 bước để đổi bản mẫu:
 `docs/00_workflow/10_template_notebook.md`.
+
+TÁM Ô của một notebook, theo thứ tự - đây là hợp đồng giữa notebook, `scripts/pin.py` và
+`scripts/run_notebook.py`:
+
+| # | Ô | Nội dung | Nhận ra bằng |
+| --- | --- | --- | --- |
+| 1 | GHIM | `REPO_URL`, `REPO_BRANCH`, `REPO_SHA`, `EXP_DIR` | dấu `notebooks.MARKER` |
+| 2 | bootstrap | kéo mã nguồn (phải xong TRƯỚC khi `import src`), rồi 4 hàm của `src/workflow/bootstrap.py` | `from src.api import bootstrap` |
+| 3 | cấu hình | nạp config, in ra đang chạy gì, tính mã phiên bản dữ liệu | - |
+| 4 | kiểm trước | `preflight.run(...)`, in danh sách việc phải sửa và DỪNG nếu có | `preflight.run` |
+| 5 | CHẠY | đúng MỘT lời gọi `experiment_run.run(...)` (hoặc `encoder_run.run(...)`) | dấu `notebooks.RUN_MARKER` |
+| 6 | kết quả | markdown: đọc kết quả ở đâu, theo thứ tự nào | - |
+| 7 | KẾT THÚC | in link DagsHub nếu có, nhắc ghim, rồi **ngắt phiên Colab** | `print(end_session())` |
+
+Hai ô mang DẤU (không theo số thứ tự) vì cả hai công cụ phải tìm được chúng kể cả khi notebook đã
+thêm/bớt ô: `pin.py` tìm ô GHIM, `run_notebook.py --preflight-only` tìm ô CHẠY. Ô nào lỗi cũng ngắt
+phiên Colab (trừ khi bấm Stop) - chi tiết ở `10_template_notebook.md` mục 3.2.
 
 Trước khi ghi, `pin.py` còn kiểm **cây làm việc phải sạch ngoài file notebook**: commit ghim chỉ
 được đổi đúng một file. Sau khi ghim thì không sửa `experiments/**/expNNN/**` nữa cho tới khi

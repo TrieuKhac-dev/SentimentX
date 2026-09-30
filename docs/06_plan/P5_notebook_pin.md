@@ -1,7 +1,8 @@
 # P5 - Ghim code và notebook
 
 > Đọc file này khi: tạo thí nghiệm mới, ghim bản code, hoặc giao notebook cho giảng viên.
-> Liên quan: `docs/00_workflow/01_flow.md`, `docs/05_config/06_experiment.md`
+> Liên quan: `docs/00_workflow/01_flow.md`, `docs/05_config/06_experiment.md`,
+> `docs/00_workflow/10_template_notebook.md` (các ô của notebook, luật thêm/sửa/xoá ô)
 
 ## 1. Mục tiêu giai đoạn
 

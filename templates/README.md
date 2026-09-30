@@ -30,6 +30,21 @@ Thí nghiệm khai `system_prompt: system.txt` để dùng nó, và `prompt.txt`
 Nhiều thí nghiệm dùng chung một câu hệ thống thì để file ở `configs/prompts/system/<tên>.txt` và trỏ
 `system_prompt` vào đó - khi đó không cần `system.txt` trong thư mục thí nghiệm.
 
+## Sửa bản mẫu
+
+Sửa `templates/experiment/` là việc **cho thí nghiệm MỚI**. Notebook của một thí nghiệm đã chạy là BẢN GHI
+của lượt đó, không phải bản sao của bản mẫu - nên sửa bản mẫu KHÔNG bắt 12 notebook đang có phải cập
+nhật theo. Quy tắc thêm/sửa/xoá một ô, thứ tự các ô, và quy trình khi cần cập nhật CẢ BỘ notebook (việc
+một lần, bằng script rồi ghim lại cùng lượt):
+**`docs/00_workflow/10_template_notebook.md`**.
+
+Hai điều dễ sai khi sửa bản mẫu:
+
+- Ô nào cũng phải ở trong **khối bảo vệ** `end_session_on_error()` (ô CHẠY là ngoại lệ có lý do), nếu
+  không thì một ô lỗi sẽ để phiên Colab sống tiếp và vẫn tính vào hạn mức GPU.
+- Ô notebook chỉ được `from src.api import ...` - logic thuộc `src/`, và file trong `src/api/` chỉ
+  re-export.
+
 ## Sau khi sao chép thì làm gì
 
 1. Sửa `config.yaml`: `model`, `method`, `data.roles`, `prompt`, và `system_prompt` khi prompt dùng `{system_prompt}` (xem `experiment/README.md`).

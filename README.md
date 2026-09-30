@@ -280,40 +280,40 @@ SentimentX/
 │                                           # danh tính: cấu hình + prompt + ví dụ + dữ liệu + commit)
 ├── templates/                  # bản mẫu để tạo thí nghiệm mới (scripts/new_experiment.py dùng)
 ├── src/
-│   ├── paths.py                # API đường dẫn, đọc configs/paths.yaml
-│   ├── config.py               # quy ước KỸ THUẬT dùng chung: tên cột văn bản, mẫu nhận diện nhiễu, ngưỡng
-│   ├── utils.py                # hàm dùng chung: đọc/ghi CSV-JSON, chuẩn hoá văn bản, dựng bảng số
-│   ├── runtime.py              # máy đang chạy (colab/local), nạp biến môi trường, tìm thư mục Drive
-│   ├── repo.py                 # kéo ĐÚNG commit đã ghim rồi kiểm lại
-│   ├── notebooks.py            # đọc/ghi notebook và ô GHIM (dùng chung với scripts/pin.py)
-│   ├── experiments.py          # hợp nhất các tầng config + dấu vân tay cấu hình
-│   ├── model_config.py         # đọc config model
-│   ├── dataset.py              # đọc config dataset, đưa dữ liệu về dạng chuẩn nội bộ
-│   ├── versioning.py           # mã phiên bản dữ liệu, guard bất biến, đường dẫn theo phiên bản
-│   ├── preflight.py            # kiểm TRƯỚC khi chạy: dữ liệu, GPU, quyền ghi, NEW hay RESUME
-│   ├── experiment_run.py       # vòng chạy thí nghiệm đường PROMPT: plan() không cần GPU -> run()
-│   ├── encoder_run.py          # vòng chạy thí nghiệm đường ENCODER: huấn luyện LoRA rồi suy luận
-│   ├── resume.py               # dừng hay đi tiếp theo các khối predictions/part_*.jsonl
-│   ├── reports.py              # sinh bảng tổng hợp (5 nhóm)
-│   ├── checks.py               # các kiểm tra cấu trúc cho CI
-│   ├── runlog.py               # ghi run.log theo dòng, không đệm
-│   ├── prompts.py              # nạp + KIỂM TRA file prompt
+│   ├── api/                    # MẶT TIỀN cho ô notebook: hub + 5 vùng (core, workflow, experiments,
+│   │                           # reporting, tracking) - mỗi file vùng CHỈ re-export. Ô notebook chỉ
+│   │                           # được `from src.api import ...`, nên chuyển nhà một file trong src/
+│   │                           # không phải sửa notebook nào. Luật này có test chặn.
+│   ├── core/                   # nền chung: paths (API đường dẫn, đọc configs/paths.yaml), config,
+│   │                           # utils, runtime (máy đang chạy, env, tìm Drive, ngắt phiên Colab),
+│   │                           # repo (kéo đúng commit đã ghim), notebooks (đọc/ghi + ô GHIM),
+│   │                           # versioning, dataset, registry, runlog
+│   ├── workflow/               # dây nối một lượt chạy: bootstrap (chuẩn bị môi trường notebook),
+│   │                           # preflight (kiểm TRƯỚC khi chạy), resume, checks (CI), notebooks
+│   ├── experiments/            # định nghĩa + chạy: experiments (hợp nhất config), model_config,
+│   │                           # prompts, experiment_run (đường PROMPT), encoder_run (đường ENCODER)
 │   ├── labels/                 # bảng mã nhãn
 │   ├── loaders/                # đọc csv / jsonl / parquet (thêm định dạng mới ở đây)
-│   ├── registry.py             # đăng ký bước EDA / pipeline (điểm mở rộng)
-│   ├── reporting/              # result.py (file kết quả), charts.py (Plotly), render.py + templates/
+│   ├── reporting/              # reports.py (bảng tổng hợp 5 nhóm), result.py (file kết quả),
+│   │                           # charts.py (Plotly), render.py + templates/
 │   ├── eda/                    # 5 module EDA
 │   ├── pipeline/               # 7 bước pipeline
 │   ├── evaluation/             # chấm điểm: records, metrics, scorers/ (5 cách chấm)
 │   ├── training/               # huấn luyện: lora.py, encoders.py, checkpoints.py, savers/
 │   ├── tracking/               # ghi nhận: mlflow/DagsHub, local_json, run_meta.json
 │   └── preprocessing/          # input riêng cho từng model, bộ tách từ, đo input thật
-├── scripts/            # cửa vào dòng lệnh: pin.py (ghim commit vào notebook), new_experiment.py
-│                       # (tạo expNNN), collect_reports.py (bảng tổng hợp), ci_checks.py (kiểm tra
-│                       # cấu trúc), setup_java.ps1 + setup_vncorenlp.ps1 (cài đặt tái lập được)
+├── handover/           # SỔ bàn giao: files.csv (ứng viên hiện tại), ledger.csv (đã gửi gì),
+│                       # packages/<NNN>/manifest.csv (nội dung từng gói) + README.md (bản gửi kèm)
+│                       # - `handover/out/` chứa zip và KHÔNG vào git. Xem §9.
+├── scripts/            # CÔNG CỤ của nhóm: pin.py (ghim commit vào notebook), new_experiment.py
+│                       # (tạo expNNN), run_notebook.py (chạy notebook trên máy cá nhân),
+│                       # build_package.py (dựng gói bàn giao tăng dần), collect_reports.py
+│                       # (bảng tổng hợp), ci_checks.py (kiểm tra cấu trúc), clean.py (dọn rác),
+│                       # show_prompt.py, smoke_tracking.py, setup/ (3 file .ps1 cài đặt tái lập)
 ├── docs/               # tài liệu: README.md (mục lục) + 00_workflow/, 01_dataset/, 02_eda/,
 │                       # 03_pipeline/, 04_experiments/, 05_config/, 06_plan/
-├── tests/              # test chạy bằng `unittest`, không cần GPU
+├── tests/              # test `unittest`, không cần GPU, xếp GƯƠNG của src/: api/, core/, workflow/,
+│                       # experiments/, pipeline/, evaluation/, training/, reporting/
 ├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo) - cần --on raw|dataset
 ├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC --name + --version
 ├── run_token_stats.py  # đo input thật của từng tokenizer -> token_stats.csv - BẮT BUỘC --hash
@@ -323,6 +323,10 @@ SentimentX/
 ├── requirements-ci.txt     # CI: rất ngắn, vì CI không chạy model và không đọc dữ liệu
 └── requirements-colab.txt  # Colab: KHÔNG ghim torch (Colab đã có bản khớp CUDA)
 ```
+
+Năm file `run_*.py` và `build_report.py` ở gốc là **lệnh của người dùng**, không phải công cụ của
+nhóm: đường dẫn của chúng được ghi trong hàng chục tài liệu và trong câu thông báo khi thiếu dữ liệu,
+nên chúng ở lại gốc.
 
 ## 6. Quy ước về báo cáo
 
@@ -386,7 +390,7 @@ Bắt đầu từ **[docs/README.md](docs/README.md)** — có mục lục đầ
 
 | Nhóm tài liệu | Nội dung |
 |----------|----------|
-| [docs/00_workflow/](docs/00_workflow/) | Luồng làm việc, luật bắt buộc, CI, thuật ngữ, quy ước commit/code, **cách chạy trên Colab** |
+| [docs/00_workflow/](docs/00_workflow/) | Luồng làm việc, luật bắt buộc, CI, thuật ngữ, quy ước commit/code, **cách chạy trên Colab**, **các ô của notebook** |
 | [docs/01_dataset/](docs/01_dataset/) | Dữ liệu gốc: file, encoding, schema, ý nghĩa nhãn, cách thêm dataset mới |
 | [docs/02_eda/](docs/02_eda/) | EDA: luồng + công tắc đang áp dụng, cách tính từng chỉ số, chi tiết 5 module, quy ước báo cáo |
 | [docs/03_pipeline/](docs/03_pipeline/) | Pipeline: luồng 7 bước + cấu hình đang bật/tắt, chi tiết từng bước, cấu hình, bất biến, đầu ra |
@@ -396,6 +400,13 @@ Bắt đầu từ **[docs/README.md](docs/README.md)** — có mục lục đầ
 
 Mỗi nhóm có **một file luồng riêng** (`01_flow.md`) ghi luồng tổng quát, cấu hình
 đang bật/tắt và đường dẫn tới file chi tiết từng bước.
+
+Hai trang đọc riêng khi làm việc với notebook:
+
+- **[docs/00_workflow/10_template_notebook.md](docs/00_workflow/10_template_notebook.md)** - notebook có
+  những ô nào, luật thêm/sửa/xoá ô, và vì sao bản mẫu là **MẪU** chứ không phải chuẩn.
+- **[docs/00_workflow/07_colab.md](docs/00_workflow/07_colab.md)** - chạy trên Colab: Drive, env, thứ tự
+  bước, và phiên Colab tự ngắt khi nào.
 
 ## 9. Chạy một thí nghiệm và giao cho giảng viên
 
@@ -415,6 +426,22 @@ Giao cho giảng viên: dựng **thư mục Drive** gồm dữ liệu (gốc + �
 Allow** khi Colab hỏi quyền truy cập Drive - ô bootstrap tự mount Drive, tự tìm thư mục nhóm (bằng
 file đánh dấu, không cần biết tên), tự đặt gốc dữ liệu/kết quả và tự cài gói còn thiếu. Chi tiết:
 `docs/00_workflow/07_colab.md`.
+
+KHÔNG dựng thư mục đó bằng tay. Gói bàn giao do công cụ trong repo dựng, và gửi **TĂNG DẦN**:
+
+```bash
+python scripts/build_package.py --dry-run    # xem gói kế tiếp sẽ gồm những gì
+python scripts/build_package.py              # dựng gói, ghi sổ, nén zip vào handover/out/
+git add handover && git commit -m "chore(handover): package 002"
+```
+
+- Gói chỉ chứa file **mới** hoặc **đã đổi**; file y nguyên không gửi lại. Bốn lớp ghi trong
+  `handover/packages/<NNN>/manifest.csv`: `new` · `changed` · `kept` (không gửi) · `deleted` (người
+  nhận **xoá** đi). Bản `MANIFEST.csv` đi kèm trong zip.
+- Sổ nằm trong git (`handover/`), zip nằm ở `handover/out/` và **không** vào git.
+- Công cụ **dừng** nếu phát hiện nội dung của một **phiên bản dữ liệu đã gửi** bị đổi: người nhận đang
+  giữ cùng một mã phiên bản với nội dung khác, nên kết quả họ chạy không còn so được. Cách sửa đúng là
+  tạo phiên bản dữ liệu mới, không sửa tại chỗ.
 
 Xem kết quả: DagsHub xem ngay (không phải copy gì); muốn đưa vào git thì copy **phần nhẹ** từ Drive về
 (`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) rồi chạy

@@ -50,6 +50,9 @@ sẵn sàng dán.
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
 | Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
+| Dựng gói bàn giao tăng dần (chỉ file mới/đã đổi) | `python scripts/build_package.py` (xem trước: `--dry-run`; `--number NNN` để đặt số gói; `--allow-red` khi đã hiểu rõ cảnh báo đỏ; `--no-zip` khi chỉ muốn ghi sổ) |
+| Chạy một notebook trên máy cá nhân, không cần Jupyter | `python scripts/run_notebook.py <model>/<method>/<expNNN>` (dừng trước ô CHẠY: `--preflight-only`) |
+| Các ô của notebook: luật thêm/sửa/xoá, thứ tự, khối bảo vệ | `docs/00_workflow/10_template_notebook.md` (không phải cờ dòng lệnh, nhưng là thứ hay phải tra cùng trang này) |
 
 ## 3. Câu lệnh bị từ chối, và mã thoát
 
@@ -96,8 +99,12 @@ in **đích đã resolve** trước khi làm việc, và hai tool đo/kiểm cò
 - Một cờ một nghĩa. Tên dataset là `--name`; `--version` chỉ dùng cho phiên bản file cấu hình dataset
   (`run_pipeline.py`) và cho nhãn `raw_version` (khi có `--on raw`); phiên bản dữ liệu đã xử lý luôn
   là `--hash`.
-- Mã thoát: `0` xong, `1` hợp lệ nhưng chưa có kết quả (hoặc phép kiểm phát hiện lỗi), `2` câu lệnh
-  chưa rõ hoặc cú pháp không còn được nhận. Không để ngoại lệ thoát ra thành traceback.
+- Mã thoát: `0` xong, `1` hợp lệ nhưng chưa có kết quả (hoặc phép kiểm phát hiện lỗi, hoặc người dùng
+  trả lời KHÔNG khi công cụ hỏi), `2` câu lệnh chưa rõ hoặc cú pháp không còn được nhận. Không để ngoại
+  lệ thoát ra thành traceback.
+- `build_package.py` dùng thêm mã `3`: gói **không** được dựng vì phát hiện nội dung của một phiên bản
+  dữ liệu ĐÃ GỬI bị đổi (người nhận đang giữ cùng một mã phiên bản với nội dung khác). Đây không phải
+  lỗi cú pháp mà là việc phải sửa trước khi gửi.
 - Đổi cờ thì sửa đồng thời: trang này, docstring của tool, và `tests/workflow/test_cli.py`.
 - Không viết cứng đường dẫn trong chuỗi help: dựng từ `configs/paths.yaml` qua `src/core/paths.py`
   (`tests/core/test_paths.py` chặn).
