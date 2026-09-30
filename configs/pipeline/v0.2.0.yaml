@@ -1,0 +1,67 @@
+# Phiên bản 2 của cách xử lý dữ liệu: TẬP ĐÁNH GIÁ GIỮ NGUYÊN BẢN GỐC.
+#
+# File này BẤT BIẾN: nội dung của nó đi vào mã phiên bản dữ liệu, nên sửa tại chỗ sẽ làm hai
+# định nghĩa khác nhau mang cùng một nhãn và kết quả cũ không còn tra được. Muốn đổi thì tạo
+# file mới. Xem docs/05_config/02_pipeline.md.
+
+version: v0.2.0
+
+# Phiên bản trước đó; null nghĩa là bản đầu tiên.
+parent: v0.1.0
+
+notes: >
+  Khác v0.1.0 đúng MỘT điều: `test` KHÔNG bị sửa. `apply_to` của Clean và Normalize chỉ có
+  [train, val], nên test.csv bằng đúng dữ liệu gốc (1.623 dòng) - điều kiện để so được với công
+  bố tham chiếu, vì công bố cũng chấm trên tập test nguyên bản. Rò rỉ dữ liệu vì thế được xử lý
+  ở phía TẬP HỌC: luật `keep_priority: [test, val, train]` giữ bản ghi ở tập ưu tiên cao hơn và
+  loại khỏi các tập thấp hơn, nên test không bao giờ bị loại, và điểm của lượt học (LoRA) không
+  bị "phồng" vì model đã thấy trước câu hỏi. Train và val của bản này vì vậy khác v0.1.0 một chút.
+
+# Bật/tắt từng bước. true = có biến đổi, false = giữ nguyên.
+steps:
+  # Chỉ kiểm tra, không sửa dữ liệu.
+  validate:
+    check_schema: true
+    check_content: true
+
+  clean:
+    # PHẠM VI: chỉ hai tập này được SỬA. `test` không có tên ở đây, nên MỌI dòng của nó - kể cả
+    # dòng nhiễu - được giữ nguyên. Đây chính là khác biệt giữa v0.2.0 và v0.1.0.
+    apply_to: [train, val]
+    remove_empty: true
+    remove_gibberish: true
+    remove_ads: true
+    # Nhóm review dán từ nơi khác rất nhỏ (1 dòng trên 16.227) và luật đã viết chặt để
+    # không bắt oan câu văn bình thường.
+    remove_code: true
+    deduplicate:
+      exact: true
+      # Khoá so trùng bỏ dấu câu và gộp khoảng trắng, KHÔNG bỏ dấu tiếng Việt.
+      normalized: true
+      # Giữ false: dự án không bỏ dấu tiếng Việt ở bất kỳ chỗ nào, kể cả trong khoá so trùng.
+      ignore_diacritics: false
+      scope: within_split
+      # Cùng một review nhưng nhãn khác nhau: đưa tất cả ra khỏi tập để xem xét tay.
+      conflict_policy: quarantine
+    # Rò rỉ dữ liệu: luật MỚI (xem notes). KHÔNG khai `remove_eval_overlap` nữa - khai cả hai là
+    # lỗi cấu hình, vì hai luật loại ở hai phía khác nhau.
+    leakage:
+      keep_priority: [test, val, train]
+
+  normalize:
+    # Như Clean: văn bản của test giữ nguyên từng ký tự.
+    apply_to: [train, val]
+    # Giữ false: tokenizer phân biệt hoa thường nên giữ nguyên giúp model còn tín hiệu.
+    lowercase: false
+    unicode: true
+    whitespace: true
+    # Giữ false vì ký tự lặp mang thông tin cảm xúc, ví dụ "đẹppppp".
+    repeated_chars: false
+
+  transform:
+    # Pipeline chỉ xuất dạng này. Dạng JSONL cho model sinh được sinh khi cần từ bảng này.
+    format: multi_head
+
+# Ngưỡng dùng trong các bước.
+thresholds:
+  repeated_chars_max: 2

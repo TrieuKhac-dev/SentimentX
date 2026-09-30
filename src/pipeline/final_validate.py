@@ -16,6 +16,7 @@ Kiểm tra:
 """
 
 from src.core import config, dataset, utils
+from src.pipeline import editable_splits
 from src.pipeline.normalize import labels_signature, normalize_steps
 
 
@@ -104,7 +105,12 @@ def run(context):
     kept_positions = context.get("kept_positions") or {}
     ncfg = context["config"]["steps"]["normalize"]
     max_repeat = int(context["config"]["thresholds"]["repeated_chars_max"])
+    # Split nào ĐƯỢC chuẩn hoá (khoá `apply_to` của bước Normalize). Split không nằm trong danh
+    # sách phải bằng ĐÚNG bản gốc từng ký tự - bất biến mạnh hơn, và là điều kiện để so với công bố.
+    normalized = set(editable_splits("normalize", ncfg, splits))
+    protected = [name for name in splits if name not in normalized]
     compared = 0
+    identical = 0
     text_mismatches = []
     for name, df in splits.items():
         texts_now = df[config.TEXT_COLUMN].astype(str).tolist()
@@ -115,8 +121,12 @@ def run(context):
                 "{}: thiếu dữ liệu gốc để đối chiếu".format(name))
             continue
         for index, position in enumerate(positions):
-            expected, _ = normalize_steps(originals[position], ncfg, max_repeat)
-            compared += 1
+            if name in normalized:
+                expected, _ = normalize_steps(originals[position], ncfg, max_repeat)
+                compared += 1
+            else:
+                expected = originals[position]
+                identical += 1
             if expected != texts_now[index] and len(text_mismatches) < 5:
                 text_mismatches.append(
                     "{} dòng {}: {!r} != {!r}".format(
@@ -129,8 +139,9 @@ def run(context):
     else:
         checks.append([
             "Văn bản chỉ đổi hình thức", "ĐẠT",
-            "{} dòng khớp đúng dòng gốc sau chuẩn hoá (không mất dấu tiếng Việt)"
-            .format(compared),
+            "{} dòng khớp đúng dòng gốc sau chuẩn hoá (không mất dấu tiếng Việt); {} dòng thuộc {} "
+            "bằng ĐÚNG bản gốc, không bị sửa ký tự nào"
+            .format(compared, identical, ", ".join(protected) or "không split nào"),
         ])
 
 # ---

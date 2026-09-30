@@ -14,11 +14,16 @@ so trùng của bước Clean (`utils.dedup_key`) - khoá đó không bao giờ 
 RÀNG BUỘC QUAN TRỌNG (invariant):
 Bước này chỉ được sửa CỘT VĂN BẢN. Nhãn phải giữ nguyên tuyệt đối.
 Cuối bước có kiểm tra "dấu vân tay nhãn" trước và sau để chứng minh điều đó.
+
+PHẠM VI (khoá `steps.normalize.apply_to`): chỉ các split có tên trong đó được chuẩn hoá. v0.2.0
+để `test` ngoài danh sách, nên văn bản của tập đánh giá còn nguyên từng ký tự như dữ liệu gốc -
+điều kiện để so được với công bố. Bước Final Validate kiểm đúng điều đó.
 """
 
 import hashlib
 
 from src.core import config, utils
+from src.pipeline import editable_splits
 
 
 def labels_signature(splits, aspects):
@@ -93,6 +98,11 @@ def run(context):
     if ncfg["repeated_chars"]:
         method_labels.append("ký tự lặp")
 
+    # PHẠM VI: chỉ chuẩn hoá các split được phép sửa (xem docstring đầu file).
+    editable = editable_splits("normalize", ncfg, splits)
+    editable_set = set(editable)
+    protected = [name for name in splits if name not in editable_set]
+
     total = 0
     changed = 0
     samples = []
@@ -101,6 +111,13 @@ def run(context):
     changed_by_method = {label: {} for label in method_labels}
 
     for name, df in splits.items():
+        if name not in editable_set:
+            # Split này giữ nguyên bản gốc: vẫn ghi một dòng 0 thay đổi để bảng dưới nói rõ nó
+            # KHÔNG bị chuẩn hoá, thay vì im lặng biến mất khỏi bảng.
+            changed_per_split[name] = 0
+            for label in method_labels:
+                changed_by_method[label][name] = 0
+            continue
         texts = df[config.TEXT_COLUMN].astype(str).tolist()
         new_texts = []
         changed_here = 0
@@ -145,6 +162,8 @@ def run(context):
         ["repeated_chars (rút gọn ký tự lặp)", utils.on_off(ncfg["repeated_chars"])],
         ["repeated_chars_max (số lần ký tự được giữ lại)",
          max_repeat],
+        ["phạm vi được SỬA (apply_to)", ", ".join(editable)],
+        ["split giữ nguyên bản gốc (không chuẩn hoá)", ", ".join(protected) or "-"],
     ]
 
     # Biểu đồ chỉ vẽ các phép ĐANG BẬT, nên đổi config là biểu đồ đổi theo.
@@ -168,6 +187,7 @@ def run(context):
             {"label": "Số review bị thay đổi", "value": "{}".format(changed)},
             {"label": "Nhãn có bị bước này thay đổi?",
              "value": "Không" if labels_unchanged else "CÓ"},
+            {"label": "Split giữ nguyên bản gốc", "value": ", ".join(protected) or "không có"},
             {"label": "Số review thành rỗng sau chuẩn hoá", "value": len(empty_after)},
         ],
         "charts": [change_chart],
