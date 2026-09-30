@@ -107,6 +107,9 @@ Hai dấu vân tay, hai vai trò:
 | `rows`            | số bản ghi                                                                    | ghi chú (số đối chiếu nhanh)                                     |
 | `schema`          | công thức tính `records_sha256` (`versioning.RECORDS_LOCK_SCHEMA`)            | đổi công thức là bump số, không im lặng                          |
 
+> `eval_lock.<split>.sha256` là vân tay **canonical** (bỏ BOM, CRLF/CR → `\n`; `versioning.file_sha256`),
+> **không** phải sha256 của byte trên đĩa.
+
 Vì sao có HAI dấu vân tay thay vì chỉ byte: 25/09/2026 một lần đổi cách ghi CSV làm `test.csv` khác
 `sha256` (`e2558137…` -> `9ac701de…`) dù **1.518 bản ghi y nguyên** - khoá theo byte chặn nhầm một tập
 đánh giá không hề đổi. Ngược lại, chỉ có vân tay dữ liệu thì mất khả năng truy vết "file nào đã sinh ra
