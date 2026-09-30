@@ -96,3 +96,14 @@ việc THỦ CÔNG, không có bước nào tự làm hộ:
 - Gói zip nằm ở `handover/out/` và bị `.gitignore` chặn, nên token không đi lên git theo đường đó.
 - Việc cần làm khi kết thúc đồ án: đổi token trên DagsHub, rồi gửi gói mới (tệp env đổi nội dung nên
   thuộc lớp `changed`) - **việc này hiện chưa được nhắc tự động ở đâu**; ghi ở đây để không quên.
+
+**NỢ, đặt tên: Batch 7 - xoay token DagsHub.** Token đã đi vào tay người nhận theo hai đường: (1) tệp
+`env/.env.colab` trong mọi gói bàn giao đã gửi (tính đến 30/09/2026: gói `001`), và (2) chính tệp
+`.env.colab` của máy này nếu ai đó chép đi. Việc phải làm khi kết thúc đồ án, theo thứ tự:
+
+1. Tạo token mới trên DagsHub (tài khoản riêng, chỉ quyền trên repo này), thu hồi token cũ.
+2. Ghi token mới vào `.env.colab` ở máy, rồi dựng **gói mới**: tệp env đổi ⇒ lớp `changed` ⇒ người nhận
+   nhận đúng tệp mới mà không phải tải lại gì khác.
+3. Nhắc người nhận **giải nén đè** và không dùng lại bản env cũ.
+
+Batch 5b KHÔNG làm việc này (nó không tạo/xoay token, chỉ chép tệp có sẵn vào gói).

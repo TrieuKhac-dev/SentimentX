@@ -212,6 +212,51 @@ Rà lại `docs/06_plan/` so với code, rồi sửa những chỗ lệch. Commi
 | `log_config` giữ dòng hạt giống; `notes` là khoá hợp lệ của config thí nghiệm | `fix(experiments): log the seed from log_config and accept the notes key` |
 | Ghim một bản code cho cả sáu notebook (lần đó chỉ ghim được MỘT cái: cây làm việc bẩn nên năm lần sau bị từ chối) | `chore(experiments): pin one code revision into all six notebooks` |
 | Ghim CẢ SÁU notebook về bản code đã rà soát (`--allow-dirty`, vì lần ghim trước đã làm cây bẩn) | `chore(experiments): point all six notebooks at the reviewed revision` |
+
+## Bảng ánh xạ của hai lần chuyển nhà (Batch 5b)
+
+Luật A1 của đợt 5b: **mỗi lần chuyển có MỘT bảng ánh xạ, dán vào mô tả commit**. Hai commit chuyển nhà
+đã được đẩy lên remote trước khi bảng được viết, nên bảng nằm ở đây thay vì sửa lại lịch sử. Hai bảng
+dưới đây là bản đầy đủ, để người đọc tra ngược "file cũ giờ ở đâu".
+
+### 1. `src/` - `refactor(src): group the flat modules into core, workflow and experiments` (`c8b6860`)
+
+| Từ | Đến |
+| -- | --- |
+| `src/config.py`, `src/paths.py`, `src/utils.py`, `src/runlog.py`, `src/versioning.py`, `src/registry.py`, `src/dataset.py` | `src/core/` (giữ nguyên tên file) |
+| `src/repo.py`, `src/runtime.py`, `src/preflight.py`, `src/resume.py`, `src/checks.py`, `src/notebooks.py` | `src/workflow/` (giữ nguyên tên file) |
+| `src/experiments.py`, `src/model_config.py`, `src/prompts.py`, `src/experiment_run.py`, `src/encoder_run.py` | `src/experiments/` (giữ nguyên tên file) |
+| `src/reports.py` | `src/reporting/reports.py` |
+| - | `src/api/` (MỚI: hub + 5 vùng, chỉ re-export) |
+| - | `src/workflow/bootstrap.py` (MỚI: logic của ô bootstrap cũ) |
+
+Ở nguyên chỗ: `src/eda/`, `src/pipeline/`, `src/preprocessing/`, `src/evaluation/`, `src/loaders/`,
+`src/labels/`, `src/tracking/`, `src/training/`, `src/reporting/{render,charts,result}.py`, `scripts/*.py`,
+`run_*.py` (4) và `build_report.py`.
+
+Điểm chịu lực khi chuyển: `paths.ROOT_DIR` phải thành `parents[2]` (file nằm sâu thêm một cấp); mốc nhận
+diện repo trong ô bootstrap đổi từ `src/paths.py` sang `configs/paths.yaml` + `src/__init__.py`;
+`run_eda.py:225` (`"src.eda."`) và `run_pipeline.py:113` (`"src.pipeline."`) **không** đổi vì hai gói đó
+không chuyển nhà; `.gitignore` sửa câu chú thích `src/runtime.py` -> `src/workflow/runtime.py`.
+
+### 2. `tests/` - `refactor(tests): mirror the source layout in the test tree` (`847d602`)
+
+| Từ | Đến |
+| -- | --- |
+| `tests/test_paths.py`, `test_utils.py`, `test_runlog.py`, `test_versioning.py`, `test_dataset.py` | `tests/core/` |
+| `tests/test_repo.py`, `test_runtime.py`, `test_preflight.py`, `test_resume.py`, `test_pin.py`, `test_new_experiment.py`, `test_run_notebook.py`, `test_templates.py`, `test_checks.py`, `test_cli.py` | `tests/workflow/` |
+| `tests/test_experiments.py`, `test_experiment_run.py`, `test_model_config.py`, `test_prompts.py`, `test_token_stats.py` | `tests/experiments/` |
+| `tests/test_pipeline_export.py` | `tests/pipeline/` |
+| `tests/test_runner.py`, `test_parse.py`, `test_scorers.py`, `test_metrics.py` | `tests/evaluation/` |
+| `tests/test_training.py`, `test_tracking.py`, `test_run_meta.py` | `tests/training/` |
+| `tests/test_reports.py`, `test_build_report.py` | `tests/reporting/` |
+| - | `tests/api/test_api.py` (MỚI: 5 luật của mặt tiền) |
+
+Kèm theo: mỗi thư mục con có `__init__.py`, ba tệp dùng `Path(__file__).resolve().parents[1]` thành
+`parents[2]` (chúng nằm sâu thêm một cấp), lệnh CI **không** đổi (`python -m unittest discover -s tests`).
+Hai tệp test mới của 5b nằm ở `tests/workflow/`: `test_bootstrap.py`, `test_clean.py` (và
+`test_build_package.py` ở đợt bù).
+
 | Bảng `model_input` không đọc lại chính file nó ghi ra - nguồn của các cột trùng tên `file.1`, `file.2` | `fix(reports): read only the measurement tables, never the aggregate they feed` |
 
 21 commit của đợt trước viết tiếng Việt, không theo quy ước `type(scope): subject`. Chúng được giữ

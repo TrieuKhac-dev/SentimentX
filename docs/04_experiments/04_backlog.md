@@ -200,6 +200,39 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 
 ## 7. Mục duy nhất của đợt 27/09/2026 CHƯA làm: báo cáo HTML cho `token_stats`
 
+### 8.3. Việc PHƯƠNG PHÁP còn nợ (ghi 30/09/2026)
+
+| Việc | Trạng thái | Ghi chú |
+| ---- | ---------- | ------- |
+| **ViTASA** vào bảng so sánh cùng PhoBERT / ViSoBERT / Qwen3 | **GÁC LẠI** (mục 1 ở trên) | Repo `kh4nh12/ViTASA` chỉ có `LICENSE`, `README.md` và 3 tệp `.jsonl`: không có mã model, không checkpoint, không script huấn luyện; Hugging Face Hub cũng không có dataset/model nào tên `vitasa`. Chưa có gì chạy được thì viết code chỉ là SUY ĐOÁN. Làm tiếp khi có checkpoint: viết `src/preprocessing/vitasa.py` theo khung đã ghi sẵn trong docstring của nó, rồi thêm một dict vào `MODELS` của `src/preprocessing/token_stats.py` |
+| **8 tệp `token_stats__*.csv` thiếu dòng của `qwen3-0.6b`** | CHƯA LÀM (đo được, rẻ) | Trong `data/reports/model_input/cosmetics-…-e0ccc484/` có **9 tệp**, mỗi tệp là một tổ hợp (prompt × ví dụ × system × bộ tách từ). **8 tệp chỉ có 3 model** (`phobert-base-v2`, `qwen3-4b-instruct-2507`, `visobert`) - **thiếu `qwen3-0.6b`**; chỉ tệp `absa_direct_v1__seg-none.csv` có đủ 4 (12 dòng). Hệ quả: bảng "đo input thật" so sánh 4 model **chỉ đúng ở 1 tổ hợp**. Việc: chạy lại `run_token_stats.py` cho 8 tổ hợp còn thiếu (**CPU, không tốn GPU**), ghi lại CSV + sinh lại báo cáo |
+| **Thay thời gian chạy ƯỚC TÍNH bằng SỐ THẬT** | CHƯA LÀM (chờ Batch 6) | Ước tính hiện nằm ở `handover/README.md` (**12 dòng**, bảng 12 notebook), `docs/00_workflow/07_colab.md` (**5 chỗ**), và 1 chỗ mỗi tệp ở `docs/00_workflow/01_flow.md`, `docs/04_experiments/03_training_eval.md`, chính file này. Sau khi chạy lưới (Batch 6), lấy số giây thật trong `run_meta.json` của từng lượt và thay vào - người nhận dựa vào đó để chọn notebook cho vừa phiên Colab |
+
+### 8.4. Những điểm LỆCH so với kế hoạch, đã cân nhắc và chấp nhận
+
+| Điểm | Kế hoạch | Đã làm | Lý do |
+| ---- | -------- | ------ | ----- |
+| Migrate + ghim | cùng MỘT commit | **hai** commit liền nhau | Bản ghim chỉ được nêu một commit ĐÃ TỒN TẠI, và phải là commit có `src/` mà ô mới gọi; ghim vào commit trước thì notebook gọi `src.api` trong khi commit đó chưa có mặt tiền, còn `--amend` thì đổi chính sha vừa ghi |
+| Ngắt phiên ở đường kiểm-trước-dừng | trong `src/preflight.py` | trong **ô KIỂM TRƯỚC** (khối bảo vệ) | Thư viện chỉ TÍNH và trả báo cáo; việc IN báo cáo do ô gọi (`print_report`). Đặt việc ngắt trong thư viện thì phiên chết TRƯỚC khi báo cáo hiện ra - mất đúng thứ người đọc cần. Hiệu quả về quota như nhau, vì đường kiểm trước trên Colab chỉ có ô gọi |
+| Số hàm của `bootstrap` | 3 (`prepare`, `install_packages`, `model_assets`) | **4** (thêm `verify_checkout`) | Kiểm lại sha/nhánh là bước riêng, tách ra thì test được bằng điểm tiêm mà không phải chạy cả `prepare` |
+| Ô bootstrap sau khi dời logic | ~50 dòng | 109 dòng | 114 dòng đầu là khối KÉO CODE bắt buộc ở lại ô (chạy TRƯỚC khi có `src/`), phần còn lại là 4 lời gọi + khối bảo vệ. Đợt này dọn cho SẠCH (gộp câu lệnh, bỏ chú thích trùng), không nhắm con số |
+| Vùng mặt tiền `tracking` | xuất tên `base` và `run_meta` | xuất `run_meta` và **gói** `tracking` | E3 của kế hoạch yêu cầu ô cuối viết `from src.api import paths, tracking, utils`; muốn vậy phải có tên `tracking` trên mặt tiền. Ô cuối dùng `tracking.base.dagshub_config()` - đọc là "gói `tracking`, file `base`" |
+| Bắt lỗi trong `end_session` | chỉ `RuntimeManagementError`/`ImportError` | **`Exception`** | Hàm chạy ở CUỐI một lượt tốn hàng chục phút: ném ra là lượt chạy xong bị báo là hỏng, và trong đường lỗi thì nó che mất lỗi gốc. Thông báo in kèm tên lớp lỗi + nội dung, không nuốt im |
+| Số nhóm trong `tests/` | DoD ghi "7 nhóm" | **8 nhóm** | Bảng §I của kế hoạch liệt kê 8 (có `api/`); DoD ghi 7. Theo bảng §I, vì `tests/api/` là chỗ duy nhất giữ 5 luật mặt tiền |
+| Lược đồ sổ bàn giao | `files.csv` chứa cả băm lẫn first/last | **3 tệp** chia vai (`files.csv` = ứng viên hiện tại; `ledger.csv` = đã gửi; `manifest.csv` = nội dung một gói) | Một tệp vừa là "hiện tại" vừa là "luỹ kế" thì không nói được cái nào là sự thật khi chúng lệch nhau |
+| Cờ `--allow-red` | không có | **có** | Cảnh báo đỏ là chốt chặn, nhưng người đã hiểu rõ vẫn cần một đường thoát - và khi dùng thì cảnh báo được ghi vào manifest |
+
+### 8.5. Hai đường dừng KHÔNG ngắt được phiên (đã biết, có lý do)
+
+1. **Lỗi ở ô bootstrap TRƯỚC khi kéo được mã nguồn** (không `fetch` được commit; thư mục còn sót không
+   phải git repo). Lúc đó `src/` CHƯA tồn tại nên không gọi được hàm ngắt phiên. Phiên chỉ vừa mở, chưa
+   nạp model, và người chạy đang ngồi trước máy để Restart rồi chạy lại.
+2. **Người dùng bấm Stop** (`KeyboardInterrupt`): giữ phiên cho họ sửa rồi chạy lại.
+
+Ngoài hai đường đó, mọi ô code đều có khối bảo vệ và ngắt phiên sau khi in xong
+(`docs/00_workflow/10_template_notebook.md` mục 3.2).
+
+
 Mục "Báo cáo HTML cho tiền xử lý cho model" ở mục 5 nói **vẫn mở**, và lý do hoãn cũ không còn: số đo
 đã chốt (mục 4.1 và 4.1.1 của [02_model_input.md](02_model_input.md)) và mỗi bộ tách từ đã có file riêng.
 Việc cần làm, theo đúng đường có sẵn của dự án:

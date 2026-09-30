@@ -91,10 +91,21 @@ hình thí nghiệm chứ không chép tay, và gói zip nằm ở `handover/out
 toàn mới: đổi nội dung một file TRONG phiên bản dữ liệu đã gửi thì công cụ DỪNG (mã thoát 3) và chỉ
 đường tạo phiên bản dữ liệu mới - vì kết quả người nhận đã chạy không còn so được với lần chạy mới.
 
-*Việc còn lại của vòng bàn giao (đợt sau):* 12 notebook thí nghiệm vẫn ghim commit `a7ac72a` (bản code
-TRƯỚC Batch 5b). Đợt dựng lại sẽ: dựng lại các ô của cả 12 notebook theo bản mẫu mới (logic đã dời vào
-thư viện, ô nay mỏng) rồi ghim lại trong CÙNG một commit, sau đó dựng gói `001` làm gói gốc. Gói
-`a7ac72a` cũ và thư mục `_ban_giao/` bên ngoài repo sẽ bị xoá khi gói `001` đã được kiểm.
+*Đã xong trong Batch 5b (30/09/2026):* 12 notebook thí nghiệm đã được dựng lại theo bản mẫu mới (ô
+bootstrap mỏng, có khối bảo vệ ngắt phiên, sửa đường dẫn cũ) rồi ghim lại vào commit code mới
+`a7ba8fc`; gói `001` là gói GỐC của sổ bàn giao, và gói zip `a7ac72a` cũ cùng thư mục `_ban_giao/` bên
+ngoài repo đã bị xoá.
+
+**Việc còn lại của P7, đặt tên là đợt tiếp theo:**
+
+- **Batch 6 - chạy lưới để lấy KẾT QUẢ THẬT:** chạy lần lượt 12 notebook trên Colab, copy **5 tệp nhẹ**
+  (`run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`) từ Drive về repo,
+  chạy `python scripts/collect_reports.py`, rồi cập nhật số vào `docs/04_experiments/03_training_eval.md`
+  §6.3 và đối chiếu với `docs/04_experiments/reference_publication.md`. Đây cũng là **phép kiểm cuối**
+  cho đường Colab mà Batch 5b không chạy được ở máy cá nhân (điểm tiêm + câu in giữ nguyên chỉ thay
+  được một lượt chạy thật).
+- Sau Batch 6, thay cột "thời gian ước tính" bằng số giây thật (xem `docs/04_experiments/04_backlog.md`
+  §8.3).
 
 ## 3. Task nhỏ (mỗi task một commit)
 

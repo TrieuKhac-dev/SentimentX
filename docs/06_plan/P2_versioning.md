@@ -20,7 +20,7 @@ xong
 - [x] T2. `configs/datasets/cosmetics/v0.1.0.yaml` theo cấu trúc mới (`schema_version`, `name`,
       `version`, `sources`, `pipeline_version`, `format`, `splits`, `full`, `schema`, `aspect_policy`,
       `parent`, `notes`, `eval_lock`).
-- [x] T3. `src/core/versioning.py`: mã dạng `<name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>`;
+- [x] T3. `src/versioning.py`: mã dạng `<name>-ds<version>-pl<pipeline_version>-src<nguồn>@<phiên bản>-<hash8>`;
       bỏ tầng `versions/` và `manifest.json`; kết quả nằm ở `data/processed/<mã>/` (dataset +
       thư mục `pipeline/`); EDA ghi kết quả cạnh thứ nó đo; `processing_log.json` ghi đầy đủ dấu vết.
 - [x] T4. Guard bất biến: `versioning.guard_versions()` so `sha256` của file phiên bản với giá trị
@@ -28,7 +28,7 @@ xong
       Gọi ở `run_pipeline.py` và `run_eda.py`.
 - [x] T5. Bắt buộc `--version` ở `run_pipeline.py`; `run_eda.py` chọn nơi đo bằng `--raw-version`
       (đo dữ liệu gốc) hoặc `--version` (đo dataset đã xử lý).
-- [x] T6. Test cho mã phiên bản, guard, và đường dẫn kết quả (`tests/core/test_versioning.py`).
+- [x] T6. Test cho mã phiên bản, guard, và đường dẫn kết quả (`tests/test_versioning.py`).
 
 Ghi chú khi làm:
 
@@ -38,7 +38,7 @@ Ghi chú khi làm:
   gốc, và không ai trả lời được "tập đánh giá của bản v0 là tập nào". Nay số đo được ghi MỘT LẦN ngay
   trong lần chạy đã tạo ra `test.csv`, vào `data/processed/<mã>/eval_lock.json`
   (`versioning.write_eval_lock`); file phiên bản chỉ khai chính sách và (khi cần) giá trị mong đợi.
-  `src/reporting/reports.py` vốn đã đọc file này cho cột `eval_locked` - trước đây nó luôn rỗng vì chưa có chỗ
+  `src/reports.py` vốn đã đọc file này cho cột `eval_locked` - trước đây nó luôn rỗng vì chưa có chỗ
   ghi.
 - Kết quả sinh ra (`processing_log.json`, `report.html`, `pipeline_result.json`, `eval_lock.json`,
   kết quả EDA) hiện vẫn được commit; việc chọn nhóm report nào commit là việc của P6.

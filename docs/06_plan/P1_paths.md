@@ -5,7 +5,7 @@
 
 ## 1. Mục tiêu giai đoạn
 
-Mọi đường dẫn của dự án lấy từ một nguồn duy nhất là `configs/paths.yaml`, qua `src/core/paths.py`.
+Mọi đường dẫn của dự án lấy từ một nguồn duy nhất là `configs/paths.yaml`, qua `src/paths.py`.
 Đổi cấu trúc thư mục thì chỉ sửa một file cấu hình.
 
 ## 2. Trạng thái
@@ -15,16 +15,16 @@ xong
 ## 3. Task nhỏ (mỗi task một commit)
 
 - [x] T1. Thêm `configs/paths.yaml`: `roots`, `data`, `reports`, `configs`, `patterns`, `colab`, `canonical`.
-- [x] T2. Thêm `src/core/paths.py`: nạp một lần, cấp API `root()`, `data()`, `processed()`, `report()`,
+- [x] T2. Thêm `src/paths.py`: nạp một lần, cấp API `root()`, `data()`, `processed()`, `report()`,
       `experiment_dir()`, `results_dir()`, `pattern()`; hỗ trợ ghi đè bằng biến môi trường
       `SENTIMENTX_DATA_ROOT`, `SENTIMENTX_RESULTS_ROOT`.
-- [x] T3. Thêm `src/workflow/runtime.py`: `is_colab()`, biến `SENTIMENTX_ENV`, hàm nạp biến môi trường
+- [x] T3. Thêm `src/runtime.py`: `is_colab()`, biến `SENTIMENTX_ENV`, hàm nạp biến môi trường
       theo thứ tự Colab Secrets, `.env.colab`, `os.environ`, `.env`.
-- [x] T4. Chuyển `src/core/config.py`, `src/core/versioning.py`, `src/reporting/`, các `run_*.py` sang dùng
-      `src/core/paths.py`.
+- [x] T4. Chuyển `src/config.py`, `src/versioning.py`, `src/reporting/`, các `run_*.py` sang dùng
+      `src/paths.py`.
 - [x] T5. Bỏ khoá `raw_dir` trong config dataset; suy ra từ `paths.yaml` + `name` + `raw_version`.
       Kèm theo: dữ liệu gốc chuyển vào `data/raw/cosmetics/v0.1.0/` và thêm `raw_meta.yaml`.
-- [x] T6. Thêm test cho `src/core/paths.py`: đường dẫn mặc định, ghi đè bằng biến môi trường, và
+- [x] T6. Thêm test cho `src/paths.py`: đường dẫn mặc định, ghi đè bằng biến môi trường, và
       luật không còn đường dẫn viết cứng trong `src/` và các `run_*.py`.
 
 Ghi chú khi làm, khác kế hoạch ban đầu:
