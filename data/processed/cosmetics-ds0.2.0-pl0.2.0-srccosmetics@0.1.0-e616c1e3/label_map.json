@@ -1,0 +1,30 @@
+{
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+  "aspects": [
+    "stayingpower",
+    "texture",
+    "smell",
+    "price",
+    "colour",
+    "shipping",
+    "packing"
+  ],
+  "labels": [
+    "positive",
+    "negative",
+    "neutral"
+  ],
+  "label_to_id": {
+    "": 0,
+    "positive": 1,
+    "negative": 2,
+    "neutral": 3
+  },
+  "id_to_label": {
+    "0": "",
+    "1": "positive",
+    "2": "negative",
+    "3": "neutral"
+  }
+}

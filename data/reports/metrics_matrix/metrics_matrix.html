@@ -11,11 +11,13 @@ th{background:#f2f2f2}
 caption{text-align:left;font-weight:600;padding:6px 0}
 .scroll{overflow:auto;max-height:70vh}
 .empty{color:#a00}
+.note{background:#fffbe6;border:1px solid #e6d9a2;padding:8px 10px;max-width:900px}
 </style>
 </head>
 <body>
 <h1>metrics_matrix</h1>
 <p>Sinh tự động bằng <code>python scripts/collect_reports.py</code>. Số liệu đọc lại từ file của từng lượt chạy; sơ đồ quan hệ nằm ở <code>metrics_matrix.md</code>.</p>
+<p class="note">Cột công bố là cột của ĐÚNG mức ví dụ của từng lượt (lượt không có mức ví dụ dùng cột do <code>--reference-shot</code> chọn). Số của lượt chạy ở đây là <b>cơ sở đo <code>paper</code></b> - cách công bố đếm: chỉ giữ ô mà CẢ nhãn đúng VÀ nhãn đoán là positive/negative. Mẫu số vì thế nhỏ hơn cơ sở <code>all</code>; số ô bị loại nằm ở khoá <code>paper</code> trong <code>metrics.json</code> của từng lượt, và cơ sở <code>all</code> nằm ở khoá <code>scores</code>.</p>
 <div class="scroll"><table>
 <caption>accuracy_by_aspect.csv</caption>
 <tr><th>aspect</th><th>COT+0-shot</th></tr>

@@ -1,2 +1,3 @@
 ﻿dataset,version,build,parent,on_disk,splits,rows,eval_locked,aspects,raw_dir,config
 cosmetics,v0.1.0,cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484,sinh từ dữ liệu gốc,yes,"test=1518, train=12302, val=1524",15344,test,"stayingpower, texture, smell, price, colour, shipping, packing",data/raw/cosmetics/v0.1.0,configs/datasets/cosmetics/v0.1.0.yaml
+cosmetics,v0.2.0,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,v0.1.0,yes,"test=1623, train=12268, val=1535",15426,test,"stayingpower, texture, smell, price, colour, shipping, packing",data/raw/cosmetics/v0.1.0,configs/datasets/cosmetics/v0.2.0.yaml

@@ -1,0 +1,1073 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+  "title": "Báo cáo EDA - ABSA tiếng Việt",
+  "subtitle": "Khảo sát dữ liệu của dataset 'cosmetics'",
+  "generated_at": "01/10/2026 02:55",
+  "meta": [
+    "Dataset: cosmetics (phiên bản v0.2.0)",
+    "Pipeline dùng để tạo dataset: v0.2.0",
+    "Định dạng nguồn: csv",
+    "Cột văn bản trong file gốc: data",
+    "Số khía cạnh khai báo trong config: 7",
+    "Mã phiên bản: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+    "File gốc đã đọc: train.csv, val.csv, test.csv",
+    "Cột khía cạnh khai báo trong config nhưng thiếu ở file gốc: 0 (không file nào thiếu)",
+    "Thư mục số liệu chi tiết: data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda"
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "title": "EDA 01 - Tổng quan dữ liệu",
+      "cards": [
+        {
+          "label": "Số dòng (3 split)",
+          "value": "15426"
+        },
+        {
+          "label": "Số khía cạnh",
+          "value": 7
+        },
+        {
+          "label": "Train / Val / Test",
+          "value": "12268/1535/1623"
+        }
+      ],
+      "charts": [
+        {
+          "title": "Phân bố độ dài review theo khoảng (%)",
+          "kind": "grouped_bar",
+          "x": [
+            "0-50",
+            "51-100",
+            "101-200",
+            "201-400",
+            "401-800",
+            "trên 800"
+          ],
+          "series": {
+            "train": [
+              2.64,
+              65.27,
+              26.26,
+              5.8,
+              0.03,
+              0.0
+            ],
+            "val": [
+              1.63,
+              67.56,
+              26.19,
+              4.63,
+              0.0,
+              0.0
+            ],
+            "test": [
+              3.39,
+              63.71,
+              24.89,
+              8.01,
+              0.0,
+              0.0
+            ]
+          },
+          "x_label": "số ký tự",
+          "y_label": "tỉ lệ %"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Cấu trúc các file dữ liệu",
+          "columns": [
+            "split",
+            "tệp gốc",
+            "số dòng",
+            "số cột",
+            "cột văn bản",
+            "số cột khía cạnh",
+            "cột khía cạnh bị thiếu"
+          ],
+          "rows": [
+            [
+              "train",
+              "train.csv",
+              12268,
+              8,
+              "data",
+              7,
+              "-"
+            ],
+            [
+              "val",
+              "val.csv",
+              1535,
+              8,
+              "data",
+              7,
+              "-"
+            ],
+            [
+              "test",
+              "test.csv",
+              1623,
+              8,
+              "data",
+              7,
+              "-"
+            ]
+          ],
+          "num_columns": [
+            2,
+            3,
+            4,
+            5
+          ],
+          "first": true
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/01_overview_structure.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/01_overview_empty.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/01_overview_length.csv"
+      ]
+    },
+    {
+      "id": "label_aspect",
+      "title": "EDA 02 - Nhãn và khía cạnh",
+      "cards": [
+        {
+          "label": "Số khía cạnh",
+          "value": 7
+        },
+        {
+          "label": "Số dòng không có nhãn khía cạnh nào (3 split)",
+          "value": "2207"
+        },
+        {
+          "label": "Số nhãn không hợp lệ (3 split)",
+          "value": 0
+        }
+      ],
+      "charts": [
+        {
+          "title": "Phân bố nhãn trong số review có nhắc khía cạnh - mỗi split một khung (%)",
+          "kind": "stacked_grid",
+          "barnorm": "percent",
+          "x": [
+            "stayingpower",
+            "texture",
+            "smell",
+            "price",
+            "colour",
+            "shipping",
+            "packing"
+          ],
+          "series_order": [
+            "positive",
+            "negative",
+            "neutral"
+          ],
+          "facets": [
+            {
+              "title": "train",
+              "series": {
+                "positive": [
+                  1232,
+                  2872,
+                  1845,
+                  2581,
+                  5027,
+                  2698,
+                  2292
+                ],
+                "negative": [
+                  753,
+                  635,
+                  339,
+                  15,
+                  555,
+                  1327,
+                  85
+                ],
+                "neutral": [
+                  246,
+                  427,
+                  101,
+                  21,
+                  438,
+                  280,
+                  15
+                ]
+              }
+            },
+            {
+              "title": "val",
+              "series": {
+                "positive": [
+                  141,
+                  317,
+                  237,
+                  318,
+                  647,
+                  353,
+                  298
+                ],
+                "negative": [
+                  90,
+                  77,
+                  52,
+                  0,
+                  53,
+                  188,
+                  6
+                ],
+                "neutral": [
+                  31,
+                  53,
+                  13,
+                  4,
+                  53,
+                  36,
+                  1
+                ]
+              }
+            },
+            {
+              "title": "test",
+              "series": {
+                "positive": [
+                  141,
+                  346,
+                  252,
+                  321,
+                  622,
+                  334,
+                  282
+                ],
+                "negative": [
+                  96,
+                  83,
+                  48,
+                  6,
+                  54,
+                  174,
+                  10
+                ],
+                "neutral": [
+                  40,
+                  64,
+                  16,
+                  1,
+                  51,
+                  26,
+                  2
+                ]
+              }
+            }
+          ],
+          "y_label": "tỉ lệ % số review nhắc khía cạnh đó",
+          "height": 470
+        },
+        {
+          "title": "Tỉ lệ review nhắc tới từng khía cạnh theo split (%)",
+          "kind": "grouped_bar",
+          "x": [
+            "stayingpower",
+            "texture",
+            "smell",
+            "price",
+            "colour",
+            "shipping",
+            "packing"
+          ],
+          "series": {
+            "train": [
+              18.19,
+              32.07,
+              18.63,
+              21.33,
+              49.07,
+              35.09,
+              19.5
+            ],
+            "val": [
+              17.07,
+              29.12,
+              19.67,
+              20.98,
+              49.06,
+              37.59,
+              19.87
+            ],
+            "test": [
+              17.07,
+              30.38,
+              19.47,
+              20.21,
+              44.79,
+              32.9,
+              18.11
+            ]
+          },
+          "y_label": "tỉ lệ % số review của split"
+        },
+        {
+          "title": "Số khía cạnh được nhắc trong một review - chỉ tính review có nhắc ít nhất 1 khía cạnh (%)",
+          "kind": "grouped_bar",
+          "x": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7"
+          ],
+          "series": {
+            "train": [
+              27.25,
+              35.68,
+              25.06,
+              9.33,
+              2.3,
+              0.34,
+              0.04
+            ],
+            "val": [
+              29.31,
+              33.88,
+              24.74,
+              9.67,
+              1.87,
+              0.52,
+              0.0
+            ],
+            "test": [
+              26.77,
+              35.7,
+              25.32,
+              9.38,
+              2.21,
+              0.53,
+              0.08
+            ]
+          },
+          "x_label": "số khía cạnh được nhắc",
+          "y_label": "tỉ lệ % số review có nhãn khía cạnh"
+        },
+        {
+          "title": "Số review nhắc tới cả hai khía cạnh (3 split)",
+          "kind": "heatmap",
+          "x": [
+            "stayingpower",
+            "texture",
+            "smell",
+            "price",
+            "colour",
+            "shipping",
+            "packing"
+          ],
+          "y": [
+            "stayingpower",
+            "texture",
+            "smell",
+            "price",
+            "colour",
+            "shipping",
+            "packing"
+          ],
+          "z": [
+            [
+              2770,
+              1763,
+              662,
+              636,
+              1724,
+              773,
+              340
+            ],
+            [
+              1763,
+              4874,
+              1361,
+              1193,
+              2943,
+              1345,
+              661
+            ],
+            [
+              662,
+              1361,
+              2903,
+              686,
+              1746,
+              903,
+              455
+            ],
+            [
+              636,
+              1193,
+              686,
+              3267,
+              1678,
+              1122,
+              502
+            ],
+            [
+              1724,
+              2943,
+              1746,
+              1678,
+              7500,
+              2415,
+              1231
+            ],
+            [
+              773,
+              1345,
+              903,
+              1122,
+              2415,
+              5416,
+              1749
+            ],
+            [
+              340,
+              661,
+              455,
+              502,
+              1231,
+              1749,
+              2991
+            ]
+          ],
+          "height": 460
+        }
+      ],
+      "tables": [],
+      "files": [
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/02_label_aspect_distribution.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/02_label_aspect_per_review.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/02_label_aspect_cooccurrence.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/02_label_aspect_invalid.csv"
+      ]
+    },
+    {
+      "id": "quality_noise",
+      "title": "EDA 03 - Chất lượng dữ liệu và nhiễu",
+      "cards": [
+        {
+          "label": "Số chỉ số chất lượng đang đo",
+          "value": 9
+        },
+        {
+          "label": "Emoji khác nhau (3 split)",
+          "value": 334
+        },
+        {
+          "label": "Từ bị gắn cờ xuất hiện từ 3 lần (3 split)",
+          "value": 350
+        }
+      ],
+      "charts": [
+        {
+          "title": "Emoji phổ biến nhất (3 split)",
+          "kind": "bar",
+          "x": [
+            "❤",
+            "🥰",
+            "😍",
+            "👍",
+            "😘",
+            "😊",
+            "😁",
+            "♥",
+            "👌",
+            "💯",
+            "😂",
+            "👍🏻",
+            "🤣",
+            "🥲",
+            "🤩",
+            "😚",
+            "☺",
+            "🤗",
+            "😗",
+            "😀"
+          ],
+          "y": [
+            2172,
+            1699,
+            1209,
+            756,
+            556,
+            289,
+            238,
+            237,
+            219,
+            217,
+            204,
+            186,
+            182,
+            175,
+            165,
+            154,
+            140,
+            129,
+            118,
+            113
+          ],
+          "x_label": "emoji",
+          "y_label": "số lần xuất hiện",
+          "orientation": "h"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Chỉ số chất lượng theo split",
+          "columns": [
+            "chỉ số",
+            "train",
+            "val",
+            "test",
+            "tổng 3 split"
+          ],
+          "rows": [
+            [
+              "review rỗng",
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              "trùng chính xác",
+              0,
+              0,
+              15,
+              15
+            ],
+            [
+              "trùng theo khoá so trùng",
+              0,
+              0,
+              20,
+              20
+            ],
+            [
+              "ứng viên gibberish",
+              0,
+              0,
+              60,
+              60
+            ],
+            [
+              "có emoji",
+              1877,
+              227,
+              222,
+              2326
+            ],
+            [
+              "chỉ emoji / dấu câu",
+              0,
+              0,
+              3,
+              3
+            ],
+            [
+              "có ký tự lặp",
+              3331,
+              419,
+              461,
+              4211
+            ],
+            [
+              "có dấu hiệu quảng cáo",
+              0,
+              0,
+              8,
+              8
+            ],
+            [
+              "có dấu hiệu code / HTML",
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "num_columns": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "title": "Top 20 từ bị gắn cờ teencode / từ lạ, xuất hiện từ 3 lần (3 split)",
+          "columns": [
+            "từ",
+            "số lần",
+            "lí do bị gắn cờ"
+          ],
+          "rows": [
+            [
+              "k",
+              1496,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "mn",
+              914,
+              "không có nguyên âm"
+            ],
+            [
+              "đc",
+              726,
+              "không có nguyên âm"
+            ],
+            [
+              "mng",
+              365,
+              "không có nguyên âm"
+            ],
+            [
+              "sp",
+              362,
+              "không có nguyên âm"
+            ],
+            [
+              "kh",
+              315,
+              "không có nguyên âm"
+            ],
+            [
+              "r",
+              298,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "vs",
+              272,
+              "không có nguyên âm"
+            ],
+            [
+              "cx",
+              188,
+              "không có nguyên âm"
+            ],
+            [
+              "mk",
+              164,
+              "không có nguyên âm"
+            ],
+            [
+              "dc",
+              148,
+              "không có nguyên âm"
+            ],
+            [
+              "n",
+              131,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "j",
+              122,
+              "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z) + một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "m",
+              116,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "v",
+              107,
+              "một ký tự phụ âm + không có nguyên âm"
+            ],
+            [
+              "ncl",
+              98,
+              "không có nguyên âm"
+            ],
+            [
+              "ng",
+              97,
+              "không có nguyên âm"
+            ],
+            [
+              "review",
+              95,
+              "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)"
+            ],
+            [
+              "trc",
+              82,
+              "không có nguyên âm"
+            ],
+            [
+              "d",
+              80,
+              "một ký tự phụ âm + không có nguyên âm"
+            ]
+          ],
+          "num_columns": [
+            1
+          ]
+        },
+        {
+          "title": "Các quy tắc gắn cờ và quy mô mỗi quy tắc (3 split)",
+          "columns": [
+            "lí do bị gắn cờ",
+            "số từ khác nhau",
+            "tổng số lần xuất hiện"
+          ],
+          "rows": [
+            [
+              "chữ không phải chữ Latin (ký tự trang trí / tiếng nước ngoài)",
+              161,
+              218
+            ],
+            [
+              "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)",
+              2143,
+              3061
+            ],
+            [
+              "trộn chữ và số",
+              469,
+              1143
+            ],
+            [
+              "một ký tự phụ âm",
+              20,
+              2804
+            ],
+            [
+              "không có nguyên âm",
+              1436,
+              10171
+            ]
+          ],
+          "num_columns": [
+            1,
+            2
+          ]
+        },
+        {
+          "title": "Ví dụ minh hoạ theo nhóm nhiễu (mỗi split 1 ví dụ, lấy ngẫu nhiên)",
+          "columns": [
+            "nhóm nhiễu",
+            "split",
+            "dòng trong file",
+            "ví dụ"
+          ],
+          "rows": [
+            [
+              "ứng viên gibberish",
+              "test",
+              110,
+              "Đẹppppoopooooooooooooooooooooooooooooooppppppppppp"
+            ],
+            [
+              "chỉ emoji / dấu câu",
+              "test",
+              965,
+              ".................................................."
+            ],
+            [
+              "có ký tự lặp",
+              "train",
+              2843,
+              "son ok , giao hơi lâu tí , đánh hơi nặng môi, mgg rồi hoàn xu các thứ còn 70k 2 thỏiiiiiiiiiii"
+            ],
+            [
+              "có ký tự lặp",
+              "val",
+              869,
+              "Thề luon là giao hàng lâu vch, nhưng mà chất lượng sản phẩm tuyệt vời, mua 2 thỏi được tặng một mascara iuuu quá hjhh."
+            ],
+            [
+              "có ký tự lặp",
+              "test",
+              408,
+              "Gói hàng chắc chắn, xinhhh. Mỗi tội màu xấu =)) Hồng sẫm"
+            ],
+            [
+              "có dấu hiệu quảng cáo",
+              "test",
+              546,
+              "Từ hôm nay 15/12/2021. Tất cả các sim viettel đang dùng gói v200c, v120c, v120 \r\n📌Đăng kí 6 tháng tặng thêm 2 tháng\r\n📌Đă"
+            ]
+          ],
+          "num_columns": [
+            2
+          ],
+          "narrow_columns": [
+            2
+          ],
+          "pre_wrap_columns": [
+            3
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_metrics.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_teencode_candidates.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_teencode_common_flagged.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_emoji.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_examples.csv"
+      ]
+    },
+    {
+      "id": "text_analysis",
+      "title": "EDA 04 - Đặc điểm văn bản",
+      "cards": [
+        {
+          "label": "Số từ vựng (số từ khác nhau) - train / val / test",
+          "value": "9304 / 2615 / 2984"
+        },
+        {
+          "label": "Số từ / review (đếm từ, không phải subword) - train / val / test",
+          "value": "21.5 / 20.99 / 21.31"
+        },
+        {
+          "label": "Số dòng không có chữ cái (3 split)",
+          "value": "6"
+        }
+      ],
+      "charts": [
+        {
+          "title": "25 từ xuất hiện nhiều nhất, không tính các từ phổ biến như 'và', 'là', 'của' (3 split)",
+          "kind": "bar",
+          "x": [
+            "son",
+            "màu",
+            "đẹp",
+            "hàng",
+            "chất",
+            "giao",
+            "mua",
+            "lắm",
+            "nhanh",
+            "shop",
+            "xinh",
+            "gói",
+            "hơi",
+            "môi",
+            "nha",
+            "đóng",
+            "giá",
+            "mùi",
+            "thơm",
+            "lâu",
+            "luôn",
+            "sản",
+            "mịn",
+            "phẩm",
+            "ạ"
+          ],
+          "y": [
+            11807,
+            10598,
+            7266,
+            6709,
+            4998,
+            4836,
+            4487,
+            4141,
+            3379,
+            2964,
+            2941,
+            2932,
+            2887,
+            2716,
+            2625,
+            2534,
+            2344,
+            2258,
+            2248,
+            2145,
+            2097,
+            2071,
+            2069,
+            2036,
+            2014
+          ],
+          "x_label": "từ",
+          "y_label": "số lần xuất hiện",
+          "orientation": "h"
+        },
+        {
+          "title": "Review viết có dấu / không dấu, theo split (số review và tỉ lệ %)",
+          "kind": "stacked_bar",
+          "barnorm": "percent",
+          "label_mode": "count_and_percent",
+          "x": [
+            "train",
+            "val",
+            "test"
+          ],
+          "series": {
+            "Có dấu tiếng Việt": [
+              12151,
+              1525,
+              1556
+            ],
+            "Viết không dấu": [
+              115,
+              9,
+              64
+            ],
+            "Không có chữ cái (emoji / số / ký hiệu)": [
+              2,
+              1,
+              3
+            ]
+          },
+          "y_label": "tỉ lệ % số review",
+          "height": 430
+        }
+      ],
+      "tables": [
+        {
+          "title": "5 cụm 2 từ hay gặp nhất trong các review có nhắc từng khía cạnh (3 split)",
+          "columns": [
+            "khía cạnh",
+            "số review nhắc khía cạnh (3 split)",
+            "5 cụm 2 từ hay gặp nhất"
+          ],
+          "rows": [
+            [
+              "stayingpower",
+              2770,
+              "bền màu (972), độ bền (933), kết cấu (819), công dụng (787), giao hàng (487)"
+            ],
+            [
+              "texture",
+              4874,
+              "chất son (1712), bền màu (862), kết cấu (850), độ bền (843), giao hàng (811)"
+            ],
+            [
+              "smell",
+              2903,
+              "mùi thơm (634), giao hàng (555), chất son (517), màu đẹp (429), có mùi (414)"
+            ],
+            [
+              "price",
+              3267,
+              "giao hàng (650), chất lượng (570), với giá (538), nên mua (511), chất son (446)"
+            ],
+            [
+              "colour",
+              7500,
+              "màu đẹp (1615), giao hàng (1486), màu son (1212), lên màu (1193), chất son (1101)"
+            ],
+            [
+              "shipping",
+              5416,
+              "giao hàng (3340), hàng nhanh (1665), đóng gói (1419), hơi lâu (1003), sản phẩm (945)"
+            ],
+            [
+              "packing",
+              2991,
+              "đóng gói (2286), giao hàng (1235), cẩn thận (1223), sản phẩm (862), hàng nhanh (754)"
+            ]
+          ],
+          "num_columns": [
+            1
+          ],
+          "narrow_columns": [
+            1
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/04_text_vocabulary.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/04_text_top_words.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/04_text_bigrams_by_aspect.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/04_text_punctuation.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/04_text_accent.csv"
+      ]
+    },
+    {
+      "id": "split_leakage",
+      "title": "EDA 05 - Quan hệ giữa các split và rò rỉ dữ liệu",
+      "cards": [
+        {
+          "label": "Số dòng val/test trùng train - chính xác",
+          "value": "0"
+        },
+        {
+          "label": "Số dòng val/test trùng train - theo khoá so trùng",
+          "value": "0"
+        },
+        {
+          "label": "Số review bị xung đột nhãn giữa các split",
+          "value": "0"
+        },
+        {
+          "label": "Số ô nhãn (review × khía cạnh) bị xung đột",
+          "value": "0"
+        }
+      ],
+      "charts": [
+        {
+          "title": "Số văn bản xuất hiện ở CẢ HAI split của cặp (một văn bản có thể bị đếm ở nhiều cặp)",
+          "kind": "grouped_bar",
+          "x": [
+            "train <-> val",
+            "train <-> test",
+            "val <-> test"
+          ],
+          "series": {
+            "trùng chính xác": [
+              0,
+              0,
+              0
+            ],
+            "trùng theo khoá so trùng": [
+              0,
+              0,
+              0
+            ]
+          },
+          "x_label": "cặp split",
+          "y_label": "số văn bản"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Xung đột nhãn giữa các split - toàn bộ 0 ô nhãn (review × khía cạnh) bị xung đột",
+          "columns": [
+            "văn bản",
+            "khía cạnh",
+            "train",
+            "val",
+            "test"
+          ],
+          "rows": [],
+          "narrow_columns": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "pre_wrap_columns": [
+            0
+          ]
+        }
+      ],
+      "files": [
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/05_split_duplicates.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/05_split_label_conflict.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/05_split_label_distribution.csv",
+        "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/05_split_duplicate_totals.csv"
+      ]
+    }
+  ]
+}

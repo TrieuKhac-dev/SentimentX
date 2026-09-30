@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+  "dataset": {
+    "name": "cosmetics",
+    "version": "v0.2.0",
+    "config": "configs/datasets/cosmetics/v0.2.0.yaml",
+    "config_sha256": "a5cae2b8936b4e7f680a2871426a0889a8f0c104e268c8e248c891738ed587f8",
+    "sources": [
+      {
+        "kind": "raw",
+        "name": "cosmetics",
+        "version": "v0.1.0",
+        "dir": "data/raw/cosmetics/v0.1.0",
+        "files": [
+          {
+            "name": "data_train.csv",
+            "sha256": "53486079c41a902e2de87bac98da1ae68cd9d5881685bfa59391c5a3e0037944"
+          },
+          {
+            "name": "data_val.csv",
+            "sha256": "6d8c959fb7c44b5ad08bc9c19e48d641474ac9480b857dcea3ececd8d00dd1f7"
+          },
+          {
+            "name": "data_test.csv",
+            "sha256": "4c6157503647c7d2df0a03f57d3fd4a1b1d9b5f69cb59706a472891317b0fbdf"
+          },
+          {
+            "name": "full_data.csv",
+            "sha256": "edaa772264be7ce4804027e2f159380a0546f7ffa0bf879d5b46effbc59eb5ca"
+          }
+        ]
+      }
+    ]
+  },
+  "pipeline": {
+    "version": "v0.2.0",
+    "config": "configs/pipeline/v0.2.0.yaml",
+    "config_sha256": "b7f6e8fc55cdaa234f71b0c0b5b1530a7d021756347516ca4f209984fa2d1da9",
+    "settings": {
+      "version": "v0.2.0",
+      "parent": "v0.1.0",
+      "notes": "Khác v0.1.0 đúng MỘT điều: `test` KHÔNG bị sửa. `apply_to` của Clean và Normalize chỉ có [train, val], nên test.csv bằng đúng dữ liệu gốc (1.623 dòng) - điều kiện để so được với công bố tham chiếu, vì công bố cũng chấm trên tập test nguyên bản. Rò rỉ dữ liệu vì thế được xử lý ở phía TẬP HỌC: luật `keep_priority: [test, val, train]` giữ bản ghi ở tập ưu tiên cao hơn và loại khỏi các tập thấp hơn, nên test không bao giờ bị loại, và điểm của lượt học (LoRA) không bị \"phồng\" vì model đã thấy trước câu hỏi. Train và val của bản này vì vậy khác v0.1.0 một chút.\n",
+      "steps": {
+        "validate": {
+          "check_schema": true,
+          "check_content": true
+        },
+        "clean": {
+          "apply_to": [
+            "train",
+            "val"
+          ],
+          "remove_empty": true,
+          "remove_gibberish": true,
+          "remove_ads": true,
+          "remove_code": true,
+          "deduplicate": {
+            "exact": true,
+            "normalized": true,
+            "ignore_diacritics": false,
+            "scope": "within_split",
+            "conflict_policy": "quarantine"
+          },
+          "leakage": {
+            "keep_priority": [
+              "test",
+              "val",
+              "train"
+            ]
+          }
+        },
+        "normalize": {
+          "apply_to": [
+            "train",
+            "val"
+          ],
+          "lowercase": false,
+          "unicode": true,
+          "whitespace": true,
+          "repeated_chars": false
+        },
+        "transform": {
+          "format": "multi_head"
+        }
+      },
+      "thresholds": {
+        "repeated_chars_max": 2
+      }
+    }
+  },
+  "record_counts": {
+    "before": {
+      "train": 12981,
+      "val": 1623,
+      "test": 1623
+    },
+    "after": {
+      "train": 12268,
+      "val": 1535,
+      "test": 1623
+    },
+    "removed_total": 801
+  },
+  "number_of_validation_issues": 0,
+  "number_of_json_records": 13219,
+  "outputs": [
+    "train.csv",
+    "val.csv",
+    "test.csv",
+    "label_map.json"
+  ],
+  "eval_lock": {
+    "enforce": true,
+    "declared_sha256": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38",
+    "declared_records_sha256": null,
+    "measured": {
+      "schema": 1,
+      "file": "test.csv",
+      "sha256": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38",
+      "records_sha256": "73d39d84536b14e35c07bc2012e8059ee9867165629b029ed24bddcf3eda3cb6",
+      "rows": 1623
+    },
+    "match": true,
+    "lock_file": "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eval_lock.json",
+    "written": true
+  }
+}

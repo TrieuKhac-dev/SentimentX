@@ -1,0 +1,19 @@
+﻿nhóm nhiễu,split,dòng trong file,ví dụ
+ứng viên gibberish,test,110,Đẹppppoopooooooooooooooooooooooooooooooppppppppppp
+ứng viên gibberish,test,477,Đỉnhkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+ứng viên gibberish,test,1442,gggggggggggfdddddsssssssssssgfdsssssssssssssssssss
+chỉ emoji / dấu câu,test,965,..................................................
+chỉ emoji / dấu câu,test,995,"............................,......................."
+chỉ emoji / dấu câu,test,1329,"…………………………………….,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+có ký tự lặp,train,2843,"son ok , giao hơi lâu tí , đánh hơi nặng môi, mgg rồi hoàn xu các thứ còn 70k 2 thỏiiiiiiiiiii"
+có ký tự lặp,train,4168,"Shop giao hàng nhanh, đóng gói cẩn thận. Mình thấy son đánh lên hơi khô môi, nhưng lên màu đẹp, rất đáng tiềnnnn"
+có ký tự lặp,train,4198,Son chất lượng lắm nhaaa\n( Vid mình quay bị khác màu so với thực tế ạ ) = )))) ưng ýyyy
+có ký tự lặp,val,869,"Thề luon là giao hàng lâu vch, nhưng mà chất lượng sản phẩm tuyệt vời, mua 2 thỏi được tặng một mascara iuuu quá hjhh."
+có ký tự lặp,val,1104,Màu không giống hình nhưng đc cái chất son rất mịn\nNói chung duyệt ✔\nGiá siu rẻ mà chất lượng như vậy là oki lắm luôn 👌👌
+có ký tự lặp,val,1251,Chuẩn bị hàng nhanh nhưng do giao qte nên lâu. Giá thành rẻ 👍👍👍👍👍
+có ký tự lặp,test,408,"Gói hàng chắc chắn, xinhhh. Mỗi tội màu xấu =)) Hồng sẫm"
+có ký tự lặp,test,518,"ảnh chỉ mang tính chất nhận xu. Spham giao khá nhanh shipper thân thiện, màu lên chuẩn như hình nói chung là ổn tốtttttt"
+có ký tự lặp,test,1073,Xinh lắm mn ơi\nHuhuhu\nXịn mịn\nSang\nNói chung là đáng mu\nSăn dc sale còn có 129k\nĐỉnhhhhhhh
+có dấu hiệu quảng cáo,test,546,"Từ hôm nay 15/12/2021. Tất cả các sim viettel đang dùng gói v200c, v120c, v120 \n📌Đăng kí 6 tháng tặng thêm 2 tháng\n📌Đă"
+có dấu hiệu quảng cáo,test,563,"Màu khá ổn, [TB] CHUNG TAY CHONG DICH VA CHIA SE KHO KHAN voi Khach hang bi anh huong boi Covid-19, Viettel kinh tang Qu"
+có dấu hiệu quảng cáo,test,614,"Công dụng: màu lên chuẩn, khá thơm ko quá hắc\nKết cấu: hơi bột\nĐộ bền màu: ko bền lắm khi uống nước vẫn lem ra\n[TB] C"

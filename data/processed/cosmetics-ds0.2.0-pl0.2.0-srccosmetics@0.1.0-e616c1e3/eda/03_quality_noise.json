@@ -1,0 +1,376 @@
+{
+  "schema": 1,
+  "phase": "eda",
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+  "generated_at": "01/10/2026 02:55",
+  "section": {
+    "id": "quality_noise",
+    "title": "EDA 03 - Chất lượng dữ liệu và nhiễu",
+    "cards": [
+      {
+        "label": "Số chỉ số chất lượng đang đo",
+        "value": 9
+      },
+      {
+        "label": "Emoji khác nhau (3 split)",
+        "value": 334
+      },
+      {
+        "label": "Từ bị gắn cờ xuất hiện từ 3 lần (3 split)",
+        "value": 350
+      }
+    ],
+    "charts": [
+      {
+        "title": "Emoji phổ biến nhất (3 split)",
+        "kind": "bar",
+        "x": [
+          "❤",
+          "🥰",
+          "😍",
+          "👍",
+          "😘",
+          "😊",
+          "😁",
+          "♥",
+          "👌",
+          "💯",
+          "😂",
+          "👍🏻",
+          "🤣",
+          "🥲",
+          "🤩",
+          "😚",
+          "☺",
+          "🤗",
+          "😗",
+          "😀"
+        ],
+        "y": [
+          2172,
+          1699,
+          1209,
+          756,
+          556,
+          289,
+          238,
+          237,
+          219,
+          217,
+          204,
+          186,
+          182,
+          175,
+          165,
+          154,
+          140,
+          129,
+          118,
+          113
+        ],
+        "x_label": "emoji",
+        "y_label": "số lần xuất hiện",
+        "orientation": "h"
+      }
+    ],
+    "tables": [
+      {
+        "title": "Chỉ số chất lượng theo split",
+        "columns": [
+          "chỉ số",
+          "train",
+          "val",
+          "test",
+          "tổng 3 split"
+        ],
+        "rows": [
+          [
+            "review rỗng",
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            "trùng chính xác",
+            0,
+            0,
+            15,
+            15
+          ],
+          [
+            "trùng theo khoá so trùng",
+            0,
+            0,
+            20,
+            20
+          ],
+          [
+            "ứng viên gibberish",
+            0,
+            0,
+            60,
+            60
+          ],
+          [
+            "có emoji",
+            1877,
+            227,
+            222,
+            2326
+          ],
+          [
+            "chỉ emoji / dấu câu",
+            0,
+            0,
+            3,
+            3
+          ],
+          [
+            "có ký tự lặp",
+            3331,
+            419,
+            461,
+            4211
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            0,
+            0,
+            8,
+            8
+          ],
+          [
+            "có dấu hiệu code / HTML",
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "num_columns": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "title": "Top 20 từ bị gắn cờ teencode / từ lạ, xuất hiện từ 3 lần (3 split)",
+        "columns": [
+          "từ",
+          "số lần",
+          "lí do bị gắn cờ"
+        ],
+        "rows": [
+          [
+            "k",
+            1496,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "mn",
+            914,
+            "không có nguyên âm"
+          ],
+          [
+            "đc",
+            726,
+            "không có nguyên âm"
+          ],
+          [
+            "mng",
+            365,
+            "không có nguyên âm"
+          ],
+          [
+            "sp",
+            362,
+            "không có nguyên âm"
+          ],
+          [
+            "kh",
+            315,
+            "không có nguyên âm"
+          ],
+          [
+            "r",
+            298,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "vs",
+            272,
+            "không có nguyên âm"
+          ],
+          [
+            "cx",
+            188,
+            "không có nguyên âm"
+          ],
+          [
+            "mk",
+            164,
+            "không có nguyên âm"
+          ],
+          [
+            "dc",
+            148,
+            "không có nguyên âm"
+          ],
+          [
+            "n",
+            131,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "j",
+            122,
+            "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z) + một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "m",
+            116,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "v",
+            107,
+            "một ký tự phụ âm + không có nguyên âm"
+          ],
+          [
+            "ncl",
+            98,
+            "không có nguyên âm"
+          ],
+          [
+            "ng",
+            97,
+            "không có nguyên âm"
+          ],
+          [
+            "review",
+            95,
+            "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)"
+          ],
+          [
+            "trc",
+            82,
+            "không có nguyên âm"
+          ],
+          [
+            "d",
+            80,
+            "một ký tự phụ âm + không có nguyên âm"
+          ]
+        ],
+        "num_columns": [
+          1
+        ]
+      },
+      {
+        "title": "Các quy tắc gắn cờ và quy mô mỗi quy tắc (3 split)",
+        "columns": [
+          "lí do bị gắn cờ",
+          "số từ khác nhau",
+          "tổng số lần xuất hiện"
+        ],
+        "rows": [
+          [
+            "chữ không phải chữ Latin (ký tự trang trí / tiếng nước ngoài)",
+            161,
+            218
+          ],
+          [
+            "chữ Latin ngoài bảng chữ cái tiếng Việt (f, j, w, z)",
+            2143,
+            3061
+          ],
+          [
+            "trộn chữ và số",
+            469,
+            1143
+          ],
+          [
+            "một ký tự phụ âm",
+            20,
+            2804
+          ],
+          [
+            "không có nguyên âm",
+            1436,
+            10171
+          ]
+        ],
+        "num_columns": [
+          1,
+          2
+        ]
+      },
+      {
+        "title": "Ví dụ minh hoạ theo nhóm nhiễu (mỗi split 1 ví dụ, lấy ngẫu nhiên)",
+        "columns": [
+          "nhóm nhiễu",
+          "split",
+          "dòng trong file",
+          "ví dụ"
+        ],
+        "rows": [
+          [
+            "ứng viên gibberish",
+            "test",
+            110,
+            "Đẹppppoopooooooooooooooooooooooooooooooppppppppppp"
+          ],
+          [
+            "chỉ emoji / dấu câu",
+            "test",
+            965,
+            ".................................................."
+          ],
+          [
+            "có ký tự lặp",
+            "train",
+            2843,
+            "son ok , giao hơi lâu tí , đánh hơi nặng môi, mgg rồi hoàn xu các thứ còn 70k 2 thỏiiiiiiiiiii"
+          ],
+          [
+            "có ký tự lặp",
+            "val",
+            869,
+            "Thề luon là giao hàng lâu vch, nhưng mà chất lượng sản phẩm tuyệt vời, mua 2 thỏi được tặng một mascara iuuu quá hjhh."
+          ],
+          [
+            "có ký tự lặp",
+            "test",
+            408,
+            "Gói hàng chắc chắn, xinhhh. Mỗi tội màu xấu =)) Hồng sẫm"
+          ],
+          [
+            "có dấu hiệu quảng cáo",
+            "test",
+            546,
+            "Từ hôm nay 15/12/2021. Tất cả các sim viettel đang dùng gói v200c, v120c, v120 \r\n📌Đăng kí 6 tháng tặng thêm 2 tháng\r\n📌Đă"
+          ]
+        ],
+        "num_columns": [
+          2
+        ],
+        "narrow_columns": [
+          2
+        ],
+        "pre_wrap_columns": [
+          3
+        ]
+      }
+    ],
+    "files": [
+      "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_metrics.csv",
+      "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_teencode_candidates.csv",
+      "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_teencode_common_flagged.csv",
+      "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_emoji.csv",
+      "data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3/eda/03_quality_examples.csv"
+    ]
+  }
+}

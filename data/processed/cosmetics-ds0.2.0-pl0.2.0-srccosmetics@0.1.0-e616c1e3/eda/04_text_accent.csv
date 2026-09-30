@@ -1,0 +1,10 @@
+﻿split,nhóm,số review,tỉ lệ %
+train,Có dấu tiếng Việt,12151,99.05
+train,Viết không dấu,115,0.94
+train,Không có chữ cái (emoji / số / ký hiệu),2,0.02
+val,Có dấu tiếng Việt,1525,99.35
+val,Viết không dấu,9,0.59
+val,Không có chữ cái (emoji / số / ký hiệu),1,0.07
+test,Có dấu tiếng Việt,1556,95.87
+test,Viết không dấu,64,3.94
+test,Không có chữ cái (emoji / số / ký hiệu),3,0.18
