@@ -38,6 +38,7 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `ckpt_snapshot`  | `model/checkpoint-{step}`                                          | ảnh chụp trung gian để chạy tiếp               |
 | `token_stats`    | `token_stats.csv`                                                  | số đo input thật, cấu hình mặc định           |
 | `token_stats_tagged` | `token_stats__{tag}.csv`                                       | số đo khi truyền `--prompt`/`--segmenter`     |
+| `archive_dir`    | `_archive`                                                         | kho LỊCH SỬ bảng số đo: bảng của một bộ ví dụ/khối hệ thống không còn tái lập được thì chuyển vào đây (nằm NGOÀI `model_input/`; xem `docs/04_experiments/02_model_input.md` mục 2.2) |
 | `raw_meta`       | `raw_meta.yaml`                                                    | nguồn + sha256 của một phiên bản dữ liệu gốc  |
 | `processing_log` | `processing_log.json`                                              | dấu vết của lần chạy pipeline                 |
 | `label_map`      | `label_map.json`                                                   | danh sách khía cạnh + mã nhãn                 |

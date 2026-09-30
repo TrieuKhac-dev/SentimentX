@@ -65,6 +65,12 @@ experiments/**/results/**/model/
 # nhóm `experiment_registry` thì VẪN theo dõi - nó là thứ người đọc mở ra xem, không phải chỉ mục.
 data/reports/experiment_registry/runs/**
 
+# Kho LỊCH SỬ bảng số đo (`data/reports/_archive/`): bảng của một bộ ví dụ/khối hệ thống KHÔNG còn tái
+# lập được thì chuyển vào đây. Nằm NGOÀI `model_input/` nên bảng gộp không quét tới; nội dung không
+# vào git (repo nhẹ) - chỉ giữ README giải thích vì sao thư mục này tồn tại.
+data/reports/_archive/*
+!data/reports/_archive/README.md
+
 # Gói bàn giao đã nén: vài chục MB nhị phân, gửi qua kênh riêng chứ không vào git.
 # SỔ của các gói (`handover/files.csv`, `handover/ledger.csv`, `handover/packages/`) thì VẪN theo dõi:
 # đó là bản ghi biết đã gửi file nào, băm nào - thứ không dựng lại được từ cây làm việc.

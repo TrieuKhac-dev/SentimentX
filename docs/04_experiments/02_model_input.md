@@ -111,6 +111,33 @@ hiện tại **do người viết dự án tự soạn**, đã kiểm bằng `ru
 câu nào trùng val/test, cụm trùng dài nhất chỉ 3-4 từ (các cụm thông dụng như "cầm chắc
 tay", "màu nhạt hơn").
 
+### 2.2. Bộ ví dụ là BẤT BIẾN: đổi nội dung thì tạo CẶP MỚI
+
+Tên bảng số đo có `ex-<sha8>` = băm **NỘI DUNG** file ví dụ (không phải tên file), nên sửa một chữ
+trong file ví dụ là tên bảng đổi. Sửa **tại chỗ** để lại một bảng **mồ côi**: không lệnh nào tái lập
+được nó nữa (nội dung cũ không còn), mà `scripts/collect_reports.py` **vẫn quét** mọi
+`token_stats*.csv` trong `model_input/` (kể cả thư mục con) rồi tính nó vào `model_input.csv` như một
+phép đo hợp lệ.
+
+**LUẬT:** `configs/prompts/<tên>.txt` + `configs/prompts/examples/<tên>.txt` (+
+`configs/prompts/system/<tên>.txt`) là **MỘT CẶP có phiên bản**, **bất biến khi đã dùng**. Đổi nội
+dung thì tạo **cặp mới** (`absa_cot_5shot_v2.txt` + `examples/absa_cot_5shot_v2.txt`) rồi trỏ
+config/prompt sang tên mới - cùng luật đã áp cho file phiên bản dataset/pipeline (luật 9 và 21 của
+`docs/00_workflow/02_rules.md`).
+
+Ba lớp chặn bảng mồ côi:
+
+| Lớp | Ở đâu | Làm gì |
+| --- | ----- | ------ |
+| Cảnh báo lúc chạy | `run_token_stats.py` (qua `prompts.orphan_tables`) | Trước khi ghi, quét bảng đã có của phiên bản: bảng nào lệch `ex-`/`sys-` thì **in cảnh báo** - KHÔNG tự xoá, không tự dời |
+| Kiểm tĩnh của CI | `src/workflow/checks.py`, kiểm 8 | Cây có bảng mồ côi là **CI đỏ**, kèm câu giải thích ([03_ci.md](../00_workflow/03_ci.md)) |
+| Kho lịch sử | `data/reports/_archive/<mã>/` | Chỗ CHUYỂN bảng cũ ra: nằm NGOÀI `model_input/` nên bảng gộp không quét tới; nội dung không vào git |
+
+**GIỚI HẠN ĐÃ BIẾT:** `sys-<tên>` chỉ ghi **TÊN** khối hệ thống, không ghi băm nội dung, nên đổi
+NỘI DUNG file hệ thống mà giữ nguyên tên file thì tên bảng không đổi và bảng cũ bị **ghi đè** (mất số
+cũ) - phép kiểm không thấy ca đó. Cùng họ: `seg-<tên>` chỉ ghi tên bộ tách từ, không ghi phiên bản
+gói. Cả hai nằm ở [04_backlog.md](04_backlog.md).
+
 ## 3. Tách từ: chọn được, mặc định là bộ chính chủ
 
 **Tách từ khác tokenizer.** Tách từ gộp các âm tiết của một từ lại ("Đại học Quốc gia" ->

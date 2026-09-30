@@ -68,3 +68,13 @@
     Trên Drive của người chạy, `data/processed/<mã>/` mang đúng bộ file mà lượt chạy cần: train, val,
     test, `label_map.json` và `processing_log.json`; những mục cố ý không lên Drive được liệt kê ở
     `docs/00_workflow/07_colab.md` mục 2.
+
+## Prompt và file ví dụ
+
+21. `configs/prompts/<tên>.txt` và các file đi kèm (`configs/prompts/examples/<tên>.txt`,
+    `configs/prompts/system/<tên>.txt`) là **MỘT CẶP có phiên bản**, **bất biến khi đã dùng**.
+    Đổi nội dung thì tạo **cặp mới** (`absa_cot_5shot_v2.txt` + `examples/absa_cot_5shot_v2.txt`) rồi
+    trỏ config/prompt sang tên mới, **không sửa file đã dùng**: tên bảng số đo mang băm NỘI DUNG của bộ
+    ví dụ (`ex-<sha8>`), nên sửa tại chỗ là bảng cũ thành **mồ côi** - không tái lập được nữa mà vẫn
+    được tính vào `model_input.csv`. Ba lớp chặn (cảnh báo lúc chạy, kiểm 8 của CI, kho lịch sử
+    `data/reports/_archive/`) ở `docs/04_experiments/02_model_input.md` mục 2.2.
