@@ -37,7 +37,7 @@ bitsandbytes
 
 # --- Huấn luyện LoRA trên model encoder (PhoBERT, ViSoBERT) ---
 # `peft` là thứ tạo adapter LoRA. Model encoder học bằng LoRA/QLoRA, KHÔNG full fine-tune
-# (docs/00_workflow/02_rules.md); prompt-only (Qwen3) không cần gói này.
+# (docs/04_experiments/06_lora_encoder.md); prompt-only (Qwen3) không cần gói này.
 peft
 
 # --- Tách từ tiếng Việt cho PhoBERT ---
