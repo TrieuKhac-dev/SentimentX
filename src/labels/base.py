@@ -128,25 +128,42 @@ def named_codes(id_to_label, names):
     return found
 
 
-def keep_two_sided(gold, pred, codes):
-    """Giữ ô mà CẢ nhãn đúng VÀ nhãn đoán thuộc `codes` - cách lọc HAI CHIỀU của công bố.
+def two_sided_positions(gold, pred, codes):
+    """VỊ TRÍ các ô mà CẢ nhãn đúng VÀ nhãn đoán thuộc `codes` - cách lọc HAI CHIỀU của công bố.
 
-    Trả về `(gold, pred, bị loại, không đọc được)`:
+    Trả về `(vị trí, bị loại, không đọc được)`:
+        vị trí          chỉ số (0-based) các ô được giữ, theo ĐÚNG thứ tự của `gold`
         bị loại         nhãn đúng hoặc nhãn đoán nằm ngoài `codes` (kể cả "không nhắc tới")
         không đọc được  ô mà model trả lời không đọc được (`pred` là None)
 
     Hai con số đếm RIÊNG vì đây là cách lọc duy nhất bỏ ô theo NHÃN ĐOÁN: không đếm thì tỉ lệ lỗi
     định dạng trở thành một cách nâng điểm im lặng.
+
+    VÌ SAO TRẢ VỊ TRÍ chứ không trả giá trị: bộ chấm điểm cần biết ô được giữ là ô của REVIEW nào.
+    Suy lại từ giá trị của hai dãy là ĐOÁN SAI: ô bị loại vì NHÃN ĐOÁN vẫn có thể trùng nhãn đúng
+    với ô được giữ (ví dụ nhãn đúng `1` mà model trả lời `0` bị loại, trong khi một ô khác cũng
+    nhãn đúng `1` mà model trả lời đúng được giữ) - khi đó không có cách ghép dãy con nào là đúng.
+    Đi kèm vị trí nên phép ghép này đúng theo CẤU TRÚC, không phải theo suy đoán.
     """
     wanted = set(codes)
-    kept_gold, kept_pred, dropped, unreadable = [], [], 0, 0
-    for gold_code, pred_code in zip(gold, pred):
+    positions, dropped, unreadable = [], 0, 0
+    for index, (gold_code, pred_code) in enumerate(zip(gold, pred)):
         if pred_code is None:
             unreadable += 1
             continue
         if gold_code not in wanted or pred_code not in wanted:
             dropped += 1
             continue
-        kept_gold.append(gold_code)
-        kept_pred.append(pred_code)
-    return kept_gold, kept_pred, dropped, unreadable
+        positions.append(index)
+    return positions, dropped, unreadable
+
+
+def keep_two_sided(gold, pred, codes):
+    """Bản theo GIÁ TRỊ của `two_sided_positions`: `(gold, pred, bị loại, không đọc được)`.
+
+    LUẬT LỌC nằm ở `two_sided_positions`; hàm này chỉ định dạng lại kết quả theo giá trị, để không
+    tồn tại hai bản luật lọc sớm muộn lệch nhau.
+    """
+    positions, dropped, unreadable = two_sided_positions(gold, pred, codes)
+    return ([gold[index] for index in positions],
+            [pred[index] for index in positions], dropped, unreadable)

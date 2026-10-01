@@ -193,6 +193,46 @@ class TestConfusionAndMispredictions(unittest.TestCase):
             "review": "r2", "aspect": "texture", "gold": "không nhắc",
             "pred": "không đọc được"}])
 
+    def test_mispredictions_keep_the_review_index_after_the_two_sided_filter(self):
+        """Chỉ số review là review GỐC, kể cả khi bộ lọc hai chiều đã bỏ ô trước đó.
+
+        Ô bị bỏ vì NHÃN ĐOÁN có thể trùng nhãn đúng với ô được giữ (nhãn đúng `positive` mà model
+        trả lời `không nhắc`), nên suy lại vị trí từ giá trị nhãn sẽ trỏ sang review KHÁC - lỗi im
+        lặng, không có ngoại lệ nào báo.
+        """
+        gold = [{"texture": 1}, {"texture": 1}]
+        pred = [{"texture": 0}, {"texture": 2}]
+        samples = build(gold, pred, aspects=["texture"], sample_ids=["r0", "r1"])
+        self.assertEqual([item["review"] for item in samples.mispredictions()], ["r0", "r1"])
+        paper = samples.paper()
+        self.assertEqual(paper.meta["dropped_not_two_sided"], 1)
+        self.assertEqual(paper.mispredictions(), [{
+            "review": "r1", "aspect": "texture", "gold": "positive", "pred": "negative"}])
+
+    def test_mispredictions_work_when_neutral_is_mapped_to_a_polarity(self):
+        """`as_negative`/`as_positive` ĐỔI mã neutral, và bộ lọc hai chiều vẫn bỏ ô được.
+
+        Ca này từng ném `ScorerError` (không ghép lại được vị trí ô sau khi lọc), nghĩa là LƯỢT CHẠY
+        chết ở bước ghi kết quả - không phải chỉ thiếu một tệp.
+        """
+        gold = [{"texture": 3}, {"texture": 3}, {"texture": 1}]
+        pred = [{"texture": 2}, {"texture": 0}, {"texture": 2}]
+        expected = {
+            "as_negative": (["r1", "r2"], ["r2"]),
+            "as_positive": (["r0", "r1", "r2"], ["r0", "r2"]),
+        }
+        for policy, (all_reviews, paper_reviews) in expected.items():
+            with self.subTest(policy=policy):
+                samples = build(gold, pred, aspects=["texture"],
+                                task=dict(TASK, neutral_policy=policy),
+                                sample_ids=["r0", "r1", "r2"])
+                self.assertEqual([item["review"] for item in samples.mispredictions()],
+                                 all_reviews)
+                paper = samples.paper()
+                self.assertEqual(paper.meta["dropped_not_two_sided"], 1)
+                self.assertEqual([item["review"] for item in paper.mispredictions()],
+                                 paper_reviews)
+
 
 class TestRegistry(unittest.TestCase):
     def test_available_lists_the_five_scorers(self):
@@ -352,6 +392,24 @@ class TestPaperBasis(unittest.TestCase):
         # Cơ sở `paper` KHÔNG có `aspect_detection`: mọi ô giữ lại đều "có nhắc tới".
         self.assertNotIn("aspect_detection", payload["scores_paper"])
         self.assertEqual({row["basis"] for _i, row in rows.iterrows()}, {"all", "paper"})
+
+    def test_mispredictions_paper_chi_con_o_cua_tap_cong_bo(self):
+        """Danh sách ô sai của cơ sở `paper`: tập con của cơ sở `all`, và không có nhãn ngoài hai cực.
+
+        `self.GOLD`/`self.PRED` có ba ô: một ô đúng, một ô đoán sai giữa hai cực, và một ô dương tính
+        giả trên khía cạnh KHÔNG nhắc - ô cuối không thuộc tập đánh giá của công bố nên phải vắng.
+        """
+        samples = build(self.GOLD, self.PRED, aspects=["texture"],
+                        sample_ids=["r0", "r1", "r2"])
+        all_rows = samples.mispredictions()
+        paper_rows = samples.paper().mispredictions()
+        self.assertEqual([item["review"] for item in all_rows], ["r1", "r2"])
+        self.assertEqual(paper_rows, [{
+            "review": "r1", "aspect": "texture", "gold": "negative", "pred": "positive"}])
+        for item in paper_rows:
+            self.assertIn(item, all_rows)
+            self.assertNotIn("không nhắc", (item["gold"], item["pred"]))
+            self.assertNotIn("không đọc được", (item["gold"], item["pred"]))
 
 
 class TestMetricsContract(unittest.TestCase):

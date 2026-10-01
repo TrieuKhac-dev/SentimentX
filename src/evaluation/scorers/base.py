@@ -29,7 +29,7 @@ Thêm một cách chấm mới (ví dụ chỉ số theo công bố khác) là t
 `SCORERS`; không phải sửa scorer đang có.
 """
 
-from src.labels import NOT_MENTIONED, PAPER_LABELS, keep_two_sided, named_codes
+from src.labels import NOT_MENTIONED, PAPER_LABELS, named_codes, two_sided_positions
 from src.labels import base as labels_base
 from src.labels import project as project_labels
 
@@ -118,12 +118,19 @@ def binary_counts(gold, pred):
 
 
 def kept_indexes(raw, kept):
-    """Vị trí (theo review gốc) của các ô CÒN LẠI sau khi chiếu nhãn.
+    """Vị trí (theo review gốc) của các ô CÒN LẠI sau khi CHIẾU NHÃN.
+
+    CHỈ dùng cho bước gốc -> đã chiếu (`Samples.build`). Bước LỌC HAI CHIỀU (`Samples.restrict`)
+    KHÔNG dùng hàm này: ở đó ô bị loại có thể trùng nhãn đúng với ô được giữ, nên suy từ giá trị
+    là đoán sai - xem `src.labels.base.two_sided_positions` (trả thẳng vị trí).
 
     Suy từ hai dãy: dãy nhãn đúng TRƯỚC khi chiếu và dãy SAU khi chiếu. Phép chiếu của
     `src/labels` chỉ BỎ ô hoặc ĐỔI MÃ neutral, không đổi thứ tự, nên có hai trường hợp:
         - dài bằng nhau  -> không bỏ ô nào (as_negative / as_positive / keep / full)
         - ngắn hơn       -> dãy sau là DÃY CON của dãy trước, các ô bị bỏ là ô neutral
+
+    Ghép dãy con ở đây là ĐÚNG chứ không phải đoán, vì hai tập giá trị RỜI NHAU: ô bị bỏ ở bước
+    này luôn là neutral, còn ô giữ lại không bao giờ là neutral - nên chỉ có MỘT cách ghép.
 
     Nhờ vậy lấy lại được ô nào đã bị bỏ mà KHÔNG phải chép lại luật `neutral_policy` ở đây -
     chép lại là có hai nơi, sớm muộn lệch nhau.
@@ -158,10 +165,15 @@ class Samples:
     """
 
     def __init__(self, aspects, cells, raw_gold=None, meta=None, labels=None,
-                 sample_ids=None, n_reviews=0, dropped=None):
+                 sample_ids=None, n_reviews=0, dropped=None, row_indexes=None):
         self.aspects = list(aspects)
         self.cells = {name: (list(gold), list(pred)) for name, (gold, pred) in cells.items()}
         self.raw_gold = {name: list(codes) for name, codes in (raw_gold or {}).items()}
+        # Chỉ số review GỐC của TỪNG ô còn lại - GHI NHỚ, không suy lại. Mọi đường dựng thật
+        # (`build`, `restrict`) đều truyền vào; giá trị mặc định chỉ đúng khi không ô nào bị bỏ.
+        self.row_indexes = {name: list(indexes) for name, indexes in (row_indexes or {}).items()}
+        for aspect in self.aspects:
+            self.row_indexes.setdefault(aspect, list(range(len(self.cells[aspect][0]))))
         self.meta = dict(meta or {})
         self.labels = dict(labels or {})
         self.sample_ids = list(sample_ids or [])
@@ -190,7 +202,7 @@ class Samples:
                 len(gold_rows), len(pred_rows)))
 
         aspects = list(aspects)
-        cells, raw_gold, dropped, projected = {}, {}, {}, None
+        cells, raw_gold, dropped, projected, row_indexes = {}, {}, {}, None, {}
         for aspect in aspects:
             gold = [row.get(aspect, NOT_MENTIONED) for row in gold_rows]
             pred = [None if prediction is None else prediction.get(aspect)
@@ -199,6 +211,9 @@ class Samples:
                                        task["neutral_policy"], task["not_mentioned"])
             raw_gold[aspect] = gold
             cells[aspect] = (projected["gold"], projected["pred"])
+            # Ô nào còn lại sau khi chiếu là ô của review nào - bước này suy được từ giá trị vì ô bị
+            # bỏ luôn là neutral (xem `kept_indexes`).
+            row_indexes[aspect] = kept_indexes(gold, projected["gold"])
             dropped[aspect] = int(projected["dropped_neutral"])
 
         info = dict(meta or {})
@@ -208,7 +223,8 @@ class Samples:
         info["dropped_neutral"] = sum(dropped.values())
         info["dropped_neutral_by_aspect"] = dict(dropped)
         return cls(aspects, cells, raw_gold=raw_gold, meta=info, labels=labels,
-                   sample_ids=sample_ids, n_reviews=len(gold_rows), dropped=dropped)
+                   sample_ids=sample_ids, n_reviews=len(gold_rows), dropped=dropped,
+                   row_indexes=row_indexes)
 
     # --- tiện ích ---
 
@@ -235,10 +251,12 @@ class Samples:
         return codes
 
     def kept(self, aspect):
-        """Vị trí theo review gốc của các ô còn lại của một khía cạnh."""
-        return self._memo("kept:" + aspect,
-                          lambda: kept_indexes(self.raw_gold.get(aspect, []),
-                                               self.cells[aspect][0]))
+        """Vị trí theo review gốc của các ô còn lại của một khía cạnh.
+
+        Đọc thẳng chỉ số đã ghi nhớ khi dựng (`row_indexes`), KHÔNG suy lại từ dãy nhãn: sau khi
+        lọc hai chiều, suy từ giá trị là đoán (xem `kept_indexes`).
+        """
+        return self._memo("kept:" + aspect, lambda: list(self.row_indexes[aspect]))
 
     # --- hai cơ sở đo ---
 
@@ -263,13 +281,20 @@ class Samples:
 
         Số ô bị loại và số ô không đọc được ghi vào `meta` của bản sao (tổng và theo khía cạnh):
         đây là hai con số duy nhất nói được mẫu số nhỏ đi vì LÝ DO GÌ, nên bảng so phải đọc kèm.
+
+        Ô giữ lại lấy THEO VỊ TRÍ mà bộ lọc trả về (`two_sided_positions`), rồi ánh xạ tiếp qua chỉ
+        số review của bản gốc. Không suy lại ô nào đã mất từ giá trị nhãn: ô bị loại vì NHÃN ĐOÁN
+        có thể trùng nhãn đúng với ô được giữ, nên ghép dãy con ở bước này là đoán sai.
         """
-        cells, dropped, unreadable = {}, {}, {}
+        cells, dropped, unreadable, row_indexes = {}, {}, {}, {}
         total_dropped = total_unreadable = 0
         for aspect in self.aspects:
             gold, pred = self.cells[aspect]
-            kept_gold, kept_pred, item_dropped, item_unreadable = keep_two_sided(gold, pred, codes)
-            cells[aspect] = (kept_gold, kept_pred)
+            positions, item_dropped, item_unreadable = two_sided_positions(gold, pred, codes)
+            cells[aspect] = ([gold[index] for index in positions],
+                             [pred[index] for index in positions])
+            indexes = self.kept(aspect)
+            row_indexes[aspect] = [indexes[position] for position in positions]
             dropped[aspect] = item_dropped
             unreadable[aspect] = item_unreadable
             total_dropped += item_dropped
@@ -287,7 +312,8 @@ class Samples:
         })
         return Samples(self.aspects, cells, raw_gold=self.raw_gold, meta=meta,
                        labels=self.labels, sample_ids=self.sample_ids,
-                       n_reviews=self.n_reviews, dropped=self.dropped)
+                       n_reviews=self.n_reviews, dropped=self.dropped,
+                       row_indexes=row_indexes)
 
     def paper(self):
         """Biến thể đo theo CÔNG BỐ: chỉ giữ ô mà cả nhãn đúng và nhãn đoán là positive/negative.
@@ -454,7 +480,13 @@ class Samples:
         return table
 
     def mispredictions(self):
-        """Các ô đoán sai (để ghi `mispredictions.csv`), kèm chỉ số review trong split."""
+        """Các ô đoán sai của CHÍNH bộ dữ liệu này, kèm chỉ số review trong split.
+
+        Gọi trên bộ nào thì ra danh sách của bộ đó: bộ gốc (cơ sở `all`) còn cả ô "không nhắc tới" và ô
+        không đọc được, còn bộ `paper()` chỉ có ô mà cả nhãn đúng và nhãn đoán là positive/negative.
+        Chỉ số review là chỉ số DÒNG GỐC trong split ở cả hai trường hợp, nên hai danh sách đối chiếu
+        được với nhau.
+        """
         found = []
         for aspect in self.aspects:
             gold, pred = self.cells[aspect]

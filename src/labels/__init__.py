@@ -21,11 +21,14 @@ POSITIVE = base.POSITIVE
 NEGATIVE = base.NEGATIVE
 NEUTRAL = base.NEUTRAL
 
-# Bộ lọc của biến thể đo theo công bố (`paper`): tên hai nhãn, cách tra mã theo tên, và phép lọc.
-# Xuất lại ở đây vì tầng chấm điểm (`src/evaluation/scorers`) dùng nó như một phần của hợp đồng nhãn.
+# Bộ lọc của biến thể đo theo công bố (`paper`): tên hai nhãn, cách tra mã theo tên, và hai dạng của
+# phép lọc: theo VỊ TRÍ (`two_sided_positions` - dạng dùng để biết ô được giữ là ô của review nào)
+# và theo GIÁ TRỊ (`keep_two_sided`). Xuất lại ở đây vì tầng chấm điểm (`src/evaluation/scorers`)
+# dùng nó như một phần của hợp đồng nhãn.
 PAPER_LABELS = base.PAPER_LABELS
 named_codes = base.named_codes
 keep_two_sided = base.keep_two_sided
+two_sided_positions = base.two_sided_positions
 
 LABEL_SPACES = {
     binary.NAME: binary,
