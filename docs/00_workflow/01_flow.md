@@ -132,6 +132,7 @@ Mỗi lần chạy có một thư mục kết quả riêng. Trong đó:
 | `errors.json`   | chỉ khi có lỗi | kiểu lỗi, vết gọi, thứ còn thiếu (`requires`), máy đã chạy               |
 | `metrics.json`  | khi chấm xong  | chỉ số, kèm `label_space`, `neutral_policy`, số ô neutral bị loại         |
 | `run_meta.json` | khi chấm xong  | bản ghi lần chạy để tra cứu, và để MLflow gắn nhãn cho run               |
+| `mispredictions*.csv` | khi chấm xong | ô đoán sai theo cơ sở `all` (`mispredictions.csv`) và theo cơ sở `paper` (`mispredictions_paper.csv`) |
 
 Trong `run.log`, mỗi dòng bắt đầu bằng một mục, nên tìm bằng `grep`:
 

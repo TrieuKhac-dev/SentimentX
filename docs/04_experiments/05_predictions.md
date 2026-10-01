@@ -92,7 +92,8 @@ Hai cột `prompt gửi model` và `câu trả lời` nằm cạnh nhau, nên đ
 ghi thành hai ký tự `\n` khi ra CSV (`src/core/utils.py`, hàm `write_csv`). Chuẩn CSV cho phép ô nhiều
 dòng, nhưng trình xem nào coi "một dòng = một bản ghi" (Notepad, VSCode, công cụ tự viết) sẽ thấy
 dòng dừng ở giữa và tưởng các cột phía sau biến mất. Văn bản nhiều dòng nguyên gốc vẫn còn trong
-`predictions/part_*.jsonl` và trong `câu trả lời` của `mispredictions.csv`.
+`predictions/part_*.jsonl` - còn hai tệp `mispredictions*.csv` chỉ có nhãn và chỉ số review, không
+chở văn bản của model.
 
 Ngoại lệ **có chủ ý**: `{split}.csv` của dataset (`data/processed/<mã>/`) giữ xuống dòng THẬT, vì
 đó là dữ liệu cho model và `eval_lock` băm byte của file - xem
@@ -147,7 +148,7 @@ trả lời nhanh — chi tiết ở `src/evaluation/parse.py`.
 | Biết điểm số | `metrics.json` (số chính) → `metrics.csv` (bảng dài để so) |
 | Biết đã chạy những gì, tốn bao lâu | `run.log` |
 | Biết máy/config/dữ liệu của lượt chạy | `run_meta.json` |
-| Chỉ xem các ô đoán sai | `mispredictions.csv` |
+| Chỉ xem các ô đoán sai | `mispredictions.csv` (cơ sở `all`), `mispredictions_paper.csv` (cơ sở `paper`) |
 
 ## 5. Bảng này tự chứa đủ để tính lại điểm
 

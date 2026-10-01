@@ -114,8 +114,9 @@ không phải xoá (`scripts/build_package.py::declared_dataset_versions`).
 
 **Việc còn lại của P7, đặt tên là đợt tiếp theo:**
 
-- **Batch 6 - chạy lưới để lấy KẾT QUẢ THẬT:** chạy lần lượt 12 notebook trên Colab, copy **5 tệp nhẹ**
-  (`run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`) từ Drive về repo,
+- **Batch 6 - chạy lưới để lấy KẾT QUẢ THẬT:** chạy lần lượt 12 notebook trên Colab, copy **6 tệp nhẹ**
+  (`run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`,
+  `mispredictions_paper.csv`) từ Drive về repo,
   chạy `python scripts/collect_reports.py`, rồi cập nhật số vào `docs/04_experiments/03_training_eval.md`
   §6.3 và đối chiếu với `docs/04_experiments/reference_publication.md`. Đây cũng là **phép kiểm cuối**
   cho đường Colab mà Batch 5b không chạy được ở máy cá nhân (điểm tiêm + câu in giữ nguyên chỉ thay

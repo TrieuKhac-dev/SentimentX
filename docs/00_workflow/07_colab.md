@@ -262,7 +262,8 @@ xảy ra TRƯỚC khi máy kéo được mã nguồn (không gọi được hàm
 - Ô chạy: `Chế độ chạy: NEW` rồi `Chế độ: NEW | thư mục: <Drive>/experiments/...`.
 - Kết quả nằm ở
   `<Drive>/experiments/<model>/<method>/<expNNN>/results/<hash8>/`, gồm `run.log`,
-  `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, thư mục `predictions/`.
+  `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `mispredictions_paper.csv`,
+  thư mục `predictions/`.
   Tên `<hash8>` giống hệt trên máy cá nhân (nó KHÔNG chứa nguồn trọng số hay kiểu số), nên copy
   nguyên thư mục đó về repo là số liệu vào đúng chỗ.
 - **Vì sao trong `results/` có NHIỀU thư mục `<hash8>`:** mã băm danh tính gồm cấu hình, prompt, mã
@@ -287,8 +288,8 @@ Kết quả sinh trên Colab nằm trên Drive; muốn vào git thì copy phần
 ```
 
 Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.json`, `metrics.json`,
-`metrics.csv`, `mispredictions.csv`. Ba thứ nặng (`predictions*`, `plots/`, `model/`) đã bị
-`.gitignore` chặn sẵn - đúng chủ ý, vì đó là bản sao dữ liệu chứ không phải bằng chứng.
+`metrics.csv`, `mispredictions.csv`, `mispredictions_paper.csv`. Ba thứ nặng (`predictions*`, `plots/`,
+`model/`) đã bị `.gitignore` chặn sẵn - đúng chủ ý, vì đó là bản sao dữ liệu chứ không phải bằng chứng.
 
 ## 7. Gặp lỗi thì tra bảng này
 

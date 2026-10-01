@@ -242,7 +242,7 @@ Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phi�
 | Báo cáo Pipeline | `data/processed/<mã>/pipeline/report.html` |
 | Dataset đã xử lý | `data/processed/<mã>/train.csv` (kèm `val.csv`, `test.csv`, `label_map.json`) |
 | Độ dài input thật của từng model | `data/reports/model_input/<mã>/token_stats__<tag>.csv` (bảng tổng hợp: `data/reports/model_input/model_input.csv`) |
-| Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<hash8>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
+| Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<hash8>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `mispredictions_paper.csv`) |
 | Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,attempt_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
 
 Mã phiên bản có dạng `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3`: đọc ra được phiên bản
@@ -444,5 +444,6 @@ git add handover && git commit -m "chore(handover): package 002"
   tạo phiên bản dữ liệu mới, không sửa tại chỗ.
 
 Xem kết quả: DagsHub xem ngay (không phải copy gì); muốn đưa vào git thì copy **phần nhẹ** từ Drive về
-(`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) rồi chạy
+(`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`,
+`mispredictions_paper.csv`) rồi chạy
 `python scripts/collect_reports.py`. Toàn bộ vòng bàn giao: `docs/06_plan/P7_rerun.md`.

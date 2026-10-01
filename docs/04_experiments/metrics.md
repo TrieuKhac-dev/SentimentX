@@ -87,7 +87,8 @@ của từng đơn vị vẫn nằm trong `metrics.csv` nên cách tính này kh
 | -------------------- | ----------------------------------------------------------------------------- |
 | `metrics.json`       | toàn metric, kèm `label_space`, `neutral_policy`, số ô bị loại, và CẢ HAI cơ sở đo (`scores` cho `all`, `scores_paper` + `paper` cho `paper`) |
 | `metrics.csv`        | bảng dài: `aspect`, `sentiment`, `metric`, `value`, `basis`, để so giữa các thí nghiệm        |
-| `mispredictions.csv` | chỉ các dòng đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán                    |
+| `mispredictions.csv` | chỉ các dòng đoán sai theo cơ sở `all`, kèm khía cạnh, nhãn đúng, nhãn đoán |
+| `mispredictions_paper.csv` | chỉ các dòng đoán sai theo cơ sở `paper`: TẬP CON của tệp trên, nên không bao giờ có nhãn `không nhắc` hay `không đọc được` ở hai cột nhãn. Số dòng theo khía cạnh = `paper.cells` trừ số ô đúng của `scores_paper.accuracy` |
 | `plots/`             | biểu đồ của lượt chạy: `plots/accuracy.html`, HTML tự chứa, mở được khi không có mạng; tắt bằng `save.plots: false` |
 
 `metrics.json` gồm: `label_space`, `neutral_policy`, `not_mentioned`, `dropped_neutral` (và

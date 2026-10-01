@@ -128,8 +128,8 @@ template - đúng thứ model nhận - số token, và phần bị cắt ở đu
 
 - Kết quả: `experiments/<model_id>/<method>/expNNN/results/<hash8>/` - `<hash8>` là mã băm danh tính
   (cấu hình + prompt + ví dụ + dữ liệu + commit); phần nhẹ (`run.log`, `run_meta.json`, `metrics.json`,
-  `metrics.csv`, `mispredictions.csv`) vào git; phần nặng (`predictions/`, `predictions.csv`, `plots/`,
-  `model/`) đã bị `.gitignore` chặn.
+  `metrics.csv`, `mispredictions.csv`, `mispredictions_paper.csv`) vào git; phần nặng (`predictions/`,
+  `predictions.csv`, `plots/`, `model/`) đã bị `.gitignore` chặn.
 - Tham chiếu để ước lượng trên GPU 6 GB, Qwen3-4B 4-bit, prompt CoT 2 ví dụ: nạp model khoảng 25 đến
   35 giây, mỗi review khoảng 6 đến 10 giây. Tập `val` 1.524 mẫu vì thế nên chạy `n` nhỏ trước (khai
   `n: 8` trong config thí nghiệm) rồi mới chạy cả split; `n` khác nhau ra hash khác nên không lẫn.

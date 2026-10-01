@@ -29,7 +29,8 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `metrics_csv`    | `metrics.csv`                                                      |                                               |
 | `errors`         | `errors.json`                                                      | chỉ tạo khi có lỗi                            |
 | `predictions`    | `predictions.csv`                                                  |                                               |
-| `mispredictions` | `mispredictions.csv`                                               |                                               |
+| `mispredictions` | `mispredictions.csv`                                               | ô đoán sai theo cơ sở `all`                   |
+| `mispredictions_paper` | `mispredictions_paper.csv`                                   | ô đoán sai theo cơ sở `paper` (tập con)       |
 | `model_input`    | `model_input.csv`                                                  |                                               |
 | `pred_parts`     | `predictions/part_{n:04d}.jsonl`                                   | khối tiến độ để resume                        |
 | `plots`          | `plots`                                                            |                                               |

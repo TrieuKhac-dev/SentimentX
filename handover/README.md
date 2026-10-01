@@ -92,7 +92,8 @@ ngắt phiên: lúc đó bạn đang cần phiên còn sống.
     metrics.json        điểm số chính
     metrics.csv         bảng dài để so với thí nghiệm khác
     run_meta.json       bản ghi lần chạy: code, config, dữ liệu, thiết bị
-    mispredictions.csv  các ô đoán sai
+    mispredictions.csv  các ô đoán sai (cách đo của dự án)
+    mispredictions_paper.csv  các ô đoán sai theo cách CÔNG BỐ đo (tập con của tệp trên)
     predictions.csv     từng review: prompt đã gửi model (đường prompt), nhãn đúng/đoán
     predictions/        kết quả ghi theo khối, để chạy tiếp nếu bị ngắt
     model/last          adapter đủ để chạy tiếp (chỉ có ở hai notebook LoRA)
@@ -105,7 +106,8 @@ tiếp có tác dụng.
 
 ## Cần gửi lại gì
 
-Năm file **nhẹ**: `run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`.
+Sáu file **nhẹ**: `run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`,
+`mispredictions_paper.csv`.
 Gửi thẳng thư mục kết quả cũng được (các file nặng nằm trong `predictions/` và `model/`).
 
 ## Nếu có gì không chạy
