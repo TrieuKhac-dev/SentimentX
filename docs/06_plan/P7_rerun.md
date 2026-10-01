@@ -112,6 +112,23 @@ gồm 6 `new` (dữ liệu đã xử lý của `…-e616c1e3`), 12 `changed` (12
 **0 `deleted`** - dữ liệu của bộ `v0.1.0` nằm ở lớp `kept`, tức người nhận GIỮ nguyên trên Drive chứ
 không phải xoá (`scripts/build_package.py::declared_dataset_versions`).
 
+*Cập nhật 01/10/2026 - tệp thứ sáu của lượt chạy (`mispredictions_paper.csv`):* mỗi lượt chạy nay ghi
+thêm danh sách ô đoán sai theo CƠ SỞ ĐO của công bố (tập con của `mispredictions.csv`, xem
+`docs/04_experiments/metrics.md`), và tệp nhẹ của cơ sở `paper` cũng lên DagsHub
+(`configs/experiments/tracking.yaml`). Vì tệp chỉ ra đời khi bản code ĐÃ GHIM có phần ghi nó, 12
+notebook được **ghim lại** lần nữa vào commit `1dec8a9` (chỉ ô GHIM đổi; `EXP_DIR` và mọi ô khác giữ
+nguyên, nên mỗi lượt chạy rơi vào thư mục `<hash8>` mới). Việc ghim lại này hợp lệ theo
+`docs/00_workflow/10_template_notebook.md`: cách đo KHÔNG đổi và 12 thí nghiệm đó chưa chạy ở đâu.
+Cùng đợt: sửa một lỗi ánh xạ chỉ số review khi lọc hai chiều (`dbe3d7b`) - lỗi nằm im cho tới khi tệp
+mới gọi `kept()` trên bộ `paper`, và ở `neutral_policy: as_negative`/`as_positive` nó làm CẢ lượt chạy
+chết ở bước ghi kết quả (xem `docs/04_experiments/04_backlog.md` §8.3).
+
+Gói **004** đã dựng ngày 01/10/2026: `handover/packages/004` + zip trong `handover/out/`, 13 file
+`changed` (12 notebook ghim lại + `README.md` của gói, nay nói "Sáu file nhẹ"), 35 `kept`, **0 `new`**,
+**0 `deleted`**; zip tên `SentimentX-goi-004-1dec8a9-261001.zip`. Gói này **phụ thuộc gói 003**: người
+nhận giải nén 003 trước, rồi 004 đè lên. Nhánh `experiment` đã đẩy tới `1dec8a9` - notebook kéo bản
+ghim từ GitHub, nên gửi gói trước khi đẩy là notebook chết.
+
 **Việc còn lại của P7, đặt tên là đợt tiếp theo:**
 
 - **Batch 6 - chạy lưới để lấy KẾT QUẢ THẬT:** chạy lần lượt 12 notebook trên Colab, copy **6 tệp nhẹ**
