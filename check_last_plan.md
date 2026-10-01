@@ -41,7 +41,7 @@
 - [ ] D-6 log step-metric + CSV lên MLflow
 
 ## Nhóm E - loss chống lệch
-- [ ] E-1 weighted_ce(class_weight: inverse)
+- [x] E-1 weighted_ce(class_weight: inverse)
 - [ ] E-2 docs: đổi loss -> thư mục mới
 
 ## Nhóm F - MLflow

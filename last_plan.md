@@ -139,7 +139,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 ## Nhóm E - Loss chống lệch (làm ngay)
 
-- [ ] **E-1** `loss` config-driven: `weighted_ce(class_weight: inverse)` cho encoder (focal/trọng số
+- [x] **E-1** `loss` config-driven: `weighted_ce(class_weight: inverse)` cho encoder (focal/trọng số
   khía cạnh để SAU).
 - [ ] **E-2** Ghi rõ: đổi loss -> `config_sha256` đổi -> thư mục kết quả MỚI (không ghi đè).
 
