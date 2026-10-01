@@ -146,6 +146,63 @@ def paper_names(names=None):
     return [name for name in names if name != aspect_detection.NAME]
 
 
+# Khoá do `_compute` tự đặt (không lấy từ `extra`); dùng để lọc khi dựng `extra` cho rescore.
+_SCORE_KEYS = ("scores", "scores_paper", "scores_order", "scores_order_paper", "tables",
+               "tables_paper", "paper", "aspects", "n_reviews", "rescored")
+
+
+def _compute(samples, names, paper, save_confusion, extra):
+    """Chạy các bộ chấm trên HAI cơ sở đo rồi gói lại để ghi file.
+
+    Dùng CHUNG cho `write` (lượt chạy thật) và `write_rescored` (đo lại từ `predictions.csv`), nên
+    hai đường KHÔNG thể hiểu một con số theo hai cách khác nhau.
+    """
+    result = run_all(samples, names=names)
+    samples_paper = samples.paper()
+    result_paper = run_all(samples_paper,
+                           names=check(paper) if paper else paper_names(result["names"]))
+    payload = dict(extra or {})
+    payload.update(samples.meta)
+    payload["n_reviews"] = samples.n_reviews
+    payload["aspects"] = result["aspects"]
+    payload["scores"] = result["scores"]
+    payload["tables"] = result["tables"] if save_confusion else {}
+    payload["scores_order_paper"] = result_paper["names"]
+    payload["scores_paper"] = result_paper["scores"]
+    payload["tables_paper"] = result_paper["tables"] if save_confusion else {}
+    payload["paper"] = {key: samples_paper.meta[key] for key in PAPER_META_KEYS}
+    rows = ([(ALL, item) for item in result["rows"]]
+            + [(PAPER, item) for item in result_paper["rows"]])
+    return payload, result, result_paper, rows, samples_paper
+
+
+def _write_metrics_files(out_dir, payload, rows, json_key="metrics_json", csv_key="metrics_csv"):
+    """Ghi `metrics.json` + `metrics.csv` (hoặc bản `_rescored` khi truyền khoá tên khác)."""
+    out_dir = Path(out_dir)
+    written = {}
+    json_name = paths.pattern(json_key)
+    written[json_name] = utils.write_json(payload, out_dir / json_name)
+    csv_name = paths.pattern(csv_key)
+    written[csv_name] = utils.write_csv(
+        [[item["aspect"], item["sentiment"], item["metric"], item["value"], basis]
+         for basis, item in rows], CSV_COLUMNS, out_dir / csv_name)
+    return written
+
+
+def write_rescored(out_dir, samples, names=None, paper=None, save_confusion=True, extra=None,
+                   rescored=None):
+    """Ghi SỐ ĐO THÊM (rescore): `metrics_rescored.json` + `metrics_rescored.csv`.
+
+    KHÔNG ghi đè `metrics.json`/`metrics.csv` - số gốc của lượt chạy vẫn là bằng chứng. Khối
+    `rescored` ghi lại lúc nào / vì sao có phép đo này, để người đọc phân biệt hai nguồn.
+    """
+    payload, _result, _result_paper, rows, _samples_paper = _compute(
+        samples, names, paper, save_confusion, extra)
+    payload["rescored"] = dict(rescored or {})
+    return _write_metrics_files(out_dir, payload, rows,
+                                json_key="metrics_rescored_json", csv_key="metrics_rescored_csv")
+
+
 def write(out_dir, samples, names=None, paper=None, save_confusion=True, save_plots=True,
           extra=None):
     """Ghi các file chỉ số vào một thư mục kết quả. Trả về {tên file: đường dẫn}.
@@ -168,31 +225,10 @@ def write(out_dir, samples, names=None, paper=None, save_confusion=True, save_pl
     (`save.confusion`, `save.plots`); nơi gọi đọc config và truyền vào, hàm này không tự đọc.
     """
     out_dir = Path(out_dir)
-    result = run_all(samples, names=names)
-    samples_paper = samples.paper()
-    result_paper = run_all(samples_paper, names=check(paper) if paper else paper_names(result["names"]))
+    payload, result, result_paper, rows, samples_paper = _compute(
+        samples, names, paper, save_confusion, extra)
 
-    payload = dict(extra or {})
-    payload.update(samples.meta)
-    payload["n_reviews"] = samples.n_reviews
-    payload["aspects"] = result["aspects"]
-    payload["scores"] = result["scores"]
-    payload["tables"] = result["tables"] if save_confusion else {}
-    payload["scores_order_paper"] = result_paper["names"]
-    payload["scores_paper"] = result_paper["scores"]
-    payload["tables_paper"] = result_paper["tables"] if save_confusion else {}
-    payload["paper"] = {key: samples_paper.meta[key] for key in PAPER_META_KEYS}
-
-    written = {}
-    json_name = paths.pattern("metrics_json")
-    written[json_name] = utils.write_json(payload, out_dir / json_name)
-
-    csv_name = paths.pattern("metrics_csv")
-    rows = [(ALL, item) for item in result["rows"]] + [(PAPER, item) for item in result_paper["rows"]]
-    written[csv_name] = utils.write_csv(
-        [[item["aspect"], item["sentiment"], item["metric"], item["value"], basis]
-         for basis, item in rows],
-        CSV_COLUMNS, out_dir / csv_name)
+    written = _write_metrics_files(out_dir, payload, rows)
 
     mis_name = paths.pattern("mispredictions")
     written[mis_name] = utils.write_csv(
