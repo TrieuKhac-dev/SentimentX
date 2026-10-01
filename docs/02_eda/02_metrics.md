@@ -96,20 +96,24 @@ dòng ở train và 296 dòng trên 3 split - bỏ dấu chỉ loại **thêm 5 
 lại gộp cả những cặp câu chỉ giống nhau sau khi bỏ dấu.
 
 Kết luận: dự án **không bỏ dấu tiếng Việt ở bất kỳ chỗ nào**, kể cả trong khoá so
-trùng - nên `steps.clean.deduplicate.ignore_diacritics` trong `configs/pipeline/v0.1.0.yaml` để
+trùng - nên `steps.clean.deduplicate.ignore_diacritics` trong `configs/pipeline/<phiên bản>.yaml` (cả
+`v0.1.0` và `v0.2.0`) để
 `false`. Đây vẫn là config thật: đổi giá trị thì **cả EDA lẫn pipeline** đổi theo -
 EDA 03 và EDA 05 đọc chính khoá đó từ config, nên hai bên không bao giờ lệch nhau.
 Báo cáo pipeline có một dòng "deduplicate.ignore_diacritics" trong bảng "Thiết lập
 Clean đang áp dụng" để chứng minh đang chạy ở chế độ nào.
 
-Khoá này cũng được dùng cho **rò rỉ dữ liệu** (loại val/test trùng train), cùng
-một quy tắc.
+Khoá này cũng được dùng cho **rò rỉ dữ liệu**, cùng một quy tắc. Từ pipeline `v0.2.0`, rò rỉ được xử lý
+ở phía **TẬP HỌC** (`steps.clean.leakage.keep_priority: [test, val, train]`: giữ ở tập ưu tiên cao hơn,
+loại khỏi tập thấp hơn) nên `test` không bao giờ bị loại; bản `v0.1.0` thì loại khỏi val/test
+(`remove_eval_overlap`).
 
 **Bằng chứng khoá này KHÔNG hề bỏ dấu trong dữ liệu** (câu hỏi rất dễ lo): bước
 Final Validate có hạng mục **"Văn bản chỉ đổi hình thức"** - nó lấy từng dòng được
 giữ lại, áp lại đúng quy tắc chuẩn hoá lên dòng gốc, rồi so với văn bản trong
-`train.csv`, `val.csv`, `test.csv`. Trên cosmetics: **ĐẠT - 15344/15344 dòng khớp đúng dòng gốc sau
-chuẩn hoá (không mất dấu tiếng Việt)**. Nghĩa là khoá so trùng chỉ dùng để **so**;
+`train.csv`, `val.csv`, `test.csv`. Trên cosmetics: **ĐẠT** - bản `…-e616c1e3` ghi 13.803 dòng khớp
+dòng gốc sau chuẩn hoá và 1.623 dòng của `test` bằng đúng bản gốc (không mất dấu tiếng Việt); bản
+`…-e0ccc484` ghi 15.344/15.344 vì mọi split đều bị chuẩn hoá. Nghĩa là khoá so trùng chỉ dùng để **so**;
 văn bản xuất ra không mất một dấu nào. Chi tiết phép kiểm:
 [04_invariants.md mục 2](../03_pipeline/04_invariants.md).
 
@@ -261,7 +265,7 @@ Cách báo cáo trình bày nhóm này (để không gây hiểu nhầm):
 
 Liên hệ với pipeline: những dòng này vẫn được giữ trong `train.csv`, `val.csv`, `test.csv` (dạng
 multi_head với mọi ô = 0) để truy vết, nhưng **không sinh bản ghi ABSA** nào - đó là
-lí do số bản ghi ABSA (13213 trên cosmetics) nhỏ hơn số dòng dữ liệu (15344).
+lí do số bản ghi ABSA (bản `…-e616c1e3`: 13.219) nhỏ hơn số dòng dữ liệu (15.426).
 Xem [03_pipeline/02_steps.md mục 5](../03_pipeline/02_steps.md).
 
 ## 12. Trùng lặp giữa các split - hai cách đếm KHÁC NHAU

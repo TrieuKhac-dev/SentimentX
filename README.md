@@ -161,31 +161,31 @@ Vì sao phải có script riêng thay vì `hf download` (đều là lỗi đã g
 # 1) Khảo sát dữ liệu GỐC (chỉ đọc dữ liệu, không sửa); ghi file kết quả vào data/raw/<tên>/<nhãn>/eda/
 python run_eda.py --on raw --name cosmetics --version v0.1.0
 
-# 2) Xử lý dữ liệu theo config; ghi dataset + khoá tập đánh giá. Lệnh in ra MÃ PHIÊN BẢN (…-e0ccc484)
+# 2) Xử lý dữ liệu theo config; ghi dataset + khoá tập đánh giá. Lệnh in ra MÃ PHIÊN BẢN (…-e616c1e3)
 python run_pipeline.py --name cosmetics --version v0.1.0
 
 # 3) Khảo sát dataset ĐÃ XỬ LÝ (dùng hash8 mà bước 2 in ra)
-python run_eda.py --on dataset --hash e0ccc484
+python run_eda.py --on dataset --hash e616c1e3
 
 # 4) Vẽ báo cáo. Phải ghi rõ đích, hoặc --all để vẽ hết mọi đích đang có.
 #    Mặc định chỉ in link file:///… (Ctrl+Click trong VS Code); thêm --open để mở hết.
 python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0
-python build_report.py --phase eda --on dataset --hash e0ccc484
-python build_report.py --phase pipeline --on dataset --hash e0ccc484
+python build_report.py --phase eda --on dataset --hash e616c1e3
+python build_report.py --phase pipeline --on dataset --hash e616c1e3
 python build_report.py --all
 
 # 5) Đo input thật của từng tokenizer trên dữ liệu đã xử lý
-python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1
+python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1
 
 # 6) Phối hợp cấu hình đo: prompt nào, bộ tách từ nào, ngưỡng cắt nào
 python run_token_stats.py --list-prompts            # đang có prompt nào (tên + sha)
 python run_token_stats.py --list-segmenters         # máy này cài được bộ tách từ nào
-python run_token_stats.py --hash e0ccc484 --prompt absa_direct_v1    # đo một prompt khác
-python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --segmenter pyvi
-python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --max-length qwen3-4b-instruct-2507=1280
+python run_token_stats.py --hash e616c1e3 --prompt absa_direct_v1    # đo một prompt khác
+python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1 --segmenter pyvi
+python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1 --max-length qwen3-4b-instruct-2507=1280
 
 # 7) Kiểm file ví dụ few-shot: cấu trúc, nhãn, và RÒ RỈ với val/test
-python run_check_examples.py --hash e0ccc484
+python run_check_examples.py --hash e616c1e3
 
 # 8) Chạy thí nghiệm Qwen3 bằng prompt (prompt một lượt / CoT) rồi chấm điểm
 #    Mở notebook của thí nghiệm và bấm Run all - đó là đường chạy chính, tự kéo đúng commit
@@ -245,7 +245,7 @@ Ba lệnh trên sinh ra kết quả nằm trong **một thư mục theo mã phi�
 | Chạy một thí nghiệm + điểm số | `experiments/<model>/<method>/<expNNN>/results/<hash8>/` (gồm `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`) |
 | Bảng tổng hợp cả nhóm | `data/reports/{dataset_registry,experiment_registry,attempt_registry,model_input,metrics_matrix}/` - sinh bằng `python scripts/collect_reports.py` |
 
-Mã phiên bản có dạng `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484`: đọc ra được phiên bản
+Mã phiên bản có dạng `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3`: đọc ra được phiên bản
 dataset, phiên bản pipeline, nguồn, và 8 ký tự băm của **nội dung config + nội dung dữ liệu gốc**.
 Đổi config hoặc đổi dữ liệu ⇒ mã mới ⇒ **kết quả cũ không bị ghi đè**. Phép băm bỏ qua kiểu xuống
 dòng (CRLF/LF), nên cùng một bộ dữ liệu cho ra cùng một mã trên Windows và trên Colab.

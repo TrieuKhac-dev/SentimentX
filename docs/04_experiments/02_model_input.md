@@ -59,8 +59,8 @@ thư mục thí nghiệm trước, rồi tới gốc repo.
 
 ```bash
 python run_token_stats.py --list-prompts          # đang có prompt nào, sha nào (không cần --hash)
-python run_token_stats.py --hash e0ccc484 --prompt absa_direct_v1    # prompt một lượt, KHÔNG dùng system prompt
-python run_token_stats.py --hash e0ccc484 --prompt absa_cot_5shot_v1 --system absa_cot   # dùng {system_prompt}
+python run_token_stats.py --hash e616c1e3 --prompt absa_direct_v1    # prompt một lượt, KHÔNG dùng system prompt
+python run_token_stats.py --hash e616c1e3 --prompt absa_cot_5shot_v1 --system absa_cot   # dùng {system_prompt}
 ```
 
 Prompt nào dùng ô nhớ `{system_prompt}` thì **phải** truyền `--system <tên|đường dẫn>`: khối hệ thống
@@ -147,7 +147,7 @@ bao nhiêu" thay vì chỉ trích dẫn khuyến nghị.
 
 ```bash
 python run_token_stats.py --list-segmenters                    # máy này cài được bộ nào (không cần --hash)
-python run_token_stats.py --hash e0ccc484 --segmenter pyvi     # chỉ định đích danh một bộ
+python run_token_stats.py --hash e616c1e3 --segmenter pyvi     # chỉ định đích danh một bộ
 ```
 
 | Bộ | Chính chủ? | Vì sao có mặt |
@@ -180,7 +180,7 @@ model khác, nên độ dài thật phải đo bằng chính tokenizer của mod
 phụ thuộc vào model nào ([02_eda/02_metrics.md mục 9](../02_eda/02_metrics.md)).
 
 ```bash
-python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1
+python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1
 # -> data/reports/model_input/<mã phiên bản>/token_stats*.csv
 ```
 
@@ -221,10 +221,11 @@ trị ở cột `model` của bảng số liệu, và là thứ `--max-length` n
 0.6B là model thử nghiệm chính thức (xem [01_models.md](01_models.md)); số liệu của nó **giống hệt** bản
 4B vì dùng cùng tokenizer và cùng ngưỡng cắt - đó là điều đúng cần ghi lại, không phải lỗi trùng lặp.
 
-*Ghi chú về số dòng:* mỗi lần đo hiện ra **4 model × 3 split = 12 dòng**, nhưng 8 trong 9 file
-`token_stats__*.csv` của phiên bản đã được đo **trước** khi Qwen3-0.6B vào thử nghiệm nên vẫn chỉ có
-9 dòng. Chạy lại đúng lệnh của file đó (ví dụ `--prompt absa_direct_v1 --segmenter vncorenlp`) để nó có
-dòng thứ tư; file đã chạy lại (`--segmenter none`) là mẫu cho thấy 12 dòng trông thế nào.
+*Ghi chú về số dòng:* mỗi lần đo hiện ra **4 model × 3 split = 12 dòng**. Bảng gộp
+`data/reports/model_input/model_input.csv` vì thế có **192 dòng**: **16 tệp** `token_stats__*.csv`
+(8 tổ hợp prompt × ví dụ × bộ tách từ, mỗi tổ hợp một tệp cho MỖI phiên bản dữ liệu: `…-e0ccc484` và
+`…-e616c1e3`) × 12 dòng. Tám tệp của bộ cũ từng chỉ có 9 dòng vì đo trước khi Qwen3-0.6B vào thử
+nghiệm; đã chạy lại đủ bốn model ngày 30/09/2026.
 
 Ba chốt an toàn đi kèm:
 
@@ -301,10 +302,10 @@ Cùng một tokenizer (PhoBERT), cùng một tập dữ liệu (train, 12.302 re
 tách từ. Mỗi lần chạy ghi một file riêng nên so sánh luôn còn nguyên cả bốn bên:
 
 ```bash
-python run_token_stats.py --hash e0ccc484 --segmenter vncorenlp
-python run_token_stats.py --hash e0ccc484 --segmenter pyvi
-python run_token_stats.py --hash e0ccc484 --segmenter underthesea
-python run_token_stats.py --hash e0ccc484 --segmenter none
+python run_token_stats.py --hash e616c1e3 --segmenter vncorenlp
+python run_token_stats.py --hash e616c1e3 --segmenter pyvi
+python run_token_stats.py --hash e616c1e3 --segmenter underthesea
+python run_token_stats.py --hash e616c1e3 --segmenter none
 ```
 
 | Bộ tách từ | token/review TB | p50 | p95 | p99 | % > max_length | % `<unk>` | subword / từ |

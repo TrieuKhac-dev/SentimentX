@@ -126,7 +126,8 @@ Việc này là của **nhóm làm dự án**, không phải của người ch�
 test, `label_map.json`, `processing_log.json`). Đưa lên bằng cách mở Drive, tạo thư mục, rồi kéo từng
 thư mục vào đúng chỗ.
 **Danh sách notebook phải có trên Drive** - mười hai cái, một cái cho mỗi thí nghiệm đã ghim, tất cả đều
-chấm trên cùng tập `test` (1.518 review), thời gian ước tính trên T4:
+chấm trên cùng tập `test` của bộ dữ liệu đang dùng (`…-e616c1e3`, **1.623 review**), thời gian ước tính
+trên T4:
 
 | Nhóm | Notebook | Ước tính một lượt |
 | --- | --- | --- |

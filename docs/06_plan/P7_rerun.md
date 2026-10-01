@@ -143,7 +143,8 @@ không phải xoá (`scripts/build_package.py::declared_dataset_versions`).
       -> `feat(experiments): run baseline prompt experiments`
       **Phạm vi đã chốt lại (25/09/2026): NĂM thí nghiệm, không phải ba lượt của một thí nghiệm.**
       Ba mức 0/1/5 ví dụ của công bố là `prompt-cot/exp002`, `exp003`, `exp004`, mỗi mức chấm trên cả
-      tập `test` (`n: null`, 1.518 review); hai lượt LoRA cho encoder là `visobert/lora/exp001` và
+      tập `test` (`n: null`, **1.623** review ở bộ `v0.2.0` đang dùng; bộ cũ `v0.1.0` là 1.518); hai lượt
+      LoRA cho encoder là `visobert/lora/exp001` và
       `phobert-base-v2/lora/exp001`. Thí nghiệm `prompt-cot/exp001` (CoT 2 ví dụ, mức nội bộ của
       nhóm) đã được XOÁ theo yêu cầu: nó không phải một mức của công bố, giữ lại chỉ làm loãng bảng so
       sánh. Các thư mục kết quả của giai đoạn kiểm đường chạy (chấm trên `val`, `n` nhỏ) cũng đã được

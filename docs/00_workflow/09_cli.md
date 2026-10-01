@@ -10,7 +10,7 @@
 | Tên dataset | `cosmetics` | thư mục `configs/datasets/<tên>/` | `--name` |
 | Phiên bản cấu hình dataset | `v0.1.0` | tên file `configs/datasets/<tên>/<phiên bản>.yaml` | `run_pipeline.py --version` |
 | Nhãn `raw_version` | `v0.1.0` | thư mục `data/raw/<tên>/<nhãn>/` | `--on raw --version` |
-| Phiên bản dữ liệu đã xử lý: mã + `hash8` | mã `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484`, `hash8` = `e0ccc484` | `run_pipeline.py` in ra khi chạy; tên thư mục `data/processed/<mã>/` | `--hash` |
+| Phiên bản dữ liệu đã xử lý: mã + `hash8` | mã `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3`, `hash8` = `e616c1e3` | `run_pipeline.py` in ra khi chạy; tên thư mục `data/processed/<mã>/` | `--hash` |
 
 Hai giá trị `v0.1.0` ở bảng trên là **hai thứ khác nhau**: một cái là tên file cấu hình dataset, một cái
 là tên thư mục dữ liệu gốc. Vì vậy `--version` luôn đi kèm ngữ cảnh: `run_pipeline.py --name <tên>
@@ -19,8 +19,8 @@ là tên thư mục dữ liệu gốc. Vì vậy `--version` luôn đi kèm ng�
 `--hash` nhận cả hai cách viết của cùng một phiên bản dữ liệu:
 
 ```bash
---hash e0ccc484                                              # 8 ký tự hex cuối mã
---hash cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484 # mã đầy đủ
+--hash e616c1e3                                              # 8 ký tự hex cuối mã
+--hash cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 # mã đầy đủ
 ```
 
 Không khớp gì, hoặc `hash8` khớp nhiều phiên bản, đều là LỖI kèm danh sách đang có. Mã dài và có `@`,
@@ -37,18 +37,18 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | --- | --- |
 | Xử lý dữ liệu, tạo dataset + khoá tập đánh giá | `python run_pipeline.py --name cosmetics --version v0.1.0` |
 | EDA trên dữ liệu gốc | `python run_eda.py --on raw --name cosmetics --version v0.1.0` |
-| EDA trên dataset đã xử lý | `python run_eda.py --on dataset --hash e0ccc484` |
+| EDA trên dataset đã xử lý | `python run_eda.py --on dataset --hash e616c1e3` |
 | Vẽ báo cáo EDA của dữ liệu gốc | `python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0` |
-| Vẽ báo cáo EDA của dataset | `python build_report.py --phase eda --on dataset --hash e0ccc484` |
-| Vẽ báo cáo pipeline | `python build_report.py --phase pipeline --on dataset --hash e0ccc484` |
+| Vẽ báo cáo EDA của dataset | `python build_report.py --phase eda --on dataset --hash e616c1e3` |
+| Vẽ báo cáo pipeline | `python build_report.py --phase pipeline --on dataset --hash e616c1e3` |
 | Vẽ HẾT mọi đích đang có | `python build_report.py --all` (thu hẹp: `--phase eda --all`) |
 | Vẽ hết rồi mở hết bằng trình duyệt | `python build_report.py --all --open` |
 | Xem đang có gì + lệnh copy được | `python build_report.py --list` |
-| Đo input thật của tokenizer | `python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1` |
+| Đo input thật của tokenizer | `python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1` |
 | Liệt kê prompt / bộ tách từ | `python run_token_stats.py --list-prompts` · `--list-segmenters` |
-| Đo khi prompt dùng khối hệ thống | `python run_token_stats.py --hash e0ccc484 --prompt absa_cot_v1 --system absa_cot` |
-| Kiểm ví dụ few-shot (rò rỉ) | `python run_check_examples.py --hash e0ccc484` |
-| Kiểm MỘT prompt, hoặc đổi ngưỡng cụm trùng | `python run_check_examples.py --hash e0ccc484 --prompt absa_cot_5shot_v1 --max-overlap 8` |
+| Đo khi prompt dùng khối hệ thống | `python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1 --system absa_cot` |
+| Kiểm ví dụ few-shot (rò rỉ) | `python run_check_examples.py --hash e616c1e3` |
+| Kiểm MỘT prompt, hoặc đổi ngưỡng cụm trùng | `python run_check_examples.py --hash e616c1e3 --prompt absa_cot_5shot_v1 --max-overlap 8` |
 | Vẽ báo cáo mở được KHÔNG cần mạng | thêm `--plotlyjs local` (mặc định) hoặc `--plotlyjs cdn` khi muốn dùng CDN |
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` |
@@ -70,7 +70,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | `build_report.py --phase pipeline --on raw` | pipeline chỉ có nguồn là dataset đã xử lý | 2 |
 | `build_report.py --phase all` | cú pháp không còn được nhận; dùng `--all` | 2 |
 | `build_report.py --dataset <tên>` | cú pháp không còn được nhận; dùng `--name` | 2 |
-| `build_report.py --on raw --hash e0ccc484` | `--hash` thuộc dataset đã xử lý | 2 |
+| `build_report.py --on raw --hash e616c1e3` | `--hash` thuộc dataset đã xử lý | 2 |
 | `build_report.py --on raw --version <mã>` | mã phiên bản không phải nhãn `raw_version` | 2 |
 | `build_report.py --on dataset --version v0.1.0` | với dataset thì dùng `--hash` | 2 |
 | `--hash` không khớp phiên bản nào | in danh sách mã đang có | 2 |

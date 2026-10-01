@@ -146,7 +146,7 @@ Các lệnh phụ trợ:
 ```bash
 python build_report.py --list                            # xem mọi đích + lệnh copy được
 python build_report.py --all                             # vẽ hết; mặc định chỉ in link file://
-python build_report.py --phase pipeline --on dataset --hash e0ccc484 --open   # vẽ rồi mở luôn
+python build_report.py --phase pipeline --on dataset --hash e616c1e3 --open   # vẽ rồi mở luôn
 ```
 
 **Mã thoát (exit code) của ba entrypoint** - dùng được trong script:

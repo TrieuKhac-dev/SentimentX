@@ -239,9 +239,10 @@ cạnh **thực sự được nhắc tới**:
 
 **Vì sao số bản ghi ABSA nhỏ hơn số dòng?** Vì một phần dữ liệu **không có nhãn khía
 cạnh nào** (mọi ô = `0`) - xem [02_eda/02_metrics.md mục 11](../02_eda/02_metrics.md).
-Trên cosmetics: 15344 dòng -> **13213** bản ghi ABSA, tức 2131 dòng không sinh bản ghi
-nào. Những dòng đó **vẫn được giữ** trong `train.csv`, `val.csv`, `test.csv` (để bảng đủ số dòng và
-truy vết được), chỉ không xuất hiện trong dạng ABSA.
+Trên cosmetics, bản `…-e616c1e3` (v0.2.0): 15.426 dòng -> **13.219** bản ghi ABSA, tức **2.207** dòng
+không sinh bản ghi nào (bản `…-e0ccc484`: 15.344 dòng -> 13.213). Những dòng đó **vẫn được giữ** trong
+`train.csv`, `val.csv`, `test.csv` (để bảng đủ số dòng và truy vết được), chỉ không xuất hiện trong dạng
+ABSA.
 
 Chi tiết định dạng đầu ra và ví dụ đầy đủ: [05_output.md](05_output.md).
 
@@ -258,11 +259,13 @@ Làm: đây là **cổng chất lượng** của lần chạy, kiểm tra:
 | Nhãn                          | mọi mã nhãn nằm trong `0/1/2/3`                                                                                                    |
 | Số dòng                       | số dòng đầu ra khớp với số dòng được giữ sau Clean                                                                                 |
 | **Nhãn không bị đổi**         | dấu vân tay nhãn trước / sau chuẩn hoá phải trùng - [04_invariants.md mục 1](04_invariants.md)                                        |
-| **Văn bản chỉ đổi hình thức** | từng dòng đầu ra phải khớp với dòng gốc sau khi áp lại `normalize_steps` (so từng ký tự) - [04_invariants.md mục 2](04_invariants.md) |
+| **Văn bản chỉ đổi hình thức** | từng dòng đầu ra phải khớp với dòng gốc sau khi áp lại `normalize_steps` (so từng ký tự); split KHÔNG nằm trong `steps.normalize.apply_to` phải bằng **ĐÚNG** bản gốc - [04_invariants.md mục 2](04_invariants.md) |
 
 Ra: `final_validation.json` + bảng hạng mục **ĐẠT / LỖI** trên báo cáo. Kết quả hiện
-tại của dataset cosmetics: tất cả ĐẠT, trong đó "Văn bản chỉ đổi hình thức" là
-**15344/15344 dòng khớp** - tức không có dòng nào bị viết lại, không mất dấu tiếng Việt.
+tại của bản đang dùng (`…-e616c1e3`): tất cả ĐẠT, trong đó "Văn bản chỉ đổi hình thức"
+ghi **13.803 dòng khớp dòng gốc sau chuẩn hoá + 1.623 dòng của `test` bằng đúng bản gốc** -
+tức không dòng nào bị viết lại, không mất dấu tiếng Việt, mà `test` còn nguyên hơn thế.
+(Bản `…-e0ccc484` ghi **15.344/15.344** vì mọi split đều bị chuẩn hoá.)
 
 Bước này **không phân tích, không vẽ biểu đồ**: nó chỉ trả lời ĐẠT hay LỖI. Xem thêm
 mục "Phân biệt ba loại kiểm tra" ở [01_flow.md mục 6](01_flow.md).
