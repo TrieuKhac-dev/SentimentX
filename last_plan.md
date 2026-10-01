@@ -9,8 +9,10 @@ metrics của lượt chạy, rescore, và collect_reports).
 
 ## Trạng thái tổng
 
-- Đang ở: mới ghi kế hoạch, chưa code.
-- Nhánh: `experiment`. Commit sau mỗi mục đã xong.
+- Đang ở: ĐANG DỞ. Xong Nhóm 0 (0-1..0-6), code Nhóm A (A-1..A-4; A-5/A-6 chặn), B-2/B-3/B-6, C-2.
+  Còn lại: C-1, C-3, D-1..D-6, E-1..E-2, F-1..F-4, G-1..G-7, H-1..H-7.
+- Nhánh: `experiment`. Mỗi mục xong = một commit (xem `git log`).
+- CI sạch, test 774 OK (skipped=2) ở thời điểm dừng.
 
 ---
 

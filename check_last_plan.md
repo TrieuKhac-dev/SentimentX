@@ -63,5 +63,10 @@
 - [ ] H-1 .. H-7 ghi các chốt thiết kế
 
 ## Trạng thái tổng
-- Đang ở: Nhóm 0 XONG (0-1..0-6). Tiếp theo: Nhóm A.
-- CI: sạch. Test: 761 tests OK (skipped=2).
+- Nhóm 0: XONG (0-1..0-6).
+- Nhóm A: XONG code A-1..A-4 (commit 80b6e3b, 01d875e, da7bb72). A-5/A-6 CHẶN (cần push GitHub / mạng DagsHub).
+- Nhóm B: XONG B-2/B-3/B-6 (commit 551724e). Còn B-1/B-4/B-5 (việc tài liệu, gộp vào G-4).
+- Nhóm C: XONG C-2 (commit 1240084, 2818b2f). Còn C-1 (val dùng `Samples`) và C-3 (test bất đối xứng).
+- Còn lại nguyên: D-1..D-6, E-1..E-2, F-1..F-4, G-1..G-7, H-1..H-7.
+- CI: sạch (`CI_EXIT=0`). Test: 774 tests OK (skipped=2).
+- Trạng thái file: ĐANG DỞ - dừng ở đây để tránh vào việc lớn (C-1) khi còn ít ngân sách phiên.
