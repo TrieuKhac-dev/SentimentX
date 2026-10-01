@@ -29,7 +29,7 @@ data/raw/<name>/<raw_version>/data_train.csv, data_val.csv, data_test.csv   (ch�
         |                                   đổi tên cột văn bản thành `text`
         ->
 run_eda.py --on raw --name <tên> --version <nhãn raw_version>
-        |   • đọc config: configs/datasets/<name>/<version>.yaml + configs/pipeline/v0.1.0.yaml
+        |   • đọc config: configs/datasets/<name>/<version>.yaml + configs/pipeline/<phiên bản>.yaml (<phiên bản> lấy từ `pipeline_version` của file dataset)
         |   • tính mã phiên bản (src/core/versioning.py) -> thư mục phiên bản
         |   • lần lượt gọi 5 module theo src/core/registry.py::EDA_MODULES, mỗi module
         |     nhận cùng một `context` và trả về một MỤC báo cáo (dict)
@@ -69,7 +69,7 @@ dùng trong repo**:
 
 | Tham số                               | Nơi khai báo                     | Giá trị hiện tại                                                                 | Ảnh hưởng                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `steps.clean.deduplicate.ignore_diacritics` | `configs/pipeline/v0.1.0.yaml`   | **`false`** (TẮT)                                                                | khoá so trùng của EDA 03 và EDA 05 **giữ dấu tiếng Việt** - đúng bằng khoá mà pipeline dùng, nên hai bên không bao giờ lệch nhau. Đây là **config duy nhất** của pipeline mà EDA đọc |
+| `steps.clean.deduplicate.ignore_diacritics` | `configs/pipeline/<phiên bản>.yaml`   | **`false`** (TẮT)                                                                | khoá so trùng của EDA 03 và EDA 05 **giữ dấu tiếng Việt** - đúng bằng khoá mà pipeline dùng, nên hai bên không bao giờ lệch nhau. Đây là **config duy nhất** của pipeline mà EDA đọc |
 | `GIBBERISH_RATIO_THRESHOLD`           | `src/core/config.py`                  | `0.5`                                                                            | review bị coi là "ứng viên gibberish" khi >= 50% token không giống từ (định nghĩa token bất thường: [02_metrics.md](02_metrics.md) mục 4)                                                |
 | `REPEATED_CHAR_MIN`                   | `src/core/config.py`                  | `3`                                                                              | ký tự lặp liên tiếp từ 3 lần trở lên mới tính là "có ký tự lặp"                                                                                                                      |
 | `AD_PATTERNS`                         | `src/core/config.py`                  | 11 mẫu gõ tay (`[qc]`, `[tb]`, `viettel`, `http(s)://`, `bit.ly`, `soạn ... gửi`...) | nhóm "có dấu hiệu quảng cáo"                                                                                                                                                         |
@@ -86,7 +86,7 @@ dùng trong repo**:
 > cả EDA lẫn pipeline) hoặc trong `src/eda/*.py` (chỉ EDA dùng). Những thay đổi này
 > **không** làm đổi mã phiên bản dữ liệu, vì mã phiên bản chỉ tính từ config dataset
 >
-> - `configs/pipeline/v0.1.0.yaml` + nội dung dữ liệu gốc.
+> - `configs/pipeline/<phiên bản>.yaml` + nội dung dữ liệu gốc.
 
 ## 4. Chạy
 
@@ -127,7 +127,7 @@ python build_report.py --phase eda --on dataset --hash e0ccc484   # vẽ một �
 
 > Mã phiên bản đổi mỗi khi **config hoặc dữ liệu gốc** đổi (mã hash tính từ cả
 > hai), nên hãy lấy mã đúng từ `--list`. Vì vậy sau mỗi lần sửa
-> `configs/pipeline/v0.1.0.yaml` sẽ có thêm một thư mục phiên bản mới, không ghi đè bản cũ.
+> `configs/pipeline/<phiên bản>.yaml` sẽ có thêm một thư mục phiên bản mới, không ghi đè bản cũ.
 
 Nếu gõ sai `--name` (hoặc để thiếu `--on`), `run_eda.py` dừng ngay với dòng `LỖI: ...` kèm cách sửa
 và danh sách tên đúng, rồi trả **mã thoát `2`** (không in traceback, không ghi thư mục rỗng). Bảng

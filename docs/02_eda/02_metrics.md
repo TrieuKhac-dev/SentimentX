@@ -55,7 +55,7 @@ Vì sao vẫn dùng: đo trên dữ liệu gốc `cosmetics` cho thấy nhóm n�
 chuỗi gõ bàn phím (`Obdhsjdbdhdjdjdjsgs...`, `Hy...jjjjjjjj`), tức nó lọc đúng thứ cần
 lọc. Các ngưỡng là chọn tay, nên trong báo cáo chỉ số này xuất hiện **một dòng**
 trong bảng "Chỉ số chất lượng theo split"; bật/tắt bằng
-`steps.clean.remove_gibberish` trong `configs/pipeline/v0.1.0.yaml`, và mọi dòng bị loại đều được
+`steps.clean.remove_gibberish` trong `configs/pipeline/<phiên bản>.yaml`, và mọi dòng bị loại đều được
 ghi lại ở `removed_records.csv`.
 
 ## 5. "Trùng theo KHOÁ so trùng" - và nó KHÁC bước Normalize thế nào
@@ -198,7 +198,7 @@ khác nhau, giúp đọc bảng top từ mà biết phần nào là dương tín
 > teencode (kể cả bằng từ điển) đều là suy diễn, và viết lại văn bản sẽ tạo ra dữ
 > liệu không còn là điều người dùng nói. Vì vậy:
 >
-> - bộ quy tắc này **không có config nào trong `configs/pipeline/v0.1.0.yaml`**; pipeline
+> - bộ quy tắc này **không có config nào trong `configs/pipeline/<phiên bản>.yaml`**; pipeline
 >   không có phép loại bỏ / thay thế / viết lại teencode, cũng không có phép bỏ dấu
 >   tiếng Việt;
 > - bước Final Validate **chứng minh** điều đó bằng số liệu: hạng mục "Văn bản chỉ
