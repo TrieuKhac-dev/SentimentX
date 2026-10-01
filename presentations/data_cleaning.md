@@ -19,10 +19,9 @@ flowchart LR
     classDef step  fill:#5FA36B33,stroke:#5FA36B,stroke-width:1.5px,rx:12,ry:12,padding:12px;
 ```
 
-| Bước | Làm gì | Ví dụ |
-| --- | --- | --- |
-| 1 · Unicode (NFC) | gộp ký tự có dấu về **một** dạng chuẩn (NFD → NFC) | ký tự `e` ghép với dấu sắc → một ký tự `é` |
-| 2 · Khoảng trắng | gộp space/tab thừa thành 1 space; gộp nhiều dòng trống thành 1; cắt khoảng trắng hai đầu | `"Son  đẹp\t\tquá  "` → `"Son đẹp quá"` |
+| Bước              | Làm gì                                                                                   | Ví dụ                                      |
+| ----------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------ |
+| 1 · Unicode (NFC) | gộp ký tự có dấu về **một** dạng chuẩn (NFD → NFC)                                       | ký tự `e` ghép với dấu sắc → một ký tự `é` |
+| 2 · Khoảng trắng  | gộp space/tab thừa thành 1 space; gộp nhiều dòng trống thành 1; cắt khoảng trắng hai đầu | `"Son  đẹp\t\tquá  "` → `"Son đẹp quá"`    |
 
-**Không** làm: không viết lại teencode (`xjnk` giữ nguyên), không bỏ dấu (`đẹp` giữ nguyên), và
-**không loại review nào** — lúc inference ta **đánh giá** review, không vứt nó đi.
+**Không** làm: không viết lại teencode (`xjnk` giữ nguyên), không bỏ dấu (`đẹp` giữ nguyên).
