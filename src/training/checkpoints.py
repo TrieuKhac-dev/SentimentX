@@ -32,9 +32,13 @@ POLICY_KEYS = (
     "save_last",
     "save_best",
     "delete_intermediate",
+    # Chỉ số dùng để chọn `model/best` và để dừng sớm: phải là một khoá có trong kết quả `measure()`
+    # của trainer (đường encoder). Xem docs/04_experiments/06_lora_encoder.md.
+    "best_metric",
 )
 
 BOOL_KEYS = ("save_last", "save_best", "delete_intermediate")
+STR_KEYS = ("best_metric",)
 
 
 class CheckpointError(Exception):
@@ -65,6 +69,8 @@ def settings(config):
         value = _get(config, "checkpoints.{}".format(key))
         if key in BOOL_KEYS:
             found[key] = bool(value)
+        elif key in STR_KEYS:
+            found[key] = str(value)
         else:
             found[key] = int(value)
     return found

@@ -383,41 +383,88 @@ def parameter_counts(model):
     return trainable, total
 
 
-def measure(model, module, data, found, codes, device):
-    """Độ chính xác theo Ô của một tập (dùng `val` để chọn `model/best`).
+def measure(model, module, data, found, codes, device, aspects, task, labels):
+    """Đo `val` bằng ĐÚNG engine chấm điểm của lượt chạy (`src/evaluation/scorers`).
 
-    Mỗi ô là một cặp (review, khía cạnh) được tính, nên đây là con số cùng họ với chỉ số của phần
-    chấm điểm; ô bị loại không vào mẫu số.
+    Trả về dict gồm `loss` (cross-entropy trên các ô được tính) và các chỉ số của `Samples`:
+    `accuracy_cell` (gộp), `accuracy_macro`, `sentiment_f1`/`sentiment_precision`/`sentiment_recall`,
+    `detection_f1`, `cells`, `correct`.
+
+    Vì sao dùng `Samples`: `val` phải có ĐÚNG bộ chỉ số như `test`, nên việc chọn `model/best` và
+    dừng sớm KHÔNG phải định nghĩa lại metric lần thứ hai.
+
+    `data["labels"]` đã ở KHÔNG GIAN NHÃN của thí nghiệm (ô bị loại mang mã neutral), nên đưa thẳng
+    vào `Samples.build` với cùng `task` là ĐÚNG: phép chiếu lặp lại không đổi gì.
     """
     import torch
+
+    from src.evaluation import scorers
 
     if not data or not data.get("texts"):
         return None
     ids, masks = encode(module, data["texts"], found["max_length"])
     targets = targets_from(data["labels"], codes)
     keep = torch.tensor(data["mask"], dtype=torch.float32)
-    correct, total = 0, 0
     was_training = model.training
     model.eval()
+    loss_sum, weight_sum, answers = 0.0, 0.0, []
     with torch.no_grad():
         for start in range(0, ids.size(0), found["eval_batch"]):
             stop = start + found["eval_batch"]
             logits = model(input_ids=ids[start:stop].to(device),
                            attention_mask=masks[start:stop].to(device))
-            guess = logits.argmax(dim=-1).cpu()
-            weight = keep[start:stop]
-            correct += int(((guess == targets[start:stop]) * weight).sum().item())
-            total += int(weight.sum().item())
+            weight = keep[start:stop].reshape(-1)
+            flat = torch.nn.functional.cross_entropy(
+                logits.reshape(-1, len(codes)), targets[start:stop].reshape(-1), reduction="none")
+            loss_sum += float((flat * weight).sum().item())
+            weight_sum += float(weight.sum().item())
+            answers.extend(logits.argmax(dim=-1).cpu().tolist())
     if was_training:
         model.train()
-    return {"accuracy_cell": round(correct / total, 6) if total else None,
-            "cells": total, "correct": correct}
+
+    gold_rows = [dict(zip(aspects, row)) for row in data["labels"]]
+    pred_rows = [dict(zip(aspects, row)) for row in answers]
+    samples = scorers.Samples.build(aspects, gold_rows, pred_rows, task=task, labels=labels)
+    accuracy = samples.accuracy()
+    sentiment = samples.per_sentiment()["macro"]
+    detection = samples.detection()["macro"]
+    return {
+        "loss": round(loss_sum / weight_sum, 6) if weight_sum else None,
+        "accuracy_cell": round(accuracy["micro"], 6),
+        "accuracy_macro": round(accuracy["macro"], 6),
+        "sentiment_f1": round(sentiment["f1"], 6),
+        "sentiment_precision": round(sentiment["precision"], 6),
+        "sentiment_recall": round(sentiment["recall"], 6),
+        "detection_f1": round(detection["f1"], 6),
+        "cells": accuracy["cells"],
+        "correct": accuracy["correct"],
+    }
 
     return removed
 
 
+# Chỉ số mà `measure()` có thể tính - `checkpoints.best_metric` phải nằm trong đây.
+MEASURED_METRICS = ("accuracy_cell", "accuracy_macro", "sentiment_f1", "sentiment_precision",
+                    "sentiment_recall", "detection_f1", "loss")
+
+
+def early_settings(config):
+    """Chính sách DỪNG SỚM. Thiếu khoá là LỖI kèm nơi khai (không đặt mặc định trong code).
+
+    CHỈ đường huấn luyện encoder dùng; model prompt không huấn luyện nên không đụng tới.
+    """
+    found = {}
+    for key, caster in (("enabled", bool), ("patience", int), ("min_delta", float)):
+        found[key] = caster(_get(config, "early_stop.{}".format(key)))
+    if found["patience"] < 1:
+        raise TrainingError(
+            "`early_stop.patience` phải >= 1 (đang là {}). Khai ở configs/experiments/training.yaml."
+            .format(found["patience"]))
+    return found
+
+
 def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42, source=None,
-        log=None):
+        labels=None, log=None):
     """Huấn luyện LoRA rồi trả về số liệu của lượt huấn luyện.
 
     `train` và `val` là dict `{"texts": [...], "labels": [[mã nhãn]], "mask": [[0/1]]}` với nhãn ĐÃ
@@ -442,6 +489,14 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     # src/training/checkpoints.py (chính sách, chỗ lưu) và src/training/savers/ (writer).
     policy = checkpoints.settings(config)
     store = checkpoints.Store(out_dir, policy)
+    early = early_settings(config)
+    task = {key: _get(config, key) for key in ("label_space", "neutral_policy", "not_mentioned")}
+    labels = dict(labels or {})
+    metric = policy["best_metric"]
+    if metric not in MEASURED_METRICS:
+        raise TrainingError(
+            "`checkpoints.best_metric` = '{}' không phải chỉ số mà `measure()` tính. Chọn một trong: "
+            "{}.".format(metric, ", ".join(MEASURED_METRICS)))
     writer = savers.get()
 
     random.seed(seed)
@@ -498,16 +553,23 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     started = time.time()
     model.train()
     pending = 0
+    epoch_loss_sum, epoch_weight = 0.0, 0.0
+    stale, stopped_early = 0, False
+    patience, min_delta = early["patience"], early["min_delta"]
 
     def record(epoch_done, metrics, snapshot):
-        """Ghi trạng thái hiện tại: `model/best` khi tốt hơn, và ảnh chụp khi được yêu cầu."""
+        """Ghi trạng thái hiện tại: `model/best` khi TỐT HƠN theo `checkpoints.best_metric`.
+
+        Metric do config quyết định (không hardcode): mặc định `sentiment_f1` (macro-F1 sắc thái) vì
+        `accuracy_cell` bị lớp trội chi phối khi dữ liệu mất cân bằng.
+        """
         nonlocal best
         improved = False
-        value = (metrics or {}).get("accuracy_cell")
+        value = (metrics or {}).get(metric)
         if value is not None:
-            improved = best is None or value > float(best.get("accuracy_cell") or -1)
+            improved = best is None or value > float(best.get(metric) or -1)
             if improved:
-                best = {"epoch": epoch_done, "step": step, **metrics}
+                best = {"epoch": epoch_done, "step": step, "metric": metric, **metrics}
                 if policy["save_best"]:
                     store.save(store.best_dir(), writer, payload(epoch_done, metrics),
                                checkpoint_payload(), weights_only=True)
@@ -551,31 +613,60 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             step += 1
             if step % policy["every_n_steps"]:
                 continue
-            metrics = measure(model, module, val, found, codes, device)
+            metrics = measure(model, module, val, found, codes, device, aspects, task, labels)
             # `detach()` trước khi đổi sang số: `loss` còn gắn đồ thị tính đạo hàm, và PyTorch cảnh báo
             # (`Converting a tensor with requires_grad=True to a scalar...`) - cảnh báo đã hiện trong
             # run.log của lượt chạy thật, làm log khó đọc mà không có lỗi nào thật.
             loss_value = float(loss.detach())
-            history.append({"step": step, "epoch": epoch + 1, "loss": round(loss_value, 6),
+            weight_now = float(batch["mask"].to(torch.float32).sum().item())
+            epoch_loss_sum += loss_value * weight_now
+            epoch_weight += weight_now
+            history.append({"kind": "step", "step": step, "epoch": epoch + 1,
+                            "loss": round(loss_value, 6),
                             "lr": round(float(scheduler.get_last_lr()[0]), 8), "val": metrics})
             improved = record(epoch + 1, metrics, snapshot=True)
             message = "bước {} | loss {:.4f} | val {} | {}".format(
-                step, loss_value, value_text(metrics),
+                step, loss_value, value_text(metrics, metric),
                 "đã lưu model/best" if improved else "chưa tốt hơn")
             print("  " + message)
             if log is not None:
                 log.step(message)
+            stale = 0 if improved else stale + 1
+            if early["enabled"] and stale >= patience:
+                stopped_early = True
+                note = ("dừng sớm: '{}' không tăng quá {} trong {} lần đo liên tiếp (bước {})"
+                        .format(metric, min_delta, patience, step))
+                print("  " + note)
+                if log is not None:
+                    log.step(note)
+                break
 
-        metrics = measure(model, module, val, found, codes, device)
+        metrics = measure(model, module, val, found, codes, device, aspects, task, labels)
         # Cuối epoch cũng có thể là bước TỐT NHẤT: khối `if improved` trong `record` ghi `model/best`
         # KHÔNG phụ thuộc `snapshot`, nên bản tốt nhất có thể ở đây. Không nói ra thì người đọc console
         # tưởng bản đang chấm là bước in ra gần nhất - đã gặp thật: `model/best` ở bước 1153 trong khi
         # console chỉ in "đã lưu model/best" ở bước 1100.
         best_now = record(epoch + 1, metrics, snapshot=False)
         store.save(store.last_dir(), writer, payload(epoch + 1, metrics), checkpoint_payload())
+        # Một dòng LỊCH SỬ cho cả epoch: loss train trung bình + loss/chỉ số val - dữ liệu để vẽ curve
+        # train/val (`training_history.csv`) và để nhìn ra overfit.
+        history.append({"kind": "epoch", "step": step, "epoch": epoch + 1,
+                        "train_loss": round(epoch_loss_sum / epoch_weight, 6) if epoch_weight else None,
+                        "val_loss": (metrics or {}).get("loss"), "val": metrics})
+        epoch_loss_sum, epoch_weight = 0.0, 0.0
         print("hết epoch {}/{}: {} bước, val {} | {}".format(
-            epoch + 1, found["epochs"], step, value_text(metrics),
+            epoch + 1, found["epochs"], step, value_text(metrics, metric),
             "đã lưu model/best" if best_now else "chưa tốt hơn"))
+        stale = 0 if best_now else stale + 1
+        if early["enabled"] and stale >= patience:
+            stopped_early = True
+            note = ("dừng sớm sau epoch {}: '{}' không tăng quá {} trong {} lần đo liên tiếp"
+                    .format(epoch + 1, metric, min_delta, patience))
+            print("  " + note)
+            if log is not None:
+                log.step(note)
+        if stopped_early:
+            break
 
     seconds = round(time.time() - started, 1)
     if policy["save_best"] and best is None:
@@ -592,11 +683,11 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             "best_dir": (str(store.best_dir()) if store.best_dir().is_dir() else None)}
 
 
-def value_text(metrics):
+def value_text(metrics, metric="accuracy_cell"):
     """Điểm val để IN RA: `chưa có val` khi lượt huấn luyện không có tập val."""
-    if not metrics or metrics.get("accuracy_cell") is None:
+    if not metrics or metrics.get(metric) is None:
         return "chưa có val"
-    return "{:.4f} ({} ô)".format(metrics["accuracy_cell"], metrics["cells"])
+    return "{}={:.4f} ({} ô)".format(metric, metrics[metric], metrics.get("cells", 0))
 
 
 def predict(config, model_id, adapter_dir, texts, source=None):

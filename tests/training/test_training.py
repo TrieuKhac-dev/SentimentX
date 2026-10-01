@@ -48,7 +48,8 @@ BASE_CONFIG = {
     "lora": {"r": 8, "alpha": 16, "dropout": 0.05, "target_modules": ["query", "value"]},
     "lr": 0.0002, "batch": 4, "epochs": 1, "grad_accum": 2, "weight_decay": 0.01,
     "checkpoints": {"every_n_steps": 2, "keep_last_k": 1, "save_last": True, "save_best": True,
-                    "delete_intermediate": True},
+                    "delete_intermediate": True, "best_metric": "sentiment_f1"},
+    "early_stop": {"enabled": False, "patience": 2, "min_delta": 0.0},
     "preprocess": {"max_length": 64},
     "inference": {"dtype": "auto", "batch_size": 4},
     "url": "https://example.invalid/repo",
@@ -428,6 +429,36 @@ class SilentLog:
 
     def config(self, *args, **kwargs):
         pass
+
+
+class EarlyStopSettingsTest(unittest.TestCase):
+    """D-1: thiếu khoá `early_stop.*` là LỖI kèm nơi khai (không đặt mặc định trong code)."""
+
+    def test_missing_key_is_a_clear_error(self):
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.early_settings({})
+        self.assertIn("early_stop.enabled", str(caught.exception))
+
+    def test_patience_must_be_at_least_one(self):
+        config = {"early_stop": {"enabled": True, "patience": 0, "min_delta": 0.0}}
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.early_settings(config)
+        self.assertIn("patience", str(caught.exception))
+
+    def test_reads_the_policy(self):
+        config = {"early_stop": {"enabled": True, "patience": 3, "min_delta": 0.01}}
+        self.assertEqual(lora.early_settings(config),
+                         {"enabled": True, "patience": 3, "min_delta": 0.01})
+
+
+class BestMetricTest(unittest.TestCase):
+    """D-2: `checkpoints.best_metric` là chuỗi, và phải nằm trong bộ chỉ số `measure()` tính."""
+
+    def test_policy_keeps_the_metric_name(self):
+        self.assertEqual(checkpoints.settings(BASE_CONFIG)["best_metric"], "sentiment_f1")
+
+    def test_default_metric_is_in_the_measured_set(self):
+        self.assertIn(checkpoints.settings(BASE_CONFIG)["best_metric"], lora.MEASURED_METRICS)
 
 
 class EncoderRunGuardTest(unittest.TestCase):

@@ -54,6 +54,29 @@ def roles_of(config_data):
     return roles
 
 
+HISTORY_COLUMNS = ["kind", "epoch", "step", "loss", "train_loss", "val_loss", "lr",
+                   "accuracy_cell", "accuracy_macro", "sentiment_f1", "sentiment_precision",
+                   "sentiment_recall", "detection_f1", "cells"]
+
+
+def history_rows(history):
+    """Đổi `history` của lượt huấn luyện thành các dòng cho `training_history.csv`.
+
+    Một dòng là MỘT điểm đo: `kind="step"` (đo theo bước) hoặc `kind="epoch"` (cuối epoch). Cột val
+    lấy từ `val` của điểm đo, nên curve train/val đọc thẳng file này mà không phải tính lại.
+    """
+    rows = []
+    for item in history or []:
+        val = dict(item.get("val") or {})
+        rows.append([item.get("kind", ""), item.get("epoch", ""), item.get("step", ""),
+                     item.get("loss", ""), item.get("train_loss", ""), item.get("val_loss", ""),
+                     item.get("lr", ""), val.get("accuracy_cell", ""), val.get("accuracy_macro", ""),
+                     val.get("sentiment_f1", ""), val.get("sentiment_precision", ""),
+                     val.get("sentiment_recall", ""), val.get("detection_f1", ""),
+                     val.get("cells", "")])
+    return rows
+
+
 def log_config(plan_data, log):
     """Bảng GHI ĐÈ và giá trị hiệu lực của lượt huấn luyện, ghi vào `run.log` nhãn `[CONFIG]`."""
     config_data = plan_data["config"]
@@ -432,10 +455,17 @@ def run(plan_data, log=None):
                              train=plan_data["data"]["train"], val=plan_data["data"]["val"],
                              aspects=plan_data["aspects"], codes=plan_data["codes"],
                              fingerprint=plan_data["fingerprint"], seed=plan_data["seed"],
-                             source=plan_data["model"], log=log)
+                             source=plan_data["model"], labels=plan_data.get("labels"), log=log)
         log.step("huấn luyện xong: {} bước trong {} giây ({} tham số học / {} tổng)".format(
             report["steps"], report["seconds"], report["trainable_params"],
             report["total_params"]), seconds=report["seconds"])
+        # Lịch sử huấn luyện (loss/chỉ số theo bước và theo epoch) ghi ra CSV: dữ liệu để vẽ curve
+        # train/val và để nhìn ra overfit. File nhẹ nên vào git và lên MLflow như bằng chứng.
+        history_path = utils.write_csv(
+            history_rows(report.get("history")), HISTORY_COLUMNS,
+            out_dir / paths.pattern("training_history"))
+        log.step("ghi lịch sử huấn luyện: {} ({} điểm đo)".format(
+            utils.rel(history_path), len(report.get("history") or [])))
         # Máy, kiểu số và số tham số chỉ biết được SAU khi huấn luyện, nên bổ sung vào bản ghi.
         record["env"].update(run_meta.device_info(
             device_info(report), quant=found["quantization"]))
