@@ -77,7 +77,8 @@ tiết ở T8. Không còn mục nào phải chờ P7.
       Kiểm từng cam kết một: độ chính xác của bài toán nhắc tới (cả hai lớp), macro/micro và khớp
       hoàn toàn, `acc khi có nhắc`, điểm macro bỏ qua lớp không có ô nào, không gian `full` giữ mã
       0 như một lớp, trục ma trận nhầm có đủ nhãn, `metrics.csv` đúng dạng bảng dài, và
-      `mispredictions.csv` chỉ có ô đoán sai.
+      `mispredictions.csv` chỉ có ô đoán sai - và từ 01/10/2026 có thêm `mispredictions_paper.csv`,
+      danh sách ô đoán sai theo cơ sở đo của công bố (tập con của tệp trước).
 
 Việc sửa theo góp ý khi rà soát (header tài liệu đúng hai dòng, và đổi tên prompt dùng chung
 theo nội dung thay vì theo model) nằm chung một commit `623c053`, vì ba file tài liệu bị cả hai

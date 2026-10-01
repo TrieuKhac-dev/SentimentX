@@ -19,10 +19,13 @@ mlflow_tags:
   config_sha256: auto
 
 # File nhỏ được tải lên. KHÔNG tải checkpoint và predictions.csv.
+# CẢ HAI cơ sở đo đều lên: số của cơ sở `paper` nằm trong `metrics.json` (khoá `scores_paper`), còn
+# danh sách ô đoán sai của cơ sở đó là một file nhẹ riêng. Cơ sở `paper` không có file nặng nào thêm.
 artifacts:
   - run_meta.json
   - metrics.json
   - metrics.csv
   - mispredictions.csv
+  - mispredictions_paper.csv
   - model_input.csv
   - plots/accuracy.html

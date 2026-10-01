@@ -67,7 +67,7 @@ Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là
 | `tracker`     | `mlflow`, `local_json` hoặc `none`; tên phải có trong registry `TRACKERS`                            |
 | `experiment`  | tên experiment trên máy chủ MLflow                                                                   |
 | `mlflow_tags` | nhãn của run trên DagsHub, không phải git tag. Giá trị `auto` nghĩa là notebook tự lấy từ `info` của lượt chạy - tra ở cả khối `experiment` lồng trong đó (`model`, `method`, `exp_id` ghi theo khối, xem `src/tracking/base.py::resolve_tags`). Nhãn nào thiếu giá trị thì BỎ, không gắn chuỗi `auto` |
-| `artifacts`   | danh sách file nhỏ được tải lên; không tải checkpoint                                                |
+| `artifacts`   | danh sách file nhỏ được tải lên; không tải checkpoint. CẢ HAI cơ sở đo đều lên: số của cơ sở `paper` nằm trong `metrics.json` (khoá `scores_paper`), và danh sách ô đoán sai của cơ sở đó là `mispredictions_paper.csv` |
 
 Ba trình ghi nhận đang có (registry `TRACKERS` ở `src/tracking/`):
 
