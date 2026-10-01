@@ -314,7 +314,8 @@ def plan(config_data, merged, ds, version_id, split=None, limit=None, model=None
         "quiet": quiet, "hash": hash8, "out_dir": out_dir, "info": info, "repo": repo,
         "config_sha256": config_sha, "fingerprint": fingerprint, "mode": mode, "reason": reason,
         "parts": parts, "skip": skip, "roles": roles, "rows_by_role": rows_by_role,
-        "eval_lock": eval_lock, "training": found, "model": model or found["checkpoint"],
+        "eval_lock": eval_lock, "training": {**found, **checkpoints.settings(config_data)},
+        "model": model or found["checkpoint"],
         "files": experiment_run.input_files(ds, None, model_id, None, None),
         # Không dùng cho model encoder, nhưng phần ghi kết quả dùng chung với đường prompt đọc
         # chúng; để None thay vì bỏ khoá, nhờ vậy hai đường không cần hai bản ghi kết quả.
@@ -393,7 +394,8 @@ def run(plan_data, log=None):
 
     runtime.load_env()
 
-    with runlog.start(out_dir, mode=mode, info=plan_data["info"]) as active:
+    with runtime.end_session_on_error(), runlog.start(out_dir, mode=mode,
+                                                      info=plan_data["info"]) as active:
         log = log or active
         record = run_meta.build(
             out_dir, hash8=plan_data["hash"],

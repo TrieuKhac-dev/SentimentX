@@ -8,6 +8,7 @@ cấu hình thì phải biết TRƯỚC khi tải dữ liệu, checkpoint của 
 chạy tiếp, và ô neutral bị loại thì không được vào loss.
 """
 
+import inspect
 import json
 import shutil
 import tempfile
@@ -15,7 +16,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src.experiments import model_config
+from src.experiments import experiments, model_config
 from src.core import paths
 from src.experiments import encoder_run
 from src.core import dataset as dataset_module
@@ -420,5 +421,55 @@ class PeftFailureTest(unittest.TestCase):
         self.assertIn("cannot import name 'LoraConfig'", message)
         self.assertNotIn("torchao", message)
         self.assertNotIn("chi tiết", message)
+
+
+class SilentLog:
+    """Ghi nhận rỗng: `log_config` chỉ cần đối tượng có `.config()`."""
+
+    def config(self, *args, **kwargs):
+        pass
+
+
+class EncoderRunGuardTest(unittest.TestCase):
+    """A-4: lượt chạy encoder lỗi phải NGẮT PHIÊN Colab (không thì tốn quota GPU).
+
+    `experiment_run.run` bọc thân trong `runtime.end_session_on_error()`, nhưng với model encoder nó
+    `return encoder_run.run(...)` TRƯỚC khối đó - nên phần bọc phải nằm trong chính `encoder_run.run`.
+    """
+
+    def test_run_wraps_the_body_in_end_session(self):
+        self.assertIn("end_session_on_error", inspect.getsource(encoder_run.run))
+
+
+class LogConfigTest(unittest.TestCase):
+    """A-1 (nửa thứ hai): `log_config` đọc được bộ khoá đã GỘP (lora + checkpoint)."""
+
+    def test_reads_the_merged_training(self):
+        training = {**lora.settings(BASE_CONFIG, "visobert"), **checkpoints.settings(BASE_CONFIG)}
+        plan = {"config": dict(BASE_CONFIG, label_space="binary", neutral_policy="drop",
+                               not_mentioned="separate"),
+                "merged": {"overrides": []}, "model_id": "visobert", "method": "lora",
+                "exp_id": "exp001", "version_id": "ma-ds0.1.0", "split": "test", "limit": None,
+                "max_length": 64, "batch_size": 4, "device": "cpu", "seed": 42, "codes": [0, 1, 2],
+                "training": training}
+        encoder_run.log_config(plan, SilentLog())
+
+
+@needs_dataset
+class PlanTrainingKeysTest(unittest.TestCase):
+    """A-1 (nửa thứ nhất): `plan()["training"]` phải có ĐỦ khoá chính sách checkpoint.
+
+    `plan()` từng trả `lora.settings(...)` (KHÔNG có khoá checkpoint) còn `log_config` đọc
+    `plan_data["training"]["every_n_steps"]` -> `KeyError` ngay sau khi mở MLflow (đã gặp thật với
+    ViSoBERT).
+    """
+
+    def test_plan_training_carries_the_checkpoint_policy(self):
+        merged = experiments.load("visobert", "lora", "exp001")
+        ds = dataset_module.load_config("cosmetics")
+        version_id = versioning.compute_id(ds)
+        plan = encoder_run.plan(merged["config"], merged, ds, version_id)
+        for key in checkpoints.POLICY_KEYS:
+            self.assertIn(key, plan["training"], "thiếu khoá checkpoint '{}'".format(key))
 
 
