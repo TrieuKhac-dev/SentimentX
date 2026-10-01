@@ -21,15 +21,15 @@
 
 ## Nhóm B - đồng bộ nguồn số
 - [ ] B-1 docs bảng nguồn số duy nhất
-- [ ] B-2 metric_map đọc metrics_rescored (không trộn ô)
-- [ ] B-3 hai họ cột (gốc)/(rescored)
+- [x] B-2 metric_map đọc metrics_rescored (không trộn ô)
+- [x] B-3 hai họ cột (gốc)/(rescored)
 - [ ] B-4 giữ paper = nguồn so công bố
 - [ ] B-5 không đưa chọn-best vào metrics_matrix
-- [ ] B-6 test reports hai họ cột
+- [x] B-6 test reports hai họ cột
 
 ## Nhóm C - engine đo chung + rescore
 - [ ] C-1 lora.measure -> Samples (val, chỉ encoder)
-- [ ] C-2 rescore CHỈ THÊM metrics_rescored.* (cả prompt)
+- [x] C-2 rescore CHỈ THÊM metrics_rescored.* (cả prompt)
 - [ ] C-3 test bất đối xứng
 
 ## Nhóm D - early stop + curve

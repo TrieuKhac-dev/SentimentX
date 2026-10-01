@@ -100,14 +100,14 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 - [ ] **B-1** Ghi bảng nguồn số trên vào `docs/04_experiments/metrics.md` +
   `docs/04_experiments/reference_publication.md`.
-- [ ] **B-2** `src/reporting/reports.py::metric_map` đọc thêm `metrics_rescored.csv` (giữ cột `basis`);
+- [x] **B-2** `src/reporting/reports.py::metric_map` đọc thêm `metrics_rescored.csv` (giữ cột `basis`);
   KHÔNG trộn nguồn theo từng ô.
-- [ ] **B-3** Hiển thị HAI HỌ CỘT có nhãn `(gốc)` / `(rescored)` cho mỗi lượt (chỉ khi lượt đó có
+- [x] **B-3** Hiển thị HAI HỌ CỘT có nhãn `(gốc)` / `(rescored)` cho mỗi lượt (chỉ khi lượt đó có
   rescored). Mở rộng `column_labels`; nhãn phải KHÁC nhau (có test chống trùng nhãn sẵn).
 - [ ] **B-4** Giữ `metrics.json::scores_paper` + `metrics.csv(basis=paper)` là nguồn so công bố;
   `reference` vẫn lấy từ `data/reference_publication/`.
 - [ ] **B-5** KHÔNG đưa chỉ số chọn-best (val) vào `metrics_matrix`.
-- [ ] **B-6** Test `tests/reporting/test_reports.py` cho hai họ cột + nguồn.
+- [x] **B-6** Test `tests/reporting/test_reports.py` cho hai họ cột + nguồn.
 
 ---
 
@@ -116,7 +116,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
 - [ ] **C-1** `lora.measure()` -> **val đi qua `Samples`** (đủ P/R/F1/detection/exact như test).
   CHỈ đường encoder (prompt không train nên không có `measure()`; đường prompt ĐÃ dùng `Samples` cho
   split chấm điểm qua `experiment_run.finish`).
-- [ ] **C-2** Rescore CHỈ THÊM (bỏ hoàn toàn "thay số"): `metrics_rescored.json/.csv` (pattern mới ở
+- [x] **C-2** Rescore CHỈ THÊM (bỏ hoàn toàn "thay số"): `metrics_rescored.json/.csv` (pattern mới ở
   `configs/paths.yaml`), khối `rescored` (thời điểm/lý do/danh sách chỉ số THÊM), KHÔNG ghi đè bản gốc.
   Áp dụng CẢ encoder LẪN prompt (đọc `predictions.csv`).
 - [ ] **C-3** Test BẤT ĐỐI XỨNG (P ≠ R ≠ F1) cho mọi thay đổi hàm chấm điểm.
