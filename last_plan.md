@@ -75,14 +75,13 @@ metrics của lượt chạy, rescore, và collect_reports).
   - Sửa: `encoder_run.run` -> `with runtime.end_session_on_error(), runlog.start(...) as active:`.
   - Test: chốt lỗi đường encoder gọi `unassign`.
 
-- [!] **A-5** Ghim lại notebook LoRA + chạy lại. CHẶN: `scripts/pin.py` đòi commit đã nằm trên
-  `origin/experiment`, mà đợt này CHƯA push lên GitHub -> chờ push rồi ghim.
-  - Ghim lại `phobert-base-v2/lora/exp001` và `visobert/lora/exp001`; kết quả cũ `91f50523`
-    (visobert) / `6aaa0f2f` (phobert) KHÔNG dùng nữa.
+- [ ] **A-5** Ghim lại notebook LoRA + chạy lại. ĐƯỢC PHÉP PUSH (người dùng đã cho quyền): push nhánh
+  `experiment` lên GitHub rồi `scripts/pin.py` cho `phobert-base-v2/lora/exp001` và `visobert/lora/exp001`.
+  - Kết quả cũ `91f50523` (visobert) / `6aaa0f2f` (phobert) KHÔNG dùng nữa.
   - Cập nhật `docs/06_plan/P7_rerun.md`.
 
-- [!] **A-6** Dọn run MLflow rỗng/treo `cd0cd000...`. CHẶN: cần MẠNG + token DagsHub (không chắc
-  môi trường này có) -> để lại, chạy khi có mạng (dùng `scripts/smoke_tracking.py` để xoá theo mã run).
+- [ ] **A-6** Dọn run MLflow rỗng/treo `cd0cd000...`. ĐỂ CUỐI: chỉ làm khi chạy notebook trên Colab
+  (lúc đó mới có mạng + token DagsHub). Dùng `scripts/smoke_tracking.py` để xoá theo mã run.
 
 ---
 
@@ -115,30 +114,28 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 ## Nhóm C - Engine đo chung + rescore (tách train/đo)
 
-- [ ] **C-1** `lora.measure()` -> **val đi qua `Samples`** (đủ P/R/F1/detection/exact như test).
+- [x] **C-1** `lora.measure()` -> **val đi qua `Samples`** (đủ P/R/F1/detection/exact như test).
   CHỈ đường encoder (prompt không train nên không có `measure()`; đường prompt ĐÃ dùng `Samples` cho
   split chấm điểm qua `experiment_run.finish`).
 - [x] **C-2** Rescore CHỈ THÊM (bỏ hoàn toàn "thay số"): `metrics_rescored.json/.csv` (pattern mới ở
   `configs/paths.yaml`), khối `rescored` (thời điểm/lý do/danh sách chỉ số THÊM), KHÔNG ghi đè bản gốc.
   Áp dụng CẢ encoder LẪN prompt (đọc `predictions.csv`).
-- [ ] **C-3** Test BẤT ĐỐI XỨNG (P ≠ R ≠ F1) cho mọi thay đổi hàm chấm điểm.
+- [x] **C-3** Test BẤT ĐỐI XỨNG (P ≠ R ≠ F1) cho mọi thay đổi hàm chấm điểm.
 
 ---
 
 ## Nhóm D - Early stop + biểu đồ train/val
 
-- [ ] **D-1** `early_stop: {enabled, metric, patience, min_delta}` ở `configs/experiments/training.yaml`;
-  `metric` mặc định `sentiment_f1_macro`; guard danh sách hợp lệ; in + log `[STEP] dừng sớm`; CHỈ LoRA
-  (prompt bỏ qua). + test + docs.
-- [ ] **D-2** `checkpoints.best_metric` = `sentiment_f1_macro` (+ LUÔN ghi kèm P/R).
-- [ ] **D-3** `measure()` thêm `val_loss` + P/R/F1 (metric train nếu bật).
-- [ ] **D-4** `training_history.csv` (pattern mới), entry CUỐI MỖI EPOCH: train_loss TB, val_loss, P/R/F1.
+- [x] **D-1** `early_stop: {enabled, patience, min_delta}` ở `configs/experiments/training.yaml`;
+  `metric` dùng chung `checkpoints.best_metric`; guard danh sách hợp lệ; in + log `[STEP] dừng sớm`;
+  CHỈ LoRA (prompt bỏ qua). + test.
+- [x] **D-2** `checkpoints.best_metric` = `sentiment_f1` (macro-F1 sắc thái) + LUÔN ghi kèm P/R.
+- [x] **D-3** `measure()` thêm `val_loss` + P/R/F1 + detection F1 (dùng `Samples`).
+- [x] **D-4** `training_history.csv` (pattern mới), entry CUỐI MỖI EPOCH: train_loss TB, val_loss, P/R/F1.
 - [ ] **D-5** `plots/training.html` bằng plotly + jinja2 (`src/reporting/render.py` + `templates/`); thêm
   kind `line` vào `src/reporting/charts.py`; vẽ P/R/F1 + loss train/val.
 - [ ] **D-6** Log step-metric lên MLflow (để MLflow tự vẽ curve) + gửi CSV artifact; Drive có cả CSV
   lẫn HTML (HTML không lên MLflow).
-
----
 
 ## Nhóm E - Loss chống lệch (làm ngay)
 
@@ -150,8 +147,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 ## Nhóm F - MLflow
 
-- [ ] **F-1** Thêm `run.log` vào `configs/experiments/tracking.yaml::artifacts` (+ `training_history.csv`;
-  cân nhắc `metrics_rescored.*`). + test + docs.
+- [x] **F-1** Thêm `run.log` + `training_history.csv` vào `configs/experiments/tracking.yaml::artifacts`.
 - [ ] **F-2** Params bị cắt 500: SỐ PHẲNG -> metric (`read_rate.% đọc được`, `cost.giây`, `cost.số bước`);
   CẤU TRÚC LỚN -> artifact JSON (`read_rate` phân bố lý do, `model_info`, `subset`). + test.
 - [ ] **F-3** Log `scores_paper` với tiền tố `paper.` + tạo 1 run tham chiếu công bố; giữ `metrics_matrix`.

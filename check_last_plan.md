@@ -16,8 +16,8 @@
 - [x] A-2 config.py refactor + vncorenlp tính MODEL_DIR lúc gọi
 - [x] A-3 hint VnCoreNLP theo môi trường
 - [x] A-4 encoder_run.run thêm end_session_on_error
-- [!] A-5 ghim lại notebook LoRA + P7_rerun.md (CHẶN: cần push GitHub)
-- [!] A-6 dọn run MLflow rỗng (CHẶN: cần mạng + token)
+- [ ] A-5 ghim lại notebook LoRA + P7_rerun.md (ĐƯỢC PHÉP PUSH)
+- [ ] A-6 dọn run MLflow rỗng (ĐỂ CUỐI: làm khi chạy notebook trên Colab)
 
 ## Nhóm B - đồng bộ nguồn số
 - [ ] B-1 docs bảng nguồn số duy nhất
@@ -28,15 +28,15 @@
 - [x] B-6 test reports hai họ cột
 
 ## Nhóm C - engine đo chung + rescore
-- [ ] C-1 lora.measure -> Samples (val, chỉ encoder)
+- [x] C-1 lora.measure -> Samples (val, chỉ encoder)
 - [x] C-2 rescore CHỈ THÊM metrics_rescored.* (cả prompt)
-- [ ] C-3 test bất đối xứng
+- [x] C-3 test bất đối xứng
 
 ## Nhóm D - early stop + curve
-- [ ] D-1 early_stop config (sentiment_f1_macro, chỉ LoRA)
-- [ ] D-2 checkpoints.best_metric = sentiment_f1_macro
-- [ ] D-3 measure() thêm val_loss + P/R/F1
-- [ ] D-4 training_history.csv (entry cuối epoch)
+- [x] D-1 early_stop config (best_metric, chỉ LoRA)
+- [x] D-2 checkpoints.best_metric = sentiment_f1
+- [x] D-3 measure() thêm val_loss + P/R/F1
+- [x] D-4 training_history.csv (entry cuối epoch)
 - [ ] D-5 plots/training.html (plotly + jinja2, kind line)
 - [ ] D-6 log step-metric + CSV lên MLflow
 
@@ -45,7 +45,7 @@
 - [ ] E-2 docs: đổi loss -> thư mục mới
 
 ## Nhóm F - MLflow
-- [ ] F-1 run.log + training_history.csv vào artifacts
+- [x] F-1 run.log + training_history.csv vào artifacts
 - [ ] F-2 params 500: số->metric, dict->artifact JSON
 - [ ] F-3 log scores_paper prefix paper. + run tham chiếu
 - [ ] F-4 A8: run_id vào run_meta, params ở begin, nối run khi resume
