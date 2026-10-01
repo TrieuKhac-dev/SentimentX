@@ -276,7 +276,10 @@ class FlowCase(HandoverCase):
             return {row["package_path"]: row for row in csv.DictReader(handle)}
 
     def zip_names(self, number=1):
-        found = sorted((self.handover / "out").glob("*{:03d}*.zip".format(number)))
+        # Tên gói là `SentimentX-goi-<số>-<sha7>-<%y%m%d>.zip`. Glob phải khoá cả tiền tố lẫn số gói:
+        # dấu NGÀY `%y%m%d` cũng có thể chứa "001"/"002" (ví dụ ngày 261002), nên `*002*.zip` khớp cả
+        # gói 001 và làm test đỏ nhầm vào ngày đó.
+        found = sorted((self.handover / "out").glob("SentimentX-goi-{:03d}-*.zip".format(number)))
         self.assertEqual(len(found), 1, "phải có đúng một gói zip mang số {}".format(number))
         with zipfile.ZipFile(str(found[0])) as archive:
             return sorted(archive.namelist())
