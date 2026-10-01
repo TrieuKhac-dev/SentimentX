@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src.core import paths
+from src.core import config, paths
 
 
 class TestDefaultPaths(unittest.TestCase):
@@ -157,6 +157,28 @@ class TestNoHardcodedPaths(unittest.TestCase):
                     offenders.append("{}:{}: {}".format(
                         path.relative_to(repo).as_posix(), number, line.strip()))
         self.assertEqual(offenders, [], "Còn đường dẫn viết cứng:\n" + "\n".join(offenders))
+
+
+class ConfigPathsAreLazyTest(unittest.TestCase):
+    """A-2: đường dẫn trong `config` phải tính LÚC GỌI, không đóng băng lúc import.
+
+    Trên Colab, `SENTIMENTX_DATA_ROOT` được đặt SAU khi `config` đã import (ô bootstrap đặt sau khi
+    `import src.api`). Gán hằng ngay lúc import thì giá trị dính vào gốc mặc định (repo), và mọi chỗ
+    hỏi đường dẫn dữ liệu nhìn SAI chỗ (đã gặp thật: báo thiếu model VnCoreNLP dù file có trên Drive).
+    """
+
+    def test_data_paths_follow_the_env_root(self):
+        with mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: os.path.join("C:", "khong-co-that")}):
+            self.assertEqual(config.PROCESSED_DIR, paths.data("processed"))
+            self.assertEqual(config.MODEL_ASSETS_DIR, paths.data("models"))
+
+    def test_paths_come_back_when_the_override_is_removed(self):
+        patcher = mock.patch.dict(os.environ, {paths.ENV_DATA_ROOT: os.path.join("C:", "x")})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        overridden = config.PROCESSED_DIR
+        os.environ.pop(paths.ENV_DATA_ROOT, None)
+        self.assertNotEqual(config.PROCESSED_DIR, overridden)
 
 
 if __name__ == "__main__":

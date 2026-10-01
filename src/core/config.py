@@ -19,20 +19,34 @@ from src.core import paths
 # ---
 # Mọi đường dẫn lấy từ configs/paths.yaml qua src/core/paths.py, KHÔNG viết cứng ở đây.
 # Đổi cây thư mục thì sửa configs/paths.yaml: docs/05_config/01_paths.md.
-ROOT_DIR = paths.root()
+#
+# TÍNH LÚC GỌI, KHÔNG PHẢI LÚC IMPORT: `config` được import TRƯỚC khi gốc dữ liệu được đặt (trên
+# Colab, `SENTIMENTX_DATA_ROOT` do ô bootstrap đặt SAU khi `src.api` đã import `config`). Nếu gán
+# hằng ngay ở đây thì giá trị bị "đóng băng" vào gốc mặc định (repo), và mọi chỗ hỏi đường dẫn dữ
+# liệu sẽ nhìn SAI chỗ trên Colab (đã gặp thật: preflight báo thiếu model VnCoreNLP dù file có trên
+# Drive). Vì vậy các tên dưới đây được trả về qua `__getattr__`, tính lại mỗi lần đọc.
+_LAZY_PATHS = {
+    "ROOT_DIR": paths.root,
+    "DATA_DIR": paths.data_root,
+    "RAW_ROOT": lambda: paths.data("raw"),               # dữ liệu gốc, mỗi dataset một thư mục con
+    "PROCESSED_DIR": lambda: paths.data("processed"),    # dữ liệu đã qua pipeline
+    "REPORT_DIR": paths.reports_dir,
+    "MODEL_INPUT_REPORT_DIR": lambda: paths.report("model_input"),   # phép đo input thật
+    "ASSETS_DIR": paths.assets_dir,                      # tài nguyên dùng chung (plotly.min.js)
+    "MODEL_ASSETS_DIR": lambda: paths.data("models"),    # tài nguyên của model (vd: VnCoreNLP)
+    "CONFIG_DIR": paths.configs_dir,
+    "DATASET_CONFIG_DIR": lambda: paths.config_path("datasets"),
+    "MODEL_CONFIG_DIR": lambda: paths.config_path("models"),   # "model đọc dữ liệu thế nào"
+    "PROMPT_DIR": lambda: paths.config_path("prompts"),        # nội dung prompt, mỗi prompt một file
+}
 
-DATA_DIR = paths.data_root()
-RAW_ROOT = paths.data("raw")               # dữ liệu gốc, mỗi dataset một thư mục con
-PROCESSED_DIR = paths.data("processed")    # dữ liệu đã qua pipeline
-REPORT_DIR = paths.reports_dir()
-MODEL_INPUT_REPORT_DIR = paths.report("model_input")  # phép đo input thật
-ASSETS_DIR = paths.assets_dir()            # tài nguyên dùng chung (plotly.min.js)
-MODEL_ASSETS_DIR = paths.data("models")    # tài nguyên của model (vd: model VnCoreNLP)
 
-CONFIG_DIR = paths.configs_dir()
-DATASET_CONFIG_DIR = paths.config_path("datasets")
-MODEL_CONFIG_DIR = paths.config_path("models")   # "model đọc dữ liệu thế nào"
-PROMPT_DIR = paths.config_path("prompts")        # nội dung prompt, mỗi prompt một file .txt
+def __getattr__(name):
+    """Đường dẫn tính LÚC GỌI: `config.RAW_ROOT`, `config.PROCESSED_DIR`, ... xem `_LAZY_PATHS`."""
+    if name in _LAZY_PATHS:
+        return _LAZY_PATHS[name]()
+    raise AttributeError("module 'src.core.config' has no attribute '{}'".format(name))
+
 
 # Đường dẫn file config pipeline KHÔNG còn ở đây: mỗi phiên bản là một file riêng, lấy qua
 # utils.pipeline_config_path() theo `pipeline_version` khai trong file dataset.
