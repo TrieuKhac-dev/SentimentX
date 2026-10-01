@@ -32,8 +32,17 @@ TEST_EXP = "exp001"
 # không nằm trong git (luật 20 của docs/00_workflow/02_rules.md), nên ở đó chúng tự bỏ qua thay vì
 # báo đỏ vì thiếu dữ liệu. Trên máy cá nhân - nơi có dữ liệu - chúng vẫn chạy đủ, vì bỏ qua im lặng
 # ở máy có dữ liệu là mất luôn phần kiểm quan trọng nhất của preflight.
-HAS_DATASET = versioning.processed_dir(
-    versioning.compute_id(dataset_module.load_config("cosmetics"))).is_dir()
+def _has_dataset():
+    """Có dataset đã xử lý trên đĩa không. `compute_id` NÉM lỗi khi thiếu dữ liệu GỐC, mà bản clone
+    CI không có dữ liệu gốc (luật 20) - phải bắt lỗi đó, không để nó làm sập cả module lúc import."""
+    try:
+        version_id = versioning.compute_id(dataset_module.load_config("cosmetics"))
+    except Exception:                                     # noqa: BLE001 - chỉ để bỏ qua test
+        return False
+    return versioning.processed_dir(version_id).is_dir()
+
+
+HAS_DATASET = _has_dataset()
 requires_dataset = unittest.skipUnless(
     HAS_DATASET,
     "cần dataset đã xử lý trên đĩa (CI không có dữ liệu, xem docs/00_workflow/03_ci.md)")
@@ -310,6 +319,7 @@ class TestEvalLockTwoFingerprints(unittest.TestCase):
         self.assertFalse(any("khớp khoá tập đánh giá" in note for note in notes))
 
 
+@requires_dataset
 class TestDeviceAndSegmenter(PreflightCase):
     def test_device_report_shape(self):
         problems, notes, info = [], [], {}
@@ -366,6 +376,7 @@ class TestDeviceAndSegmenter(PreflightCase):
         self.assertIn("khong-co", problems[0])
 
 
+@requires_dataset
 class TestStateAndRun(PreflightCase):
     def test_state_without_out_dir_is_a_note(self):
         problems, notes, info = [], [], {}

@@ -18,7 +18,11 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
-import build_report as br
+try:
+    import build_report as br
+except ImportError as exc:          # CI không cài jinja2 (dựng HTML là việc của máy cá nhân)
+    br = None
+    BUILD_IMPORT_ERROR = exc
 from src.core import paths
 
 RAW = "v0.1.0"
@@ -35,6 +39,8 @@ def payload(phase, version_id, dataset=NAME):
             "generated_at": "01/01/2026 00:00", "meta": [], "sections": []}
 
 
+@unittest.skipUnless(br is not None,
+                     "cần jinja2 để dựng báo cáo (CI không cài; xem requirements-ci.txt)")
 class BuildReportCase(unittest.TestCase):
     """Gốc dữ liệu tạm có đủ 4 tình trạng: có kết quả, đang thiếu, và 2 phiên bản."""
 

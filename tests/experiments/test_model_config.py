@@ -20,6 +20,14 @@ from unittest import mock
 
 from src.experiments import model_config
 
+# `resolve_dtype` nạp `torch` khi kiểu số cần nó; CI KHÔNG cài torch (`requirements-ci.txt` rất ngắn),
+# nên nhóm test này tự bỏ qua ở đó thay vì báo đỏ vì thiếu thư viện.
+try:
+    import torch  # noqa: F401
+    HAS_TORCH = True
+except ImportError:
+    HAS_TORCH = False
+
 
 class FakeCuda:
     """`torch.cuda` giả: đủ để `bf16_supported` trả lời như máy thật."""
@@ -54,6 +62,7 @@ class FakeTorch:
         self.cuda = FakeCuda(**kwargs)
 
 
+@unittest.skipUnless(HAS_TORCH, "cần torch (CI không cài torch)")
 class ResolveDtypeTest(unittest.TestCase):
     def test_auto_tren_gpu_co_bf16_that_thi_dung_bf16(self):
         value = model_config.resolve_dtype("auto", "cuda", torch=FakeTorch(bf16=True))

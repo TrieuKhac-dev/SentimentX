@@ -21,8 +21,23 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from src.core import paths, utils
+from src.core import dataset, paths, utils, versioning
 from src.reporting import reports
+
+
+def _has_dataset():
+    """Có dataset đã xử lý trên đĩa không. `compute_id` NÉM lỗi khi thiếu dữ liệu gốc; CI không có
+    dữ liệu (luật 20), nên nhóm cần dữ liệu tự bỏ qua thay vì báo đỏ."""
+    try:
+        version_id = versioning.compute_id(dataset.load_config("cosmetics"))
+    except Exception:                                     # noqa: BLE001 - chỉ để bỏ qua test
+        return False
+    return paths.processed(version_id).is_dir()
+
+
+HAS_DATASET = _has_dataset()
+requires_dataset = unittest.skipUnless(
+    HAS_DATASET, "cần dataset đã xử lý trên đĩa (CI không có dữ liệu)")
 
 METRICS_COLUMNS = ["aspect", "sentiment", "metric", "value", "basis"]
 # `metrics.csv` của một lượt chạy từ 01/10/2026 có HAI cơ sở đo (cột `basis`, xem metrics.md). Fixture
@@ -355,6 +370,7 @@ class WriteTest(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
+    @requires_dataset
     def test_moi_nhom_ghi_ba_dinh_dang(self):
         write_run(self.source, "exp001",
                   experiment={"model": "model-x", "method": "prompt-cot", "exp_id": "exp001"})
@@ -374,6 +390,7 @@ class WriteTest(unittest.TestCase):
         self.assertIn(reports.NO_DATA.upper(),
                       result["model_input"]["html"].read_text(encoding="utf-8"))
 
+    @requires_dataset
     def test_khong_ghi_de_lan_nhau_giua_cac_nhom(self):
         write_run(self.source, "exp001",
                   experiment={"model": "model-x", "method": "prompt-cot", "exp_id": "exp001"})

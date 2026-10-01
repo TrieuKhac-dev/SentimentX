@@ -35,6 +35,21 @@ from src.preprocessing import qwen
 ROOT = Path(__file__).resolve().parents[2]
 
 
+def _has_dataset():
+    """Có dataset đã xử lý trên đĩa không. `compute_id` NÉM lỗi khi thiếu dữ liệu gốc; CI không có
+    dữ liệu (luật 20), nên nhóm cần dữ liệu tự bỏ qua thay vì báo đỏ vì thiếu dữ liệu."""
+    try:
+        version_id = versioning.compute_id(dataset.load_config("cosmetics"))
+    except Exception:                                     # noqa: BLE001 - chỉ để bỏ qua test
+        return False
+    return paths.processed(version_id).is_dir()
+
+
+HAS_DATASET = _has_dataset()
+requires_dataset = unittest.skipUnless(
+    HAS_DATASET, "cần dataset đã xử lý trên đĩa (CI không có dữ liệu)")
+
+
 class NoRootOverrideMixin:
     """Bỏ ghi đè gốc đường dẫn của MÁY đang chạy trong lúc test.
 
@@ -201,6 +216,7 @@ class ExamplesDefaultTest(unittest.TestCase):
             shutil.rmtree(str(tmp), ignore_errors=True)
 
 
+@requires_dataset
 class PlanTest(NoRootOverrideMixin, unittest.TestCase):
     """Lập kế hoạch cho một lần chạy thật (không cần GPU)."""
 
@@ -327,6 +343,7 @@ class PlanTest(NoRootOverrideMixin, unittest.TestCase):
 
 
 
+@requires_dataset
 class RunIdentityTest(unittest.TestCase):
     """`run_identity` là chỗ DUY NHẤT quyết định thư mục kết quả và dấu vân tay.
 
@@ -504,6 +521,7 @@ class QuantAndDtypeFromConfigTest(unittest.TestCase):
         self.assertEqual(experiment_run.dtype_of({}), "auto")
 
 
+@requires_dataset
 class FailureEndsSessionTest(NoRootOverrideMixin, unittest.TestCase):
     """Lượt chạy HỎNG thì ngắt phiên Colab; người dùng bấm Stop thì KHÔNG.
 
