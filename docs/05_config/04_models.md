@@ -38,7 +38,7 @@ inference:
 | tiền xử lý | `preprocess.add_generation_prompt` | chèn lượt trợ lý rỗng cho model dùng prompt                                                   |
 | tiền xử lý | `preprocess.segmenter`             | bộ tách từ, chỉ model cần tách từ mới khai (`vncorenlp` cho PhoBERT, `none` cho ViSoBERT)  |
 | huấn luyện | `lora.target_modules`              | tên module được gắn adapter LoRA. **Tên khác nhau theo kiến trúc** (Qwen3: `q_proj`, `k_proj`; PhoBERT và ViSoBERT: `query`, `key`, `value`, `dense`), nên khoá này thuộc config của model chứ không nằm ở file huấn luyện dùng chung |
-| suy luận   | `inference.dtype`                  | `auto` = mã chọn theo máy: bf16 khi GPU hỗ trợ **thật**, fp16 khi không (T4), fp32 trên CPU. Khai tường minh `float16`/`bfloat16`/`float32` thì chạy ĐÚNG giá trị đó; máy không đáp ứng được là **LỖI** (không hạ cấp) - một hàm giải duy nhất cho cả đường prompt và đường encoder (`src/model_config.resolve_dtype`) |
+| suy luận   | `inference.dtype`                  | `auto` = mã chọn theo máy: bf16 khi GPU hỗ trợ **thật**, fp16 khi không (T4), fp32 trên CPU. Khai tường minh `float16`/`bfloat16`/`float32` thì chạy ĐÚNG giá trị đó; máy không đáp ứng được là **LỖI** (không hạ cấp) - một hàm giải duy nhất cho cả đường prompt và đường encoder (`src/experiments/model_config.py::resolve_dtype`) |
 | suy luận   | `inference.quantization`           | `4bit` thì phải có `bitsandbytes`; để trống/`null` là chạy KHÔNG lượng hoá. Giá trị này đi vào mã băm của lượt chạy, nên `4bit` và không lượng hoá là hai thư mục kết quả khác nhau |
 | suy luận   | `inference.batch_size`             | số review mỗi lượt sinh (đường prompt) hoặc mỗi lượt chấm (đường encoder)                  |
 

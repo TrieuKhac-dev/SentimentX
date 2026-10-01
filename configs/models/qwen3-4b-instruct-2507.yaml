@@ -28,7 +28,7 @@ inference:
   # MỘT quy tắc cho cả hai đường chạy, đọc ở `inference.dtype`: `auto` = mã chọn theo máy (bf16 khi GPU
   # hỗ trợ THẬT, fp16 khi không - T4 là Turing, fp32 trên CPU). Khai tường minh `float16`/`bfloat16`/
   # `float32` thì chạy ĐÚNG giá trị đó; máy không đáp ứng được là LỖI, không hạ cấp (xem
-  # `src/model_config.resolve_dtype`).
+  # `src/experiments/model_config.py::resolve_dtype`).
   dtype: auto
   # Máy đang dùng có 6 GB VRAM nên phải lượng hoá 4-bit.
   quantization: 4bit
