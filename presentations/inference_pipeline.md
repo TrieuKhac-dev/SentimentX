@@ -8,7 +8,12 @@ cảm xúc trên các khía cạnh ra - không có đọc dataset, không chấm
 
 ```mermaid
 flowchart TD
-    RAW["Review tiếng Việt (văn bản thô)<br/>· Son đẹp nhưng ship lâu 😢<br/>· màu xjnk, lên môi hơi khô<br/>· oke nha shop, giao nhanh"]:::io
+    subgraph RAW["Review tiếng Việt (văn bản thô)"]
+        direction LR
+        E1["Son đẹp nhưng ship lâu 😢"]
+        E2["màu xjnk<br/>lên môi hơi khô"]
+        E3["oke nha shop, giao nhanh"]
+    end
     CLEAN["Module Data Cleaning"]:::step
     PREP["Module Model Preprocessing"]:::step
     CLS["Module Aspect-based<br/>Sentiment Classification"]:::model
