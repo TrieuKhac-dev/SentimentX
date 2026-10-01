@@ -79,7 +79,7 @@ nên ta luôn chỉ ra được khác biệt đến từ phép biến đổi nà
 
 ```bash
 python run_pipeline.py --name cosmetics --version v0.1.0    # -> phiên bản A
-# sửa một tham số trong configs/pipeline/v0.1.0.yaml
+# đổi một tham số: tạo BẢN MỚI trong configs/pipeline/<phiên bản>.yaml - KHÔNG sửa bản đã chạy
 python run_pipeline.py --name cosmetics --version v0.1.0    # -> phiên bản B (phiên bản A vẫn còn nguyên)
 
 python build_report.py --list # mọi đích đang có + lệnh copy được, để đối chiếu
