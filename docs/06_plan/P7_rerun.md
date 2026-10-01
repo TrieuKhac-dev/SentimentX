@@ -107,6 +107,11 @@ tiếp là **gói 003** (chở dữ liệu v0.2.0 và 12 notebook ghim lại) v�
 notebook đọc config từ đúng commit nó ghim. Mọi số ở mục 2 (1.518 dòng, mã `e0ccc484`) là số của **bản
 cũ** - giữ làm mốc lịch sử, không dùng để so với công bố nữa.
 
+Gói **003** đã dựng ngày 01/10/2026: `handover/packages/003` + zip trong `handover/out/`, 48 ứng viên
+gồm 6 `new` (dữ liệu đã xử lý của `…-e616c1e3`), 12 `changed` (12 notebook ghim lại), 30 `kept` và
+**0 `deleted`** - dữ liệu của bộ `v0.1.0` nằm ở lớp `kept`, tức người nhận GIỮ nguyên trên Drive chứ
+không phải xoá (`scripts/build_package.py::declared_dataset_versions`).
+
 **Việc còn lại của P7, đặt tên là đợt tiếp theo:**
 
 - **Batch 6 - chạy lưới để lấy KẾT QUẢ THẬT:** chạy lần lượt 12 notebook trên Colab, copy **5 tệp nhẹ**
