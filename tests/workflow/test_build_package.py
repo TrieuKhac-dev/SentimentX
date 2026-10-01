@@ -206,6 +206,37 @@ class CandidateTest(HandoverCase):
                         "phải nói rõ vì sao không có dữ liệu nào: {}".format(lines))
 
 
+    def test_phien_ban_con_khai_trong_repo_thi_van_la_ung_vien(self):
+        """Đổi `data.version` KHÔNG được biến dữ liệu cũ thành `deleted`: còn khai thì còn giữ.
+
+        Bối cảnh thật (01/10/2026): 12 thí nghiệm chuyển sang một phiên bản dữ liệu mới, nên bộ cũ rời
+        khỏi "ứng viên suy từ thí nghiệm" và công cụ định bảo người nhận XOÁ nó khỏi Drive. Với dữ liệu
+        thì đó là cảnh báo đỏ - kết quả người nhận đã chạy trên bộ đó thành không tái lập được.
+        """
+        self.experiment_files()
+        self.data_files()
+        self.write("configs/datasets/cosmetics/v0.1.0.yaml", "version: v0.1.0\n")
+        self.write("data/processed/{}/processing_log.json".format(VERSION),
+                   '{"dataset": {"name": "cosmetics", "version": "v0.1.0"}}')
+        paths = self.paths_of(self.collect())
+        self.assertIn("data/processed/{}/test.csv".format(VERSION), paths)
+        self.assertIn("data/processed/{}/label_map.json".format(VERSION), paths)
+
+    def test_phien_ban_khong_con_khai_thi_khong_thanh_ung_vien(self):
+        """Bỏ cấu hình khỏi repo thì phiên bản đó mới rời gói (cảnh báo đỏ nổi lên như cũ)."""
+        orphan = "cosmetics-ds0.9.9-pl0.9.9-srccosmetics@0.1.0-deadbeef"
+        self.write("data/processed/{}/processing_log.json".format(orphan),
+                   '{"dataset": {"name": "cosmetics", "version": "v0.9.9"}}')
+        self.write("data/processed/{}/test.csv".format(orphan), "du lieu cu\n")
+        # Phiên bản dùng bởi thí nghiệm ghi SAU nên là bản mới nhất trên đĩa.
+        self.experiment_files()
+        self.data_files()
+        paths = self.paths_of(self.collect())
+        self.assertNotIn("data/processed/{}/test.csv".format(orphan), paths)
+        self.assertIn("data/processed/{}/test.csv".format(VERSION), paths)
+
+
+
 class Recorder:
     """Thay cho `print`: ghi lại từng câu để so câu chữ mà người gửi đọc."""
 

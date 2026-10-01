@@ -33,6 +33,16 @@ chính cấu hình của nó:
 Chỉ những đường dẫn nằm TRONG GỐC DỮ LIỆU mới vào gói: prompt và file cấu hình đã nằm trong git,
 notebook kéo chúng về theo đúng commit đã ghim.
 
+CÒN KHAI PHIÊN BẢN TRONG REPO THÌ CÒN GIỮ DỮ LIỆU CỦA NÓ
+Ứng viên suy từ thí nghiệm nghĩa là khi `experiments/` chuyển sang một phiên bản dữ liệu mới, bộ dữ
+liệu cũ rời khỏi danh sách và bị xếp vào lớp `deleted` - tức bảo người nhận XOÁ nó khỏi Drive. Với dữ
+liệu thì đó là cảnh báo ĐỎ: kết quả người nhận đã chạy trên bộ cũ thành không tái lập được. Nên công
+cụ còn hỏi thêm `configs/datasets/<tên>/<phiên bản>.yaml`: PHIÊN BẢN NÀO CÒN CẤU HÌNH TRONG REPO thì
+dữ liệu đã xử lý của nó vẫn là ứng viên, và vì nội dung không đổi nên nó thành `kept` - người nhận
+giữ nguyên, không phải xoá, cũng không phải tải lại. Bỏ hẳn file cấu hình khỏi repo thì phiên bản đó
+mới rời gói, và cảnh báo đỏ nổi lên như cũ để người dựng gói quyết định.
+(`declared_dataset_versions`)
+
 CÂY GÓI TRÙNG CÂY CŨ (người nhận không phải đổi thói quen)
     README.md, MANIFEST.csv, .sentimentx_root, env/, data/
     notebooks/<model>/<method>/<expNNN>.ipynb      (nguồn: experiments/<...>/notebook.ipynb)
@@ -55,6 +65,7 @@ import argparse
 import csv
 import datetime
 import hashlib
+import json
 import shutil
 import sys
 import zipfile
@@ -166,6 +177,49 @@ def marker_entry():
             "sha256": EMPTY_SHA256, "size": 0, "mtime": ""}
 
 
+def declared_dataset_versions(root=None, data_root=None, load_dataset=None):
+    """Các phiên bản dữ liệu ĐÃ XỬ LÝ mà repo CÒN KHAI cấu hình: `[(mã phiên bản, cấu hình)]`.
+
+    Quét `<gốc dữ liệu>/processed/`, đọc `processing_log.json` của mỗi phiên bản để biết nó là
+    `(tên dataset, phiên bản)`, rồi chỉ giữ những phiên bản còn file cấu hình
+    `configs/datasets/<tên>/<phiên bản>.yaml` trong repo.
+
+    Vì sao cần: đổi `data.version` trong `experiments/` làm bộ dữ liệu cũ rời khỏi "ứng viên suy từ
+    thí nghiệm", và công cụ sẽ hiểu là `deleted` - tức bảo người nhận XOÁ dữ liệu cũ khỏi Drive. Với
+    dữ liệu thì đó là cảnh báo ĐỎ, vì kết quả người nhận đã chạy trên bộ đó thành không tái lập được.
+    Quy tắc ở đây: **còn khai thì còn giữ**.
+
+    Phiên bản không đọc được `processing_log.json` hoặc không còn cấu hình thì bỏ qua: lúc đó `deleted`
+    là đúng, và cảnh báo đỏ vẫn nổi lên để người dựng gói quyết định.
+    """
+    root = Path(root or paths.root())
+    data_root = Path(data_root or paths.data_root())
+    load_dataset = load_dataset or dataset_module.load_config
+    directory = root / paths.cfg()["roots"]["configs"] / paths.cfg()["configs"]["datasets"]
+    processed_root = data_root / paths.cfg()["data"]["processed"]
+    if not processed_root.is_dir():
+        return []
+    found = []
+    for processed in sorted(processed_root.iterdir()):
+        if not processed.is_dir() or processed.name.startswith("."):
+            continue
+        log_path = processed / paths.pattern("processing_log")
+        try:
+            info = dict((json.loads(log_path.read_text(encoding="utf-8")) or {}).get("dataset") or {})
+        except (OSError, ValueError):
+            continue
+        name, version = info.get("name"), info.get("version")
+        if not name or not version:
+            continue
+        if not (directory / str(name) / "{}.yaml".format(version)).is_file():
+            continue
+        try:
+            found.append((processed.name, load_dataset(name, version)))
+        except Exception:  # noqa: BLE001
+            continue
+    return found
+
+
 def collect(root=None, data_root=None, readme=None, list_experiments=None, load=None,
             load_dataset=None, log=print):
     """Danh sách ứng viên của gói, sắp theo đường dẫn trong gói.
@@ -262,11 +316,30 @@ def collect(root=None, data_root=None, readme=None, list_experiments=None, load=
             if candidate.is_file() and under(candidate, data_root):
                 add(data_package_path(candidate, data_root), candidate, "data_raw")
 
+    # Phiên bản dữ liệu CÒN ĐƯỢC KHAI trong repo thì dữ liệu của nó vẫn thuộc gói (thành `kept` vì nội
+    # dung không đổi), thay vì bị coi là `deleted` và bảo người nhận xoá - xem
+    # `declared_dataset_versions`. `optional=True`: một phiên bản còn khai mà thư mục dữ liệu đã bị dọn
+    # thì gói vẫn dựng được, chỉ báo thiếu file đó.
+    for version_id, dataset_cfg in declared_dataset_versions(
+            root=root, data_root=data_root, load_dataset=load_dataset):
+        processed = data_root / paths.cfg()["data"]["processed"] / version_id
+        for name in sorted(dataset_cfg.get("splits") or {}):
+            candidate = processed / "{}.csv".format(name)
+            if under(candidate, data_root):
+                add(data_package_path(candidate, data_root), candidate, "data", optional=True)
+        for pattern_name in ("label_map", "processing_log", "eval_lock"):
+            candidate = processed / paths.pattern(pattern_name)
+            if under(candidate, data_root):
+                add(data_package_path(candidate, data_root), candidate, "data", optional=True)
+        for source in dataset_module.sources_of(dataset_cfg):
+            for path in versioning.declared_files(dataset_cfg, source):
+                if under(path, data_root):
+                    add(data_package_path(path, data_root), path, "data_raw", optional=True)
+
     for package_path, source in ENV_FILES:
         add(package_path, root / source, "env")
     add(PACKAGE_README, readme, "package_readme")
     found[MARKER_NAME] = marker_entry()
-
     for note in notes:
         log("  bỏ qua: " + note)
     for warning in warned:
