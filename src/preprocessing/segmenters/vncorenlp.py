@@ -69,7 +69,25 @@ STRIP_LEADING_BOUNDARY = True
 # viết gõ, nên quy tắc này không đụng tới dữ liệu người dùng.
 _BOUNDARY_RE = re.compile(r"(^|\s)_(?=\w)")
 
-MODEL_DIR = config.MODEL_ASSETS_DIR / "vncorenlp"
+def model_dir():
+    """Thư mục model VnCoreNLP, tính LÚC GỌI (không đóng băng lúc import).
+
+    `config.MODEL_ASSETS_DIR` phụ thuộc GỐC DỮ LIỆU, mà gốc đó chỉ được đặt SAU khi `config` đã
+    import (trên Colab). Tính ở đây để luôn trỏ đúng gốc - xem `src/core/config.py`.
+    """
+    return config.MODEL_ASSETS_DIR / "vncorenlp"
+
+
+def _in_colab():
+    """Đang chạy trên Colab hay không - để chọn hướng dẫn cài ĐÚNG môi trường."""
+    try:
+        from src.workflow import runtime
+
+        return runtime.is_colab()
+    except Exception:  # noqa: BLE001 - chỉ để chọn câu hướng dẫn, không được làm hỏng việc khác
+        import sys
+
+        return "google.colab" in sys.modules
 
 # Nơi scripts/setup/setup_java.ps1 cài JDK (cài trong thư mục người dùng, không cần admin)
 USER_JDK_DIR = Path(os.environ.get("USERPROFILE", str(Path.home()))) / ".jdks"
@@ -85,23 +103,49 @@ JDK_SEARCH_DIRS = (
     Path(os.environ.get("LOCALAPPDATA", "C:/")) / "Programs" / "Eclipse Adoptium",
 )
 
-INSTALL_HINT = (
-    "Bộ tách từ chính chủ của PhoBERT cần 2 thứ: JAVA (JDK/JRE 1.8+) và model VnCoreNLP.\n"
-    "Trên Colab/Linux:\n"
-    "    apt-get install -y default-jdk\n"
-    "    export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which javac))))\n"
-    "    pip install py-vncorenlp\n"
-    "    (model VnCoreNLP nằm trong {} - gói bàn giao đã kèm sẵn)\n"
-    "Trên Windows (không cần quyền admin, cài trong thư mục người dùng):\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_java.ps1\n"
-    "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_vncorenlp.ps1\n"
-    "Hoặc cài tay:\n"
-    "    winget install EclipseAdoptium.Temurin.17.JDK   (nhớ đặt JAVA_HOME)\n"
-    "    pip install py-vncorenlp\n"
-    "    (tải VnCoreNLP-1.2.jar + models/wordsegmenter vào {})\n"
-    "Trong lúc chưa có Java, có thể tạm chạy bằng: --segmenter pyvi".format(
-        MODEL_DIR.as_posix(), MODEL_DIR.as_posix())
-)
+def install_hint():
+    """Hướng dẫn cài ĐÚNG môi trường: Colab khác Windows.
+
+    Trên Colab KHÔNG in `scripts/setup/setup_*.ps1` (script PowerShell) - người chạy không dùng được.
+    """
+    where = model_dir().as_posix()
+    if _in_colab():
+        return (
+            "Bộ tách từ chính chủ của PhoBERT cần Java (JDK/JRE 1.8+) và model VnCoreNLP.\n"
+            "Trên Colab:\n"
+            "    apt-get install -y default-jdk        # ảnh Colab thường đã có JDK\n"
+            "    pip install py-vncorenlp\n"
+            "    model VnCoreNLP (~27 MB) nằm trong {} - chép từ gói bàn giao vào gốc dữ liệu,\n"
+            "    HOẶC Restart session rồi Run all (ô bootstrap tự tải).\n"
+            "Trong lúc chưa có, có thể tạm chạy bằng: --segmenter pyvi".format(where)
+        )
+    return (
+        "Bộ tách từ chính chủ của PhoBERT cần 2 thứ: JAVA (JDK/JRE 1.8+) và model VnCoreNLP.\n"
+        "Trên Windows (không cần quyền admin, cài trong thư mục người dùng):\n"
+        "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_java.ps1\n"
+        "    powershell -ExecutionPolicy Bypass -File scripts\\setup\\setup_vncorenlp.ps1\n"
+        "Hoặc cài tay:\n"
+        "    winget install EclipseAdoptium.Temurin.17.JDK   (nhớ đặt JAVA_HOME)\n"
+        "    pip install py-vncorenlp\n"
+        "    (tải VnCoreNLP-1.2.jar + models/wordsegmenter vào {})\n"
+        "Trong lúc chưa có Java, có thể tạm chạy bằng: --segmenter pyvi".format(where)
+    )
+
+
+def _missing_java_hint():
+    """Câu hướng dẫn khi thiếu Java, theo môi trường."""
+    if _in_colab():
+        return "chưa cài Java (JDK/JRE 1.8+); trên Colab chạy: apt-get install -y default-jdk"
+    return "chưa cài Java (JDK/JRE 1.8+); chạy scripts/setup/setup_java.ps1"
+
+
+def _missing_model_hint(missing):
+    """Câu hướng dẫn khi thiếu model VnCoreNLP, theo môi trường."""
+    names = ", ".join(path.name for path in missing)
+    if _in_colab():
+        return ("thiếu model VnCoreNLP ({}); chép data/models/vncorenlp từ gói bàn giao vào gốc dữ "
+                "liệu rồi chạy lại, HOẶC Restart session rồi Run all (ô bootstrap tự tải)".format(names))
+    return "thiếu model VnCoreNLP ({}); chạy scripts/setup/setup_vncorenlp.ps1".format(names)
 
 _RDR = None
 
@@ -151,7 +195,7 @@ def _ensure_java():
     home = _java_home()
     if home is None:
         raise FileNotFoundError(
-            "Không tìm thấy Java (JDK/JRE 1.8+) trên máy này.\n" + INSTALL_HINT
+            "Không tìm thấy Java (JDK/JRE 1.8+) trên máy này.\n" + install_hint()
         )
     for variable in ("JDK_HOME", "JAVA_HOME"):
         os.environ.setdefault(variable, str(home))
@@ -183,8 +227,8 @@ def _java_version(home):
 
 def missing_files():
     """Danh sách file jar/model còn thiếu trong data/models/vncorenlp/."""
-    required = [MODEL_DIR / JAR_NAME]
-    required += [MODEL_DIR / item for item in MODEL_FILES]
+    required = [model_dir() / JAR_NAME]
+    required += [model_dir() / item for item in MODEL_FILES]
     return [path for path in required if not path.exists()]
 
 
@@ -194,8 +238,8 @@ def _require_model():
     if missing:
         raise FileNotFoundError(
             "Chưa có model VnCoreNLP trong {} (thiếu {}).\n{}".format(
-                MODEL_DIR.as_posix(),
-                ", ".join(path.name for path in missing), INSTALL_HINT)
+                model_dir().as_posix(),
+                ", ".join(path.name for path in missing), install_hint())
         )
 
 
@@ -218,7 +262,7 @@ def _rdr():
     except ImportError as exc:  # pragma: no cover - phụ thuộc môi trường
         raise ImportError(
             "Thiếu thư viện py-vncorenlp. Cài bằng:\n"
-            "    pip install py-vncorenlp\n" + INSTALL_HINT
+            "    pip install py-vncorenlp\n" + install_hint()
         ) from exc
 
     # py_vncorenlp tự `os.chdir` vào thư mục model (tác dụng phụ ngoài mong muốn),
@@ -228,7 +272,7 @@ def _rdr():
         _RDR = py_vncorenlp.VnCoreNLP(
             annotators=["wseg"],
             max_heap_size=MAX_HEAP_SIZE,
-            save_dir=MODEL_DIR.as_posix(),
+            save_dir=model_dir().as_posix(),
         )
     except Exception as exc:  # noqa: BLE001 - pyjnius ném Exception trần
         # Lỗi ở bước này hầu như luôn là môi trường (JVM không khởi động được, jar
@@ -237,7 +281,7 @@ def _rdr():
         raise OSError(
             "Không khởi động được RDRSegmenter/VnCoreNLP ({}: {}).\n{}".format(
                 type(exc).__name__, str(exc).splitlines()[0] if str(exc) else "",
-                INSTALL_HINT)
+                install_hint())
         ) from exc
     finally:
         os.chdir(previous)
@@ -247,15 +291,14 @@ def _rdr():
 def available():
     """Java + model + thư viện đã sẵn sàng chưa (KHÔNG khởi động JVM)."""
     if _java_home() is None:
-        return False, "chưa cài Java (JDK/JRE 1.8+); chạy scripts/setup/setup_java.ps1"
+        return False, _missing_java_hint()
     try:
         import py_vncorenlp  # noqa: F401
     except ImportError:
         return False, "thiếu thư viện py-vncorenlp; cài bằng 'pip install py-vncorenlp'"
     missing = missing_files()
     if missing:
-        return False, "thiếu model VnCoreNLP ({}); chạy scripts/setup/setup_vncorenlp.ps1".format(
-            ", ".join(path.name for path in missing))
+        return False, _missing_model_hint(missing)
     return True, ""
 
 
@@ -269,7 +312,7 @@ def info():
         "official": OFFICIAL,
         "java_home": str(home) if home else None,
         "java_version": _java_version(home) if home else None,
-        "model_dir": MODEL_DIR.as_posix(),
+        "model_dir": model_dir().as_posix(),
         # Có bỏ dấu '_' vô nghĩa ở đầu câu hay không - đây là một bước XỬ LÝ của dự án
         # (không phải của VnCoreNLP), nên phải ghi lại cùng số liệu.
         "strip_leading_boundary": STRIP_LEADING_BOUNDARY,
