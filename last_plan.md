@@ -9,10 +9,11 @@ metrics của lượt chạy, rescore, và collect_reports).
 
 ## Trạng thái tổng
 
-- Đang ở: ĐANG DỞ. Xong Nhóm 0 (0-1..0-6), code Nhóm A (A-1..A-4; A-5/A-6 chặn), B-2/B-3/B-6, C-2.
-  Còn lại: C-1, C-3, D-1..D-6, E-1..E-2, F-1..F-4, G-1..G-7, H-1..H-7.
+- Đang ở: ĐANG DỞ (cây SẠCH). Xong Nhóm 0; A-1..A-4 (A-5 chờ push, A-6 để cuối); B-2/B-3/B-6;
+  C-1/C-2/C-3; D-1..D-4; E-1; F-1.
+- Còn lại: B-1/B-4/B-5, D-5/D-6, E-2, F-2/F-3/F-4, G-1..G-7, H-1..H-7, A-5 (sau push), A-6 (cuối).
 - Nhánh: `experiment`. Mỗi mục xong = một commit (xem `git log`).
-- CI sạch, test 774 OK (skipped=2) ở thời điểm dừng.
+- CI sạch, test 786 OK (skipped=2) ở thời điểm dừng. HEAD: 4884d23.
 
 ---
 

@@ -64,9 +64,12 @@
 
 ## Trạng thái tổng
 - Nhóm 0: XONG (0-1..0-6).
-- Nhóm A: XONG code A-1..A-4 (commit 80b6e3b, 01d875e, da7bb72). A-5/A-6 CHẶN (cần push GitHub / mạng DagsHub).
-- Nhóm B: XONG B-2/B-3/B-6 (commit 551724e). Còn B-1/B-4/B-5 (việc tài liệu, gộp vào G-4).
-- Nhóm C: XONG C-2 (commit 1240084, 2818b2f). Còn C-1 (val dùng `Samples`) và C-3 (test bất đối xứng).
-- Còn lại nguyên: D-1..D-6, E-1..E-2, F-1..F-4, G-1..G-7, H-1..H-7.
-- CI: sạch (`CI_EXIT=0`). Test: 774 tests OK (skipped=2).
-- Trạng thái file: ĐANG DỞ - dừng ở đây để tránh vào việc lớn (C-1) khi còn ít ngân sách phiên.
+- Nhóm A: XONG code A-1..A-4. A-5 chờ PUSH rồi ghim. A-6 ĐỂ CUỐI (làm khi chạy notebook trên Colab).
+- Nhóm B: XONG B-2/B-3/B-6. Còn B-1/B-4/B-5 (việc tài liệu, gộp vào G-4).
+- Nhóm C: XONG C-1/C-2/C-3.
+- Nhóm D: XONG D-1..D-4. Còn D-5 (plots/training.html) và D-6 (log step-metric).
+- Nhóm E: XONG E-1. Còn E-2 (docs đổi loss -> thư mục mới).
+- Nhóm F: XONG F-1. Còn F-2 (params 500) / F-3 (paper. + run tham chiếu) / F-4 (A8 run_id/resume).
+- Còn nguyên: G-1..G-7, H-1..H-7.
+- CI: sạch. Test: 786 tests OK (skipped=2). HEAD: 4884d23.
+- Trạng thái file: ĐANG DỞ (dừng ở ranh giới commit, cây sạch).
