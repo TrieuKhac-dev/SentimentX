@@ -34,6 +34,26 @@ thí nghiệm dùng; xem `docs/01_dataset/changelog.md`.
 Hai điểm đã khớp sẵn: cột `others` bị loại trong schema của dataset, và neutral bị loại
 theo `neutral_policy: drop`.
 
+### Bằng chứng: test của ta = tập test công khai của bài nguồn
+
+Bộ 16.227 đánh giá đến từ bài **nguồn** (PACLIC 2022, Tran-Le-Do) - **cùng một công trình, khác tên
+tác giả** so với bài prompt engineering ở trên; repo của bài nguồn **công khai cả bốn file**
+`data_train.csv`, `data_val.csv`, `data_test.csv`, `full_data.csv`. Git **blob sha** là tên theo NỘI
+DUNG (`SHA1("blob " + <số byte> + "\x00" + nội dung)`): cùng blob sha ⇔ giống từng byte. Bốn file thô
+của ta khớp đúng blob sha mà repo bài nguồn báo - train/val/test chỉ khác **3 byte BOM UTF-8**,
+`full_data.csv` giống cả byte:
+
+| File | blob sha (đã bỏ BOM) |
+| --- | --- |
+| `data_test.csv`  | `52371d86d849fed58af60b3c9a64c73634310c47` |
+| `data_train.csv` | `85d42dc2b0b6bd3ac6cc280be09c07e3f44011ed` |
+| `data_val.csv`   | `d7d987abd4f4e0924af79bf85fea9ef46cebe93e` |
+| `full_data.csv`  | `86cb19bdea314403c877f8112081b9e2b07a0794` |
+
+Khoá lại bằng `tests/reporting/test_reference_dataset.py` (bỏ qua ở bản clone sạch vì `data/raw`
+không nằm trong git). Vì pipeline `v0.2.0` KHÔNG sửa `test` (mục trên), tập được chấm **chính là**
+tập test công khai của bài.
+
 ## Số của công bố được lưu ở đâu
 
 `data/reference_publication/` gồm năm file số liệu, chép nguyên từ thư mục `observation_announcement/`
@@ -112,6 +132,21 @@ Ba khác biệt giữa cách công bố đo và cách dự án đo - đọc trư
 
 Vì ba khác biệt này, hai con số cùng tên "accuracy theo khía cạnh" **không** tự động so được với nhau;
 phải nói rõ đang đo bằng cách nào.
+
+## Table 3 đo thế nào (đã tái dựng từ Tables 4-6)
+
+Table 3 ghi "class-wise accuracy for each sentiment label" nhưng chỉ in **một** số mỗi khía cạnh, nên
+phải chốt nghĩa. Trên tập đã **lọc hai chiều** (chỉ còn `positive`/`negative`), dựng lại ma trận nhầm
+2×2 từ Precision/Recall của Tables 4-6 rồi tính `(TP_pos + TP_neg) / tổng`:
+
+| Khía cạnh (COT+0-shot) | Từ Tables 4-6 | Tái dựng | Table 3 |
+| --- | --- | --- | --- |
+| SMELL   | pos P=R=97,06; neg P=R=66,67      | (33+2)/37 = **94,59** | 94,59 |
+| TEXTURE | pos P=92,68 R=100; neg P=100 R=76,92 | **94,12**          | 94,12 |
+| PRICE   | pos P=100 R=97,22; neg P=R=0      | **97,22**            | 97,22 |
+
+Kết luận: Table 3 = **accuracy tổng trên tập hai chiều** (đúng/tổng) - đúng bằng cơ sở `paper` của dự
+án (`scores_paper.accuracy`), **không** phải trung bình theo lớp.
 
 ## Cách so
 
