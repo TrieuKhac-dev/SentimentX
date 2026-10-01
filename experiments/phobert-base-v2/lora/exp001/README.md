@@ -13,7 +13,7 @@ Không có lần chạy trước (`parent: null`). Bốn lựa chọn của thí
 | --- | --- | --- |
 | Cách học | LoRA (`training.enabled: true`) | Hai encoder nhỏ chỉ học qua LoRA/QLoRA, không full fine-tune |
 | Tách từ | `vncorenlp` (bộ chính chủ của PhoBERT) | PhoBERT được tiền huấn luyện trên văn bản đã tách từ; bỏ bước này là giảm chất lượng |
-| Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ; `val` chỉ dùng để chọn `model/best` |
+| Split chấm | `test` (cả split của bộ dữ liệu đang dùng) | Con số để SO VỚI CÔNG BỐ; `val` chỉ dùng để chọn `model/best` |
 | Số mẫu | cả split | So với công bố thì phải chấm hết tập test |
 
 Cần hai thứ không có trong git: Java (bootstrap trên Colab tự cài `default-jdk` + `py-vncorenlp`) và

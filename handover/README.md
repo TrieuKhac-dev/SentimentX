@@ -33,7 +33,7 @@ Hết. Notebook tự làm phần còn lại.
 | `notebooks/qwen3-0.6b/prompt-cot/exp002.ipynb` | Qwen3 0.6B CoT 1 ví dụ | 20 đến 40 phút |
 | `notebooks/qwen3-0.6b/prompt-cot/exp003.ipynb` | Qwen3 0.6B CoT 5 ví dụ | 20 đến 40 phút |
 
-Mỗi notebook chấm trên **cùng tập `test` (1.518 review)** - đó là con số để so với công bố. Muốn chạy
+Mỗi notebook chấm trên **cùng tập `test` (cả split của bộ dữ liệu đang dùng)** - đó là con số để so với công bố. Muốn chạy
 hết cả mười hai thì chạy lần lượt; mỗi notebook ghi vào thư mục kết quả riêng nên không giẫm lên nhau.
 
 Ba notebook `exp005`, `exp006`, `exp007` là **bản đối chứng KHÔNG lượng hoá (fp16)** của ba mức ví dụ

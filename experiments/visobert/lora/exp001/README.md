@@ -14,7 +14,7 @@ Không có lần chạy trước (`parent: null`). Bốn lựa chọn của thí
 | --- | --- | --- |
 | Cách học | LoRA (`training.enabled: true`) | Quyết định của dự án: hai encoder nhỏ chỉ học qua LoRA/QLoRA, không full fine-tune |
 | Tham số | `configs/experiments/training.yaml`, module LoRA ở `configs/models/visobert.yaml` | Tên module khác nhau theo kiến trúc, nên `target_modules` thuộc config của model |
-| Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ; `val` chỉ dùng để chọn `model/best` |
+| Split chấm | `test` (cả split của bộ dữ liệu đang dùng) | Con số để SO VỚI CÔNG BỐ; `val` chỉ dùng để chọn `model/best` |
 | Số mẫu | cả split | So với công bố thì phải chấm hết tập test |
 
 ## Kết quả nằm ở đâu

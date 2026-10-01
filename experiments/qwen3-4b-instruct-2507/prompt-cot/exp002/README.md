@@ -12,7 +12,7 @@ nhiêu?** Đây là một trong ba mức 0/1/5 ví dụ của công bố, chấm
 | Lựa chọn | Giá trị | Vì sao |
 | --- | --- | --- |
 | Prompt | `configs/prompts/absa_cot_zeroshot_v1.txt` | Bản 0 ví dụ; KHÔNG khai `examples` vì prompt không có ô nhớ `{examples}` |
-| Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ |
+| Split chấm | `test` (cả split của bộ dữ liệu đang dùng) | Con số để SO VỚI CÔNG BỐ |
 | Số mẫu | cả split (`n: null`) | Chấm một tập con rồi đem so là so hai phép đo khác nhau |
 | Cách sinh | `greedy` | Tất định nên tái lập được |
 

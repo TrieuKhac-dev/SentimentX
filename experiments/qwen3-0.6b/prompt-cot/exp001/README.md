@@ -15,7 +15,7 @@ khác**: cùng tokenizer (bản 0.6B có `tokenizer.json` giống từng byte), 
 | --- | --- | --- |
 | Model | `qwen3-0.6b` (`configs/models/qwen3-0.6b.yaml`) | Model THỨ TƯ của thử nghiệm: đo khoảng cách của một model nhỏ hơn ~10 lần |
 | Prompt | `configs/prompts/absa_cot_zeroshot_v1.txt` + khối hệ thống `absa_cot` | Bản 0 ví dụ; KHÔNG khai `examples` vì prompt không có ô nhớ `{examples}` |
-| Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ |
+| Split chấm | `test` (cả split của bộ dữ liệu đang dùng) | Con số để SO VỚI CÔNG BỐ |
 | Số mẫu | cả split (`n: null`) | Chấm một tập con rồi đem so là so hai phép đo khác nhau |
 | Cách sinh | `greedy` | Tất định nên tái lập được |
 

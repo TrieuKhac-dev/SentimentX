@@ -16,7 +16,7 @@ cùng model, cùng tập `test`, khác đúng một thứ - có bắt model vi�
 | Prompt | `configs/prompts/absa_one_turn_v1.txt` | Một lượt: chỉ hỏi và chốt mã, không yêu cầu suy luận từng bước |
 | System prompt | `configs/prompts/system/absa_one_turn.txt` (file riêng) | Khối hệ thống không nằm trong file prompt |
 | Ví dụ | không | 0 ví dụ - mức rẻ nhất trong bốn mức |
-| Split chấm | `test` (1.518 review) | Cùng tập với `exp002`/`exp003`/`exp004` nên so được với nhau |
+| Split chấm | `test` (cả split của bộ dữ liệu đang dùng) | Cùng tập với `exp002`/`exp003`/`exp004` nên so được với nhau |
 | Số mẫu | cả split (`n: null`) | Chấm một tập con rồi đem so là so hai phép đo khác nhau |
 | Cách sinh | `greedy` | Tất định nên tái lập được |
 

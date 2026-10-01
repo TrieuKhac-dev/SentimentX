@@ -13,7 +13,7 @@
 | --- | --- | --- |
 | Model | `qwen3-0.6b` | Cùng tokenizer và cùng ngưỡng cắt với bản 4B, nên đây là biến duy nhất được đổi |
 | Prompt | `absa_cot_1shot_v1` + bộ ví dụ `absa_cot_1shot_v1` + khối hệ thống `absa_cot` | Đúng mức 1 ví dụ của công bố |
-| Split chấm | `test` (1.518 review) | Con số để SO VỚI CÔNG BỐ |
+| Split chấm | `test` (cả split của bộ dữ liệu đang dùng) | Con số để SO VỚI CÔNG BỐ |
 | Số mẫu | cả split (`n: null`) | Chấm tập con rồi đem so là so hai phép đo khác nhau |
 | Cách sinh | `greedy` | Tất định nên tái lập được |
 
