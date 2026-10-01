@@ -82,7 +82,7 @@ Notebook của một thí nghiệm đã chạy là **bản ghi** của lượt c
 và đừng sửa ô của nó. Quy tắc thêm/sửa/xoá ô, thứ tự các ô, và quy trình 5 bước để đổi bản mẫu:
 `docs/00_workflow/10_template_notebook.md`.
 
-TÁM Ô của một notebook, theo thứ tự - đây là hợp đồng giữa notebook, `scripts/pin.py` và
+SÁU Ô CODE của một notebook, theo thứ tự - đây là hợp đồng giữa notebook, `scripts/pin.py` và
 `scripts/run_notebook.py`:
 
 | # | Ô | Nội dung | Nhận ra bằng |
@@ -92,8 +92,11 @@ TÁM Ô của một notebook, theo thứ tự - đây là hợp đồng giữa n
 | 3 | cấu hình | nạp config, in ra đang chạy gì, tính mã phiên bản dữ liệu | - |
 | 4 | kiểm trước | `preflight.run(...)`, in danh sách việc phải sửa và DỪNG nếu có | `preflight.run` |
 | 5 | CHẠY | đúng MỘT lời gọi `experiment_run.run(...)` (hoặc `encoder_run.run(...)`) | dấu `notebooks.RUN_MARKER` |
-| 6 | kết quả | markdown: đọc kết quả ở đâu, theo thứ tự nào | - |
-| 7 | KẾT THÚC | in link DagsHub nếu có, nhắc ghim, rồi **ngắt phiên Colab** | `print(end_session())` |
+| 6 | KẾT THÚC | in link DagsHub nếu có, nhắc ghim, rồi **ngắt phiên Colab** | `print(end_session())` |
+
+Notebook ĐẦY ĐỦ có **tám ô**: sáu ô code này cộng **hai ô markdown** - ô mở đầu (giới thiệu) và ô
+"Kết quả nằm ở đâu". Hai ô markdown KHÔNG nằm trong hợp đồng, nhưng đừng xoá: đó là phần người nhận
+đọc trước tiên (`10_template_notebook.md`).
 
 Hai ô mang DẤU (không theo số thứ tự) vì cả hai công cụ phải tìm được chúng kể cả khi notebook đã
 thêm/bớt ô: `pin.py` tìm ô GHIM, `run_notebook.py --preflight-only` tìm ô CHẠY. Ô nào lỗi cũng ngắt

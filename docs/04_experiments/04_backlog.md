@@ -45,8 +45,9 @@ lệ JSON hợp lệ và F1. **Không fine-tune.**
 **Vì sao đi hướng này:** Qwen3 là LLM 4B tham số, full fine-tune cần ~64-80 GB VRAM (chỉ
 riêng trọng số ở bf16 đã 8 GB) nên **không thể** trên GPU 6 GB của máy này. Hướng đúng bản
 chất phép so sánh của dự án là dùng nó như model đa năng bằng prompt - tức "LLM thì thử
-prompt + CoT", còn PhoBERT (135M) và ViSoBERT (~108M) thì **fine-tune toàn bộ** (hai
-encoder nhỏ này vừa 6 GB và **không cần** LoRA/QLoRA).
+prompt + CoT", còn PhoBERT (135M) và ViSoBERT (~108M) thì **huấn luyện bằng LoRA** (encoder
+gốc đóng băng, chỉ học adapter hạng thấp cộng một đầu phân loại riêng cho mỗi khía cạnh) -
+xem `docs/04_experiments/06_lora_encoder.md`.
 
 **Cần gì:** `pip install torch` (bản CUDA phù hợp) + lượng hóa 4-bit lúc CHẠY
 (`bitsandbytes`) - chỉ để model 4B vừa 6 GB VRAM, **không phải** huấn luyện - rồi dùng
@@ -215,7 +216,7 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 | Điểm | Kế hoạch | Đã làm | Lý do |
 | ---- | -------- | ------ | ----- |
 | Migrate + ghim | cùng MỘT commit | **hai** commit liền nhau | Bản ghim chỉ được nêu một commit ĐÃ TỒN TẠI, và phải là commit có `src/` mà ô mới gọi; ghim vào commit trước thì notebook gọi `src.api` trong khi commit đó chưa có mặt tiền, còn `--amend` thì đổi chính sha vừa ghi |
-| Ngắt phiên ở đường kiểm-trước-dừng | trong `src/preflight.py` | trong **ô KIỂM TRƯỚC** (khối bảo vệ) | Thư viện chỉ TÍNH và trả báo cáo; việc IN báo cáo do ô gọi (`print_report`). Đặt việc ngắt trong thư viện thì phiên chết TRƯỚC khi báo cáo hiện ra - mất đúng thứ người đọc cần. Hiệu quả về quota như nhau, vì đường kiểm trước trên Colab chỉ có ô gọi |
+| Ngắt phiên ở đường kiểm-trước-dừng | trong `src/workflow/preflight.py` | trong **ô KIỂM TRƯỚC** (khối bảo vệ) | Thư viện chỉ TÍNH và trả báo cáo; việc IN báo cáo do ô gọi (`print_report`). Đặt việc ngắt trong thư viện thì phiên chết TRƯỚC khi báo cáo hiện ra - mất đúng thứ người đọc cần. Hiệu quả về quota như nhau, vì đường kiểm trước trên Colab chỉ có ô gọi |
 | Số hàm của `bootstrap` | 3 (`prepare`, `install_packages`, `model_assets`) | **4** (thêm `verify_checkout`) | Kiểm lại sha/nhánh là bước riêng, tách ra thì test được bằng điểm tiêm mà không phải chạy cả `prepare` |
 | Ô bootstrap sau khi dời logic | ~50 dòng | 109 dòng | 114 dòng đầu là khối KÉO CODE bắt buộc ở lại ô (chạy TRƯỚC khi có `src/`), phần còn lại là 4 lời gọi + khối bảo vệ. Đợt này dọn cho SẠCH (gộp câu lệnh, bỏ chú thích trùng), không nhắm con số |
 | Vùng mặt tiền `tracking` | xuất tên `base` và `run_meta` | xuất `run_meta` và **gói** `tracking` | E3 của kế hoạch yêu cầu ô cuối viết `from src.api import paths, tracking, utils`; muốn vậy phải có tên `tracking` trên mặt tiền. Ô cuối dùng `tracking.base.dagshub_config()` - đọc là "gói `tracking`, file `base`" |
@@ -273,7 +274,7 @@ tưởng đã xong hết.
 | ---- | ------------- | ---------------- |
 | Tên module TRÙNG nhau giữa các gói (`base` ở 5 nơi, `loader` ở 2, `metrics`/`qwen` ở 2) | Việc chuyển nhà `src/` phải sửa tay ba lượt vì không thể suy ra gói từ tên; hai file vùng mặt tiền còn tự import chính mình, mà test cũ vẫn xanh vì tên "có tồn tại" | `tests/api/test_api.py` nay chặn hai lỗi đó. Muốn hết tận gốc thì đổi tên file theo gói (`label_base.py`, ...) - việc riêng, đổi tên file là đổi `run_meta` của các lượt sau |
 | `paths.ROOT_DIR` suy từ `__file__` (nay `parents[2]`) | Đổi ĐỘ SÂY của `src/core/paths.py` là gốc repo sai LẶNG LẼ, không có gì báo | Thêm một phép kiểm `assignments/<file cấu hình>` lúc import, hoặc suy gốc từ `paths.yaml` tìm ngược lên |
-| CI không kiểm tài liệu trỏ đúng file | 37 file tài liệu trỏ `src/<file>.py` và `tests/test_*.py` cũ sau khi chuyển nhà; phải quét bằng script một lần | Thêm một check trong `scripts/ci_checks.py`: mọi đường dẫn dạng `src/...py` và `tests/...py` nhắc trong tài liệu phải tồn tại |
+| CI không kiểm tài liệu trỏ đúng file | **ĐÃ SỬA**: nhiều file tài liệu còn trỏ đường dẫn PHẲNG cũ (dạng `src/<tên>.py`, `tests/test_<tên>.py`) sau khi chuyển nhà | Check số 9 của CI (`documentation_source_paths` trong `src/workflow/checks.py`): mọi đường dẫn dạng `src/<tên>.py` và `tests/<tên>.py` nhắc trong tài liệu phải tồn tại (miễn file lịch sử P0..P2 + `APPENDIX_commits.md`) |
 | Sổ bàn giao chưa kiểm phía NGƯỜI NHẬN | Sổ ghi được là nhóm đã GỬI gì, không biết người nhận đã xoá đúng những mục `deleted` chưa | Thêm một cột "đã xác nhận" vào `handover/ledger.csv`, hoặc một hàm so thư mục Drive nhận được với manifest |
 | `scripts/` vẫn còn 8 công cụ `.py` phẳng | Ba file cài đặt `.ps1` đã vào `scripts/setup/`; các công cụ `.py` chưa chia nhóm | Chia tiếp khi số công cụ tăng: `scripts/notebook/`, `scripts/data/` |
 | Bảng số đo của khối hệ thống bị GHI ĐÈ khi nội dung system đổi | Thẻ tên bảng chỉ ghi **TÊN** file system (`sys-<tên>`), không ghi băm nội dung, nên sửa `configs/prompts/system/<tên>.txt` mà giữ nguyên tên file thì tên bảng không đổi - lượt chạy sau **ghi đè** số cũ và mất bằng chứng. Guard và kiểm 8 của CI chỉ đối chiếu được ở mức TÊN, nên ca này chúng không thấy (`docs/04_experiments/02_model_input.md` mục 2.2) | Cho `sys-` mang thêm 8 hex của nội dung (`sys-<tên>-<sha8>`): `prompts.tag_parts` chấp nhận phần đuôi tuỳ chọn nên bảng cũ vẫn đọc được; các lần chạy sau sẽ có tên mới. Đụng định dạng thẻ nên làm thành một đợt riêng, có ghim lại |

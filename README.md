@@ -394,7 +394,7 @@ Bắt đầu từ **[docs/README.md](docs/README.md)** — có mục lục đầ
 | [docs/01_dataset/](docs/01_dataset/) | Dữ liệu gốc: file, encoding, schema, ý nghĩa nhãn, cách thêm dataset mới |
 | [docs/02_eda/](docs/02_eda/) | EDA: luồng + công tắc đang áp dụng, cách tính từng chỉ số, chi tiết 5 module, quy ước báo cáo |
 | [docs/03_pipeline/](docs/03_pipeline/) | Pipeline: luồng 7 bước + cấu hình đang bật/tắt, chi tiết từng bước, cấu hình, bất biến, đầu ra |
-| [docs/04_experiments/](docs/04_experiments/) | Kế hoạch thực nghiệm 3 model (ViTASA gác lại), bộ tách từ, đo input thật, chỉ số đánh giá, và **việc chưa làm** |
+| [docs/04_experiments/](docs/04_experiments/) | Kế hoạch thực nghiệm 4 model (ViTASA gác lại), bộ tách từ, đo input thật, chỉ số đánh giá, và **việc chưa làm** |
 | [docs/05_config/](docs/05_config/) | Từng file config (đường dẫn, dataset, model, pipeline, thí nghiệm, biến môi trường) |
 | [docs/06_plan/](docs/06_plan/) | Kế hoạch triển khai P0..P7, điều kiện hoàn thành từng giai đoạn, và bảng toàn bộ commit |
 

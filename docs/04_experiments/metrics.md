@@ -4,7 +4,10 @@
 > Liên quan: `docs/04_experiments/reference_publication.md`, `src/evaluation/metrics.py`
 
 Metric lấy theo công bố tham chiếu, không tự thêm bớt khi so sánh.
-Mọi chỉ số tính trên **cùng một tập đánh giá** là split `test` của dataset.
+Mọi lượt chạy phải chấm trên **cùng một tập đánh giá**, do thí nghiệm khai ở `data.roles.eval`
+(các thí nghiệm hiện tại đều trỏ `eval: test`; `src/experiments/experiment_run.py::split_of` chặn
+`eval` trùng `train`). Số dùng để so với công bố ở `data/reports/metrics_matrix/` là số trên split
+`test` nguyên bản.
 
 ## Hai câu hỏi phải tách rời
 

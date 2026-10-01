@@ -21,7 +21,7 @@
 | P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
 | P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | xong T1..T6; DoD "kéo code theo sha trên Colab thật" ĐÃ có bằng chứng (hai lần chạy thật); còn DoD "gốc kết quả trên Drive" |
 | P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | xong T1..T7 (T5–T7 đã soát lại 25/09/2026) |
-| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: T1 (dataset `...-e0ccc484`) và T2 (EDA + report) xong; T3 (NĂM thí nghiệm: 2 LoRA + 3 mức ví dụ của công bố) đã chạy thật một lượt nhưng kết quả đã XOÁ để chạy lại từ đầu (số tham chiếu + 3 lỗi đã gặp ghi ở mục 2), đang chờ GPU của Colab để ra số mới; còn T4, T5 |
+| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | bắt đầu: T1 (dataset v0.2.0 `...-e616c1e3`) và T2 (EDA + report) xong. T3 nay gồm **12 thí nghiệm**: 2 LoRA encoder (`visobert/lora/exp001`, `phobert-base-v2/lora/exp001`) + 10 lượt prompt (Qwen3-4B `prompt-cot/exp002..007` và `prompt-one-turn/exp001`; Qwen3-0.6B `prompt-cot/exp001..003`), chấm trên `test`, đã ghim cùng một bản code. Còn T4 (bảng so với công bố) và T5 (vòng bàn giao); gói 003/004 đã dựng - chi tiết `P7_rerun.md` mục 2 |
 | -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 
 Bảng trên là **nguồn duy nhất** nói đang ở bước nào: sửa mục 2 của file con thì sửa luôn dòng tương

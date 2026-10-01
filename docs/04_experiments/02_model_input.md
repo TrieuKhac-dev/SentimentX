@@ -12,8 +12,9 @@ configs/
 \-- models/<model_id>.yaml   ngưỡng cắt input, cách nạp model (mặc định: qwen3-4b-instruct-2507.yaml)
 
 src/
-+-- prompts.py               nạp + KIỂM TRA file prompt (ô nhớ, dòng đánh dấu, sha)
-+-- model_config.py          đọc configs/models/<model_id>.yaml
++-- experiments/             nạp + KIỂM TRA prompt, đọc config model, chạy thí nghiệm
+|   +-- prompts.py           nạp + KIỂM TRA file prompt (ô nhớ, dòng đánh dấu, sha)
+|   \-- model_config.py      đọc configs/models/<model_id>.yaml
 \-- preprocessing/
     +-- loader.py            ĐỌC dữ liệu đã xử lý (mọi model dùng chung)
     +-- phobert.py           tách từ + tokenizer

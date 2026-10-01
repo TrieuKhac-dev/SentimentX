@@ -68,7 +68,7 @@ thực sự có tác động**.
 | Chuẩn hoá ký tự lặp có giúp không?               | `repeated_chars: false` vs `true`                                                                                  |
 | Có nên loại review gibberish?                    | `remove_gibberish: false` vs `true`                                                                                |
 | Xử lý trùng lặp toàn cục có công bằng hơn không? | `scope: within_split` vs `global`                                                                                  |
-| Model nào tốt nhất cho ABSA tiếng Việt?          | so 3 model (PhoBERT / ViSoBERT / Qwen3) trên **cùng một** dataset; ViTASA gác lại ([04_backlog.md](04_backlog.md)) |
+| Model nào tốt nhất cho ABSA tiếng Việt?          | so 4 model (PhoBERT / ViSoBERT / Qwen3-4B / Qwen3-0.6B; hai bản Qwen3 là một biến về QUY MÔ) trên **cùng một** dataset; ViTASA gác lại ([04_backlog.md](04_backlog.md)) |
 | Tách từ có giúp không, giúp bao nhiêu?           | `run_token_stats.py --segmenter vncorenlp` vs `pyvi` vs `underthesea` vs `none` - rồi so ở bước huấn luyện         |
 | Prompt nào tốt hơn?                              | `run_token_stats.py --prompt <tên>` để đo, rồi huấn luyện/đánh giá với từng prompt trong `configs/prompts/`        |
 | Loại bỏ `others` có ảnh hưởng gì?                | so với bản giữ `others` (đối chứng)                                                                                |
@@ -92,7 +92,7 @@ Danh sách khoá có thể đổi và ý nghĩa từng khoá:
 
 1. **Chốt dataset nền** - chạy pipeline với cấu hình mặc định, ghi lại mã phiên bản
    (hoặc tăng `version` trong config để tên dễ đọc).
-2. **Chạy baseline** - huấn luyện 3 model (PhoBERT / ViSoBERT / Qwen3) trên dataset nền,
+2. **Chạy baseline** - chạy 4 model (PhoBERT / ViSoBERT / Qwen3-4B / Qwen3-0.6B) trên dataset nền,
    ghi lại kết quả. ViTASA gác lại ([04_backlog.md](04_backlog.md) mục 1).
 3. **Thực nghiệm preprocessing** - đổi từng config một (mỗi lần chỉ đổi **một**
    thứ), chạy lại, so với baseline. Mỗi lần đổi cho ra một phiên bản mới.
