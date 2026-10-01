@@ -25,6 +25,8 @@ artifacts:
   - run_meta.json
   - metrics.json
   - metrics.csv
+  - run.log
+  - training_history.csv
   - mispredictions.csv
   - mispredictions_paper.csv
   - model_input.csv
