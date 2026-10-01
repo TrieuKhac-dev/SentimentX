@@ -89,7 +89,7 @@ Hai bảng chứng minh cấu hình ngay trên báo cáo (không phải suy đo�
 - bảng **"Thiết lập Clean đang áp dụng"** (Step 3) và bảng **"Thiết lập Normalize
   đang áp dụng"** (Step 4) - in đúng trạng thái Bật/Tắt của từng khoá;
 - bảng **"Cấu hình đã dùng cho lần chạy này"** (cuối báo cáo) - in toàn bộ
-  `configs/pipeline/v0.1.0.yaml`, và config nguyên vẹn cũng được ghi vào
+  `configs/pipeline/<phiên bản>.yaml`, và config nguyên vẹn cũng được ghi vào
   `processing_log.json` của chính phiên bản dữ liệu đó.
 
 ## 4. Con số cộng lại được

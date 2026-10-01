@@ -32,7 +32,7 @@ Không cần sửa `run_pipeline.py` hay `build_report.py`.
   thành một mục riêng trong `removed_records.csv`-style, để bảng "sau Clean (giữ lại)
   / bị loại / cách ly" vẫn đối chiếu được với số dòng trước đó
   ([01_flow.md mục 4](01_flow.md)).
-- **Thêm config cho bước mới** ngay trong `configs/pipeline/v0.1.0.yaml` (theo quy ước
+- **Thêm config cho bước mới** ngay trong `configs/pipeline/<phiên bản>.yaml` (theo quy ước
   `true` = BẬT) rồi khai giá trị dự phòng an toàn trong
   `src/core/utils.py::load_pipeline_config`; nếu không, bước mới sẽ bật vô điều kiện và
   việc thực nghiệm (đổi một config một lần) không làm được nữa

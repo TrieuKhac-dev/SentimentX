@@ -12,7 +12,7 @@ mọi bước nhận và trả về:
 | `out_dir`         | thư mục báo cáo của phiên bản (nơi ghi CSV/JSON số liệu)                                            |
 | `processed_dir`   | thư mục `data/processed/<mã>` (nơi ghi dữ liệu đã xử lý)                                            |
 | `dataset`         | cấu hình dataset: `name`, `aspects`, `labels`, `text_column`, `drop_columns`, `splits`, `_raw_dir`... |
-| `pipeline_config` | nội dung `configs/pipeline/v0.1.0.yaml` (đã bổ sung giá trị mặc định)                               |
+| `pipeline_config` | nội dung `configs/pipeline/<phiên bản>.yaml` (đã bổ sung giá trị mặc định)                               |
 | `version_id`      | mã phiên bản                                                                                        |
 | `raw_texts`       | văn bản gốc của từng dòng (bước Load giữ lại để bước 6 đối chiếu)                                   |
 | `raw_positions`   | vị trí gốc của những dòng được giữ (bước Clean ghi lại)                                             |
