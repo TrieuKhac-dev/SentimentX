@@ -667,6 +667,44 @@ class MetricsMatrixShotTest(unittest.TestCase):
         self.assertTrue(rows)
 
 
+class RescoredColumnsTest(unittest.TestCase):
+    """B-3: lượt chạy CÓ chấm lại thì bảng so công bố tách thành HAI họ cột `(gốc)`/`(rescored)`."""
+
+    def make_run(self, rescored=False):
+        folder = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, str(folder), ignore_errors=True)
+        (folder / paths.pattern("run_meta")).write_text(json.dumps(
+            {"experiment": {"exp_id": "exp001", "model": "visobert"}}), encoding="utf-8")
+        (folder / paths.pattern("metrics_json")).write_text(
+            json.dumps({"scores_order": ["accuracy"]}), encoding="utf-8")
+        utils.write_csv([["smell", "all", "accuracy", 0.90, "paper"]],
+                        ["aspect", "sentiment", "metric", "value", "basis"],
+                        folder / paths.pattern("metrics_csv"))
+        if rescored:
+            utils.write_csv([["smell", "all", "accuracy", 0.95, "paper"]],
+                            ["aspect", "sentiment", "metric", "value", "basis"],
+                            folder / paths.pattern("metrics_rescored_csv"))
+        return {"dir": folder, "meta": {"experiment": {"exp_id": "exp001"}},
+                "metrics": {"scores_order": ["accuracy"]}}
+
+    def test_two_column_families_when_rescored_exists(self):
+        tables, _mermaid = reports.group_tables("metrics_matrix", [self.make_run(rescored=True)],
+                                               (None, None, None))
+        columns, rows = tables["accuracy_by_aspect.csv"]
+        self.assertIn("exp001 (gốc)", columns)
+        self.assertIn("exp001 (rescored)", columns)
+        row = [item for item in rows if str(item.get("aspect")).lower() == "smell"][0]
+        self.assertEqual(row["exp001 (gốc)"], 0.9)
+        self.assertEqual(row["exp001 (rescored)"], 0.95)
+
+    def test_single_column_when_there_is_no_rescore(self):
+        tables, _mermaid = reports.group_tables("metrics_matrix", [self.make_run()],
+                                               (None, None, None))
+        columns, _rows = tables["accuracy_by_aspect.csv"]
+        self.assertIn("exp001", columns)
+        self.assertNotIn("exp001 (rescored)", columns)
+
+
 if __name__ == "__main__":
     unittest.main()
 

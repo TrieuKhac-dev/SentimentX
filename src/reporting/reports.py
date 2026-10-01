@@ -476,14 +476,19 @@ def column_label(run):
     (như trong bảng `experiment_registry`) dài hàng trăm ký tự là không đọc được. Thí nghiệm thì
     dùng `expNNN`; lượt chạy tay thì dùng `<prompt> n<limit>` - hai thứ đã đủ phân biệt, và nhãn
     đầy đủ vẫn nằm trong bảng `experiment_registry`.
+
+    Hậu tố NGUỒN SỐ (`run["_source"]`): `""` cho lượt KHÔNG có rescore (giữ nguyên nhãn cũ), còn
+    `" (gốc)"`/`" (rescored)"` khi lượt đó được tách thành hai cột - xem `expand_sources`.
     """
     meta = run.get("meta") or {}
     experiment = dict(meta.get("experiment") or {})
     if experiment.get("exp_id"):
-        return str(experiment["exp_id"])
-    metrics = run.get("metrics") or {}
-    limit = (metrics.get("subset") or {}).get("limit")
-    return "{} n{}".format(metrics.get("prompt") or canonical_label(run), limit or "all")
+        label = str(experiment["exp_id"])
+    else:
+        metrics = run.get("metrics") or {}
+        limit = (metrics.get("subset") or {}).get("limit")
+        label = "{} n{}".format(metrics.get("prompt") or canonical_label(run), limit or "all")
+    return label + str(run.get("_source") or "")
 
 
 def column_labels(runs):
@@ -557,6 +562,25 @@ PAPER_BASIS = "paper"
 ALL_BASIS = "all"
 
 
+def expand_sources(runs):
+    """Tách mỗi lượt chạy CÓ `metrics_rescored.csv` thành HAI "nguồn số": gốc và rescored.
+
+    Nhờ tách ở ĐÂY, các bảng phía sau (`accuracy_table`, `prf_table`) không phải biết gì về rescore -
+    chúng vẫn nhận một danh sách "lượt chạy" và đọc `_metrics_csv` của từng mục. Lượt KHÔNG có
+    rescore giữ nguyên một cột, nên bảng cũ không đổi.
+    """
+    expanded = []
+    for run in runs:
+        csv = run["dir"] / paths.pattern("metrics_csv")
+        rescored = run["dir"] / paths.pattern("metrics_rescored_csv")
+        if not rescored.is_file():
+            expanded.append(dict(run, _metrics_csv=csv, _source=""))
+            continue
+        expanded.append(dict(run, _metrics_csv=csv, _source=" (gốc)"))
+        expanded.append(dict(run, _metrics_csv=rescored, _source=" (rescored)"))
+    return expanded
+
+
 def metric_map(run, basis=None):
     """Bảng `(aspect, sentiment, metric) -> giá trị` của một lượt chạy, đọc từ `metrics.csv`.
 
@@ -572,7 +596,7 @@ def metric_map(run, basis=None):
     đó chưa được đo theo cách của công bố. Trả số `all` vào ô `paper` là dán nhãn sai mà không ai
     thấy. Hỏi `all` thì vẫn đọc hết như cũ.
     """
-    path = run["dir"] / paths.pattern("metrics_csv")
+    path = run.get("_metrics_csv") or (run["dir"] / paths.pattern("metrics_csv"))
     if not path.is_file():
         return {}
     frame = utils.read_csv(path)
@@ -935,6 +959,8 @@ def group_tables(name, runs, reference=None):
         edges = [(source, "", target) for source, target in pairs]
         return {CSV_NAME[name]: (columns, rows)}, mermaid_graph(edges, isolated=["model_input"])
     if name == "metrics_matrix":
+        # Lượt chạy có chấm lại (`metrics_rescored.csv`) được TÁCH thành hai cột "gốc"/"rescored".
+        runs = expand_sources(runs)
         # Cột đối chiếu công bố chọn THEO TỪNG LƯỢT, theo đúng mức ví dụ của lượt đó (0/1/5-shot).
         # Lượt không suy ra được mức (model encoder, lượt chạy tay) dùng cột do `--reference-shot`
         # chọn - nhờ vậy không mức nào bị so nhầm cột, và lượt cũ vẫn giữ cách đối chiếu như trước.
