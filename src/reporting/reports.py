@@ -260,14 +260,16 @@ def measurement_basis(run):
     Không có nó thì bảng đặt hai cột cạnh nhau và người đọc so số của hai phép đo khác nhau - lệch vì
     ĐO KHÁC chứ không phải vì model khác.
 
-    Hai khoá cuối nói về CƠ SỞ ĐO THỨ HAI (`paper`, xem docs/04_experiments/metrics.md): một lượt
-    chạy ghi trước 01/10/2026 chưa có cơ sở đó (`chưa có`), nên nó không so được với lượt có - số
-    `paper` của lượt cũ đơn giản là không tồn tại, không phải bằng 0.
+    Cơ sở đo thứ hai (`paper`, xem docs/04_experiments/metrics.md) KHÔNG vào danh sách này: cột
+    `comparable` so những con số mà chính bảng này in ra (`accuracy_micro`, `f1_macro`,
+    `exact_match_percent` - khối `all`), và một lượt ghi trước 01/10/2026 có khối `all` y như lượt mới,
+    nên gắn cờ "không so được" cho nó là cảnh báo nhầm. Quy tắc riêng của khối `paper`: số đó chỉ so
+    được giữa các lượt CÙNG có khoá `scores_paper`; `metric_map` để TRỐNG ô của lượt chưa có cột
+    `basis`, nên bảng ma trận không thể đem số `all` ra dán nhãn `paper`.
     """
     meta = dict(run["meta"] or {})
     metrics = dict(run["metrics"] or {})
     task = dict(meta.get("task") or {})
-    paper = dict(metrics.get("paper") or {})
     return {
         "dữ liệu": (meta.get("data") or {}).get("build") or NO_DATA,
         "không gian nhãn": task.get("label_space") or NO_DATA,
@@ -275,8 +277,6 @@ def measurement_basis(run):
         "khía cạnh không nhắc tới": task.get("not_mentioned") or NO_DATA,
         "split": metrics.get("split") or NO_DATA,
         "bộ chấm": ", ".join(metrics.get("scores_order") or []) or NO_DATA,
-        "bộ chấm paper": ", ".join(metrics.get("scores_order_paper") or []) or NO_DATA,
-        "nhãn lọc paper": ", ".join(paper.get("label_filter") or []) or NO_DATA,
     }
 
 
@@ -551,9 +551,10 @@ def shot_of(run):
     return None
 
 
-# Cơ sở đo dùng cho bảng ĐEM SO VỚI CÔNG BỐ. `metrics.csv` có cột `basis` (xem metrics.md); bảng
-# `metrics_matrix` lấy số ở cơ sở `paper` vì cột công bố cũng đo theo cách đó.
+# Hai cơ sở đo trong `metrics.csv` (cột `basis`). Bảng ĐEM SO VỚI CÔNG BỐ lấy số ở cơ sở `paper` vì
+# cột công bố cũng đo theo cách đó; cơ sở `all` vẫn là số của dự án trong `metrics.json`/`metrics.csv`.
 PAPER_BASIS = "paper"
+ALL_BASIS = "all"
 
 
 def metric_map(run, basis=None):
@@ -564,8 +565,12 @@ def metric_map(run, basis=None):
 
     `basis` chọn CƠ SỞ ĐO (xem docs/04_experiments/metrics.md). Mặc định là `paper` - cách công bố
     đếm - vì bảng `metrics_matrix` là bảng ĐEM SO VỚI CÔNG BỐ, nên số của lượt chạy trong đó phải
-    cùng cơ sở. Lượt chạy ghi trước 01/10/2026 chưa có cột `basis` (chỉ có một cơ sở đo), khi đó
-    đọc hết như cũ.
+    cùng cơ sở.
+
+    Lượt chạy ghi TRƯỚC 01/10/2026 chưa có cột `basis` (chỉ một cơ sở đo, và nó là `all`): hỏi cơ sở
+    `paper` thì trả `{}` để các ô của lượt đó trong bảng ma trận **để trống** - đúng sự thật là lượt
+    đó chưa được đo theo cách của công bố. Trả số `all` vào ô `paper` là dán nhãn sai mà không ai
+    thấy. Hỏi `all` thì vẫn đọc hết như cũ.
     """
     path = run["dir"] / paths.pattern("metrics_csv")
     if not path.is_file():
@@ -573,6 +578,8 @@ def metric_map(run, basis=None):
     frame = utils.read_csv(path)
     columns = list(frame.columns)
     wanted = PAPER_BASIS if basis is None else basis
+    if "basis" not in columns and wanted != ALL_BASIS:
+        return {}
     result = {}
     for record in frame.to_dict("records"):
         if "basis" in columns and str(record.get("basis")) != wanted:

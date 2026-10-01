@@ -38,6 +38,9 @@ class ReferenceFileTest(unittest.TestCase):
 
     def test_accuracy_by_aspect_khop_table3(self):
         rows = self.rows("accuracy_by_aspect.csv")
+        # Đúng bốn cột, đúng tên: đổi tên cột là `load_reference` không chọn được cột theo mức ví dụ.
+        self.assertEqual(list(rows[0]),
+                         ["Aspect", "COT+0-shot", "COT+1-shot", "COT+5-shot"])
         self.assertEqual(len(rows), len(ACCURACY), "bảng công bố phải có đúng 7 khía cạnh")
         self.assertEqual([str(row["Aspect"]).strip().lower() for row in rows],
                          [item[0] for item in ACCURACY])

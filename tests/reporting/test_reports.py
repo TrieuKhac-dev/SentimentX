@@ -24,13 +24,22 @@ from unittest import mock
 from src.core import paths, utils
 from src.reporting import reports
 
-METRICS_COLUMNS = ["aspect", "sentiment", "metric", "value"]
+METRICS_COLUMNS = ["aspect", "sentiment", "metric", "value", "basis"]
+# `metrics.csv` của một lượt chạy từ 01/10/2026 có HAI cơ sở đo (cột `basis`, xem metrics.md). Fixture
+# ghi cả hai với cùng giá trị, vì cột của lượt chạy trong bảng tổng hợp lấy cơ sở `paper`: nếu fixture
+# chỉ có `all` thì mọi ô của lượt chạy trong bảng ma trận sẽ TRỐNG (đúng hành vi mới, nhưng không kiểm
+# được phép ghép số). Riêng "lấy đúng cơ sở nào" có ca riêng: `test_metric_map_doc_theo_co_so_do`.
 METRICS_ROWS = [
-    ["colour", "all", "accuracy", "75.0"],
-    ["price", "all", "accuracy", "50.0"],
-    ["colour", "positive", "precision", "0.5"],
-    ["colour", "positive", "recall", "1.0"],
-    ["colour", "positive", "f1", "0.667"],
+    ["colour", "all", "accuracy", "75.0", "all"],
+    ["price", "all", "accuracy", "50.0", "all"],
+    ["colour", "positive", "precision", "0.5", "all"],
+    ["colour", "positive", "recall", "1.0", "all"],
+    ["colour", "positive", "f1", "0.667", "all"],
+    ["colour", "all", "accuracy", "75.0", "paper"],
+    ["price", "all", "accuracy", "50.0", "paper"],
+    ["colour", "positive", "precision", "0.5", "paper"],
+    ["colour", "positive", "recall", "1.0", "paper"],
+    ["colour", "positive", "f1", "0.667", "paper"],
 ]
 
 
@@ -117,12 +126,8 @@ class TableTest(unittest.TestCase):
         self.assertEqual(rows, [{"aspect": "colour", "exp001": 75.0},
                                 {"aspect": "price", "exp001": 50.0}])
 
-    def test_metric_map_doc_theo_co_so_do(self):
-        """Lượt chạy mới ghi HAI cơ sở đo trong `metrics.csv`; bảng so công bố lấy cơ sở `paper`.
-
-        Lượt chạy cũ (trước 01/10/2026) chưa có cột `basis` thì đọc hết như trước - nếu không thì
-        bảng đã commit sẽ trắng.
-        """
+    def test_metric_map_chon_co_so_do(self):
+        """`metrics.csv` có hai cơ sở đo: bảng so công bố lấy `paper`, không lấy `all`."""
         directory = self.root / "exp-basis"
         directory.mkdir()
         utils.write_csv(
@@ -131,6 +136,20 @@ class TableTest(unittest.TestCase):
             ["aspect", "sentiment", "metric", "value", "basis"], directory / "metrics.csv")
         run = {"dir": directory}
         self.assertEqual(reports.metric_map(run)[("colour", "all", "accuracy")], 80.0)
+        self.assertEqual(reports.metric_map(run, basis="all")[("colour", "all", "accuracy")], 60.0)
+
+    def test_luot_chua_co_cot_basis_thi_khong_muon_so_all(self):
+        """Lượt ghi trước 01/10/2026 chỉ có cơ sở `all`.
+
+        Hỏi cơ sở `paper` thì phải trả RỖNG (ô để trống trong bảng ma trận): trả số `all` vào đó là
+        dán nhãn sai - người đọc tưởng lượt cũ đã được đo theo cách của công bố.
+        """
+        directory = self.root / "exp-cu"
+        directory.mkdir()
+        utils.write_csv([["colour", "all", "accuracy", 60.0]],
+                        ["aspect", "sentiment", "metric", "value"], directory / "metrics.csv")
+        run = {"dir": directory}
+        self.assertEqual(reports.metric_map(run), {})
         self.assertEqual(reports.metric_map(run, basis="all")[("colour", "all", "accuracy")], 60.0)
 
     def test_cot_cong_bo_duoc_them_va_dung_thang_do(self):
