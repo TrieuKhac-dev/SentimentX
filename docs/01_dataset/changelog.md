@@ -45,6 +45,11 @@ Ba tập đều khác bản cũ: `train` −34 dòng, `val` +11 dòng, `test` +1
 bỏ khỏi test, cộng các dòng trùng train mà bản cũ cũng bỏ khỏi test). Bản v0.1.0 **giữ nguyên** trong
 `data/processed/` làm dấu vết, không xoá.
 
+Vì sao bản cũ bỏ **84** dòng khỏi val/test mà bản mới chỉ bỏ **34** dòng khỏi train: khoá so trùng gộp
+nhiều dòng về một, nên 84 dòng val/test chỉ ứng với 34 khoá khác nhau trong train; và một phần dòng
+val/test trùng train đã bị loại **vì nhiễu** từ trước bước xử lý rò rỉ, nên train không còn bản sao nào
+để bỏ. Đây là lý do con số thật (−34 / +11) khác con số ước lượng lúc lập kế hoạch (−84 / +48).
+
 Khoá tập đánh giá (`eval_lock.json`) - hai giá trị này đã khai trong config TRƯỚC lần chạy chính thức:
 
 ```json

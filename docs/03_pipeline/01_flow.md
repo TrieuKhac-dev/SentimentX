@@ -38,17 +38,22 @@ phải số hiệu phiên bản.
 | ----------------- | -------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------- |
 | 1. Load           | `src/pipeline/load.py`           | Nạp dữ liệu qua loader (CSV đọc với `utf-8-sig`), bỏ cột thừa, đổi tên cột văn bản thành `text` | [02_steps.md mục 1](02_steps.md) |
 | 2. Validate       | `src/pipeline/validate.py`       | Kiểm tra cột thiếu/thừa, review rỗng, nhãn lạ. **Ghi nhận, không sửa**                          | [02_steps.md mục 2](02_steps.md) |
-| 3. Clean          | `src/pipeline/clean.py`          | Loại nhiễu & trùng lặp, cách ly xung đột nhãn, xử lý rò rỉ dữ liệu                              | [02_steps.md mục 3](02_steps.md) |
-| 4. Normalize      | `src/pipeline/normalize.py`      | Unicode, khoảng trắng, ký tự lặp (tuỳ chọn). **Không thay teencode**                            | [02_steps.md mục 4](02_steps.md) |
+| 3. Clean          | `src/pipeline/clean.py`          | Loại nhiễu & trùng lặp, cách ly xung đột nhãn, xử lý rò rỉ. **Chỉ sửa `train`/`val`**          | [02_steps.md mục 3](02_steps.md) |
+| 4. Normalize      | `src/pipeline/normalize.py`      | Unicode, khoảng trắng, ký tự lặp (tuỳ chọn). **Không thay teencode**. **Chỉ sửa `train`/`val`** | [02_steps.md mục 4](02_steps.md) |
 | 5. Transform      | `src/pipeline/transform.py`      | Bảng multi_head (mã nhãn 0/1/2/3) + bản ghi ABSA                                                | [02_steps.md mục 5](02_steps.md) |
-| 6. Final Validate | `src/pipeline/final_validate.py` | Schema, text rỗng, nhãn hợp lệ, **nhãn không bị đổi**, số dòng khớp                             | [02_steps.md mục 6](02_steps.md) |
+| 6. Final Validate | `src/pipeline/final_validate.py` | Schema, text rỗng, nhãn hợp lệ, **nhãn không bị đổi**, text chỉ đổi hình thức, số dòng khớp        | [02_steps.md mục 6](02_steps.md) |
 | 7. Export         | `src/pipeline/export.py`         | Ghi bảng multi_head + `label_map.json` + log truy vết                                           | [05_output.md](05_output.md)  |
+
+**Phạm vi sửa**: từ pipeline `v0.2.0`, mỗi bước khai phạm vi của mình ở `steps.<tên>.apply_to`. Clean và
+Normalize chỉ có `[train, val]`, nên `test.csv` bằng **đúng** dữ liệu gốc - đó là điều kiện để so với
+công bố tham chiếu. Bước Final Validate chứng minh điều này **từng dòng** (xem
+[04_invariants.md](04_invariants.md) và `docs/05_config/02_pipeline.md`).
 
 ## 3. Cấu hình đang bật / tắt
 
-Mọi phép biến đổi đều **bật / tắt được** trong `configs/pipeline/v0.1.0.yaml`. Bảng dưới
-đây là trạng thái **đang chạy trong repo** (ý nghĩa từng khoá và cách đổi để thực
-nghiệm: [03_config.md](03_config.md)):
+Mọi phép biến đổi đều **bật / tắt được** trong `configs/pipeline/<phiên bản>.yaml` (đang dùng:
+`v0.2.0`; `v0.1.0` giữ nguyên làm bản cũ). Bảng dưới đây là trạng thái **đang chạy trong repo** (ý
+nghĩa từng khoá và cách đổi để thực nghiệm: [03_config.md](03_config.md)):
 
 | Bước | Khoá                                  | Đang chạy      | Nghĩa ngắn                                                                  |
 | ---- | ------------------------------------- | -------------- | --------------------------------------------------------------------------- |
@@ -63,7 +68,10 @@ nghiệm: [03_config.md](03_config.md)):
 | 3    | `steps.clean.deduplicate.ignore_diacritics` | **Tắt**        | khoá so trùng **giữ dấu** tiếng Việt (`son dep` khác `son đẹp`)                |
 | 3    | `steps.clean.deduplicate.scope`             | `within_split` | so trùng trong từng split (`global` là phương án thực nghiệm)               |
 | 3    | `steps.clean.deduplicate.conflict_policy`   | `quarantine`   | cùng văn bản nhưng nhãn khác nhau -> cách ly, không tự chọn                  |
-| 3    | `steps.clean.leakage.remove_eval_overlap`   | **Bật**        | loại khỏi val/test những review đã có trong train                           |
+| 3    | `steps.clean.apply_to`                      | `[train, val]` | **phạm vi được sửa**: KHÔNG có `test`                                |
+| 3    | `steps.clean.leakage.keep_priority`         | `[test, val, train]` | giữ review ở tập ưu tiên cao hơn, loại khỏi tập thấp hơn (test không bao giờ bị loại) |
+| 3    | `steps.clean.leakage.remove_eval_overlap`   | **Tắt**        | luật cũ (loại ở val/test) - chỉ dùng cho bản dữ liệu `v0.1.0`                |
+| 4    | `steps.normalize.apply_to`                  | `[train, val]` | **phạm vi được sửa**: KHÔNG có `test`                                |
 | 4    | `steps.normalize.lowercase`                 | **Tắt**        | giữ hoa/thường (tokenizer subword phân biệt, và chữ hoa có thể là tín hiệu) |
 | 4    | `steps.normalize.unicode`                   | **Bật**        | NFC                                                                         |
 | 4    | `steps.normalize.whitespace`                | **Bật**        | chuẩn hoá khoảng trắng / xuống dòng                                         |
@@ -92,14 +100,19 @@ cách ly" cộng lại bằng số dòng trước Clean:
 
 ```
 số dòng trước Clean = số dòng sau Clean + số dòng bị loại + số dòng bị cách ly
-            16227 = 15344 + 840 + 43
+            16227 = 15426 + 792 + 9         (bản v0.2.0, …-e616c1e3)
+            16227 = 15344 + 840 + 43        (bản v0.1.0, …-e0ccc484)
 ```
 
-Con số trên là của dataset `cosmetics` (3 split gộp lại). Nếu muốn đối chiếu với
-EDA: EDA 03 đo trên **dữ liệu gốc** nên số của nó lớn hơn một chút (ví dụ 91 dòng
-val/test trùng train ở EDA so với 84 dòng bị loại do rò rỉ ở đây, vì 7 dòng kia đã
-bị loại từ bước xoá nhiễu chạy trước) - xem
-[02_metrics.md mục 12](../02_eda/02_metrics.md).
+Con số trên là của dataset `cosmetics` (3 split gộp lại). Ở bản `v0.1.0`, `test` cũng bị sửa nên nó mất
+105 dòng; bản `v0.2.0` không sửa `test`, nên dòng `test` của `clean_flow.csv` ghi **bị loại 0** và rò rỉ
+được xử lý ở phía `train`.
+
+Nếu muốn đối chiếu với EDA: EDA 03 đo trên **dữ liệu gốc** và đếm các DÒNG val/test trùng train (trên
+cosmetics: 91 dòng). Bước Clean ở đây bỏ các DÒNG của tập HỌC, nên hai con số không bằng nhau và không
+so trực tiếp được: bản `v0.2.0` bỏ 249 dòng `train` (226 dòng trùng `test` + 23 dòng trùng `val`), còn
+bản `v0.1.0` bỏ 84 dòng ở val/test. Đọc `clean_flow.csv` / `clean_reasons.csv` của từng phiên bản để có
+số chính xác - xem [02_metrics.md mục 12](../02_eda/02_metrics.md).
 
 ## 5. Chạy và kết quả
 
@@ -107,10 +120,10 @@ Pipeline cũng tách thành hai việc: **tính** và **vẽ**.
 
 ```bash
 # 1) Xử lý dữ liệu và ghi dataset + khoá tập đánh giá (lệnh in ra MÃ PHIÊN BẢN)
-python run_pipeline.py --name cosmetics --version v0.1.0
+python run_pipeline.py --name cosmetics --version v0.2.0
 
 # 2) Vẽ báo cáo từ số liệu đã ghi - phải ghi rõ đích (nhận hash8 hoặc mã đầy đủ)
-python build_report.py --phase pipeline --on dataset --hash e0ccc484
+python build_report.py --phase pipeline --on dataset --hash e616c1e3
 ```
 
 Kết quả:
@@ -167,7 +180,7 @@ Ba điều dưới đây không phải "chưa làm" mà là **quyết định th
 chứng minh bằng số liệu ở Step 6 ([04_invariants.md](04_invariants.md)):
 
 - **không viết lại teencode** - không có config nào cho việc này trong
-  `configs/pipeline/v0.1.0.yaml`; việc nhận diện teencode chỉ để ĐO (EDA 03);
+  `configs/pipeline/*.yaml` (cả `v0.1.0` và `v0.2.0`); việc nhận diện teencode chỉ để ĐO (EDA 03);
 - **không bỏ dấu tiếng Việt**, kể cả trong khoá so trùng
   (`steps.clean.deduplicate.ignore_diacritics: false`);
 - **không chạm vào cột nhãn** - chứng minh bằng dấu vân tay nhãn trước/sau bước

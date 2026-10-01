@@ -44,7 +44,8 @@ mất dòng nào, kể cả dòng không có nhãn khía cạnh nào) - đó là
 1. `eval_lock` băm BYTE của `{split}.csv` (xem mục 5), nên đổi cách ghi là đổi khoá tập đánh giá của
    mọi kết quả đã công bố;
 2. đổi xuống dòng thành hai ký tự `\n` là phép biến đổi **mất mát**: đọc lại file ra văn bản khác với
-   văn bản đưa cho model (test của phiên bản hiện tại: 334/1.518 bản ghi có ô nhiều dòng).
+   văn bản đưa cho model (`test` của bản `…-e616c1e3`: **340/1.623** bản ghi có ô nhiều dòng; bản
+   `…-e0ccc484` trước đó: 334/1.518).
 
 Hệ quả: ba file này có **nhiều dòng vật lý hơn số bản ghi**, nên mọi chỗ đếm phải đếm BẢN GHI
 (`preflight.count_rows`, `reports._row_count`). Luật "một bản ghi = một dòng vật lý" áp cho **bảng cho
@@ -91,12 +92,15 @@ quen thuộc giữ nguyên mã - xem [01_dataset/03_new_dataset.md](../01_datase
   "test": {
     "schema": 1,
     "file": "test.csv",
-    "sha256": "e2558137...",
-    "records_sha256": "fa91b1d9...",
-    "rows": 1518
+    "sha256": "af349bf5...",
+    "records_sha256": "73d39d84...",
+    "rows": 1623
   }
 }
 ```
+
+(Ví dụ trên là bộ dữ liệu đang dùng, `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3`, `test`
+1.623 bản ghi. Bộ `…-e0ccc484` trước đó ghi `sha256` `e2558137...` với 1.518 bản ghi.)
 
 Hai dấu vân tay, hai vai trò:
 

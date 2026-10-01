@@ -38,17 +38,23 @@ chiếu từng dòng (hạng mục "Văn bản chỉ đổi hình thức" ở St
 
 1. Bước Load giữ lại **văn bản gốc** của từng dòng (đúng thứ tự gốc).
 2. Bước Clean giữ lại **vị trí gốc** của những dòng được giữ.
-3. Bước Final Validate lấy từng dòng trong `train.csv`, `val.csv`, `test.csv`, áp lại đúng quy tắc
-   chuẩn hoá (`normalize_steps` - cùng hàm mà bước Normalize dùng) lên dòng gốc
-   tương ứng, rồi so **từng ký tự**.
+3. Bước Final Validate lấy từng dòng trong `train.csv`, `val.csv`, `test.csv` rồi so **từng ký tự**,
+   nhưng theo PHẠM VI của bước Normalize (`steps.normalize.apply_to`, xem `docs/05_config/02_pipeline.md`):
+   - split ĐƯỢC chuẩn hoá: so với dòng gốc **sau khi áp lại** đúng quy tắc chuẩn hoá (`normalize_steps`
+     - cùng hàm mà bước Normalize dùng);
+   - split KHÔNG nằm trong `apply_to` (từ pipeline `v0.2.0`: `test`): phải bằng **ĐÚNG bản gốc**, không
+     được sửa một ký tự nào - bất biến MẠNH HƠN, và chính là điều kiện để so với công bố.
 
-Kết quả trên cosmetics: **ĐẠT - 15344/15344 dòng khớp đúng dòng gốc sau chuẩn hoá**.
+Kết quả trên cosmetics: bản `…-e616c1e3` (v0.2.0) **ĐẠT - 13.803 dòng khớp dòng gốc sau chuẩn hoá và
+1.623 dòng của `test` bằng đúng bản gốc**; bản `…-e0ccc484` (v0.1.0, mọi split đều bị chuẩn hoá) ghi
+**15.344/15.344 dòng**. Con số của bản cũ giữ lại làm mốc, không dùng để so với công bố.
 Vì phép so là từng ký tự, kết luận rút ra được:
 
 - **Văn bản không mất một dấu tiếng Việt nào**, và khoá so trùng cũng vậy: config đang
   để `steps.clean.deduplicate.ignore_diacritics: false`, nên bỏ dấu không xảy ra ở **bất kỳ
   chỗ nào** trong dự án;
-- bước xoá trùng lặp / xử lý rò rỉ **chỉ bỏ dòng**, không sửa chữ của dòng được giữ;
+- bước xoá trùng lặp / xử lý rò rỉ **chỉ bỏ dòng**, không sửa chữ của dòng được giữ (từ pipeline
+  `v0.2.0`, rò rỉ chỉ bỏ ở tập HỌC: `train` và `val`);
 - nếu ai đó thêm một phép "bỏ dấu" vào `normalize_steps`, hạng mục này **lập tức
   báo LỖI** kèm 5 dòng sai đầu tiên (dòng gốc, kết quả mong đợi, kết quả thực tế).
 
@@ -61,7 +67,7 @@ Vì sao không bỏ dấu tiếng Việt ở bất kỳ chỗ nào (kể cả tr
 Bộ quy tắc nhận diện teencode / từ lạ nằm **hoàn toàn ở EDA**
 (`src/eda/quality_noise.py` gọi `utils.teencode_reasons`). Trong `src/pipeline/`
 **không có** phép loại bỏ, thay thế hay viết lại teencode, và
-`configs/pipeline/v0.1.0.yaml` **không có** config nào cho việc đó - tìm chữ "teencode"
+`configs/pipeline/v0.1.0.yaml` và `v0.2.0.yaml` **không có** config nào cho việc đó - tìm chữ "teencode"
 trong `src/pipeline/` chỉ thấy ghi chú, không thấy code.
 
 Lý do: dự án không có bằng chứng khoa học nào để nói một cách viết lóng là "sai";

@@ -60,17 +60,19 @@ chỗ khác nhau vì lý do rất cụ thể:
 | Phần | Nằm ở đâu | Nội dung |
 | --- | --- | --- |
 | Chính sách | file phiên bản dataset (`eval_lock.enforce`, `eval_lock.test.file`) | có khoá tập test hay không, tên file nào |
-| Giá trị MONG ĐỢI (tuỳ chọn) | `eval_lock.test.sha256`, `eval_lock.test.records_sha256`, `eval_lock.test.rows` | chỉ khai khi muốn đối chiếu với một tập test bên ngoài (ví dụ tập của công bố) |
+| Giá trị MONG ĐỢI (tuỳ chọn) | `eval_lock.test.sha256`, `eval_lock.test.records_sha256`, `eval_lock.test.rows` | khai khi muốn RÀNG BUỘC CỨNG: khai rồi thì lệch là LỖI. Từ `v0.2.0` dự án khai đúng số ĐO ĐƯỢC của bộ mình - điền TRƯỚC lần chạy chính thức (chạy thử một lượt lấy số, điền, chạy lại) vì file phiên bản là bất biến sau khi dùng |
 | Số đo ĐÃ CHỐT | `data/processed/<mã>/eval_lock.json` | `{"test": {"schema", "file", "sha256", "records_sha256", "rows"}}`, ghi MỘT LẦN trong cùng lần chạy sinh ra `test.csv` |
 
 Vì sao số đo không nằm trong file phiên bản: `sha256` của `test.csv` chỉ biết được SAU khi pipeline
 chạy, mà file phiên bản thì bất biến (sửa là guard chặn). Ghi số đo cùng dữ liệu nghĩa là **bản dữ
 liệu đầu tiên đã có khoá** - không phải chờ tới phiên bản sau, và không có chỗ hở ở gốc chuỗi.
 
-Cập nhật 25/09/2026: câu chú thích cũ trong `configs/datasets/cosmetics/v0.1.0.yaml` (điền số đo vào
-phiên bản KẾ TIẾP) đã lạc hậu so với cách làm này, nhưng **không sửa được tại chỗ**: nội dung file
-phiên bản đi vào mã phiên bản dữ liệu, nên sửa một dòng chú thích là mã đổi (đã thử và mã đúng là
-đổi thật), và mọi kết quả cũ không còn tra được. Câu đó sẽ được thay khi tạo phiên bản dataset mới.
+Cập nhật 01/10/2026: câu chú thích cũ trong `configs/datasets/cosmetics/v0.1.0.yaml` ("điền số đo vào
+phiên bản KẾ TIẾP") đã được thay khi tạo phiên bản `v0.2.0`: file đó ghi rõ hai giá trị phải điền
+**trước** lần chạy chính thức (chạy thử lấy số, điền, chạy lại - mã phiên bản đổi theo nội dung file,
+đúng như thiết kế), và `v0.2.0` đã khai đúng `sha256` + `rows` của `test.csv` trước lần chạy chính thức.
+File `v0.1.0.yaml` thì **không sửa được tại chỗ** (nội dung file đi vào mã phiên bản dữ liệu, sửa là mã
+đổi và kết quả cũ không còn tra được), nên nó giữ nguyên câu cũ như một dấu vết.
 
 Cách hoạt động:
 

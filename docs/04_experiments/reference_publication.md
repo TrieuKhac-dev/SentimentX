@@ -75,6 +75,11 @@ Chỉ số `aspect_detection` thì **không** lấy từ file công bố: bài c
 **không có bảng số** cho nó, nên dòng `aspect_detection` trong `metrics_matrix` lấy số từ **lượt chạy**
 và để **trống** ô công bố.
 
+Rà soát cùng lượt (01/10/2026): **không kết luận nào** trong tài liệu dựa vào cột tham chiếu bị ảnh
+hưởng - chỉ có hai chỗ nhắc tới nhãn cột là trang này (đã sửa ở trên) và một dòng trong bản ghi lịch sử
+`docs/06_plan/P6_reports_ci.md` (giữ nguyên, không sửa). Số ở `docs/04_experiments/03_training_eval.md`
+mục 6 đo trên dữ liệu của dự án, không lấy từ file công bố.
+
 ## Điều kiện để so sánh hợp lệ
 
 1. Dùng đúng split `test`, không đổi tập này. Guard là khoá tập đánh giá

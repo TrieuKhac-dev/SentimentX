@@ -1,7 +1,10 @@
-# Cấu hình pipeline (`configs/pipeline/v0.1.0.yaml`)
+# Cấu hình pipeline (`configs/pipeline/<phiên bản>.yaml`)
 
 > Đọc file này khi: sửa cách làm sạch dữ liệu.
 > Liên quan: `docs/05_config/02_pipeline.md`, `docs/03_pipeline/02_steps.md`
+
+Trang này giải thích ý nghĩa từng khoá theo bản **đang dùng** (`v0.2.0`). Bản `v0.1.0` vẫn nằm trong
+`configs/pipeline/` và chỉ khác ở hai khoá nói trong mục 3 và mục "Phạm vi" dưới đây.
 
 ## 1. Cách đọc file này
 
@@ -15,6 +18,9 @@
   tưởng một bước đã bật trong khi thực ra nó chưa từng được khai.
 - Trạng thái **đang chạy** (bảng tóm tắt) nằm ở [01_flow.md mục 3](01_flow.md). File này
   giải thích chi tiết từng khoá.
+- **Phạm vi sửa** là khoá của TỪNG bước: `steps.<tên>.apply_to`. Không khai thì bước sửa mọi split (hành
+  vi `v0.1.0`); `v0.2.0` khai `[train, val]` cho Clean và Normalize, nên `test` giữ nguyên bản dữ liệu
+  gốc. Tên split lạ trong `apply_to` là LỖI, không bỏ qua. Chi tiết: `docs/05_config/02_pipeline.md`.
 
 Bảng điều khiển `on_off()` đổi `true/false` thành `Bật/Tắt` khi in lên báo cáo; giá
 trị gốc vẫn nguyên trong `processing_log.json`.
@@ -42,7 +48,9 @@ Bước này chỉ ghi nhận lỗi, không sửa dữ liệu - chi tiết ở
 | `steps.clean.deduplicate.ignore_diacritics` | `false`        | khoá so trùng có bỏ dấu tiếng Việt hay không ("son dep" = "son đẹp"). **Giữ ở `false`**: dự án không bỏ dấu tiếng Việt ở bất kỳ chỗ nào - đo trên cosmetics, bật lên chỉ loại thêm 5 dòng (0,03%) mà lại gộp cả những cặp câu chỉ giống nhau sau khi bỏ dấu |
 | `steps.clean.deduplicate.scope`             | `within_split` | phạm vi so trùng: `within_split` hoặc `global`                                                                                                                                                                                                              |
 | `steps.clean.deduplicate.conflict_policy`   | `quarantine`   | cùng review nhưng nhãn khác nhau thì làm gì                                                                                                                                                                                                                 |
-| `steps.clean.leakage.remove_eval_overlap`   | `true`         | loại khỏi val/test những review đã có trong train (chống rò rỉ dữ liệu)                                                                                                                                                                                     |
+| `steps.clean.apply_to`                      | `[train, val]` | PHẠM VI được sửa (`v0.2.0`): `test` KHÔNG bị sửa, nên mọi dòng của nó - kể cả dòng nhiễu - giữ nguyên |
+| `steps.clean.leakage.keep_priority`         | `[test, val, train]` | LUẬT MỚI (`v0.2.0`): review xuất hiện ở nhiều tập thì giữ ở tập đứng trước và loại khỏi tập sau; `test` không bao giờ bị loại |
+| `steps.clean.leakage.remove_eval_overlap`   | `true` (`v0.1.0`) | LUẬT CŨ: loại khỏi val/test những review đã có trong train (chống rò rỉ dữ liệu). Vẫn chạy được để bản dữ liệu `v0.1.0` tái lập; khai **cả hai** luật là LỖI |
 
 **Về `conflict_policy`:**
 
@@ -110,7 +118,7 @@ steps:
 ```
 
 ```bash
-python run_pipeline.py --name cosmetics --version v0.1.0    # -> data/processed/cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-<hash B>/
+python run_pipeline.py --name cosmetics --version v0.2.0    # -> data/processed/cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-<hash B>/
 ```
 
 Hai phiên bản dataset **cùng tồn tại**, không đè lên nhau:
