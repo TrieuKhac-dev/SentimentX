@@ -362,18 +362,61 @@ def read_head_config(directory):
     return savers.get().read_metadata(directory)
 
 
-def masked_loss(logits, targets, mask, n_codes):
+def masked_loss(logits, targets, mask, n_codes, weights=None):
     """Cross-entropy trên từng ô ĐƯỢC TÍNH: ô `mask = 0` không vào tử số lẫn mẫu số.
 
     Mẫu số là số ô được tính (không phải số ô), nên một review chỉ nhắc một khía cạnh vẫn đóng góp
     đúng trọng số của nó thay vì bị pha loãng bởi sáu khía cạnh không nhắc.
+
+    `weights` (tuỳ chọn): trọng số theo LỚP (`class_weight: inverse`) để chống mất cân bằng - lớp
+    hiếm được đẩy trọng số lên. `None` nghĩa là cross-entropy thường.
     """
     import torch
 
     flat = torch.nn.functional.cross_entropy(
         logits.reshape(-1, int(n_codes)), targets.reshape(-1), reduction="none")
-    weights = mask.reshape(-1).to(flat.dtype)
-    return (flat * weights).sum() / weights.sum().clamp(min=1.0)
+    if weights is not None:
+        flat = flat * weights.to(flat.dtype)[targets.reshape(-1)]
+    weights_mask = mask.reshape(-1).to(flat.dtype)
+    return (flat * weights_mask).sum() / weights_mask.sum().clamp(min=1.0)
+
+
+def loss_settings(config):
+    """Cấu hình hàm mất mát. Thiếu khoá là LỖI kèm nơi khai (không đặt mặc định trong code)."""
+    kind = str(_get(config, "loss.type")).strip().lower()
+    if kind not in ("ce", "weighted_ce"):
+        raise TrainingError(
+            "`loss.type` = '{}' không hợp lệ. Chọn `ce` hoặc `weighted_ce`.".format(kind))
+    class_weight = str(_get(config, "loss.class_weight")).strip().lower()
+    if class_weight not in ("none", "inverse"):
+        raise TrainingError(
+            "`loss.class_weight` = '{}' không hợp lệ. Chọn `none` hoặc `inverse`.".format(class_weight))
+    if kind == "weighted_ce" and class_weight != "inverse":
+        raise TrainingError(
+            "`loss.type: weighted_ce` cần `loss.class_weight: inverse` (đang là '{}').".format(
+                class_weight))
+    return {"type": kind, "class_weight": class_weight}
+
+
+def class_weights(labels, mask, codes, device):
+    """Trọng số lớp = NGHỊCH ĐẢO tần suất, chuẩn hoá để trung bình bằng 1.
+
+    Đếm trên các ô ĐƯỢC TÍNH của tập train (ô bị loại không vào đếm). Lớp không xuất hiện nhận trọng
+    số 0 - nó không có ô nào nên trọng số không ảnh hưởng gì.
+    """
+    import torch
+
+    counts = {int(code): 0 for code in codes}
+    for row, keep in zip(labels, mask):
+        for value, flag in zip(row, keep):
+            if flag and int(value) in counts:
+                counts[int(value)] += 1
+    total = sum(counts.values())
+    if not total:
+        return None
+    k = len(codes)
+    values = [total / (k * counts[int(code)]) if counts[int(code)] else 0.0 for code in codes]
+    return torch.tensor(values, dtype=torch.float32, device=device)
 
 
 def parameter_counts(model):
@@ -490,6 +533,7 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     policy = checkpoints.settings(config)
     store = checkpoints.Store(out_dir, policy)
     early = early_settings(config)
+    loss_policy = loss_settings(config)
     task = {key: _get(config, key) for key in ("label_space", "neutral_policy", "not_mentioned")}
     labels = dict(labels or {})
     metric = policy["best_metric"]
@@ -524,6 +568,14 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     ids, masks = encode(module, train["texts"], found["max_length"])
     targets = targets_from(train["labels"], codes)
     keep = torch.tensor(train["mask"], dtype=torch.float32)
+    # Trọng số lớp (chống mất cân bằng) chỉ dùng khi config khai `weighted_ce` + `inverse`.
+    loss_weights = None
+    if loss_policy["type"] == "weighted_ce" and loss_policy["class_weight"] == "inverse":
+        loss_weights = class_weights(train["labels"], train["mask"], codes, device)
+        found["loss_weights"] = [float(value) for value in loss_weights.tolist()] if loss_weights is not None else None
+    else:
+        found["loss_weights"] = None
+    found["loss_policy"] = dict(loss_policy)
     _Multi, Rows = build_classes()
     loader = DataLoader(Rows(ids, masks, targets, keep), batch_size=found["batch"], shuffle=True,
                         generator=torch.Generator().manual_seed(seed))
@@ -599,7 +651,7 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
         for index, batch in enumerate(loader):
             batch = {key: value.to(device) for key, value in batch.items()}
             logits = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-            loss = masked_loss(logits, batch["labels"], batch["mask"], len(codes))
+            loss = masked_loss(logits, batch["labels"], batch["mask"], len(codes), loss_weights)
             (loss / found["grad_accum"]).backward()
             pending += 1
             if pending < found["grad_accum"]:

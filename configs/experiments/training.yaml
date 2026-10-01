@@ -38,6 +38,14 @@ checkpoints:
   # `accuracy_cell` (bị lớp trội chi phối). Xem docs/04_experiments/06_lora_encoder.md.
   best_metric: sentiment_f1
 
+# Hàm mất mát. `ce` = cross-entropy thường. `weighted_ce` = nhân TRỌNG SỐ LỚP (chống mất cân bằng:
+# lớp hiếm được đẩy trọng số lên). Xem docs/04_experiments/06_lora_encoder.md.
+loss:
+  type: ce
+  # Chỉ dùng khi `type: weighted_ce`. `inverse` = trọng số nghịch đảo tần suất (chuẩn hoá để trung
+  # bình bằng 1), tính trên các ô ĐƯỢC TÍNH của tập train.
+  class_weight: none
+
 # Dừng sớm khi chỉ số val không còn cải thiện (CHỈ đường huấn luyện encoder; prompt không train).
 # `metric` dùng chính `checkpoints.best_metric` (một chỗ khai, không lặp).
 early_stop:

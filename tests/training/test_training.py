@@ -50,6 +50,7 @@ BASE_CONFIG = {
     "checkpoints": {"every_n_steps": 2, "keep_last_k": 1, "save_last": True, "save_best": True,
                     "delete_intermediate": True, "best_metric": "sentiment_f1"},
     "early_stop": {"enabled": False, "patience": 2, "min_delta": 0.0},
+    "loss": {"type": "ce", "class_weight": "none"},
     "preprocess": {"max_length": 64},
     "inference": {"dtype": "auto", "batch_size": 4},
     "url": "https://example.invalid/repo",
@@ -459,6 +460,39 @@ class BestMetricTest(unittest.TestCase):
 
     def test_default_metric_is_in_the_measured_set(self):
         self.assertIn(checkpoints.settings(BASE_CONFIG)["best_metric"], lora.MEASURED_METRICS)
+
+
+class LossSettingsTest(unittest.TestCase):
+    """E-1: hàm mất mát khai trong config; `weighted_ce` phải đi kèm `class_weight: inverse`."""
+
+    def test_missing_key_is_a_clear_error(self):
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.loss_settings({})
+        self.assertIn("loss.type", str(caught.exception))
+
+    def test_weighted_ce_requires_inverse(self):
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.loss_settings({"loss": {"type": "weighted_ce", "class_weight": "none"}})
+        self.assertIn("inverse", str(caught.exception))
+
+    def test_reads_the_policy(self):
+        self.assertEqual(
+            lora.loss_settings({"loss": {"type": "weighted_ce", "class_weight": "inverse"}}),
+            {"type": "weighted_ce", "class_weight": "inverse"})
+
+
+@needs_torch
+class ClassWeightsTest(unittest.TestCase):
+    """E-1: trọng số lớp là NGHỊCH ĐẢO tần suất, nên lớp hiếm được đẩy trọng số lên."""
+
+    def test_rare_class_gets_a_larger_weight(self):
+        weights = lora.class_weights([[0], [0], [0], [1]], [[1], [1], [1], [1]], [0, 1], "cpu")
+        self.assertEqual(len(weights.tolist()), 2)
+        self.assertGreater(weights.tolist()[1], weights.tolist()[0])
+
+    def test_masked_cells_are_not_counted(self):
+        weights = lora.class_weights([[0], [1]], [[1], [0]], [0, 1], "cpu")
+        self.assertEqual(weights.tolist()[1], 0.0)
 
 
 class EncoderRunGuardTest(unittest.TestCase):

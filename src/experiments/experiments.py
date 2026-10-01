@@ -453,6 +453,8 @@ KNOWN_KEYS = (
     "checkpoints.save_best", "checkpoints.delete_intermediate", "checkpoints.best_metric",
     # dừng sớm (chỉ đường huấn luyện encoder)
     "early_stop.enabled", "early_stop.patience", "early_stop.min_delta",
+    # hàm mất mát
+    "loss.type", "loss.class_weight",
     # lớp tracking
     "tracker", "experiment", "artifacts",
     # lớp config thí nghiệm
