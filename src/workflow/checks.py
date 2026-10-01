@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""TÁM kiểm tra tĩnh cho CI: không cần GPU, không cần dữ liệu, không gọi mạng.
+"""CHÍN kiểm tra tĩnh cho CI: không cần GPU, không cần dữ liệu, không gọi mạng.
 
-TÁM KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
+CHÍN KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
     1. Không file DỮ LIỆU nào bị git theo dõi (ngoài bảng chi tiết trong `pipeline/`, `eda/` và
        metadata/report được phép) - chặn việc vô tình commit dữ liệu nặng.
     2. `.gitignore` đúng: dữ liệu nặng bị bỏ qua, nhưng metadata và report thì KHÔNG - mất metadata
@@ -18,6 +18,9 @@ TÁM KIỂM TRA NÀY CHẶN GÌ (docs/00_workflow/03_ci.md)
        liệu trước tiên, mà không ai kiểm đường dẫn trong đó.
     8. Không có BẢNG SỐ ĐO mồ côi: bảng của một bộ ví dụ/khối hệ thống đã bị sửa tại chỗ thì không tái
        lập được nữa, mà `collect_reports.py` vẫn quét nó vào `model_input.csv`.
+    9. Tài liệu (`README.md`, `docs/**/*.md`) nhắc đường dẫn mã nguồn (`src/...py`, `tests/...py`) thì
+       file đó phải TỒN TẠI - nhiều tài liệu còn trỏ đường dẫn PHẲNG cũ sau khi `src/` xếp lại thành
+       gói (ví dụ `src/prompts.py` nay là `src/experiments/prompts.py`).
 
 Logic nằm ở đây chứ không nằm trong script vì CI chạy `python scripts/ci_checks.py` còn test chạy
 thẳng hàm trong file này - hai bên kiểm đúng cùng một thứ, không phải hai bản.
@@ -70,7 +73,7 @@ class CheckError(Exception):
 
 
 def run(root=None, log=None):
-    """Chạy tám kiểm tra, trả về `{problems, notes, info}`. KHÔNG ném."""
+    """Chạy chín kiểm tra, trả về `{problems, notes, info}`. KHÔNG ném."""
     root = Path(root or paths.root())
     problems, notes, info = [], [], {"root": utils.rel(root)}
 
@@ -397,7 +400,7 @@ def pinned_value(source, name):
     return matched.group(1).strip() if matched else None
 
 
-# Tám kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
+# Chín kiểm tra, theo đúng thứ tự chạy. Khai thành hằng ở CUỐI file (Python tra tên lúc gọi, nên
 # `run()` phía trên vẫn dùng được) để bên gọi - script in số việc, test đếm số nhóm - cùng đọc MỘT
 # danh sách: thêm một kiểm tra nữa thì không phải đi sửa chỗ nào đếm số nữa.
 # ---
@@ -478,6 +481,51 @@ def orphan_shards(root=None):
     return found
 
 
+# ---
+# 9. Tài liệu trỏ đường dẫn mã nguồn cũ
+# ---
+
+# Bốn file LỊCH SỬ còn CỐ Ý ghi tên file cũ (bảng chuyển nhà + kế hoạch P0..P2). Ghi bằng TÊN TRẦN,
+# so theo basename, để không vi phạm `test_sources_have_no_hardcoded_paths` và để đường dẫn sinh ra
+# vẫn đúng gốc.
+SOURCE_PATH_HISTORY_DOCS = ("APPENDIX_commits.md", "P0_repo_setup.md",
+                            "P1_paths.md", "P2_versioning.md")
+SOURCE_ROOTS = ("src", "tests")
+
+# `src/<đoạn>.py` hoặc `tests/<đoạn>.py`. Nhóm (?:...) KHÔNG bắt nhớ để `findall` trả cả token;
+# lookbehind `(?<![\w/.-])` chặn khớp khi đứng sau `/` hoặc ký tự từ (tức là đuôi của một đường dẫn
+# dài hơn, ví dụ phần cuối của một URL).
+SOURCE_PATH_PATTERN = re.compile(
+    r"(?<![\w/.-])(?:" + "|".join(SOURCE_ROOTS) + r")/[A-Za-z0-9_./-]*\.py")
+
+
+def documentation_source_paths(root):
+    """`src/...py` và `tests/...py` nhắc trong tài liệu phải trỏ tới file CÓ THẬT.
+
+    Vì sao cần: Batch 5b xếp lại `src/` thành các gói (và `tests/` thành các nhóm), nhưng nhiều tài
+    liệu vẫn ghi đường dẫn PHẲNG cũ (ví dụ `src/prompts.py` nay là `src/experiments/prompts.py`).
+    Người đọc đi tìm file không tồn tại, mà tài liệu thì không ai kiểm bằng máy. Kiểm 7 chỉ soi LINK
+    `[chữ](đường/dẫn)`; kiểm này soi đường dẫn nằm trong văn bản và trong khối code.
+
+    Bỏ qua token có chỗ trống (`<`, `>`, `{`, `}`, `*`, `$`, `...`) vì đó là ví dụ mẫu, và các file
+    LỊCH SỬ trong `SOURCE_PATH_HISTORY_DOCS` (bảng chuyển nhà cố ý ghi tên cũ).
+    """
+    found = []
+    for path in _documents(root):
+        if path.name in SOURCE_PATH_HISTORY_DOCS:
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for token in sorted(set(SOURCE_PATH_PATTERN.findall(text))):
+            target = token.split("::", 1)[0]          # bỏ hậu tố `::ten_ham`
+            if any(char in target for char in "<>{}*$") or "..." in target:
+                continue
+            if (Path(root) / target).is_file():
+                continue
+            found.append("{}: trỏ tới {} nhưng file không tồn tại (đã chuyển vào gói?)".format(
+                utils.rel(path), target))
+    return found
+
+
 CHECKS = (
     ("dữ liệu bị git theo dõi", data_tracked),
     ("quy tắc .gitignore", gitignore_rules),
@@ -486,6 +534,7 @@ CHECKS = (
     ("config thí nghiệm", experiment_configs),
     ("REPO_SHA đã ghim", pinned_shas),
     ("link trong tài liệu", documentation_links),
+    ("tài liệu trỏ đường dẫn mã nguồn", documentation_source_paths),
     ("bảng số đo mồ côi", orphan_shards),
 )
 
