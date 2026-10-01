@@ -247,6 +247,50 @@ class DocumentationLinksTest(unittest.TestCase):
         self.assertEqual(checks.documentation_links(self.root), [])
 
 
+class DocumentationSourcePathsTest(unittest.TestCase):
+    """Kiểm 9: `src/...py`, `tests/...py` trong tài liệu phải trỏ tới file có thật.
+
+    Lỗi thật: Batch 5b xếp `src/` thành gói (và `tests/` thành nhóm), nhưng nhiều tài liệu vẫn ghi
+    đường dẫn PHẲNG cũ - người đọc đi tìm file không tồn tại, mà tài liệu thì không ai kiểm.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        self.addCleanup(self.tmp.cleanup)
+        (self.root / "docs").mkdir()
+
+    def _readme(self, text):
+        (self.root / "README.md").write_text(text, encoding="utf-8")
+
+    def test_duong_dan_cu_thi_bao(self):
+        self._readme("xem `src/prompts.py`\n")
+        found = checks.documentation_source_paths(self.root)
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("src/prompts.py", found[0])
+
+    def test_duong_dan_dung_thi_khong_bao(self):
+        target = self.root / "src" / "experiments" / "prompts.py"
+        target.parent.mkdir(parents=True)
+        target.write_text("", encoding="utf-8")
+        self._readme("xem `src/experiments/prompts.py::load`\n")
+        self.assertEqual(checks.documentation_source_paths(self.root), [])
+
+    def test_bo_qua_cho_trong_va_dau_bon_cham(self):
+        self._readme("ví dụ `src/<tên>.py`, `tests/test_*.py`, `src/...py`\n")
+        self.assertEqual(checks.documentation_source_paths(self.root), [])
+
+    def test_bo_qua_file_lich_su(self):
+        (self.root / "docs" / "APPENDIX_commits.md").write_text("`src/paths.py`\n", encoding="utf-8")
+        self.assertEqual(checks.documentation_source_paths(self.root), [])
+
+    def test_duong_dan_tests_cung_duoc_kiem(self):
+        self._readme("chạy `tests/test_paths.py`\n")
+        found = checks.documentation_source_paths(self.root)
+        self.assertEqual(len(found), 1, found)
+        self.assertIn("tests/test_paths.py", found[0])
+
+
 class OrphanShardsTest(unittest.TestCase):
     """Kiểm 8: bảng số đo mồ côi - file ví dụ bị sửa tại chỗ thì bảng cũ không tái lập được nữa.
 
