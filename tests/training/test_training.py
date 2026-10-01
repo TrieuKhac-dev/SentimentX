@@ -235,12 +235,17 @@ class TorchModelTest(unittest.TestCase):
 
 
 def _has_dataset():
-    """Dataset đã xử lý có trên đĩa không. CI không có dữ liệu (luật 20), nên phần này tự bỏ qua."""
+    """Có ĐỦ dữ liệu để tính mã phiên bản không - tức cần CẢ dữ liệu gốc, không chỉ thư mục dataset.
+
+    Vì sao không chỉ hỏi `latest_dataset`: bản clone CI VẪN có `data/processed/<mã>/` (các file
+    JSON/`eda/`/`pipeline/` nằm trong git) nhưng KHÔNG có dữ liệu GỐC (luật 20). Hỏi theo processed
+    thì thấy "có dataset" rồi chạy `compute_id`, mà hàm đó NÉM lỗi khi thiếu gốc - nên phải thử tính
+    chính nó: ném thì coi như không có dữ liệu và bỏ qua test."""
     try:
-        version_id = versioning.latest_dataset("cosmetics")
+        version_id = versioning.compute_id(dataset_module.load_config("cosmetics"))
     except Exception:                                     # noqa: BLE001 - chỉ để bỏ qua test
         return False
-    return bool(version_id) and paths.processed(version_id).is_dir()
+    return paths.processed(version_id).is_dir()
 
 
 HAS_DATASET = _has_dataset()
