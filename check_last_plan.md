@@ -12,12 +12,12 @@
 - [x] 0-6 fix test build_package zip_names glob (lỗi có sẵn theo ngày)
 
 ## Nhóm A - sửa lỗi chặn LoRA
-- [ ] A-1 encoder_run.plan: training gộp checkpoints (fix KeyError every_n_steps)
-- [ ] A-2 config.py refactor + vncorenlp tính MODEL_DIR lúc gọi
-- [ ] A-3 hint VnCoreNLP theo môi trường
-- [ ] A-4 encoder_run.run thêm end_session_on_error
-- [ ] A-5 ghim lại notebook LoRA + P7_rerun.md
-- [ ] A-6 dọn run MLflow rỗng cd0cd000
+- [x] A-1 encoder_run.plan: training gộp checkpoints (fix KeyError every_n_steps)
+- [x] A-2 config.py refactor + vncorenlp tính MODEL_DIR lúc gọi
+- [x] A-3 hint VnCoreNLP theo môi trường
+- [x] A-4 encoder_run.run thêm end_session_on_error
+- [!] A-5 ghim lại notebook LoRA + P7_rerun.md (CHẶN: cần push GitHub)
+- [!] A-6 dọn run MLflow rỗng (CHẶN: cần mạng + token)
 
 ## Nhóm B - đồng bộ nguồn số
 - [ ] B-1 docs bảng nguồn số duy nhất

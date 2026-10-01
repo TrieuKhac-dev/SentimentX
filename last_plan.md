@@ -37,7 +37,7 @@ metrics của lượt chạy, rescore, và collect_reports).
 
 ## Nhóm A - Sửa 3 lỗi đang chặn đường LoRA (ưu tiên tuyệt đối)
 
-- [ ] **A-1** Fix `KeyError: 'every_n_steps'` (lượt ViSoBERT).
+- [x] **A-1** Fix `KeyError: 'every_n_steps'` (lượt ViSoBERT).
   - Nguyên nhân: `src/experiments/encoder_run.py` dòng 317 trả `"training": found`, mà
     `found = lora.settings(...)` KHÔNG có khoá checkpoint; `log_config` (dòng 77-79) đọc
     `plan_data["training"]["every_n_steps"]` -> KeyError.
@@ -45,7 +45,7 @@ metrics của lượt chạy, rescore, và collect_reports).
     giữ mọi khoá lora + thêm khoá checkpoint).
   - Test: chốt `plan()["training"]` có `every_n_steps`, và `log_config` không ném.
 
-- [ ] **A-2** Fix "PhoBERT báo thiếu model VnCoreNLP dù đã có trên Drive".
+- [x] **A-2** Fix "PhoBERT báo thiếu model VnCoreNLP dù đã có trên Drive".
   - Nguyên nhân: `src/core/config.py` tính HẰNG đường dẫn NGAY LÚC IMPORT (dòng 22-35:
     `DATA_DIR = paths.data_root()`, `MODEL_ASSETS_DIR = paths.data("models")`, ...). Trên Colab,
     `SENTIMENTX_DATA_ROOT` chưa được đặt khi `src.api` -> `config` được import, nên hằng bị "đóng băng"
@@ -59,26 +59,28 @@ metrics của lượt chạy, rescore, và collect_reports).
     rồi dọn dần.
   - Test: đặt `SENTIMENTX_DATA_ROOT` vẫn cho đường dẫn đúng; `vncorenlp` không dùng giá trị đóng băng.
 
-- [ ] **A-3** Hint VnCoreNLP theo MÔI TRƯỜNG.
+- [x] **A-3** Hint VnCoreNLP theo MÔI TRƯỜNG.
   - `src/preprocessing/segmenters/vncorenlp.py` (`available()`, `INSTALL_HINT`) + preflight: đang in
     "chạy scripts/setup/setup_vncorenlp.ps1" (script Windows) cả trên Colab.
   - Colab: "Restart session rồi Run all (ô bootstrap tự tải) hoặc chép `data/models/vncorenlp/` từ
     gói bàn giao"; local: giữ hướng dẫn `.ps1`.
   - Test: `available()` cho hai môi trường.
 
-- [ ] **A-4** Lượt chạy encoder lỗi KHÔNG ngắt phiên Colab (tốn quota).
+- [x] **A-4** Lượt chạy encoder lỗi KHÔNG ngắt phiên Colab (tốn quota).
   - Nguyên nhân: `experiment_run.run` có `with runtime.end_session_on_error(), runlog.start(...)`
     (dòng 716), nhưng với encoder nó `return encoder_run.run(...)` (dòng 709) TRƯỚC khối đó;
     `encoder_run.run` (dòng 396) chỉ có `with runlog.start(...)` -> THIẾU end_session.
   - Sửa: `encoder_run.run` -> `with runtime.end_session_on_error(), runlog.start(...) as active:`.
   - Test: chốt lỗi đường encoder gọi `unassign`.
 
-- [ ] **A-5** Ghim lại notebook LoRA + chạy lại.
+- [!] **A-5** Ghim lại notebook LoRA + chạy lại. CHẶN: `scripts/pin.py` đòi commit đã nằm trên
+  `origin/experiment`, mà đợt này CHƯA push lên GitHub -> chờ push rồi ghim.
   - Ghim lại `phobert-base-v2/lora/exp001` và `visobert/lora/exp001`; kết quả cũ `91f50523`
     (visobert) / `6aaa0f2f` (phobert) KHÔNG dùng nữa.
   - Cập nhật `docs/06_plan/P7_rerun.md`.
 
-- [ ] **A-6** Dọn run MLflow rỗng/treo `cd0cd000...` (sinh ra từ lượt ViSoBERT hỏng).
+- [!] **A-6** Dọn run MLflow rỗng/treo `cd0cd000...`. CHẶN: cần MẠNG + token DagsHub (không chắc
+  môi trường này có) -> để lại, chạy khi có mạng (dùng `scripts/smoke_tracking.py` để xoá theo mã run).
 
 ---
 
