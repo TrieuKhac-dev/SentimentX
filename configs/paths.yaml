@@ -77,6 +77,11 @@ patterns:
   run_meta_dir: "results"
   # Khoá tập đánh giá, ghi một lần khi tạo dữ liệu: `data/processed/<mã>/eval_lock.json`.
   eval_lock: "eval_lock.json"
+  # Số đo THÊM (rescore): tính lại từ `predictions.csv`, KHÔNG ghi đè số gốc. Xem docs/04_experiments/05_predictions.md.
+  metrics_rescored_json: "metrics_rescored.json"
+  metrics_rescored_csv: "metrics_rescored.csv"
+  # Lịch sử huấn luyện của lượt chạy encoder: loss/metric theo epoch. Xem docs/04_experiments/06_lora_encoder.md.
+  training_history: "training_history.csv"
 
 colab:
   # Thử lần lượt khi mount Drive; {folder} là tên folder giảng viên cấp.
