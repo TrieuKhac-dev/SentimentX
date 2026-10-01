@@ -3,7 +3,9 @@
 
     metrics.json        toàn bộ chỉ số, kèm `label_space`, `neutral_policy`, số ô neutral bị loại
     metrics.csv         bảng dài (aspect, sentiment, metric, value) để so giữa các thí nghiệm
-    mispredictions.csv  chỉ các ô đoán sai, kèm khía cạnh, nhãn đúng, nhãn đoán
+    mispredictions.csv  chỉ các ô đoán sai theo cơ sở `all`, kèm khía cạnh, nhãn đúng, nhãn đoán
+    mispredictions_paper.csv  ô đoán sai theo cơ sở `paper` (chỉ ô mà cả nhãn đúng và nhãn đoán là
+                        positive/negative) - cùng định nghĩa "ô sai", khác tập ô
     plots/accuracy.html biểu đồ của lượt chạy (HTML tự chứa, bật/tắt bằng `save.plots`)
 
 Bộ chấm nào chạy là do `evaluation.scores` trong `configs/experiments/evaluation.yaml` quyết
@@ -157,6 +159,11 @@ def write(out_dir, samples, names=None, paper=None, save_confusion=True, save_pl
     `metrics.csv` có cột `basis` để hai cơ sở không lẫn vào nhau. `paper` là danh sách chỉ số của
     cơ sở thứ hai; `None` nghĩa là suy ra từ `names` (xem `paper_names`).
 
+    HAI TỆP Ô ĐOÁN SAI, cùng một định nghĩa "ô sai" (lấy từ chính `Samples.mispredictions`, không
+    có bản thứ hai): `mispredictions.csv` trên bộ gốc, `mispredictions_paper.csv` trên bộ đã lọc
+    hai chiều. Nhờ vậy danh sách ô sai của cơ sở `paper` không thể lệch khỏi con số `scores_paper`:
+    hai thứ đọc từ cùng một bộ ô.
+
     `save_confusion` và `save_plots` là hai khoá trong `configs/experiments/evaluation.yaml`
     (`save.confusion`, `save.plots`); nơi gọi đọc config và truyền vào, hàm này không tự đọc.
     """
@@ -192,6 +199,15 @@ def write(out_dir, samples, names=None, paper=None, save_confusion=True, save_pl
         [[item["review"], item["aspect"], item["gold"], item["pred"]]
          for item in samples.mispredictions()],
         MISPREDICTION_COLUMNS, out_dir / mis_name)
+
+    # Cùng định nghĩa "ô sai", nhưng trên bộ đã lọc hai chiều - nên tệp này là TẬP CON của tệp
+    # trên, và mọi con số của nó khớp với `scores_paper`. Cố ý KHÔNG có cột `basis`: hai tệp là
+    # hai TẬP ô khác nhau, thêm cột đó là gợi ý sai rằng chúng là hai cách trình bày cùng một tập.
+    mis_paper_name = paths.pattern("mispredictions_paper")
+    written[mis_paper_name] = utils.write_csv(
+        [[item["review"], item["aspect"], item["gold"], item["pred"]]
+         for item in samples_paper.mispredictions()],
+        MISPREDICTION_COLUMNS, out_dir / mis_paper_name)
 
     if save_plots:
         written.update(write_plots(out_dir, payload))

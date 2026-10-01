@@ -48,6 +48,10 @@ patterns:
   errors: "errors.json"
   predictions: "predictions.csv"
   mispredictions: "mispredictions.csv"
+  # Danh sách ô đoán sai theo CƠ SỞ ĐO của công bố (`paper`): chỉ ô mà cả nhãn đúng và nhãn đoán là
+  # positive/negative. Tệp riêng chứ không thêm cột vào tệp trên, vì đây là hai tập ô khác nhau
+  # (tệp này là TẬP CON của tệp trên) chứ không phải hai cách trình bày cùng một tập.
+  mispredictions_paper: "mispredictions_paper.csv"
   model_input: "model_input.csv"
   # Số đo input thật của model (`run_token_stats.py`). Bảng tổng hợp nhóm `model_input` gom lại
   # theo hai mẫu tên này, nên đổi tên ở đây là đủ.

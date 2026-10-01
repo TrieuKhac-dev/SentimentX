@@ -271,7 +271,9 @@ class TestWrite(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             written = scorers.write(folder, samples, extra={"split": "val"})
             self.assertEqual(sorted(written), ["metrics.csv", "metrics.json",
-                                               "mispredictions.csv", "plots/accuracy.html"])
+                                               "mispredictions.csv",
+                                               "mispredictions_paper.csv",
+                                               "plots/accuracy.html"])
             payload = json.loads((Path(folder) / "metrics.json").read_text(encoding="utf-8"))
             self.assertEqual(payload["split"], "val")
             self.assertEqual(payload["label_space"], "binary")
