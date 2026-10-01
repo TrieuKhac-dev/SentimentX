@@ -8,20 +8,12 @@ cảm xúc trên các khía cạnh ra - không có đọc dataset, không chấm
 
 ```mermaid
 flowchart TD
-    subgraph EX["Đầu vào đa dạng (ví dụ)"]
-        direction LR
-        E1["Son đẹp nhưng ship lâu 😢"]
-        E2["màu xjnk<br/>lên môi hơi khô"]
-        E3["oke nha shop, giao nhanh"]
-    end
-
     RAW["Review tiếng Việt<br/>(văn bản thô)"]:::io
     CLEAN["Module Data Cleaning"]:::step
     PREP["Module Model Preprocessing"]:::step
     CLS["Module Aspect-based<br/>Sentiment Classification"]:::model
     OUT["Cảm xúc của bình luận<br/>trên các khía cạnh"]:::io
 
-    EX --> RAW
     RAW --> CLEAN
     CLEAN -->|văn bản đã làm sạch| PREP
     PREP -->|dữ liệu cho vào model| CLS
