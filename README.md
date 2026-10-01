@@ -324,7 +324,8 @@ SentimentX/
 └── requirements-colab.txt  # Colab: KHÔNG ghim torch (Colab đã có bản khớp CUDA)
 ```
 
-Năm file `run_*.py` và `build_report.py` ở gốc là **lệnh của người dùng**, không phải công cụ của
+Bốn file `run_*.py` (`run_eda`, `run_pipeline`, `run_token_stats`, `run_check_examples`) và `build_report.py`
+ở gốc - tổng **năm** file - là **lệnh của người dùng**, không phải công cụ của
 nhóm: đường dẫn của chúng được ghi trong hàng chục tài liệu và trong câu thông báo khi thiếu dữ liệu,
 nên chúng ở lại gốc.
 

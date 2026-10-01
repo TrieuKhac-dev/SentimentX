@@ -17,7 +17,7 @@ sẽ mang cùng một nhãn phiên bản, và kết quả cũ không còn tra đ
 | `version`    | nhãn phiên bản, trùng tên file                                           |
 | `parent`     | phiên bản trước đó, `null` nếu là bản đầu                                |
 | `notes`      | vì sao có phiên bản này                                                  |
-| `steps`      | bật tắt từng bước xử lý, ví dụ `steps.clean.deduplicate`, `steps.normalize.teencode` |
+| `steps`      | bật tắt từng bước xử lý, ví dụ `steps.clean.deduplicate`, `steps.clean.remove_ads` |
 | `steps.<tên>.apply_to` | PHẠM VI: các split mà bước đó được SỬA. Không khai thì bước sửa mọi split (hành vi `v0.1.0`). `v0.2.0` khai `[train, val]` cho Clean và Normalize, nên `test` giữ nguyên bản dữ liệu gốc |
 | `steps.clean.leakage.keep_priority` | thứ tự ưu tiên khi một review xuất hiện ở nhiều split: giữ ở tập đứng trước, loại khỏi các tập sau. `v0.2.0` khai `[test, val, train]`, nên `test` không bao giờ bị loại |
 | `steps.clean.leakage.remove_eval_overlap` | luật của `v0.1.0`: bỏ khỏi val/test, giữ trong train. Còn trong code để bản dữ liệu cũ tái lập được; khai CẢ HAI luật là lỗi |

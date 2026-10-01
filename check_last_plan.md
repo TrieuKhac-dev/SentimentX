@@ -4,11 +4,12 @@
 > `[ ]` chưa làm · `[~]` đang dở · `[x]` xong · `[!]` chặn/quay lui
 
 ## Nhóm 0 - docs nhỏ
-- [ ] 0-1 ci_checks.py docstring 8 -> 9 mục
-- [ ] 0-2 02_pipeline.md bỏ ví dụ teencode
-- [ ] 0-3 02_rules.md luật 20 thêm eval_lock.json
-- [ ] 0-4 03_datasets.md ví dụ v0.3.0
-- [ ] 0-5 README.md 4 run_*.py + build_report.py = 5 file
+- [x] 0-1 ci_checks.py docstring 8 -> 9 mục
+- [x] 0-2 02_pipeline.md bỏ ví dụ teencode
+- [x] 0-3 02_rules.md luật 20 thêm eval_lock.json
+- [x] 0-4 03_datasets.md ví dụ v0.3.0
+- [x] 0-5 README.md 4 run_*.py + build_report.py = 5 file
+- [x] 0-6 fix test build_package zip_names glob (lỗi có sẵn theo ngày)
 
 ## Nhóm A - sửa lỗi chặn LoRA
 - [ ] A-1 encoder_run.plan: training gộp checkpoints (fix KeyError every_n_steps)
@@ -62,4 +63,5 @@
 - [ ] H-1 .. H-7 ghi các chốt thiết kế
 
 ## Trạng thái tổng
-- Đang ở: ĐÃ GHI KẾ HOẠCH, chưa triển khai mục nào.
+- Đang ở: Nhóm 0 XONG (0-1..0-6). Tiếp theo: Nhóm A.
+- CI: sạch. Test: 761 tests OK (skipped=2).

@@ -7,7 +7,8 @@ CÁCH DÙNG
 
 CHÍN KIỂM TRA (chi tiết ở src/workflow/checks.py và docs/00_workflow/03_ci.md)
     dữ liệu bị git theo dõi, quy tắc .gitignore, notebook sạch output, registry hợp lệ,
-    config thí nghiệm hợp lệ, REPO_SHA đã ghim, link trong tài liệu, bảng số đo mồ côi.
+    config thí nghiệm hợp lệ, REPO_SHA đã ghim, link trong tài liệu,
+    tài liệu trỏ đường dẫn mã nguồn, bảng số đo mồ côi.
 
 KHÔNG CHẠY MODEL, KHÔNG ĐỌC DỮ LIỆU, KHÔNG GỌI MẠNG
 CI không có GPU và không có dữ liệu; những thứ phụ thuộc dữ liệu (thiếu file, thiếu GPU) do

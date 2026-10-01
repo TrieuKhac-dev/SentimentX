@@ -16,18 +16,22 @@ metrics của lượt chạy, rescore, và collect_reports).
 
 ## Nhóm 0 - Sửa 5 chỗ docs lệch code
 
-- [ ] **0-1** `scripts/ci_checks.py`: docstring ghi "CHÍN KIỂM TRA" nhưng chỉ liệt kê 8 mục; thêm mục
+- [x] **0-1** `scripts/ci_checks.py`: docstring ghi "CHÍN KIỂM TRA" nhưng chỉ liệt kê 8 mục; thêm mục
   thứ 9 ("tài liệu trỏ đường dẫn mã nguồn") cho khớp `src/workflow/checks.py` và
   `docs/00_workflow/03_ci.md`.
-- [ ] **0-2** `docs/05_config/02_pipeline.md`: bỏ ví dụ `steps.normalize.teencode` (khoá không tồn tại
+- [x] **0-2** `docs/05_config/02_pipeline.md`: bỏ ví dụ `steps.normalize.teencode` (khoá không tồn tại
   trong `configs/pipeline/*.yaml`, trái chủ trương "pipeline không có công tắc teencode").
-- [ ] **0-3** `docs/00_workflow/02_rules.md` luật 20: thêm `eval_lock.json` vào danh sách file PHẢI
+- [x] **0-3** `docs/00_workflow/02_rules.md` luật 20: thêm `eval_lock.json` vào danh sách file PHẢI
   commit (khớp `03_ci.md` check 1, `paths.yaml`, `.gitignore`, `changelog.md`).
-- [ ] **0-4** `docs/05_config/03_datasets.md`: ví dụ dùng `version: "0.3.0"` (thiếu tiền tố `v`) trong
+- [x] **0-4** `docs/05_config/03_datasets.md`: ví dụ dùng `version: "0.3.0"` (thiếu tiền tố `v`) trong
   khi file thật là `vX.Y.Z`; sửa cho nhất quán.
-- [ ] **0-5** `README.md` mục quy ước: câu "Năm file `run_*.py` và `build_report.py`" gây hiểu nhầm;
+- [x] **0-5** `README.md` mục quy ước
   nói rõ **4 `run_*.py`** (`run_eda`, `run_pipeline`, `run_token_stats`, `run_check_examples`) +
   `build_report.py` = **5 file**.
+- [x] **0-6** (phát hiện khi chạy test) `tests/workflow/test_build_package.py::zip_names`: glob `*002*.zip`
+  khớp NHẦM vì dấu ngày `%y%m%d` cũng chứa "002" (ngày 261002) -> 2 test DeltaTest đỏ. Lỗi CÓ SẴN,
+  phụ thuộc ngày, KHÔNG do thay đổi của đợt này. Sửa: khoá glob thành `SentimentX-goi-<số>-*.zip`
+  (siết chặt, không nới).
 
 ---
 

@@ -10,7 +10,7 @@ File: `configs/datasets/<name>/<version>.yaml`. Mỗi phiên bản một file, *
 ```yaml
 schema_version: 1
 name: cosmetics
-version: "0.3.0" # trùng tên file
+version: v0.3.0 # trùng tên file
 sources: # danh sách nguồn; kind là trường của TỪNG phần tử
   - { kind: raw, name: cosmetics, raw_version: v0.2.0 }
 pipeline_version: v0.2.0
