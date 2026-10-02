@@ -446,8 +446,12 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
     if not data or not data.get("texts"):
         return None
     ids, masks = encode(module, data["texts"], found["max_length"])
-    targets = targets_from(data["labels"], codes)
-    keep = torch.tensor(data["mask"], dtype=torch.float32)
+    # `logits` ở dưới nằm trên GPU, nên hai tensor này PHẢI cùng device với nó: cross_entropy không so
+    # được hai thiết bị khác nhau. Bản `measure` CŨ so trên CPU (`logits.argmax(dim=-1).cpu()`) nên
+    # không cần cast; bản dùng `loss` thì cần - thiếu là RuntimeError ngay ở lần ĐO val đầu tiên, tức
+    # là sau khi đã huấn luyện xong một đoạn (mất cả lượt chạy, không kịp ghi checkpoint nào).
+    targets = targets_from(data["labels"], codes).to(device)
+    keep = torch.tensor(data["mask"], dtype=torch.float32, device=device)
     was_training = model.training
     model.eval()
     loss_sum, weight_sum, answers = 0.0, 0.0, []
