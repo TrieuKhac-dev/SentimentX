@@ -53,6 +53,7 @@ CHART_KINDS = {
     "stacked_grid": "Biểu đồ cột xếp chồng, mỗi split một khung",
     "heatmap": "Bản đồ nhiệt",
     "pie": "Biểu đồ tròn",
+    "line": "Biểu đồ đường (theo bước/epoch)",
 }
 
 # Ngưỡng giá trị mà từ đó Plotly bắt đầu rút gọn số thành dạng "16.2k".
@@ -327,6 +328,24 @@ def _pie(spec):
     return fig
 
 
+def _line(spec):
+    """Nhiều chuỗi số liệu vẽ thành ĐƯỜNG theo `x` (bước hoặc epoch).
+
+    Dùng cho curve train/val: `series` là các đường (`train_loss`, `val_loss`, `sentiment_f1`, ...).
+    Điểm `None` được Plotly BỎ QUA (nối qua chỗ trống) - đúng ý "cột này không có số ở bước đó".
+    """
+    fig = go.Figure()
+    for index, (name, values) in enumerate((spec.get("series") or {}).items()):
+        fig.add_trace(go.Scatter(
+            x=spec["x"],
+            y=values,
+            name=str(name),
+            mode="lines+markers",
+            marker_color=PALETTE[index % len(PALETTE)],
+        ))
+    return _titles(fig, spec)
+
+
 _BUILDERS = {
     "bar": _bar,
     "grouped_bar": _grouped_bar,
@@ -334,6 +353,7 @@ _BUILDERS = {
     "stacked_grid": _stacked_grid,
     "heatmap": _heatmap,
     "pie": _pie,
+    "line": _line,
 }
 
 # Chiều cao phần đáy dành cho chú thích màu khi phải hiện chú thích

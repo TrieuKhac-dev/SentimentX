@@ -27,6 +27,7 @@ from src import labels, tracking, training
 from src.workflow import resume, runtime
 from src.experiments import experiment_run
 from src.evaluation import records, scorers
+from src.reporting import curves
 from src.preprocessing import loader
 from src.training import checkpoints, lora
 from src.tracking import run_meta
@@ -466,6 +467,12 @@ def run(plan_data, log=None):
             out_dir / paths.pattern("training_history"))
         log.step("ghi lịch sử huấn luyện: {} ({} điểm đo)".format(
             utils.rel(history_path), len(report.get("history") or [])))
+        # Biểu đồ train/val cho NGƯỜI đọc (plotly + jinja2), ghi vào `plots/training.html` trong thư
+        # mục kết quả. Tắt được bằng `save.plots` như biểu đồ của phần chấm điểm.
+        if bool((plan_data["config"].get("save") or {}).get("plots", True)):
+            chart_path = curves.write_html(history_path, out_dir)
+            if chart_path is not None:
+                log.step("ghi biểu đồ train/val: {}".format(utils.rel(chart_path)))
         # Máy, kiểu số và số tham số chỉ biết được SAU khi huấn luyện, nên bổ sung vào bản ghi.
         record["env"].update(run_meta.device_info(
             device_info(report), quant=found["quantization"]))

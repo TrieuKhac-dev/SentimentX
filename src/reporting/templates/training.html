@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+body{font-family:system-ui,'Segoe UI',Arial,sans-serif;margin:24px;color:#222}
+h1{font-size:20px;margin-bottom:4px}
+h2{font-size:16px;margin-top:28px}
+.meta{color:#555;margin:4px 0}
+table{border-collapse:collapse;margin:12px 0;font-size:13px}
+th,td{border:1px solid #bbb;padding:4px 8px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+.err{color:#b00}
+</style>
+{{ plotlyjs_tag | safe }}
+</head>
+<body>
+<h1>{{ title }}</h1>
+{% if subtitle %}<p class="meta">{{ subtitle }}</p>{% endif %}
+{% for line in meta %}<p class="meta">{{ line }}</p>{% endfor %}
+
+{% for chart in charts %}
+<h2>{{ chart.title }}</h2>
+{% if chart.error %}
+<p class="err">Không vẽ được biểu đồ: {{ chart.error }}</p>
+{% else %}
+{{ chart.html | safe }}
+{% endif %}
+{% endfor %}
+
+{% if rows %}
+<h2>Dữ liệu (training_history.csv)</h2>
+<table>
+<tr>{% for column in columns %}<th>{{ column }}</th>{% endfor %}</tr>
+{% for row in rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}
+</table>
+{% else %}
+<p class="meta">Chưa có điểm đo nào.</p>
+{% endif %}
+</body>
+</html>

@@ -21,10 +21,11 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from src.core import config
+from src.core import config, paths
 from src.reporting import charts
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
+TRAINING_TEMPLATE = "training.html"
 
 # Tên file thư viện vẽ được nhúng vào thư mục assets (để HTML mở offline)
 PLOTLY_JS_FILENAME = "plotly.min.js"
@@ -77,7 +78,12 @@ def _plotlyjs_tag(mode, out_dir, assets_dir):
         return "<!-- Chưa cài plotly: báo cáo chỉ hiển thị bảng số liệu -->"
 
     target = ensure_plotlyjs(assets_dir)
-    relative = os.path.relpath(str(target), str(out_dir)).replace("\\", "/")
+    try:
+        relative = os.path.relpath(str(target), str(out_dir)).replace("\\", "/")
+    except ValueError:
+        # Windows: `out_dir` và thư mục assets nằm khác Ổ ĐĨA nên không có đường TƯƠNG ĐỐI. Dùng đường
+        # tuyệt đối dạng `file://` để trang vẫn mở được, thay vì chết cả trang vì một thẻ <script>.
+        return '<script charset="utf-8" src="{}"></script>'.format(target.as_uri())
     return '<script charset="utf-8" src="{}"></script>'.format(relative)
 
 
@@ -167,3 +173,47 @@ def write_reports(payload, out_dir, plotlyjs="local", assets_dir=None):
         encoding="utf-8",
     )
     return html_path
+
+
+# ---
+# Curve train/val (`plots/training.html`)
+# ---
+
+
+def build_training_html(data, out_dir, plotlyjs="local", assets_dir=None):
+    """Ghép curve train/val với template (Jinja2) thành nội dung HTML hoàn chỉnh.
+
+    `data` gồm `specs` (mô tả biểu đồ đường), `columns`/`rows` (bảng dữ liệu để đối chiếu) và
+    `title`/`subtitle`/`meta`. Cùng plotly + jinja2 như báo cáo EDA/pipeline.
+    """
+    blocks = []
+    for index, spec in enumerate(data.get("specs") or []):
+        chart_id = "training-chart-{}".format(index)
+        try:
+            blocks.append({"title": spec.get("title", ""),
+                           "html": charts.to_html(charts.build(spec), chart_id), "error": ""})
+        except Exception as exc:  # noqa: BLE001 - một biểu đồ lỗi không được làm mất cả trang
+            blocks.append({"title": spec.get("title", ""), "html": "",
+                           "error": "{}: {}".format(type(exc).__name__, exc)})
+    template = _environment().get_template(TRAINING_TEMPLATE)
+    return template.render(
+        title=data.get("title") or "Curve train/val",
+        subtitle=data.get("subtitle", ""),
+        meta=data.get("meta", []),
+        charts=blocks,
+        columns=data.get("columns") or [],
+        rows=data.get("rows") or [],
+        plotlyjs_tag=_plotlyjs_tag(plotlyjs, Path(out_dir), assets_dir),
+    )
+
+
+def write_training_html(data, out_dir, plotlyjs="local", assets_dir=None):
+    """Ghi `<out_dir>/plots/training.html`. Trả về đường dẫn file HTML."""
+    out_dir = Path(out_dir)
+    folder = out_dir / paths.pattern("plots")
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / "training.html"
+    path.write_text(
+        build_training_html(data, folder, plotlyjs=plotlyjs, assets_dir=assets_dir),
+        encoding="utf-8")
+    return path
