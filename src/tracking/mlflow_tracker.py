@@ -16,7 +16,7 @@ import os
 from pathlib import Path
 
 from src.core import utils
-from src.tracking import base
+from src.tracking import base, run_meta
 
 NAME = "mlflow"
 DESCRIPTION = "Ghi nhận lên máy chủ MLflow của DagsHub (configs/dagshub.yaml)."
@@ -106,6 +106,28 @@ class _Session(base.Session):
         self.module = module
         self.uri = uri
         self.run = run
+        # Tham số đã GỬI lên máy chủ (MLflow không cho ghi đè tham số): gửi ngay khi biết, và chỉ gửi
+        # phần CHƯA gửi ở lần sau - nhờ vậy phiên bị ngắt vẫn để lại tham số, mà không bị lỗi trùng khoá.
+        self.sent_params = {}
+
+    def log_params(self, values):
+        """Nhận tham số rồi GỬI NGAY phần chưa gửi; lỗi gửi không làm chết lượt chạy."""
+        stored = super().log_params(values)
+        if self.active:
+            try:
+                self._send_params()
+            except Exception as exc:  # noqa: BLE001 - ghi nhận là việc phụ
+                self.note("ghi tham số lên MLflow hỏng ({}: {}) - kết quả vẫn nằm trong thư mục kết quả"
+                          .format(type(exc).__name__, exc))
+        return stored
+
+    def _send_params(self):
+        """Gửi các tham số CHƯA gửi. Trả về danh sách khoá vừa gửi."""
+        new = {key: value for key, value in self.params.items() if key not in self.sent_params}
+        if new:
+            self.module.log_params(new)
+            self.sent_params.update(new)
+        return list(new)
 
     def run_id(self):
         """Mã run trên máy chủ, hoặc chuỗi rỗng nếu thư viện không cho biết."""
@@ -116,8 +138,7 @@ class _Session(base.Session):
         """Gửi tham số, chỉ số, file rồi kết thúc run. Gửi hỏng thì ghi lại vào `notes`."""
         mlflow = self.module
         try:
-            if self.params:
-                mlflow.log_params(self.params)
+            self._send_params()
             if self.metrics:
                 mlflow.log_metrics(self.metrics)
             # Chuỗi theo bước/epoch: MLflow vẽ thành CURVE khi mỗi điểm có `step`.
@@ -155,14 +176,25 @@ def begin(config, dagshub, out_dir, info=None, log=None):
 
     try:
         mlflow = connect(config, dagshub)
-        run = mlflow.start_run(
-            run_name=Path(out_dir).name,
-            tags=base.resolve_tags(config.get("mlflow_tags"), info))
+        # MỘT PHÉP ĐO = MỘT RUN: nếu thư mục này đã có `tracking.run_id` thì NỐI vào đúng run đó
+        # (phiên chạy tiếp của cùng phép đo), thay vì mở run mới mỗi phiên.
+        stored = str((run_meta.read(out_dir).get("tracking") or {}).get("run_id") or "")
+        if stored:
+            run = mlflow.start_run(run_id=stored)
+        else:
+            run = mlflow.start_run(
+                run_name=Path(out_dir).name,
+                tags=base.resolve_tags(config.get("mlflow_tags"), info))
     except Exception as exc:  # noqa: BLE001 - mở phiên hỏng thì chạy tiếp, không dừng
         if log is not None:
             log.warn("không mở được phiên MLflow: {}: {}".format(type(exc).__name__, exc))
         return base.Session(active=False, reason=str(exc))
 
+    session = _Session(mlflow, str(dagshub["mlflow_uri"]), run)
+    # Gửi THAM SỐ ngay khi mở: run có nội dung từ đầu, nên phiên bị ngắt vẫn còn dấu vết.
+    if info:
+        session.log_params(info)
     if log is not None:
-        log.step("đã mở run trên MLflow: {}".format(dagshub["mlflow_uri"]))
-    return _Session(mlflow, str(dagshub["mlflow_uri"]), run)
+        log.step("đã mở run trên MLflow: {}{}".format(
+            dagshub["mlflow_uri"], " (nối run cũ {})".format(stored) if stored else ""))
+    return session

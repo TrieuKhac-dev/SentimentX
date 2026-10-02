@@ -19,7 +19,7 @@ from unittest import mock
 from src.experiments import experiments
 from src.core import runlog
 from src import tracking
-from src.tracking import base, mlflow_tracker
+from src.tracking import base, mlflow_tracker, run_meta
 
 
 class TestRegistry(unittest.TestCase):
@@ -245,6 +245,51 @@ class MlflowSeriesTest(unittest.TestCase):
         self.assertEqual([item for item in calls if item[0] == "sentiment_f1"],
                          [("sentiment_f1", 0.5, 100), ("sentiment_f1", 0.6, 200)])
         fake.end_run.assert_called_once()
+
+
+class MlflowRunIdTest(unittest.TestCase):
+    """F-4 (A8): một phép đo = MỘT run - nối run cũ, và gửi tham số NGAY khi mở."""
+
+    def session(self, fake):
+        run = mock.Mock(info=mock.Mock(run_id="run-1"))
+        return mlflow_tracker._Session(fake, "http://server", run)
+
+    def test_params_are_sent_once_and_only_the_new_ones(self):
+        fake = mock.Mock()
+        session = self.session(fake)
+        session.log_params({"a": 1})
+        session.log_params({"a": 1, "b": 2})
+        session.close(ok=True)
+        sent = [call.args[0] for call in fake.log_params.call_args_list]
+        self.assertEqual(sent, [{"a": "1"}, {"b": "2"}])
+
+    def test_close_does_not_send_params_twice(self):
+        fake = mock.Mock()
+        session = self.session(fake)
+        session.log_params({"a": 1})
+        session.close(ok=True)
+        self.assertEqual(fake.log_params.call_count, 1)
+
+    def test_begin_reuses_the_stored_run_id(self):
+        fake = mock.Mock()
+        fake.get_experiment_by_name.return_value = None
+        with mock.patch.object(mlflow_tracker, "connect", return_value=fake), \
+                mock.patch.object(mlflow_tracker, "check", return_value=True), \
+                mock.patch.object(base, "token", return_value="t"), \
+                mock.patch.object(mlflow_tracker.run_meta, "read",
+                                  return_value={"tracking": {"run_id": "run-cu"}}):
+            session = mlflow_tracker.begin({"experiment": "x"}, {"mlflow_uri": "u"}, "/tmp/out")
+        fake.start_run.assert_called_once_with(run_id="run-cu")
+        self.assertTrue(session.active)
+
+    def test_begin_opens_a_new_run_without_a_stored_id(self):
+        fake = mock.Mock()
+        with mock.patch.object(mlflow_tracker, "connect", return_value=fake), \
+                mock.patch.object(mlflow_tracker, "check", return_value=True), \
+                mock.patch.object(base, "token", return_value="t"), \
+                mock.patch.object(mlflow_tracker.run_meta, "read", return_value={}):
+            mlflow_tracker.begin({"experiment": "x"}, {"mlflow_uri": "u"}, "/tmp/out")
+        self.assertFalse(fake.start_run.call_args.kwargs.get("run_id"))
 
 
 

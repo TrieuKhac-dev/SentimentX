@@ -178,6 +178,9 @@ def build(out_dir, hash8=None, experiment=None, data=None, repo=None, config=Non
         "env": dict(env or {}),
         "attempts": list((previous or {}).get("attempts") or []),
         "files": list(files or []),
+        # Nối sang lần chạy trước trong CÙNG thư mục: `tracking.run_id` để phiên sau gắn vào ĐÚNG run
+        # MLflow (một phép đo = một run), thay vì mở run mới mỗi phiên. Xem `src/tracking/mlflow_tracker.py`.
+        "tracking": dict((previous or {}).get("tracking") or {}),
     }
     close_stale_attempts(payload)
     start_attempt(payload, note=note)

@@ -747,6 +747,11 @@ def run(plan_data, log=None):
         # xem không biết run nào thật sự xong. `on_close` bảo đảm việc đó.
         session = tracking.begin(config_data, out_dir, info=info, log=log)
         log.on_close(tracking.closer(session, log=log))
+        # GHI BỀN `run_id` vào `run_meta.json` NGAY: phiên bị ngắt sau đây thì lần chạy tiếp vẫn nối
+        # được vào ĐÚNG run MLflow (một phép đo = một run), thay vì mở run rỗng mới.
+        if session.run_id():
+            record["tracking"] = {"run_id": session.run_id()}
+            run_meta.write(out_dir, record)
 
         # Cấu hình ĐANG dùng vào log TRƯỚC khi nạp model: đây là thứ người đọc cần khi lần chạy
         # hỏng giữa chừng, mà bảng in ra màn hình thì notebook không giữ lại.

@@ -443,6 +443,11 @@ def run(plan_data, log=None):
         log.on_close(run_meta.closer(record, out_dir, log=log))
         session = tracking.begin(plan_data["config"], out_dir, info=plan_data["info"], log=log)
         log.on_close(tracking.closer(session, log=log))
+        # GHI BỀN `run_id` vào `run_meta.json` NGAY: phiên bị ngắt sau đây thì lần chạy tiếp vẫn nối
+        # được vào ĐÚNG run MLflow (một phép đo = một run), thay vì mở run rỗng mới.
+        if session.run_id():
+            record["tracking"] = {"run_id": session.run_id()}
+            run_meta.write(out_dir, record)
 
         log_config(plan_data, log)
         print_config(plan_data)
