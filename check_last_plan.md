@@ -48,7 +48,7 @@
 - [x] F-1 run.log + training_history.csv vào artifacts
 - [ ] F-2 params 500: số->metric, dict->artifact JSON
 - [ ] F-3 log scores_paper prefix paper. + run tham chiếu
-- [ ] F-4 A8: run_id vào run_meta, params ở begin, nối run khi resume
+- [x] F-4 A8: run_id vào run_meta, params ở begin, nối run khi resume
 
 ## Nhóm G - lưu vết/docs/test/hạ tầng
 - [ ] G-1 04_backlog.md: Optuna, focal
