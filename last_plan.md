@@ -149,9 +149,10 @@ Bảng NGUỒN SỐ DUY NHẤT:
 ## Nhóm F - MLflow
 
 - [x] **F-1** Thêm `run.log` + `training_history.csv` vào `configs/experiments/tracking.yaml::artifacts`.
-- [ ] **F-2** Params bị cắt 500: SỐ PHẲNG -> metric (`read_rate.% đọc được`, `cost.giây`, `cost.số bước`);
+- [x] **F-2** Params bị cắt 500: SỐ PHẲNG -> metric (`read_rate.% đọc được`, `cost.giây`, `cost.số bước`);
   CẤU TRÚC LỚN -> artifact JSON (`read_rate` phân bố lý do, `model_info`, `subset`). + test.
-- [ ] **F-3** Log `scores_paper` với tiền tố `paper.` + tạo 1 run tham chiếu công bố; giữ `metrics_matrix`.
+- [x] **F-3** Log `scores_paper` với tiền tố `paper.` + tạo 1 run tham chiếu công bố; giữ `metrics_matrix`.
+  (`scripts/log_reference_run.py` ghi run tham chiếu; chạy tay khi có mạng.)
 - [x] **F-4** A8: `run_id` vào `run_meta.json` (sửa CÙNG dict `record`; carry `tracking` qua `previous`),
   GỬI PARAMS Ở `begin()`, LOG TĂNG DẦN, NỐI RUN khi resume (`mlflow.start_run(run_id=...)`), ánh xạ
   N attempt : 1 result dir : 1 run. Chốt: cùng result dir chạy 2 máy => cùng run (env ghi theo attempt).
