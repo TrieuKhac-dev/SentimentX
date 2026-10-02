@@ -291,6 +291,38 @@ class MlflowRunIdTest(unittest.TestCase):
             mlflow_tracker.begin({"experiment": "x"}, {"mlflow_uri": "u"}, "/tmp/out")
         self.assertFalse(fake.start_run.call_args.kwargs.get("run_id"))
 
+class TrackingCarryTest(unittest.TestCase):
+    """F-4 (A8): `run_meta.build` MANG `tracking` của lần chạy trước sang, để lần sau nối đúng run."""
+
+    def test_tracking_is_carried_from_previous(self):
+        payload = run_meta.build("/tmp/out", previous={"attempts": [], "tracking": {"run_id": "cu"}})
+        self.assertEqual(payload["tracking"], {"run_id": "cu"})
+
+    def test_no_previous_record_means_empty_tracking(self):
+        self.assertEqual(run_meta.build("/tmp/out", previous={})["tracking"], {})
+
+    def test_attempts_are_still_carried(self):
+        payload = run_meta.build("/tmp/out", previous={"attempts": [{"status": "FINISHED"}]})
+        self.assertEqual(len(payload["attempts"]), 2)
+
+
+class ParamAndPrefixTest(unittest.TestCase):
+    """F-2/F-3: param chỉ nhận giá trị PHẲNG; số của cấu trúc lớn đi qua metric; `paper.` có tiền tố."""
+
+    def test_flat_params_drops_structures(self):
+        found = base.flat_params({"a": 1, "b": "x", "c": {"nested": 1}, "d": [1, 2]})
+        self.assertEqual(found, {"a": 1, "b": "x"})
+
+    def test_prefixed_tags_every_key(self):
+        self.assertEqual(base.prefixed({"accuracy": 0.9}, "paper."), {"paper.accuracy": 0.9})
+
+    def test_numeric_flattens_the_structures_into_metrics(self):
+        values = base.numeric({"read_rate": {"% doc duoc": 97.5}, "cost": {"giay": 12.0}})
+        self.assertEqual(values["read_rate.% doc duoc"], 97.5)
+        self.assertEqual(values["cost.giay"], 12.0)
+
+
+
 
 
 if __name__ == "__main__":

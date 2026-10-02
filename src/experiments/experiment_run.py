@@ -893,8 +893,18 @@ def write_all(plan_data, rows, samples, result, extra, session, log):
 
     # Ghi nhận SAU khi file đã nằm trên đĩa: máy chủ hỏng thì kết quả vẫn còn. Danh sách file tải
     # lên lấy từ `tracking.artifacts`, và chỉ lấy file đang có.
-    session.log_params(extra)
+    # Params: CHỈ giá trị PHẲNG - cấu trúc lớn (read_rate phân bố lý do, model_info, subset) nằm trong
+    # `run_meta.json` (tải lên như artifact); nhét cấu trúc vào param là bị cắt ở 500 ký tự.
+    session.log_params(tracking.base.flat_params(extra))
     session.log_metrics(result["scores"])
+    # Phần SỐ của các cấu trúc lớn -> metric: xem và vẽ được, không bị giới hạn 500 ký tự.
+    session.log_metrics({"read_rate": extra.get("read_rate"), "cost": extra.get("cost"),
+                         "resume": extra.get("resume")})
+    # Số để SO CÔNG BỐ (cơ sở `paper`) -> tiền tố `paper.`, để MLflow có cột so trực tiếp với công bố
+    # (trước đây chỉ cơ sở `all` lên MLflow, còn `paper` chỉ nằm trong artifact `metrics.json`).
+    if paper:
+        paper_result = scorers.run_all(samples.paper(), names=scorers.check(paper))
+        session.log_metrics(tracking.base.prefixed(paper_result["scores"], "paper."))
     session.log_artifacts(tracking.base.artifact_paths(
         out_dir, plan_data["config"].get("artifacts")))
     log.step("ghi nhận: {} tham số, {} chỉ số, {} file".format(

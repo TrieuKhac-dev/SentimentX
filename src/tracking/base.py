@@ -106,6 +106,29 @@ def numeric(data, prefix=""):
     return found
 
 
+def flat_params(values):
+    """Chỉ giữ giá trị PHẲNG (chuỗi/số/bool) để làm THAM SỐ.
+
+    Vì sao: MLflow giới hạn 500 ký tự mỗi giá trị param, nên một dict lồng nhau bị CẮT CỤT khi gửi
+    (`read_rate={...}` -> dở dang, không đọc được). Cấu trúc lớn đã nằm trong `run_meta.json` (được
+    tải lên như artifact), nên ở đây chỉ gửi phần phẳng; phần SỐ của cấu trúc đó nên đi qua
+    `log_metrics`/`log_point` - số không bị giới hạn độ dài.
+    """
+    found = {}
+    for key, value in (values or {}).items():
+        if isinstance(value, (str, int, float, bool)):
+            found[str(key)] = value
+    return found
+
+
+def prefixed(values, prefix):
+    """Thêm TIỀN TỐ vào mọi khoá của một dict số liệu (ví dụ `paper.`).
+
+    Dùng để đưa HAI cơ sở đo (`all` và `paper`) lên cùng một run mà không ghi đè lẫn nhau.
+    """
+    return {"{}{}".format(prefix, key): value for key, value in (values or {}).items()}
+
+
 def as_param(value):
     """Đổi một giá trị thành tham số gửi lên máy chủ: chuỗi, ngắn, không xuống dòng."""
     if isinstance(value, bool):
