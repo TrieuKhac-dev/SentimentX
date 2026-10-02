@@ -67,16 +67,16 @@
   E (E-1/E-2); F (F-1..F-4); G (G-1..G-7); H (H-1..H-7).
 - CÒN LẠI: A-6 - ĐỂ CUỐI, chỉ làm khi chạy notebook trên Colab (cần mạng + token DagsHub).
   Việc tương tự cần mạng: `scripts/log_reference_run.py` (ghi run tham chiếu công bố) chạy tay khi online.
-- Ghim: CẢ 12 notebook -> `2f8c362` (cùng một commit), đã push.
-- Gói bàn giao: đã dựng GÓI 007 `handover/out/SentimentX-goi-007-c01fba0-261002.zip` (12 notebook đã đổi,
-  36 file y nguyên không gửi lại); sổ gói đã commit. Việc CÒN LẠI là GỬI gói 007 cho người nhận.
-- CI: sạch (`CI_EXIT=0`). Test: 805 tests OK (skipped=2). HEAD 792714f = origin/experiment.
+- Ghim: CẢ 12 notebook -> `1954681` (commit CI XANH), đã push.
+- Gói bàn giao: **gói 008** `handover/out/SentimentX-goi-008-74fc846-261002.zip` (12 notebook đổi, 36 file
+  y nguyên). Gói 007 KHÔNG dùng (dựng từ bản CI đỏ). Việc còn lại: GỬI gói 008.
+- CI: sạch (`CI_EXIT=0`). Test: 806 tests OK (skipped=2).
 
 ## Giai đoạn phát hành lại (sửa CI -> ghim -> gói 008)
-- [ ] R1 sửa CI (curves best-effort + import trong hàm; test_curves guard; test_imports mới;
+- [x] R1 sửa CI (curves best-effort + import trong hàm; test_curves guard; test_imports mới;
   bootstrap plotly/jinja2; requirements-colab bỏ chú thích; docs)
-- [ ] R2 commit + PUSH bản sửa, DỪNG cho người dùng kiểm CI
-- [ ] R3 ghim lại CẢ 12 notebook vào commit mới + push (sau khi CI xanh)
-- [ ] R4 dựng gói 008 + commit sổ + push (KHÔNG gửi gói 007)
+- [x] R2 commit + PUSH bản sửa; CI GitHub XANH ở commit 1954681
+- [x] R3 ghim lại CẢ 12 notebook vào 1954681 + push (commit 74fc846)
+- [x] R4 dựng gói 008 + commit sổ + push (KHÔNG gửi gói 007). Còn lại: GỬI gói 008.
 - Lý do: bản 2f8c362 đỏ CI vì encoder_run import src.reporting.curves ở cấp module -> jinja2.
 

@@ -12,9 +12,9 @@ metrics của lượt chạy, rescore, và collect_reports).
 - Đang ở: XONG kế hoạch (trừ A-6 để cuối). A-1..A-5 (đã push + ghim), B, C, D, E, F, G, H đều xong.
 - Còn lại: A-6 (dọn run MLflow rỗng) - làm khi chạy notebook trên Colab; và chạy tay
   `scripts/log_reference_run.py` khi có mạng.
-- Nhánh: `experiment` (= origin/experiment, HEAD 792714f). Mỗi mục xong = một commit.
-- Cả 12 notebook ghim `2f8c362`; gói bàn giao 007 đã dựng (việc còn lại: GỬI gói).
-- CI sạch, test 805 OK (skipped=2) ở thời điểm dừng.
+- Nhánh: `experiment` (= origin/experiment, HEAD 74fc846). Mỗi mục xong = một commit.
+- Cả 12 notebook ghim `1954681` (CI xanh); gói bàn giao **008** đã dựng (còn lại: GỬI gói).
+- CI sạch, test 806 OK (skipped=2) ở thời điểm dừng.
 
 ---
 
@@ -221,7 +221,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 **Ba việc của giai đoạn này, làm ĐÚNG THỨ TỰ:**
 
-- [ ] **R1** Sửa lỗi CI + bảo đảm chạy được trên Colab:
+- [x] **R1** Sửa lỗi CI + bảo đảm chạy được trên Colab:
   - `src/reporting/curves.py`: bỏ import `render` ở cấp module (import trong hàm); thêm `available()`;
     `write_html` **best-effort** (thiếu `plotly`/`jinja2` thì trả `None` + cảnh báo, KHÔNG ném).
   - `src/experiments/encoder_run.py`: import `curves` **trong hàm** ở bước ghi biểu đồ.
@@ -232,9 +232,10 @@ Bảng NGUỒN SỐ DUY NHẤT:
   - `requirements-colab.txt`: bỏ chú thích `plotly`, `jinja2`.
   - Docs: `06_conventions.md` (mục "Import trong `src/`"), `06_lora_encoder.md` (biểu đồ best-effort),
     `P7_rerun.md` (gói 007 không dùng).
-- [ ] **R2** Commit + **PUSH** bản sửa. **DỪNG ở đây** cho người dùng lên GitHub kiểm CI đã xanh.
-- [ ] **R3** Sau khi CI xanh: **ghim lại CẢ 12 notebook** vào commit mới (bản sửa) → commit + push.
-- [ ] **R4** Dựng **gói 008** → commit sổ gói → push. **KHÔNG gửi gói 007.**
+- [x] **R2** Commit + **PUSH** bản sửa; người dùng ĐÃ kiểm CI trên GitHub: **xanh** (commit `1954681`).
+- [x] **R3** Ghim lại CẢ 12 notebook vào `1954681` → commit `74fc846` + push. Đã xác nhận 12/12 cùng sha.
+- [x] **R4** Dựng **gói 008** (`handover/out/SentimentX-goi-008-74fc846-261002.zip`, 12 notebook đã đổi) →
+  commit sổ gói → push. **KHÔNG gửi gói 007.** Việc còn lại: GỬI gói 008 cho người nhận.
 
 **Ghi chú:** gói 007 (`handover/out/SentimentX-goi-007-c01fba0-261002.zip`) đã dựng bằng bản CI đỏ, nên
 bị thay bằng gói 008; sổ gói vẫn giữ dấu vết của 007 (lịch sử gửi).
