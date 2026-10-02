@@ -1,1 +1,10 @@
 ﻿run,status,mode,started,seconds,model,method,exp_id,split,version_id,config_sha256,repo_sha,reason
+qwen3-4b-instruct-2507/prompt-one-turn/exp001:63c3bf0a,FINISHED,NEW,2026-10-02 07:33:39,1081.6,qwen3-4b-instruct-2507,prompt-one-turn,exp001,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,63c3bf0a8c16,88d12e6846ce,
+qwen3-4b-instruct-2507/prompt-cot/exp007:1d3e96c4,FINISHED,NEW,2026-10-02 07:39:37,13833.0,qwen3-4b-instruct-2507,prompt-cot,exp007,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,1d3e96c442b9,88d12e6846ce,
+qwen3-4b-instruct-2507/prompt-cot/exp002:8d2a31b4,FINISHED,NEW,2026-10-02 07:39:50,5634.9,qwen3-4b-instruct-2507,prompt-cot,exp002,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,8d2a31b4f27f,88d12e6846ce,
+qwen3-4b-instruct-2507/prompt-cot/exp003:4553090a,FINISHED,NEW,2026-10-02 07:40:01,7440.3,qwen3-4b-instruct-2507,prompt-cot,exp003,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,4553090a8b69,88d12e6846ce,
+qwen3-4b-instruct-2507/prompt-cot/exp005:d4c5f94b,FINISHED,NEW,2026-10-02 07:40:14,7450.4,qwen3-4b-instruct-2507,prompt-cot,exp005,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,d4c5f94b5b76,88d12e6846ce,
+qwen3-4b-instruct-2507/prompt-cot/exp006:43aeb425,FINISHED,NEW,2026-10-02 07:52:47,8385.3,qwen3-4b-instruct-2507,prompt-cot,exp006,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,43aeb425e320,88d12e6846ce,
+phobert-base-v2/lora/exp001:363c224e,FINISHED,NEW,2026-10-02 08:03:59,761.1,phobert-base-v2,lora,exp001,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,363c224ec24c,aca047df2dc2,
+visobert/lora/exp001:83dff5ee,FINISHED,NEW,2026-10-02 08:04:11,704.5,visobert,lora,exp001,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,83dff5eefc96,aca047df2dc2,
+qwen3-4b-instruct-2507/prompt-cot/exp004:8b07affe,FINISHED,RESUME,2026-10-02 10:38:35,2533.3,qwen3-4b-instruct-2507,prompt-cot,exp004,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,8b07affed010,88d12e6846ce,chạy tiếp
