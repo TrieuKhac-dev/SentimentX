@@ -13,7 +13,6 @@ của báo cáo EDA/pipeline, nên biểu đồ mở được không cần mạn
 from pathlib import Path
 
 from src.core import utils
-from src.reporting import render
 
 # Các cột vẽ thành đường (đọc từ `training_history.csv`).
 LOSS_SERIES = ("train_loss", "val_loss")
@@ -57,8 +56,24 @@ def payload(rows, columns):
             "rows": [[row.get(column, "") for column in columns] for row in rows]}
 
 
-def write_html(history_path, out_dir, plotlyjs="local"):
-    """Ghi `plots/training.html` từ file lịch sử. Trả về đường dẫn, hoặc None nếu không có dữ liệu."""
+def available():
+    """Thư viện vẽ (`plotly` + `jinja2`) đã sẵn sàng chưa.
+
+    CI KHÔNG cài hai gói này (`requirements-ci.txt`), nên mọi thứ ở đây phải chịu được việc thiếu
+    chúng: `render`/`charts` chỉ được import TRONG HÀM, và `write_html` trả `None` thay vì ném.
+    """
+    import importlib.util
+
+    return (importlib.util.find_spec("plotly") is not None
+            and importlib.util.find_spec("jinja2") is not None)
+
+
+def write_html(history_path, out_dir, plotlyjs="local", log=None):
+    """Ghi `plots/training.html` từ file lịch sử. Trả về đường dẫn, hoặc `None` nếu không vẽ được.
+
+    BEST-EFFORT: thiếu `plotly`/`jinja2` (CI, hoặc máy chạy chưa cài) thì BỎ QUA biểu đồ - số liệu vẫn
+    nằm nguyên trong `training_history.csv`, và lượt chạy KHÔNG được chết vì một việc phụ.
+    """
     path = Path(history_path)
     if not path.is_file():
         return None
@@ -66,4 +81,17 @@ def write_html(history_path, out_dir, plotlyjs="local"):
     rows = frame.to_dict("records")
     if not rows:
         return None
-    return render.write_training_html(payload(rows, list(frame.columns)), out_dir, plotlyjs=plotlyjs)
+    if not available():
+        if log is not None:
+            log("chưa cài plotly/jinja2 nên không vẽ biểu đồ train/val (số liệu vẫn ở {})".format(
+                path.name))
+        return None
+    from src.reporting import render  # import TRONG hàm: chỉ khi thật sự vẽ (xem `available`)
+
+    try:
+        return render.write_training_html(payload(rows, list(frame.columns)), out_dir,
+                                          plotlyjs=plotlyjs)
+    except Exception as exc:  # noqa: BLE001 - vẽ hỏng là việc phụ, không được làm chết lượt chạy
+        if log is not None:
+            log("không vẽ được biểu đồ train/val ({}: {})".format(type(exc).__name__, exc))
+        return None

@@ -252,3 +252,8 @@ Hai notebook LoRA hỏng trên Colab ở lượt chạy đầu; nguyên nhân v�
 
 Kết quả cũ `91f50523` (visobert) và `6aaa0f2f` (phobert) KHÔNG dùng nữa: sau khi ghim lại, mỗi lượt
 rơi vào thư mục mới (commit nằm trong mã băm danh tính).
+
+**Gói bàn giao - gói 007 KHÔNG dùng.** Gói 007 dựng từ bản `2f8c362` bị **CI đỏ**: `encoder_run` import
+`src.reporting.curves` ở cấp module, mà `curves` kéo `jinja2` còn CI chỉ cài `pandas/numpy/PyYAML`. Đã
+sửa (import trong hàm + biểu đồ best-effort + test khoá luật `tests/core/test_imports.py`) và phát
+hành lại thành **gói 008**.

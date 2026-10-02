@@ -73,7 +73,9 @@ ngay sau mỗi lần lưu.
   lần đo liên tiếp thì dừng, ghi `dừng sớm ...` vào `run.log`.
 - **Lịch sử huấn luyện** ghi ra `training_history.csv` (một điểm đo mỗi dòng: `kind=step` hoặc
   `kind=epoch`, kèm loss train/val và P/R/F1), và biểu đồ cho người đọc ghi ra `plots/training.html`
-  (plotly + jinja2). Tắt biểu đồ bằng `save.plots: false`.
+  (plotly + jinja2). Tắt biểu đồ bằng `save.plots: false`. Vẽ biểu đồ là **best-effort**: thiếu
+  `plotly`/`jinja2` thì chỉ MẤT BIỂU ĐỒ - `training_history.csv` vẫn có và lượt chạy vẫn xong (ô
+  bootstrap của notebook tự cài hai gói này; xem `docs/00_workflow/06_conventions.md` mục "Import").
 - **Chuỗi theo bước lên MLflow**: mỗi điểm val được gửi kèm `step`, nên MLflow tự vẽ curve - phiên bị
   ngắt giữa chừng vẫn còn phần đã chạy.
 - **Hàm mất mát** (`loss.type`): `ce` mặc định, `weighted_ce` + `loss.class_weight: inverse` khi muốn

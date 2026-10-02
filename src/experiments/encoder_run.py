@@ -27,7 +27,6 @@ from src import labels, tracking, training
 from src.workflow import resume, runtime
 from src.experiments import experiment_run
 from src.evaluation import records, scorers
-from src.reporting import curves
 from src.preprocessing import loader
 from src.training import checkpoints, lora
 from src.tracking import run_meta
@@ -477,7 +476,11 @@ def run(plan_data, log=None):
         # Biểu đồ train/val cho NGƯỜI đọc (plotly + jinja2), ghi vào `plots/training.html` trong thư
         # mục kết quả. Tắt được bằng `save.plots` như biểu đồ của phần chấm điểm.
         if bool((plan_data["config"].get("save") or {}).get("plots", True)):
-            chart_path = curves.write_html(history_path, out_dir)
+            # Import TRONG hàm: `curves` kéo `plotly`/`jinja2`, mà CI KHÔNG cài hai gói đó - import ở
+            # cấp module là CI đỏ ngay (xem requirements-ci.txt).
+            from src.reporting import curves
+
+            chart_path = curves.write_html(history_path, out_dir, log=log.step)
             if chart_path is not None:
                 log.step("ghi biểu đồ train/val: {}".format(utils.rel(chart_path)))
         # Máy, kiểu số và số tham số chỉ biết được SAU khi huấn luyện, nên bổ sung vào bản ghi.

@@ -34,7 +34,8 @@ pandas
 numpy
 PyYAML
 
-# --- Chỉ cần khi muốn sinh HTML báo cáo NGAY TRÊN Colab ---
-# Bình thường báo cáo sinh ở máy cá nhân, nơi đã copy kết quả nhẹ về.
-# plotly
-# jinja2
+# --- Biểu đồ cho người đọc NGAY TRÊN Colab (`plots/training.html`, báo cáo HTML) ---
+# Ô bootstrap của notebook TỰ CÀI hai gói này (`WANTED_PACKAGES`); ghi ra đây để cài tay cũng khớp.
+# Thiếu chúng thì lượt chạy vẫn xong: chỉ mất biểu đồ (hàm vẽ là best-effort).
+plotly
+jinja2

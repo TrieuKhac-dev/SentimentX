@@ -42,6 +42,16 @@
 - Thêm registry mới thì cập nhật `src/core/registry.py`, vì đó là hướng dẫn mở rộng trung tâm.
 - Sửa ô notebook (thêm, sửa, xoá) là việc riêng, có luật riêng: `docs/00_workflow/10_template_notebook.md`.
 
+## Import trong `src/`
+
+- `src/` chỉ được import `pandas`, `numpy`, `PyYAML` ở **cấp module**. Mọi thứ nặng (`torch`,
+  `transformers`, `mlflow`, `pyarrow`, `py-vncorenlp`, ...) phải import **trong hàm**.
+- **`plotly` và `jinja2` là ngoại lệ duy nhất**: chỉ **`src/reporting/`** được import chúng ở cấp
+  module. Chỗ khác (ví dụ `src/reporting/curves.py`) phải import trong hàm.
+- Vì sao: CI chỉ cài `pandas`, `numpy`, `PyYAML` (`requirements-ci.txt`), nên một import cấp module ở
+  chỗ khác là **CI đỏ ngay**. `tests/core/test_imports.py` khoá luật này (import trong tiến trình con
+  rồi kiểm `sys.modules`).
+
 ## Sửa một test đang đỏ
 
 Một guard mới làm đỏ test cũ thì chỉ có **ba cách hợp lệ**:

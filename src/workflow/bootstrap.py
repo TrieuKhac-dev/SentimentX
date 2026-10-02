@@ -34,7 +34,9 @@ from src.workflow import repo, runtime
 
 # Gói mà một lượt chạy cần. `peft` chỉ cho đường HUẤN LUYỆN (LoRA); `mlflow` thì luôn cần: thiếu nó,
 # phần ghi nhận tự hạ cấp và lượt chạy KHÔNG lên DagsHub (đã gặp thật ở cả ba lượt chạy đầu).
-WANTED_PACKAGES = ("transformers", "accelerate", "bitsandbytes", "mlflow")
+# `plotly` + `jinja2` để vẽ BIỂU ĐỒ train/val (`plots/training.html`) - thiếu thì chỉ mất biểu đồ
+# (hàm vẽ là best-effort), nhưng cài sẵn để lượt chạy có đủ thứ người đọc cần.
+WANTED_PACKAGES = ("transformers", "accelerate", "bitsandbytes", "mlflow", "plotly", "jinja2")
 TRAINING_PACKAGES = ("peft",)
 
 # Ba file của model VnCoreNLP, kèm kích thước TỐI THIỂU để phát hiện trường hợp mạng trả về một trang
