@@ -364,13 +364,21 @@ def print_config(plan_data, model_info):
 
 
 def run_model(config_data, model=None):
-    """Model của lượt chạy: tham số truyền vào > `hf_model` của config > model mặc định của module.
+    """Model của lượt chạy: tham số truyền vào > `hf_model` của config > `checkpoint` của config model.
+
+    `checkpoint` là nguồn ĐÚNG cho mọi model: nó nằm trong `configs/models/<model_id>.yaml` và đã có
+    mặt trong config đã hợp nhất. Đường encoder đã đọc đúng nguồn đó (`encoder_run.plan` dùng
+    `found["checkpoint"]`); đường prompt phải giống vậy.
+
+    VÌ SAO KHÔNG ĐƯỢC RƠI THẲNG VỀ HẰNG SỐ CỦA MODULE: hằng số là bản 4B, nên một lượt chạy của model
+    KHÁC vẫn nạp 4B và vẫn ra số bình thường - sai im lặng. Ca thật (02/10/2026): ba lượt `qwen3-0.6b`
+    nạp nhầm trọng số 4B, chỉ lộ ra vì số token sinh trùng khít nhóm fp16.
 
     Một chỗ duy nhất, vì tên thư mục kết quả có phần model khi nó KHÁC `checkpoint` của config:
     `plan()` và `preflight` phải chọn cùng một giá trị, nếu không thì hai bên nhìn hai thư mục khác
     nhau (đã từng xảy ra với `SENTIMENTX_MODEL` trên máy cá nhân).
     """
-    return model or config_data.get("hf_model") or qwen.MODEL_NAME
+    return model or config_data.get("hf_model") or config_data.get("checkpoint") or qwen.MODEL_NAME
 
 
 def run_prompt(config_data, model_id=None, method=None, exp_id=None, prompt=None, examples=None,

@@ -79,6 +79,27 @@ class HelpersTest(NoRootOverrideMixin, unittest.TestCase):
         self.assertEqual(experiment_run.limit_of({}), 0)
         self.assertEqual(experiment_run.limit_of({"n": 200}), 200)
 
+    def test_model_lay_checkpoint_cua_config_model(self):
+        """Lượt chạy của một model KHÁC phải nạp ĐÚNG `checkpoint` của model đó.
+
+        Ca thật (02/10/2026): `run_model` rơi thẳng về hằng số của module (bản 4B), nên ba lượt
+        `qwen3-0.6b` nạp nhầm trọng số 4B mà mọi chỉ số vẫn ra bình thường. Đường encoder đã đọc
+        đúng nguồn (`encoder_run.plan` dùng `found["checkpoint"]`), đường prompt phải giống vậy.
+
+        Không cần dữ liệu trên đĩa: chỉ đọc và hợp nhất file cấu hình.
+        """
+        from src.experiments import model_config
+
+        for model_id in ("qwen3-0.6b", "qwen3-4b-instruct-2507"):
+            merged = experiments.load_shared(model_id)
+            config_data = merged["config"] if "config" in merged else merged
+            self.assertEqual(
+                experiment_run.run_model(config_data), model_config.checkpoint(model_id),
+                "model {} phải lấy checkpoint của chính nó".format(model_id))
+        # Hai đường GHI ĐÈ giữ nguyên thứ tự ưu tiên: tham số truyền vào > `hf_model`.
+        self.assertEqual(experiment_run.run_model({"hf_model": "X", "checkpoint": "Y"}), "X")
+        self.assertEqual(experiment_run.run_model({"checkpoint": "Y"}, model="Z"), "Z")
+
     def test_greedy_la_mac_dinh_lay_mau_moi_them_nhiet_do(self):
         settings, sampled = experiment_run.settings_of({})
         self.assertFalse(sampled)
