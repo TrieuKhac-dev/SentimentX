@@ -16,8 +16,9 @@ CÁC QUYẾT ĐỊNH KỸ THUẬT VÀ LÍ DO
    `Temperature=0.7, TopP=0.8, TopK=20` cho chất lượng cảm nhận, nhưng khi ĐO thì yếu tố
    tái lập quan trọng hơn; muốn đối chiếu thì chạy thêm với `--sample` (và khi đó phải ghi
    cả `seed`).
-2. **Cắt phần đuôi ở `max_length`** (mặc định 1280, lấy từ `qwen.limit()`): prompt CoT có
-   max 1.019 token/review nên 0% bị cắt. Với prompt chat, phần bị cắt là phần CUỐI - tức
+2. **Cắt phần đuôi ở `max_length`** (2304, đọc từ `configs/models/<model_id>.yaml` qua
+   `qwen.limit()`): bản CoT 5 ví dụ đo được 1.877,50 token/review trung bình và **2.122** token ở mẫu
+   dài nhất, nên 2304 giữ 0% bị cắt ở mọi split. Với prompt chat, phần bị cắt là phần CUỐI - tức
    chính yêu cầu định dạng đầu ra, nên ngưỡng này phải chọn bằng số đo (xem
    docs/04_experiments/02_model_input.md, mục 4.2).
 3. **`padding_side = "left"`**: khi sinh theo lô, đầu ra của các câu dài ngắn khác nhau phải
