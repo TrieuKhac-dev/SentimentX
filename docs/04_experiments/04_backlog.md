@@ -279,3 +279,39 @@ tưởng đã xong hết.
 | `scripts/` vẫn còn 8 công cụ `.py` phẳng | Ba file cài đặt `.ps1` đã vào `scripts/setup/`; các công cụ `.py` chưa chia nhóm | Chia tiếp khi số công cụ tăng: `scripts/notebook/`, `scripts/data/` |
 | Bảng số đo của khối hệ thống bị GHI ĐÈ khi nội dung system đổi | Thẻ tên bảng chỉ ghi **TÊN** file system (`sys-<tên>`), không ghi băm nội dung, nên sửa `configs/prompts/system/<tên>.txt` mà giữ nguyên tên file thì tên bảng không đổi - lượt chạy sau **ghi đè** số cũ và mất bằng chứng. Guard và kiểm 8 của CI chỉ đối chiếu được ở mức TÊN, nên ca này chúng không thấy (`docs/04_experiments/02_model_input.md` mục 2.2) | Cho `sys-` mang thêm 8 hex của nội dung (`sys-<tên>-<sha8>`): `prompts.tag_parts` chấp nhận phần đuôi tuỳ chọn nên bảng cũ vẫn đọc được; các lần chạy sau sẽ có tên mới. Đụng định dạng thẻ nên làm thành một đợt riêng, có ghim lại |
 | Bảng số đo không ghi PHIÊN BẢN bộ tách từ | Thẻ chỉ có `seg-<tên>` (ví dụ `pyvi`), và cột `segmenter` trong CSV cũng chỉ có tên - nâng cấp gói là số đo đổi mà tên bảng không đổi, cùng họ với ca `sys-` ở trên | Thêm phiên bản gói vào `info()` của bộ tách từ rồi đưa vào thẻ (và/hoặc một cột trong CSV); đụng định dạng bảng đã công bố nên làm cùng đợt với `sys-` |
+
+## 9. Hoãn CÓ CHỦ Ý trong đợt "đo lường + MLflow" (ghi 02/10/2026)
+
+Cây phát triển (nút nào sinh ra nút nào, vì sao) nằm ở `docs/04_experiments/07_evolution.md`. Ba mục
+dưới đây là việc ĐÃ BIẾT và CỐ Ý chưa làm trong đợt này.
+
+### 9.1. Tìm siêu tham số bằng Optuna - HOÃN một nhịp
+
+- **Việc:** tìm `r`, `alpha`, `lr`, `lora_dropout` cho LoRA (và sau này cho loss) bằng Optuna.
+- **Vì sao hoãn:** objective và hàm mất mát VỪA đổi trong đợt này (`checkpoints.best_metric` =
+  `sentiment_f1`, thêm `loss.type: weighted_ce`). Chạy Optuna ngay là tối ưu theo một objective có thể
+  còn đổi, rồi phải làm lại từ đầu. Thêm nữa mỗi lượt LoRA tốn 30-90 phút GPU nên HPO phải chờ đường
+  chạy ổn định.
+- **Làm tiếp từ đâu:** (1) chốt objective = `sentiment_f1` (đã chốt); (2) chạy vài baseline LoRA; (3)
+  Optuna trên **val với `n` nhỏ** (`run_token_stats`/`--limit` đã có); (4) chốt cấu hình rồi chạy full
+  `test`. Không gian tìm: `training.lora.r/alpha/dropout`, `training.lr`.
+
+### 9.2. Focal loss / trọng số theo khía cạnh - làm SAU khi có bằng chứng
+
+- **Việc:** thêm `loss.type: focal` (và/hoặc trọng số riêng cho từng khía cạnh) để chống mất cân bằng
+  mạnh hơn `class_weight: inverse`.
+- **Vì sao hoãn:** nguyên tắc "mỗi lần đổi MỘT thứ". Đợt này đã thêm `weighted_ce`, nên thêm focal cùng
+  lúc là không biết cái nào có tác dụng. Chỉ làm khi curve train/val (`plots/training.html`) hoặc F1
+  theo lớp cho thấy lớp hiếm bị bỏ.
+- **Làm tiếp từ đâu:** mở rộng `src/training/lora.py::loss_settings` thêm `type: focal` + `focal_gamma`,
+  giữ nguyên chữ ký `masked_loss` (đã có tham số trọng số), thêm một ca test; rồi chạy một thí nghiệm
+  đối chứng trên cùng dữ liệu.
+
+### 9.3. Kiểm tự động cho `plots/training.html` trên CI
+
+- **Việc:** CI hiện kiểm cấu trúc, không kiểm nội dung biểu đồ train/val.
+- **Vì sao hoãn:** test hiện có (`tests/reporting/test_curves.py`) đã khoá payload và việc ghi file;
+  kiểm sâu hơn (đọc HTML, đối chiếu toạ độ điểm) là việc riêng, không cần cho lượt chạy.
+- **Làm tiếp từ đầu:** nếu biểu đồ bị sai số, thêm test đọc `training_history.csv` rồi so với chuỗi
+  `data` nhúng trong HTML.
+

@@ -162,11 +162,11 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 ## Nhóm G - Lưu vết, docs, test, hạ tầng
 
-- [ ] **G-1** `docs/04_experiments/04_backlog.md`: Optuna (hoãn một nhịp), focal/trọng số khía cạnh (sau
+- [x] **G-1** `docs/04_experiments/04_backlog.md`: Optuna (hoãn một nhịp), focal/trọng số khía cạnh (sau
   `weighted_ce` + bằng chứng curve) - mỗi mục *việc gì / vì sao hoãn / bắt đầu từ đâu* + mốc ngày.
-- [ ] **G-2** `docs/04_experiments/07_evolution.md` - file MỚI, TRỐNG chờ ghi dần; header 2 dòng; đăng ký
+- [x] **G-2** `docs/04_experiments/07_evolution.md` - file MỚI, TRỐNG chờ ghi dần; header 2 dòng; đăng ký
   `docs/README.md`.
-- [ ] **G-3** Ghi chú A7: ma trận nhầm ở artifact/report, không lên MLflow.
+- [x] **G-3** Ghi chú A7: ma trận nhầm ở artifact/report, không lên MLflow.
 - [ ] **G-4** Docs kèm: `06_lora_encoder.md`, `05_experiments_shared.md`, `01_paths.md`, `metrics.md`,
   `01_flow.md`, `05_predictions.md`, `07_colab.md` (sự cố VnCoreNLP), `P7_rerun.md`, `README.md`.
 - [ ] **G-5** Tests: `tests/training/test_training.py`, `test_tracking.py`, `tests/evaluation/test_scorers.py`,

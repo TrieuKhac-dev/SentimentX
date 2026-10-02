@@ -45,6 +45,7 @@
 | 04_experiments | `03_training_eval.md`      | huấn luyện và đánh giá                           | chạy thí nghiệm                     |
 | 04_experiments | `05_predictions.md`        | đọc bảng dự đoán `predictions.csv`               | tra một mẫu ra kết quả              |
 | 04_experiments | `06_lora_encoder.md`       | chạy model encoder bằng LoRA (PhoBERT, ViSoBERT)  | huấn luyện một encoder              |
+| 04_experiments | `07_evolution.md`          | cây phát triển thí nghiệm: nút nào sinh ra nút nào, vì sao | tra nguồn gốc một hướng đi |
 | 04_experiments | `04_backlog.md`            | việc chưa làm                                    | lập kế hoạch                        |
 | 04_experiments | `metrics.md`               | định nghĩa từng metric đánh giá                  | viết báo cáo                        |
 | 04_experiments | `reference_publication.md` | số của công bố và cách so                        | so kết quả                          |

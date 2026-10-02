@@ -51,9 +51,9 @@
 - [x] F-4 A8: run_id vào run_meta, params ở begin, nối run khi resume
 
 ## Nhóm G - lưu vết/docs/test/hạ tầng
-- [ ] G-1 04_backlog.md: Optuna, focal
-- [ ] G-2 07_evolution.md (mới, trống) + đăng ký docs/README.md
-- [ ] G-3 ghi chú A7 (ma trận ở artifact)
+- [x] G-1 04_backlog.md: Optuna, focal
+- [x] G-2 07_evolution.md (mới, trống) + đăng ký docs/README.md
+- [x] G-3 ghi chú A7 (ma trận ở artifact)
 - [ ] G-4 docs kèm các nhóm
 - [ ] G-5 cập nhật tests
 - [ ] G-6 hạ tầng: paths.yaml / tracking.yaml / training.yaml / evaluation.yaml / .gitignore
