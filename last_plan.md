@@ -133,9 +133,9 @@ Bảng NGUỒN SỐ DUY NHẤT:
 - [x] **D-2** `checkpoints.best_metric` = `sentiment_f1` (macro-F1 sắc thái) + LUÔN ghi kèm P/R.
 - [x] **D-3** `measure()` thêm `val_loss` + P/R/F1 + detection F1 (dùng `Samples`).
 - [x] **D-4** `training_history.csv` (pattern mới), entry CUỐI MỖI EPOCH: train_loss TB, val_loss, P/R/F1.
-- [ ] **D-5** `plots/training.html` bằng plotly + jinja2 (`src/reporting/render.py` + `templates/`); thêm
+- [x] **D-5** `plots/training.html` bằng plotly + jinja2 (`src/reporting/render.py` + `templates/`); thêm
   kind `line` vào `src/reporting/charts.py`; vẽ P/R/F1 + loss train/val.
-- [ ] **D-6** Log step-metric lên MLflow (để MLflow tự vẽ curve) + gửi CSV artifact; Drive có cả CSV
+- [x] **D-6** Log step-metric lên MLflow (để MLflow tự vẽ curve) + gửi CSV artifact; Drive có cả CSV
   lẫn HTML (HTML không lên MLflow).
 
 ## Nhóm E - Loss chống lệch (làm ngay)

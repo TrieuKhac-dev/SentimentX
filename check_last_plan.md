@@ -38,7 +38,7 @@
 - [x] D-3 measure() thêm val_loss + P/R/F1
 - [x] D-4 training_history.csv (entry cuối epoch)
 - [ ] D-5 plots/training.html (plotly + jinja2, kind line)
-- [ ] D-6 log step-metric + CSV lên MLflow
+- [x] D-6 log step-metric + CSV lên MLflow
 
 ## Nhóm E - loss chống lệch
 - [x] E-1 weighted_ce(class_weight: inverse)
