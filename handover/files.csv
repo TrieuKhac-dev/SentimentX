@@ -35,7 +35,7 @@ experiments/qwen3-4b-instruct-2507/prompt-cot/exp006/README.md,experiments/qwen3
 experiments/qwen3-4b-instruct-2507/prompt-cot/exp007/README.md,experiments/qwen3-4b-instruct-2507/prompt-cot/exp007/README.md,experiment_readme,7ccc0ec5ab5cd32c5e1906d0a98dcffae299aa891639d8f1ba0c243c58c01e62,1821
 experiments/qwen3-4b-instruct-2507/prompt-one-turn/exp001/README.md,experiments/qwen3-4b-instruct-2507/prompt-one-turn/exp001/README.md,experiment_readme,f3262cc7ebe30f560b09bc0d57a8789dd82c6c14a0267a3c099d13955a4e53bb,1918
 experiments/visobert/lora/exp001/README.md,experiments/visobert/lora/exp001/README.md,experiment_readme,9f9232569cd52c1b93796d38bfd633bbc02e0fb1f742b653fc02542cd62a5abb,2003
-notebooks/phobert-base-v2/lora/exp001.ipynb,experiments/phobert-base-v2/lora/exp001/notebook.ipynb,notebook,191265c228cb2979515bc96a1b95328b0bfddc02d07bbe5dae51945b86c2875e,19999
+notebooks/phobert-base-v2/lora/exp001.ipynb,experiments/phobert-base-v2/lora/exp001/notebook.ipynb,notebook,6ba989d194517570f29905e9894c167b8d561211b7ee0d1835d2d4cc869d960d,19999
 notebooks/qwen3-0.6b/prompt-cot/exp001.ipynb,experiments/qwen3-0.6b/prompt-cot/exp001/notebook.ipynb,notebook,b80ecbaf4c948e9cc64ed2333fb9ba3cde35537b23f9af1f14ebcde274e99b9d,20000
 notebooks/qwen3-0.6b/prompt-cot/exp002.ipynb,experiments/qwen3-0.6b/prompt-cot/exp002/notebook.ipynb,notebook,c7b4862b68e9455afcf4be5ae2849ccbd940407de0f33e105ca50ff244067448,20000
 notebooks/qwen3-0.6b/prompt-cot/exp003.ipynb,experiments/qwen3-0.6b/prompt-cot/exp003/notebook.ipynb,notebook,c72baa0b0257528c7b0c5da62e63f026f631f0f57e530765f4de23308e3bf4a6,20000
@@ -46,4 +46,4 @@ notebooks/qwen3-4b-instruct-2507/prompt-cot/exp005.ipynb,experiments/qwen3-4b-in
 notebooks/qwen3-4b-instruct-2507/prompt-cot/exp006.ipynb,experiments/qwen3-4b-instruct-2507/prompt-cot/exp006/notebook.ipynb,notebook,f995fadda9168a23c9bb952ede63dfc01fb926a85b19eaf7987c89c07597282f,20012
 notebooks/qwen3-4b-instruct-2507/prompt-cot/exp007.ipynb,experiments/qwen3-4b-instruct-2507/prompt-cot/exp007/notebook.ipynb,notebook,75c200d0f02449727ddd865c00f3991215089b44027d32f71e8464319b88b511,20012
 notebooks/qwen3-4b-instruct-2507/prompt-one-turn/exp001.ipynb,experiments/qwen3-4b-instruct-2507/prompt-one-turn/exp001/notebook.ipynb,notebook,c30e9e366522f6e1961c6cca884b6d76d0ce0821a47b249c25499f610e259bf3,20017
-notebooks/visobert/lora/exp001.ipynb,experiments/visobert/lora/exp001/notebook.ipynb,notebook,48096386ac573120ead7895670822f7f50604a1144561eb9d053c91462454712,19992
+notebooks/visobert/lora/exp001.ipynb,experiments/visobert/lora/exp001/notebook.ipynb,notebook,dae4db9602987f85dd58e618ab5a99c492daffd12297335e132715c804ce54b4,19992
