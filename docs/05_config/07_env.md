@@ -80,6 +80,21 @@ dagshub.init(repo_owner="TrieuKhac-dev", repo_name="SentimentX",
 
 `patch_mlflow=True` làm cho lỗi khi ghi lên MLflow không dừng chương trình.
 
+### Dọn nơi ghi nhận
+
+`python scripts/reset_experiment.py` xoá run (theo `runName` hiện trên giao diện HOẶC `run_id`), hoặc
+xoá cả experiment, rồi lượt chạy sau tự tạo lại experiment **cùng tên**. Nó dùng ĐÚNG ba biến ở trên
+(`MLFLOW_TRACKING_URI/USERNAME/PASSWORD` suy từ `configs/dagshub.yaml` + `DAGSHUB_TOKEN`), nên chạy
+được ở máy khác với cùng file env; ngoài ra chỉ cần `mlflow` đã cài, mạng tới DagsHub, và token có
+**quyền xoá** (token chỉ đọc bị máy chủ từ chối - script in lỗi rồi thoát, không xoá nửa vời).
+
+Hai điều không được quên:
+
+- **Không đổi tên experiment** nếu còn muốn so với số cũ: `tracking.experiment` nằm trong
+  `config_sha256`, nên đổi tên là đổi thư mục kết quả.
+- Trên Colab, code đến từ bản clone theo `REPO_SHA` đã ghim trong notebook, nên tool này **chỉ có** ở
+  bản clone đầy đủ (máy cá nhân) cho tới khi notebook được ghim lại vào một commit mới hơn.
+
 ## Bảo mật
 
 - `.env.colab` chứa token thật, không bao giờ commit, gửi cho giảng viên qua kênh riêng.

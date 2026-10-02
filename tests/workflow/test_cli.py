@@ -10,6 +10,7 @@ lỗi và mã thoát cho từng dạng sai.
 Chạy: python -m unittest discover -s tests
 """
 
+import importlib.util
 import io
 import os
 import tempfile
@@ -26,6 +27,12 @@ from src.core import paths, versioning
 
 HASH8 = "e0ccc484"
 FULL_ID = "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-" + HASH8
+
+# `scripts/` không phải package, nên tool trong đó phải nạp bằng đường dẫn (như tests/workflow/test_pin.py).
+SPEC = importlib.util.spec_from_file_location(
+    "reset_experiment", paths.root() / "scripts" / "reset_experiment.py")
+reset_experiment = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(reset_experiment)
 
 
 class RunEdaArgsTest(unittest.TestCase):
@@ -169,6 +176,116 @@ class FindVersionTest(unittest.TestCase):
 
     def test_version_parts_splits_name_and_hash(self):
         self.assertEqual(versioning.version_parts(self.version), ("cosmetics", HASH8))
+
+
+class ResetExperimentArgsTest(unittest.TestCase):
+    """`scripts/reset_experiment.py`: tổ hợp cờ bị từ chối TRƯỚC khi gọi máy chủ MLflow."""
+
+    def mistake(self, argv):
+        return reset_experiment.check_args(reset_experiment.parse_args(argv))
+
+    def test_no_flags_is_allowed(self):
+        self.assertIsNone(self.mistake([]))
+
+    def test_dry_run_alone_is_allowed(self):
+        self.assertIsNone(self.mistake(["--dry-run"]))
+
+    def test_keep_experiment_with_yes_is_allowed(self):
+        self.assertIsNone(self.mistake(["--keep-experiment", "--yes"]))
+
+    def test_run_by_name_is_allowed(self):
+        self.assertIsNone(self.mistake(["--run", "07637bcf", "--yes"]))
+
+    def test_run_takes_several_names(self):
+        args = reset_experiment.parse_args(["--run", "07637bcf", "e616c1e3"])
+        self.assertEqual(args.run, ["07637bcf", "e616c1e3"])
+
+    def test_experiment_flag_overrides_the_config_name(self):
+        self.assertEqual(reset_experiment.parse_args(["--experiment", "khac"]).experiment_name,
+                         "khac")
+
+    def test_dry_run_with_yes_is_refused(self):
+        message = self.mistake(["--dry-run", "--yes"])
+        self.assertIn("--dry-run", message)
+        self.assertIn("--yes", message)
+
+    def test_run_with_keep_experiment_is_refused(self):
+        message = self.mistake(["--run", "07637bcf", "--keep-experiment"])
+        self.assertIn("--keep-experiment", message)
+
+    def test_impossible_combination_exits_two_before_touching_the_server(self):
+        """Câu lệnh chưa rõ phải dừng NGAY: không đọc env, không mở kết nối."""
+        with redirect_stdout(io.StringIO()) as buffer:
+            code = reset_experiment.main(["--dry-run", "--yes"])
+        self.assertEqual(code, 2)
+        self.assertIn("--dry-run", buffer.getvalue())
+
+
+class ResetExperimentSelectTest(unittest.TestCase):
+    """Chọn run để xoá: nhận CẢ runName (cột hiện trên DagsHub) lẫn run_id, và báo tên không khớp.
+
+    Dùng dict thay cho dòng của `search_runs` vì mọi chỗ đọc đều qua `row.get(...)`.
+    """
+
+    NAME_A, NAME_B = "07637bcf", "e616c1e3"
+    ID_A, ID_B = "1f0a" * 8, "2b3c" * 8
+    ROWS = [
+        (0, {"run_id": ID_A, "tags.mlflow.runName": NAME_A,
+             "status": "FINISHED", "start_time": "2026-10-02 09:30"}),
+        (1, {"run_id": ID_B, "tags.mlflow.runName": NAME_B,
+             "status": "FAILED", "start_time": "2026-10-02 09:00"}),
+    ]
+
+    def test_matches_run_name(self):
+        found, missing = reset_experiment.select(self.ROWS, [self.NAME_A])
+        self.assertEqual([reset_experiment.run_name_of(row) for _i, row in found], [self.NAME_A])
+        self.assertEqual(missing, [])
+
+    def test_matches_run_id(self):
+        found, _missing = reset_experiment.select(self.ROWS, [self.ID_B])
+        self.assertEqual([reset_experiment.run_name_of(row) for _i, row in found], [self.NAME_B])
+
+    def test_unknown_name_is_reported_as_missing(self):
+        found, missing = reset_experiment.select(self.ROWS, ["khong-co"])
+        self.assertEqual(found, [])
+        self.assertEqual(missing, ["khong-co"])
+
+    def test_same_run_matched_twice_is_deleted_once(self):
+        found, missing = reset_experiment.select(self.ROWS, [self.NAME_A, self.ID_A])
+        self.assertEqual(len(found), 1)
+        self.assertEqual(missing, [])
+
+    def test_runs_without_a_run_name_are_still_listed(self):
+        rows = [(0, {"run_id": self.ID_A})]
+        self.assertEqual(reset_experiment.run_name_of(rows[0][1]), "")
+        self.assertIn(self.ID_A, "\n".join(reset_experiment.describe(rows)))
+
+    def test_describe_prints_both_run_names_and_ids(self):
+        text = "\n".join(reset_experiment.describe(self.ROWS))
+        self.assertIn(self.NAME_A, text)
+        self.assertIn(self.ID_B, text)
+
+    def test_repeated_run_name_is_counted(self):
+        """runName KHÔNG duy nhất (chạy lại cùng thư mục kết quả) - phải đếm được để cảnh báo."""
+        rows = self.ROWS + [(2, {"run_id": "3c4d" * 8, "tags.mlflow.runName": self.NAME_A})]
+        self.assertEqual(reset_experiment.match_counts(rows, [self.NAME_A]), [(self.NAME_A, 2)])
+        self.assertEqual(reset_experiment.match_counts(rows, [self.ID_B]), [(self.ID_B, 1)])
+
+    def test_unknown_name_counts_zero(self):
+        self.assertEqual(reset_experiment.match_counts(self.ROWS, ["khong-co"]), [("khong-co", 0)])
+
+    def test_silent_console_counts_as_no(self):
+        """Phiên không tương tác (hết input) KHÔNG được coi là đồng ý."""
+        with mock.patch("builtins.input", side_effect=EOFError):
+            self.assertFalse(reset_experiment.confirm("Xoá?"))
+
+    def test_answer_yes_counts_as_yes(self):
+        with mock.patch("builtins.input", return_value="y"):
+            self.assertTrue(reset_experiment.confirm("Xoá?"))
+
+    def test_answer_no_counts_as_no(self):
+        with mock.patch("builtins.input", return_value=""):
+            self.assertFalse(reset_experiment.confirm("Xoá?"))
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@
 - [x] A-3 hint VnCoreNLP theo môi trường
 - [x] A-4 encoder_run.run thêm end_session_on_error
 - [x] A-5 ghim lại notebook LoRA + P7_rerun.md (ĐÃ PUSH: visobert pin ffa19f1, phobert pin c56d20e9, cả hai trên origin/experiment)
-- [ ] A-6 dọn run MLflow rỗng (ĐỂ CUỐI: làm khi chạy notebook trên Colab)
+- [ ] A-6 dọn run MLflow rỗng (ĐỂ CUỐI: làm khi chạy notebook trên Colab) - nay có tool: `scripts/reset_experiment.py`
 
 ## Nhóm B - đồng bộ nguồn số
 - [x] B-1 docs bảng nguồn số duy nhất
@@ -67,6 +67,7 @@
   E (E-1/E-2); F (F-1..F-4); G (G-1..G-7); H (H-1..H-7).
 - CÒN LẠI: A-6 - ĐỂ CUỐI, chỉ làm khi chạy notebook trên Colab (cần mạng + token DagsHub).
   Việc tương tự cần mạng: `scripts/log_reference_run.py` (ghi run tham chiếu công bố) chạy tay khi online.
+  Nay A-6 có tool riêng: `scripts/reset_experiment.py` (`--dry-run` trước, rồi `--run <runName|run_id>`).
 - Ghim: CẢ 12 notebook -> `1954681` (commit CI XANH), đã push.
 - Gói bàn giao: **gói 008** `handover/out/SentimentX-goi-008-74fc846-261002.zip` (12 notebook đổi, 36 file
   y nguyên). Gói 007 KHÔNG dùng (dựng từ bản CI đỏ). Việc còn lại: GỬI gói 008.

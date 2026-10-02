@@ -82,7 +82,8 @@ metrics của lượt chạy, rescore, và collect_reports).
   `origin/experiment`. Kết quả cũ `91f50523`/`6aaa0f2f` KHÔNG dùng nữa (ghim lại thì ra thư mục mới).
 
 - [ ] **A-6** Dọn run MLflow rỗng/treo `cd0cd000...`. ĐỂ CUỐI: chỉ làm khi chạy notebook trên Colab
-  (lúc đó mới có mạng + token DagsHub). Dùng `scripts/smoke_tracking.py` để xoá theo mã run.
+  (lúc đó mới có mạng + token DagsHub). Cách làm đã có: `scripts/reset_experiment.py --dry-run` rồi
+  `--run <runName|run_id>` để xoá chọn lọc (`smoke_tracking.py --delete` chỉ nhận mã run).
 
 ---
 

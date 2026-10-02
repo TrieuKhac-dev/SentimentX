@@ -56,6 +56,9 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
 | Dựng gói bàn giao tăng dần (chỉ file mới/đã đổi) | `python scripts/build_package.py` (xem trước: `--dry-run`; `--number NNN` để đặt số gói; `--allow-red` khi đã hiểu rõ cảnh báo đỏ; `--no-zip` khi chỉ muốn ghi sổ) |
 | Chạy một notebook trên máy cá nhân, không cần Jupyter | `python scripts/run_notebook.py <model>/<method>/<expNNN>` (dừng trước ô CHẠY: `--preflight-only`) |
+| Xem run nào sẽ bị xoá trên MLflow (không xoá gì) | `python scripts/reset_experiment.py --dry-run` |
+| Dọn sạch nơi GHI NHẬN để lượt sau đếm lại từ đầu | `python scripts/reset_experiment.py` (hỏi xác nhận; `--yes` bỏ hỏi; `--keep-experiment` giữ experiment) |
+| Xoá vài run theo tên hiện trên DagsHub | `python scripts/reset_experiment.py --run 07637bcf` (nhận runName HOẶC run_id; không đụng experiment) |
 | Các ô của notebook: luật thêm/sửa/xoá, thứ tự, khối bảo vệ | `docs/00_workflow/10_template_notebook.md` (không phải cờ dòng lệnh, nhưng là thứ hay phải tra cùng trang này) |
 
 ## 3. Câu lệnh bị từ chối, và mã thoát
@@ -78,11 +81,25 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | `run_token_stats.py --prompt <tên>` thiếu `--hash` | số liệu ghi vào thư mục theo phiên bản | 2 |
 | `run_check_examples.py` thiếu `--hash` | kết luận rò rỉ phải thuộc đúng bộ split đã đọc | 2 |
 | `run_pipeline.py` thiếu `--name` hoặc `--version` | mỗi tổ hợp cho ra một bộ dữ liệu khác nhau | 2 |
+| `reset_experiment.py --dry-run --yes` | `--dry-run` chỉ xem trước nên không đi với `--yes` | 2 |
+| `reset_experiment.py --run <tên> --keep-experiment` | `--run` đã không đụng tới experiment, nên cờ kia là thừa | 2 |
+| `reset_experiment.py --run <tên>` mà tên không khớp run nào | in kèm danh sách `runName` đang có | 2 |
+| `reset_experiment.py` mà experiment chưa có run nào | không xoá gì; in các experiment đang có để phát hiện tên gõ sai | 1 |
+| `reset_experiment.py` không tra được máy chủ (thiếu token / thiếu `mlflow` / mất mạng) | in đúng thứ còn thiếu | 2 |
 | Đích hợp lệ nhưng CHƯA có kết quả | in kèm lệnh cần chạy trước (`run_eda.py` / `run_pipeline.py`) | 1 |
 | Mọi câu lệnh ở mục 2 | - | 0 |
 
 Riêng `run_check_examples.py` dùng mã **1** cho trường hợp phép kiểm phát hiện lỗi ví dụ hoặc rò rỉ,
 để dùng được trong kiểm tra tự động.
+
+`--run` của `scripts/reset_experiment.py` nhận **cả hai** cách gọi tên một run: `runName` (`<hash8>`,
+đúng cột hiện trên giao diện DagsHub, ví dụ `07637bcf`) và `run_id` (mã dài của máy chủ, ghi trong
+`run.log`). Lý do nhận cả hai: người chạy đọc `runName` trên giao diện, còn muốn mở lại đúng run thì
+tra `run_id` trong dòng log - bắt chuyển tay giữa hai cách viết là chỗ dễ xoá nhầm.
+
+`runName` **không duy nhất**: chạy lại (hoặc chạy tiếp) cùng một thư mục kết quả sinh nhiều run cùng
+tên, nên `--run 07637bcf` có thể xoá nhiều hơn một run. Script in số run khớp cho **từng** tên trước
+khi xoá; muốn chắc chắn đúng MỘT run thì dùng `run_id`.
 
 ## 4. Vì sao phải ghi rõ đích
 
