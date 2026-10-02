@@ -144,6 +144,49 @@ def canonical_label(run):
     return hash8
 
 
+def exclude_keys(run):
+    """Ba cách gọi tên MỘT lượt chạy, dùng cho `--exclude`: nhãn đầy đủ, `<hash8>`, đường dẫn thư mục."""
+    keys = {canonical_label(run),
+            str((run.get("meta", {}).get("run") or {}).get("hash") or Path(run["dir"]).name)}
+    try:
+        keys.add(utils.rel(run["dir"]))
+    except (TypeError, ValueError):        # không đổi được thành đường dẫn tương đối: bỏ qua
+        pass
+    return {key for key in keys if key}
+
+
+def exclude_runs(runs, patterns):
+    """Chia lượt chạy thành GIỮ và LOẠI theo `patterns` (mẫu khớp cả nhãn, `<hash8>`, đường dẫn).
+
+    Trả về `{"kept": [...], "dropped": [(nhãn, mẫu)], "unmatched": [mẫu]}`. Mẫu KHÔNG khớp lượt nào
+    được trả riêng chứ không im lặng bỏ qua: gõ sai tên mà công cụ vẫn chạy ra bảng "đã loại rồi" là
+    đúng kiểu lỗi im lặng mà cả file này đang tránh.
+    """
+    patterns = [str(item).strip() for item in (patterns or ()) if str(item).strip()]
+    if not patterns:
+        return {"kept": list(runs), "dropped": [], "unmatched": []}
+    kept, dropped, used = [], [], set()
+    for run in runs:
+        hit = sorted(set(patterns) & exclude_keys(run))
+        if hit:
+            dropped.append((canonical_label(run), hit[0]))
+            used.update(hit)
+        else:
+            kept.append(run)
+    return {"kept": kept, "dropped": dropped,
+            "unmatched": [item for item in patterns if item not in used]}
+
+
+def runs_for_group(name, runs, only, kept=None):
+    """Lượt chạy đi vào MỘT nhóm: quy tắc DUY NHẤT, dùng chung cho `build()` và `--dry-run`.
+
+    `attempt_registry` luôn nhận ĐỦ mọi lượt (việc của nó là kể lại đã thử những gì, kể cả lượt bị
+    loại khỏi bảng số); các nhóm còn lại nhận `kept` - danh sách đã trừ lượt bị `--exclude` loại.
+    """
+    source = list(runs) if name == "attempt_registry" else list(kept if kept is not None else runs)
+    return source if (name == "attempt_registry" or only == "all") else finished(source)
+
+
 # ---
 # Nhóm 1: dataset_registry
 # ---
@@ -1012,7 +1055,8 @@ def finished(runs):
             if dict(run["meta"].get("run") or {}).get("status") == "FINISHED"]
 
 
-def build(roots=None, out_root=None, groups=None, reference=None, only="finished"):
+def build(roots=None, out_root=None, groups=None, reference=None, only="finished", exclude=(),
+          log=None):
     """Sinh các nhóm report, trả về `{tên nhóm: {csv, html, md, rows}}`.
 
     `roots` là các gốc chứa lượt chạy (mặc định: gốc kết quả của thí nghiệm và thư mục đánh giá chạy
@@ -1021,12 +1065,32 @@ def build(roots=None, out_root=None, groups=None, reference=None, only="finished
 
     `only` quyết định lượt NÀO vào bảng: `"finished"` (mặc định) chỉ lượt chạy xong, `"all"` liệt kê cả
     lượt hỏng. Nhóm `attempt_registry` LUÔN nhận đủ mọi lượt, vì việc của nó là kể lại đã thử những gì.
+
+    `exclude` là các mẫu tên lượt KHÔNG đưa vào bảng số (nhãn đầy đủ, `<hash8>`, hoặc đường dẫn thư
+    mục) - dùng khi một lượt đã biết là không dùng được nhưng phải giữ lại làm bằng chứng. Lượt bị
+    loại VẪN nằm trong `attempt_registry`. Mẫu không khớp lượt nào là LỖI kèm danh sách đang có.
+    `log` (tuỳ chọn) để chỗ gọi in ra đã loại lượt nào - im lặng ở đây là người đọc bảng không biết
+    mình đang thiếu gì.
     """
     runs = scan_runs(roots)
+    chosen = exclude_runs(runs, exclude)
+    if chosen["unmatched"]:
+        available = sorted({canonical_label(run) for run in runs}) or ["(chưa có lượt chạy nào)"]
+        raise ReportError(
+            "`--exclude` không khớp lượt chạy nào: {}. Lượt đang có: {}.".format(
+                ", ".join(chosen["unmatched"]), ", ".join(available)))
+    if log is not None:
+        if chosen["dropped"]:
+            log("Loại khỏi bảng số: {} lượt - {}".format(
+                len(chosen["dropped"]),
+                ", ".join("{} (mẫu {})".format(label, pattern)
+                          for label, pattern in chosen["dropped"])))
+            log("  nhóm attempt_registry vẫn liệt kê đủ, kể cả lượt vừa loại.")
+        else:
+            log("Không loại lượt nào (`--exclude` rỗng).")
     result = {}
     for name in (groups or GROUPS):
-        # `attempt_registry` là "bản tổng hợp toàn bộ"; các nhóm còn lại là bảng để đọc số.
-        subset = runs if (name == "attempt_registry" or only == "all") else finished(runs)
+        subset = runs_for_group(name, runs, only, chosen["kept"])
         tables, mermaid = group_tables(name, subset, reference)
         out_dir = (Path(out_root) / name) if out_root else paths.report(name)
         result[name] = write_group(name, tables, mermaid, out_dir)

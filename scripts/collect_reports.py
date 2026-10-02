@@ -7,7 +7,14 @@ CÁCH DÙNG
     python scripts/collect_reports.py --group metrics_matrix  # chỉ một nhóm
     python scripts/collect_reports.py --only all             # bảng số liệt kê cả lượt HỎNG
     python scripts/collect_reports.py --out-root <thư mục>    # ghi ra chỗ khác (Colab: Drive)
+    python scripts/collect_reports.py --exclude <nhãn|hash8>  # bỏ lượt khỏi BẢNG SỐ (giữ ở attempt_registry)
     python scripts/collect_reports.py --dry-run              # chỉ in ra, không ghi
+
+LOẠI MỘT LƯỢT KHỎI BẢNG SỐ
+`--exclude` nhận nhãn đầy đủ (`<model>/<method>/<expNNN>:<hash8>`), `<hash8>`, hoặc đường dẫn thư mục
+kết quả; lặp lại được để loại nhiều lượt. Lượt bị loại VẪN nằm trong `attempt_registry` - việc của
+nhóm đó là kể lại đã thử những gì - và công cụ in rõ đã loại lượt nào. Mẫu không khớp lượt nào là LỖI
+(mã thoát 2): gõ sai tên mà vẫn dựng ra bảng "đã loại rồi" đúng là lỗi im lặng cần chặn.
 
 HAI BỘ BẢNG
     Nhóm `attempt_registry` là BẢN TỔNG HỢP TOÀN BỘ: mọi lần thử, kể cả lượt hỏng, kèm lý do dừng (đọc từ
@@ -65,6 +72,11 @@ def parse_args(argv=None):
                              "mức ví dụ của chính nó, không dùng cờ này.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Chỉ in ra sẽ sinh gì, không ghi file.")
+    parser.add_argument("--exclude", action="append", default=None, metavar="<nhãn|hash8>",
+                        help="Bỏ lượt chạy khỏi BẢNG SỐ; nhận nhãn "
+                             "'<model>/<method>/<expNNN>:<hash8>', '<hash8>' hoặc đường dẫn thư mục "
+                             "kết quả; lặp lại để loại nhiều lượt. Lượt bị loại VẪN nằm trong nhóm "
+                             "attempt_registry.")
     parser.add_argument("--only", choices=["finished", "all"], default="finished",
                         help="Lượt nào vào BẢNG SỐ: 'finished' (mặc định) chỉ lượt chạy xong, "
                              "'all' liệt kê cả lượt hỏng. Nhóm attempt_registry luôn liệt kê đủ.")
@@ -74,7 +86,14 @@ def parse_args(argv=None):
 def main(argv=None):
     args = parse_args(argv)
     roots = [Path(item) for item in (args.root or [])] or None
+    exclude = list(args.exclude or [])
     runs = reports.scan_runs(roots)
+    chosen = reports.exclude_runs(runs, exclude)
+    if chosen["unmatched"]:
+        print("LỖI: `--exclude` không khớp lượt chạy nào: {}.".format(", ".join(chosen["unmatched"])))
+        print("      Lượt đang có: {}.".format(
+            ", ".join(sorted(reports.canonical_label(run) for run in runs)) or "(chưa có)"))
+        return 2
 
     if args.dry_run:
         used = roots or reports.default_roots()
@@ -84,12 +103,19 @@ def main(argv=None):
             print("  - {:<70} {}".format(
                 reports.canonical_label(run),
                 (run["meta"].get("run") or {}).get("status")))
+        if chosen["dropped"]:
+            print("Loại bảng số: {} lượt - {}".format(
+                len(chosen["dropped"]),
+                ", ".join("{} (mẫu {})".format(label, pattern)
+                          for label, pattern in chosen["dropped"])))
+            print("  nhóm attempt_registry vẫn liệt kê đủ, kể cả lượt vừa loại.")
         reference = reports.load_reference(shot=args.reference_shot)
         print("Bảng công bố: {}".format(
             "có, cột `{}`".format(reference[2]) if any(reference)
             else "chưa có, không có cột đối chiếu"))
         for name in (args.group or reports.GROUPS):
-            tables, mermaid = reports.group_tables(name, runs, reference)
+            tables, mermaid = reports.group_tables(
+                name, reports.runs_for_group(name, runs, args.only, chosen["kept"]), reference)
             counts = ", ".join("{}={}".format(file_name, len(rows))
                                for file_name, (_columns, rows) in tables.items())
             print("  {:<20} {:<44} sơ đồ {} dòng".format(name, counts,
@@ -97,9 +123,13 @@ def main(argv=None):
         print("\n--dry-run nên chưa ghi gì.")
         return 0
 
-    result = reports.build(roots=roots, out_root=args.out_root, groups=args.group,
-                           reference=reports.load_reference(shot=args.reference_shot),
-                           only=args.only)
+    try:
+        result = reports.build(roots=roots, out_root=args.out_root, groups=args.group,
+                               reference=reports.load_reference(shot=args.reference_shot),
+                               only=args.only, exclude=exclude, log=print)
+    except reports.ReportError as exc:
+        print("LỖI: {}".format(exc))
+        return 2
     if args.only == "finished":
         print("Bảng số  : chỉ lượt FINISHED (dùng --only all để liệt kê cả lượt hỏng)")
     else:

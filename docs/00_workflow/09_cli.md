@@ -56,7 +56,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Đo THÊM chỉ số của một lượt chạy từ `predictions.csv` (không chạy model, không ghi đè) | `python scripts/rescore.py --dir experiments/<model>/<method>/<expNNN>/results/<hash8>` (`--reason "..."`, `--no-confusion`) |
 | Vẽ báo cáo mở được KHÔNG cần mạng | thêm `--plotlyjs local` (mặc định) hoặc `--plotlyjs cdn` khi muốn dùng CDN |
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
-| Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` |
+| Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` (`--exclude <nhãn|hash8>` để bỏ lượt khỏi BẢNG SỐ - lượt bị loại VẪN nằm trong `attempt_registry`; lặp lại để loại nhiều lượt) |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
 | Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
 | Dựng gói bàn giao tăng dần (chỉ file mới/đã đổi) | `python scripts/build_package.py` (xem trước: `--dry-run`; `--number NNN` để đặt số gói; `--allow-red` khi đã hiểu rõ cảnh báo đỏ; `--no-zip` khi chỉ muốn ghi sổ) |
@@ -85,6 +85,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | `run_eda.py` thiếu `--on`, hoặc `--on raw` thiếu `--name`/`--version` | phải chỉ đích danh nơi đo | 2 |
 | `run_token_stats.py --prompt <tên>` thiếu `--hash` | số liệu ghi vào thư mục theo phiên bản | 2 |
 | `run_check_examples.py` thiếu `--hash` | kết luận rò rỉ phải thuộc đúng bộ split đã đọc | 2 |
+| `collect_reports.py --exclude <tên lạ>` | mẫu không khớp lượt chạy nào; in kèm danh sách nhãn đang có | 2 |
 | `run_pipeline.py` thiếu `--name` hoặc `--version` | mỗi tổ hợp cho ra một bộ dữ liệu khác nhau | 2 |
 | `reset_experiment.py --dry-run --yes` | `--dry-run` chỉ xem trước nên không đi với `--yes` | 2 |
 | `reset_experiment.py --run <tên> --keep-experiment` | `--run` đã không đụng tới experiment, nên cờ kia là thừa | 2 |

@@ -12,6 +12,7 @@ Chạy: python -m unittest discover -s tests
 
 import importlib.util
 import io
+import json
 import os
 import tempfile
 import unittest
@@ -33,6 +34,12 @@ SPEC = importlib.util.spec_from_file_location(
     "reset_experiment", paths.root() / "scripts" / "reset_experiment.py")
 reset_experiment = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(reset_experiment)
+
+# Cùng cách đó cho `scripts/collect_reports.py` (kiểm cờ `--exclude`).
+COLLECT_SPEC = importlib.util.spec_from_file_location(
+    "collect_reports", paths.root() / "scripts" / "collect_reports.py")
+collect_reports = importlib.util.module_from_spec(COLLECT_SPEC)
+COLLECT_SPEC.loader.exec_module(collect_reports)
 
 
 class RunEdaArgsTest(unittest.TestCase):
@@ -286,6 +293,70 @@ class ResetExperimentSelectTest(unittest.TestCase):
     def test_answer_no_counts_as_no(self):
         with mock.patch("builtins.input", return_value=""):
             self.assertFalse(reset_experiment.confirm("Xoá?"))
+
+
+class CollectReportsExcludeTest(unittest.TestCase):
+    """`collect_reports.py --exclude`: loại lượt khỏi BẢNG SỐ, giữ nguyên trong `attempt_registry`.
+
+    Dựng REPO TẠM với hai lượt giả (quy ước của dự án: dựng môi trường thật, không giả lập), vì quy
+    tắc được khoá ở đây là quy tắc CHỌN LƯỢT - chỉ lộ ra khi đi qua đường ghi file thật.
+    """
+
+    def fake_run(self, root, exp_id, hash8):
+        """Một lượt chạy tối thiểu: đủ trường để bảng gọi tên lượt và xếp dòng."""
+        folder = Path(root) / "m1" / "prompt-cot" / exp_id / "results" / hash8
+        folder.mkdir(parents=True)
+        (folder / "run_meta.json").write_text(json.dumps({
+            "run": {"hash": hash8, "status": "FINISHED", "started": "2026-01-01 00:00:00",
+                    "split": "test", "n_samples": 1,
+                    "generation": {"do_sample": False, "max_new_tokens": 400}},
+            "experiment": {"model": "m1", "method": "prompt-cot", "exp_id": exp_id},
+            "data": {"dataset": "cosmetics", "version": "v0.2.0", "build": "fake"},
+            "repo": {"sha": "deadbeef"}, "attempts": [],
+        }), encoding="utf-8")
+        (folder / "metrics.json").write_text(json.dumps({
+            "model": "fake", "split": "test", "version_id": "fake", "n_samples": 1,
+            "scores": {}, "scores_paper": {}, "read_rate": {}, "aspects": [],
+        }), encoding="utf-8")
+        (folder / "metrics.csv").write_text("aspect,sentiment,metric,value,basis\n", encoding="utf-8")
+        return folder
+
+    def test_exclude_flag_is_repeatable(self):
+        args = collect_reports.parse_args(["--exclude", "a", "--exclude", "b"])
+        self.assertEqual(args.exclude, ["a", "b"])
+
+    def test_excluded_run_leaves_the_number_table_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root, out = Path(tmp) / "experiments", Path(tmp) / "reports"
+            self.fake_run(root, "exp001", "aaaa1111")
+            self.fake_run(root, "exp002", "bbbb2222")
+            with redirect_stdout(io.StringIO()) as captured:
+                code = collect_reports.main([
+                    "--root", str(root), "--out-root", str(out),
+                    "--group", "experiment_registry", "--group", "attempt_registry",
+                    "--exclude", "aaaa1111"])
+            self.assertEqual(code, 0)
+            self.assertIn("Loại khỏi bảng số", captured.getvalue())
+            numbers = (out / "experiment_registry" / "experiment_registry.csv").read_text(
+                encoding="utf-8-sig").strip().splitlines()
+            attempts = (out / "attempt_registry" / "attempt_registry.csv").read_text(
+                encoding="utf-8-sig").strip().splitlines()
+        # Dòng đầu là tiêu đề, nên số dòng dữ liệu = len - 1.
+        self.assertEqual(len(numbers) - 1, 1)
+        self.assertIn("bbbb2222", "".join(numbers))
+        self.assertNotIn("aaaa1111", "".join(numbers))
+        self.assertEqual(len(attempts) - 1, 2)
+        self.assertIn("aaaa1111", "".join(attempts))
+
+    def test_unknown_pattern_exits_two_with_the_reason(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root, out = Path(tmp) / "experiments", Path(tmp) / "reports"
+            self.fake_run(root, "exp001", "aaaa1111")
+            with redirect_stdout(io.StringIO()) as captured:
+                code = collect_reports.main(["--root", str(root), "--out-root", str(out),
+                                             "--dry-run", "--exclude", "khong-co"])
+        self.assertEqual(code, 2)
+        self.assertIn("không khớp lượt chạy nào", captured.getvalue())
 
 
 if __name__ == "__main__":

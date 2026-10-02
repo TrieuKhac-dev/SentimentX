@@ -705,6 +705,59 @@ class RescoredColumnsTest(unittest.TestCase):
         self.assertNotIn("exp001 (rescored)", columns)
 
 
+class ExcludeRunsTest(unittest.TestCase):
+    """`--exclude`: lượt bị loại khỏi BẢNG SỐ nhưng PHẢI còn trong `attempt_registry`.
+
+    Vì sao khoá ở đây: `attempt_registry` là nhóm "kể lại đã thử những gì", nên lượt bị loại vì biết
+    là không dùng được vẫn là BẰNG CHỨNG (ca thật: ba lượt `qwen3-0.6b` nạp nhầm trọng số 4B). Loại nó
+    khỏi mọi nhóm là xoá dấu vết; mà không loại được thì bảng so lại trộn số không dùng được.
+    """
+
+    def make_run(self, exp_id="exp001", hash8="aaaa1111"):
+        """Một lượt chạy TỐI THIỂU đủ để gọi tên (không đọc đĩa)."""
+        return {
+            "dir": Path("experiments") / "m1" / "prompt-cot" / exp_id / "results" / hash8,
+            "meta": {"run": {"hash": hash8, "status": "FINISHED"},
+                     "experiment": {"model": "m1", "method": "prompt-cot", "exp_id": exp_id}},
+            "metrics": {},
+        }
+
+    def test_matches_by_label_hash_and_path(self):
+        """Ba cách gọi tên một lượt đều nhận: nhãn đầy đủ, `<hash8>`, đường dẫn thư mục."""
+        run = self.make_run()
+        label = reports.canonical_label(run)
+        for pattern in (label, "aaaa1111", str(run["dir"])):
+            with self.subTest(pattern=pattern):
+                chosen = reports.exclude_runs([run], [pattern])
+                self.assertEqual(chosen["kept"], [])
+                self.assertEqual(chosen["dropped"], [(label, pattern)])
+                self.assertEqual(chosen["unmatched"], [])
+
+    def test_unknown_pattern_is_reported_not_ignored(self):
+        run = self.make_run()
+        chosen = reports.exclude_runs([run], ["khong-co"])
+        self.assertEqual(chosen["kept"], [run])
+        self.assertEqual(chosen["dropped"], [])
+        self.assertEqual(chosen["unmatched"], ["khong-co"])
+
+    def test_empty_exclude_keeps_everything(self):
+        run = self.make_run()
+        chosen = reports.exclude_runs([run], None)
+        self.assertEqual(chosen["kept"], [run])
+        self.assertEqual(chosen["dropped"], [])
+        self.assertEqual(chosen["unmatched"], [])
+
+    def test_attempt_registry_always_gets_every_run(self):
+        kept = [self.make_run("exp002", "bbbb2222")]
+        all_runs = [self.make_run("exp001", "aaaa1111")] + kept
+        self.assertEqual(reports.runs_for_group("attempt_registry", all_runs, "finished", kept),
+                         all_runs)
+        self.assertEqual(reports.runs_for_group("experiment_registry", all_runs, "finished", kept),
+                         kept)
+        # `--only all` KHÔNG kéo lượt bị loại trở lại bảng số.
+        self.assertEqual(reports.runs_for_group("experiment_registry", all_runs, "all", kept), kept)
+
+
 if __name__ == "__main__":
     unittest.main()
 
