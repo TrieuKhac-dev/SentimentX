@@ -208,7 +208,7 @@ Bốn điều đọc ra từ bảng này:
 | Self-consistency (lấy mẫu nhiều lần rồi bỏ phiếu) | hạ tầng đã có: chạy `sample` nhiều seed rồi bỏ phiếu theo từng ô                           |
 | Đối chiếu bf16 với 4-bit                          | cần GPU >= 24 GB, hoặc chạy trên Colab/Kaggle                                                 |
 | Chạy trên `test` sau khi chốt                     | khai vai `eval: test` trong config thí nghiệm; notebook in cảnh báo về việc dùng test        |
-| Tính lại điểm khi đổi cách chấm                   | phải CHẠY LẠI thí nghiệm (công cụ chấm lại từ file dự đoán đã bỏ 25/09/2026); `predictions.csv` vẫn giữ cả hai cột nhãn nên vẫn tự tính lại được |
+| Đo THÊM chỉ số từ file dự đoán (không chạy lại model, không ghi đè) | `python scripts/rescore.py --dir experiments/<model>/<method>/<expNNN>/results/<hash8>` → ghi `metrics_rescored.json`/`metrics_rescored.csv`; `metrics.json`/`metrics.csv` của lượt chạy giữ nguyên. `predictions.csv` giữ cả hai cột nhãn nên tự đo lại được. (Công cụ **chấm lại** cũ `run_rescore_eval.py`, ghi đè số gốc, đã bỏ 25/09/2026.) |
 
 ---
 

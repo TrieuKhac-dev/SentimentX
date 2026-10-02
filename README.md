@@ -162,7 +162,7 @@ Vì sao phải có script riêng thay vì `hf download` (đều là lỗi đã g
 python run_eda.py --on raw --name cosmetics --version v0.1.0
 
 # 2) Xử lý dữ liệu theo config; ghi dataset + khoá tập đánh giá. Lệnh in ra MÃ PHIÊN BẢN (…-e616c1e3)
-python run_pipeline.py --name cosmetics --version v0.1.0
+python run_pipeline.py --name cosmetics --version v0.2.0
 
 # 3) Khảo sát dataset ĐÃ XỬ LÝ (dùng hash8 mà bước 2 in ra)
 python run_eda.py --on dataset --hash e616c1e3
@@ -312,8 +312,8 @@ SentimentX/
 │                       # show_prompt.py, smoke_tracking.py, setup/ (3 file .ps1 cài đặt tái lập)
 ├── docs/               # tài liệu: README.md (mục lục) + 00_workflow/, 01_dataset/, 02_eda/,
 │                       # 03_pipeline/, 04_experiments/, 05_config/, 06_plan/
-├── tests/              # test `unittest`, không cần GPU, xếp GƯƠNG của src/: api/, core/, workflow/,
-│                       # experiments/, pipeline/, evaluation/, training/, reporting/
+├── tests/              # test `unittest`, không cần GPU, xếp GƯƠNG của src/: api/, core/, evaluation/,
+│                       # experiments/, pipeline/, preprocessing/, reporting/, training/, workflow/
 ├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo) - cần --on raw|dataset
 ├── run_pipeline.py     # tính + ghi dataset (KHÔNG vẽ báo cáo) - BẮT BUỘC --name + --version
 ├── run_token_stats.py  # đo input thật của từng tokenizer -> token_stats.csv - BẮT BUỘC --hash

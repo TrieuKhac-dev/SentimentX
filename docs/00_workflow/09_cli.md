@@ -27,6 +27,10 @@ Không khớp gì, hoặc `hash8` khớp nhiều phiên bản, đều là LỖI 
 nên khi dán vào shell thì để trong nháy đơn, hoặc chạy `python build_report.py --list` để lấy lệnh
 sẵn sàng dán.
 
+`hash8` ở trang này (ví dụ `e616c1e3`) là của **bộ dữ liệu đang có trên máy**: nó sinh từ NỘI DUNG hai
+file cấu hình + nội dung dữ liệu gốc, nên đổi dữ liệu/cấu hình là `run_pipeline.py` in ra `hash8` KHÁC.
+Vì vậy hãy dùng đúng giá trị mà lệnh in ra, coi các ví dụ ở đây chỉ là mẫu.
+
 `<hash8>` trong tên thư mục `results/<hash8>/` là chuyện KHÁC: đó là mã băm danh tính của LƯỢT
 CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhận giá trị đó - xem
 `docs/00_workflow/04_terms.md`.
@@ -35,7 +39,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 
 | Việc | Lệnh |
 | --- | --- |
-| Xử lý dữ liệu, tạo dataset + khoá tập đánh giá | `python run_pipeline.py --name cosmetics --version v0.1.0` |
+| Xử lý dữ liệu, tạo dataset + khoá tập đánh giá | `python run_pipeline.py --name cosmetics --version v0.2.0` |
 | EDA trên dữ liệu gốc | `python run_eda.py --on raw --name cosmetics --version v0.1.0` |
 | EDA trên dataset đã xử lý | `python run_eda.py --on dataset --hash e616c1e3` |
 | Vẽ báo cáo EDA của dữ liệu gốc | `python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0` |
@@ -49,6 +53,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Đo khi prompt dùng khối hệ thống | `python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1 --system absa_cot` |
 | Kiểm ví dụ few-shot (rò rỉ) | `python run_check_examples.py --hash e616c1e3` |
 | Kiểm MỘT prompt, hoặc đổi ngưỡng cụm trùng | `python run_check_examples.py --hash e616c1e3 --prompt absa_cot_5shot_v1 --max-overlap 8` |
+| Đo THÊM chỉ số của một lượt chạy từ `predictions.csv` (không chạy model, không ghi đè) | `python scripts/rescore.py --dir experiments/<model>/<method>/<expNNN>/results/<hash8>` (`--reason "..."`, `--no-confusion`) |
 | Vẽ báo cáo mở được KHÔNG cần mạng | thêm `--plotlyjs local` (mặc định) hoặc `--plotlyjs cdn` khi muốn dùng CDN |
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` |

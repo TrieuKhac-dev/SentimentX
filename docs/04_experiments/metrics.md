@@ -99,8 +99,11 @@ của từng đơn vị vẫn nằm trong `metrics.csv` nên cách tính này kh
 `tables` (ma trận nhầm theo khía cạnh), `scores_order_paper`, `scores_paper`, `tables_paper` và
 `paper` (cơ sở đo của công bố, xem mục "Hai cơ sở đo"), và thông tin của lần chạy (prompt, model,
 cách sinh, chi phí).
-Khoá `rescored` xuất hiện khi file được chấm lại từ `predictions.csv` thay vì chạy lại model - công cụ
-chấm lại (`run_rescore_eval.py`) đã bỏ 25/09/2026, nên khoá này chỉ còn trong các file cũ.
+Khoá `rescored` xuất hiện khi lượt chạy có **đo THÊM** chỉ số từ `predictions.csv` bằng
+`scripts/rescore.py` (không chạy lại model, **không ghi đè** `metrics.json`/`metrics.csv`). Đây là công
+cụ **đo thêm** đang dùng; công cụ **chấm lại** cũ (`run_rescore_eval.py`, ghi đè số gốc) đã bỏ
+25/09/2026. Phân biệt rõ: *đo thêm* = thêm `metrics_rescored.*`, giữ nguyên số gốc; *chấm lại* (bản cũ)
+= thay số gốc - chỉ bản cũ bị bỏ, không phải `scripts/rescore.py`.
 
 Trong `metrics.csv`, giá trị `all` ở cột `aspect` hoặc `sentiment` nghĩa là "gộp mọi giá trị của
 cột đó" - ví dụ dòng `all, all, accuracy_macro` là con số tổng hợp. `plots/` do bước sinh báo cáo
