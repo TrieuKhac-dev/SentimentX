@@ -257,3 +257,29 @@ rơi vào thư mục mới (commit nằm trong mã băm danh tính).
 `src.reporting.curves` ở cấp module, mà `curves` kéo `jinja2` còn CI chỉ cài `pandas/numpy/PyYAML`. Đã
 sửa (import trong hàm + biểu đồ best-effort + test khoá luật `tests/core/test_imports.py`) và phát
 hành lại thành **gói 008**.
+
+---
+
+## 8. Cập nhật 02/10/2026 - Batch 6 xong: chín lượt có kết quả
+
+Mười hai notebook đã chạy trên Colab, file nhẹ copy về repo, rồi `python scripts/collect_reports.py`
+dựng lại năm nhóm bảng trong `data/reports/`. Chín lượt vào bảng số (chỉ lượt `FINISHED`), tất cả
+`valid=yes` và `comparable=yes`.
+
+Số so công bố trên `test` (cơ sở `paper`): mức **1 ví dụ +0,02**, mức **5 ví dụ +0,38**, mức 0 ví dụ
+**−0,21** - tức **TÁI HIỆN ĐƯỢC** công bố. Câu hỏi và điểm riêng của từng lượt ở
+`docs/04_experiments/08_experiment_rationale.md`; cây ở `07_evolution.md`; phân tích và hướng tiếp ở
+`presentations/result_analysis.md`.
+
+**Ba lượt Qwen3-0.6B KHÔNG dùng, đã xoá.** Cả ba nạp nhầm trọng số của bản 4B: `metrics.json::model` là
+`Qwen/Qwen3-4B-Instruct-2507`; hai lượt đầu trùng cả số token sinh (`380.489` = `380.489`; `354.196` =
+`354.196`), cả ba lượt trùng mọi chỉ số tới hai chữ số thập phân (lượt 5 ví dụ không so được số token vì
+`cost` là của phiên cuối). Nguyên nhân: `run_model` chọn model theo
+"tham số truyền vào → `hf_model` của config → hằng số của module", mà khoá `hf_model` KHÔNG config nào
+khai - `configs/models/qwen3-0.6b.yaml` khai `checkpoint` nhưng khoá đó không được đọc ở nhánh này.
+Lượt chạy lại sẽ rơi vào thư mục kết quả MỚI vì commit nằm trong mã băm danh tính.
+
+**Việc còn lại, theo thứ tự:** (1) sửa cách chọn checkpoint rồi **chạy lại ba lượt 0.6B** - đây là việc
+KẾ TIẾP, và T5 ghim lại notebook của đúng ba thí nghiệm đó rồi dựng gói tăng dần; (2) chạy lại nhóm fp16
+ở `batch_size` 8 để phép so lượng hoá chỉ còn MỘT biến; (3) đo dao động bằng `decoding: sample` cho cấu
+hình tốt nhất (1 ví dụ); (4) hai việc nợ của dữ liệu/chỉ số đã ghi ở `docs/04_experiments/04_backlog.md`.
