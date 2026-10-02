@@ -12,7 +12,8 @@ metrics của lượt chạy, rescore, và collect_reports).
 - Đang ở: XONG kế hoạch (trừ A-6 để cuối). A-1..A-5 (đã push + ghim), B, C, D, E, F, G, H đều xong.
 - Còn lại: A-6 (dọn run MLflow rỗng) - làm khi chạy notebook trên Colab; và chạy tay
   `scripts/log_reference_run.py` khi có mạng.
-- Nhánh: `experiment` (= origin/experiment, HEAD 986d130). Mỗi mục xong = một commit.
+- Nhánh: `experiment` (= origin/experiment, HEAD 792714f). Mỗi mục xong = một commit.
+- Cả 12 notebook ghim `2f8c362`; gói bàn giao 007 đã dựng (việc còn lại: GỬI gói).
 - CI sạch, test 805 OK (skipped=2) ở thời điểm dừng.
 
 ---

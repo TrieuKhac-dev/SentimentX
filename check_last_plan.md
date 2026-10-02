@@ -67,6 +67,7 @@
   E (E-1/E-2); F (F-1..F-4); G (G-1..G-7); H (H-1..H-7).
 - CÒN LẠI: A-6 - ĐỂ CUỐI, chỉ làm khi chạy notebook trên Colab (cần mạng + token DagsHub).
   Việc tương tự cần mạng: `scripts/log_reference_run.py` (ghi run tham chiếu công bố) chạy tay khi online.
-- Ghim: `visobert/lora/exp001` -> ffa19f1; `phobert-base-v2/lora/exp001` -> c56d20e9; cả hai nằm trên
-  `origin/experiment`.
-- CI: sạch (`CI_EXIT=0`). Test: 805 tests OK (skipped=2). HEAD 986d130 = origin/experiment.
+- Ghim: CẢ 12 notebook -> `2f8c362` (cùng một commit), đã push.
+- Gói bàn giao: đã dựng GÓI 007 `handover/out/SentimentX-goi-007-c01fba0-261002.zip` (12 notebook đã đổi,
+  36 file y nguyên không gửi lại); sổ gói đã commit. Việc CÒN LẠI là GỬI gói 007 cho người nhận.
+- CI: sạch (`CI_EXIT=0`). Test: 805 tests OK (skipped=2). HEAD 792714f = origin/experiment.
