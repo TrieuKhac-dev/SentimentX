@@ -248,7 +248,7 @@ Ba chốt an toàn đi kèm:
 |-------|----------------------|---------------|------------------|
 | PhoBERT | 256 | **258** vị trí (`max_position_embeddings`) | Bảng chính chủ của PhoBERT ghi "Max length 256"; 258 = 256 + 2 token đặc biệt |
 | ViSoBERT | 256 | **514** vị trí | **Lựa chọn của dự án** (review dài nhất 229 token) - không phải "khớp model"; đặt bằng PhoBERT để hai encoder cùng ngân sách input |
-| Qwen3-4B | **1280** | 262.144 vị trí (và `model_max_length` = 1.010.000) | **Lựa chọn của dự án**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`: prompt CoT cần tới 1.106 token, nên 1024 làm cắt mất 4 mẫu train; 1280 cho 0% bị cắt ở mọi split |
+| Qwen3-4B | **2304** | 262.144 vị trí (và `model_max_length` = 1.010.000) | **Lựa chọn của dự án**, ghi ở `configs/models/qwen3-4b-instruct-2507.yaml`: mức 5 ví dụ cần tới 2.122 token, nên 1280 cắt 100% và 1024 cắt 0,67% train; **2304 cho 0% bị cắt ở mọi split** |
 
 
 | Cột | Nghĩa |
@@ -421,13 +421,76 @@ cột độ dài input y hệt nhau giữa hai ngưỡng.
 
 Điểm cần hiểu đúng: **`max_length` không làm đổi phép đo** - nó quyết định **ai bị cắt khi
 thật sự đưa input vào model**. Bằng chứng: cùng một ngưỡng thì hai lần đo khác prompt cho ra độ
-dài input y hệt nhau, chỉ khác cột `% review > max_length`. Với prompt dạng chat, phần bị cắt là
-phần CUỐI của hội thoại - mà trong prompt CoT này, phần cuối chính là yêu cầu định dạng đầu ra và
-object JSON mẫu, nên mẫu bị cắt còn mất luôn yêu cầu định dạng.
+dài input y hệt nhau, chỉ khác cột `% review > max_length`. **Nếu** một prompt vượt ngưỡng thì **mất phần
+cuối** - đúng chỗ đặt yêu cầu định dạng đầu ra và khuôn JSON, nên mẫu đó **mất luôn hướng dẫn định dạng**
+(hiện tại ở ngưỡng 2304 không mẫu nào vượt ngưỡng).
 
 
 
 
+
+### 4.3. Trần token đầu vào và vì sao `max_length` khác nhau giữa 4 model
+
+Mỗi model có một **trần kiến trúc** = `max_position_embeddings` trong config của model. Ngưỡng cắt
+`max_length` của dự án luôn nhỏ hơn trần này, nên input đưa vào model **không bao giờ vượt** khả năng
+nhận của nó. Trần đọc từ config của model, không phải từ `tokenizer.model_max_length` (tokenizer của
+Qwen khai một số rất lớn, còn hai tokenizer RoBERTa/XLM-R trả số sentinel).
+
+| Model | Trần kiến trúc (`max_position_embeddings`) | `max_length` đang dùng | Dư địa |
+| --- | --- | --- | --- |
+| `phobert-base-v2` | 258 | 256 | 2 |
+| `visobert` | 514 | 256 | 258 |
+| `qwen3-4b-instruct-2507` | 262.144 | 2304 | 259.840 |
+| `qwen3-0.6b` | 40.960 | 2304 | 38.656 |
+
+#### Bốn ngưỡng và căn cứ chọn
+
+| Model | Input gồm gì | `max_length` | Căn cứ con số |
+| --- | --- | --- | --- |
+| `phobert-base-v2` | CHỈ review (đã tách từ) | 256 | "Max length" chính chủ của PhoBERT; trần 258. Vài review dài tới **301** (vượt cả trần) nên **0,02% train bị cắt** |
+| `visobert` | CHỈ review (nguyên bản) | 256 | Lựa chọn của dự án: review dài nhất **229** < 256 (**0% cắt**), bằng PhoBERT để cùng ngân sách input |
+| `qwen3-4b-instruct-2507` | prompt + review + ví dụ | 2304 | Số đo: mức 5 ví dụ dài nhất 2.122 → **0% cắt** |
+| `qwen3-0.6b` | prompt + review + ví dụ | 2304 | Cùng tokenizer + cùng prompt như bản 4B ⇒ cùng số token ⇒ cùng ngưỡng |
+
+#### Gốc rễ khác nhau: input của encoder và LLM khác nhau
+
+| | Encoder (PhoBERT / ViSoBERT) | LLM (Qwen3) |
+| --- | --- | --- |
+| Input | CHỈ review | CẢ prompt (system + yêu cầu định dạng + ví dụ + review) |
+| Độ dài thật (train) | PhoBERT TB 29,97 (max **301** → **0,02% cắt**, vượt cả trần 258); ViSoBERT TB 43,46 (max **229** → **0% cắt**) | `absa_cot_v1` TB 990,50 (max 1.235, 0% cắt); 5 ví dụ TB 1.877,50 (max **2.122**) |
+| Trần model | nhỏ (258 / 514) | rất lớn (262.144 / 40.960) |
+| Ai quyết định ngưỡng | trần model + so sánh công bằng | số đo (prompt dài ~2.000 token) |
+
+Vì vậy **không thể dùng chung một ngưỡng**: 2304 làm encoder vượt trần (258/514), còn 256 thì Qwen bị cắt
+gần hết prompt.
+
+#### Vì sao trong cùng nhóm lại bằng nhau
+
+- **Hai encoder = 256**: PhoBERT 256 gần như chạm trần (dư 2); ViSoBERT có thể tới 514 nhưng **cố tình**
+  chọn 256 để hai encoder có **cùng ngân sách input** - so sánh mới công bằng.
+- **Hai Qwen = 2304**: cùng `tokenizer.json` (giống từng byte) và cùng bộ prompt nên cùng số token; vẫn khai
+  riêng mỗi model một file vì mỗi model một tokenizer.
+
+#### Vì sao đúng 256 cho encoder
+
+- **ViSoBERT**: review dài nhất 229 < 256 → **0% cắt**.
+- **PhoBERT**: 256 = ngưỡng chính chủ; vài review dài tới **301 vượt cả trần 258** nên **không thể tránh** -
+  nâng lên 258 cũng không cứu được. Mức cắt thực tế: **0,02% train** (vài mẫu), val/test **0%**.
+
+Hai lớp bảo đảm, cùng đọc một nguồn (`src/preprocessing/token_stats.py`):
+
+1. **Cắt khi dùng.** `build_inputs()` truyền `truncation=True, max_length=<limit()>`, nên **toàn bộ prompt**
+   (system + review + ví dụ, sau chat template) là **một chuỗi** và bị **cắt còn tối đa `max_length`** token
+   trước khi vào model. Prompt **≤ `max_length`** thì model nhận **trọn vẹn**; dài hơn thì chỉ mất **phần
+   đuôi**. Dù dài bao nhiêu, model cũng không vượt trần.
+2. **Chặn ngưỡng vượt trần.** `position_limits()` đọc `max_position_embeddings` của từng model;
+   `run_token_stats.py` **từ chối** một `--max-length` lớn hơn trần (kèm gợi ý dùng giá trị nhỏ hơn), và
+   bước ĐO (`_check_max_length`) cũng chặn `max_length` vượt giới hạn model. Nhờ vậy không có cấu hình
+   nào khiến bảng số liệu báo "0% bị cắt" trong khi model thật đã cắt.
+
+Nơi ĐO (`encode()`, **KHÔNG** cắt) và nơi DÙNG (`build_inputs()`, **CÓ** cắt) cùng đọc `limit()`, nên cột
+`% review > max_length` phản ánh đúng số mẫu bị cắt khi chạy. Phần **đầu ra** tách riêng: `max_new_tokens`
+(400) - một lượt CoT có input ≤ 2304 và output ≤ 400, tổng vẫn cách xa trần 262.144.
 
 ## 5. Cài đặt cho tiền xử lý cho model (cả nhóm dùng cùng một bản)
 
