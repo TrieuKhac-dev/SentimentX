@@ -63,7 +63,13 @@ class MispredictionsFilesTest(unittest.TestCase):
                     self.assertNotIn(row["pred"], OUTSIDE)
 
     def test_paper_rows_match_the_paper_scores(self):
-        """Số dòng theo khía cạnh = số ô SAI của `scores_paper` (`cells` trừ `correct`)."""
+        """Số ô SAI trong `mispredictions_paper.csv` khớp `scores_paper.accuracy`.
+
+        Tổng thì luôn kiểm được: `cells` trừ `correct`. Theo TỪNG KHÍA CẠNH thì chỉ kiểm được ở lượt
+        chạy có ghi `cells_by_aspect`/`correct_by_aspect` (thêm 02/10/2026) - lượt cũ chỉ có phần
+        trăm theo khía cạnh, mà phần trăm đã làm tròn nên suy ngược số đếm là đoán. Với lượt cũ, phần
+        kiểm theo khía cạnh thu hẹp còn: mọi dòng phải thuộc một khía cạnh ĐÃ CHẤM.
+        """
         for directory in self.dirs:
             with self.subTest(run=str(directory)):
                 payload = json.loads((directory / "metrics.json").read_text(encoding="utf-8"))
@@ -74,9 +80,19 @@ class MispredictionsFilesTest(unittest.TestCase):
                 wrong = {}
                 for row in self.rows(directory, "mispredictions_paper.csv"):
                     wrong[row["aspect"]] = wrong.get(row["aspect"], 0) + 1
-                for aspect, item in by_aspect.items():
+                self.assertEqual(
+                    sum(wrong.values()), accuracy["cells"] - accuracy["correct"],
+                    "tổng số ô sai lệch giữa tệp và `scores_paper`")
+                cells = accuracy.get("cells_by_aspect") or {}
+                correct = accuracy.get("correct_by_aspect") or {}
+                if not cells:
+                    for aspect in wrong:
+                        self.assertIn(aspect, by_aspect,
+                                      "dòng của khía cạnh không nằm trong bộ được chấm")
+                    continue
+                for aspect in by_aspect:
                     self.assertEqual(
-                        wrong.get(aspect, 0), item["cells"] - item["correct"],
+                        wrong.get(aspect, 0), cells[aspect] - correct[aspect],
                         "khía cạnh {} lệch giữa tệp và `scores_paper`".format(aspect))
 
 

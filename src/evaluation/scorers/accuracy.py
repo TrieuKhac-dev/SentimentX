@@ -35,5 +35,11 @@ def run(samples):
                       for aspect in samples.aspects},
         "when_mentioned_by_aspect": {aspect: mentioned["by_aspect"][aspect]["accuracy"]
                                      for aspect in samples.aspects},
+        # Số ĐẾM theo khía cạnh, không chỉ phần trăm: tệp ô đoán sai của cơ sở `paper` phải khớp
+        # `cells_by_aspect` trừ `correct_by_aspect` - xem tests/evaluation/test_mispredictions_files.py.
+        "cells_by_aspect": {aspect: accuracy["by_aspect"][aspect]["cells"]
+                            for aspect in samples.aspects},
+        "correct_by_aspect": {aspect: accuracy["by_aspect"][aspect]["correct"]
+                              for aspect in samples.aspects},
     }
     return {"values": values, "rows": rows, "tables": {}}

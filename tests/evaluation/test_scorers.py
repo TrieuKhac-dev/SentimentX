@@ -68,6 +68,9 @@ class TestAccuracy(unittest.TestCase):
         values = score("accuracy", gold, pred)
         self.assertEqual(values["by_aspect"]["texture"], 0.0)
         self.assertEqual(values["when_mentioned_by_aspect"]["texture"], 0.0)
+        # Số ĐẾM theo khía cạnh đi kèm phần trăm: mỗi khía cạnh một ô, texture sai còn price đúng.
+        self.assertEqual(values["cells_by_aspect"], {"texture": 1, "price": 1})
+        self.assertEqual(values["correct_by_aspect"], {"texture": 0, "price": 1})
         self.assertEqual(values["macro"], 50.0)
 
     def test_macro_skips_aspect_without_mentioned_cells(self):
