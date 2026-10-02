@@ -1,0 +1,51 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp002
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: visobert/lora/exp001
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: visobert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Tang trong so lop am (weighted_ce, class_weight inverse) - so voi exp001"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` vì lượt này BẬT huấn luyện.
+  roles: {train: train, val: val, eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
+# Bật huấn luyện (lớp dùng chung để `enabled: false`). Tham số LoRA và số epoch lấy từ
+# `configs/experiments/training.yaml` + `configs/models/visobert.yaml`; chỉ khai ở đây khi thí
+# nghiệm này cần KHÁC.
+enabled: true
+
+# ĐÚNG MỘT BIẾN so với `exp001`: HÀM MẤT MÁT. Dữ liệu rất lệch nhãn (mã 1 nhiều hơn mã 2 rất nhiều),
+# nên `weighted_ce` + `class_weight: inverse` nhân trọng số nghịch tần suất cho lớp hiếm. Đổi
+# `loss.type` làm đổi `config_sha256`, nên lượt này ra thư mục kết quả MỚI
+# (`docs/05_config/05_experiments_shared.md`). Đọc kết quả bằng F1 lớp ÂM và macro-F1, KHÔNG bằng
+# accuracy: accuracy cao có thể chỉ là "đoán mã 1 cho mọi ô".
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Số mẫu chấm lấy từ lớp evaluation (`n: null` = cả split test của bộ dữ liệu đang dùng).
+

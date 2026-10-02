@@ -1,0 +1,49 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp008
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp002
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Doi chieu batch 4 cua exp002 (4-bit, batch 8): cung prompt, cung tap test, chi khac kich thuoc lo"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi training.enabled: true.
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
+prompt: ../../../../configs/prompts/absa_cot_zeroshot_v1.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+
+# ĐỐI CHỨNG KÍCH THƯỚC LÔ. Vì sao cần: nhóm fp16 (`exp005..007`) khác nhóm 4-bit (`exp002..004`)
+# HAI biến - lượng hoá VÀ `batch_size` (8 so với 4) - nên chênh lệch giữa hai nhóm chưa quy được
+# cho biến nào. Ba lượt `exp008..010` giữ nguyên 4-bit nhưng hạ lô xuống 4, nên cặp so sạch là
+# (4-bit, lô 4) với (fp16, lô 4): chỉ còn khác LƯỢNG HOÁ. `batch_size` nằm trong mã băm danh tính
+# (`docs/04_experiments/05_predictions.md` §1.1) nên lượt này ra thư mục kết quả MỚI.
+inference:
+  batch_size: 4
+  # Khai tường minh như nhóm fp16: T4 không có bf16, khai rõ thì máy nào cũng ra cùng cấu hình.
+  dtype: float16
+

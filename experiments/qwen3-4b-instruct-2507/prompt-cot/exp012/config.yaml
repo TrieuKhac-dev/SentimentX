@@ -1,0 +1,44 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp012
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp003
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Bien the quy trinh v3: them buoc 0 (quet moi loi phan nan truoc khi gan ma) - so voi exp003"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi training.enabled: true.
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
+prompt: ../../../../configs/prompts/absa_cot_1shot_v3.txt
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v3.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+
+# ĐÚNG MỘT BIẾN so với `exp003`: câu chữ của prompt. Bộ ví dụ giống hệt bản v1 (chỉ mang tên v3 để
+# đi cùng prompt mới), nên chênh lệch đo được là do BƯỚC QUY TRÌNH mới: quét mọi lời phàn nàn trước
+# khi gán mã. Prompt dài thêm ~122 token/review (836,51 so với 714,51), vẫn xa ngưỡng cắt 2304.
+
