@@ -57,5 +57,5 @@
 | 05_config      | `06_experiment.md`         | config riêng của thí nghiệm                      | tạo thí nghiệm                      |
 | 05_config      | `07_env.md`                | biến môi trường và file env                      | cấu hình máy hoặc Colab             |
 | 06_plan        | `README.md`                | mục lục kế hoạch và trạng thái từng bước         | hằng ngày                           |
-| 06_plan        | `P0..P7`                   | task nhỏ của từng bước, kèm commit               | khi triển khai                      |
+| 06_plan        | `P0..P8`                   | task nhỏ của từng bước, kèm commit               | khi triển khai                      |
 | 06_plan        | `APPENDIX_commits.md`      | bảng toàn bộ commit                              | khi commit                          |

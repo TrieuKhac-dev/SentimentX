@@ -85,3 +85,12 @@
     ví dụ (`ex-<sha8>`), nên sửa tại chỗ là bảng cũ thành **mồ côi** - không tái lập được nữa mà vẫn
     được tính vào `model_input.csv`. Ba lớp chặn (cảnh báo lúc chạy, kiểm 8 của CI, kho lịch sử
     `data/reports/_archive/`) ở `docs/04_experiments/02_model_input.md` mục 2.2.
+
+## CI trước khi ghim
+
+22. **CI phải XANH trước khi ghim.** Sau khi `git push` (nhánh `experiment`), đợi CI GitHub của commit đó
+    chạy xong; chỉ khi CI báo XANH mới **ghim lại** notebook hoặc **dựng/gửi gói bàn giao**. CI đỏ thì
+    sửa rồi push tiếp, KHÔNG ghim từ bản đỏ. Lý do: notebook ghim một bản code, nên ghim từ bản CI đỏ là
+    đóng băng một bản không kiểm được; gói bàn giao dựng từ bản đỏ cũng phải bỏ (đã gặp: gói 007 dựng từ
+    bản `2f8c362` CI đỏ, bị thay bằng gói 008 - xem
+    [../06_plan/P8_measurement_mlflow.md](../06_plan/P8_measurement_mlflow.md)).
