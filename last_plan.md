@@ -210,3 +210,32 @@ Bảng NGUỒN SỐ DUY NHẤT:
 - `metrics_rescored.csv` + `training_history.csv`: git theo dõi (file nhẹ) + đẩy MLflow (artifact).
 - `plots/training.html`: KHÔNG vào git (`plots/` bị `.gitignore`) và KHÔNG lên MLflow.
 - Trạng thái file này: ĐÃ GHI KẾ HOẠCH, chưa triển khai.
+
+---
+
+## Giai đoạn phát hành lại (02/10/2026) - sửa CI rồi mới ghim và dựng gói
+
+**Lý do:** bản `2f8c362` (và các commit cùng đợt) bị **CI đỏ**: `src/experiments/encoder_run.py` import
+`src.reporting.curves` ở **cấp module**, mà `curves` kéo `jinja2` (qua `render`), còn CI chỉ cài
+`pandas`, `numpy`, `PyYAML`. Vi phạm luật đã ghi trong `requirements-ci.txt`.
+
+**Ba việc của giai đoạn này, làm ĐÚNG THỨ TỰ:**
+
+- [ ] **R1** Sửa lỗi CI + bảo đảm chạy được trên Colab:
+  - `src/reporting/curves.py`: bỏ import `render` ở cấp module (import trong hàm); thêm `available()`;
+    `write_html` **best-effort** (thiếu `plotly`/`jinja2` thì trả `None` + cảnh báo, KHÔNG ném).
+  - `src/experiments/encoder_run.py`: import `curves` **trong hàm** ở bước ghi biểu đồ.
+  - `tests/reporting/test_curves.py`: `skipUnless` có `plotly`+`jinja2`, import nặng trong `setUp`.
+  - `tests/core/test_imports.py` (MỚI): import các module CI dùng trong **tiến trình con** rồi khẳng
+    định `plotly`/`jinja2`/`torch`/... **không** bị kéo vào cấp module.
+  - `src/workflow/bootstrap.py`: `WANTED_PACKAGES` thêm `plotly`, `jinja2` (notebook tự cài).
+  - `requirements-colab.txt`: bỏ chú thích `plotly`, `jinja2`.
+  - Docs: `06_conventions.md` (mục "Import trong `src/`"), `06_lora_encoder.md` (biểu đồ best-effort),
+    `P7_rerun.md` (gói 007 không dùng).
+- [ ] **R2** Commit + **PUSH** bản sửa. **DỪNG ở đây** cho người dùng lên GitHub kiểm CI đã xanh.
+- [ ] **R3** Sau khi CI xanh: **ghim lại CẢ 12 notebook** vào commit mới (bản sửa) → commit + push.
+- [ ] **R4** Dựng **gói 008** → commit sổ gói → push. **KHÔNG gửi gói 007.**
+
+**Ghi chú:** gói 007 (`handover/out/SentimentX-goi-007-c01fba0-261002.zip`) đã dựng bằng bản CI đỏ, nên
+bị thay bằng gói 008; sổ gói vẫn giữ dấu vết của 007 (lịch sử gửi).
+

@@ -71,3 +71,12 @@
 - Gói bàn giao: đã dựng GÓI 007 `handover/out/SentimentX-goi-007-c01fba0-261002.zip` (12 notebook đã đổi,
   36 file y nguyên không gửi lại); sổ gói đã commit. Việc CÒN LẠI là GỬI gói 007 cho người nhận.
 - CI: sạch (`CI_EXIT=0`). Test: 805 tests OK (skipped=2). HEAD 792714f = origin/experiment.
+
+## Giai đoạn phát hành lại (sửa CI -> ghim -> gói 008)
+- [ ] R1 sửa CI (curves best-effort + import trong hàm; test_curves guard; test_imports mới;
+  bootstrap plotly/jinja2; requirements-colab bỏ chú thích; docs)
+- [ ] R2 commit + PUSH bản sửa, DỪNG cho người dùng kiểm CI
+- [ ] R3 ghim lại CẢ 12 notebook vào commit mới + push (sau khi CI xanh)
+- [ ] R4 dựng gói 008 + commit sổ + push (KHÔNG gửi gói 007)
+- Lý do: bản 2f8c362 đỏ CI vì encoder_run import src.reporting.curves ở cấp module -> jinja2.
+
