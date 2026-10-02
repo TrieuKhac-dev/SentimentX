@@ -152,8 +152,14 @@ class SoViDuTest(unittest.TestCase):
                 "{}: tên nói {} ví dụ nhưng file {} có {} khối".format(
                     name, matched.group(1), info["file"], info["examples"]))
             checked.append(name)
-        self.assertEqual(sorted(checked), ["absa_cot_1shot_v1", "absa_cot_5shot_v1"],
-                         "thiếu mức 1-shot hoặc 5-shot để so với công bố")
+        # Tập ĐÓNG: thêm một prompt có mức ví dụ thì phải thêm vào dòng dưới, nên không prompt nào
+        # lọt vào thư viện mà không ai biết. Hai mức của công bố (`1shot_v1`, `5shot_v1`) luôn phải
+        # có; `v2/v3/v4` là ba biến thể của dự án (xem `08_experiment_rationale.md`), mỗi bản đổi
+        # đúng một thứ so với `1shot_v1` nên vẫn phải là 1 ví dụ.
+        self.assertEqual(sorted(checked),
+                         ["absa_cot_1shot_v1", "absa_cot_1shot_v2", "absa_cot_1shot_v3",
+                          "absa_cot_1shot_v4", "absa_cot_5shot_v1"],
+                         "danh sách prompt có mức ví dụ đã đổi: thêm prompt mới thì cập nhật dòng này")
 
 
 

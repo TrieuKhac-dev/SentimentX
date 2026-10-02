@@ -1,0 +1,19 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án — KHÔNG được gửi cho model) ---
+# Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
+# Kiểm chứng: python run_check_examples.py
+# Bộ ví dụ đi kèm prompt absa_cot_1shot_v3.txt: nội dung GIỐNG HỆT bộ v1 (prompt v3 chỉ thêm một
+# bước quy trình), nên so exp012 với exp003 là so ĐÚNG MỘT biến: câu chữ của prompt.
+# Nếu sau này lấy ví dụ TỪ DỮ LIỆU: CHỈ được lấy từ split train, ghi rõ "train, dòng N".
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Thỏi son lên màu đỏ gạch tươi tắn, tán đều tệp vào da ngăm nhìn vẫn tự nhiên. Đánh từ sáng tới chiều muộn vẫn chưa phải dặm lại. Mùi hương thoang thoảng dễ chịu, vỏ hộp cứng cáp cầm chắc tay."
+SUY LUẬN:
+- colour: "lên màu đỏ gạch tươi tắn, tán đều tệp vào da ngăm" | khen màu lên đẹp | mã 1
+- stayingpower: "đánh từ sáng tới chiều muộn vẫn chưa phải dặm lại" | giữ màu lâu | mã 1
+- texture: "tán đều tệp vào da" | chất son dễ tán, không bị khô | mã 1
+- smell: "mùi hương thoang thoảng dễ chịu" | mùi dễ chịu | mã 1
+- packing: "vỏ hộp cứng cáp cầm chắc tay" | đóng gói tốt | mã 1
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 1, "stayingpower": 1, "texture": 1, "smell": 1, "packing": 1, "price": 0, "shipping": 0}

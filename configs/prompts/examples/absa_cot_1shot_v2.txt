@@ -1,0 +1,21 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án — KHÔNG được gửi cho model) ---
+# Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
+# Kiểm chứng: python run_check_examples.py --hash e616c1e3 --prompt absa_cot_1shot_v2
+# Biến thể v2 của bộ ONE-SHOT: giữ ĐÚNG MỘT ví dụ như v1, nhưng ví dụ này CÓ NHÃN TIÊU CỰC ở ba
+# khía cạnh (texture, stayingpower, packing) thay vì chỉ có nhãn dương và "không nhắc tới". Prompt
+# đi kèm (absa_cot_1shot_v2.txt) giống y hệt absa_cot_1shot_v1.txt, nên so exp011 với exp003 là so
+# ĐÚNG MỘT biến: nội dung của ví dụ.
+# Nếu sau này lấy ví dụ TỪ DỮ LIỆU: CHỈ được lấy từ split train, ghi rõ "train, dòng N".
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Màu lên đẹp thật nhưng son khô quá, môi mình bong tróc, đánh được hai tiếng là phải dặm lại. Vỏ hộp móp một góc, seal đã bung sẵn lúc mở gói. Được cái giá dễ chịu."
+SUY LUẬN:
+- colour: "Màu lên đẹp thật" | khen màu lên đẹp | mã 1
+- texture: "son khô quá, môi mình bong tróc" | chê chất son khô, gây bong tróc | mã 2
+- stayingpower: "đánh được hai tiếng là phải dặm lại" | chê giữ màu kém, phải dặm lại | mã 2
+- packing: "Vỏ hộp móp một góc, seal đã bung sẵn lúc mở gói" | chê đóng gói kém, hộp móp | mã 2
+- price: "giá dễ chịu" | thấy giá hợp lý | mã 1
+- smell: "không nhắc tới" | review không nói về mùi | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 1, "texture": 2, "stayingpower": 2, "packing": 2, "price": 1, "smell": 0, "shipping": 0}

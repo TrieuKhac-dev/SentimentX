@@ -1,0 +1,33 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: với mỗi khía cạnh trong danh sách, hãy chọn đúng một mã cảm xúc và nói rõ vì sao.
+
+{label_guide}
+
+Danh sách khía cạnh: {aspects}
+
+Quy trình cho TỪNG khía cạnh:
+1. Trích nguyên văn đoạn văn nói về khía cạnh đó. Nếu review không nhắc tới, ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đoạn đó là tích cực hay tiêu cực.
+3. Chốt mã số.
+
+Lưu ý về dữ liệu: tập này có RẤT NHIỀU ô mã 1 (tích cực) và rất ít ô mã 2 (tiêu cực), nên đừng lấy mã 1
+làm mặc định. Chỉ chọn mã 1 khi có lời KHEN rõ ràng cho khía cạnh đó; nếu chỉ thấy lời chê, hoặc lời
+khen nửa vời kiểu "hơi", "tạm được", "không như mong đợi", thì chọn mã 2.
+
+Ví dụ:
+{examples}
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- <khía cạnh>: <trích dẫn> | <lí do ngắn> | mã <số>     (một dòng cho MỖI khía cạnh)
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT của từng khía cạnh vào đó, KHÔNG chép nguyên các số 0)
