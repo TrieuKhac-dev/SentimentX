@@ -39,10 +39,10 @@ flowchart LR
 ```
 
 - **ĐO** bằng chính tokenizer của model và **không** cắt → biết độ dài input THẬT và bao nhiêu mẫu vượt ngưỡng.
-- **DÙNG** truyền `truncation=True, max_length=2304` → **toàn bộ prompt** (một chuỗi) bị **cắt còn tối đa 2304** token; prompt ngắn hơn 2304 thì nhận **trọn vẹn** (hiện tại **0% bị cắt**).
+- **DÙNG** truyền `truncation=True, max_length=<ngưỡng của model>` → **toàn bộ prompt** (một chuỗi) bị **cắt còn tối đa `max_length`** token; prompt **ngắn hơn** ngưỡng thì nhận **trọn vẹn** (không mất gì). Ngưỡng từng model: xem bảng §1.
 - Nơi ĐO (`encode()`) và nơi DÙNG (`build_inputs()`) đọc **cùng một** `limit()` từ
   `configs/models/<model_id>.yaml`, nên không thể lệch nhau.
-- `max_length` **không được vượt trần model**: lệnh đo **từ chối chạy** nếu vượt (kèm gợi ý dùng giá trị nhỏ hơn).
+- `max_length` **không được vượt trần model**.
 - Phần **đầu ra** tách riêng: `max_new_tokens = 400` (mặc định).
 
 ## 3. Qwen3: token/review thật theo bộ prompt (split `train`, 12.302 review)
@@ -73,5 +73,5 @@ Số liệu được đo cho **cả 3 split** (`train`/`val`/`test`) của mọi
 | Qwen3-4B | prompt + review + ví dụ | 2304 | mức 5 ví dụ dài nhất 2.122 → **0% cắt** |
 | Qwen3-0.6B | prompt + review + ví dụ | 2304 | cùng tokenizer + cùng prompt như bản 4B ⇒ cùng số token ⇒ cùng ngưỡng |
 
-- **Khác nhau vì input khác nhau**: encoder nhận **chỉ review** (~30–44 token), LLM nhận **cả prompt** (~230–1.878 token).
+- **Khác nhau vì input khác nhau**: encoder nhận **chỉ review** (TB ~30–44 token; dài nhất **229** ở ViSoBERT, **301** ở PhoBERT), LLM nhận **cả prompt** (TB ~230–1.878 token; dài nhất **2.122**).
 - **Cùng nhóm bằng nhau**: hai encoder để 256 cho **cùng ngân sách input** (so sánh công bằng); hai Qwen cùng tokenizer/prompt nên cùng số token nên cùng ngưỡng.
