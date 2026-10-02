@@ -125,17 +125,26 @@ Việc này là của **nhóm làm dự án**, không phải của người ch�
 `README.md` của thí nghiệm, dữ liệu gốc (4 CSV **và** `raw_meta.yaml`), dữ liệu đã xử lý (train, val,
 test, `label_map.json`, `processing_log.json`). Đưa lên bằng cách mở Drive, tạo thư mục, rồi kéo từng
 thư mục vào đúng chỗ.
-**Danh sách notebook phải có trên Drive** - mười hai cái, một cái cho mỗi thí nghiệm đã ghim, tất cả đều
-chấm trên cùng tập `test` của bộ dữ liệu đang dùng (`…-e616c1e3`, **1.623 review**), thời gian ước tính
-trên T4:
+**Danh sách notebook phải có trên Drive** - hai mươi cái, một cái cho mỗi thí nghiệm đã ghim, tất cả đều
+chấm trên cùng tập `test` của bộ dữ liệu đang dùng (`…-e616c1e3`, **1.623 review**). Cột thời gian dưới
+đây là **SỐ ĐO THẬT** của những lượt đã chạy (đọc từ `run_meta.json` của chính lượt đó); nhóm chưa chạy
+lần nào ghi rõ là ước tính - người nhận dựa vào đây để chọn notebook cho vừa phiên Colab:
 
-| Nhóm | Notebook | Ước tính một lượt |
+| Nhóm | Notebook | Thời gian một lượt trên T4 |
 | --- | --- | --- |
-| LoRA (encoder) | `phobert-base-v2/lora/exp001`, `visobert/lora/exp001` | 30 đến 90 phút |
-| Prompt 4-bit, ba mức ví dụ | `qwen3-4b-instruct-2507/prompt-cot/exp002`, `exp003`, `exp004` | 60 đến 120 phút |
-| Prompt một lượt (mốc so sánh) | `qwen3-4b-instruct-2507/prompt-one-turn/exp001` | 45 đến 70 phút |
-| Model nhỏ, ba mức ví dụ | `qwen3-0.6b/prompt-cot/exp001`, `exp002`, `exp003` | 20 đến 40 phút |
-| Đối chứng KHÔNG lượng hoá (fp16) | `qwen3-4b-instruct-2507/prompt-cot/exp005`, `exp006`, `exp007` | 120 đến 180 phút |
+| LoRA (encoder) | `phobert-base-v2/lora/exp001`, `visobert/lora/exp001` | **13 phút**, **12 phút** (đo thật) |
+| Prompt 4-bit, ba mức ví dụ | `qwen3-4b-instruct-2507/prompt-cot/exp002`, `exp003`, `exp004` | **1 giờ 34**, **2 giờ 04**, **42 phút** (đo thật) |
+| Prompt một lượt (mốc so sánh) | `qwen3-4b-instruct-2507/prompt-one-turn/exp001` | **18 phút** (đo thật) |
+| Model nhỏ, ba mức ví dụ | `qwen3-0.6b/prompt-cot/exp001`, `exp002`, `exp003` | ước tính 20 đến 40 phút |
+| Đối chứng KHÔNG lượng hoá (fp16) | `qwen3-4b-instruct-2507/prompt-cot/exp005`, `exp006`, `exp007` | **2 giờ 04**, **2 giờ 20**, **3 giờ 51** (đo thật) |
+| 4-bit nhưng lô 4 - tách biến lượng hoá | `qwen3-4b-instruct-2507/prompt-cot/exp008`, `exp009`, `exp010` | ước tính 1 đến 3 giờ |
+| Ba biến thể prompt (mức 1 ví dụ) | `qwen3-4b-instruct-2507/prompt-cot/exp011`, `exp012`, `exp013` | ước tính khoảng 2 giờ mỗi lượt |
+| LoRA + trọng số lớp âm | `visobert/lora/exp002`, `phobert-base-v2/lora/exp002` | ước tính 15 phút mỗi lượt |
+
+Hai con số trông lạ trong bảng - `exp004` (5 ví dụ, 4-bit) chỉ **42 phút**, nhanh hơn hẳn `exp003` (1 ví
+dụ, 2 giờ 04) - là số ĐO, không phải ước tính. Nghi vấn đáng kiểm đầu tiên là độ dài phần suy luận model
+sinh ra (prompt 5 ví dụ làm model trả lời ngắn hơn); kiểm bằng số token sinh ghi trong `metrics.json`
+của hai lượt đó.
 
 Ba notebook **fp16** là bản đối chứng của ba mức ví dụ 4-bit (`parent` trỏ đúng lượt 4-bit tương ứng):
 cùng model, cùng prompt, cùng tập test, chỉ khác cách nạp trọng số - nên chúng trả lời câu "lượng hoá

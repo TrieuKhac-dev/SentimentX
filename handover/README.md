@@ -16,31 +16,58 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Mười hai notebook trong gói
+## Hai mươi notebook trong gói
 
-| Notebook | Trả lời câu gì | Thời gian ước tính trên T4 |
+Chín notebook đã chạy xong một lần, nên cột thời gian của chúng ghi **số phút ĐO THẬT** (lấy từ
+`run_meta.json` của chính lượt đó); mười một notebook còn lại chưa chạy nên ghi rõ là **ước tính**.
+
+| Notebook | Trả lời câu gì | Thời gian trên T4 |
 | --- | --- | --- |
-| `notebooks/visobert/lora/exp001.ipynb` | ViSoBERT học LoRA thì bằng nào công bố | 30 đến 60 phút |
-| `notebooks/phobert-base-v2/lora/exp001.ipynb` | PhoBERT học LoRA thì bằng nào công bố | 45 đến 90 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp002.ipynb` | Qwen3 4-bit CoT 0 ví dụ (zero-shot) | 60 đến 90 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp003.ipynb` | Qwen3 4-bit CoT 1 ví dụ | 70 đến 100 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp004.ipynb` | Qwen3 4-bit CoT 5 ví dụ | 90 đến 120 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-one-turn/exp001.ipynb` | Qwen3 MỘT LƯỢT (0 ví dụ) - mốc so sánh với ba mức CoT | 45 đến 70 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp005.ipynb` | Lượng hoá 4-bit làm mất bao nhiêu điểm - mức 0 ví dụ | 120 đến 180 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp006.ipynb` | như trên - mức 1 ví dụ | 120 đến 180 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp007.ipynb` | như trên - mức 5 ví dụ | 120 đến 180 phút |
-| `notebooks/qwen3-0.6b/prompt-cot/exp001.ipynb` | Qwen3 0.6B CoT 0 ví dụ - model nhỏ hơn 10 lần thì kém bao nhiêu | 20 đến 40 phút |
-| `notebooks/qwen3-0.6b/prompt-cot/exp002.ipynb` | Qwen3 0.6B CoT 1 ví dụ | 20 đến 40 phút |
-| `notebooks/qwen3-0.6b/prompt-cot/exp003.ipynb` | Qwen3 0.6B CoT 5 ví dụ | 20 đến 40 phút |
+| `notebooks/qwen3-0.6b/prompt-cot/exp001.ipynb` | Qwen3 0.6B CoT 0 ví dụ - model nhỏ hơn 10 lần thì kém bao nhiêu | ước tính 20 đến 40 phút |
+| `notebooks/qwen3-0.6b/prompt-cot/exp002.ipynb` | Qwen3 0.6B CoT 1 ví dụ | ước tính 20 đến 40 phút |
+| `notebooks/qwen3-0.6b/prompt-cot/exp003.ipynb` | Qwen3 0.6B CoT 5 ví dụ | ước tính 20 đến 40 phút |
+| `notebooks/qwen3-4b-instruct-2507/prompt-one-turn/exp001.ipynb` | Qwen3 MỘT LƯỢT (0 ví dụ) - mốc so sánh với ba mức CoT | **18 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp002.ipynb` | Qwen3 4-bit CoT 0 ví dụ (zero-shot) | **1 giờ 34 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp003.ipynb` | Qwen3 4-bit CoT 1 ví dụ | **2 giờ 04 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp004.ipynb` | Qwen3 4-bit CoT 5 ví dụ | **42 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp005.ipynb` | Lượng hoá 4-bit làm mất bao nhiêu điểm - mức 0 ví dụ | **2 giờ 04 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp006.ipynb` | như trên - mức 1 ví dụ | **2 giờ 20 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp007.ipynb` | như trên - mức 5 ví dụ | **3 giờ 51 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp008.ipynb` | 4-bit nhưng LÔ 4 (exp002 dùng lô 8): tách "lượng hoá" khỏi "kích thước lô" | ước tính 2 đến 2,5 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp009.ipynb` | như exp008 - mức 1 ví dụ (cấu hình tốt nhất hiện có) | ước tính 2,5 đến 3 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp010.ipynb` | như exp008 - mức 5 ví dụ | ước tính 1 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp011.ipynb` | Ví dụ dạy CÓ nhãn âm (thay vì ví dụ toàn nhãn dương) | ước tính 2 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp012.ipynb` | Quét mọi lời phàn nàn TRƯỚC khi gán mã | ước tính 2 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp013.ipynb` | Nói rõ dữ liệu lệch nhãn, cấm lấy mã 1 làm mặc định | ước tính 2 giờ |
+| `notebooks/visobert/lora/exp001.ipynb` | ViSoBERT học LoRA thì bằng nào công bố | **12 phút** |
+| `notebooks/visobert/lora/exp002.ipynb` | ViSoBERT + trọng số lớp âm (chống đoán mã 1) | ước tính 15 phút |
+| `notebooks/phobert-base-v2/lora/exp001.ipynb` | PhoBERT học LoRA thì bằng nào công bố | **13 phút** |
+| `notebooks/phobert-base-v2/lora/exp002.ipynb` | PhoBERT + trọng số lớp âm | ước tính 15 phút |
 
-Mỗi notebook chấm trên **cùng tập `test` (cả split của bộ dữ liệu đang dùng)** - đó là con số để so với công bố. Muốn chạy
-hết cả mười hai thì chạy lần lượt; mỗi notebook ghi vào thư mục kết quả riêng nên không giẫm lên nhau.
+Mỗi notebook chấm trên **cùng tập `test` (cả split của bộ dữ liệu đang dùng)** - đó là con số để so với công bố. Mỗi
+notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau:
+chín notebook đầu và ba notebook `exp008..010` đều chạy được cùng lúc vì mỗi lượt có thư mục riêng
+theo mã băm danh tính.
 
 Ba notebook `exp005`, `exp006`, `exp007` là **bản đối chứng KHÔNG lượng hoá (fp16)** của ba mức ví dụ
 4-bit: cùng model, cùng prompt, cùng tập test, chỉ khác cách nạp trọng số - nên chúng trả lời câu
 "lượng hoá 4-bit làm mất bao nhiêu điểm". Đây là nhóm **nặng nhất và lâu nhất** (bản không lượng hoá tốn
 gấp ~4 lần bộ nhớ), hãy chạy khi phiên Colab còn đủ thời gian. Ba notebook 0.6B thì nhẹ nhất, chạy
 trước để làm quen cũng được.
+
+Ba nhóm MỚI của đợt này (mỗi lượt chỉ khác một thứ so với lượt gốc, nên đọc kết quả là đọc được
+nguyên nhân):
+
+- `exp008..010` - vẫn 4-bit nhưng hạ lô xuống 4, để so sạch với nhóm fp16 (`exp005..007` cũng lô 4):
+  chênh lệch còn lại chỉ có thể do LƯỢNG HOÁ.
+- `exp011..013` - ba biến thể prompt ở mức 1 ví dụ: `exp011` đổi nội dung ví dụ (dạy bằng ví dụ có
+  nhãn âm), `exp012` thêm bước quét lời phàn nàn trước khi gán mã, `exp013` thêm đoạn nói rõ dữ liệu
+  lệch nhãn. Cả ba đều hỏi cùng một câu: **làm sao nhận ra lời chê**, vì đó là chỗ yếu nhất của cả ba
+  model.
+- `visobert/lora/exp002` và `phobert-base-v2/lora/exp002` - thêm trọng số lớp âm (`weighted_ce`).
+  Đọc kết quả bằng **F1 lớp âm** và macro-F1, KHÔNG bằng độ chính xác: đoán mã 1 cho mọi ô vẫn ra độ
+  chính xác cao mà lớp âm thì bằng 0.
+
 
 Cần chạy GPU: `Runtime > Change runtime type > T4 GPU`. Hai notebook LoRA cần thêm thư viện `peft`
 (notebook tự cài). Notebook PhoBERT cần thêm **Java + `py-vncorenlp`** cho bộ tách từ chính chủ: máy

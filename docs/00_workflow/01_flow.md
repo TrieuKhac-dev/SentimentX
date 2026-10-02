@@ -207,8 +207,10 @@ và `resume.new` để người đọc biết con số trước mặt sinh ra t�
 
 ## Kiểm trước khi chạy
 
-Cell preflight của notebook gọi `src/workflow/preflight.py` TRƯỚC khi nạp model. Một lượt val tốn hàng chục
-phút, nên phát hiện thiếu Java, thiếu `test.csv` hay Drive chỉ đọc ở mẫu thứ 800 là mất cả buổi.
+Cell preflight của notebook gọi `src/workflow/preflight.py` TRƯỚC khi nạp model. Một lượt chạy tốn từ
+**18 phút** (một lượt, 4-bit) tới **gần 4 giờ** (bản KHÔNG lượng hoá, 5 ví dụ) - số đo thật nằm trong
+bảng thời gian ở `docs/00_workflow/07_colab.md` - nên phát hiện thiếu Java, thiếu `test.csv` hay Drive
+chỉ đọc ở mẫu thứ 800 là mất cả buổi.
 Preflight kiểm trong vài giây:
 
 | Nhóm            | Kiểm gì                                                                              |
