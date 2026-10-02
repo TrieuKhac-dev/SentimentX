@@ -13,7 +13,7 @@ preprocess:
   # Trần kiến trúc của ViSoBERT là 514 vị trí (`max_position_embeddings` của model).
   # 256 là LỰA CHỌN CỦA DỰ ÁN, không phải giới hạn của model: review dài nhất trong dữ liệu
   # cosmetics là 229 token, và đặt cùng 256 với PhoBERT để hai model có cùng ngân sách input
-  # (so sánh mới công bằng). Cách chọn số này: docs/04_experiments/02_model_input.md mục 5.
+  # (so sánh mới công bằng). Cách chọn số này: docs/04_experiments/02_model_input.md mục 4 (và 4.3).
   max_length: 256
   # ViSoBERT đọc văn bản NGUYÊN BẢN (không tách từ); khai tường minh để cột truy vết của số liệu
   # nói rõ "không tách từ" là chủ ý, chứ không phải thiếu cấu hình.
