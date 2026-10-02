@@ -44,6 +44,9 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `processing_log` | `processing_log.json`                                              | dấu vết của lần chạy pipeline                 |
 | `label_map`      | `label_map.json`                                                   | danh sách khía cạnh + mã nhãn                 |
 | `eval_lock`      | `eval_lock.json`                                                   | khoá tập đánh giá, ghi một lần khi tạo dữ liệu |
+| `metrics_rescored_json` | `metrics_rescored.json`                                      | số đo THÊM (rescore) - KHÔNG ghi đè `metrics.json` |
+| `metrics_rescored_csv` | `metrics_rescored.csv`                                        | bảng dài của số đo THÊM                            |
+| `training_history` | `training_history.csv`                                           | lịch sử huấn luyện (loss/chỉ số theo bước và theo epoch) của lượt chạy encoder |
 | `eda_dir`        | `eda`                                                              | thư mục kết quả EDA                           |
 | `pipeline_dir`   | `pipeline`                                                         | thư mục báo cáo của lần chạy pipeline         |
 | `experiment_config` | `config.yaml`                                                   | config riêng của một thí nghiệm               |

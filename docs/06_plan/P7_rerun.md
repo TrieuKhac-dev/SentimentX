@@ -235,3 +235,20 @@ ghim từ GitHub, nên gửi gói trước khi đẩy là notebook chết.
 ## 6. Phụ thuộc
 
 P6 xong (đã có report và CI).
+
+---
+
+## 7. Cập nhật 02/10/2026 - sửa 3 lỗi đường LoRA
+
+Hai notebook LoRA hỏng trên Colab ở lượt chạy đầu; nguyên nhân và cách sửa (đã ghim lại ở bước sau):
+
+- **ViSoBERT**: `KeyError: 'every_n_steps'` - `plan()` trả về `training` thiếu khoá chính sách
+  checkpoint, còn `log_config` đọc khoá đó. Đã gộp `checkpoints.settings` vào `training`.
+- **PhoBERT**: báo "thiếu model VnCoreNLP" DÙ file có trên Drive - `config.py` đóng băng đường dẫn NGAY
+  LÚC IMPORT, trước khi ô bootstrap đặt `SENTIMENTX_DATA_ROOT`, nên `vncorenlp` tìm sai chỗ (repo thay
+  vì Drive). Đã chuyển hằng đường dẫn sang tính LÚC GỌI, và `vncorenlp.model_dir()` tính tại chỗ.
+- **Không ngắt phiên khi lượt chạy encoder lỗi**: `experiment_run.run` bọc `end_session_on_error` nhưng
+  với encoder nó thoát sang `encoder_run.run` TRƯỚC khối đó. Đã bọc trong chính `encoder_run.run`.
+
+Kết quả cũ `91f50523` (visobert) và `6aaa0f2f` (phobert) KHÔNG dùng nữa: sau khi ghim lại, mỗi lượt
+rơi vào thư mục mới (commit nằm trong mã băm danh tính).

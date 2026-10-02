@@ -51,6 +51,12 @@ Pipeline giữ nguyên bốn trạng thái.
 | `checkpoints.save_last`                                       | lưu `model/last` đủ để chạy tiếp                                                        |
 | `checkpoints.save_best`                                       | lưu `model/best` theo chỉ số trên `val`                                                 |
 | `checkpoints.delete_intermediate`                             | xoá ngay các `checkpoint-*` trung gian sau mỗi lần lưu, để tiết kiệm Drive              |
+| `checkpoints.best_metric`                                     | chỉ số để chọn `model/best` và để dừng sớm; phải là một khoá trong kết quả đo val của trainer (`accuracy_cell`, `sentiment_f1`, `sentiment_precision`, `sentiment_recall`, `detection_f1`, `loss`, ...). Mặc định dự án dùng `sentiment_f1` (macro-F1 sắc thái) vì dữ liệu MẤT CÂN BẰNG |
+| `early_stop.enabled`                                          | `true` thì dừng sớm khi chỉ số `checkpoints.best_metric` không còn cải thiện. CHỈ đường huấn luyện encoder |
+| `early_stop.patience`                                         | số lần đo val LIÊN TIẾP không cải thiện thì dừng (>= 1)                                  |
+| `early_stop.min_delta`                                        | mức cải thiện tối thiểu để tính là "có cải thiện"                                        |
+| `loss.type`                                                   | `ce` (cross-entropy) hoặc `weighted_ce` (nhân trọng số lớp). Đổi giá trị này đổi `config_sha256` nên ra THƯ MỤC KẾT QUẢ MỚI |
+| `loss.class_weight`                                           | `none` hoặc `inverse`; `inverse` = trọng số nghịch đảo tần suất (chuẩn hoá trung bình 1) tính trên ô ĐƯỢC TÍNH của tập train. `weighted_ce` bắt buộc đi kèm `inverse` |
 
 Ai đọc những khoá này: `src/training/checkpoints.py` (chính sách + `Store`) - KHÔNG phải trainer, nên
 mọi cách huấn luyện dùng chung. Cách ghi trọng số do writer ở `src/training/savers/` quyết định
@@ -67,7 +73,7 @@ Tên nhóm là `checkpoints` (số nhiều) vì `checkpoint` (số ít) đã là
 | `tracker`     | `mlflow`, `local_json` hoặc `none`; tên phải có trong registry `TRACKERS`                            |
 | `experiment`  | tên experiment trên máy chủ MLflow                                                                   |
 | `mlflow_tags` | nhãn của run trên DagsHub, không phải git tag. Giá trị `auto` nghĩa là notebook tự lấy từ `info` của lượt chạy - tra ở cả khối `experiment` lồng trong đó (`model`, `method`, `exp_id` ghi theo khối, xem `src/tracking/base.py::resolve_tags`). Nhãn nào thiếu giá trị thì BỎ, không gắn chuỗi `auto` |
-| `artifacts`   | danh sách file nhỏ được tải lên; không tải checkpoint. CẢ HAI cơ sở đo đều lên: số của cơ sở `paper` nằm trong `metrics.json` (khoá `scores_paper`), và danh sách ô đoán sai của cơ sở đó là `mispredictions_paper.csv` |
+| `artifacts`   | danh sách file nhỏ được tải lên; không tải checkpoint. CẢ HAI cơ sở đo đều lên: số của cơ sở `paper` nằm trong `metrics.json` (khoá `scores_paper`), và danh sách ô đoán sai của cơ sở đó là `mispredictions_paper.csv`. Nay thêm `run.log` (nhật ký đầy đủ của lượt chạy) và `training_history.csv` (curve train/val) |
 
 Ba trình ghi nhận đang có (registry `TRACKERS` ở `src/tracking/`):
 

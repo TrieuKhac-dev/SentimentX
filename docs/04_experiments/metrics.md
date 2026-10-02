@@ -142,3 +142,27 @@ Vì sao tách: lượt hỏng không có `metrics.json`, nên mọi ô số củ
 nhiễu đúng chỗ dùng để đọc kết quả (đã gặp thật: bảng hiện bốn dòng PhoBERT, ba dòng rỗng). Muốn bảng số
 liệt kê cả lượt hỏng thì thêm `--only all`; nhóm `attempt_registry` thì **luôn** liệt kê đủ, không phụ
 thuộc cờ này.
+
+## Nguồn số duy nhất (đừng để hai chỗ đo hai kiểu)
+
+Bảng dưới là HỢP ĐỒNG giữa ba nơi: lượt chạy ghi số, `scripts/rescore.py` đo lại, và
+`scripts/collect_reports.py` lấy số để dựng bảng so công bố.
+
+| Con số | Nguồn DUY NHẤT | Ai đọc |
+| --- | --- | --- |
+| Đo của dự án trên `test` (cơ sở `all`) | `metrics.json::scores` + `metrics.csv` (basis=`all`) | HTML lượt chạy, MLflow (không tiền tố) |
+| Để SO VỚI CÔNG BỐ (cơ sở `paper`) | `metrics.json::scores_paper` + `metrics.csv` (basis=`paper`) | `metrics_matrix` (cột `reference`), MLflow (tiền tố `paper.`), `mispredictions_paper.csv` |
+| Số đo THÊM (đo lại) | `metrics_rescored.json` / `metrics_rescored.csv` | `metrics_matrix` (họ cột `(rescored)`) |
+| Chọn `model/best`, dừng sớm, vẽ curve (`val`) | `training_history.csv` + khối `training` của `metrics.json` | người đọc, MLflow (chuỗi theo bước); KHÔNG vào `metrics_matrix` |
+
+Hai điều dễ lẫn, nói thẳng:
+
+- **Hai MỤC ĐÍCH khác nhau dùng hai CƠ SỞ ĐO khác nhau.** Chọn `model/best` / dừng sớm dùng `val` với
+  cơ sở `all` (`checkpoints.best_metric`, mặc định `sentiment_f1`); SO VỚI CÔNG BỐ dùng `test` với cơ
+  sở `paper`. KHÔNG đem số `all` đi so công bố, và KHÔNG đưa chỉ số chọn-best vào `metrics_matrix`.
+- **Ma trận nhầm ở artifact, không lên MLflow.** `confusion` nằm trong `metrics.json`
+  (khoá `tables.confusion`) và `plots/accuracy.html`; đưa lên MLflow thì `numeric()` làm phẳng thành
+  hàng trăm metric rời và mất dạng ma trận.
+
+`scripts/rescore.py` CHỈ THÊM số đo: nó không bao giờ ghi đè `metrics.json`/`metrics.csv` của lượt chạy.
+

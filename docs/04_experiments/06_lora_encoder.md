@@ -61,6 +61,24 @@ nào thì đọc `model/best/trainer_state.json` (trường `best.step`): lượ
 ngay sau mỗi lần lưu.
 
 ## Chạy trên Colab
+## Chọn `model/best`, dừng sớm, và curve train/val
+
+- **Chọn best theo `checkpoints.best_metric`** (mặc định `sentiment_f1` = macro-F1 sắc thái). Vì sao
+  KHÔNG dùng accuracy: dữ liệu mất cân bằng (ví dụ `price` 3.238 dương / 21 âm) nên accuracy bị lớp
+  trội chi phối. Đổi chỉ số chỉ cần sửa config, không sửa code.
+- **`val` đo bằng ĐÚNG engine của `test`** (`src/evaluation/scorers`), nên `val` có đủ
+  `sentiment_precision/recall/f1`, `detection_f1`, `accuracy_cell`, `loss` - không có định nghĩa metric
+  thứ hai. Nhờ vậy đổi hàm chấm điểm là đổi cho cả `val` lẫn `test`.
+- **Dừng sớm** (`early_stop.enabled: true`): khi chỉ số best không tăng quá `min_delta` trong `patience`
+  lần đo liên tiếp thì dừng, ghi `dừng sớm ...` vào `run.log`.
+- **Lịch sử huấn luyện** ghi ra `training_history.csv` (một điểm đo mỗi dòng: `kind=step` hoặc
+  `kind=epoch`, kèm loss train/val và P/R/F1), và biểu đồ cho người đọc ghi ra `plots/training.html`
+  (plotly + jinja2). Tắt biểu đồ bằng `save.plots: false`.
+- **Chuỗi theo bước lên MLflow**: mỗi điểm val được gửi kèm `step`, nên MLflow tự vẽ curve - phiên bị
+  ngắt giữa chừng vẫn còn phần đã chạy.
+- **Hàm mất mát** (`loss.type`): `ce` mặc định, `weighted_ce` + `loss.class_weight: inverse` khi muốn
+  chống mất cân bằng. Đổi loss đổi `config_sha256` nên ra thư mục kết quả MỚI.
+
 
 Hai notebook LoRA chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa 6 GB VRAM). Ô bootstrap
 tự cài `peft`, và với PhoBERT (`preprocess.segmenter: vncorenlp`) thì tự cài thêm `default-jdk` +

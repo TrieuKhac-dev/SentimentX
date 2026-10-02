@@ -154,6 +154,18 @@ trả lời nhanh — chi tiết ở `src/evaluation/parse.py`.
 
 `nhãn đúng` và `nhãn đoán` nằm ngay trong file, nên đổi cách chấm thì **không phải chạy lại model**:
 đọc `predictions.csv` rồi tính lại là ra số mới, vì cả nhãn đúng lẫn nhãn model trả lời đều đã có sẵn
-trong ô (hai cột này để dạng JSON trong một ô CSV chính vì lý do đó). Từ 25/09/2026 **không còn công cụ
-dòng lệnh riêng** cho việc này (`run_rescore_eval.py` đã bỏ cùng đường chạy ngoài thí nghiệm): muốn
-điểm theo cách chấm mới thì chạy lại thí nghiệm - hoặc tự tính trên file, dữ liệu đã đủ.
+trong ô (hai cột này để dạng JSON trong một ô CSV chính vì lý do đó).
+
+Công cụ làm việc đó là `scripts/rescore.py` (áp dụng cho CẢ model prompt và model encoder):
+
+```bash
+python scripts/rescore.py --dir experiments/<model>/<method>/<expNNN>/results/<hash8>
+python scripts/rescore.py --dir <thư mục kết quả> --reason "thêm một chỉ số mới"
+```
+
+Kết quả ghi vào `metrics_rescored.json` + `metrics_rescored.csv` trong **chính** thư mục đó; khối
+`rescored` ghi lại lúc nào / vì sao. **KHÔNG ghi đè** `metrics.json`/`metrics.csv` - số gốc của lượt
+chạy vẫn là bằng chứng. Bảng `metrics_matrix` hiển thị HAI họ cột `(gốc)` / `(rescored)` khi lượt đó có
+rescore, nên hai nguồn không bị trộn trong cùng một ô. Chấm lại cần `data/processed/<mã>/label_map.json`
+trên đĩa (để tra TÊN nhãn `positive`/`negative`).
+
