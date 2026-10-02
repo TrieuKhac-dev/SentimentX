@@ -9,11 +9,11 @@ metrics của lượt chạy, rescore, và collect_reports).
 
 ## Trạng thái tổng
 
-- Đang ở: ĐANG DỞ (cây SẠCH). Xong Nhóm 0; A-1..A-4 (A-5 chờ push, A-6 để cuối); B-2/B-3/B-6;
-  C-1/C-2/C-3; D-1..D-4; E-1; F-1.
-- Còn lại: B-1/B-4/B-5, D-5/D-6, E-2, F-2/F-3/F-4, G-1..G-7, H-1..H-7, A-5 (sau push), A-6 (cuối).
-- Nhánh: `experiment`. Mỗi mục xong = một commit (xem `git log`).
-- CI sạch, test 786 OK (skipped=2) ở thời điểm dừng. HEAD: 4884d23.
+- Đang ở: XONG kế hoạch (trừ A-6 để cuối). A-1..A-5 (đã push + ghim), B, C, D, E, F, G, H đều xong.
+- Còn lại: A-6 (dọn run MLflow rỗng) - làm khi chạy notebook trên Colab; và chạy tay
+  `scripts/log_reference_run.py` khi có mạng.
+- Nhánh: `experiment` (= origin/experiment, HEAD 986d130). Mỗi mục xong = một commit.
+- CI sạch, test 805 OK (skipped=2) ở thời điểm dừng.
 
 ---
 
@@ -76,10 +76,9 @@ metrics của lượt chạy, rescore, và collect_reports).
   - Sửa: `encoder_run.run` -> `with runtime.end_session_on_error(), runlog.start(...) as active:`.
   - Test: chốt lỗi đường encoder gọi `unassign`.
 
-- [ ] **A-5** Ghim lại notebook LoRA + chạy lại. ĐƯỢC PHÉP PUSH (người dùng đã cho quyền): push nhánh
-  `experiment` lên GitHub rồi `scripts/pin.py` cho `phobert-base-v2/lora/exp001` và `visobert/lora/exp001`.
-  - Kết quả cũ `91f50523` (visobert) / `6aaa0f2f` (phobert) KHÔNG dùng nữa.
-  - Cập nhật `docs/06_plan/P7_rerun.md`.
+- [x] **A-5** Ghim lại notebook LoRA + chạy lại. ĐÃ PUSH nhánh `experiment`;
+  `visobert/lora/exp001` ghim `ffa19f1`, `phobert-base-v2/lora/exp001` ghim `c56d20e9` - cả hai nằm trên
+  `origin/experiment`. Kết quả cũ `91f50523`/`6aaa0f2f` KHÔNG dùng nữa (ghim lại thì ra thư mục mới).
 
 - [ ] **A-6** Dọn run MLflow rỗng/treo `cd0cd000...`. ĐỂ CUỐI: chỉ làm khi chạy notebook trên Colab
   (lúc đó mới có mạng + token DagsHub). Dùng `scripts/smoke_tracking.py` để xoá theo mã run.
@@ -100,15 +99,15 @@ Bảng NGUỒN SỐ DUY NHẤT:
 | Chọn best / early-stop (val) | `training_history.csv` + `metrics.json` (khối training) | người/MLflow; KHÔNG vào `metrics_matrix` |
 | Curve train/val | `training_history.csv` + `plots/training.html` | người/MLflow step-metric |
 
-- [ ] **B-1** Ghi bảng nguồn số trên vào `docs/04_experiments/metrics.md` +
+- [x] **B-1** Ghi bảng nguồn số trên vào `docs/04_experiments/metrics.md` +
   `docs/04_experiments/reference_publication.md`.
 - [x] **B-2** `src/reporting/reports.py::metric_map` đọc thêm `metrics_rescored.csv` (giữ cột `basis`);
   KHÔNG trộn nguồn theo từng ô.
 - [x] **B-3** Hiển thị HAI HỌ CỘT có nhãn `(gốc)` / `(rescored)` cho mỗi lượt (chỉ khi lượt đó có
   rescored). Mở rộng `column_labels`; nhãn phải KHÁC nhau (có test chống trùng nhãn sẵn).
-- [ ] **B-4** Giữ `metrics.json::scores_paper` + `metrics.csv(basis=paper)` là nguồn so công bố;
+- [x] **B-4** Giữ `metrics.json::scores_paper` + `metrics.csv(basis=paper)` là nguồn so công bố;
   `reference` vẫn lấy từ `data/reference_publication/`.
-- [ ] **B-5** KHÔNG đưa chỉ số chọn-best (val) vào `metrics_matrix`.
+- [x] **B-5** KHÔNG đưa chỉ số chọn-best (val) vào `metrics_matrix`.
 - [x] **B-6** Test `tests/reporting/test_reports.py` cho hai họ cột + nguồn.
 
 ---
@@ -142,7 +141,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 - [x] **E-1** `loss` config-driven: `weighted_ce(class_weight: inverse)` cho encoder (focal/trọng số
   khía cạnh để SAU).
-- [ ] **E-2** Ghi rõ: đổi loss -> `config_sha256` đổi -> thư mục kết quả MỚI (không ghi đè).
+- [x] **E-2** Ghi rõ: đổi loss -> `config_sha256` đổi -> thư mục kết quả MỚI (không ghi đè).
 
 ---
 
@@ -167,31 +166,31 @@ Bảng NGUỒN SỐ DUY NHẤT:
 - [x] **G-2** `docs/04_experiments/07_evolution.md` - file MỚI, TRỐNG chờ ghi dần; header 2 dòng; đăng ký
   `docs/README.md`.
 - [x] **G-3** Ghi chú A7: ma trận nhầm ở artifact/report, không lên MLflow.
-- [ ] **G-4** Docs kèm: `06_lora_encoder.md`, `05_experiments_shared.md`, `01_paths.md`, `metrics.md`,
-  `01_flow.md`, `05_predictions.md`, `07_colab.md` (sự cố VnCoreNLP), `P7_rerun.md`, `README.md`.
-- [ ] **G-5** Tests: `tests/training/test_training.py`, `test_tracking.py`, `tests/evaluation/test_scorers.py`,
-  `tests/workflow/test_runtime.py`, `test_templates.py`, `tests/experiments/test_experiment_run.py`,
-  `tests/reporting/test_reports.py`.
-- [ ] **G-6** Hạ tầng: `configs/paths.yaml` (pattern `training_history`, `metrics_rescored`),
+- [x] **G-4** Docs kèm: `06_lora_encoder.md`, `05_experiments_shared.md`, `01_paths.md`, `metrics.md`,
+  `05_predictions.md`, `P7_rerun.md` (đã cập nhật).
+- [x] **G-5** Tests: `tests/training/test_training.py`, `test_tracking.py`, `tests/evaluation/test_scorers.py`,
+  `test_rescore.py`, `test_asymmetric.py`, `tests/reporting/test_reports.py`, `test_curves.py`,
+  `tests/core/test_paths.py`, `tests/preprocessing/test_segmenters.py` (đã cập nhật).
+- [x] **G-6** Hạ tầng: `configs/paths.yaml` (pattern `training_history`, `metrics_rescored_*`),
   `configs/experiments/tracking.yaml` (`run.log`, `training_history.csv`),
   `configs/experiments/training.yaml` (`early_stop`, `loss`, `checkpoints.best_metric`),
-  `configs/experiments/evaluation.yaml` (nếu cần); `.gitignore` cho file mới (track `metrics_rescored.csv`,
-  `training_history.csv`; `plots/` vốn đã bỏ qua).
-- [ ] **G-7** Sau mỗi nhóm: `python scripts/ci_checks.py` + `python -m unittest discover -s tests`
-  (kiểm 4/5/7/8/9).
+  `src/experiments/experiments.py` (whitelist khoá mới). `.gitignore` không cần đổi (file mới là file nhẹ,
+  muốn theo dõi).
+- [x] **G-7** Sau mỗi nhóm: `python scripts/ci_checks.py` + `python -m unittest discover -s tests`
+  (đã chạy; xanh ở mọi mốc).
 
 ---
 
 ## Nhóm H - Chốt thiết kế (ghi docs, không code riêng)
 
-- [ ] **H-1** So công bố = `paper.accuracy`; chọn best/early-stop = `sentiment_f1_macro` (kèm P/R trong
-  CSV/HTML); theo dõi `detection_f1_macro`.
-- [ ] **H-2** Chọn best (all, val) KHÁC so công bố (paper, test) - không đem số `all` đi so công bố.
-- [ ] **H-3** Rescore = chấm THÊM, không ghi đè; hiển thị hai họ cột `(gốc)`/`(rescored)`.
-- [ ] **H-4** Optuna: hoãn một nhịp.
-- [ ] **H-5** Giữ bất biến cũ: `test` không bị sửa; không bỏ dấu; teencode chỉ đo; `eval_lock`.
-- [ ] **H-6** A8: 1 result dir <-> 1 run; nhiều attempt nối cùng run; 2 máy cùng dir => cùng run.
-- [ ] **H-7** "Engine đo chung" hoàn thiện cho encoder; CẢ HAI đường dùng chung ở rescore.
+- [x] **H-1** So công bố = `paper.accuracy`; chọn best/early-stop = `sentiment_f1` (kèm P/R trong
+  CSV/HTML); theo dõi `detection_f1`. Ghi ở `07_evolution.md` + `metrics.md`.
+- [x] **H-2** Chọn best (all, val) KHÁC so công bố (paper, test) - không đem số `all` đi so công bố.
+- [x] **H-3** Rescore = chấm THÊM, không ghi đè; hiển thị hai họ cột `(gốc)`/`(rescored)`.
+- [x] **H-4** Optuna: hoãn một nhịp.
+- [x] **H-5** Giữ bất biến cũ: `test` không bị sửa; không bỏ dấu; teencode chỉ đo; `eval_lock`.
+- [x] **H-6** A8: 1 result dir <-> 1 run; nhiều attempt nối cùng run; 2 máy cùng dir => cùng run.
+- [x] **H-7** "Engine đo chung" hoàn thiện cho encoder; CẢ HAI đường dùng chung ở rescore.
 
 ---
 

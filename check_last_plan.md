@@ -16,15 +16,15 @@
 - [x] A-2 config.py refactor + vncorenlp tính MODEL_DIR lúc gọi
 - [x] A-3 hint VnCoreNLP theo môi trường
 - [x] A-4 encoder_run.run thêm end_session_on_error
-- [ ] A-5 ghim lại notebook LoRA + P7_rerun.md (ĐƯỢC PHÉP PUSH)
+- [x] A-5 ghim lại notebook LoRA + P7_rerun.md (ĐÃ PUSH: visobert pin ffa19f1, phobert pin c56d20e9, cả hai trên origin/experiment)
 - [ ] A-6 dọn run MLflow rỗng (ĐỂ CUỐI: làm khi chạy notebook trên Colab)
 
 ## Nhóm B - đồng bộ nguồn số
-- [ ] B-1 docs bảng nguồn số duy nhất
+- [x] B-1 docs bảng nguồn số duy nhất
 - [x] B-2 metric_map đọc metrics_rescored (không trộn ô)
 - [x] B-3 hai họ cột (gốc)/(rescored)
-- [ ] B-4 giữ paper = nguồn so công bố
-- [ ] B-5 không đưa chọn-best vào metrics_matrix
+- [x] B-4 giữ paper = nguồn so công bố
+- [x] B-5 không đưa chọn-best vào metrics_matrix
 - [x] B-6 test reports hai họ cột
 
 ## Nhóm C - engine đo chung + rescore
@@ -42,7 +42,7 @@
 
 ## Nhóm E - loss chống lệch
 - [x] E-1 weighted_ce(class_weight: inverse)
-- [ ] E-2 docs: đổi loss -> thư mục mới
+- [x] E-2 docs: đổi loss -> thư mục mới
 
 ## Nhóm F - MLflow
 - [x] F-1 run.log + training_history.csv vào artifacts
@@ -54,22 +54,19 @@
 - [x] G-1 04_backlog.md: Optuna, focal
 - [x] G-2 07_evolution.md (mới, trống) + đăng ký docs/README.md
 - [x] G-3 ghi chú A7 (ma trận ở artifact)
-- [ ] G-4 docs kèm các nhóm
-- [ ] G-5 cập nhật tests
-- [ ] G-6 hạ tầng: paths.yaml / tracking.yaml / training.yaml / evaluation.yaml / .gitignore
-- [ ] G-7 ci_checks.py + unittest sau mỗi nhóm
+- [x] G-4 docs kèm các nhóm
+- [x] G-5 cập nhật tests
+- [x] G-6 hạ tầng: paths.yaml / tracking.yaml / training.yaml / evaluation.yaml / .gitignore
+- [x] G-7 ci_checks.py + unittest sau mỗi nhóm
 
 ## Nhóm H - chốt thiết kế (ghi docs)
-- [ ] H-1 .. H-7 ghi các chốt thiết kế
+- [x] H-1 .. H-7 ghi các chốt thiết kế (07_evolution.md + metrics.md)
 
 ## Trạng thái tổng
-- Nhóm 0: XONG (0-1..0-6).
-- Nhóm A: XONG code A-1..A-4. A-5 chờ PUSH rồi ghim. A-6 ĐỂ CUỐI (làm khi chạy notebook trên Colab).
-- Nhóm B: XONG B-2/B-3/B-6. Còn B-1/B-4/B-5 (việc tài liệu, gộp vào G-4).
-- Nhóm C: XONG C-1/C-2/C-3.
-- Nhóm D: XONG D-1..D-4. Còn D-5 (plots/training.html) và D-6 (log step-metric).
-- Nhóm E: XONG E-1. Còn E-2 (docs đổi loss -> thư mục mới).
-- Nhóm F: XONG F-1. Còn F-2 (params 500) / F-3 (paper. + run tham chiếu) / F-4 (A8 run_id/resume).
-- Còn nguyên: G-1..G-7, H-1..H-7.
-- CI: sạch. Test: 786 tests OK (skipped=2). HEAD: 4884d23.
-- Trạng thái file: ĐANG DỞ (dừng ở ranh giới commit, cây sạch).
+- XONG: Nhóm 0; A-1..A-5 (A-5 ĐÃ PUSH + ghim lại); B (B-1..B-6); C (C-1..C-3); D (D-1..D-6);
+  E (E-1/E-2); F (F-1..F-4); G (G-1..G-7); H (H-1..H-7).
+- CÒN LẠI: A-6 - ĐỂ CUỐI, chỉ làm khi chạy notebook trên Colab (cần mạng + token DagsHub).
+  Việc tương tự cần mạng: `scripts/log_reference_run.py` (ghi run tham chiếu công bố) chạy tay khi online.
+- Ghim: `visobert/lora/exp001` -> ffa19f1; `phobert-base-v2/lora/exp001` -> c56d20e9; cả hai nằm trên
+  `origin/experiment`.
+- CI: sạch (`CI_EXIT=0`). Test: 805 tests OK (skipped=2). HEAD 986d130 = origin/experiment.
