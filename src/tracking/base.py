@@ -11,6 +11,8 @@ MỘT MODULE CẦN CÓ
     log_params    tham số của lần chạy (đều thành chuỗi)
     log_metrics   các con số
     log_artifacts file nhỏ cần tải lên
+    run_id        mã run trên máy chủ (chuỗi rỗng nếu phiên không có run) - để ghi `tracking.run_id`
+                  vào `run_meta.json`, cho lần chạy tiếp nối ĐÚNG run thay vì mở run mới
     close(ok)     kết thúc phiên; `ok=False` là lần chạy hỏng
 
 QUY TẮC QUAN TRỌNG NHẤT
@@ -218,6 +220,17 @@ class Session:
         if self.active:
             self.artifacts.extend(Path(path) for path in paths_ or [])
         return self.artifacts
+
+    def run_id(self):
+        """Mã run trên máy chủ, hoặc chuỗi rỗng nếu phiên này KHÔNG có run trên máy chủ.
+
+        Lớp cơ sở (tracker `none`, `local_json`, hoặc phiên MLflow TẮT) không mở run nào, nên trả về
+        chuỗi rỗng - CÙNG quy ước với `mlflow_tracker._Session.run_id()`. Nhờ vậy chỗ gọi chỉ cần
+        `if session.run_id():` mà không phải biết tracker nào đang chạy; thiếu phương thức này thì
+        `experiment_run.run()`/`encoder_run.run()` ném AttributeError GIỮA lúc chạy - đúng thứ luật
+        "ghi nhận không làm chết lần chạy" cấm.
+        """
+        return ""
 
     def close(self, ok=True):
         """Kết thúc phiên. Lớp cơ sở không làm gì; lớp con KHÔNG được ném ra ngoài."""

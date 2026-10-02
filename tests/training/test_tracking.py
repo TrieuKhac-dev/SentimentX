@@ -57,6 +57,31 @@ class TestRegistry(unittest.TestCase):
             self.assertIn(name, lines)
 
 
+class SessionRunIdTest(unittest.TestCase):
+    """MỌI phiên ghi nhận đều có `run_id()` (rỗng khi không có run trên máy chủ).
+
+    Vì sao khoá: `experiment_run.run()`/`encoder_run.run()` gọi `session.run_id()` NGAY sau khi mở
+    phiên để ghi `tracking.run_id` vào `run_meta.json`. Phiên TẮT (tracker `none`/`local_json`, hoặc
+    MLflow thiếu token/không dùng được) trả về base `Session`; thiếu phương thức này là AttributeError
+    GIỮA lúc chạy -> chết run, đúng thứ luật "ghi nhận không làm chết lần chạy" cấm. Lớp test cần
+    dataset không chạy được trên CI nên phải có ca này ở đây.
+    """
+
+    def test_base_session_run_id_is_empty(self):
+        self.assertEqual(base.Session().run_id(), "")
+        self.assertEqual(base.Session(active=False, reason="thử").run_id(), "")
+
+    def test_none_tracker_session_has_run_id(self):
+        session = tracking.begin({"tracker": "none"}, "/tmp/khong-dung")
+        self.assertEqual(session.run_id(), "")
+
+    def test_local_json_session_has_run_id(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            session = tracking.begin({"tracker": "local_json"}, tmp,
+                                     info={"model": "m", "method": "x", "exp_id": "e"})
+            self.assertEqual(session.run_id(), "")
+
+
 class TestHelpers(unittest.TestCase):
     def test_numeric_keeps_only_numbers(self):
         values = base.numeric({"accuracy": {"macro": 91.43, "by_aspect": {"colour": 90.0}},
