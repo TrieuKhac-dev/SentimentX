@@ -156,6 +156,8 @@ class Session:
         self.reason = reason
         self.params = {}
         self.metrics = {}
+        # `series`: chuỗi theo BƯỚC/EPOCH (mỗi tên chỉ số nhiều điểm) -> trình ghi vẽ thành curve.
+        self.series = {}
         self.artifacts = []
         self.notes = []
 
@@ -174,6 +176,20 @@ class Session:
         if self.active:
             self.metrics.update(numeric(values))
         return self.metrics
+
+    def log_point(self, values, step):
+        """Ghi MỘT ĐIỂM của chuỗi theo `step` -> trình ghi vẽ được curve.
+
+        Khác `log_metrics` (một giá trị cuối cùng cho mỗi chỉ số): ở đây cùng một tên chỉ số có nhiều
+        điểm theo thời gian. Dùng ĐÚNG tên khoá của `measure()` (ví dụ `sentiment_f1`, `val_loss`) -
+        đổi tên khoá là curve bên máy chủ bị tách làm hai.
+        """
+        if not self.active:
+            return {}
+        found = numeric(values)
+        for key, value in found.items():
+            self.series.setdefault(str(key), []).append((int(step), float(value)))
+        return found
 
     def log_artifacts(self, paths_):
         if self.active:

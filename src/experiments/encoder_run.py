@@ -456,7 +456,9 @@ def run(plan_data, log=None):
                              train=plan_data["data"]["train"], val=plan_data["data"]["val"],
                              aspects=plan_data["aspects"], codes=plan_data["codes"],
                              fingerprint=plan_data["fingerprint"], seed=plan_data["seed"],
-                             source=plan_data["model"], labels=plan_data.get("labels"), log=log)
+                             source=plan_data["model"], labels=plan_data.get("labels"),
+                             on_point=lambda values, at: session.log_point(values, at),
+                             log=log)
         log.step("huấn luyện xong: {} bước trong {} giây ({} tham số học / {} tổng)".format(
             report["steps"], report["seconds"], report["trainable_params"],
             report["total_params"]), seconds=report["seconds"])

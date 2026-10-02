@@ -120,14 +120,20 @@ class _Session(base.Session):
                 mlflow.log_params(self.params)
             if self.metrics:
                 mlflow.log_metrics(self.metrics)
+            # Chuỗi theo bước/epoch: MLflow vẽ thành CURVE khi mỗi điểm có `step`.
+            points = sum(len(items) for items in self.series.values())
+            for key, items in self.series.items():
+                for step, value in items:
+                    mlflow.log_metric(key, value, step=step)
             for path in self.artifacts:
                 mlflow.log_artifact(str(path))
             mlflow.end_run(status="FINISHED" if ok else "FAILED")
             # Mã run nằm trong DÒNG LOG, không nằm trong `run_meta.json`: bản ghi đó được chốt
             # TRƯỚC khi run mở ra (để bản tải lên máy chủ là bản đã chốt), nên nó không thể chứa
             # mã của chính run. Muốn mở lại run thì tra dòng này.
-            self.note("đã ghi lên {}: run {} ({} tham số, {} chỉ số, {} file)".format(
-                self.uri, self.run_id(), len(self.params), len(self.metrics), len(self.artifacts)))
+            self.note("đã ghi lên {}: run {} ({} tham số, {} chỉ số, {} điểm chuỗi, {} file)".format(
+                self.uri, self.run_id(), len(self.params), len(self.metrics), points,
+                len(self.artifacts)))
         except Exception as exc:  # noqa: BLE001 - ghi nhận không được làm chết lần chạy
             self.note("ghi lên MLflow hỏng ({}: {}) - kết quả vẫn nằm trong thư mục kết quả".format(
                 type(exc).__name__, exc))

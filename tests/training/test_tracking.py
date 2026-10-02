@@ -14,11 +14,12 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from src.experiments import experiments
 from src.core import runlog
 from src import tracking
-from src.tracking import base
+from src.tracking import base, mlflow_tracker
 
 
 class TestRegistry(unittest.TestCase):
@@ -206,6 +207,45 @@ class TestMlflowDegradesGracefully(unittest.TestCase):
         self.assertIn("[WARN] không dùng được MLflow", text)
         self.assertIn("[TRACK] không ghi nhận:", text)
         self.assertFalse(runlog.errors_path(self.out_dir).exists())
+
+
+class LogPointTest(unittest.TestCase):
+    """D-6: `log_point` gom chuỗi theo bước (để trình ghi vẽ được curve train/val)."""
+
+    def test_inactive_session_keeps_nothing(self):
+        session = base.Session(active=False)
+        session.log_point({"sentiment_f1": 0.5}, 1)
+        self.assertEqual(session.series, {})
+
+    def test_points_are_collected_with_their_step(self):
+        session = base.Session(active=True)
+        session.log_point({"sentiment_f1": 0.5, "val_loss": 1.2}, 100)
+        session.log_point({"sentiment_f1": 0.6}, 200)
+        self.assertEqual(session.series["sentiment_f1"], [(100, 0.5), (200, 0.6)])
+        self.assertEqual(session.series["val_loss"], [(100, 1.2)])
+
+    def test_non_numeric_values_are_dropped(self):
+        session = base.Session(active=True)
+        session.log_point({"ghi_chu": "ok", "sentiment_f1": 0.5}, 1)
+        self.assertEqual(list(session.series), ["sentiment_f1"])
+
+
+class MlflowSeriesTest(unittest.TestCase):
+    """D-6: `close()` gửi TỪNG điểm kèm `step`, nên MLflow vẽ được curve."""
+
+    def test_every_point_reaches_the_server_with_its_step(self):
+        calls = []
+        fake = mock.Mock()
+        fake.log_metric.side_effect = lambda key, value, step=None: calls.append((key, value, step))
+        run = mock.Mock(info=mock.Mock(run_id="abc123"))
+        session = mlflow_tracker._Session(fake, "http://server", run)
+        session.log_point({"sentiment_f1": 0.5}, 100)
+        session.log_point({"sentiment_f1": 0.6}, 200)
+        session.close(ok=True)
+        self.assertEqual([item for item in calls if item[0] == "sentiment_f1"],
+                         [("sentiment_f1", 0.5, 100), ("sentiment_f1", 0.6, 200)])
+        fake.end_run.assert_called_once()
+
 
 
 if __name__ == "__main__":

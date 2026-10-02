@@ -507,7 +507,7 @@ def early_settings(config):
 
 
 def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42, source=None,
-        labels=None, log=None):
+        labels=None, on_point=None, log=None):
     """Huấn luyện LoRA rồi trả về số liệu của lượt huấn luyện.
 
     `train` và `val` là dict `{"texts": [...], "labels": [[mã nhãn]], "mask": [[0/1]]}` với nhãn ĐÃ
@@ -677,6 +677,8 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
                             "loss": round(loss_value, 6),
                             "lr": round(float(scheduler.get_last_lr()[0]), 8), "val": metrics})
             improved = record(epoch + 1, metrics, snapshot=True)
+            if on_point is not None and metrics:
+                on_point(metrics, step)
             message = "bước {} | loss {:.4f} | val {} | {}".format(
                 step, loss_value, value_text(metrics, metric),
                 "đã lưu model/best" if improved else "chưa tốt hơn")
@@ -699,6 +701,8 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
         # tưởng bản đang chấm là bước in ra gần nhất - đã gặp thật: `model/best` ở bước 1153 trong khi
         # console chỉ in "đã lưu model/best" ở bước 1100.
         best_now = record(epoch + 1, metrics, snapshot=False)
+        if on_point is not None and metrics:
+            on_point(metrics, step)
         store.save(store.last_dir(), writer, payload(epoch + 1, metrics), checkpoint_payload())
         # Một dòng LỊCH SỬ cho cả epoch: loss train trung bình + loss/chỉ số val - dữ liệu để vẽ curve
         # train/val (`training_history.csv`) và để nhìn ra overfit.
