@@ -262,7 +262,7 @@ tưởng đã xong hết.
 
 | Việc | Trạng thái | Ghi chú |
 | ---- | ---------- | ------- |
-| 12 notebook thí nghiệm còn ghim `a7ac72a` (bản code TRƯỚC Batch 5b) | CHƯA LÀM - có kế hoạch | Số đã báo cáo vẫn tra được từ đúng commit đó, nên chưa sai gì. Đợt dựng lại sẽ dựng lại ô của cả 12 theo bản mẫu mới rồi ghim lại trong CÙNG một commit (`docs/06_plan/P7_rerun.md` §2) |
+| 12 notebook thí nghiệm ghim `a7ac72a` (bản code TRƯỚC Batch 5b) | **ĐÃ LÀM 02/10/2026** | Cả 12 notebook đã dựng lại theo bản mẫu mới và ghim lại (gói `009`); hai notebook encoder ghim tiếp ở gói `010`. Nay mỗi notebook mang commit của đúng lượt chạy nó sinh ra: 9 lượt prompt ở `88d12e6`, hai lượt LoRA ở `aca047d` |
 | Đổi một tệp TRONG phiên bản dữ liệu đã gửi | Có chốt chặn từ 30/09/2026 | `scripts/build_package.py` DỪNG (mã thoát 3): người nhận đang giữ cùng một mã phiên bản với nội dung khác, nên kết quả họ chạy không còn so được. Cách sửa đúng là tạo phiên bản dữ liệu MỚI |
 | Đổi `config.yaml` của một thí nghiệm ĐÃ chạy | KHÔNG chặn, chỉ ghi lại | `run_meta.json` giữ `config_sha256` lúc chạy, nên sửa file sau đó là bản ghi không còn dựng lại được từ chính file đó. Chưa có phép kiểm nào chặn; luật là: sửa thì phải chạy lại và nói rõ |
 | Số ở `docs/04_experiments/03_training_eval.md` mục 6 đo trên `val` của bộ dữ liệu `v0.1.0` | **ĐÃ GHI RÕ 01/10/2026** | Mục 6.3 nay nói rõ đó là bản ghi LỊCH SỬ: `val` của `v0.2.0` có 1.535 dòng (bản cũ 1.524), nên tập con 100 review (seed 42) không rút lại y hệt. Số để so với công bố nằm ở cột `reference` của `data/reports/metrics_matrix/` (đo trên `test`) |
@@ -314,4 +314,58 @@ dưới đây là việc ĐÃ BIẾT và CỐ Ý chưa làm trong đợt này.
   kiểm sâu hơn (đọc HTML, đối chiếu toạ độ điểm) là việc riêng, không cần cho lượt chạy.
 - **Làm tiếp từ đầu:** nếu biểu đồ bị sai số, thêm test đọc `training_history.csv` rồi so với chuỗi
   `data` nhúng trong HTML.
+
+
+## 10. Việc của đợt "20 lượt" (ghi 02/10/2026)
+
+Đợt này chạy thêm 8 thí nghiệm mới (xem `07_evolution.md` và `08_experiment_rationale.md`). Năm món
+dưới đây là CỐ Ý chưa làm, kèm điều kiện quay lại.
+
+### 10.1. Chạy lại Qwen3-0.6B - việc KẾ TIẾP
+
+Ba lượt `qwen3-0.6b/prompt-cot/exp001..003` (đợt trước) nạp nhầm trọng số 4B vì `run_model` rơi về hằng
+số của module. Đã sửa (`checkpoint` của config model là nguồn, có test khoá) và ba thư mục kết quả cũ
+đã xoá; ba notebook được ghim lại để chạy trong gói `011`. Xong khi ba lượt mới có `metrics.json` ghi
+`model = Qwen/Qwen3-0.6B`.
+
+### 10.2. Tách biến lượng hoá
+
+Nhóm fp16 (`exp005..007`) khác nhóm 4-bit (`exp002..004`) HAI biến: lượng hoá và `batch_size` (8 so
+với 4). Chênh lệch 0,54 / 1,12 / 0,63 điểm vì vậy chưa quy được cho biến nào. Ba lượt
+`prompt-cot/exp008..010` chạy 4-bit ở `batch_size: 4` để so sạch với nhóm fp16 (cùng batch). Xong khi
+có kết luận, hoặc ghi rõ là chưa tách được, trong `08_experiment_rationale.md`.
+
+### 10.3. Chống mất cân bằng lớp âm cho encoder
+
+`loss.type: weighted_ce` + `loss.class_weight: inverse` ở hai thí nghiệm `lora/exp002`. Đọc kết quả
+bằng **F1 lớp âm** và macro-F1, KHÔNG bằng accuracy. Điều kiện coi là tiến bộ: F1 lớp âm tăng VÀ số ô
+của cơ sở `paper` không giảm rõ rệt - cơ sở này loại ô model trả lời "không nhắc tới", nên "kiêng trả
+lời" là trung tính với điểm (`docs/04_experiments/metrics.md`).
+
+### 10.4. Ba biến thể prompt - ba cơ chế khác nhau
+
+`prompt-cot/exp011` (ví dụ có ba nhãn âm), `exp012` (thêm bước "quét lời phàn nàn trước khi gán mã"),
+`exp013` (thêm đoạn lưu ý về mất cân bằng nhãn). Mỗi lượt khác `exp003` ĐÚNG MỘT thứ. Điều kiện tiến
+bộ giống 10.3.
+
+### 10.5. Hướng LAI encoder + LLM - có điều kiện
+
+Bốn luật lai thô đã thử trên `test` (chỉ để ước lượng): trên cơ sở `paper` mọi luật đều THUA LLM một
+mình; trên cơ sở `all` lai thắng cả hai (acc micro 97,22 so với 97,10 của encoder và 93,41 của LLM;
+macro-F1 0,835 so với 0,738 và 0,779). Kết luận: lai **phải thắng trên `paper` bằng cách tăng độ chính
+xác lớp âm**, không phải bằng cách phát hiện nhiều hơn. Ba điều kiện trước khi làm: (i) chốt thước đo
+trước khi chạy; (ii) luật và ngưỡng chốt trên `val`, không phải `test`; (iii) cần **xác suất** từng ô
+của encoder (hiện `predictions.csv` chỉ có nhãn cứng) nên phải sửa đường encoder để ghi thêm `p(mã)`.
+
+### 10.6. QLoRA / fine-tune Qwen3-4B - KHÔNG làm được trên T4
+
+Colab chỉ có T4 16 GB; bản 4B ở fp16 đã ~8 GB trọng số nên không còn chỗ cho optimizer/scheduler, còn
+QLoRA 4-bit thì rất chật và dễ OOM giữa lượt. Câu hỏi "fine-tune có hơn prompt không" vì vậy để mở;
+muốn làm cần GPU ≥ 24 GB.
+
+### 10.7. Đo dao động - đã bỏ khỏi đợt này
+
+`decoding: sample` + nhiều seed: hạ tầng đã có (`--sample`, `seed`), nhưng đợt này KHÔNG chạy (mỗi
+seed là một thư mục kết quả mới). Giữ ở đây để lần sau nhớ rằng các kết luận kiểu "+0,02 so công bố"
+mới là MỘT lần chạy greedy, chưa phải một phân bố.
 

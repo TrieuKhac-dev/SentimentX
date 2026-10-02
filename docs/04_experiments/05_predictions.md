@@ -52,6 +52,13 @@ khớp nhau.
 | Attempt trước bị ngắt | `RESUME` - chạy tiếp từ `predictions/part_*.jsonl`, điểm vẫn tính trên cả split |
 | Thư mục có khối kết quả mà bản ghi không khớp | **DỪNG kèm lỗi**: thư mục bị trộn bằng tay, xoá rồi chạy lại |
 
+**Số của lượt chạy tiếp thuộc về PHIÊN CUỐI, không phải cả lượt.** `metrics.json` ghi khối `resume`
+(`mode`, `reason`, `reused`, `new`), và `n_samples` cùng `cost` là của phần sinh MỚI trong phiên đó
+(`new`), không phải số mẫu đã chấm. Ví dụ lượt 5 ví dụ `qwen3-4b-instruct-2507/prompt-cot/exp004` ghi
+`n_samples` **319** và `cost.giây` **2.533**, trong khi `run_meta.json::run.n_samples` là **1.623** - điểm
+vẫn tính trên cả split, vì chấm điểm gộp `predictions/part_*.jsonl` trước khi tính. Cột `n_samples` và
+`seconds` của `data/reports/experiment_registry/` theo cùng nghĩa đó, nên đọc chúng kèm cột `mode`.
+
 Không còn `predictions/_bo-qua-*`: muốn một phép đo mới (khác bản code, khác cấu hình) thì cứ ghim
 lại/chạy - mã băm khác nên ra **thư mục khác**, kết quả cũ không bị chuyển đi và không bị ghi đè.
 

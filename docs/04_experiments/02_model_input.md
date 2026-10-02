@@ -223,9 +223,10 @@ trị ở cột `model` của bảng số liệu, và là thứ `--max-length` n
 4B vì dùng cùng tokenizer và cùng ngưỡng cắt - đó là điều đúng cần ghi lại, không phải lỗi trùng lặp.
 
 *Ghi chú về số dòng:* mỗi lần đo hiện ra **4 model × 3 split = 12 dòng**. Bảng gộp
-`data/reports/model_input/model_input.csv` vì thế có **192 dòng**: **16 tệp** `token_stats__*.csv`
-(8 tổ hợp prompt × ví dụ × bộ tách từ, mỗi tổ hợp một tệp cho MỖI phiên bản dữ liệu: `…-e0ccc484` và
-`…-e616c1e3`) × 12 dòng. Tám tệp của bộ cũ từng chỉ có 9 dòng vì đo trước khi Qwen3-0.6B vào thử
+`data/reports/model_input/model_input.csv` vì thế có **228 dòng**: **19 tệp** `token_stats__*.csv`
+(8 tổ hợp prompt × ví dụ × bộ tách từ cho MỖI phiên bản dữ liệu `…-e0ccc484` và `…-e616c1e3`, cộng 3
+tệp của ba prompt một-ví-dụ mới `absa_cot_1shot_v2/v3/v4` - ba prompt này chỉ đo ở phiên bản đang
+dùng) × 12 dòng. Tám tệp của bộ cũ từng chỉ có 9 dòng vì đo trước khi Qwen3-0.6B vào thử
 nghiệm; đã chạy lại đủ bốn model ngày 30/09/2026.
 
 Ba chốt an toàn đi kèm:
@@ -442,6 +443,8 @@ Qwen khai một số rất lớn, còn hai tokenizer RoBERTa/XLM-R trả số se
 | `visobert` | 514 | 256 | 258 |
 | `qwen3-4b-instruct-2507` | 262.144 | 2304 | 259.840 |
 | `qwen3-0.6b` | 40.960 | 2304 | 38.656 |
+
+> **Nguồn trần:** đọc từ `config.json` của model - `data/models/Qwen3-4B-Instruct-2507/config.json` cho `max_position_embeddings = 262.144`; `data/models/Qwen3-0.6B/config.json` cho `40.960`. Với **Qwen3-0.6B**: giới hạn **cứng** của kiến trúc là **40.960**, còn **ngữ cảnh native được huấn luyện** là **32.768** (phạm vi đảm bảo chất lượng). Dự án chặn theo giá trị của `config.json` (`40.960`).
 
 #### Bốn ngưỡng và căn cứ chọn
 
