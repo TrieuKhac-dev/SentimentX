@@ -1,0 +1,41 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp019
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp009
+
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+notes: "Lay mau seed 2 (do dao dong + dau vao bieu quyet)"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  roles: {eval: test}
+
+prompt: ../../../../configs/prompts/absa_cot_1shot_v1.txt
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v1.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# ĐỔI CÁCH SINH, không đổi prompt và không đổi model: lấy mẫu theo khuyến nghị model card
+# (temperature 0,7 / top_p 0,8 / top_k 20). `seed` là CẶP KHOÁ của `mode: sample` (luật 23 của
+# docs/00_workflow/02_rules.md): cùng hạt giống là cùng dấu vân tay lượt chạy, tức ghi vào CÙNG một thư
+# mục kết quả - ba "mẫu" cho bước biểu quyết sẽ hoá thành một mẫu. Đây là lý do khoá `decoding.seed`
+# phải đọc được từ config chứ không nằm cứng trong mã.
+decoding:
+  mode: sample
+  seed: 2
+
+# Giữ nguyên cách nạp trọng số và cỡ lô của `exp009` (4-bit, lô 4) để phép so chỉ lệch CÁCH SINH.
+inference:
+  batch_size: 4
+  dtype: float16

@@ -1,0 +1,36 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp004
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: phobert-base-v2/lora/exp002
+
+model: phobert-base-v2
+method: lora
+
+notes: "Luot TEST cho buoc NGUONG (phobert-base-v2): cung cau hinh exp002, ban ma co ghi xac suat"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# CÙNG cấu hình với `exp002` - lượt này khác ở BẢN MÃ và ở chỗ kết quả của nó là đầu vào của bước ÁP
+# NGƯỠNG. Bản mã mới ghi thêm `probabilities.csv` (xác suất từng ô), thứ mà bước ngưỡng cần.
+# Ngưỡng KHÔNG nằm trong cấu hình này: nó là KẾT QUẢ của một phép dò trên `val` (hai lượt `lora/exp003`),
+# đóng băng ở `data/reports/fusion/thresholds.json` rồi áp NGOÀI lên lượt chạy này
+# (`scripts/fit_thresholds.py --apply`). Nhét ngưỡng vào cấu hình là mỗi lần đổi ngưỡng phải chạy lại model.
