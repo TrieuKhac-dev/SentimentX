@@ -751,10 +751,16 @@ def value_text(metrics, metric="accuracy_cell"):
 
 
 def predict(config, model_id, adapter_dir, texts, source=None):
-    """Suy luận ra MÃ NHÃN cho từng review. Trả về `(danh sách mã theo khía cạnh, head_config)`.
+    """Suy luận ra MÃ NHÃN và XÁC SUẤT từng ô.
+
+    Trả về `(mã theo khía cạnh, xác suất theo (khía cạnh, mã), head_config)`.
 
     Mã nhãn trả về là mã của KHÔNG GIAN NHÃN đã huấn luyện (đọc từ `head_config.json` của
     checkpoint), nên phần chấm điểm dùng chung với đường prompt mà không phải đoán.
+
+    Xác suất là thứ bước KẾT HỢP cần (dò ngưỡng theo khía cạnh, ensemble nhiều encoder, luật lai
+    encoder + LLM): ba bước đó phải so XÁC SUẤT chứ không chỉ so nhãn cứng. Thứ tự mã trong mỗi hàng
+    là thứ tự của `head_config["codes"]`, và `encoder_run` ghi lại ĐÚNG thứ tự đó vào tên cột.
     """
     import torch
 
@@ -771,13 +777,18 @@ def predict(config, model_id, adapter_dir, texts, source=None):
 
     ids, masks = encode(module, texts, found["max_length"])
     model.eval()
-    answers = []
+    answers, probabilities = [], []
     with torch.no_grad():
         for start in range(0, ids.size(0), found["eval_batch"]):
             stop = start + found["eval_batch"]
             logits = model(input_ids=ids[start:stop].to(device),
                            attention_mask=masks[start:stop].to(device))
-            for row in logits.argmax(dim=-1).cpu().tolist():
+            # `softmax` tính trên float32: logits có thể ở fp16 (T4), mà softmax fp16 cho ra xác suất
+            # bị làm tròn thô - sai số đó lan thẳng vào ngưỡng của bước kết hợp.
+            probs = torch.softmax(logits.float(), dim=-1).cpu().tolist()
+            for row, prob_row in zip(logits.argmax(dim=-1).cpu().tolist(), probs):
                 answers.append([index_to_code[int(position)] for position in row])
-    return answers, head_config
+                probabilities.append([[round(float(value), 6) for value in per_code]
+                                      for per_code in prob_row])
+    return answers, probabilities, head_config
 

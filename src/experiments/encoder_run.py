@@ -400,6 +400,34 @@ def prediction_rows(plan_data, answers, seconds_per_sample=0.0):
 
 
 
+def probability_columns(codes):
+    """Cột của tệp xác suất: `chỉ số`, `split`, `khía cạnh`, rồi `p(mã <mã>)` cho TỪNG mã đã huấn luyện.
+
+    Tên cột mang CHÍNH mã nhãn (đọc từ `head_config.json`), KHÔNG phải số thứ tự: không gian nhãn có
+    thể là `{1, 2}` (binary) chứ không phải `{0, 1, 2, 3}`, nên đánh số cột theo thứ tự là mời gọi gán
+    nhầm mã về sau - và bước kết hợp đọc TÊN CỘT để biết `p(mã 2)` nằm ở đâu.
+    """
+    return ["chỉ số", "split", "khía cạnh"] + ["p(mã {})".format(int(code)) for code in codes]
+
+
+def probability_rows(plan_data, probabilities, codes):
+    """Bảng xác suất từng ô: MỘT DÒNG cho mỗi (review, khía cạnh).
+
+    Vì sao dạng DÀI chứ không phải một cột JSON: bước kết hợp ghép bảng này với `predictions.csv` theo
+    (chỉ số, khía cạnh) và đọc bằng `csv` thuần - cùng lối với mọi bảng khác của dự án.
+    """
+    aspects = plan_data["aspects"]
+    split = plan_data["split"]
+    rows = []
+    for position, sample in enumerate(probabilities):
+        index = str(plan_data["row_index"][position])
+        for aspect_position, aspect in enumerate(aspects):
+            row = [index, split, aspect]
+            row.extend(sample[aspect_position][:len(codes)])
+            rows.append(row)
+    return rows
+
+
 def run(plan_data, log=None):
     """Huấn luyện, suy luận, chấm điểm, ghi kết quả và ghi nhận. CẦN GPU.
 
@@ -490,7 +518,7 @@ def run(plan_data, log=None):
 
         adapter = report["best_dir"] or report["last_dir"]
         log.step("suy luận bằng {}".format(utils.rel(adapter)))
-        answers, head_config = trainer.predict(
+        answers, probabilities, head_config = trainer.predict(
             plan_data["config"], plan_data["model_id"], adapter, plan_data["texts"],
             source=plan_data["model"])
         log.step("suy luận xong {} mẫu; checkpoint huấn luyện với {} khía cạnh, nhãn {}".format(
@@ -499,6 +527,15 @@ def run(plan_data, log=None):
         seconds_per_sample = report["seconds"] / max(len(answers), 1)
         rows = prediction_rows(plan_data, answers, seconds_per_sample)
         plan_data["parts"].append(rows, plan_data["columns"])
+        # Xác suất từng ô: tệp RIÊNG, chỉ đường encoder có. Bước kết hợp (ngưỡng / ensemble / lai) đọc
+        # nó; phần chấm điểm KHÔNG dùng nó, nên việc ghi thêm tệp này không đổi bất kỳ con số nào.
+        prob_codes = [int(code) for code in head_config["codes"]]
+        prob_path = utils.write_csv(out_dir / paths.pattern("probabilities"),
+                                    probability_columns(prob_codes),
+                                    probability_rows(plan_data, probabilities, prob_codes))
+        log.step("ghi xác suất từng ô: {} ({} dòng = {} mẫu × {} khía cạnh)".format(
+            utils.rel(prob_path), len(plan_data["texts"]) * len(plan_data["aspects"]),
+            len(plan_data["texts"]), len(plan_data["aspects"])))
         cost = {"giây": report["seconds"], "token sinh TB": None, "token sinh/giây": None,
                 "huấn luyện giây": report["seconds"], "số bước": report["steps"]}
         return experiment_run.finish(plan_data, rows, cost, device_info(report),

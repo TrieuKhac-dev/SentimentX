@@ -82,6 +82,12 @@ patterns:
   metrics_rescored_csv: "metrics_rescored.csv"
   # Lịch sử huấn luyện của lượt chạy encoder: loss/metric theo epoch. Xem docs/04_experiments/06_lora_encoder.md.
   training_history: "training_history.csv"
+  # XÁC SUẤT từng ô `p(mã)` của đường ENCODER (chỉ đường encoder ghi tệp này; đường prompt không có
+  # xác suất vì model sinh trả về chuỗi). Bước KẾT HỢP cần tệp này: dò ngưỡng theo khía cạnh, ensemble
+  # nhiều encoder, và luật lai encoder + LLM - cả ba đều phải so xác suất, không chỉ so nhãn cứng.
+  # Tệp KHÔNG nằm trong danh sách "6 tệp nhẹ" gửi kèm mọi lượt: nhóm encoder gửi thêm tệp này
+  # (ghi rõ ở README của gói bàn giao).
+  probabilities: "probabilities.csv"
 
 colab:
   # Thử lần lượt khi mount Drive; {folder} là tên folder giảng viên cấp.
