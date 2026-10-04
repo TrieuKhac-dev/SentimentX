@@ -16,7 +16,7 @@ MỘT FILE GỒM NHỮNG GÌ
     approach      : `prompt` (model sinh, nhận prompt) hoặc `encoder` (model phân loại,
                     học từ dữ liệu gán nhãn). Quyết định ĐƯỜNG CHẠY, nên phải khai rõ.
     task.*        : ghi đè `configs/experiments/task.yaml` khi model này cần khác
-    preprocess.*  : ngưỡng cắt input, chèn lượt trợ lý, bộ tách từ
+    preprocess.*  : ngưỡng cắt input, chèn lượt trợ lý, bộ tách từ, tắt/bật suy nghĩ (Qwen3)
     lora.*        : thứ RIÊNG của model cho huấn luyện, ví dụ `target_modules` (tên module
                     khác nhau theo kiến trúc, nên không nằm ở file dùng chung)
     inference.*   : kiểu số, lượng hoá, kích thước lô
@@ -251,6 +251,14 @@ def load(name):
                 _display(path), value)
         )
 
+    thinking = cfg["preprocess"].get("enable_thinking")
+    if thinking is not None and not isinstance(thinking, bool):
+        raise ModelConfigError(
+            "{}: 'preprocess.enable_thinking' phải là true/false (đang là {!r}); để TRỐNG nghĩa là "
+            "KHÔNG truyền khoá này cho chat template (giữ hành vi mặc định của model).".format(
+                _display(path), thinking)
+        )
+
     cfg = dict(cfg)
     cfg["_path"] = path
     return cfg
@@ -259,6 +267,18 @@ def load(name):
 def preprocess(name):
     """Nhóm `preprocess` của một model (đã kiểm ở `load`)."""
     return dict(load(name)["preprocess"])
+
+
+def enable_thinking(name):
+    """`preprocess.enable_thinking` của một model: True/False, hoặc **None khi model không khai**.
+
+    None khác False và đó là chủ ý: None = "đừng truyền gì cả" (giữ mặc định của model), còn False =
+    "chỉ định tắt suy nghĩ". Khoá này cần cho `Qwen/Qwen3-0.6B` (bản 4/2025) vì model đó **mặc định
+    bật suy nghĩ**: không khai `false` thì nó viết hết trần `max_new_tokens` trong khối ` thinking`
+    rồi không in ra JSON (đã gặp thật: chỉ đọc được 3,33 / 1,36 / 1,73%). Xem
+    `qwen.default_enable_thinking` và luật 3 của `docs/04_experiments/metrics.md`.
+    """
+    return preprocess(name).get("enable_thinking")
 
 
 def inference(name):

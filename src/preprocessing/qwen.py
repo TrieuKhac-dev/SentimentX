@@ -82,6 +82,22 @@ def default_add_generation_prompt(model_id=None):
     return bool(model_config.preprocess(config_name(model_id))["add_generation_prompt"])
 
 
+def default_enable_thinking(model_id=None):
+    """Giá trị `preprocess.enable_thinking` khai cho model: True/False, hoặc None khi model KHÔNG khai.
+
+    None khác False, và đó là chủ ý: None nghĩa là **KHÔNG truyền** khoá này cho chat template (giữ
+    nguyên hành vi mặc định của model), còn False là **chỉ định tắt** suy nghĩ.
+
+    Vì sao cần khoá này: `Qwen/Qwen3-0.6B` (bản 4/2025) **mặc định BẬT suy nghĩ**, nên với
+    `max_new_tokens: 400` nó viết hết trần trong khối ` thinking` rồi không còn chỗ in JSON - ba lượt
+    ngày 02/10/2026 vì thế chỉ đọc được **3,33 / 1,36 / 1,73%**. Model nào muốn CHẮC CHẮN không suy
+    nghĩ thì khai `enable_thinking: false` ở `configs/models/<model_id>.yaml`; model nào cố ý BẬT suy
+    nghĩ thì phải đi kèm trần token đủ lớn và một lượt DÒ - xem `present_plan.md` mục 9.1 và luật 3
+    của `docs/04_experiments/metrics.md`.
+    """
+    return model_config.enable_thinking(config_name(model_id))
+
+
 _PROMPTS = {}
 
 
@@ -238,8 +254,24 @@ def _check_encoded(rows):
     return rows
 
 
+def _chat_kwargs(add_generation_prompt, enable_thinking, model_id):
+    """Tham số chung cho `apply_chat_template`: lượt trợ lý + (khi có khai) chế độ suy nghĩ.
+
+    `enable_thinking` CHỈ được truyền khi model (hoặc thí nghiệm) khai nó: model không có biến đó
+    trong chat template thì truyền vào là gây hiểu nhầm, còn để TRỐNG là giữ đúng hành vi mặc định
+    của model. Nhờ gom vào một hàm, đường ĐO (`token_stats` -> `encode`) và đường DÙNG
+    (`build_inputs`) luôn đi cùng một cách: số token đo được khớp với số token thật gửi cho model.
+    """
+    kwargs = {"tokenize": True, "add_generation_prompt": add_generation_prompt}
+    if enable_thinking is None:
+        enable_thinking = default_enable_thinking(model_id)
+    if enable_thinking is not None:
+        kwargs["enable_thinking"] = bool(enable_thinking)
+    return kwargs
+
+
 def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
-           prompt_name=None, model_id=None):
+           prompt_name=None, model_id=None, enable_thinking=None):
     """Chuỗi id token của prompt ĐÃ bọc chat template (CHƯA pad, CHƯA cắt).
 
     Không cần torch, nên dùng được cho việc ĐO độ dài input thật trước khi huấn
@@ -254,16 +286,15 @@ def encode(texts, add_generation_prompt=None, aspects=None, label_map=None,
     """
     if add_generation_prompt is None:
         add_generation_prompt = default_add_generation_prompt(model_id)
+    kwargs = _chat_kwargs(add_generation_prompt, enable_thinking, model_id)
+    kwargs["return_dict"] = False       # trả về list[list[int]] thay vì BatchEncoding
     return _check_encoded(tokenizer(model_id).apply_chat_template(
-        conversations(texts, aspects, label_map, prompt_name),
-        tokenize=True,
-        add_generation_prompt=add_generation_prompt,
-        return_dict=False,      # trả về list[list[int]] thay vì BatchEncoding
-    ))
+        conversations(texts, aspects, label_map, prompt_name), **kwargs))
 
 
 def build_inputs(texts, max_length=None, add_generation_prompt=None,
-                 aspects=None, label_map=None, prompt_name=None, model_id=None):
+                 aspects=None, label_map=None, prompt_name=None, model_id=None,
+                 enable_thinking=None):
     """Chuyển danh sách văn bản thành input cho Qwen3.
 
     Trả về dict của tokenizer. Nhờ `apply_chat_template`, prompt được bọc đúng
@@ -277,15 +308,10 @@ def build_inputs(texts, max_length=None, add_generation_prompt=None,
         add_generation_prompt = default_add_generation_prompt(model_id)
     if max_length is None:
         max_length = limit(model_id)[0]
+    kwargs = _chat_kwargs(add_generation_prompt, enable_thinking, model_id)
+    kwargs.update(padding=True, truncation=True, max_length=max_length, return_tensors="pt")
     return tokenizer(model_id).apply_chat_template(
-        conversations(texts, aspects, label_map, prompt_name),
-        tokenize=True,
-        add_generation_prompt=add_generation_prompt,
-        padding=True,
-        truncation=True,
-        max_length=max_length,
-        return_tensors="pt",
-    )
+        conversations(texts, aspects, label_map, prompt_name), **kwargs)
 
 
 def info(prompt_name=None, model_id=None):

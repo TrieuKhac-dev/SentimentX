@@ -155,5 +155,46 @@ class InferenceKeysTest(unittest.TestCase):
         self.assertIn("inference", str(caught.exception))
 
 
+class EnableThinkingTest(unittest.TestCase):
+    """`preprocess.enable_thinking`: để TRỐNG khác `false`, và giá trị không phải bool là LỖI.
+
+    Chỗ này đã gây hỏng thật: `Qwen/Qwen3-0.6B` mặc định BẬT suy nghĩ, nên ba lượt 02/10/2026 chỉ đọc
+    được 3,33 / 1,36 / 1,73% vì model viết hết trần `max_new_tokens` trong khối ` thinking` rồi không
+    in ra JSON. Vì thế "không khai" phải khác "khai false": không khai = giữ mặc định của model.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-thinking-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+        self.path = self.root / "zz-model.yaml"
+        patcher = mock.patch.object(model_config, "config_path", return_value=self.path)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def write(self, text):
+        self.path.write_text(text, encoding="utf-8")
+        return model_config.load("zz-model")
+
+    def test_de_trong_nghia_la_none_khong_phai_false(self):
+        self.write(VALID_CONFIG)
+        self.assertIsNone(model_config.enable_thinking("zz-model"))
+
+    def test_khai_false_thi_tra_false(self):
+        self.write(VALID_CONFIG.replace("  max_length: 128\n",
+                                        "  max_length: 128\n  enable_thinking: false\n"))
+        self.assertIs(model_config.enable_thinking("zz-model"), False)
+
+    def test_khai_true_thi_tra_true(self):
+        self.write(VALID_CONFIG.replace("  max_length: 128\n",
+                                        "  max_length: 128\n  enable_thinking: true\n"))
+        self.assertIs(model_config.enable_thinking("zz-model"), True)
+
+    def test_gia_tri_khong_phai_bool_la_loi(self):
+        with self.assertRaises(model_config.ModelConfigError) as caught:
+            self.write(VALID_CONFIG.replace("  max_length: 128\n",
+                                            "  max_length: 128\n  enable_thinking: 1\n"))
+        self.assertIn("preprocess.enable_thinking", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
