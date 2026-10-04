@@ -241,21 +241,69 @@
   đây là bằng chứng `enable_thinking: false` có tác dụng thật; (b) `cafebert` và `xlm-roberta-base` cho
   số liệu **giống hệt nhau** (cùng tokenizer SentencePiece, vocab 250.002) - điều đúng cần ghi lại,
   không phải lỗi trùng lặp (cùng lối với cặp Qwen3).
-  **CÒN LẠI của mục 4.12**: cập nhật `docs/04_experiments/02_model_input.md` (228 → 513 dòng; hai phát
-  hiện trên) và `docs/04_experiments/04_backlog.md`.
-- 4.13 `ci_checks` + `unittest` + commit mã/cấu hình — CHƯA LÀM.
+  **CÒN LẠI của mục 4.12** — **XONG 04/10/2026**, xem dòng dưới.
+- 4.12 **XONG 04/10/2026**: đo đủ **19 bảng**, mỗi bảng **27 dòng / 9 model** ✓; bảng gộp `model_input.csv`
+  = **513 dòng** ✓ khớp công thức 228 + 5 model × 19 bảng × 3 split. Tài liệu đã cập nhật:
+  `docs/04_experiments/02_model_input.md` (9 model/27 dòng, 5 model mới, hai phát hiện) và
+  `docs/04_experiments/04_backlog.md` (§11.5 mới + §10.1 ghi trạng thái "đã sẵn sàng chạy").
+  **Hai phát hiện đã ghi, kèm số đo lại cho đúng:** (a) `cafebert` và `xlm-roberta-base` trùng số ở **cả 15
+  cột** — cùng `XLMRobertaTokenizer`, cùng vocab 250.002, mà bảng chỉ đo **độ dài input**, nên trùng là
+  ĐÚNG (khác trọng số tiền huấn luyện là chuyện của bảng kết quả, không phải bảng này); (b) `qwen3-0.6b`
+  nhiều hơn `qwen3-4b-instruct-2507` đúng **+4 token/review** ở mọi split, và con số đó đã **đo trực tiếp
+  bằng tokenizer**: khuôn chat cho **10 token** khi bật/không truyền `enable_thinking`, **14 token** khi
+  truyền `false` (khối ` thinking` rỗng) ⇒ bằng chứng cửa đã đi tới khuôn chat. Ghi chú sửa lỗi: câu
+  "368 → 372" viết ở bản trước là **so sai chiều** — đó là so 0,6B với 4B, không phải trước/sau.
+- 4.13 **XONG 04/10/2026**: `ci_checks` chỉ còn 20 dòng "chưa ghim" (đúng trạng thái trước Mục 6), và
+  `unittest` 889 test với **1 lỗi DUY NHẤT** là `RealTreeTest.test_sau_kiem_tra_deu_sach` — cũng vì các
+  notebook chưa ghim, tự hết sau Mục 6.1. Commit: `feat(experiments): read the sampling seed from the
+  config` · `feat(experiments): add the six batch-8 experiments` · `chore(data): regenerate the token tables
+  for the five new models (part 2 of 2)` · `docs(plan): add the batch-7 plan and update the token, backlog
+  and handover docs` · `docs(presentations): add the LLM batch-size and prompt-structure write-ups`
+  (hai tệp thuyết trình này **còn sót chưa commit** từ phiên trước, nay đã vào git).
 
 ## Mục 5. Tạo thí nghiệm và tài liệu cho các đợt
-- 5.1 Cấu hình + README cho 17 thí nghiệm đợt 7 (quy ước `parent`) — CHƯA LÀM.
-- 5.2 Cấu hình + README cho 9 thí nghiệm đợt 8 — CHƯA LÀM.
-- 5.3 Cấu hình + README cho 3 thí nghiệm đợt 9 — CHƯA LÀM.
-- 5.4 `docs/06_plan/P8_batch7.md` — CHƯA LÀM.
-- 5.5 `handover/README.md` (bảng 17 notebook) — CHƯA LÀM.
-- 5.6 `ci_checks` + `unittest` + commit — CHƯA LÀM.
+- 5.1 **XONG 04/10/2026**: tạo 14 thư mục mới bằng `scripts/new_experiment.py` (0.6B DÒ `exp004`; Qwen2.5
+  `exp001..003`; 4 encoder mới; 2 lượt `val` `lora/exp003`; `exp014/015/016/017`), rồi viết lại config +
+  README cho từng thí nghiệm (README ghi rõ "khác `parent` đúng một thứ"). Ba lượt 0.6B chạy lại
+  (`exp001..003`) giữ cấu hình, `parent: null`, README ghi lí do chạy lại (`enable_thinking: false`).
+  Hai cặp prompt/ví dụ mới: `absa_cot_1shot_v5` (**đổi câu chữ**, ví dụ byte-identical với v1) và
+  `absa_cot_1shot_v6` (prompt byte-identical với v1, **ví dụ có ô giá mã 2**), cộng prompt chẩn đoán
+  `absa_price_probe_v1` + system `absa_price_probe`. Danh sách tập-đóng trong `tests/experiments/test_prompts.py`
+  đã cập nhật (thêm v5, v6 — cả hai vẫn đúng 1 ví dụ nên phép so với `exp003` chỉ lệch một biến).
+  **Lỗi bẫy phát hiện được:** `new_experiment.py` sinh config với `data.version: v0.1.0` (bản dữ liệu CŨ) —
+  cả 14 config đã sửa thành `v0.2.0`.
+- 5.2 **XONG một phần 04/10/2026 (6/9)**: đã tạo + viết config/README cho 6 thí nghiệm chốt được cấu hình
+  ngay (`phobert-base-v2/lora/exp004`, `visobert/lora/exp004`, `qwen3-4b-instruct-2507/prompt-cot/exp018`,
+  `exp019`, `exp020`, `exp021`). **Ba lượt 0.6B bật suy nghĩ (`exp005/006/007`) CHƯA tạo** — trần token của
+  chúng chỉ biết sau lượt DÒ (`exp004`), và mục 8.2/9.3 còn phải quyết chạy **ba mức hay một mức**; tạo ở
+  mục 8.7 (trước gói 013) để không ghi vào repo một cấu hình có trần đoán mò.
+  **Lỗ hổng mã đã bịt trong lúc làm:** hạt giống sinh văn bản nằm CỨNG trong mã (`seed=42`) nên ba lượt lấy
+  mẫu sẽ ra **cùng một thư mục kết quả** ⇒ biểu quyết 3 mẫu thành vô nghĩa. Đã thêm khoá **`decoding.seed`**
+  (vào `KNOWN_KEYS`, đọc từ config trong `run_generation`/`plan`, ghi vào `evaluation.yaml`, +5 test); mặc
+  định vẫn là 42 nên các lượt cũ **không** đổi dấu vân tay.
+- 5.3 **CHƯA LÀM — cần người dùng quyết:** 3 thí nghiệm đợt 9 cần 3 file `configs/models/*.yaml` mới
+  (`qwen3-4b-thinking-2507`, `qwen3-8b`, `qwen3-14b`) và nên thêm 3 model đó vào `token_stats.MODELS` ⇒
+  kéo theo **đo lại cả 19 bảng token lần nữa** (~18 phút) mới giữ được nhất quán "bảng = mọi model đang
+  dùng". Đợt 9 vốn được ghi là "mở rộng, chạy khi muốn" nên tôi **để nguyên**, chờ quyết định.
+- 5.4 **XONG 04/10/2026**: `docs/06_plan/P8_batch7.md` — 10 mục: mục tiêu, trạng thái, bảng 17 + 9 + 3 thí
+  nghiệm, luật chống chạm trần, điều kiện mỗi lượt, luật chia mức nhánh suy nghĩ, **bốn luật kết hợp**, thứ
+  tự ưu tiên, số phiên + mốc dừng, quy ước thực thi.
+- 5.5 **XONG 04/10/2026**: `handover/README.md` thay bảng 20 notebook bằng **17 dòng đợt 7** xếp theo thứ tự
+  nên chạy; cột thời gian ghi **ước tính** kèm số đo thật để đối chiếu; thêm mục **"Nhóm encoder gửi thêm
+  tệp xác suất"** và mục **"Nhánh suy nghĩ đắt gấp khoảng 5 lần"** + luật chống chạm trần.
+- 5.6 **XONG 04/10/2026**: `ci_checks` + `unittest` + commit + push (xem 4.13).
 
 ## Mục 6. Ghim notebook và dựng gói 012
-- 6.1 Push, đợi CI xanh, ghim 17 notebook — CHƯA LÀM.
-- 6.2 Dựng gói 012 ⇒ **MỐC DỪNG #2** — CHƯA LÀM.
+- 6.1 **XONG 04/10/2026**: push `4571648` ⇒ **ghim 23 notebook** (14 mới đợt 7 + 3 chạy lại + 6 đợt 8) vào
+  đúng commit đó ⇒ `ci_checks` **sạch (mã thoát 0)** + `unittest` **889 OK** ⇒ commit ghim `002086b` ⇒ push.
+  **Lệch nhỏ so với câu chữ của kế hoạch (có lí do):** với thí nghiệm MỚI, CI **không thể** xanh TRƯỚC lần
+  ghim đầu — chính mục 6 của `ci_checks` là chỗ bắt notebook phải có `REPO_SHA` hợp lệ. Luồng đúng (và
+  trùng `docs/00_workflow/01_flow.md` dòng 110-117) là: đẩy commit code ⇒ ghim ⇒ commit ghim ⇒ push ⇒
+  **commit ghim đó mới xanh**. Cũng vì vậy 3 notebook 0.6B đã gửi ở gói trước phải **ghim lại** (từ
+  `8bfe96e` sang bản code có `enable_thinking: false`).
+- 6.2 **XONG 04/10/2026**: `scripts/build_package.py` ⇒ **gói 012**
+  (`handover/out/SentimentX-goi-012-002086b-261004.zip`: 23 notebook MỚI + 3 notebook ĐỔI + `README.md` đổi;
+  60 file y nguyên không gửi lại) ⇒ commit sổ gói `c8c8baf` ⇒ push ⇒ **MỐC DỪNG #2** ✓.
 
 ## Mục 7. Người dùng chạy đợt 7
 - 7.1 Giải nén gói 012 lên Drive — CHỜ NGƯỜI DÙNG.
@@ -272,7 +320,8 @@
   trên 7 và trên 6 khía cạnh.
 - 8.5 Chốt bảng luật lai trên `val` ⇒ tệp luật JSON — CHƯA LÀM.
 - 8.6 Viết kết luận nhóm A, B, encoder mới, ba lượt giá — CHƯA LÀM.
-- 8.7 Hai thí nghiệm `test` có ngưỡng ⇒ ghim ⇒ gói 013 ⇒ **MỐC DỪNG #3** — CHƯA LÀM.
+- 8.7 Hai thí nghiệm `test` có ngưỡng + **ba thí nghiệm 0.6B bật suy nghĩ**(tạo ở đây vì trần token chỉ biết
+  sau lượt DÒ) ⇒ ghim ⇒ gói 013 ⇒ **MỐC DỪNG #3** — CHƯA LÀM.
 
 ## Mục 9. Người dùng chạy đợt 8
 - 9.1 Luật chống chạm trần token — CHỜ NGƯỜI DÙNG.
@@ -290,9 +339,13 @@
 ## Mục 11. Danh mục thí nghiệm theo đợt
 - 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `present_plan.md`; số liệu thật sẽ
   đối chiếu ở mục 3.1/3.2.
-- 11.2 Đợt 7 (17 lượt) — CHƯA LÀM: danh mục đã ghi, chờ tạo cấu hình ở mục 5.1.
-- 11.3 Đợt 8 (9 lượt) — CHƯA LÀM.
-- 11.4 Đợt 9 (3 lượt) — CHƯA LÀM.
+- 11.2 Đợt 7 (17 lượt) — **XONG phần tạo + ghim 04/10/2026**: 17 notebook đã có cấu hình + README, đã ghim
+  `4571648` và nằm trong **gói 012**; phần chạy là mục 7 (chờ người dùng).
+- 11.3 Đợt 8 (9 lượt) — **6/9 XONG phần tạo + ghim 04/10/2026**: 6 notebook (2 lượt `test` có ngưỡng + 4
+  lượt lấy mẫu) đã ghim `4571648` và nằm trong **gói 012**; 3 lượt 0.6B bật suy nghĩ chờ mục 8.2 rồi tạo ở
+  mục 8.7 (đi kèm gói 013).
+- 11.4 Đợt 9 (3 lượt) — **CHƯA LÀM, chờ quyết định** (mục 13.4): cần 3 config model mới + cân nhắc đo lại
+  19 bảng token. Danh mục đã ghi trong `present_plan.md` mục 11.4.
 
 ## Mục 12. Việc để ngỏ
 - 12.1 Danh sách việc mở — CHƯA LÀM: đã ghi danh sách trong `present_plan.md`; **đã thêm** mục "lập tập chẩn
@@ -305,6 +358,11 @@
 - 13.1 Giữ `xlm-roberta-base` làm đối chứng — CHỜ NGƯỜI DÙNG (mặc định: GIỮ).
 - 13.2 Commit đầu vào cho bước kết hợp vào `data/reports/fusion/inputs/` — CHỜ NGƯỜI DÙNG (mặc định: CÓ).
 - 13.3 Cửa `% đọc được ≥ 95%` chỉ đánh dấu, không xoá dữ liệu — CHỜ NGƯỜI DÙNG (mặc định: 95%, có đánh dấu).
+- 13.4 **Đợt 9 (3 thí nghiệm lớn) có làm trong đợt này không?** Đợt 9 cần 3 file `configs/models/*.yaml` mới
+  cho `qwen3-4b-thinking-2507`, `qwen3-8b`, `qwen3-14b`; nếu thêm 3 model đó vào `token_stats.MODELS` thì
+  phải **đo lại cả 19 bảng token** (~18 phút) để giữ nhất quán "bảng = mọi model đang dùng". Mặc định tôi
+  đang dùng: **để nguyên, không tạo bây giờ** (kế hoạch vốn ghi đợt 9 là "mở rộng, chạy khi muốn"). Chọn
+  "làm luôn" thì chi phí thêm là 3 config + 18 phút đo lại (không cần GPU).
 
 <!-- DIEM-NOI-TIEP -->
 
