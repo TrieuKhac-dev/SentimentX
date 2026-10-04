@@ -436,13 +436,14 @@ KNOWN_KEYS = (
     # lớp model
     "model_id", "checkpoint", "config_version", "approach",
     "preprocess.max_length", "preprocess.add_generation_prompt", "preprocess.segmenter",
+    "preprocess.enable_thinking",
     "inference.dtype", "inference.quantization", "inference.batch_size",
     # lớp repo
     "url", "branch", "allowed_branches",
     # lớp task (task.yaml, và cùng tên đó khi model ghi đè)
     "label_space", "neutral_policy", "not_mentioned", "aspects",
     # lớp evaluation
-    "n", "decoding.mode", "decoding.temperature", "decoding.top_p",
+    "n", "decoding.mode", "decoding.temperature", "decoding.top_p", "decoding.max_new_tokens",
     "scores", "scores_paper", "group_by",
     "save.predictions", "save.plots", "save.confusion",
     # lớp training

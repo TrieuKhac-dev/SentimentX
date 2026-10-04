@@ -185,7 +185,7 @@ def sent_prompts(tokenizer, inputs, columns):
 
 def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
         batch_size=4, max_length=None, generation=None, row_index=None, quiet=False,
-        store=None, columns=None):
+        store=None, columns=None, enable_thinking=None):
     """Sinh + đọc kết quả cho cả một split (hoặc một tập con).
 
     `golds` là list[dict {khía cạnh: mã đúng}]; `row_index` là chỉ số dòng gốc trong file
@@ -214,7 +214,8 @@ def run(split, texts, golds, aspects, label_map, prompt_name, model, tokenizer,
     for order, start in enumerate(starts, 1):
         chunk = list(texts[start:start + batch_size])
         inputs = qwen.build_inputs(chunk, max_length=max_length, aspects=aspects,
-                                   label_map=label_map, prompt_name=prompt_name)
+                                   label_map=label_map, prompt_name=prompt_name,
+                                   enable_thinking=enable_thinking)
         answers, lengths, seconds = generate(inputs, model, tokenizer, generation)
         prompts = sent_prompts(tokenizer, inputs, columns)
 

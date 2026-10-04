@@ -110,6 +110,18 @@ def effective_max_length(config_data, passed=None):
     return qwen.limit()[0]
 
 
+def thinking_of(config_data):
+    """`preprocess.enable_thinking` ĐANG dùng: True/False, hoặc **None khi không khai**.
+
+    None và False khác nhau: None = "đừng truyền khoá này cho chat template" (giữ mặc định của
+    model), còn False = chỉ định TẮT suy nghĩ. Đọc từ cấu hình ĐÃ HỢP NHẤT để lớp THÍ NGHIỆM ghi đè
+    được lớp model - nhờ vậy cùng một model chạy được cả hai chế độ (lượt tắt suy nghĩ và lượt bật
+    suy nghĩ + trần token lớn), và hai chế độ rơi vào HAI thư mục kết quả khác nhau vì cấu hình khác
+    nhau nằm trong mã băm danh tính.
+    """
+    return ((config_data or {}).get("preprocess") or {}).get("enable_thinking")
+
+
 def run_hash(config_sha256):
     """Tên thư mục kết quả của một lượt chạy: **tám ký tự đầu của mã băm danh tính**.
 
@@ -206,6 +218,7 @@ def run_record(plan_data):
         "subset_seed": plan_data["seed"],
         "quant": effective_quant(plan_data.get("quant"), plan_data["config"]),
         "max_length": plan_data["max_length"],
+        "enable_thinking": thinking_of(plan_data["config"]),
         "batch_size": plan_data["batch_size"],
         "generation": dict(plan_data.get("generation") or {}),
         "prompt": plan_data["prompt"].name,
@@ -350,6 +363,9 @@ def print_config(plan_data, model_info):
         if plan_data["limit"] and plan_data["limit"] < plan_data["total"] else ""))
     print("  ngưỡng cắt  : {} token (preprocess.max_length đang dùng)".format(
         plan_data["max_length"]))
+    print("  suy nghĩ    : {} (preprocess.enable_thinking)".format(
+        "KHÔNG khai - giữ mặc định của model" if plan_data.get("enable_thinking") is None
+        else ("BẬT" if plan_data["enable_thinking"] else "TẮT")))
     print("  sinh        : {}".format(
         "greedy (tái lập)" if not plan_data["sampled"] else
         "lấy mẫu: temperature={}, top_p={}, top_k={}, seed={}".format(
@@ -435,6 +451,24 @@ def dtype_of(config_data):
     return str(value).strip().lower() if value else "auto"
 
 
+def max_new_tokens_of(config_data, passed=None):
+    """Trần token sinh ĐANG dùng cho lượt chạy này, theo thứ tự ưu tiên.
+
+    `passed` (tham số dòng lệnh `--max-new-tokens`) > `decoding.max_new_tokens` của cấu hình ĐÃ HỢP
+    NHẤT > hằng số `runner.DEFAULT_MAX_NEW_TOKENS` (400, đủ cho câu trả lời JSON ngắn).
+
+    Vì sao phải khai được trong CONFIG chứ không chỉ ở dòng lệnh: lượt **bật suy nghĩ** cần trần lớn
+    hơn hẳn, vì model viết hết trần trong khối ` thinking` rồi không còn chỗ in JSON - đã gặp thật với
+    `Qwen/Qwen3-0.6B` (ba lượt chỉ đọc được 3,33 / 1,36 / 1,73%). Trần token cũng đi vào dấu vân tay
+    của lượt chạy (qua `run_identity`), nên nó phải là một phần CẤU HÌNH đọc lại được, không phải
+    tham số gõ tay dễ quên. Xem `present_plan.md` mục 4.2 và 9.1.
+    """
+    if passed:
+        return int(passed)
+    declared = ((config_data or {}).get("decoding") or {}).get("max_new_tokens")
+    return int(declared) if declared else None
+
+
 def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=42):
     """Cấu hình sinh HIỆU LỰC của một lượt chạy: `plan()` và `preflight` dùng chung hàm này.
 
@@ -443,9 +477,10 @@ def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=42):
     dấu vân tay khác nhau - và lượt chạy bị ngắt sẽ RESUME trên cách sinh khác.
     """
     card, _sampled = settings_of(config_data, do_sample=sampled)
-    return runner.settings(quant=quant, max_new_tokens=max_new_tokens, do_sample=sampled,
-                           temperature=card.get("temperature"), top_p=card.get("top_p"),
-                           top_k=card.get("top_k"), seed=seed if sampled else None)
+    return runner.settings(
+        quant=quant, max_new_tokens=max_new_tokens_of(config_data, max_new_tokens),
+        do_sample=sampled, temperature=card.get("temperature"), top_p=card.get("top_p"),
+        top_k=card.get("top_k"), seed=seed if sampled else None)
 
 
 def run_identity(config_data, version_id, prompt_obj, model_id=None, method=None, exp_id=None,
@@ -674,6 +709,7 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
         "label_map": label_map, "labels": label_names(label_map), "aspects": aspects,
         "texts": texts, "golds": golds, "row_index": row_index, "generation": generation,
         "sampled": sampled, "max_length": max_length, "model": model, "quant": quant,
+        "enable_thinking": thinking_of(config_data),
         "dtype": dtype_name,
         "names": names,
         "columns": columns,
@@ -797,7 +833,7 @@ def run(plan_data, log=None):
             batch_size=plan_data["batch_size"], max_length=plan_data["max_length"],
             generation=plan_data["generation"], row_index=plan_data["row_index"],
             quiet=plan_data["quiet"], store=plan_data["parts"],
-            columns=plan_data["columns"])
+            columns=plan_data["columns"], enable_thinking=plan_data.get("enable_thinking"))
         log.step("sinh xong {} mẫu mới".format(len(rows)), seconds=cost["giây"])
         return finish(plan_data, rows, cost, model_info, info, session, log)
 

@@ -618,6 +618,40 @@ class FailureEndsSessionTest(NoRootOverrideMixin, unittest.TestCase):
             self.assertEqual(calls, [])
 
 
+class ThinkingAndCeilingTest(unittest.TestCase):
+    """Hai khoá quyết định lượt chạy có SUY NGHĨ hay không, và trần token sinh.
+
+    Vì sao khoá ở đây: lượt BẬT suy nghĩ cần trần token lớn hơn hẳn, vì model viết hết trần trong khối
+    ` thinking` rồi không còn chỗ in JSON - đã gặp thật với `Qwen/Qwen3-0.6B` (03 lượt ngày 02/10/2026
+    chỉ đọc được 3,33 / 1,36 / 1,73%). Cả hai khoá đọc từ cấu hình ĐÃ HỢP NHẤT, nên lớp THÍ NGHIỆM ghi
+    đè được lớp model - nhờ vậy cùng một model chạy được cả hai chế độ.
+    """
+
+    def test_khong_khai_thi_enable_thinking_la_none(self):
+        self.assertIsNone(experiment_run.thinking_of({}))
+        self.assertIsNone(experiment_run.thinking_of({"preprocess": {"max_length": 128}}))
+
+    def test_doc_dung_gia_tri_da_khai(self):
+        self.assertIs(experiment_run.thinking_of({"preprocess": {"enable_thinking": False}}), False)
+        self.assertIs(experiment_run.thinking_of({"preprocess": {"enable_thinking": True}}), True)
+
+    def test_lop_thi_nghiem_ghi_de_duoc_lop_model(self):
+        # Cùng một model, hai chế độ -> hai giá trị khác nhau -> hai mã băm danh tính khác nhau.
+        self.assertIs(experiment_run.thinking_of({"preprocess": {"enable_thinking": False}}), False)
+        self.assertIs(experiment_run.thinking_of({"preprocess": {"enable_thinking": True}}), True)
+
+    def test_tran_token_uu_tien_tham_so_dong_lenh(self):
+        config = {"decoding": {"max_new_tokens": 8192}}
+        self.assertEqual(experiment_run.max_new_tokens_of(config), 8192)
+        self.assertEqual(experiment_run.max_new_tokens_of(config, passed=2048), 2048)
+
+    def test_tran_token_khong_khai_thi_tra_none(self):
+        # None nghĩa là "để hàm sinh dùng mặc định của nó" (400 token) - không phải một con số ở đây,
+        # vì mặc định trong code là thứ đã gây lệch giữa notebook và dòng lệnh.
+        self.assertIsNone(experiment_run.max_new_tokens_of({"decoding": {"mode": "greedy"}}))
+        self.assertIsNone(experiment_run.max_new_tokens_of({}))
+
+
 if __name__ == "__main__":
     unittest.main()
 
