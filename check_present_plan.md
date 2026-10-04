@@ -60,12 +60,35 @@
   (`qwen3-4b/…` = `qwen3-4b-instruct-2507/prompt-cot`; dòng 17 là `prompt-one-turn`.)
 
 ## Mục 3. Sinh lại bảng số 17 lượt và viết lại kết luận
-- 3.1 Chạy `collect_reports.py`, kiểm `attempt_registry` 17 dòng — CHƯA LÀM.
-- 3.2 Đối chiếu từng ô với `scores_paper`; kiểm `mispredictions_paper.csv` — CHƯA LÀM.
-- 3.3 Viết lại mục lượng hoá — CHƯA LÀM.
-- 3.4 Viết lại mục ba biến thể prompt (kết quả âm) — CHƯA LÀM.
-- 3.5 Viết lại mục encoder + sửa câu sai về PhoBERT — CHƯA LÀM.
-- 3.6 Thêm mục `price` là điểm mù chung + câu về nhiễu so công bố — CHƯA LÀM.
+- 3.1 Chạy `collect_reports.py`, kiểm `attempt_registry` 17 dòng — XONG 04/10/2026: `--dry-run` và chạy
+  thật đều báo **17 lượt, tất cả FINISHED**; kết quả: `dataset_registry` 2 dòng, `experiment_registry`
+  17 dòng, `attempt_registry` **17 dòng**, `model_input` **228 dòng**, `metrics_matrix` 22 dòng
+  (`accuracy_by_aspect.csv` 8 dòng, `prf_by_aspect_sentiment.csv` 14 dòng). 11 tệp báo cáo được ghi lại.
+- 3.2 Đối chiếu từng ô với `scores_paper`; kiểm `mispredictions_paper.csv` — **XONG 04/10/2026, KẾT QUẢ
+  PASS**: với từng lượt, khớp **đúng một** cột ở cả hai bảng (khớp theo **giá trị**, không theo tên cột,
+  nên bắt được cả lỗi gán nhãn cột); **không** cột nào bị hai lượt cùng khớp; ba cột công bố
+  (`COT+0-shot`, `COT+1-shot`, `COT+5-shot`) **không** khớp lượt nào (đúng như phải thế); **17/17** lượt
+  có `mispredictions_paper.csv` = `cells − correct`; dòng `aspect_detection` của bảng accuracy khớp
+  **17/17** với `scores.aggregate.detection.micro.accuracy`. Ghi chú: `by_aspect` và
+  `when_mentioned_by_aspect` của 17 lượt này **trùng nhau** vì các lượt đều trả lời được mọi ô.
+- 3.3 Viết lại mục lượng hoá — ĐANG LÀM: đã viết lại §3 của `08_experiment_rationale.md` (ba cấu hình
+  sinh; nhóm lô 4 sạch MỘT biến; delta **0,64 / 1,17 / 0,71 điểm**; số ô 2.414/2.324/2.375 so với
+  2.580/2.461/2.520; kết luận "một phần lợi thế đến từ việc kiêng trả lời") và §3 của cây
+  `07_evolution.md`. **CÒN**: `presentations/result_analysis.md`.
+- 3.4 Viết lại mục ba biến thể prompt (kết quả âm) — ĐANG LÀM: đã thêm **§3b** ở `08_experiment_rationale.md`
+  (exp011 −0,09 / exp012 −1,20 / exp013 −5,06; F1 `price` âm 0,308 / 0,600 / 0,167; mất 343 ô ở exp013) và
+  ba nút trong cây `07_evolution.md`. **CÒN**: `presentations/result_analysis.md`.
+- 3.5 Viết lại mục encoder + sửa câu sai về PhoBERT — ĐANG LÀM: đã viết lại §2 ở
+  `08_experiment_rationale.md` (4 lượt; PhoBERT 88,40 → 96,62 và F1 âm 0,540 → 0,876; ViSoBERT 94,86 →
+  95,61; **đảo thứ hạng**; bỏ câu "PhoBERT không đoán được lớp âm" cho lượt `exp002`) và hai nút encoder
+  trong cây. **CÒN**: `docs/04_experiments/06_lora_encoder.md`, `docs/04_experiments/01_models.md`,
+  `presentations/result_analysis.md`.
+- 3.6 Thêm mục `price` là điểm mù chung + câu về nhiễu so công bố — ĐANG LÀM: đã thêm **§7** ở
+  `08_experiment_rationale.md` (F1 = 0 của công bố; chênh 0,07 so công bố nằm trong nhiễu; **chỉ được nói
+  "thước không đo được"**, không được nói "model mù"; cỡ mẫu lớp âm `price` = **train 15 / val 0 / test
+  6**) và §6.3/§6.4 mới. **CÒN**: `presentations/result_analysis.md`.
+  ⚠️ **CẦN NGƯỜI DÙNG DUYỆT** (một dòng bổ sung cho kế hoạch mục 8.4): `val` có **0 ô** `price` âm ⇒ **không
+  dò được ngưỡng cho `price`**; ngưỡng cho `price` phải báo là "không áp dụng" thay vì đặt một số tuỳ ý.
 - 3.7 Cập nhật cây thí nghiệm (3 tệp) — CHƯA LÀM.
 - 3.8 Cập nhật `presentations/experiment_rationale.md`, `result_analysis.md` — CHƯA LÀM.
 - 3.9 `metrics.md`: 5 luật đo + quyết định biểu quyết 3 mẫu — CHƯA LÀM.
