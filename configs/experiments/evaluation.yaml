@@ -17,10 +17,17 @@ read_rate_min: 95
 # trong model card của Qwen3 (temperature 0.7, top_p 0.8, top_k 20 - `CARD_SETTINGS` trong
 # src/experiments/experiment_run.py). Khai số cụ thể ở đây là ĐÈ lên khuyến nghị đó, nên chỉ khai khi có lý do,
 # và ghi lý do ngay cạnh.
+#
+# `seed` là HẠT GIỐNG của chế độ lấy mẫu, và là cặp khoá với `mode: sample` (luật 23 của
+# docs/00_workflow/02_rules.md): bật lấy mẫu mà không khai hạt giống thì mọi lượt trùng một dấu vân tay
+# và ghi vào CÙNG một thư mục kết quả - ba mẫu cho bước biểu quyết sẽ hoá thành một mẫu. Chế độ
+# `greedy` KHÔNG dùng tới khoá này (hạt giống để null trong bản ghi). Không khai ở config thí nghiệm
+# thì dùng mặc định 42, đúng bằng giá trị trước đây, nên các lượt cũ không đổi dấu vân tay.
 decoding:
   mode: greedy
   temperature: null
   top_p: null
+  seed: null
 
 # Tên chỉ số cần tính. Mỗi tên phải có trong registry SCORERS, thiếu tên thì báo lỗi.
 scores:

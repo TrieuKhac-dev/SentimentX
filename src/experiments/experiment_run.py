@@ -34,6 +34,8 @@ from src.tracking import run_meta
 # Cấu hình lấy mẫu theo khuyến nghị của model card Qwen3-4B-Instruct-2507
 # (Temperature=0.7, TopP=0.8, TopK=20). Chỉ dùng khi chạy ở chế độ `sample`.
 CARD_SETTINGS = {"temperature": 0.7, "top_p": 0.8, "top_k": 20}
+# Hạt giống sinh văn bản khi config KHÔNG khai `decoding.seed`. Giữ 42 để lượt chạy cũ không đổi.
+SEED_DEFAULT = 42
 
 
 class RunError(Exception):
@@ -485,18 +487,36 @@ def max_new_tokens_of(config_data, passed=None):
     return int(declared) if declared else None
 
 
-def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=42):
+def seed_of(config_data, passed=None):
+    """Hạt giống sinh văn bản ĐANG dùng cho lượt chạy này, theo thứ tự ưu tiên.
+
+    `passed` (tham số truyền vào lúc chạy) > `decoding.seed` của cấu hình ĐÃ HỢP NHẤT > `SEED_DEFAULT`
+    (42 - đúng bằng giá trị nằm trong mã trước đây, nên lượt cũ KHÔNG đổi dấu vân tay).
+
+    Vì sao phải khai được trong CONFIG chứ không chỉ ở dòng lệnh: ba lượt **lấy mẫu** cho bước biểu
+    quyết phải khác hạt giống nhau, mà hạt giống đi vào DẤU VÂN TAY của lượt chạy - cùng hạt giống là
+    cùng thư mục kết quả, tức "ba mẫu" chỉ còn một mẫu. Bật lấy mẫu (`decoding.mode: sample`) mà không
+    khai hạt giống là hai khoá của MỘT cơ chế bị tách rời (luật 23 của `docs/00_workflow/02_rules.md`).
+    """
+    if passed is not None:
+        return int(passed)
+    declared = ((config_data or {}).get("decoding") or {}).get("seed")
+    return int(declared) if declared is not None else SEED_DEFAULT
+
+
+def run_generation(config_data, quant, sampled, max_new_tokens=None, seed=None):
     """Cấu hình sinh HIỆU LỰC của một lượt chạy: `plan()` và `preflight` dùng chung hàm này.
 
-    Nhiệt độ/top_p/top_k lấy theo model card (hoặc giá trị config khai đè), seed chỉ có nghĩa khi
-    lấy mẫu. Cấu hình sinh được băm vào dấu vân tay lượt chạy, nên hai bên tính khác nhau là hai
-    dấu vân tay khác nhau - và lượt chạy bị ngắt sẽ RESUME trên cách sinh khác.
+    Nhiệt độ/top_p/top_k lấy theo model card (hoặc giá trị config khai đè); hạt giống lấy từ
+    `decoding.seed` của config (hoặc mặc định `SEED_DEFAULT`), và chỉ có nghĩa khi lấy mẫu. Cấu hình
+    sinh được băm vào dấu vân tay lượt chạy, nên hai bên tính khác nhau là hai dấu vân tay khác nhau -
+    và lượt chạy bị ngắt sẽ RESUME trên cách sinh khác.
     """
     card, _sampled = settings_of(config_data, do_sample=sampled)
     return runner.settings(
         quant=quant, max_new_tokens=max_new_tokens_of(config_data, max_new_tokens),
         do_sample=sampled, temperature=card.get("temperature"), top_p=card.get("top_p"),
-        top_k=card.get("top_k"), seed=seed if sampled else None)
+        top_k=card.get("top_k"), seed=seed_of(config_data, seed) if sampled else None)
 
 
 def run_identity(config_data, version_id, prompt_obj, model_id=None, method=None, exp_id=None,
@@ -537,7 +557,7 @@ def run_identity(config_data, version_id, prompt_obj, model_id=None, method=None
 
 def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, prompt=None,
          examples=None, split=None, limit=None, version_id=None, quant="auto", new=False,
-         seed=42, max_new_tokens=None, max_length=None, batch_size=None, model=None,
+         seed=None, max_new_tokens=None, max_length=None, batch_size=None, model=None,
          sample=None, quiet=False):
     """Đọc dữ liệu và quyết định chạy mới hay chạy tiếp. KHÔNG cần GPU.
 
@@ -553,6 +573,10 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     method = method or merged.get("method")
     exp_id = exp_id or merged.get("exp_id")
     exp_dir = merged.get("dir")
+    # Hạt giống: tham số truyền vào > `decoding.seed` của config > `SEED_DEFAULT`. Giải MỘT LẦN ở đây
+    # vì cùng giá trị dùng cho cả tập con ngẫu nhiên lẫn cấu hình sinh, và cấu hình sinh đi vào dấu vân
+    # tay lượt chạy - hai chỗ lấy hai giá trị khác nhau là hai dấu vân tay cho cùng một lượt.
+    seed = seed_of(config_data, seed)
 
     ds = dataset.load_config(dataset_name or (config_data.get("data") or {}).get("dataset"))
     version_id = version_id or versioning.compute_id(ds)

@@ -652,6 +652,42 @@ class ThinkingAndCeilingTest(unittest.TestCase):
         self.assertIsNone(experiment_run.max_new_tokens_of({}))
 
 
+class SamplingSeedTest(unittest.TestCase):
+    """Hạt giống lấy mẫu phải khai được trong CONFIG, không chỉ ở dòng lệnh.
+
+    Vì sao: ba lượt **lấy mẫu** cho bước biểu quyết phải khác hạt giống nhau, mà hạt giống đi vào dấu
+    vân tay của lượt chạy (`run_identity`) - cùng hạt giống là cùng thư mục kết quả, tức "ba mẫu" hoá
+    thành một mẫu. Trước đây hạt giống nằm CỨNG trong mã (`seed=42`) nên không lượt nào khai được.
+    """
+
+    def test_khong_khai_thi_dung_mac_dinh_cu(self):
+        # 42 đúng bằng giá trị nằm cứng trong mã trước đây, nên lượt cũ KHÔNG đổi dấu vân tay.
+        self.assertEqual(experiment_run.seed_of({}), 42)
+        self.assertEqual(experiment_run.seed_of({"decoding": {"mode": "sample"}}), 42)
+
+    def test_config_khai_thi_config_thang(self):
+        self.assertEqual(experiment_run.seed_of({"decoding": {"seed": 3}}), 3)
+
+    def test_tham_so_dong_lenh_thang_config(self):
+        self.assertEqual(experiment_run.seed_of({"decoding": {"seed": 3}}, passed=7), 7)
+
+    def test_hai_hat_giong_khac_nhau_ra_hai_cau_hinh_sinh_khac_nhau(self):
+        first = experiment_run.run_generation(
+            {"decoding": {"mode": "sample", "seed": 1}}, "4bit", True)
+        second = experiment_run.run_generation(
+            {"decoding": {"mode": "sample", "seed": 2}}, "4bit", True)
+        self.assertEqual(first["seed"], 1)
+        self.assertEqual(second["seed"], 2)
+        self.assertNotEqual(first, second)
+
+    def test_greedy_thi_bo_qua_hat_giong(self):
+        # Chế độ tất định: hạt giống để null trong bản ghi, khai `decoding.seed` cũng không có tác dụng.
+        generation = experiment_run.run_generation(
+            {"decoding": {"mode": "greedy", "seed": 3}}, "4bit", False)
+        self.assertFalse(generation["do_sample"])
+        self.assertIsNone(generation["seed"])
+
+
 if __name__ == "__main__":
     unittest.main()
 

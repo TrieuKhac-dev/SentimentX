@@ -443,7 +443,8 @@ KNOWN_KEYS = (
     # lớp task (task.yaml, và cùng tên đó khi model ghi đè)
     "label_space", "neutral_policy", "not_mentioned", "aspects",
     # lớp evaluation
-    "n", "decoding.mode", "decoding.temperature", "decoding.top_p", "decoding.max_new_tokens",
+    "n", "decoding.mode", "decoding.temperature", "decoding.top_p", "decoding.seed",
+    "decoding.max_new_tokens",
     "read_rate_min",
     "scores", "scores_paper", "group_by",
     "save.predictions", "save.plots", "save.confusion",
