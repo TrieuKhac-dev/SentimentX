@@ -50,6 +50,7 @@
 | 04_experiments | `04_backlog.md`            | việc chưa làm                                    | lập kế hoạch                        |
 | 04_experiments | `metrics.md`               | định nghĩa từng metric đánh giá                  | viết báo cáo                        |
 | 04_experiments | `reference_publication.md` | số của công bố và cách so                        | so kết quả                          |
+| 04_experiments | `09_fusion.md`             | kết hợp encoder + LLM: ngưỡng theo khía cạnh, ensemble, luật lai, biểu quyết | khi chạy bước kết hợp |
 | 05_config      | `01_paths.md`              | đường dẫn và mẫu tên                             | đổi cấu trúc thư mục                |
 | 05_config      | `02_pipeline.md`           | config xử lý dữ liệu                             | sửa cách làm sạch                   |
 | 05_config      | `03_datasets.md`           | config dataset và schema                         | thêm hoặc sửa dataset               |
