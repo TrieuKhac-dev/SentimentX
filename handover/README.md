@@ -16,56 +16,63 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Hai mươi notebook trong gói
+## Mười bảy notebook trong gói (đợt 7)
 
-Mười bảy notebook đã chạy xong nên cột thời gian ghi **số phút ĐO THẬT** (lấy từ `run_meta.json` của
-chính lượt đó); **ba notebook 0.6B chưa chạy lần nào** nên ghi rõ là **ước tính**.
+**Chưa lượt nào chạy trước đây**, nên cột thời gian ghi **ước tính**; chỗ nào ước tính dựa trên một lượt
+đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu. Bảng xếp theo **thứ tự nên chạy** (rẻ và lượt
+chặn đường trước - lượt DÒ chốt trần token cho nhánh suy nghĩ của đợt sau).
 
 | Notebook | Trả lời câu gì | Thời gian trên T4 |
 | --- | --- | --- |
-| `notebooks/qwen3-0.6b/prompt-cot/exp001.ipynb` | Qwen3 0.6B CoT 0 ví dụ - model nhỏ hơn 10 lần thì kém bao nhiêu | ước tính 20 đến 40 phút |
+| `notebooks/phobert-large/lora/exp001.ipynb` | Encoder LỚN hơn: cùng kho tiền huấn luyện và cùng bộ tách từ với PhoBERT-base, chỉ khác số tham số | ước tính 15 đến 20 phút (lượt cùng cấu hình đã chạy thật: 14 phút) |
+| `notebooks/vibert-base-cased/lora/exp001.ipynb` | Encoder tiếng Việt **khác kho** tiền huấn luyện (FPT) | ước tính 15 đến 20 phút (đã chạy thật: 12 đến 14 phút) |
+| `notebooks/cafebert/lora/exp001.ipynb` | XLM-R rồi tiền huấn luyện TIẾP bằng tiếng Việt - bậc thang giữa PhoBERT và XLM-R | ước tính 15 đến 20 phút |
+| `notebooks/xlm-roberta-base/lora/exp001.ipynb` | **Đối chứng NGUỒN tiền huấn luyện**: model đa ngữ (ít tiếng Việt) kém hơn bao nhiêu | ước tính 15 đến 20 phút |
+| `notebooks/qwen3-0.6b/prompt-cot/exp004.ipynb` | **LƯỢT DÒ**: bật suy nghĩ thì phần ` thinking` dài bao nhiêu token (chỉ 60 mẫu, trần 8.192) | ước tính 20 đến 40 phút |
+| `notebooks/qwen3-0.6b/prompt-cot/exp001.ipynb` | Qwen3 0.6B CoT 0 ví dụ (**đã tắt suy nghĩ**) | ước tính 20 đến 40 phút |
 | `notebooks/qwen3-0.6b/prompt-cot/exp002.ipynb` | Qwen3 0.6B CoT 1 ví dụ | ước tính 20 đến 40 phút |
 | `notebooks/qwen3-0.6b/prompt-cot/exp003.ipynb` | Qwen3 0.6B CoT 5 ví dụ | ước tính 20 đến 40 phút |
-| `notebooks/qwen3-4b-instruct-2507/prompt-one-turn/exp001.ipynb` | Qwen3 MỘT LƯỢT (0 ví dụ) - mốc so sánh với ba mức CoT | **18 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp002.ipynb` | Qwen3 4-bit CoT 0 ví dụ (zero-shot) | **1 giờ 34 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp003.ipynb` | Qwen3 4-bit CoT 1 ví dụ | **2 giờ 04 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp004.ipynb` | Qwen3 4-bit CoT 5 ví dụ | **42 phút** *(lượt CHẠY TIẾP: chỉ là phần còn lại)* |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp005.ipynb` | Lượng hoá 4-bit làm mất bao nhiêu điểm - mức 0 ví dụ | **2 giờ 04 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp006.ipynb` | như trên - mức 1 ví dụ | **2 giờ 20 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp007.ipynb` | như trên - mức 5 ví dụ | **3 giờ 51 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp008.ipynb` | 4-bit nhưng LÔ 4 (exp002 dùng lô 8): tách "lượng hoá" khỏi "kích thước lô" | **2 giờ 36 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp009.ipynb` | như exp008 - mức 1 ví dụ (cấu hình tốt nhất hiện có) | **2 giờ 47 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp010.ipynb` | như exp008 - mức 5 ví dụ | **7 phút** *(lượt CHẠY TIẾP: chỉ là phần còn lại)* |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp011.ipynb` | Ví dụ dạy CÓ nhãn âm (thay vì ví dụ toàn nhãn dương) | **2 giờ 05 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp012.ipynb` | Quét mọi lời phàn nàn TRƯỚC khi gán mã | **2 giờ 10 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp013.ipynb` | Nói rõ dữ liệu lệch nhãn, cấm lấy mã 1 làm mặc định | **2 giờ 17 phút** |
-| `notebooks/visobert/lora/exp001.ipynb` | ViSoBERT học LoRA thì bằng nào công bố | **12 phút** |
-| `notebooks/visobert/lora/exp002.ipynb` | ViSoBERT + trọng số lớp âm (chống đoán mã 1) | **12 phút** |
-| `notebooks/phobert-base-v2/lora/exp001.ipynb` | PhoBERT học LoRA thì bằng nào công bố | **13 phút** |
-| `notebooks/phobert-base-v2/lora/exp002.ipynb` | PhoBERT + trọng số lớp âm | **14 phút** |
+| `notebooks/qwen2.5-0.5b-instruct/prompt-cot/exp001.ipynb` | Cùng cỡ nhỏ nhưng **khác họ model**: 0 ví dụ | ước tính 15 đến 25 phút |
+| `notebooks/qwen2.5-0.5b-instruct/prompt-cot/exp002.ipynb` | như trên - 1 ví dụ | ước tính 15 đến 25 phút |
+| `notebooks/qwen2.5-0.5b-instruct/prompt-cot/exp003.ipynb` | như trên - 5 ví dụ | ước tính 15 đến 25 phút |
+| `notebooks/phobert-base-v2/lora/exp003.ipynb` | Lượt **`val`** (không phải `test`) để **chốt ngưỡng** theo khía cạnh; ghi **thêm** tệp xác suất | ước tính ~15 phút (lượt `test` cùng cấu hình: 14 phút) |
+| `notebooks/visobert/lora/exp003.ipynb` | như trên, cho ViSoBERT | ước tính ~15 phút (đã chạy thật: 12 phút) |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp014.ipynb` | **GIÁ**: định nghĩa lời chê giá gián tiếp ngay trong prompt | ước tính ~2 giờ (lượt 1 ví dụ cùng model đã chạy thật: 2 giờ 04 phút) |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp015.ipynb` | **GIÁ**: ví dụ dạy có MỘT ô giá mã 2 (chê giá gián tiếp) | ước tính ~2 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp016.ipynb` | **CHẨN ĐOÁN**: chỉ hỏi ĐÚNG khía cạnh giá (tập ô khác nên **không** so với công bố) | ước tính 30 đến 40 phút |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp017.ipynb` | Lượt **`val`** phía LLM: điều kiện để chốt luật **lai** encoder + LLM | ước tính 1,5 đến 2 giờ (lượt `test` cùng cấu hình: 2 giờ 47 phút) |
 
-Mỗi notebook chấm trên **cùng tập `test` (cả split của bộ dữ liệu đang dùng)** - đó là con số để so với công bố. Mỗi
-notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau: mọi
+Mỗi notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau: mọi
 notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riêng theo mã băm danh tính.
 
-Ba notebook `exp005`, `exp006`, `exp007` là **bản đối chứng KHÔNG lượng hoá (fp16)** của ba mức ví dụ
-4-bit: cùng model, cùng prompt, cùng tập test, chỉ khác cách nạp trọng số - nên chúng trả lời câu
-"lượng hoá 4-bit làm mất bao nhiêu điểm". Đây là nhóm **nặng nhất và lâu nhất** (bản không lượng hoá tốn
-gấp ~4 lần bộ nhớ), hãy chạy khi phiên Colab còn đủ thời gian. Ba notebook 0.6B thì nhẹ nhất, chạy
-trước để làm quen cũng được.
-
-Ba nhóm MỚI của đợt này (mỗi lượt chỉ khác một thứ so với lượt gốc, nên đọc kết quả là đọc được
+Bốn nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
 nguyên nhân):
 
-- `exp008..010` - vẫn 4-bit nhưng hạ lô xuống 4, để so sạch với nhóm fp16 (`exp005..007` cũng lô 4):
-  chênh lệch còn lại chỉ có thể do LƯỢNG HOÁ.
-- `exp011..013` - ba biến thể prompt ở mức 1 ví dụ: `exp011` đổi nội dung ví dụ (dạy bằng ví dụ có
-  nhãn âm), `exp012` thêm bước quét lời phàn nàn trước khi gán mã, `exp013` thêm đoạn nói rõ dữ liệu
-  lệch nhãn. Cả ba đều hỏi cùng một câu: **làm sao nhận ra lời chê**, vì đó là chỗ yếu nhất của cả ba
-  model.
-- `visobert/lora/exp002` và `phobert-base-v2/lora/exp002` - thêm trọng số lớp âm (`weighted_ce`).
-  Đọc kết quả bằng **F1 lớp âm** và macro-F1, KHÔNG bằng độ chính xác: đoán mã 1 cho mọi ô vẫn ra độ
-  chính xác cao mà lớp âm thì bằng 0.
+- **Bốn encoder mới** (`phobert-large`, `vibert-base-cased`, `cafebert`, `xlm-roberta-base`) trả lời: điểm
+  của PhoBERT đến từ **kiến trúc**, từ **kho văn bản tiền huấn luyện tiếng Việt**, hay từ **bộ tách từ**?
+  `xlm-roberta-base` là **đối chứng đa ngữ** (phần tiếng Việt rất nhỏ). Đọc bằng **F1 lớp âm** và
+  macro-F1, KHÔNG bằng độ chính xác: đoán mã 1 cho mọi ô vẫn ra độ chính xác cao mà lớp âm thì bằng 0.
+- **Hai lượt `val`** (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`) chấm trên tập **`val`** chứ
+  KHÔNG phải `test`: số này dùng để **chốt ngưỡng** theo từng khía cạnh, nên đừng đem so với công bố.
+- **Ba lượt về khía cạnh `price`**: `exp014` (sửa câu chữ prompt), `exp015` (ví dụ dạy có ô giá mã 2),
+  `exp016` (chỉ hỏi ĐÚNG một khía cạnh). Khía cạnh `price` chỉ có **6 ô âm** ở `test` và **0 ô** ở `val`,
+  nên nó được đọc bằng **số lần model gán mã 2** cộng danh sách 6 ô đó, KHÔNG bằng F1.
+- **`exp017`** là lượt **`val`** phía LLM: điều kiện để chốt **bảng luật lai** encoder + LLM.
+
+### Nhóm encoder gửi thêm tệp xác suất
+
+Sáu lượt encoder (bốn encoder mới + hai lượt `val`) ghi **thêm** `probabilities.csv` cạnh các tệp kết quả
+thường: mỗi dòng là một ô (review × khía cạnh) kèm xác suất từng mã. Hai bước **ngưỡng** và **ensemble**
+không chạy notebook nào - chúng đọc tệp này, nên khi gửi kết quả về **nhớ gửi kèm tệp xác suất**; thiếu nó
+thì hai bước đó không chạy được.
+
+### Nhánh suy nghĩ (đợt sau): đắt gấp khoảng 5 lần
+
+Notebook `qwen3-0.6b/prompt-cot/exp004` (lượt **DÒ** trong gói này) tồn tại để **chốt trần token** cho nhánh
+bật suy nghĩ ở đợt sau: model bật suy nghĩ viết phần ` thinking` rất dài, và nếu trần token thấp thì nó viết
+hết trần rồi không còn chỗ in JSON - đã gặp thật (ba lượt 0,6B ngày 02/10/2026 chỉ đọc được 3,33 / 1,36 /
+1,73%). Vì vậy nhánh suy nghĩ **chậm hơn hẳn** (ước tính xấp xỉ **5 lần** nhánh tắt suy nghĩ), và **mọi
+lượt bật suy nghĩ đều phải chạy lượt DÒ trước** để chọn `max_new_tokens = làm tròn lên (p99 × 1,5)`.
 
 
 Cần chạy GPU: `Runtime > Change runtime type > T4 GPU`. Hai notebook LoRA cần thêm thư viện `peft`

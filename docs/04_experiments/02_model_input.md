@@ -218,22 +218,39 @@ Khi chạy, ngưỡng hiệu lực được in ra kèm **nguồn** và **trần 
 ```
 
 Tên model trong bảng này là **tên file cấu hình** (`configs/models/<model_id>.yaml`) - cũng chính là giá
-trị ở cột `model` của bảng số liệu, và là thứ `--max-length` nhận. Dòng cho `qwen3-0.6b` cũng có mặt vì
+trị ở cột `model` của bảng số liệu, và là thứ `--max-length` nhận. Khối in trên **rút gọn còn ba dòng**;
+danh sách đầy đủ hiện có **9 model** (xem `MODELS` của `src/preprocessing/token_stats.py`). Dòng cho `qwen3-0.6b` cũng có mặt vì
 0.6B là model thử nghiệm chính thức (xem [01_models.md](01_models.md)); số liệu của nó **giống hệt** bản
 4B vì dùng cùng tokenizer và cùng ngưỡng cắt - đó là điều đúng cần ghi lại, không phải lỗi trùng lặp.
 
-*Ghi chú về số dòng:* mỗi lần đo hiện ra **4 model × 3 split = 12 dòng**. Bảng gộp
-`data/reports/model_input/model_input.csv` vì thế có **228 dòng**: **19 tệp** `token_stats__*.csv`
-(8 tổ hợp prompt × ví dụ × bộ tách từ cho MỖI phiên bản dữ liệu `…-e0ccc484` và `…-e616c1e3`, cộng 3
-tệp của ba prompt một-ví-dụ mới `absa_cot_1shot_v2/v3/v4` - ba prompt này chỉ đo ở phiên bản đang
-dùng) × 12 dòng. Tám tệp của bộ cũ từng chỉ có 9 dòng vì đo trước khi Qwen3-0.6B vào thử
-nghiệm; đã chạy lại đủ bốn model ngày 30/09/2026.
+*Ghi chú về số dòng:* mỗi lần đo hiện ra **9 model × 3 split = 27 dòng** (mỗi model một dòng cho `train`,
+`val`, `test`). Bảng gộp `data/reports/model_input/model_input.csv` vì thế có **513 dòng**:
+**19 tệp** `token_stats__*.csv` (8 tổ hợp prompt × ví dụ × bộ tách từ cho MỖI phiên bản dữ liệu
+`…-e0ccc484` và `…-e616c1e3`, cộng 3 tệp của ba prompt một-ví-dụ mới `absa_cot_1shot_v2/v3/v4` - ba prompt
+này chỉ đo ở phiên bản đang dùng) × 27 dòng. Tám tệp của bộ cũ từng chỉ có 9 dòng vì đo trước khi
+Qwen3-0.6B vào thử nghiệm (đã chạy lại ngày 30/09/2026), và 19 tệp từng chỉ có 12 dòng cho tới khi thêm 5
+model mới (đã chạy lại **04/10/2026**). Muốn kiểm lại: `python scripts/collect_reports.py --group
+model_input` in ra số dòng của bảng gộp, và mỗi tệp phải có **27 dòng**.
 
-**Cập nhật 04/10/2026 (chưa sửa số ở đoạn trên):** đợt 7 sẽ thêm **5 model mới** vào
-`MODELS` của `src/preprocessing/token_stats.py` (`qwen2.5-0.5b-instruct`, `phobert-large`,
-`vibert-base-cased`, `cafebert`, `xlm-roberta-base`) ⇒ phải **đo lại 11 bảng token** và bảng gộp sẽ thành
-**513 dòng** (228 + 5 model × 19 tệp × 3 split, phần nào đo được ở mỗi phiên bản). Đoạn này **cố ý chưa
-sửa** cho tới khi đo xong (việc 4.11-4.12 của `present_plan.md`), để không mô tả một bảng chưa tồn tại.
+**Năm model mới (04/10/2026)** đã vào `MODELS` của `src/preprocessing/token_stats.py`:
+`qwen2.5-0.5b-instruct` (bản 0,5B khác họ model), `phobert-large` (encoder lớn hơn, cùng bộ tách từ),
+`vibert-base-cased` (kho tiền huấn luyện khác), `cafebert` và `xlm-roberta-base` (hai model họ XLM-R; đo
+để tách ảnh hưởng của *kho tiền huấn luyện* khỏi *bộ tách từ*). `max_length` của chúng: 256 token cho bốn
+encoder (trần kiến trúc 512/514/514) và 2304 cho `qwen2.5-0.5b-instruct`.
+
+Hai điều đọc ra từ 19 bảng đo ngày 04/10/2026 (đều là kết quả **đúng**, không phải lỗi chạy):
+
+1. **`cafebert` và `xlm-roberta-base` ra số y hệt nhau** ở cả 15 cột, ở mọi bảng. Nguyên nhân: cùng bộ tách
+   từ `XLMRobertaTokenizer` và cùng kho từ vựng 250.002 - khác nhau ở **trọng số tiền huấn luyện**, mà
+   bảng này chỉ đo **độ dài input**. Đoạn mã không bị lỗi nhân bản: đó là đúng như dự đoán, và là bằng
+   chứng cho thấy khác biệt giữa hai model này (nếu có) đến từ trọng số chứ không từ cách tách từ.
+2. **`qwen3-0.6b` nhiều hơn `qwen3-4b-instruct-2507` đúng 4 token mỗi review, ở mọi split** (ví dụ prompt
+   zero-shot: 376,51 so với 372,51 token/review). Nguyên nhân: cấu hình model của 0.6B khai
+   `preprocess.enable_thinking: false`, và khuôn chat của Qwen3 khi **tắt** suy nghĩ chèn một khối
+   ` thinking…<｜end▁of▁thinking｜>` **rỗng** - đúng **4 token** khi đếm bằng tokenizer cục bộ (10 token khi bật/không
+   truyền, 14 token khi tắt). Đây là **bằng chứng cửa đã đi tới khuôn chat**, đúng thứ lượt 0.6B cần: lượt
+   cũ bật suy nghĩ chỉ đọc được 3,33 / 1,36 / 1,73%. Khuôn của `qwen3-4b-instruct-2507` **không có** công
+   tắc này (10 token với cả ba cách gọi), nên lượt 4B không đổi.
 
 Ba chốt an toàn đi kèm:
 

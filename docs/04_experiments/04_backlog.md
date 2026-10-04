@@ -337,6 +337,14 @@ làm đã chốt: khoá `preprocess.enable_thinking: false` trong cấu hình mo
 chạy lại trong đợt 7 (mục 5.1); lượt **bật** suy nghĩ tách thành nhánh riêng, mở đầu bằng lượt **DÒ**
 (`exp004`, trần 8.192) để chốt trần token trước (mục 9.1).
 
+**Cập nhật 04/10/2026 (đã sẵn sàng chạy):** cấu hình `configs/models/qwen3-0.6b.yaml` nay khai
+`enable_thinking: false` (`config_version: 4`), và **cửa chặn** đã có thật: `read_rate_min: 95` trong
+`configs/experiments/evaluation.yaml`, lượt nào dưới cửa thì `metrics.json` ghi `read_rate.valid = false`
+kèm lí do. Ba thí nghiệm chạy lại đã tạo và ghim: `qwen3-0.6b/prompt-cot/exp001..003` (0 / 1 / 5 ví dụ,
+`parent: null` vì ba mức là ba lượt độc lập) trong **gói 012**. Bằng chứng cửa đã đi tới khuôn chat: bảng
+token của 0.6B nhiều hơn bản 4B đúng **4 token/review** (khối ` thinking` rỗng do khuôn chat chèn khi tắt suy
+nghĩ - xem `02_model_input.md`).
+
 ### 10.2. Tách biến lượng hoá - **XONG 04/10/2026**
 
 Ba lượt `prompt-cot/exp008/009/010` (4-bit, lô 4) đã chạy xong, nên nay so được **sạch một biến** với nhóm
@@ -435,4 +443,24 @@ Khi có tập đó thì mới đo được recall/precision thật cho `price` v
 
 **Trạng thái:** người dùng đã chốt **đưa vào backlog, làm SAU** (không thuộc kế hoạch đợt 7-9). Việc của
 người, **0 GPU**.
+
+### 11.5. Đo lại 19 bảng token cho 9 model - **XONG 04/10/2026**
+
+**Việc đã làm:** thêm 5 model vào `MODELS` của `src/preprocessing/token_stats.py` (`qwen2.5-0.5b-instruct`,
+`phobert-large`, `vibert-base-cased`, `cafebert`, `xlm-roberta-base`) rồi **đo lại cả 19 bảng**
+`token_stats__*.csv` (8 + 11 tệp ở hai thư mục phiên bản dữ liệu). Mỗi bảng nay có **27 dòng** (9 model ×
+3 split); bảng gộp `data/reports/model_input/model_input.csv` thành **513 dòng**. `max_length` cũng đã
+chốt: **256** token cho bốn encoder mới, **2304** cho `qwen2.5-0.5b-instruct` (theo trần kiến trúc đo được
+512/514/514).
+
+**Hai điều đọc ra, ghi lại để người sau không tưởng là lỗi:** (1) `cafebert` và `xlm-roberta-base` ra **số y
+hệt nhau** ở mọi cột - cùng bộ tách từ `XLMRobertaTokenizer`, cùng kho từ vựng 250.002, chỉ khác trọng số
+tiền huấn luyện, mà bảng này chỉ đo độ dài input; (2) `qwen3-0.6b` nhiều hơn `qwen3-4b-instruct-2507` đúng
+**4 token/review** ở mọi split, vì khuôn chat Qwen3 khi **tắt** suy nghĩ chèn khối ` thinking` **rỗng** (đo
+trực tiếp bằng tokenizer: 10 token khi bật/không truyền, 14 token khi tắt). Chi tiết ở
+[02_model_input.md](02_model_input.md).
+
+**Nợ còn lại:** mỗi lần thêm model mới phải **chạy lại cả 19 bảng**, vì bảng là "mọi model đang dùng × mọi
+tổ hợp prompt". Muốn rẻ hơn thì phải đổi định dạng bảng (một tệp dài thay vì một tệp cho mỗi tổ hợp) - chưa
+làm, và đây là lý do vì sao 19 tệp đó đã phải đo hai lần trong một tuần.
 
