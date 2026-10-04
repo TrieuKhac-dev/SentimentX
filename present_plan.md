@@ -184,6 +184,19 @@
 - **8.3** Đọc kết quả **ba lượt về giá** (`exp014`, `exp015`, `exp016`) và viết kết luận — **không huỷ**
   gì, cả ba đã chạy.
 - **8.4** Dò ngưỡng theo khía cạnh trên **hai lượt `val` của encoder** ⇒ **tệp luật JSON** (commit).
+  **Đã chốt với người dùng ngày 04/10/2026**: ngưỡng chỉ áp cho **SÁU khía cạnh** (`stayingpower`, `texture`,
+  `smell`, `colour`, `shipping`, `packing`); **`price` KHÔNG có ngưỡng** vì `val` có **0 ô** âm ⇒ tệp luật
+  ghi `price: null` kèm trường lí do `"val có 0 ô âm"`, và các ô `price` giữ nguyên quyết định của model gốc
+  (argmax, không dịch điểm cắt). Kèm theo bốn yêu cầu:
+  1. báo cáo phải ghi rõ cột `price` **không đổi** khi thêm ngưỡng (đúng thiết kế, **không** phải lỗi);
+  2. điểm macro của bảng ngưỡng trình bày **cả hai cách** - trên 7 khía cạnh và trên 6 khía cạnh có ngưỡng -
+     để nhiễu 6 ô của `price` không làm loãng kết luận;
+  3. ghi **bằng chứng quét thử** cho `price` vào tệp luật (quét ngưỡng 0,05 → 0,50 trên `val`: F1 không phụ
+     thuộc ngưỡng vì không có ô âm nào để bắt) - đây là tài liệu hoá, không phải một ngưỡng;
+  4. đọc kết quả `price` của `exp014/015/016` bằng **số lần model gán mã 2 + danh sách 6 ô âm của `test`**
+     (đúng/sai từng ô), **không** dùng F1.
+  Phương án dự phòng **KHÔNG chọn**: dò ngưỡng `price` trên `train` (15 ô) - quá ít, dễ khớp nhiễu, phá luật
+  "ngưỡng dò trên `val`".
 - **8.5** Chốt **bảng luật lai** trên `val` (dùng `exp017` + hai lượt `val` của encoder) ⇒ **tệp luật
   JSON** (commit).
 - **8.6** Viết kết luận cho nhóm A (0.6B tắt suy nghĩ), nhóm B (Qwen2.5-0.5B), bốn encoder mới, ba lượt
@@ -215,7 +228,8 @@
 
 - **10.1** Chạy `scripts/collect_reports.py` + **đối chiếu từng ô** như ở mục 3.2.
 - **10.2** Báo cáo **ngưỡng**: encoder + ngưỡng so với encoder thuần và so với LLM, trình bày trên **cả
-  hai cơ sở**, kèm **số ô** và **`% đọc được`**.
+  hai cơ sở**, kèm **số ô** và **`% đọc được`**; ghi rõ ngưỡng áp cho **6 khía cạnh** và **`price` không có
+  ngưỡng** (nên cột `price` không đổi - xem mục 8.4), kèm điểm macro tính **cả trên 7 và trên 6 khía cạnh**.
 - **10.3** Báo cáo **ensemble** và **lai** trên `test` ở **bảng riêng**, kèm **tệp luật / trọng số** và
   **đầu vào rút gọn đã commit** để tái lập được.
 - **10.4** Báo cáo **biểu quyết**: ba điểm riêng lẻ (đo dao động) + điểm của **bản bỏ phiếu 3 mẫu**;
@@ -285,9 +299,12 @@
   `Qwen/Qwen3-8B` · `Qwen/Qwen3-14B` (4-bit, **khác thế hệ**) · `Qwen3-30B-A3B-Instruct-2507` **không vừa
   T4 16 GB** · ViTASA · trang HTML cho `token_stats` · writer `state_dict` · tag `sys-<mã băm>` · QLoRA
   (cần ≥ 24 GB) · tiêu chí hoàn thành P7 · đo dao động diện rộng · hiệu ứng bộ tách từ · thăng cấp luật
-  lai thành một `method` · trọng số lớp theo từng khía cạnh · và **hợp nhất hai tệp `present_plan.md` +
-  `check_present_plan.md` vào `docs/06_plan/P9_batch7.md`** khi kết thúc đợt (đề xuất, **chờ người dùng
-  duyệt**).
+  lai thành một `method` · trọng số lớp theo từng khía cạnh · **lập tập chẩn đoán giá** (200–300 review có
+  nhắc giá, gán nhãn "chê giá / khen giá / không nhắc" theo quy tắc viết TRƯỚC, lưu tách hẳn ở
+  `data/reports/price_probe/`, không trộn vào bảng `paper`) - cách duy nhất để có thước đo thật cho `price`;
+  việc của người, 0 GPU, **người dùng chốt để làm SAU, chưa đưa vào kế hoạch đợt này** · và **hợp nhất hai
+  tệp `present_plan.md` + `check_present_plan.md` vào `docs/06_plan/P9_batch7.md`** khi kết thúc đợt (đề
+  xuất, **chờ người dùng duyệt**).
 - **12.2** MLflow: experiment `sentimentx-absa` đã bị xoá mềm trên DagsHub nên 23 lượt không được theo
   dõi; người dùng đã quyết **không khôi phục**. Muốn theo dõi lại thì tạo experiment mới trên DagsHub —
   ghi lại để biết, **chưa làm**.

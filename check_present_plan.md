@@ -87,8 +87,11 @@
   `08_experiment_rationale.md` (F1 = 0 của công bố; chênh 0,07 so công bố nằm trong nhiễu; **chỉ được nói
   "thước không đo được"**, không được nói "model mù"; cỡ mẫu lớp âm `price` = **train 15 / val 0 / test
   6**) và §6.3/§6.4 mới. **CÒN**: `presentations/result_analysis.md`.
-  ⚠️ **CẦN NGƯỜI DÙNG DUYỆT** (một dòng bổ sung cho kế hoạch mục 8.4): `val` có **0 ô** `price` âm ⇒ **không
-  dò được ngưỡng cho `price`**; ngưỡng cho `price` phải báo là "không áp dụng" thay vì đặt một số tuỳ ý.
+  **ĐÃ ĐƯỢC DUYỆT 04/10/2026** - người dùng chốt hướng (1): `val` có **0 ô** `price` âm ⇒ **`price` không có
+  ngưỡng** (ghi `price: null` + lí do trong tệp luật); ngưỡng chỉ áp cho 6 khía cạnh còn lại; cột `price`
+  giữ argmax của model gốc nên **không đổi** khi thêm ngưỡng (phải nói rõ trong báo cáo); macro báo cáo cả
+  trên 7 và trên 6 khía cạnh; `price` đọc bằng **đếm + danh sách 6 ô âm**; việc **lập tập chẩn đoán giá** đưa
+  vào BACKLOG, làm sau (không thuộc kế hoạch đợt này).
 - 3.7 Cập nhật cây thí nghiệm (3 tệp) — CHƯA LÀM.
 - 3.8 Cập nhật `presentations/experiment_rationale.md`, `result_analysis.md` — CHƯA LÀM.
 - 3.9 `metrics.md`: 5 luật đo + quyết định biểu quyết 3 mẫu — CHƯA LÀM.
@@ -136,7 +139,9 @@
 - 8.1 `collect_reports.py` + đối chiếu từng ô — CHƯA LÀM.
 - 8.2 Chốt trần token từ lượt DÒ — CHƯA LÀM.
 - 8.3 Đọc kết quả ba lượt về giá (`exp014`, `exp015`, `exp016`) — CHƯA LÀM.
-- 8.4 Dò ngưỡng theo khía cạnh trên `val` ⇒ tệp luật JSON — CHƯA LÀM.
+- 8.4 Dò ngưỡng theo khía cạnh trên `val` ⇒ tệp luật JSON — CHƯA LÀM: **đã chốt cách làm** (04/10/2026) -
+  ngưỡng cho **6 khía cạnh**, `price: null` + lí do "val có 0 ô âm", kèm bằng chứng quét thử, báo cáo macro cả
+  trên 7 và trên 6 khía cạnh.
 - 8.5 Chốt bảng luật lai trên `val` ⇒ tệp luật JSON — CHƯA LÀM.
 - 8.6 Viết kết luận nhóm A, B, encoder mới, ba lượt giá — CHƯA LÀM.
 - 8.7 Hai thí nghiệm `test` có ngưỡng ⇒ ghim ⇒ gói 013 ⇒ **MỐC DỪNG #3** — CHƯA LÀM.
@@ -162,7 +167,9 @@
 - 11.4 Đợt 9 (3 lượt) — CHƯA LÀM.
 
 ## Mục 12. Việc để ngỏ
-- 12.1 Danh sách việc mở — CHƯA LÀM: đã ghi danh sách trong `present_plan.md`.
+- 12.1 Danh sách việc mở — CHƯA LÀM: đã ghi danh sách trong `present_plan.md`; **đã thêm** mục "lập tập chẩn
+  đoán giá" theo quyết định 04/10/2026 (làm sau, không thuộc kế hoạch đợt này); sẽ chép vào
+  `docs/04_experiments/04_backlog.md` ở mục 3.14.
 - 12.2 MLflow (đã mất, không khôi phục) — XONG 04/10/2026: ghi nhận quyết định "kệ MLflow" của người dùng;
   không backfill.
 
