@@ -122,6 +122,18 @@ def thinking_of(config_data):
     return ((config_data or {}).get("preprocess") or {}).get("enable_thinking")
 
 
+def read_rate_min_of(config_data):
+    """Cửa chất lượng `% đọc được` của lượt chạy (phần trăm), hoặc **None khi cấu hình không khai**.
+
+    Đọc từ cấu hình ĐÃ HỢP NHẤT (khoá `read_rate_min`, khai ở `configs/experiments/evaluation.yaml`).
+    Không có mặc định trong code: đổi ngưỡng là đổi một dòng YAML, và ngưỡng được ghi lại trong khối
+    `read_rate` của `metrics.json` (`ngưỡng`, `valid`, `reason`) để người đọc biết con số trước mặt có
+    đạt cửa hay không - xem luật 2 của `docs/04_experiments/metrics.md`.
+    """
+    value = (config_data or {}).get("read_rate_min")
+    return None if value in (None, "") else float(value)
+
+
 def run_hash(config_sha256):
     """Tên thư mục kết quả của một lượt chạy: **tám ký tự đầu của mã băm danh tính**.
 
@@ -854,9 +866,11 @@ def finish(plan_data, rows, cost, model_info, info, session, log):
     parts = plan_data["parts"]
     rows_all = records.merge(parts.records(), rows, plan_data["columns"])
     golds_all, preds_all, infos_all = records.to_arrays(rows_all, aspects)
-    read = metrics.read_rate(infos_all)
+    read = metrics.read_rate(infos_all, min_rate=read_rate_min_of(config_data))
     log.step("tổng {} mẫu ({} mẫu mới), đọc được {}% kết quả".format(
         len(rows_all), len(rows), read["% đọc được"]))
+    if read.get("valid") is False:
+        log.step("KHÔNG ĐẠT CỬA CHẤT LƯỢNG: {}".format(read.get("reason")))
 
     samples = scorers.Samples.build(
         aspects, golds_all, preds_all, task=config_data, labels=plan_data["labels"],

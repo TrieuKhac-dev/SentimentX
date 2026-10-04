@@ -10,8 +10,15 @@ bộ đọc. Xem docs/04_experiments/metrics.md.
 """
 
 
-def read_rate(infos):
-    """Tỉ lệ đọc được kết quả + phân bố lí do lỗi (để báo cáo, không để chấm điểm)."""
+def read_rate(infos, min_rate=None):
+    """Tỉ lệ đọc được kết quả + phân bố lí do lỗi (để báo cáo, không để chấm điểm).
+
+    `min_rate` (phần trăm) là **CỬA CHẤT LƯỢNG**: truyền vào thì kết quả có thêm ba khoá `ngưỡng`,
+    `valid` và `reason`. Vì sao cần cửa: một lượt chỉ đọc được vài phần trăm vẫn sinh ra `metrics.json`
+    "hợp lệ" và rất dễ bị đem đi so - đã gặp thật với `Qwen/Qwen3-0.6B` (3,33% và 1,36%). Cửa **KHÔNG
+    xoá dữ liệu**: nó chỉ gắn cờ để người đọc biết con số đó không dùng được (luật 2 của
+    `docs/04_experiments/metrics.md`).
+    """
     total = len(infos)
     parsed = sum(1 for info in infos if info.get("valid"))
     reasons = {}
@@ -19,7 +26,7 @@ def read_rate(infos):
         if not info.get("valid"):
             key = info.get("reason", "không rõ")
             reasons[key] = reasons.get(key, 0) + 1
-    return {
+    report = {
         "tổng": total,
         "đọc được": parsed,
         "% đọc được": round(100 * parsed / total, 2) if total else 0.0,
@@ -28,3 +35,11 @@ def read_rate(infos):
         "thiếu khía cạnh": sum(1 for info in infos if info.get("thiếu")),
         "lí do lỗi": reasons,
     }
+    if min_rate is not None:
+        rate = report["% đọc được"]
+        report["ngưỡng"] = float(min_rate)
+        report["valid"] = bool(rate >= float(min_rate))
+        report["reason"] = None if report["valid"] else (
+            "chỉ đọc được {}% (dưới ngưỡng {}%): điểm của lượt này KHÔNG dùng được".format(
+                rate, float(min_rate)))
+    return report

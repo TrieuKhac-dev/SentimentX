@@ -444,6 +444,7 @@ KNOWN_KEYS = (
     "label_space", "neutral_policy", "not_mentioned", "aspects",
     # lớp evaluation
     "n", "decoding.mode", "decoding.temperature", "decoding.top_p", "decoding.max_new_tokens",
+    "read_rate_min",
     "scores", "scores_paper", "group_by",
     "save.predictions", "save.plots", "save.confusion",
     # lớp training
