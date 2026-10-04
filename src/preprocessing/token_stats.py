@@ -30,7 +30,8 @@ import inspect
 
 from src.core import config, paths, utils, versioning
 from src.experiments import model_config, prompts
-from src.preprocessing import loader, phobert, qwen, segmenters, visobert
+from src.preprocessing import (cafebert, loader, phobert, phobert_large, qwen, segmenters,
+                               vibert, visobert, xlmroberta)
 
 def _word_count(texts, **kwargs):
     """Đếm "từ" cho model KHÔNG có bước tách từ riêng (ViSoBERT, Qwen).
@@ -88,8 +89,45 @@ MODELS = (
         "tokenizer": visobert.tokenizer,
         "info": visobert.info,
     },
+    {
+        "model_id": "phobert-large",
+        "model_name": phobert_large.MODEL_NAME,
+        "limit": phobert_large.limit,
+        "encode": phobert_large.encode,
+        "words": phobert_large.words,
+        "tokenizer": phobert_large.tokenizer,
+        "info": phobert_large.info,
+    },
+    {
+        "model_id": "vibert-base-cased",
+        "model_name": vibert.MODEL_NAME,
+        "limit": vibert.limit,
+        "encode": vibert.encode,
+        "words": vibert.words,
+        "tokenizer": vibert.tokenizer,
+        "info": vibert.info,
+    },
+    {
+        "model_id": "cafebert",
+        "model_name": cafebert.MODEL_NAME,
+        "limit": cafebert.limit,
+        "encode": cafebert.encode,
+        "words": _word_count,          # SentencePiece: không tách từ, mẫu số đếm theo khoảng trắng
+        "tokenizer": cafebert.tokenizer,
+        "info": cafebert.info,
+    },
+    {
+        "model_id": "xlm-roberta-base",
+        "model_name": xlmroberta.MODEL_NAME,
+        "limit": xlmroberta.limit,
+        "encode": xlmroberta.encode,
+        "words": _word_count,          # SentencePiece: không tách từ
+        "tokenizer": xlmroberta.tokenizer,
+        "info": xlmroberta.info,
+    },
     _qwen_spec("qwen3-4b-instruct-2507"),
     _qwen_spec("qwen3-0.6b"),
+    _qwen_spec("qwen2.5-0.5b-instruct"),
 )
 
 

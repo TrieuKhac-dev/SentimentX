@@ -10,12 +10,17 @@ vào `ENCODERS`. Không phải sửa `lora.py`.
 """
 
 from src.experiments import model_config
-from src.preprocessing import phobert, visobert
+from src.preprocessing import (cafebert, phobert, phobert_large, vibert, visobert,
+                               xlmroberta)
 
 # Tên khoá là `model_id`, trùng tên file config của model.
 ENCODERS = {
     phobert.CONFIG_NAME: phobert,
+    phobert_large.CONFIG_NAME: phobert_large,
     visobert.CONFIG_NAME: visobert,
+    vibert.CONFIG_NAME: vibert,
+    cafebert.CONFIG_NAME: cafebert,
+    xlmroberta.CONFIG_NAME: xlmroberta,
 }
 
 

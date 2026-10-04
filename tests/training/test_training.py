@@ -133,7 +133,9 @@ class SettingsTest(unittest.TestCase):
 
     def test_registry_contents(self):
         self.assertIn("lora", TRAINERS)
-        self.assertEqual(encoders.available(), ["phobert-base-v2", "visobert"])
+        self.assertEqual(encoders.available(),
+                         ["cafebert", "phobert-base-v2", "phobert-large", "vibert-base-cased",
+                          "visobert", "xlm-roberta-base"])
         self.assertEqual(encoders.check(), [])
 
 
