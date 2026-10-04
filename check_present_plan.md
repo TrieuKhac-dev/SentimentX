@@ -102,17 +102,64 @@
   tập chẩn đoán giá đưa vào backlog (sẽ ghi ở mục 3.14).
 - 3.7 Cập nhật cây thí nghiệm (3 tệp) — CHƯA LÀM.
 - 3.8 Cập nhật `presentations/experiment_rationale.md`, `result_analysis.md` — CHƯA LÀM.
-- 3.9 `metrics.md`: 5 luật đo + quyết định biểu quyết 3 mẫu — CHƯA LÀM.
-- 3.10 Sửa bảng thời gian (4 tệp) + đánh dấu lượt CHẠY TIẾP + xoá giả thuyết sai — CHƯA LÀM.
-- 3.11 Quét số liệu cũ ("chín lượt", "12 notebook", "12 thí nghiệm") — CHƯA LÀM.
-- 3.12 Ghi chú `02_model_input.md` không sửa đợt này — CHƯA LÀM.
-- 3.13 Rà chỗ nhắc cờ `--exclude` lỗi thời — CHƯA LÀM.
-- 3.14 `04_backlog.md`: đóng §10.2/10.3/10.4, sửa §10.1, thêm 3 mục mới — CHƯA LÀM.
-- 3.15 `ci_checks` + `unittest` + commit + push ⇒ **MỐC DỪNG #1** — CHƯA LÀM.
+- 3.9 `metrics.md`: 5 luật đo + quyết định biểu quyết 3 mẫu — **XONG 04/10/2026**: thêm mục "Luật đo bắt buộc
+  khi đọc số" (5 luật: đọc kèm số ô; cửa `% đọc được` 95%; token chạm trần ⇒ lượt bị cắt; ghi rõ cơ sở và
+  kiểu trung bình; F1 theo tỉ lệ 0..1) + "Hai quyết định kèm theo" (biểu quyết **3 mẫu**; không dò ngưỡng
+  cho khía cạnh có 0 ô âm trên `val`).
+- 3.10 Sửa bảng thời gian (4 tệp) + đánh dấu lượt CHẠY TIẾP + xoá giả thuyết sai — **XONG 04/10/2026**:
+  `handover/README.md` (17 notebook = số đo thật; `exp004`/`exp010` đánh dấu *lượt CHẠY TIẾP*),
+  `docs/00_workflow/07_colab.md` (bảng đo thật cho cả 8 lượt còn lại + **xoá giả thuyết sai** "5 ví dụ sinh ít
+  token", thay bằng nguyên nhân RESUME kèm số mẫu dùng lại 1.304 / 1.576), `docs/00_workflow/01_flow.md`
+  (12 phút → 3 giờ 51, kèm cảnh báo hai lượt chạy tiếp), `docs/04_experiments/04_backlog.md` (dòng "thay thời
+  gian ước tính" nay ghi **17 lượt**).
+- 3.11 Quét số liệu cũ — **XONG 04/10/2026**: sửa các chỗ nói TRẠNG THÁI HIỆN TẠI
+  (`10_template_notebook.md` 2 chỗ, `templates/README.md`, `06_plan/README.md` dòng P7,
+  `08_experiment_rationale.md` "bốn lượt LoRA") và **giữ nguyên** các bản ghi LỊCH SỬ có ngày
+  (`P7_rerun.md` §8, `P8_measurement_mlflow.md` R3/R4, `APPENDIX_commits.md`); chỗ nào vẫn cần đọc được theo
+  hiện tại thì thêm dòng "Cập nhật 04/10/2026" (`01_dataset/changelog.md`, `P8` trạng thái).
+- 3.12 Ghi chú `02_model_input.md` không sửa đợt này — **XONG 04/10/2026**: thêm khối "Cập nhật 04/10/2026
+  (chưa sửa số ở đoạn trên)" nói rõ sẽ thêm 5 model ⇒ 228 → **513 dòng**, và cố ý chưa sửa cho tới khi đo.
+- 3.13 Rà chỗ nhắc cờ `--exclude` lỗi thời — **XONG 04/10/2026**: quét toàn bộ `docs/**, presentations/**,
+  handover/**, scripts/*.py, src/**` chỉ thấy `09_cli.md` (2 chỗ) và mã nguồn; cả hai chỗ tài liệu đều
+  **đúng** với hành vi hiện tại nên không xoá, chỉ thêm một câu làm rõ: lượt HỎNG thì **xoá thư mục kết quả**
+  chứ không phải loại khỏi bảng.
+- 3.14 `04_backlog.md`: đóng §10.2/10.3/10.4, sửa §10.1, thêm mục mới — **XONG 04/10/2026**: §10.2 XONG (0,64 /
+  1,17 / 0,71 điểm; số ô thấp hơn 5-6%), §10.3 XONG (F1 âm 0,540 → 0,876 và 0,765 → 0,836; nợ mới: phát hiện
+  khía cạnh giảm), §10.4 XONG (cả ba đều âm), §10.1 "CHƯA XONG, đã hỏng HAI lần" + cách chạy lại, §10.5/10.7
+  cập nhật trạng thái, dòng thời gian ở §8.3 nay ghi 17 lượt; thêm **§11** gồm 11.1 (lỗi bật suy nghĩ ăn hết
+  trần token), 11.2 (thăng cấp luật lai thành `method` nếu thắng), 11.3 (trọng số lớp theo từng khía cạnh
+  `inverse_by_aspect`), 11.4 (**tập chẩn đoán giá** - quyết định người dùng 04/10/2026).
+- 3.15 `ci_checks` + `unittest` + commit + push ⇒ **MỐC DỪNG #1** — **XONG 04/10/2026**:
+  `python scripts/ci_checks.py` = **0** (9 mục, không có việc nào phải sửa) và
+  `python -m unittest discover -s tests` = **0**; bốn commit theo miền (`934545b` metrics, `ba48ce9` workflow,
+  `9214005` experiments, `712752e` plan) rồi `git push origin experiment`. Tổng cộng cả Mục 2-3: **9 commit**
+  (gồm `34d4a4e`, `d45e14f`, `7cf3b3d`, `04b35a7`, `6954e95`, `63c39a2`, `85e90b0`).
 
 ## Mục 4. Mã và cấu hình mới
-- 4.1 Khoá `preprocess.enable_thinking` — CHƯA LÀM.
-- 4.2 `generation.max_new_tokens` đọc từ cấu hình thí nghiệm — CHƯA LÀM.
+- 4.1 Khoá `preprocess.enable_thinking` — **XONG 04/10/2026**:
+  `src/preprocessing/qwen.py` thêm `default_enable_thinking()` + `_chat_kwargs()` (khoá CHỈ được truyền
+  khi model/thí nghiệm khai; để trống = giữ mặc định của model) và luồn `enable_thinking` qua **cả**
+  `encode()` (đường ĐO) lẫn `build_inputs()` (đường DÙNG); `src/experiments/model_config.py` kiểm giá
+  trị phải là bool + thêm hàm `enable_thinking(name)`; `src/experiments/experiments.py` thêm
+  `preprocess.enable_thinking` vào `KNOWN_KEYS`; `configs/models/qwen3-0.6b.yaml` khai
+  `enable_thinking: false` (bump `config_version` 3 → 4); `docs/05_config/04_models.md` thêm dòng giải
+  thích. Kiểm thử: `tests/preprocessing/test_qwen.py` (mới, 5 test: không khai thì KHÔNG truyền khoá;
+  khai false/true thì truyền đúng; `encode` đi qua đúng đường và nhận ghi đè) +
+  `tests/experiments/test_model_config.py::EnableThinkingTest` (4 test: trống = None ≠ false; true/false;
+  giá trị không phải bool là lỗi).
+  Ghi chú thiết kế: **lớp THÍ NGHIỆM ghi đè được lớp model** (đọc từ cấu hình ĐÃ HỢP NHẤT), nên cùng
+  model 0.6B chạy được cả hai chế độ, và hai chế độ rơi vào hai thư mục kết quả khác nhau.
+- 4.2 Trần token sinh đọc từ cấu hình — **XONG 04/10/2026**: `experiment_run.max_new_tokens_of()` với thứ
+  tự ưu tiên `--max-new-tokens` > **`decoding.max_new_tokens`** của cấu hình đã hợp nhất > hằng số 400
+  của `runner`; `run_generation()` dùng hàm này; `experiments.py` thêm `decoding.max_new_tokens` vào
+  `KNOWN_KEYS`; `runner.run()` nhận `enable_thinking` và truyền xuống `qwen.build_inputs`; `plan_data`
+  và bản ghi `run_meta` mang thêm khoá `enable_thinking`, `print_config` in thêm dòng "suy nghĩ".
+  Kiểm thử: `tests/experiments/test_experiment_run.py::ThinkingAndCeilingTest` (5 test).
+  ⚠️ **KHÁC CHỮ SO VỚI KẾ HOẠCH (cần bạn xác nhận)**: kế hoạch ghi `generation.max_new_tokens`, nhưng
+  nhóm khoá đang có của cấu hình thí nghiệm là **`decoding`** (`decoding.mode/temperature/top_p`, khai ở
+  `configs/experiments/evaluation.yaml`), nên tôi dùng **`decoding.max_new_tokens`** để không sinh thêm
+  một nhóm khoá song song; ý nghĩa và tác dụng y hệt (khai trong config thí nghiệm, đi vào mã băm danh
+  tính).
 - 4.3 Cửa chặn `% đọc được < 95%` ⇒ `valid: false` — CHƯA LÀM.
 - 4.4 Luật "một cơ chế, hai khoá không tách rời" vào `05_config/02_rules.md` — CHƯA LÀM.
 - 4.5 Đường encoder xuất xác suất từng ô — CHƯA LÀM.
