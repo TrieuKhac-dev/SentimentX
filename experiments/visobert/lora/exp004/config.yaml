@@ -33,4 +33,5 @@ loss:
 # NGƯỠNG. Bản mã mới ghi thêm `probabilities.csv` (xác suất từng ô), thứ mà bước ngưỡng cần.
 # Ngưỡng KHÔNG nằm trong cấu hình này: nó là KẾT QUẢ của một phép dò trên `val` (hai lượt `lora/exp003`),
 # đóng băng ở `data/reports/fusion/thresholds.json` rồi áp NGOÀI lên lượt chạy này
-# (`scripts/fit_thresholds.py --apply`). Nhét ngưỡng vào cấu hình là mỗi lần đổi ngưỡng phải chạy lại model.
+# (`scripts/fit_thresholds.py --apply-to <thư mục kết quả>`). Nhét ngưỡng vào cấu hình là mỗi lần đổi
+# ngưỡng phải chạy lại model.

@@ -4,7 +4,7 @@
 
 **Khác `exp002`:** cùng cấu hình với `exp002`; khác ở BẢN MÃ (ghi thêm `probabilities.csv`) và ở chỗ ngưỡng được áp NGOÀI.
 
-**Kết quả:** `results/<hash8>/`; áp `data/reports/fusion/thresholds.json` (`scripts/fit_thresholds.py --apply`) rồi đọc theo CẶP: F1 lớp âm + SỐ Ô, và nhớ cột `price` KHÔNG đổi vì `val` có 0 ô âm.
+**Kết quả:** `results/<hash8>/`; áp `data/reports/fusion/thresholds.json` bằng `python scripts/fit_thresholds.py --apply-to <thư mục kết quả này>` (đọc bảng ngưỡng ĐÃ CHỐT, không chạy model) rồi đọc theo CẶP: F1 lớp âm + SỐ Ô, và nhớ cột `price` KHÔNG đổi vì `val` có 0 ô âm.
 
 ---
 
