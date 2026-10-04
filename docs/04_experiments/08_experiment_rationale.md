@@ -3,8 +3,10 @@
 > Đọc file này khi: muốn biết một thí nghiệm hỏi câu gì, khác gì lượt bên cạnh, và kết quả đã ra sao.
 > Liên quan: `docs/04_experiments/07_evolution.md` (cây), `docs/06_plan/P7_rerun.md` (đợt chạy), `data/reports/metrics_matrix/` (số)
 
-Chín lượt đang có kết quả chia thành bốn nhóm theo **câu hỏi**, không theo thứ tự chạy. Mỗi lượt chỉ
-khác lượt bên cạnh **một biến**; đó là điều kiện để con số chênh lệch có nghĩa.
+Mười bảy lượt đang có kết quả thuộc **bốn nhóm theo câu hỏi** - A (hai encoder học LoRA, 4 lượt),
+B (Qwen3-4B hỏi bằng prompt, 9 lượt), E (ba biến thể bộ 1 ví dụ, 3 lượt), F (Qwen3-4B hỏi một lượt, 1
+lượt); nhóm **G** (Qwen3-0.6B) chưa có kết quả. Mỗi lượt chỉ khác lượt bên cạnh **một biến**; đó là điều
+kiện để con số chênh lệch có nghĩa.
 
 ## 1. Bối cảnh chung (áp cho MỌI lượt)
 
@@ -19,47 +21,79 @@ khác lượt bên cạnh **một biến**; đó là điều kiện để con s�
 | Bật học? | `training.enabled: false` mặc định - chỉ hai lượt LoRA bật `true` |
 | Cách sinh | `greedy`, `max_new_tokens` 400, `max_length` 2304 (đường prompt); encoder `max_length` 256 |
 
-## 2. Nhóm A - hai encoder học LoRA (2 lượt, nhóm DUY NHẤT phải huấn luyện)
+## 2. Nhóm A - hai encoder học LoRA (4 lượt, nhóm DUY NHẤT phải huấn luyện)
 
 Vì sao hướng này: Qwen3-4B không fine-tune được trên GPU 6 GB, còn PhoBERT (135M) và ViSoBERT (~108M)
-học LoRA vừa máy. Hai encoder chọn để đối chứng **có tách từ** và **không tách từ**.
+học LoRA vừa máy. Hai encoder chọn để đối chứng **có tách từ** và **không tách từ**. Mỗi encoder có HAI
+lượt: `exp001` là lượt học gốc, `exp002` là bản thêm `loss.type: weighted_ce` + `loss.class_weight:
+inverse` - đúng MỘT biến so với `exp001`, trả lời câu "dữ liệu mất cân bằng có phải là gốc của việc mất
+lớp âm hay không".
 
 | Thí nghiệm | Câu hỏi | Điểm riêng | Kết quả (cơ sở `paper`) | Kết luận |
 | --- | --- | --- | --- | --- |
 | `phobert-base-v2/lora/exp001` | Encoder tiếng Việt có tách từ, học LoRA thì bằng nào công bố? | Tách từ `vncorenlp` (cần Java + model 27 MB, khai ở `requires_extra`); `max_length` 256; LoRA `query/key/value/dense`; `batch_size` 16 khi suy luận | acc TB khía cạnh **88,40** · F1 sắc thái macro **0,540** · khớp hoàn toàn 85,83% · `stayingpower` **64,71** | GIỮ làm mốc ĐỐI CHỨNG: **không đoán được lớp âm** (F1 âm = 0 ở 5/7 khía cạnh) |
+| `phobert-base-v2/lora/exp002` | Dữ liệu mất cân bằng có phải là gốc của việc mất lớp âm không? | Y hệt `exp001`, chỉ thêm `loss.type: weighted_ce` + `loss.class_weight: inverse` | acc TB khía cạnh **96,62** (+8,22 điểm) · F1 sắc thái macro **0,876** (+0,336) · `price` âm vẫn **0,00** (lớp này `val` không có ô nào) · số ô **2.736** | GIỮ - **cứu lớp âm là việc của HÀM MẤT MÁT, không phải của câu chữ** |
 | `visobert/lora/exp001` | Encoder đọc nguyên bản, học LoRA thì bằng nào? | `segmenter: none`; `max_length` 256 (cùng ngân sách input với PhoBERT); cùng tham số LoRA | acc TB **94,86** · F1 macro **0,765** · khớp hoàn toàn 92,54% · phát hiện khía cạnh F1 macro **0,966** | GIỮ: nhận ra khía cạnh tốt nhất bảng, nhưng lớp âm yếu (`colour` 0,50 · `price` 0 · `packing` 0) |
+| `visobert/lora/exp002` | cùng câu hỏi như `phobert-base-v2/lora/exp002` | Y hệt `visobert/lora/exp001`, chỉ thêm `weighted_ce` + `inverse` | acc TB **95,61** (+0,75 điểm) · F1 macro **0,836** (+0,071) · `price` âm vẫn **0,00** · số ô **2.701** | GIỮ - cùng cơ chế nhưng lợi ít hơn hẳn PhoBERT |
 
-Dùng chung cho cả hai: `training.yaml` LoRA r16 / alpha32 / dropout 0,05, lr 2e-4, batch 8, epochs 3,
+Dùng chung cho cả bốn lượt: `training.yaml` LoRA r16 / alpha32 / dropout 0,05, lr 2e-4, batch 8, epochs 3,
 grad_accum 4; chọn `model/best` theo `sentiment_f1` (macro-F1 sắc thái, không dùng accuracy vì dữ liệu
-mất cân bằng); `parent: null` cả hai.
+mất cân bằng); `parent: null`; `batch_size` 16 khi suy luận; `% đọc được` = 100 ở cả bốn lượt.
 
-## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (6 lượt): tái hiện công bố + đối chứng lượng hoá
+**Hai điều rút ra:** (a) `weighted_ce` nâng F1 lớp âm mạnh nhất ở PhoBERT (`0,540 → 0,876`) - tức hàm mất
+mát chính là chỗ sửa được, đúng như ba lượt sửa câu chữ prompt ở §3b thất bại; (b) **đảo thứ hạng**: ở
+`exp001`, ViSoBERT hơn PhoBERT **6,46 điểm**; sang `exp002`, PhoBERT (96,62) vượt ViSoBERT (95,61) **1,01
+điểm** ⇒ thứ hạng hai encoder phụ thuộc hàm mất mát, không chỉ model.
 
-Ba lượt đầu là **ba mức ví dụ của công bố**, NGANG HÀNG nhau (`parent: null`), không phải bản làm lại
-của nhau. Ba lượt sau là **đối chứng KHÔNG lượng hoá** của đúng ba mức đó.
+## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
 
-| Thí nghiệm | Câu hỏi | Prompt | Cha | Kết quả (cơ sở `paper`) |
+Ba lượt đầu (`exp002/003/004`) là **ba mức ví dụ của công bố**, NGANG HÀNG nhau (`parent: null`), không
+phải bản làm lại của nhau; ba lượt giữa (`exp005/006/007`) là **đối chứng fp16** của đúng ba mức đó; ba
+lượt cuối (`exp008/009/010`) là **đối chứng 4-bit ở LÔ 4** - cùng lô với nhóm fp16, nên phép so lượng hoá ở
+ba lượt này chỉ còn MỘT biến.
+
+| Thí nghiệm | Câu hỏi | Prompt / cấu hình sinh | Cha | Kết quả (cơ sở `paper`) |
 | --- | --- | --- | --- | --- |
-| `prompt-cot/exp002` | Đúng mức **COT+0-shot** của công bố | `absa_cot_zeroshot_v1` + system `absa_cot` | null | acc TB **97,16** (công bố 97,36 → **−0,21**) · F1 sắc thái macro 0,895 · khớp hoàn toàn 96,12% |
-| `prompt-cot/exp003` | **COT+1-shot**: thêm một ví dụ có tăng điểm? | `absa_cot_1shot_v1` + `examples/...1shot` | null | acc TB **97,72** (công bố 97,70 → **+0,02**) · F1 macro **0,926** · khớp hoàn toàn **97,23%** - cao nhất chín lượt |
-| `prompt-cot/exp004` | **COT+5-shot**, mức nặng nhất của công bố | `absa_cot_5shot_v1` + `examples/...5shot` | null | acc TB **97,11** (công bố 96,74 → **+0,38**) · F1 macro 0,902 · 63 ô hỏng định dạng |
-| `prompt-cot/exp005` | 4-bit mất bao nhiêu điểm ở mức 0 ví dụ? | y hệt `exp002` | `exp002` | 96,62 · 0,896 (thấp hơn bản 4-bit **0,54**) |
-| `prompt-cot/exp006` | ... ở mức 1 ví dụ | y hệt `exp003` | `exp003` | 96,60 · 0,909 (thấp hơn **1,12**) |
-| `prompt-cot/exp007` | ... ở mức 5 ví dụ (nặng bộ nhớ nhất) | y hệt `exp004` | `exp004` | 96,48 · 0,899 (thấp hơn **0,63**; lâu nhất: 13.833 giây) |
+| `prompt-cot/exp002` | Đúng mức **COT+0-shot** của công bố | `absa_cot_zeroshot_v1` + system `absa_cot`; 4-bit, lô 8 | null | acc TB **97,16** (công bố 97,36 → **−0,21**) · F1 macro 0,895 · 2.415 ô |
+| `prompt-cot/exp003` | **COT+1-shot**: thêm một ví dụ có tăng điểm? | `absa_cot_1shot_v1` + `examples/...1shot`; 4-bit, lô 8 | null | acc TB **97,72** (công bố 97,70 → **+0,02**) · F1 macro **0,926** · 2.315 ô |
+| `prompt-cot/exp004` | **COT+5-shot**, mức nặng nhất của công bố | `absa_cot_5shot_v1` + `examples/...5shot`; 4-bit, lô 8 | null | acc TB **97,11** (công bố 96,74 → **+0,38**) · F1 macro 0,902 · 2.378 ô · đọc được 99,88% |
+| `prompt-cot/exp005` | Bỏ lượng hoá thì mất bao nhiêu ở mức 0 ví dụ? | y hệt `exp002`, chỉ đổi **fp16 + lô 4** | `exp002` | 96,62 · 0,896 · **2.580 ô** |
+| `prompt-cot/exp006` | ... ở mức 1 ví dụ | y hệt `exp003`, chỉ đổi **fp16 + lô 4** | `exp003` | 96,60 · 0,909 · **2.461 ô** |
+| `prompt-cot/exp007` | ... ở mức 5 ví dụ (nặng bộ nhớ nhất) | y hệt `exp004`, chỉ đổi **fp16 + lô 4** | `exp004` | 96,48 · 0,899 · **2.520 ô** (lâu nhất 17 lượt: 13.833 giây) |
+| `prompt-cot/exp008` | Lượng hoá 4-bit ở CÙNG lô 4 thì sao - mức 0 ví dụ | y hệt `exp002`, chỉ đổi **4-bit + lô 4** | `exp002` | **97,26** · 0,894 · 2.414 ô |
+| `prompt-cot/exp009` | ... ở mức 1 ví dụ | y hệt `exp003`, chỉ đổi **4-bit + lô 4** | `exp003` | **97,77** · **0,928** · 2.324 ô - ĐỈNH của 17 lượt (hơn công bố 0,07 điểm) |
+| `prompt-cot/exp010` | ... ở mức 5 ví dụ | y hệt `exp004`, chỉ đổi **4-bit + lô 4** | `exp004` | 97,19 · 0,907 · 2.375 ô (chạy TIẾP, dùng lại 1.576 mẫu) |
 
 Đọc nhóm này thế nào:
 
-- **Tái hiện công bố: ĐẠT.** Mức 1 ví dụ và 5 ví dụ ngang hoặc nhỉnh hơn công bố; mức 0 ví dụ thấp hơn
-  0,21 điểm - trong khoảng dao động của một lần chạy greedy.
-- **Thêm ví dụ không tăng điểm mãi**: 1 ví dụ (97,72) > 0 ví dụ (97,16) > 5 ví dụ (97,11). Mức 1 ví dụ
-  là cấu hình tốt nhất hiện có.
-- **Bản KHÔNG lượng hoá thấp hơn bản 4-bit** ở cả ba mức (0,54 / 1,12 / 0,63 điểm). Nhưng ba lượt này
-  buộc phải hạ `batch_size` 8 → 4 (fp16 tốn ~4 lần bộ nhớ), và `batch_size` nằm trong mã băm danh tính,
-  nên **chưa tách được** nguyên nhân là lượng hoá hay là batch - xem §6.
-- Cấu hình gốc ba lượt 4-bit: `4bit`, `batch_size` 8, `max_length` 2304. `prompt-cot/exp001` (CoT 2 ví
-  dụ - mức nội bộ, không phải mức của công bố) đã bị xoá, nên nhóm này bắt đầu từ `exp002`.
+- **Tái hiện công bố: ĐẠT.** Mức 1 ví dụ và 5 ví dụ nhỉnh hơn công bố; mức 0 ví dụ thấp hơn 0,21 điểm -
+  trong khoảng dao động của một lần chạy greedy.
+- **Thêm ví dụ không tăng điểm mãi**: 1 ví dụ (97,72) > 0 ví dụ (97,16) > 5 ví dụ (97,11).
+- **Lượng hoá sạch MỘT biến (nhóm lô 4)**: 4-bit hơn fp16 **0,64 / 1,17 / 0,71 điểm** ở ba mức, F1 macro
+  hơn 0,018 / 0,019 / 0,008. Nhưng 4-bit **trả lời ít hơn 5-6% số ô** (2.414/2.324/2.375 so với
+  2.580/2.461/2.520) ⇒ một phần lợi thế là nhờ **kiêng trả lời**; luôn phải đọc kèm số ô.
+- Nhóm 4-bit lô 8 (`exp002/003/004`) giữ nguyên là mốc lịch sử, nhưng so với nhóm fp16 lô 4 thì đổi HAI
+  biến (lượng hoá và lô) nên chỉ dùng để tham chiếu, **không** dùng để kết luận về lượng hoá.
+- `prompt-cot/exp001` (CoT 2 ví dụ - mức nội bộ, không phải mức của công bố) đã bị xoá, nên nhóm này bắt
+  đầu từ `exp002`.
 
-## 4. Nhóm C - Qwen3-4B hỏi MỘT lượt (1 lượt)
+## 3b. Nhánh E - ba biến thể bộ 1 ví dụ (3 lượt): CẢ BA ĐỀU ÂM
+
+Ba lượt này đều lấy `prompt-cot/exp003` làm cha (cùng mức 1 ví dụ, cùng 4-bit lô 8) và **mỗi lượt đổi ĐÚNG
+MỘT thứ**, để trả lời câu "lớp âm kém là do câu chữ hay do cách học?".
+
+| Thí nghiệm | Đổi đúng một thứ | Kết quả | F1 `price` âm |
+| --- | --- | --- | --- |
+| `prompt-cot/exp011` | Nội dung VÍ DỤ: bản v2 có nhãn âm ở `texture`, `stayingpower`, `packing` (prompt giống v1 từng byte) | 97,63 (**−0,09**) · F1 macro 0,902 · 2.359 ô | **0,308** (exp003: 0,600) |
+| `prompt-cot/exp012` | CÂU CHỮ prompt: thêm bước 0 "tự quét lại toàn bộ review để nhận ra MỌI lời phàn nàn" (ví dụ giữ nguyên) | 96,52 (**−1,20**) · 0,908 · 2.305 ô | 0,600 |
+| `prompt-cot/exp013` | CÂU CHỮ prompt: thêm "lưu ý dữ liệu: rất nhiều ô mã 1, đừng lấy mã 1 làm mặc định" | 92,66 (**−5,06**) · 0,842 · **1.972 ô** (mất 343 ô) | **0,167** |
+
+Kết luận: **sửa ví dụ và sửa câu chữ đều KHÔNG cứu được lớp âm**, còn có lượt làm tệ đi (`exp011` kéo F1
+`price` âm từ 0,600 xuống 0,308; `exp013` làm model kiêng trả lời nên mất 343 ô). So với đó, sửa **hàm mất
+mát** ở hai encoder (`weighted_ce`) nâng F1 lớp âm ở PhoBERT từ 0,540 lên 0,876 - xem §2. Đây là lý do ba
+biến thể này **bị bỏ** và hướng tiếp theo của dự án là HỌC, không phải câu chữ.
+
+## 4. Nhóm F - Qwen3-4B hỏi MỘT lượt (1 lượt)
 
 | Thí nghiệm | Câu hỏi | Điểm riêng | Kết quả (cơ sở `paper`) |
 | --- | --- | --- | --- |
@@ -70,7 +104,7 @@ có bắt viết phần suy luận hay không. Chênh lệch **−1,83 điểm**
 chứng CoT có tác dụng thật, không chỉ tốn token. Lượt này cũng nhanh nhất (1.081,6 giây so với 5.634,9
 giây của `exp002`), vì câu trả lời ngắn.
 
-## 5. Nhóm D - Qwen3-0.6B hỏi bằng prompt (3 lượt): CHƯA có kết quả
+## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ): CHƯA có kết quả
 
 | Thí nghiệm | Câu hỏi | Điểm riêng |
 | --- | --- | --- |
@@ -82,21 +116,27 @@ giây của `exp002`), vì câu trả lời ngắn.
 prompt, cùng tập `test` - model là thứ duy nhất khác. `quantization: null` (0.6B quá nhỏ, không cần
 lượng hoá), `batch_size` 4, `parent: null`.
 
-Ba lượt **đã chạy xong nhưng KHÔNG đo model 0.6B**. Bằng chứng: `metrics.json::model` của cả ba là
-`Qwen/Qwen3-4B-Instruct-2507`; hai lượt đầu trùng cả số token sinh (`380.489` = `380.489`; `354.196` =
-`354.196`), còn cả ba lượt trùng **mọi chỉ số** tới hai chữ số thập phân, kể cả số ô được giữ; tốc độ sinh
-gần bằng nhau (48,7 so với 51,1 token/giây, cùng máy khác phiên). Lượt 5 ví dụ không so được số token vì
-`cost` là của phiên cuối (xem §6). Nghĩa là ba lượt đó là **cùng một phép đo với nhóm fp16**, không phải
-một model khác.
+**Nhóm này đã chạy hai lần và hỏng hai kiểu KHÁC NHAU** (cả sáu thư mục kết quả đã xoá ngày 04/10/2026):
 
-Nguyên nhân: `run_model` chọn model theo thứ tự "tham số truyền vào → `hf_model` của config → hằng số
-của module". Khoá `hf_model` **không config nào khai**, nên mọi lượt rơi về hằng số `Qwen3-4B-Instruct-2507`;
-`configs/models/qwen3-0.6b.yaml` khai `checkpoint: Qwen/Qwen3-0.6B`, nhưng khoá đúng đó không được đọc ở
-nhánh này.
+| Kiểu hỏng | Thư mục | Bằng chứng |
+| --- | --- | --- |
+| Nạp NHẦM trọng số 4B | `exp001/results/8db40559`, `exp002/results/db6efb02`, `exp003/results/30c9e674` | `metrics.json::model` = `Qwen/Qwen3-4B-Instruct-2507`; `% đọc được` ~100; số ô 2.580 / 2.461 / 2.520 trùng khít nhóm fp16 lô 4 (`exp005/006/007`) |
+| Đúng 0.6B nhưng **BẬT SUY NGHĨ** | `exp001/results/bc32904d`, `exp002/results/edc0797a`, `exp003/results/d5b8e7fc` | `metrics.json::model` = `Qwen/Qwen3-0.6B`; `% đọc được` chỉ **3,33 / 1,36 / 1,73**; có khối `<think>` 999 / 714 / 788 lượt; lí do hỏng chính là "không thấy JSON nào" (1.549 / 1.561 / 1.536) |
 
-Xử lý: ba thư mục kết quả đã **xoá** ngày 02/10/2026. Lượt chạy lại sẽ rơi vào thư mục kết quả MỚI (commit
-nằm trong mã băm danh tính), nên không trộn với bản cũ. **Kết luận: ĐỔI HƯỚNG - nhóm D là việc kế tiếp**,
-sau khi sửa cách chọn checkpoint.
+Nguyên nhân kiểu 1: `run_model` chọn model theo thứ tự "tham số truyền vào → `hf_model` của config → hằng
+số của module". Khoá `hf_model` **không config nào khai**, nên mọi lượt rơi về hằng số
+`Qwen3-4B-Instruct-2507`; `configs/models/qwen3-0.6b.yaml` khai `checkpoint: Qwen/Qwen3-0.6B`, nhưng khoá
+đúng đó không được đọc ở nhánh này. Đã sửa ở commit `8bfe96e` (đọc `checkpoint` của config; `hf_model` chỉ
+còn là ghi đè).
+
+Nguyên nhân kiểu 2: `Qwen/Qwen3-0.6B` (bản 4/2025) **mặc định bật suy nghĩ**, nên nó tiêu hết trần
+`max_new_tokens: 400` trong khối ` thinking` rồi không còn chỗ để in JSON. Đây là lỗi **một cơ chế, hai
+khoá đi liền nhau**: bật suy nghĩ thì phải chốt trần token tương ứng.
+
+Xử lý: chạy lại ba lượt với `preprocess.enable_thinking: false` trong cấu hình model (mỗi lượt rơi vào
+thư mục kết quả MỚI vì commit và cấu hình nằm trong mã băm danh tính); lượt **bật** suy nghĩ trở thành
+nhánh riêng, mở đầu bằng một lượt **DÒ** (`prompt-cot/exp004`, trần 8.192) để đo p50/p95/max số token sinh
+rồi mới chốt trần cho lượt chạy đầy đủ.
 
 ## 6. Bốn điều phải nhớ khi đọc số
 
@@ -106,14 +146,34 @@ sau khi sửa cách chọn checkpoint.
 2. **Lượt chạy tiếp (RESUME): đừng đọc `n_samples` như số mẫu đã chấm.** `metrics.json::n_samples` và
    `cost` là của **phiên cuối** (`exp004`: 319 mẫu, 2.533 giây), còn `run_meta.json::run.n_samples` là cả
    split (1.623). Điểm số vẫn đúng trên cả split, vì chấm điểm gộp `predictions/part_*.jsonl` trước khi tính.
-3. **Nhóm fp16 khác nhóm 4-bit HAI biến** (lượng hoá và `batch_size` 8 → 4), nên các mức lệch 0,54 / 1,12
-   / 0,63 điểm chưa nói được gì về riêng lượng hoá. Muốn kết luận thì so từng dòng `predictions.csv` với
-   đúng lượt cha của nó.
-4. **Ô lớp âm quá ít thì đừng kết luận.** Trên tập hai chiều, `price` âm chỉ còn 2-5 ô và `packing` âm
-   9-10 ô (các khía cạnh khác 46-171 ô), nên F1 ở hai khía cạnh đó là nhiễu - bảng của công bố cũng ghi
-   `PRICE negative = 0` vì đúng một ô đoán sai.
+3. **Đối chứng lượng hoá nay đã sạch MỘT biến** - nhóm lô 4: `exp008/009/010` (4-bit) so với
+   `exp005/006/007` (fp16), cùng prompt, cùng lô ⇒ 4-bit hơn **0,64 / 1,17 / 0,71 điểm** nhưng trả lời ít
+   hơn 5-6% số ô (xem §3). Nhóm 4-bit lô 8 (`exp002/003/004`) đổi HAI biến so với nhóm fp16 nên chỉ dùng
+   để tham chiếu. Muốn chắc hơn thì so từng dòng `predictions.csv` với đúng lượt cha của nó.
+4. **Ô lớp âm quá ít thì đừng kết luận.** Đếm trực tiếp trong `data/processed/cosmetics-ds0.2.0-...`:
+   `price` âm có **15 ô ở train, 0 ô ở val, 6 ô ở test**; `packing` âm 85 / 6 / 10; các khía cạnh khác
+   48-174 ô ở `test`. Trên tập hai chiều, `price` âm còn **1-6 ô** nên F1 ở đó là nhiễu; bảng của công bố
+   ghi `PRICE negative = 0`. Hệ quả kèm theo: **không dò được ngưỡng cho `price` trên `val`** vì `val` có
+   0 ô âm.
 
-## 7. Nguồn số và xem tiếp
+## 7. Điểm mù `price`: nói cho đúng
+
+`price` là khía cạnh duy nhất mà **mọi lượt** đều có F1 lớp âm rất thấp (PhoBERT và ViSoBERT 0,00; các
+lượt prompt 0,167-0,600). Nhưng đọc cho đúng thì đây **không phải bằng chứng "model mù"**: số ô âm của
+`price` trong `test` chỉ là **6**, trong `val` là **0** (xem §6.4), nên mọi F1 ở lớp này được tính trên
+1-6 ô - lệch một ô là đổi cả con số.
+
+Vì vậy chỉ được nói:
+- "Thước `paper` **không đo được** khả năng nhận ra lời chê giá" - đúng và đủ;
+- "Muốn cải thiện `price` âm thì phải sửa DỮ LIỆU (thêm ô âm) hoặc phải có thước đo riêng" - đúng;
+- "Model X mù `price`" - **không** được nói, vì thước không đủ ô để phân biệt.
+
+Ba lượt tiếp theo về giá (`prompt-cot/exp014` sửa định nghĩa lời chê giá gián tiếp trong prompt,
+`prompt-cot/exp015` thêm ví dụ có ô `price` = mã 2, `prompt-cot/exp016` chẩn đoán chỉ hỏi một khía cạnh
+`price`) nhằm cải thiện và ĐO riêng khía cạnh này; kết quả của chúng phải báo cáo kèm **cỡ mẫu 6 ô** của
+lớp âm, và riêng `exp016` đo trên tập ô khác nên phải báo cáo RIÊNG, không trộn vào bảng `paper`.
+
+## 8. Nguồn số và xem tiếp
 
 Số lấy từ chính lượt chạy ghi ra: `metrics.json` (số chính), `metrics.csv` (bảng dài, có cột `basis`) và
 bảng tổng hợp `data/reports/metrics_matrix/` do `python scripts/collect_reports.py` dựng lại từ các file
