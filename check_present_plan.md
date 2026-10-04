@@ -303,7 +303,19 @@
   `8bfe96e` sang bản code có `enable_thinking: false`).
 - 6.2 **XONG 04/10/2026**: `scripts/build_package.py` ⇒ **gói 012**
   (`handover/out/SentimentX-goi-012-002086b-261004.zip`: 23 notebook MỚI + 3 notebook ĐỔI + `README.md` đổi;
-  60 file y nguyên không gửi lại) ⇒ commit sổ gói `c8c8baf` ⇒ push ⇒ **MỐC DỪNG #2** ✓.
+  60 file y nguyên không gửi lại) ⇒ commit sổ gói `c8c8baf` ⇒ push.
+  **Phát hiện sau khi dựng gói (bẫy thật, đã xử lý):** tôi thêm một ghi chú vào `handover/README.md` (cảnh báo
+  6 notebook của đợt sau **đừng chạy vội**), mà `README.md` **nằm trong gói** ⇒ bản 012 đang giữ README cũ.
+  Công cụ **từ chối ghi lại số 012** ("số gói là bản ghi của một lần gửi… sửa gì thì gửi gói MỚI") ⇒ đã dựng
+  **gói 013** (`handover/out/SentimentX-goi-013-34bbe45-261004.zip`, 11 KB: 103 file `kept` + **1 file
+  `changed`** là `README.md`) ⇒ **phải gửi `012` RỒI `013`** (đúng cơ chế gói tăng dần; `013` một mình chỉ có
+  README).
+  **Hệ quả về số gói:** gói của đợt 7 là **012 + 013** ⇒ đợt 8 = **gói 014**, gói cuối = **015** (đã sửa ở
+  `P8_batch7.md` mục 2/9 và `docs/06_plan/README.md`). Không có gì phải ghim lại: hai commit sau `002086b`
+  (`dfa8511` tài liệu, `34bbe45` khuôn mẫu) **không** đụng `src/` nên notebook vẫn dùng đúng bản mã đã ghim.
+  ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7).
+- Ghi chú thêm: `templates/experiment/config.yaml` đã sửa `version: v0.1.0` → `v0.2.0` (bịt bẫy "thí nghiệm mới
+  lặng lẽ chấm trên bộ dữ liệu cũ"); `ci_checks` + `unittest` xanh sau khi sửa (`34bbe45`).
 
 ## Mục 7. Người dùng chạy đợt 7
 - 7.1 Giải nén gói 012 lên Drive — CHỜ NGƯỜI DÙNG.

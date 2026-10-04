@@ -25,9 +25,11 @@
 - Nhánh: `experiment` (= `origin/experiment`). Mỗi mục xong = một commit.
 - **04/10/2026**: đã dọn 6 thư mục kết quả hỏng, còn **17 lượt dùng được**; đã viết lại toàn bộ tài liệu
   theo 17 lượt đó; đã thêm 5 model (4 encoder + `qwen2.5-0.5b-instruct`) và mã cho bốn bước kết hợp.
-- Đợt 7: 17 notebook đã tạo cấu hình + README, chờ ghim vào commit xanh rồi đóng gói **012**.
+- Đợt 7: 17 notebook đã có cấu hình + README, đã **ghim `4571648`** và nằm trong **gói 012** (kèm **gói
+  013** chỉ chở `README.md` sửa - xem mục 9).
 - Đợt 8 và đợt 9: xem mục 4 và 5 (đợt 9 chỉ chạy khi muốn mốc quy mô lớn).
-- **Mốc dừng:** #2 sau khi gửi gói 012; #3 sau gói 013; #4 sau khi xử lý đợt 8 xong.
+- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013** (đợt 7); **#3** sau **gói 014** (đợt 8); **#4** sau khi
+  xử lý đợt 8 xong (**gói 015** nếu có sửa mã).
 
 ## 3. Đợt 7 - gói 012, 17 notebook, khoảng 10-12 giờ GPU
 
@@ -142,8 +144,8 @@ chưa chạy.
   + hai lượt `val` encoder; phiên 3-4 = `exp014`, `exp015`, `exp016`; phiên 5-6 = `exp017`.
 - **Đợt 8 (5-7 phiên):** hai lượt `test` có ngưỡng chung một phiên; `exp018`/`exp019`/`exp020`/`exp021` mỗi
   lượt một phiên; `exp005` chia 2-3 phiên, và chạy theo luật 6.1.
-- **Mốc dừng:** **#2** sau khi gửi **gói 012** (đợt 7); **#3** sau **gói 013** (đợt 8); **#4** sau khi xử
-  lý đợt 8 xong.
+- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013** (đợt 7; `013` chỉ chở `README.md` sửa, phải giải nén
+  **sau** `012`); **#3** sau **gói 014** (đợt 8); **#4** sau khi xử lý đợt 8 xong.
 
 ## 10. Quy ước thực thi (bắt buộc)
 

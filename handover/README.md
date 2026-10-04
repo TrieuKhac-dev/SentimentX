@@ -45,6 +45,12 @@ chặn đường trước - lượt DÒ chốt trần token cho nhánh suy nghĩ
 Mỗi notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau: mọi
 notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riêng theo mã băm danh tính.
 
+**Gói này còn chứa 6 notebook của ĐỢT SAU - đừng chạy vội:** `notebooks/phobert-base-v2/lora/exp004.ipynb`,
+`notebooks/visobert/lora/exp004.ipynb` (hai lượt `test` để đo tác dụng của NGƯỠNG, mà ngưỡng chỉ chốt được
+sau khi có hai lượt `val` ở bảng trên) và `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp018.ipynb`,
+`exp019.ipynb`, `exp020.ipynb`, `exp021.ipynb` (bốn lượt **lấy mẫu**, chạy sau khi biết cấu hình tốt nhất của
+đợt này). Gửi kèm sẵn để lần sau chỉ phải **giải nén đè** là có, không phải tải lại.
+
 Bốn nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
 nguyên nhân):
 
