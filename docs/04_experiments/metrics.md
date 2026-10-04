@@ -175,9 +175,13 @@ Hai điều dễ lẫn, nói thẳng:
 1. **Luôn đọc kèm SỐ Ô** (`paper.cells`). Bản 4-bit trả lời ít hơn 5-6% số ô so với bản fp16, nên điểm cao
    hơn một phần có thể là nhờ **kiêng trả lời**: số ô tụt mà điểm tăng là dấu hiệu phải kiểm, không phải
    tin ngay.
-2. **Cửa `% đọc được` = 95%.** Lượt có `% đọc được` dưới 95% bị ghi `valid: false` **kèm lí do** (không
-   xoá dữ liệu). Đây là cách phát hiện sớm lỗi kiểu "model bật suy nghĩ ăn hết trần token" (đã gặp: 3,33%
-   và 1,36%).
+2. **Cửa `% đọc được` = 95%** (khoá `read_rate_min` ở `configs/experiments/evaluation.yaml`). Lượt có
+   `% đọc được` dưới ngưỡng được ghi thêm ba khoá trong khối `read_rate` của `metrics.json`: `ngưỡng`,
+   `valid: false` và `reason`, kèm một dòng `KHÔNG ĐẠT CỬA CHẤT LƯỢNG` trong `run.log`. Cửa **KHÔNG xoá
+   dữ liệu**, chỉ để con số đó không bị đem đi so. Đây là cách phát hiện sớm lỗi kiểu "model bật suy nghĩ
+   ăn hết trần token" (đã gặp: 3,33% và 1,36%). Vì sao 95%: các lượt tốt đều ≥ 99,88%, còn lượt hỏng thì
+   dưới 5%. Lưu ý: `scripts/rescore.py` hiện KHÔNG áp cửa này khi chấm lại (khối `read_rate` ở đó không
+   có `valid`).
 3. **Token sinh chạm trần thì lượt đó là lượt BỊ CẮT.** Nếu số token sinh trung bình **≥ 95%** của
    `generation.max_new_tokens` thì phải coi kết quả là bị cắt và chạy lại với trần cao hơn; riêng lượt
    **bật suy nghĩ** phải chạy một lượt **DÒ** để chốt trần trước (xem `present_plan.md` mục 9.1).
