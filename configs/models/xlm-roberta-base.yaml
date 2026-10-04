@@ -1,0 +1,29 @@
+# Cấu hình dùng chung của XLM-R base. Xem docs/05_config/04_models.md.
+# **ĐỐI CHỨNG NGUỒN TIỀN HUẤN LUYỆN**: XLM-R đọc được tiếng Việt (mọi model ở đây đều đọc được), câu hỏi
+# là "tiền huấn luyện CHUYÊN tiếng Việt có lợi thế rõ không" - XLM-R học 100 ngôn ngữ nên phần tiếng
+# Việt rất nhỏ. ⚠️ XLM-R cũng khác BỘ TÁCH TỪ (SentencePiece) so với PhoBERT/ViBERT, nên so trực tiếp
+# với PhoBERT là so HAI biến; xem cảnh báo đầy đủ ở `src/preprocessing/xlmroberta.py`.
+
+model_id: xlm-roberta-base
+checkpoint: FacebookAI/xlm-roberta-base
+config_version: 1
+
+approach: encoder
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN. Trần kiến trúc là 514 vị trí (đã đo); 256 là LỰA CHỌN CỦA DỰ ÁN
+  # để cùng ngân sách input với các encoder khác.
+  max_length: 256
+  # SentencePiece trên văn bản nguyên bản: không tách từ (một phần của chính phép đối chứng này).
+  segmenter: none
+
+lora:
+  target_modules:
+    - query
+    - key
+    - value
+    - dense
+
+inference:
+  dtype: auto
+  batch_size: 16

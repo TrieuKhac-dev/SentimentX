@@ -1,0 +1,26 @@
+# Cấu hình dùng chung của Qwen2.5-0.5B-Instruct. Xem docs/05_config/04_models.md.
+# Vì sao có: model nhỏ KHÁC HỌ với Qwen3 (thế hệ trước, `qwen2`), dùng như mốc "nhỏ thì kém" thứ hai -
+# nếu cùng kết luận với Qwen3-0.6B thì kết luận về quy mô vững hơn, không phụ thuộc một họ model.
+
+model_id: qwen2.5-0.5b-instruct
+checkpoint: Qwen/Qwen2.5-0.5B-Instruct
+config_version: 1
+
+approach: prompt
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN. Bằng Qwen3 (2304) vì CÙNG BỘ PROMPT: prompt CoT 5 ví dụ tốn
+  # 1.877,50 token/review trung bình (max 2.122), nên ngưỡng thấp hơn là cắt mất phần đuôi - với prompt
+  # dạng chat, phần đuôi chính là yêu cầu định dạng đầu ra. Trần kiến trúc 32.768 vị trí nên còn dư.
+  max_length: 2304
+  # Bắt buộc với model chat: chèn lượt "assistant" rỗng để model bắt đầu sinh.
+  add_generation_prompt: true
+  # KHÔNG khai `enable_thinking`: chat template của Qwen2.5 không có biến đó (khác Qwen3-0.6B, vốn mặc
+  # định BẬT suy nghĩ). Khai bừa một khoá không tồn tại là gây hiểu nhầm; để trống là giữ mặc định model.
+
+inference:
+  # `auto`: chọn kiểu số theo máy (bf16 nếu GPU hỗ trợ thật, fp16 trên T4, fp32 trên CPU).
+  dtype: auto
+  # Không lượng hoá: bản 0.5B quá nhỏ nên không cần (giống Qwen3-0.6B).
+  quantization: null
+  batch_size: 4

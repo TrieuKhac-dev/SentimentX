@@ -1,0 +1,33 @@
+# Cấu hình dùng chung của PhoBERT-large. Xem docs/05_config/04_models.md.
+# Vì sao có bản LỚN: cùng kho tiền huấn luyện và cùng bộ tách từ với PhoBERT-base, chỉ khác SỐ THAM SỐ
+# - nên "encoder lớn hơn có vượt 96,62 của bản base không?" là một biến sạch.
+
+model_id: phobert-large
+checkpoint: vinai/phobert-large
+config_version: 1
+
+# prompt: model sinh (LLM) nhận prompt rồi trả lời. encoder: model phân loại học từ dữ liệu gán nhãn.
+approach: encoder
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN. Bằng bản base (256) để hai cỡ model có CÙNG ngân sách input.
+  # Trần kiến trúc là 258 vị trí (`max_position_embeddings` - đã đo: giống hệt bản base), đặt cao hơn
+  # sẽ bị chặn ngay khi chạy.
+  max_length: 256
+  # Bộ tách từ chính chủ của họ PhoBERT (giống bản base); đổi bộ tách từ KHÔNG làm đổi tokenizer.
+  segmenter: vncorenlp
+
+lora:
+  # Tên module trong `RobertaLayer` (bản large cùng kiến trúc với bản base).
+  target_modules:
+    - query
+    - key
+    - value
+    - dense
+
+inference:
+  # `auto`: chọn kiểu số theo máy (bf16 nếu GPU hỗ trợ thật, fp16 trên T4, fp32 trên CPU).
+  # Bản large vẫn vừa VRAM ở fp16 (nhiều hơn bản base khoảng 200M tham số), LoRA cơ bản không cần
+  # lượng hoá.
+  dtype: auto
+  batch_size: 16

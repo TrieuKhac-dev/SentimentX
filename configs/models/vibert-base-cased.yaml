@@ -1,0 +1,29 @@
+# Cấu hình dùng chung của ViBERT (FPTAI). Xem docs/05_config/04_models.md.
+# Vì sao có: encoder tiếng Việt KHÁC KHO TIỀN HUẤN LUYỆN với PhoBERT, nên trả lời câu "kết quả của
+# PhoBERT đến từ kiến trúc hay từ kho văn bản?".
+
+model_id: vibert-base-cased
+checkpoint: FPTAI/vibert-base-cased
+config_version: 1
+
+approach: encoder
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN. Trần kiến trúc là 512 vị trí (`max_position_embeddings` - đã đo);
+  # 256 là LỰA CHỌN CỦA DỰ ÁN để cùng ngân sách input với PhoBERT-base và ViSoBERT (so sánh mới công
+  # bằng) - review dài nhất trong dữ liệu cosmetics chỉ 229 token.
+  max_length: 256
+  # ViBERT được tiền huấn luyện trên văn bản ĐÃ TÁCH TỪ, nên vẫn cần bộ tách từ (chính chủ, như PhoBERT).
+  segmenter: vncorenlp
+
+lora:
+  # ViBERT là kiến trúc BERT: cùng tên module với PhoBERT (query/key/value/dense).
+  target_modules:
+    - query
+    - key
+    - value
+    - dense
+
+inference:
+  dtype: auto
+  batch_size: 16

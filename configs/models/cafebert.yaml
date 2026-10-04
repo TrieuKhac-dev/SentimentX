@@ -1,0 +1,30 @@
+# Cấu hình dùng chung của CafeBERT (uitnlp). Xem docs/05_config/04_models.md.
+# Vì sao có: dựng trên XLM-R rồi tiền huấn luyện TIẾP trên văn bản tiếng Việt - bậc thang giữa "tiếng
+# Việt chuyên biệt" (PhoBERT) và "đa ngữ thuần" (XLM-R), nên tách được câu "lợi thế đến từ kho tiếng
+# Việt hay từ kiến trúc".
+
+model_id: cafebert
+checkpoint: uitnlp/CafeBERT
+config_version: 1
+
+approach: encoder
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN. Trần kiến trúc là 514 vị trí (đã đo); 256 là LỰA CHỌN CỦA DỰ ÁN
+  # để cùng ngân sách input với ba encoder kia.
+  max_length: 256
+  # CafeBERT dùng SentencePiece trên văn bản NGUYÊN BẢN (giống ViSoBERT): không tách từ - khai tường minh
+  # để cột truy vết của số liệu nói rõ đây là chủ ý, không phải thiếu cấu hình.
+  segmenter: none
+
+lora:
+  # Kiến trúc XLM-R: cùng tên module với ViSoBERT.
+  target_modules:
+    - query
+    - key
+    - value
+    - dense
+
+inference:
+  dtype: auto
+  batch_size: 16
