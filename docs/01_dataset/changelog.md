@@ -61,7 +61,8 @@ Khoá tập đánh giá (`eval_lock.json`) - hai giá trị này đã khai trong
 
 Cách so với công bố: `test` nguyên bản + **cơ sở đo `paper`** - xem
 `docs/04_experiments/reference_publication.md` mục "Cách so" và `docs/04_experiments/metrics.md` mục
-"Hai cơ sở đo". Cả 12 thí nghiệm trong `experiments/` đã chuyển sang phiên bản này.
+"Hai cơ sở đo". Cả 12 thí nghiệm đang có LÚC ĐÓ trong `experiments/` đã chuyển sang phiên bản này (tới
+04/10/2026 đã có **20 thí nghiệm** và **17 lượt chạy dùng được**).
 
 ### `cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-e0ccc484` - bản cũ, giữ làm dấu vết
 

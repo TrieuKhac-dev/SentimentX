@@ -71,27 +71,35 @@
   có `mispredictions_paper.csv` = `cells − correct`; dòng `aspect_detection` của bảng accuracy khớp
   **17/17** với `scores.aggregate.detection.micro.accuracy`. Ghi chú: `by_aspect` và
   `when_mentioned_by_aspect` của 17 lượt này **trùng nhau** vì các lượt đều trả lời được mọi ô.
-- 3.3 Viết lại mục lượng hoá — ĐANG LÀM: đã viết lại §3 của `08_experiment_rationale.md` (ba cấu hình
-  sinh; nhóm lô 4 sạch MỘT biến; delta **0,64 / 1,17 / 0,71 điểm**; số ô 2.414/2.324/2.375 so với
-  2.580/2.461/2.520; kết luận "một phần lợi thế đến từ việc kiêng trả lời") và §3 của cây
-  `07_evolution.md`. **CÒN**: `presentations/result_analysis.md`.
-- 3.4 Viết lại mục ba biến thể prompt (kết quả âm) — ĐANG LÀM: đã thêm **§3b** ở `08_experiment_rationale.md`
-  (exp011 −0,09 / exp012 −1,20 / exp013 −5,06; F1 `price` âm 0,308 / 0,600 / 0,167; mất 343 ô ở exp013) và
-  ba nút trong cây `07_evolution.md`. **CÒN**: `presentations/result_analysis.md`.
-- 3.5 Viết lại mục encoder + sửa câu sai về PhoBERT — ĐANG LÀM: đã viết lại §2 ở
-  `08_experiment_rationale.md` (4 lượt; PhoBERT 88,40 → 96,62 và F1 âm 0,540 → 0,876; ViSoBERT 94,86 →
-  95,61; **đảo thứ hạng**; bỏ câu "PhoBERT không đoán được lớp âm" cho lượt `exp002`) và hai nút encoder
-  trong cây. **CÒN**: `docs/04_experiments/06_lora_encoder.md`, `docs/04_experiments/01_models.md`,
+- 3.3 Viết lại mục lượng hoá — **XONG 04/10/2026**: §3 của `08_experiment_rationale.md` (ba cấu hình sinh;
+  nhóm lô 4 sạch MỘT biến; delta **0,64 / 1,17 / 0,71 điểm**; số ô 2.414/2.324/2.375 so với 2.580/2.461/2.520;
+  "một phần lợi thế đến từ việc kiêng trả lời"), §3 của cây `07_evolution.md`, và §1.1 + §4.4 của
+  `presentations/result_analysis.md` (bảng ba cấu hình × ba mức ví dụ đã viết lại toàn bộ).
+- 3.4 Viết lại mục ba biến thể prompt (kết quả âm) — **XONG 04/10/2026**: **§3b** ở
+  `08_experiment_rationale.md` (exp011 −0,09 / exp012 −1,20 / exp013 −5,06; F1 `price` âm 0,308 / 0,600 /
+  0,167; mất 343 ô ở exp013), ba nút trong cây `07_evolution.md`, và §2.2 + §4.5 của
   `presentations/result_analysis.md`.
-- 3.6 Thêm mục `price` là điểm mù chung + câu về nhiễu so công bố — ĐANG LÀM: đã thêm **§7** ở
-  `08_experiment_rationale.md` (F1 = 0 của công bố; chênh 0,07 so công bố nằm trong nhiễu; **chỉ được nói
-  "thước không đo được"**, không được nói "model mù"; cỡ mẫu lớp âm `price` = **train 15 / val 0 / test
-  6**) và §6.3/§6.4 mới. **CÒN**: `presentations/result_analysis.md`.
-  **ĐÃ ĐƯỢC DUYỆT 04/10/2026** - người dùng chốt hướng (1): `val` có **0 ô** `price` âm ⇒ **`price` không có
-  ngưỡng** (ghi `price: null` + lí do trong tệp luật); ngưỡng chỉ áp cho 6 khía cạnh còn lại; cột `price`
-  giữ argmax của model gốc nên **không đổi** khi thêm ngưỡng (phải nói rõ trong báo cáo); macro báo cáo cả
-  trên 7 và trên 6 khía cạnh; `price` đọc bằng **đếm + danh sách 6 ô âm**; việc **lập tập chẩn đoán giá** đưa
-  vào BACKLOG, làm sau (không thuộc kế hoạch đợt này).
+- 3.5 Viết lại mục encoder + sửa câu sai về PhoBERT — **XONG 04/10/2026**: §2 `08_experiment_rationale.md`, hai
+  nút cây `07_evolution.md`, §1.2/§2.2/§2.3/§3/§4.6/§4.7 của `presentations/result_analysis.md`,
+  `docs/04_experiments/06_lora_encoder.md` (bảng "Kết quả hai hàm mất mát" 4 lượt + 3 điều đọc kèm + sửa con
+  số `price` sai), `docs/04_experiments/01_models.md` (trạng thái 4 model, cảnh báo `enable_thinking`, bỏ câu
+  sai về PhoBERT). Số đã kiểm: PhoBERT 88,40 → 96,62 (F1 âm 0,540 → 0,876); ViSoBERT 94,86 → 95,61 (0,765 →
+  0,836); **đảo thứ hạng**; `weighted_ce` **hạ phát hiện khía cạnh** 98,05 → 94,14 và 98,29 → 97,06.
+- 3.7 Cập nhật cây thí nghiệm (3 tệp) — **XONG 04/10/2026**: `07_evolution.md` (đã xong ở mục 3.3),
+  `presentations/experiment_tree.md` (mermaid 17 nút/5 nhánh A-B-E-F-G + bảng "Năm nhánh"), và
+  `presentations/experiment_tree.drawio` **viết lại từ đầu** (26 nút, 20 cạnh, không trùng id; đã kiểm bằng
+  `xml.etree.ElementTree`: **parse OK, mọi cạnh trỏ đúng id**). Bỏ nút D cũ, thêm nhóm E/F/G và các cặp
+  sạch-một-biến (B2→B8, B5→B8, B6→B9, B7→B10).
+- 3.8 Cập nhật `presentations/experiment_rationale.md`, `result_analysis.md` — **XONG 04/10/2026**:
+  `experiment_rationale.md` viết lại (đầu tệp, "Bật học?", "Năm nhánh, mười bảy lượt", A/B/E/F/G, "Bốn điều
+  phải nói"); `result_analysis.md` **viết lại toàn bộ** (§1 hai bảng accuracy, §2 ba bảng F1 theo lớp, §3
+  phát hiện khía cạnh, §4 **chín** kết luận, §5 hạn chế, §6 mười việc tiếp theo).
+- 3.6 Thêm mục `price` là điểm mù chung + câu về nhiễu so công bố — **XONG 04/10/2026**: **§7** ở
+  `08_experiment_rationale.md`, §6.3/§6.4 mới, §2.1/§2.2 của `presentations/result_analysis.md`, và **§4.9** +
+  §5 của `result_analysis.md`; cỡ mẫu lớp âm `price` = **train 15 / val 0 / test 6** (kiểm cả dữ liệu GỐC
+  `data/raw/cosmetics/v0.1.0/eda/02_label_aspect_distribution.csv`).
+  **Người dùng đã duyệt 04/10/2026** (xem mục 8.4): `price` không có ngưỡng; đọc bằng đếm + danh sách 6 ô;
+  tập chẩn đoán giá đưa vào backlog (sẽ ghi ở mục 3.14).
 - 3.7 Cập nhật cây thí nghiệm (3 tệp) — CHƯA LÀM.
 - 3.8 Cập nhật `presentations/experiment_rationale.md`, `result_analysis.md` — CHƯA LÀM.
 - 3.9 `metrics.md`: 5 luật đo + quyết định biểu quyết 3 mẫu — CHƯA LÀM.
