@@ -64,8 +64,11 @@ ngay sau mỗi lần lưu.
 ## Chọn `model/best`, dừng sớm, và curve train/val
 
 - **Chọn best theo `checkpoints.best_metric`** (mặc định `sentiment_f1` = macro-F1 sắc thái). Vì sao
-  KHÔNG dùng accuracy: dữ liệu mất cân bằng (ví dụ `price` 3.238 dương / 21 âm) nên accuracy bị lớp
-  trội chi phối. Đổi chỉ số chỉ cần sửa config, không sửa code.
+  KHÔNG dùng accuracy: dữ liệu mất cân bằng (ở `train`: `price` **2.581 dương / 15 âm / 21 trung tính**;
+  `stayingpower` 1.232 / 753 / 246) nên accuracy bị lớp trội chi phối. Đổi chỉ số chỉ cần sửa config,
+  không sửa code.
+  - **Cảnh báo đo được**: `val` có **0 ô** `price` âm (train 15, test 6) nên **không thể dò ngưỡng cho
+    `price`** trên `val`; xem `08_experiment_rationale.md` §7.
 - **`val` đo bằng ĐÚNG engine của `test`** (`src/evaluation/scorers`), nên `val` có đủ
   `sentiment_precision/recall/f1`, `detection_f1`, `accuracy_cell`, `loss` - không có định nghĩa metric
   thứ hai. Nhờ vậy đổi hàm chấm điểm là đổi cho cả `val` lẫn `test`.
@@ -80,6 +83,24 @@ ngay sau mỗi lần lưu.
   ngắt giữa chừng vẫn còn phần đã chạy.
 - **Hàm mất mát** (`loss.type`): `ce` mặc định, `weighted_ce` + `loss.class_weight: inverse` khi muốn
   chống mất cân bằng. Đổi loss đổi `config_sha256` nên ra thư mục kết quả MỚI.
+
+### Kết quả hai hàm mất mát (số đo thật, bốn lượt LoRA)
+
+| Lượt | Model | acc TB khía cạnh | F1 sắc thái macro | F1 âm `colour` | F1 âm `packing` | F1 âm `stayingpower` | phát hiện khía cạnh (F1 macro) | số ô |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `phobert-base-v2/lora/exp001` | PhoBERT + `ce` | 88,40 | 0,540 | 0,000 | 0,000 | 0,053 | **0,957** | 2.665 |
+| `phobert-base-v2/lora/exp002` | PhoBERT + `weighted_ce` | **96,62** | **0,876** | 0,812 | 0,952 | 0,915 | 0,891 | 2.736 |
+| `visobert/lora/exp001` | ViSoBERT + `ce` | 94,86 | 0,765 | 0,500 | 0,000 | 0,873 | **0,966** | 2.688 |
+| `visobert/lora/exp002` | ViSoBERT + `weighted_ce` | 95,61 | 0,836 | 0,729 | 0,588 | 0,925 | 0,944 | 2.701 |
+
+Ba điều phải đọc kèm:
+1. `weighted_ce` **cứu được lớp âm** (+8,22 điểm ở PhoBERT, +0,75 ở ViSoBERT) và **đảo thứ hạng** hai
+   encoder: ở lượt gốc ViSoBERT hơn PhoBERT 6,46 điểm, sang lượt `weighted_ce` PhoBERT hơn 1,01 điểm.
+2. **Giá phải trả là PHÁT HIỆN khía cạnh giảm**: PhoBERT 98,05 → 94,14 (accuracy micro, cơ sở `all`),
+   ViSoBERT 98,29 → 97,06 ⇒ báo cáo phải đưa **cặp chỉ số** (F1 lớp âm + phát hiện khía cạnh), không chỉ
+   một chỉ số.
+3. `price` âm vẫn **0,000 ở cả bốn lượt**, nhưng đó là **giới hạn của thước** (test chỉ có 6 ô `price` âm,
+   `val` có 0 ô) - xem `08_experiment_rationale.md` §7.
 
 
 Hai notebook LoRA chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa 6 GB VRAM). Ô bootstrap
