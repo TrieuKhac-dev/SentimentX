@@ -175,14 +175,74 @@
   mẫu) đo p50/p95/max token sinh rồi chốt `max_new_tokens = round_up(p99 × 1,5)`, không vượt cửa sổ ngữ
   cảnh; (b) giữ cửa `read_rate_min` 95%; (c) khai cả hai khoá trong CẤU HÌNH vì chúng đi vào mã băm danh
   tính. Đã cập nhật cả `present_plan.md` mục 4.4 cho khớp.
-- 4.5 Đường encoder xuất xác suất từng ô — CHƯA LÀM.
-- 4.6 `scripts/fit_thresholds.py` — CHƯA LÀM.
-- 4.7 `scripts/ensemble.py` — CHƯA LÀM.
-- 4.8 `scripts/fuse.py` — CHƯA LÀM.
-- 4.9 `scripts/vote.py` (3 mẫu; hoà → seed nhỏ nhất) — CHƯA LÀM.
-- 4.10 `data/reports/fusion/` + `docs/04_experiments/09_fusion.md` — CHƯA LÀM.
-- 4.11 Năm cấu hình model mới — CHƯA LÀM.
-- 4.12 Năm model vào `token_stats.MODELS` + đo lại bảng token + `model_input.csv` 228 → 513 — CHƯA LÀM.
+- 4.5 Đường encoder xuất xác suất từng ô — **XONG 04/10/2026**: `lora.predict()` trả thêm xác suất
+  (softmax trên float32 - fp16 làm tròn thô, sai số lan vào ngưỡng); `encoder_run.probability_columns()`
+  + `probability_rows()` (hàm thuần) và `run()` ghi `probabilities.csv` (một dòng cho mỗi (review, khía
+  cạnh), cột `p(mã <mã>)` theo ĐÚNG mã đã huấn luyện); mẫu tên khai ở `configs/paths.yaml`
+  (`probabilities`). Kiểm thử: `tests/experiments/test_encoder_run.py` (6 test). Tài liệu:
+  `docs/04_experiments/06_lora_encoder.md` mục 6 + `09_fusion.md` mục 6 (nhóm encoder gửi thêm tệp này).
+- 4.6 `scripts/fit_thresholds.py` — **XONG 04/10/2026**: dò ngưỡng theo khía cạnh trên `val` (lưới
+  0,05-0,95; hoà chọn ngưỡng LỚN hơn; ràng buộc số ô giảm < 5%; `price` ⇒ `null` + lí do + bảng quét làm
+  bằng chứng; macro hai cách). Ghi `data/reports/fusion/thresholds.json`. Lõi ở
+  `src/evaluation/fusion.py::fit_thresholds` + `apply_thresholds`.
+- 4.7 `scripts/ensemble.py` — **XONG 04/10/2026**: trung bình xác suất nhiều lượt encoder rồi `argmax`
+  theo khía cạnh; `--weights val` (macro-F1 lớp âm trên val, chuẩn hoá tổng 1) hoặc bằng nhau. Ghi
+  `ensemble.json` + đầu vào rút gọn vào `data/reports/fusion/inputs/`.
+- 4.8 `scripts/fuse.py` — **XONG 04/10/2026**: `--fit` chốt luật lai trên `val` (mỗi khía cạnh lấy nguồn
+  F1 âm cao hơn; hoà ⇒ LLM; khía cạnh không nguồn nào có ô âm vẫn có dòng + lí do) ghi `rules.json`;
+  `--apply` áp luật ĐÓNG BĂNG lên tập khác, đếm ô theo từng nguồn + số ô thiếu.
+- 4.9 `scripts/vote.py` — **XONG 04/10/2026**: bỏ phiếu từng ô trên **3 mẫu**; ô phải đọc được ở ít nhất
+  một lượt; hoà ⇒ nhãn của lượt ĐẦU TIÊN (truyền theo `seed` tăng dần); ghi `vote.json` kèm số của TỪNG
+  mẫu (đo dao động) và thống kê phiếu, và ghi nhãn từng ô vào `inputs/`.
+- 4.10 `data/reports/fusion/` + `docs/04_experiments/09_fusion.md` — **XONG 04/10/2026**: thư mục có
+  `README.md` (bảng tệp + hai luật + vì sao commit `inputs/`) và `inputs/README.md`; tài liệu 09_fusion.md
+  mô tả bốn bước, lệnh, cách đọc số, hai luật, đầu vào rút gọn; `docs/README.md` + `docs/00_workflow/09_cli.md`
+  đã thêm dòng cho 4 lệnh mới. Kiểm thử toàn bộ: `tests/evaluation/test_fusion.py` (14 test) +
+  `tests/experiments/test_encoder_run.py` (6 test).
+- 4.11 Năm cấu hình model mới — **XONG 04/10/2026 (kèm 4 module mã mới)**: **kiểm id trên Hugging Face
+  TRƯỚC khi khai** (tải tokenizer thật, 8/8 OK) và **đo trần kiến trúc**: phobert-large 258, ViBERT 512,
+  CafeBERT 514, XLM-R 514, Qwen2.5-0.5B 32.768 ⇒ chọn `max_length` 256 cho 4 encoder (cùng ngân sách input
+  với PhoBERT/ViSoBERT) và 2304 cho Qwen2.5 (cùng bộ prompt với Qwen3). Mã dùng chung: **mới**
+  `src/preprocessing/bert_like.py` (nạp tokenizer theo tên cấu hình, tách từ tuỳ model, encode/build_inputs/info)
+  + 4 module mỏng `phobert_large.py`, `vibert.py`, `cafebert.py`, `xlmroberta.py` (mỗi module khai 3 hằng số);
+  đăng ký vào `src/training/encoders.py` (6 encoder) và `MODELS` của `token_stats.py` (9 model).
+  5 cấu hình: `phobert-large`, `vibert-base-cased`, `cafebert`, `xlm-roberta-base` (encoder, `segmenter`
+  vncorenlp/none theo từng họ) + `qwen2.5-0.5b-instruct` (prompt, KHÔNG khai `enable_thinking` vì template
+  Qwen2.5 không có biến đó). Kiểm thử: `tests/preprocessing/test_encoders.py` (9 test: registry sạch, id
+  checkpoint khớp, bộ tách từ từng model, ngưỡng dưới trần kiến trúc, `token_stats.MODELS` phủ 9 model) +
+  cập nhật `tests/training/test_training.py` (danh sách encoder). Tài liệu: `docs/04_experiments/01_models.md`
+  (9 model) + `docs/05_config/04_models.md` (bảng model + cách thêm model qua `bert_like`).
+- 4.12 Năm model vào `token_stats.MODELS` + đo lại bảng token — **ĐANG LÀM (dừng giữa chừng 04/10/2026,
+  người dùng cần tắt máy)**: đã xong phần **mã + đăng ký** (5 model vào `MODELS` ⇒ bảng đo từ 4 model
+  thành **9 model**, tức mỗi bảng 12 → 27 dòng). Đã đo lại **10/19 bảng**: cả **8 bảng** của phiên bản
+  `…-e0ccc484` + `absa_cot_1shot_v1` và `absa_cot_zeroshot_v1` của phiên bản `…-e616c1e3`.
+  **CÒN 9 bảng**, tất cả ở phiên bản `…-e616c1e3` — chạy đúng 9 lệnh này (mỗi lệnh ghi một bảng):
+  ```
+  python run_token_stats.py --hash e616c1e3 --prompt absa_cot_5shot_v1 --system absa_cot
+  python run_token_stats.py --hash e616c1e3 --prompt absa_cot_v1 --system absa_cot
+  python run_token_stats.py --hash e616c1e3 --prompt absa_cot_1shot_v2 --system absa_cot
+  python run_token_stats.py --hash e616c1e3 --prompt absa_cot_1shot_v3 --system absa_cot
+  python run_token_stats.py --hash e616c1e3 --prompt absa_cot_1shot_v4 --system absa_cot
+  python run_token_stats.py --hash e616c1e3 --prompt absa_direct_v1 --segmenter none
+  python run_token_stats.py --hash e616c1e3 --prompt absa_direct_v1 --segmenter pyvi
+  python run_token_stats.py --hash e616c1e3 --prompt absa_direct_v1 --segmenter vncorenlp
+  python run_token_stats.py --hash e616c1e3 --prompt absa_one_turn_v1 --system absa_one_turn
+  ```
+  Thời lượng đo được: 1 ví dụ 113 giây · 5 ví dụ **400 giây** (bảng chậm nhất) · CoT 2 ví dụ 143 giây ·
+  0 ví dụ 91 giây · một lượt 79 giây · `absa_direct_v1` 43-55 giây ⇒ còn khoảng **18 phút**.
+  **Kiểm toàn vẹn ĐÃ CHẠY 04/10/2026 (không có bảng nào hỏng)**: mỗi bảng đã đo có đúng **27 dòng / 9
+  model**, mỗi bảng chưa đo còn **12 dòng / 4 model**; sau khi xong 9 bảng trên thì
+  `python scripts/collect_reports.py --group model_input` cho bảng gộp **513 dòng** (228 + 5 model × 19
+  bảng × 3 split).
+  **Trạng thái đã commit + push**: 10 bảng + bảng gộp (378 dòng = 10×27 + 9×12, tự khớp với các bảng
+  thành phần) ở commit `chore(data): regenerate the token tables for the five new models (part 1 of 2)`.
+  **Hai phát hiện cần ghi vào tài liệu khi hoàn tất** (chưa ghi): (a) `qwen3-0.6b` **+4 token** ở MỌI
+  split (368 → 372 trung bình) vì chat template chế độ KHÔNG suy nghĩ chèn một khối ` thinking` rỗng -
+  đây là bằng chứng `enable_thinking: false` có tác dụng thật; (b) `cafebert` và `xlm-roberta-base` cho
+  số liệu **giống hệt nhau** (cùng tokenizer SentencePiece, vocab 250.002) - điều đúng cần ghi lại,
+  không phải lỗi trùng lặp (cùng lối với cặp Qwen3).
+  **CÒN LẠI của mục 4.12**: cập nhật `docs/04_experiments/02_model_input.md` (228 → 513 dòng; hai phát
+  hiện trên) và `docs/04_experiments/04_backlog.md`.
 - 4.13 `ci_checks` + `unittest` + commit mã/cấu hình — CHƯA LÀM.
 
 ## Mục 5. Tạo thí nghiệm và tài liệu cho các đợt
