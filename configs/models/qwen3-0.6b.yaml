@@ -6,7 +6,7 @@
 
 model_id: qwen3-0.6b
 checkpoint: Qwen/Qwen3-0.6B
-config_version: 3
+config_version: 4
 
 # prompt: model sinh (LLM) nhận prompt rồi trả lời; model này chỉ chạy bằng prompt.
 approach: prompt
@@ -14,6 +14,12 @@ approach: prompt
 preprocess:
   max_length: 2304
   add_generation_prompt: true
+  # BẮT BUỘC với bản 0.6B: model (bản 4/2025) mặc định BẬT suy nghĩ, nên nếu để trống thì nó viết hết
+  # trần `max_new_tokens` trong khối  thinking rồi không còn chỗ in JSON - ba lượt ngày 02/10/2026 vì
+  # thế chỉ đọc được 3,33 / 1,36 / 1,73%. Muốn CỐ Ý bật suy nghĩ thì khai `enable_thinking: true`
+  # trong config THÍ NGHIỆM (lớp thí nghiệm ghi đè lớp model) và phải đi kèm `decoding.max_new_tokens`
+  # đủ lớn + một lượt DÒ chốt trần - xem present_plan.md mục 9.1.
+  enable_thinking: false
 
 inference:
   # `auto`: bf16 khi GPU hỗ trợ thật, fp16 trên T4 (Turing), fp32 trên CPU - bản 0.6B chạy được cả CPU.
