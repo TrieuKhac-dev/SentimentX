@@ -229,6 +229,12 @@ tệp của ba prompt một-ví-dụ mới `absa_cot_1shot_v2/v3/v4` - ba prompt
 dùng) × 12 dòng. Tám tệp của bộ cũ từng chỉ có 9 dòng vì đo trước khi Qwen3-0.6B vào thử
 nghiệm; đã chạy lại đủ bốn model ngày 30/09/2026.
 
+**Cập nhật 04/10/2026 (chưa sửa số ở đoạn trên):** đợt 7 sẽ thêm **5 model mới** vào
+`MODELS` của `src/preprocessing/token_stats.py` (`qwen2.5-0.5b-instruct`, `phobert-large`,
+`vibert-base-cased`, `cafebert`, `xlm-roberta-base`) ⇒ phải **đo lại 11 bảng token** và bảng gộp sẽ thành
+**513 dòng** (228 + 5 model × 19 tệp × 3 split, phần nào đo được ở mỗi phiên bản). Đoạn này **cố ý chưa
+sửa** cho tới khi đo xong (việc 4.11-4.12 của `present_plan.md`), để không mô tả một bảng chưa tồn tại.
+
 Ba chốt an toàn đi kèm:
 
 1. **Không vượt trần kiến trúc** của model (PhoBERT 258, ViSoBERT 514, Qwen 262.144): vượt

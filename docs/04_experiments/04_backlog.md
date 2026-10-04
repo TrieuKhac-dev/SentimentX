@@ -207,7 +207,7 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 | ---- | ---------- | ------- |
 | **ViTASA** vào bảng so sánh cùng PhoBERT / ViSoBERT / Qwen3 | **GÁC LẠI** (mục 1 ở trên) | Repo `kh4nh12/ViTASA` chỉ có `LICENSE`, `README.md` và 3 tệp `.jsonl`: không có mã model, không checkpoint, không script huấn luyện; Hugging Face Hub cũng không có dataset/model nào tên `vitasa`. Chưa có gì chạy được thì viết code chỉ là SUY ĐOÁN. Làm tiếp khi có checkpoint: viết `src/preprocessing/vitasa.py` theo khung đã ghi sẵn trong docstring của nó, rồi thêm một dict vào `MODELS` của `src/preprocessing/token_stats.py` |
 | **8 tệp `token_stats__*.csv` thiếu dòng của `qwen3-0.6b`** | **ĐÃ LÀM 30/09/2026** | `qwen3-0.6b` vào danh sách `MODELS` của `src/preprocessing/token_stats.py` ngày 29/09/2026 (`a30a5da`), nhưng lượt sinh lại ĐẦU TIÊN chỉ làm MỘT tệp (`1acffd5`, `absa_direct_v1__seg-none.csv`) - nên lúc đó đúng là chỉ 1 trong 9 tệp đủ 4 model. `da4ed98` (30/09/2026) sinh lại 7 tệp còn lại (mỗi tệp **+3 dòng** = 1 model × 3 split) và **bỏ luôn tệp mồ côi** `token_stats__prompt-absa_cot_5shot_v1__ex-2799b4c8.csv`, nên thư mục còn 8 tệp. Kiểm lại 01/10/2026: mỗi phiên bản dữ liệu có **8 tệp × 12 dòng = 4 model × 3 split** (cả `e0ccc484` lẫn `e616c1e3`), và bảng gộp `model_input.csv` có **192 dòng** (16 tệp × 12) - không còn tổ hợp nào thiếu. Con số "9 tệp" và chữ "CHƯA LÀM" trong ô này là số liệu của ngày 29/09, đã bị chính commit 30/09 vượt qua. **Cập nhật 02/10/2026**: thêm ba bảng của ba prompt một-ví-dụ mới (`absa_cot_1shot_v2/v3/v4`) nên nay là **228 dòng** (19 tệp × 12) |
-| **Thay thời gian chạy ƯỚC TÍNH bằng SỐ THẬT** | **ĐÃ LÀM 02/10/2026** cho 9 lượt đã chạy; 11 lượt mới còn chờ chạy | Đã thay bằng số giây thật (đọc từ `run_meta.json`) ở `handover/README.md` (bảng 20 notebook), `docs/00_workflow/07_colab.md` (bảng đo thật) và `docs/00_workflow/01_flow.md`. Mười một notebook của đợt này (3 lượt 0.6B, 3 lượt 4-bit lô 4, 3 biến thể prompt, 2 lượt LoRA trọng số lớp âm) vẫn ghi rõ là **ước tính** - thay nốt sau khi chúng chạy xong |
+| **Thay thời gian chạy ƯỚC TÍNH bằng SỐ THẬT** | **ĐÃ LÀM 04/10/2026 cho cả 17 lượt** | Số giây thật (đọc từ `run_meta.json` / `attempt_registry.csv`) đã thay vào `handover/README.md` (bảng 20 notebook), `docs/00_workflow/07_colab.md` (bảng đo thật) và `docs/00_workflow/01_flow.md`. Nay chỉ còn **ba notebook 0.6B** ghi **ước tính** (chúng chưa chạy được lần nào vì hai kiểu hỏng - xem mục 10.1). **Lưu ý:** `exp004` (42 phút) và `exp010` (7 phút) là lượt **CHẠY TIẾP** nên số ghi được chỉ là phần phiên cuối; giả thuyết cũ "5 ví dụ sinh ít token" đã bị bác bỏ |
 | **`mispredictions_paper.csv`** - danh sách ô sai theo CƠ SỞ ĐO `paper` | **ĐÃ LÀM 01/10/2026** | Mỗi lượt chạy nay ghi thêm tệp thứ sáu: `mispredictions_paper.csv`, TẬP CON của `mispredictions.csv` theo từng dòng (cùng cột, cùng chỉ số review gốc). Cùng một định nghĩa "ô sai" (`Samples.mispredictions`), chỉ khác bộ ô: bộ đã lọc hai chiều ⇒ không bao giờ có nhãn `không nhắc`/`không đọc được`, và số dòng theo khía cạnh khớp `paper.cells` trừ `scores_paper.accuracy.correct`. Việc phải sửa: `configs/paths.yaml`, `src/evaluation/scorers/__init__.py` (chỗ ghi), sáu danh sách "tệp nhẹ" trong tài liệu (nay SÁU tệp), `configs/experiments/tracking.yaml` (tệp nhẹ của cơ sở `paper` lên DagsHub - đảo chốt "cơ sở `paper` không lên MLflow" của 01/10/2026 sáng cùng ngày), và một lần **ghim lại 12 notebook + phát hành gói 004**: tệp mới chỉ ra đời khi bản code đã ghim có phần ghi nó, mà ghim lại là hợp lệ vì 12 thí nghiệm đó CHƯA chạy ở đâu và cách đo không đổi (`docs/00_workflow/10_template_notebook.md`) |
 | **Lỗi ánh xạ chỉ số review khi lọc hai chiều** (lộ ra khi làm tệp trên) | **ĐÃ SỬA 01/10/2026** | `Samples.restrict` cũ truyền `raw_gold` GỐC cho bộ đã lọc, rồi suy vị trí ô từ hai dãy NHÃN. Sai ở hai đường: (a) `neutral_policy: as_negative`/`as_positive` ĐỔI mã neutral nên phép ghép không khớp ⇒ `ScorerError` làm **cả lượt chạy chết ở bước ghi kết quả** (chưa lộ vì bộ chỉ số của cơ sở `paper` không gọi `kept()`); (b) ô bị bỏ vì NHÃN ĐOÁN có thể trùng nhãn đúng với ô được giữ ⇒ ghép dãy con trỏ sang review KHÁC, **im lặng**. Nay `Samples` ghi nhớ `row_indexes` của từng ô, và `restrict` lấy vị trí trực tiếp từ bộ lọc (`src.labels.base.two_sided_positions`, nay là chỗ DUY NHẤT giữ luật lọc hai chiều) |
 
@@ -316,37 +316,50 @@ dưới đây là việc ĐÃ BIẾT và CỐ Ý chưa làm trong đợt này.
   `data` nhúng trong HTML.
 
 
-## 10. Việc của đợt "20 lượt" (ghi 02/10/2026)
+## 10. Việc của đợt "20 lượt" (ghi 02/10/2026; cập nhật trạng thái 04/10/2026)
 
-Đợt này chạy thêm 8 thí nghiệm mới (xem `07_evolution.md` và `08_experiment_rationale.md`). Năm món
-dưới đây là CỐ Ý chưa làm, kèm điều kiện quay lại.
+Đợt này chạy thêm 8 thí nghiệm mới (xem `07_evolution.md` và `08_experiment_rationale.md`). Bảy mục dưới
+đây nay đã có kết quả (10.2, 10.3, 10.4 - XONG) hoặc còn mở / chờ chạy lại (10.1, 10.5, 10.6, mục 10.7 nay
+đã thành việc của đợt sau); mỗi mục ghi trạng thái và điều kiện quay lại.
 
-### 10.1. Chạy lại Qwen3-0.6B - việc KẾ TIẾP
+### 10.1. Chạy lại Qwen3-0.6B - việc KẾ TIẾP (CHƯA XONG, đã hỏng HAI lần)
 
-Ba lượt `qwen3-0.6b/prompt-cot/exp001..003` (đợt trước) nạp nhầm trọng số 4B vì `run_model` rơi về hằng
-số của module. Đã sửa (`checkpoint` của config model là nguồn, có test khoá) và ba thư mục kết quả cũ
-đã xoá; ba notebook được ghim lại để chạy trong gói `011`. Xong khi ba lượt mới có `metrics.json` ghi
-`model = Qwen/Qwen3-0.6B`.
+Lượt 1 (đợt trước): ba lượt `qwen3-0.6b/prompt-cot/exp001..003` nạp nhầm trọng số 4B vì `run_model` rơi về
+hằng số của module. Đã sửa (`checkpoint` của config model là nguồn, có test khoá ở commit `8bfe96e`).
 
-### 10.2. Tách biến lượng hoá
+Lượt 2 (02/10/2026, sau khi sửa): ba thư mục **đúng** model `Qwen/Qwen3-0.6B` nhưng **bật suy nghĩ** - model
+ăn hết trần `max_new_tokens: 400` trong khối ` thinking` rồi không in JSON, nên chỉ đọc được **3,33 / 1,36 /
+1,73%**. Cả **sáu** thư mục kết quả (3 lượt nhầm 4B + 3 lượt bật suy nghĩ) đã xoá ngày 04/10/2026; bằng
+chứng ở `check_present_plan.md` mục 2.1.
 
-Nhóm fp16 (`exp005..007`) khác nhóm 4-bit (`exp002..004`) HAI biến: lượng hoá và `batch_size` (8 so
-với 4). Chênh lệch 0,54 / 1,12 / 0,63 điểm vì vậy chưa quy được cho biến nào. Ba lượt
-`prompt-cot/exp008..010` chạy 4-bit ở `batch_size: 4` để so sạch với nhóm fp16 (cùng batch). Xong khi
-có kết luận, hoặc ghi rõ là chưa tách được, trong `08_experiment_rationale.md`.
+Xong khi: ba lượt chạy lại có `metrics.json` ghi `model = Qwen/Qwen3-0.6B` **và** `% đọc được ≥ 95%`. Cách
+làm đã chốt: khoá `preprocess.enable_thinking: false` trong cấu hình model (việc 4.1 của `present_plan.md`),
+chạy lại trong đợt 7 (mục 5.1); lượt **bật** suy nghĩ tách thành nhánh riêng, mở đầu bằng lượt **DÒ**
+(`exp004`, trần 8.192) để chốt trần token trước (mục 9.1).
 
-### 10.3. Chống mất cân bằng lớp âm cho encoder
+### 10.2. Tách biến lượng hoá - **XONG 04/10/2026**
 
-`loss.type: weighted_ce` + `loss.class_weight: inverse` ở hai thí nghiệm `lora/exp002`. Đọc kết quả
-bằng **F1 lớp âm** và macro-F1, KHÔNG bằng accuracy. Điều kiện coi là tiến bộ: F1 lớp âm tăng VÀ số ô
-của cơ sở `paper` không giảm rõ rệt - cơ sở này loại ô model trả lời "không nhắc tới", nên "kiêng trả
-lời" là trung tính với điểm (`docs/04_experiments/metrics.md`).
+Ba lượt `prompt-cot/exp008/009/010` (4-bit, lô 4) đã chạy xong, nên nay so được **sạch một biến** với nhóm
+fp16 lô 4 (`exp005/006/007`). Kết quả: 4-bit hơn fp16 **0,64 / 1,17 / 0,71 điểm**; F1 macro hơn
+0,018 / 0,019 / 0,008; **nhưng** số ô của cơ sở `paper` lại **thấp hơn 5-6%** (2.414/2.324/2.375 so với
+2.580/2.461/2.520). Kết luận đã ghi ở `08_experiment_rationale.md` §3 và §6.3: lợi thế một phần đến từ việc
+**kiêng trả lời**, nên mọi so sánh phải đọc kèm số ô.
 
-### 10.4. Ba biến thể prompt - ba cơ chế khác nhau
+### 10.3. Chống mất cân bằng lớp âm cho encoder - **XONG 04/10/2026**
 
-`prompt-cot/exp011` (ví dụ có ba nhãn âm), `exp012` (thêm bước "quét lời phàn nàn trước khi gán mã"),
-`exp013` (thêm đoạn lưu ý về mất cân bằng nhãn). Mỗi lượt khác `exp003` ĐÚNG MỘT thứ. Điều kiện tiến
-bộ giống 10.3.
+Hai lượt `lora/exp002` (`weighted_ce` + `inverse`) đã chạy. Kết quả: PhoBERT **88,40 → 96,62** (F1 lớp âm
+**0,540 → 0,876**), ViSoBERT **94,86 → 95,61** (F1 lớp âm 0,765 → 0,836); số ô tăng (2.665 → 2.736 và
+2.688 → 2.701) nên điều kiện "F1 âm tăng VÀ số ô không giảm" **đạt**; và **đảo thứ hạng** hai encoder.
+Điều kiện tiến bộ đã đạt. **Nợ mới phát hiện**: `weighted_ce` **hạ phát hiện khía cạnh** (PhoBERT
+98,05 → 94,14; ViSoBERT 98,29 → 97,06, cơ sở `all`) - từ nay phải báo cáo **cặp** chỉ số (F1 lớp âm + phát
+hiện khía cạnh), xem `06_lora_encoder.md`.
+
+### 10.4. Ba biến thể prompt - ba cơ chế khác nhau - **XONG 04/10/2026, CẢ BA ĐỀU ÂM**
+
+`exp011` 97,63 (**−0,09**), `exp012` 96,52 (**−1,20**), `exp013` 92,66 (**−5,06**, mất 343 ô). `exp011` còn
+kéo F1 `price` âm từ 0,600 xuống 0,308. Kết luận: sửa **ví dụ** và sửa **câu chữ prompt** đều không cứu được
+lớp âm - hướng đó đã bị bỏ; hướng có kết quả là sửa **hàm mất mát** (mục 10.3). Chi tiết: §3b của
+`08_experiment_rationale.md`.
 
 ### 10.5. Hướng LAI encoder + LLM - có điều kiện
 
@@ -356,6 +369,12 @@ macro-F1 0,835 so với 0,738 và 0,779). Kết luận: lai **phải thắng tr�
 xác lớp âm**, không phải bằng cách phát hiện nhiều hơn. Ba điều kiện trước khi làm: (i) chốt thước đo
 trước khi chạy; (ii) luật và ngưỡng chốt trên `val`, không phải `test`; (iii) cần **xác suất** từng ô
 của encoder (hiện `predictions.csv` chỉ có nhãn cứng) nên phải sửa đường encoder để ghi thêm `p(mã)`.
+
+**Trạng thái 04/10/2026:** (i) và (ii) đã vào kế hoạch (`present_plan.md` mục 8.4, 8.5 - luật chốt trên
+`val` rồi mới áp lên `test`); (iii) là việc **4.5** (đường encoder ghi xác suất từng ô). Lượt `val` cần cho
+lượt lai: `prompt-cot/exp017` (phía LLM) và `lora/exp003` của hai encoder. **Lưu ý:** luật lai **không áp
+được cho `price`** vì `val` có 0 ô `price` âm (xem `08_experiment_rationale.md` §7). Nếu lượt lai thắng
+trên cơ sở `paper`, bước tiếp theo là thăng cấp nó thành một `method` - xem mục 11.2.
 
 ### 10.6. QLoRA / fine-tune Qwen3-4B - KHÔNG làm được trên T4
 
@@ -368,4 +387,52 @@ muốn làm cần GPU ≥ 24 GB.
 `decoding: sample` + nhiều seed: hạ tầng đã có (`--sample`, `seed`), nhưng đợt này KHÔNG chạy (mỗi
 seed là một thư mục kết quả mới). Giữ ở đây để lần sau nhớ rằng các kết luận kiểu "+0,02 so công bố"
 mới là MỘT lần chạy greedy, chưa phải một phân bố.
+
+**Cập nhật 04/10/2026:** đã đưa vào kế hoạch đợt 8 (`present_plan.md` mục 11.3): ba lượt lấy mẫu
+`exp018/019/020` (4-bit, `seed` 1/2/3) + một lượt đối chứng fp16 `exp021` (cùng `seed` 1) để tách
+**lượng hoá × lấy mẫu**; biểu quyết dùng **3 mẫu** (mục 9.4; luật 6 của `docs/04_experiments/metrics.md`).
+
+## 11. Bốn mục mới (ghi 04/10/2026)
+
+### 11.1. Lỗi đã gặp: model bật suy nghĩ ăn hết trần token
+
+**Hiện tượng:** `Qwen/Qwen3-0.6B` (bản 4/2025) **mặc định bật suy nghĩ**; với `max_new_tokens: 400` nó viết
+hết 400 token trong khối ` thinking` rồi không còn chỗ in JSON. Ba lượt 0.6B vì thế chỉ đọc được
+**3,33 / 1,36 / 1,73%**, lí do hỏng chính là "không thấy JSON nào" (1.549 / 1.561 / 1.536 lượt).
+
+**Cách xử lý (đã chốt):** bật suy nghĩ là **một cơ chế, hai khoá đi liền nhau** - phải khai thêm trần token
+tương ứng; lượt nào bật suy nghĩ thì phải chạy **lượt DÒ** (~60 mẫu) đo p50/p95/max token sinh rồi chọn
+`max_new_tokens = làm tròn lên (p99 × 1,5)`. Có **cửa chặn**: `% đọc được < 95%` ⇒ ghi `valid: false` kèm
+lí do. Việc này nằm ở luật 2 và luật 3 của `docs/04_experiments/metrics.md` và mục 9.1 của
+`present_plan.md`.
+
+### 11.2. Thăng cấp LUẬT LAI thành một `method` - nếu nó thắng
+
+Hiện luật lai (encoder + LLM theo khía cạnh) chỉ là một **script chấm lại** (`scripts/fuse.py`), không
+phải một `method` trong `experiments/`. Nếu lượt lai thắng trên cơ sở `paper` và thắng **ổn định**, thì
+thăng cấp thành `method: fuse` (một mục trong `src/experiments/` + `method` hợp lệ), để nó có
+`config_sha256`, có luật đóng băng trong repo và chạy lại được như mọi lượt khác. Chưa làm vì chưa biết
+thắng hay không.
+
+### 11.3. Trọng số lớp theo TỪNG khía cạnh (`loss.class_weight: inverse_by_aspect`) - chỉ làm nếu ngưỡng không đủ
+
+`weighted_ce` + `inverse` tính trọng số **dùng chung cho mọi khía cạnh**. Khía cạnh hiếm hơn (ví dụ
+`packing` âm chỉ 10 ô ở `test`, 85 ở train) có thể cần trọng số riêng. Đây là việc rẻ (một lượt encoder
+15 phút) **sau khi** biết kết quả đường ngưỡng: nếu ngưỡng theo khía cạnh đã kéo được lớp âm lên thì không
+cần; nếu model không bao giờ đặt `p(mã 2)` cho khía cạnh đó cao hơn ~0,2 thì ngưỡng vô dụng và trọng số
+theo khía cạnh là bước kế tiếp. Đụng vào `src/training/lora.py` (thêm một giá trị cho `loss.class_weight`)
++ test + docs.
+
+### 11.4. Tập chẩn đoán GIÁ - theo quyết định người dùng 04/10/2026
+
+**Vì sao cần:** `price` âm chỉ có **15 ô ở train, 0 ô ở val, 6 ô ở test** ⇒ F1 ở lớp này là nhiễu và
+**không dò được ngưỡng cho `price`**. Muốn có thước thật cho `price` thì phải có tập đo riêng.
+
+**Việc:** lập một tập ~200-300 review CÓ nhắc giá (lấy từ `val` + `test` của bộ dữ liệu đang dùng), gán
+nhãn "chê giá / khen giá / không nhắc" theo **quy tắc viết TRƯỚC**, lưu tách hẳn ở
+`data/reports/price_probe/` - **KHÔNG** trộn vào bảng `paper` (luật 9 và 11: bảng công bố là bất biến).
+Khi có tập đó thì mới đo được recall/precision thật cho `price` và mới dò ngưỡng được trên tập `val` phụ.
+
+**Trạng thái:** người dùng đã chốt **đưa vào backlog, làm SAU** (không thuộc kế hoạch đợt 7-9). Việc của
+người, **0 GPU**.
 

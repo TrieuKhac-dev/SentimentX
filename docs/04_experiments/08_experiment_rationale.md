@@ -18,7 +18,7 @@ kiện để con số chênh lệch có nghĩa.
 | Cách chấm | `evaluation.n: null` (chấm cả split `test`), `decoding.mode: greedy` (tất định), năm scorer: `accuracy`, `aspect_detection`, `prf`, `aggregate`, `confusion` |
 | Hai cơ sở đo | `all` = mọi ô có nhãn đúng khác `neutral` (số trong `metrics.json::scores`) · `paper` = chỉ ô mà CẢ nhãn đúng và nhãn đoán là positive/negative (đúng cách công bố đếm) → **so công bố phải đọc cơ sở `paper`** |
 | Mỗi lượt sinh ra | `results/<hash8>/`: `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `predictions.csv`, `model/{last,best}` (chỉ hai lượt LoRA) + một run MLflow. `<hash8>` = băm của cấu hình + prompt + dữ liệu + commit đã ghim |
-| Bật học? | `training.enabled: false` mặc định - chỉ hai lượt LoRA bật `true` |
+| Bật học? | `training.enabled: false` mặc định - chỉ **bốn** lượt LoRA bật `true` (`phobert-base-v2/lora/exp001` + `exp002`, `visobert/lora/exp001` + `exp002`) |
 | Cách sinh | `greedy`, `max_new_tokens` 400, `max_length` 2304 (đường prompt); encoder `max_length` 256 |
 
 ## 2. Nhóm A - hai encoder học LoRA (4 lượt, nhóm DUY NHẤT phải huấn luyện)
