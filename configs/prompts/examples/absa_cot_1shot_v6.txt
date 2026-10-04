@@ -1,0 +1,21 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án — KHÔNG được gửi cho model) ---
+# Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
+# Kiểm chứng: python run_check_examples.py --hash e616c1e3 --prompt absa_cot_1shot_v6
+# Biến thể v6 của bộ ONE-SHOT: prompt `absa_cot_1shot_v6.txt` GIỐNG TỪNG BYTE bản v1 (đối chiếu
+# sha256) - chỉ NỘI DUNG VÍ DỤ khác. Ví dụ này có MỘT Ô GIÁ MÃ 2, và lời chê giá được viết GIÁN TIẾP
+# (so sánh với mặt bằng chung + tiếc tiền), đúng loại lời chê mà mọi lượt prompt đều bỏ sót.
+# Nhờ vậy so lượt này với `exp003` là so ĐÚNG MỘT biến: "dạy bằng ví dụ có ô giá mã 2".
+# Nếu sau này lấy ví dụ TỪ DỮ LIỆU: CHỈ được lấy từ split train, ghi rõ "train, dòng N".
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Chất son mịn, lên màu chuẩn như hình, mùi thơm nhẹ. Nhưng so với mấy thỏi cùng tầm tiền thì thỏi này hơi chát, mua xong thấy tiếc ví. Vỏ hộp nhựa mỏng, được cái giao hàng nhanh."
+SUY LUẬN:
+- colour: "lên màu chuẩn như hình" | khen màu đúng như mong đợi | mã 1
+- texture: "chất son mịn" | chất son mịn | mã 1
+- smell: "mùi thơm nhẹ" | mùi dễ chịu | mã 1
+- price: "so với mấy thỏi cùng tầm tiền thì thỏi này hơi chát, mua xong thấy tiếc ví" | chê giá cao so với mặt bằng, không đáng tiền - chê GIÁN TIẾP | mã 2
+- packing: "vỏ hộp nhựa mỏng" | chê vỏ hộp mỏng | mã 2
+- shipping: "giao hàng nhanh" | khen giao nhanh | mã 1
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+KẾT QUẢ:
+{"colour": 1, "texture": 1, "smell": 1, "price": 2, "packing": 2, "shipping": 1, "stayingpower": 0}

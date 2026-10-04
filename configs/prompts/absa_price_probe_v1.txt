@@ -1,0 +1,26 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: đọc review rồi quyết định xem review có PHÀN NÀN về khía cạnh {aspects} hay không.
+
+{label_guide}
+
+Quy trình:
+1. Trích nguyên văn mọi câu nói về khía cạnh {aspects}. Nếu review không nhắc tới, ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đó là lời khen hay lời chê. Lời chê giá thường là GIÁN TIẾP: so sánh với giá
+   trị nhận được ("không đáng tiền", "giá này mà chất son thế này"), so với nơi khác hoặc đợt khác
+   ("chỗ khác rẻ hơn", "canh sale mới nên mua"), hoặc nói ở dạng tiếc nuối ("hơi chát", "tiếc ví").
+3. Chốt mã số theo bảng mã ở trên.
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- {aspects}: <trích dẫn> | <lí do ngắn> | mã <số>
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT vào đó, KHÔNG chép nguyên số 0)

@@ -1,0 +1,39 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: với mỗi khía cạnh trong danh sách, hãy chọn đúng một mã cảm xúc và nói rõ vì sao.
+
+{label_guide}
+
+Danh sách khía cạnh: {aspects}
+
+Quy trình cho TỪNG khía cạnh:
+1. Trích nguyên văn đoạn văn nói về khía cạnh đó. Nếu review không nhắc tới, ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đoạn đó là tích cực hay tiêu cực.
+3. Chốt mã số.
+
+LƯU Ý RIÊNG CHO KHÍA CẠNH GIÁ: lời CHÊ giá thường nói GIÁN TIẾP, không dùng từ "đắt". Các dấu hiệu
+phải coi là mã 2 (tiêu cực):
+- so sánh với giá trị nhận được: "giá này mà chất son thế này", "không đáng tiền", "tiền nào của nấy";
+- chê giá đi kèm chê khác: "đắt mà son khô", "giá cao mà giữ màu kém";
+- so với nơi khác hoặc đợt khác: "chỗ khác rẻ hơn", "mua đợt sale mới đáng", "canh sale mới nên mua";
+- nói ở dạng tiếc nuối: "hơi chát", "hơi cao so với túi tiền", "mua xong thấy tiếc ví".
+Ngược lại, lời KHEN giá ("giá dễ chịu", "rẻ", "đáng tiền", "sinh viên mua được") là mã 1, và review KHÔNG
+nhắc gì tới giá là mã 0. Chỉ dùng mã 2 khi thật sự có lời chê giá - đừng suy diễn từ việc review nhắc
+tới giá.
+
+Ví dụ:
+{examples}
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- <khía cạnh>: <trích dẫn> | <lí do ngắn> | mã <số>     (một dòng cho MỖI khía cạnh)
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT của từng khía cạnh vào đó, KHÔNG chép nguyên các số 0)
