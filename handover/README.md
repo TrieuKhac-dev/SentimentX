@@ -18,9 +18,11 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Mười bảy notebook trong gói (đợt 7)
 
-**Chưa lượt nào chạy trước đây**, nên cột thời gian ghi **ước tính**; chỗ nào ước tính dựa trên một lượt
-đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu. Bảng xếp theo **thứ tự nên chạy** (rẻ và lượt
-chặn đường trước - lượt DÒ chốt trần token cho nhánh suy nghĩ của đợt sau).
+**Chưa lượt nào trong bảng này từng cho ra kết quả dùng được**, nên cột thời gian ghi **ước tính**; chỗ nào
+ước tính dựa trên một lượt đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu (ba lượt `qwen3-0.6b` đã
+chạy ngày 02/10/2026 nhưng hỏng vì bật suy nghĩ ăn hết trần token, nên nay chạy lại với
+`enable_thinking: false`). Bảng xếp theo **thứ tự nên chạy** (rẻ và lượt chặn đường trước - lượt DÒ chốt
+trần token cho nhánh suy nghĩ của đợt sau).
 
 | Notebook | Trả lời câu gì | Thời gian trên T4 |
 | --- | --- | --- |
@@ -46,10 +48,11 @@ Mỗi notebook ghi vào thư mục kết quả riêng nên chạy song song nhi�
 notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riêng theo mã băm danh tính.
 
 **Gói này còn chứa 6 notebook của ĐỢT SAU - đừng chạy vội:** `notebooks/phobert-base-v2/lora/exp004.ipynb`,
-`notebooks/visobert/lora/exp004.ipynb` (hai lượt `test` để đo tác dụng của NGƯỠNG, mà ngưỡng chỉ chốt được
-sau khi có hai lượt `val` ở bảng trên) và `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp018.ipynb`,
-`exp019.ipynb`, `exp020.ipynb`, `exp021.ipynb` (bốn lượt **lấy mẫu**, chạy sau khi biết cấu hình tốt nhất của
-đợt này). Gửi kèm sẵn để lần sau chỉ phải **giải nén đè** là có, không phải tải lại.
+`notebooks/visobert/lora/exp004.ipynb` (hai lượt `test` để đo tác dụng của NGƯỠNG; ngưỡng được áp **ngoài**
+lượt chạy nên hai notebook này chạy lúc nào cũng được - chỉ có ĐIỂM ĐỌC ĐƯỢC là phải chờ hai lượt `val` ở
+bảng trên chốt xong ngưỡng) và `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp018.ipynb`, `exp019.ipynb`,
+`exp020.ipynb`, `exp021.ipynb` (bốn lượt **lấy mẫu**, chạy sau khi biết cấu hình tốt nhất của đợt này). Gửi
+kèm sẵn để lần sau chỉ phải **giải nén đè** là có, không phải tải lại.
 
 Bốn nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
 nguyên nhân):
@@ -145,8 +148,11 @@ tiếp có tác dụng.
 
 ## Cần gửi lại gì
 
-Sáu file **nhẹ**: `run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`,
-`mispredictions_paper.csv`.
+**Bảy** file **nhẹ**: `run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`,
+`mispredictions_paper.csv`, `predictions.csv`.
+Nhóm **encoder** (6 lượt: bốn encoder mới + hai lượt `val`) gửi **thêm `probabilities.csv`**.
+`predictions.csv` là tệp thứ BẢY (thêm từ 04/10/2026): bước KẾT HỢP dựng đầu vào rút gọn từ nó, và lượt
+**DÒ** phải có nó mới đo được số token sinh (`p50`/`p95`/`max`) - thiếu nó thì hai việc đó không chạy được.
 Gửi thẳng thư mục kết quả cũng được (các file nặng nằm trong `predictions/` và `model/`).
 
 ## Nếu có gì không chạy
