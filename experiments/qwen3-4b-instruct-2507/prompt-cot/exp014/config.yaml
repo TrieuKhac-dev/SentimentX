@@ -1,0 +1,33 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp014
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp003
+
+model: qwen3-4b-instruct-2507
+method: prompt-cot
+
+notes: "GIA: dinh nghia loi che gia GIAN TIEP trong prompt (muc 1 vi du)"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là BỐN cấp).
+prompt: ../../../../configs/prompts/absa_cot_1shot_v5.txt
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v5.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# ĐÚNG MỘT BIẾN so với `exp003`: CÂU CHỮ của prompt. `absa_cot_1shot_v5.txt` = bản v1 + một đoạn
+# định nghĩa lời CHÊ GIÁ GIÁN TIẾP (so sánh với giá trị nhận được, "không đáng tiền", "hơi chát",
+# so với chỗ khác rẻ hơn). File ví dụ BYTE-IDENTICAL với v1 (đối chiếu sha256) nên mọi chênh lệch đo
+# được là do câu chữ, không do ví dụ.

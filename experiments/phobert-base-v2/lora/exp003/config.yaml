@@ -1,0 +1,40 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp003
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: phobert-base-v2/lora/exp002
+
+model: phobert-base-v2
+method: lora
+
+notes: "Luot VAL (phobert-base-v2): chot nguong theo khia canh + trong so ensemble"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  roles: {train: train, val: val, eval: val}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`). Vai `train`/`val`/`eval` ở trên theo đúng ba
+# tập của bộ dữ liệu; `eval: test` để số SO ĐƯỢC với công bố.
+enabled: true
+
+# Cùng công thức với hai lượt `lora/exp002` đã chạy: `weighted_ce` + `class_weight: inverse` để kéo lớp
+# âm lên - hướng DUY NHẤT đã chứng minh có tác dụng (PhoBERT 88,40 → 96,62). Đọc kết quả theo CẶP chỉ
+# số: F1 lớp âm VÀ phát hiện khía cạnh, vì `weighted_ce` hạ phát hiện khía cạnh (98,05 → 94,14).
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Vì sao `eval: val` ở trên: lượt này KHÔNG để lấy điểm báo cáo mà để CHỐT NGƯỠNG theo khía cạnh và
+# trọng số ensemble - luật 1 của `metrics.md` đòi luật/ngưỡng chốt trên `val` rồi mới áp lên `test`.
+# ĐÚNG MỘT BIẾN so với `exp002`: tập đánh giá. Bản mã này cũng ghi thêm `probabilities.csv` (xác suất
+# từng ô) mà bước kết hợp cần - đó là khả năng của MÃ, không phải một biến cấu hình.
