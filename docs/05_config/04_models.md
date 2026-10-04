@@ -48,12 +48,20 @@ inference:
 | `model_id`               | Ghi chú                             |
 | ------------------------ | ----------------------------------- |
 | `qwen3-4b-instruct-2507` | chỉ dùng cho thí nghiệm prompt      |
-| `qwen3-0.6b`             | model THỨ TƯ của thử nghiệm: cùng ba mức ví dụ của công bố để đo khoảng cách của một model nhỏ (chạy được cả CPU) |
+| `qwen3-0.6b`             | model THỨ TƯ của thử nghiệm: cùng ba mức ví dụ của công bố để đo khoảng cách của một model nhỏ (chạy được cả CPU). **Mặc định BẬT suy nghĩ** nên đã khai `preprocess.enable_thinking: false` |
+| `qwen2.5-0.5b-instruct`  | model nhỏ KHÁC HỌ (thế hệ `qwen2`): mốc "nhỏ thì kém" thứ hai, để kết luận về quy mô không phụ thuộc một họ model |
 | `phobert-base-v2`        | encoder, huấn luyện LoRA hoặc QLoRA |
+| `phobert-large`          | encoder: cùng kho tiền huấn luyện, cùng bộ tách từ với bản base - chỉ khác số tham số (một biến sạch) |
 | `visobert`               | encoder, huấn luyện LoRA hoặc QLoRA |
+| `vibert-base-cased`      | encoder: kho tiền huấn luyện tiếng Việt KHÁC (FPT), vẫn tách từ như PhoBERT |
+| `cafebert`               | encoder: XLM-R rồi tiền huấn luyện TIẾP trên văn bản tiếng Việt - bậc thang giữa PhoBERT và XLM-R; dùng SentencePiece (KHÔNG tách từ) |
+| `xlm-roberta-base`       | **đối chứng NGUỒN tiền huấn luyện** (đa ngữ, phần tiếng Việt rất nhỏ). ⚠️ cũng khác bộ tách từ, nên so với PhoBERT là so HAI biến - xem `src/preprocessing/xlmroberta.py` |
 
 ## Thêm model mới
 
 1. Viết một module trong `src/preprocessing/` theo hợp đồng ở `src/preprocessing/__init__.py`.
+   Encoder kiểu BERT (tokenizer + tuỳ chọn tách từ) thì KHÔNG cần chép mã: dùng `src/preprocessing/bert_like.py`
+   rồi khai ba hằng số (`MODEL_NAME`, `CONFIG_NAME`, `SEGMENTER`) và gọi sang - xem `xlmroberta.py` làm mẫu.
 2. Thêm file YAML trong `configs/models/` với `model_id` trùng tên file.
-3. Đăng ký module vào registry `MODELS` và cập nhật `src/core/registry.py`.
+3. Đăng ký module vào HAI registry: `src/training/encoders.py` (nếu `approach: encoder`, để huấn luyện được)
+   và `MODELS` trong `src/preprocessing/token_stats.py` (để đo input thật). Cập nhật `src/core/registry.py`.

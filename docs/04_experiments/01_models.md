@@ -12,12 +12,20 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 | Model             | Nguồn                                              | Kiểu                                      |
 | ----------------- | -------------------------------------------------- | ----------------------------------------- |
 | PhoBERT           | https://huggingface.co/vinai/phobert-base-v2       | encoder tiếng Việt (BERT)                 |
+| PhoBERT-large     | https://huggingface.co/vinai/phobert-large         | encoder tiếng Việt, bản LỚN (một biến sạch so với bản base) |
 | ViSoBERT          | https://huggingface.co/uitnlp/visobert             | encoder tiếng Việt (dữ liệu mạng xã hội)  |
+| ViBERT            | https://huggingface.co/FPTAI/vibert-base-cased     | encoder tiếng Việt, kho tiền huấn luyện khác (FPT) |
+| CafeBERT          | https://huggingface.co/uitnlp/CafeBERT             | encoder XLM-R tiền huấn luyện tiếp bằng tiếng Việt |
+| XLM-R base        | https://huggingface.co/FacebookAI/xlm-roberta-base | **đối chứng nguồn tiền huấn luyện** (đa ngữ) |
 | Qwen3-4B-Instruct | https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507 | mô hình sinh lớn (dùng theo dạng prompt) |
 | Qwen3-0.6B        | https://huggingface.co/Qwen/Qwen3-0.6B             | mô hình sinh nhỏ (dùng theo dạng prompt) |
+| Qwen2.5-0.5B-Instruct | https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct | mô hình sinh nhỏ KHÁC HỌ (thế hệ `qwen2`) |
 
-Bốn model này phủ **ba hướng tiếp cận** khác nhau, nên so sánh được với nhau: hai encoder tiếng Việt
-(một loại cần tách từ, một loại không) và hai mô hình sinh dùng theo dạng prompt (prompt -> sinh JSON).
+Chín model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
+PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và ba mô hình sinh dùng theo dạng
+prompt (prompt -> sinh JSON) ở hai thế hệ khác nhau. Về **bộ tách từ**, bốn encoder tách từ theo kiểu
+từ tiếng Việt (PhoBERT hai bản, ViBERT) và ba encoder dùng SentencePiece trên văn bản nguyên bản
+(ViSoBERT, CafeBERT, XLM-R) - mỗi dòng số liệu ghi rõ đã dùng bộ nào.
 Hai bản Qwen3 là **một biến thực nghiệm về QUY MÔ**: cùng tokenizer (bản 0.6B có `tokenizer.json` giống
 từng byte), cùng ba mức ví dụ của công bố, cùng tập test - nên câu hỏi "model nhỏ hơn 10 lần mất bao
 nhiêu điểm" trả lời được **mà không đổi bất kỳ thứ gì khác**.
