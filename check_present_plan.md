@@ -85,6 +85,12 @@
   số `price` sai), `docs/04_experiments/01_models.md` (trạng thái 4 model, cảnh báo `enable_thinking`, bỏ câu
   sai về PhoBERT). Số đã kiểm: PhoBERT 88,40 → 96,62 (F1 âm 0,540 → 0,876); ViSoBERT 94,86 → 95,61 (0,765 →
   0,836); **đảo thứ hạng**; `weighted_ce` **hạ phát hiện khía cạnh** 98,05 → 94,14 và 98,29 → 97,06.
+- 3.6 Thêm mục `price` là điểm mù chung + câu về nhiễu so công bố — **XONG 04/10/2026**: **§7** ở
+  `08_experiment_rationale.md`, §6.3/§6.4 mới, §2.1/§2.2 của `presentations/result_analysis.md`, và **§4.9** +
+  §5 của `result_analysis.md`; cỡ mẫu lớp âm `price` = **train 15 / val 0 / test 6** (kiểm cả dữ liệu GỐC
+  `data/raw/cosmetics/v0.1.0/eda/02_label_aspect_distribution.csv`).
+  **Người dùng đã duyệt 04/10/2026** (xem mục 8.4): `price` không có ngưỡng; đọc bằng đếm + danh sách 6 ô;
+  tập chẩn đoán giá đưa vào backlog (sẽ ghi ở mục 3.14).
 - 3.7 Cập nhật cây thí nghiệm (3 tệp) — **XONG 04/10/2026**: `07_evolution.md` (đã xong ở mục 3.3),
   `presentations/experiment_tree.md` (mermaid 17 nút/5 nhánh A-B-E-F-G + bảng "Năm nhánh"), và
   `presentations/experiment_tree.drawio` **viết lại từ đầu** (26 nút, 20 cạnh, không trùng id; đã kiểm bằng
@@ -94,14 +100,8 @@
   `experiment_rationale.md` viết lại (đầu tệp, "Bật học?", "Năm nhánh, mười bảy lượt", A/B/E/F/G, "Bốn điều
   phải nói"); `result_analysis.md` **viết lại toàn bộ** (§1 hai bảng accuracy, §2 ba bảng F1 theo lớp, §3
   phát hiện khía cạnh, §4 **chín** kết luận, §5 hạn chế, §6 mười việc tiếp theo).
-- 3.6 Thêm mục `price` là điểm mù chung + câu về nhiễu so công bố — **XONG 04/10/2026**: **§7** ở
-  `08_experiment_rationale.md`, §6.3/§6.4 mới, §2.1/§2.2 của `presentations/result_analysis.md`, và **§4.9** +
-  §5 của `result_analysis.md`; cỡ mẫu lớp âm `price` = **train 15 / val 0 / test 6** (kiểm cả dữ liệu GỐC
-  `data/raw/cosmetics/v0.1.0/eda/02_label_aspect_distribution.csv`).
-  **Người dùng đã duyệt 04/10/2026** (xem mục 8.4): `price` không có ngưỡng; đọc bằng đếm + danh sách 6 ô;
-  tập chẩn đoán giá đưa vào backlog (sẽ ghi ở mục 3.14).
-- 3.7 Cập nhật cây thí nghiệm (3 tệp) — CHƯA LÀM.
-- 3.8 Cập nhật `presentations/experiment_rationale.md`, `result_analysis.md` — CHƯA LÀM.
+  **Ghi chú dọn lỗi 04/10/2026 (kiểm tra chéo đợt 7):** hai mục 3.7/3.8 từng bị chép HAI lần trong tệp này
+  (một bản `XONG` kèm bằng chứng ở đây, một bản `CHƯA LÀM` ở dưới) - bản `CHƯA LÀM` là bản cũ còn sót, đã xoá.
 - 3.9 `metrics.md`: 5 luật đo + quyết định biểu quyết 3 mẫu — **XONG 04/10/2026**: thêm mục "Luật đo bắt buộc
   khi đọc số" (5 luật: đọc kèm số ô; cửa `% đọc được` 95%; token chạm trần ⇒ lượt bị cắt; ghi rõ cơ sở và
   kiểu trung bình; F1 theo tỉ lệ 0..1) + "Hai quyết định kèm theo" (biểu quyết **3 mẫu**; không dò ngưỡng
@@ -237,8 +237,9 @@
   **Trạng thái đã commit + push**: 10 bảng + bảng gộp (378 dòng = 10×27 + 9×12, tự khớp với các bảng
   thành phần) ở commit `chore(data): regenerate the token tables for the five new models (part 1 of 2)`.
   **Hai phát hiện cần ghi vào tài liệu khi hoàn tất** (chưa ghi): (a) `qwen3-0.6b` **+4 token** ở MỌI
-  split (368 → 372 trung bình) vì chat template chế độ KHÔNG suy nghĩ chèn một khối ` thinking` rỗng -
-  đây là bằng chứng `enable_thinking: false` có tác dụng thật; (b) `cafebert` và `xlm-roberta-base` cho
+  split (368 → 372 trung bình - **câu này SAI, xem ghi chú sửa lỗi ở mục 4.12 bên dưới**) vì chat template
+  chế độ KHÔNG suy nghĩ chèn một khối ` thinking` rỗng - đây là bằng chứng `enable_thinking: false` có tác
+  dụng thật; (b) `cafebert` và `xlm-roberta-base` cho
   số liệu **giống hệt nhau** (cùng tokenizer SentencePiece, vocab 250.002) - điều đúng cần ghi lại,
   không phải lỗi trùng lặp (cùng lối với cặp Qwen3).
   **CÒN LẠI của mục 4.12** — **XONG 04/10/2026**, xem dòng dưới.
@@ -276,7 +277,7 @@
   ngay (`phobert-base-v2/lora/exp004`, `visobert/lora/exp004`, `qwen3-4b-instruct-2507/prompt-cot/exp018`,
   `exp019`, `exp020`, `exp021`). **Ba lượt 0.6B bật suy nghĩ (`exp005/006/007`) CHƯA tạo** — trần token của
   chúng chỉ biết sau lượt DÒ (`exp004`), và mục 8.2/9.3 còn phải quyết chạy **ba mức hay một mức**; tạo ở
-  mục 8.7 (trước gói 013) để không ghi vào repo một cấu hình có trần đoán mò.
+  mục 8.7 (trước gói 015) để không ghi vào repo một cấu hình có trần đoán mò.
   **Lỗ hổng mã đã bịt trong lúc làm:** hạt giống sinh văn bản nằm CỨNG trong mã (`seed=42`) nên ba lượt lấy
   mẫu sẽ ra **cùng một thư mục kết quả** ⇒ biểu quyết 3 mẫu thành vô nghĩa. Đã thêm khoá **`decoding.seed`**
   (vào `KNOWN_KEYS`, đọc từ config trong `run_generation`/`plan`, ghi vào `evaluation.yaml`, +5 test); mặc
@@ -310,18 +311,21 @@
   **gói 013** (`handover/out/SentimentX-goi-013-34bbe45-261004.zip`, 11 KB: 103 file `kept` + **1 file
   `changed`** là `README.md`) ⇒ **phải gửi `012` RỒI `013`** (đúng cơ chế gói tăng dần; `013` một mình chỉ có
   README).
-  **Hệ quả về số gói:** gói của đợt 7 là **012 + 013** ⇒ đợt 8 = **gói 014**, gói cuối = **015** (đã sửa ở
-  `P8_batch7.md` mục 2/9 và `docs/06_plan/README.md`). Không có gì phải ghim lại: hai commit sau `002086b`
+  **Hệ quả về số gói (cập nhật 04/10/2026 sau khi dựng gói 014):** gói của đợt 7 là **012 + 013 + 014** ⇒
+  đợt 8 = **gói 015**, gói cuối = **016** (đã sửa ở `P8_batch7.md` mục 1/2/4/9, `present_plan.md` mục
+  6.2/7.1/8.7/10.5/11.3 và `docs/06_plan/README.md`). Không có gì phải ghim lại: hai commit sau `002086b`
   (`dfa8511` tài liệu, `34bbe45` khuôn mẫu) **không** đụng `src/` nên notebook vẫn dùng đúng bản mã đã ghim.
   ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7).
 - Ghi chú thêm: `templates/experiment/config.yaml` đã sửa `version: v0.1.0` → `v0.2.0` (bịt bẫy "thí nghiệm mới
   lặng lẽ chấm trên bộ dữ liệu cũ"); `ci_checks` + `unittest` xanh sau khi sửa (`34bbe45`).
 
 ## Mục 7. Người dùng chạy đợt 7
-- 7.1 Giải nén gói 012 lên Drive — CHỜ NGƯỜI DÙNG.
+- 7.1 Giải nén **lần lượt** gói 012 rồi 013 rồi **014** lên cùng thư mục Drive (gói sau đè lên gói trước) —
+  CHỜ NGƯỜI DÙNG.
 - 7.2 Chạy theo thứ tự 7 nhóm — CHỜ NGƯỜI DÙNG.
 - 7.3 Điều kiện mỗi lượt (`% đọc được ≥ 95%`, DÒ ghi p50/p95/max) — CHỜ NGƯỜI DÙNG.
-- 7.4 Gửi 6 tệp nhẹ + tệp xác suất + thời gian thực tế — CHỜ NGƯỜI DÙNG.
+- 7.4 Gửi **7 tệp nhẹ** (thêm `predictions.csv` từ 04/10/2026) **+ tệp xác suất** cho 6 lượt encoder +
+  thời gian thực tế — CHỜ NGƯỜI DÙNG.
 
 ## Mục 8. Xử lý đợt 7 và chốt luật
 - 8.1 `collect_reports.py` + đối chiếu từng ô — CHƯA LÀM.
@@ -333,7 +337,8 @@
 - 8.5 Chốt bảng luật lai trên `val` ⇒ tệp luật JSON — CHƯA LÀM.
 - 8.6 Viết kết luận nhóm A, B, encoder mới, ba lượt giá — CHƯA LÀM.
 - 8.7 Hai thí nghiệm `test` có ngưỡng + **ba thí nghiệm 0.6B bật suy nghĩ**(tạo ở đây vì trần token chỉ biết
-  sau lượt DÒ) ⇒ ghim ⇒ gói 013 ⇒ **MỐC DỪNG #3** — CHƯA LÀM.
+  sau lượt DÒ) ⇒ ghim ⇒ **gói 015** ⇒ **MỐC DỪNG #3** — CHƯA LÀM. (Hai thí nghiệm `test` đã TẠO SẴN ở gói
+  012; mục này nay chỉ còn tạo 3 lượt 0.6B + ghim + đóng gói.)
 
 ## Mục 9. Người dùng chạy đợt 8
 - 9.1 Luật chống chạm trần token — CHỜ NGƯỜI DÙNG.
@@ -346,7 +351,8 @@
 - 10.2 Báo cáo ngưỡng — CHƯA LÀM.
 - 10.3 Báo cáo ensemble + lai — CHƯA LÀM.
 - 10.4 Báo cáo biểu quyết + tương tác lượng hoá × lấy mẫu — CHƯA LÀM.
-- 10.5 Cập nhật tài liệu, đóng backlog, gói 014 ⇒ **MỐC DỪNG #4** — CHƯA LÀM.
+- 10.5 Cập nhật tài liệu, đóng backlog, **gói 016** (nếu có sửa mã; không sửa mã thì không cần gói mới) ⇒
+  **MỐC DỪNG #4** — CHƯA LÀM.
 
 ## Mục 11. Danh mục thí nghiệm theo đợt
 - 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `present_plan.md`; số liệu thật sẽ
@@ -355,7 +361,7 @@
   `4571648` và nằm trong **gói 012**; phần chạy là mục 7 (chờ người dùng).
 - 11.3 Đợt 8 (9 lượt) — **6/9 XONG phần tạo + ghim 04/10/2026**: 6 notebook (2 lượt `test` có ngưỡng + 4
   lượt lấy mẫu) đã ghim `4571648` và nằm trong **gói 012**; 3 lượt 0.6B bật suy nghĩ chờ mục 8.2 rồi tạo ở
-  mục 8.7 (đi kèm gói 013).
+  mục 8.7 (đi kèm **gói 015**).
 - 11.4 Đợt 9 (3 lượt) — **CHƯA LÀM, chờ quyết định** (mục 13.4): cần 3 config model mới + cân nhắc đo lại
   19 bảng token. Danh mục đã ghi trong `present_plan.md` mục 11.4.
 
@@ -375,6 +381,36 @@
   phải **đo lại cả 19 bảng token** (~18 phút) để giữ nhất quán "bảng = mọi model đang dùng". Mặc định tôi
   đang dùng: **để nguyên, không tạo bây giờ** (kế hoạch vốn ghi đợt 9 là "mở rộng, chạy khi muốn"). Chọn
   "làm luôn" thì chi phí thêm là 3 config + 18 phút đo lại (không cần GPU).
+
+## Mục 14. Kiểm tra chéo trước khi người dùng chạy đợt 7 (04/10/2026, chỉ đọc)
+
+Mục đích: dò lỗi NGẦM trong phần vừa làm xong (mã, cấu hình, 23 notebook, gói 012/013) TRƯỚC khi người
+dùng bỏ 10-12 giờ GPU. Cách kiểm: chạy lại chính công cụ của dự án thay vì đọc suông -
+`run_notebook.py <exp> --preflight-only` cho **23/23 notebook (mã thoát 0)**, quét `data.version` của **40
+config** (40/40 = `v0.2.0`), đối chiếu `EXP_DIR` + `REPO_SHA` từng notebook, mở zip đếm file gói 012/013, đếm
+dòng **19 bảng token** (28 dòng = 1 header + 9 model × 3 split), `model_input.csv` **513 dòng**, `MODELS` = 9,
+và kiểm lại cỡ mẫu `price` từ EDA GỐC.
+
+**Kết luận: KHÔNG có lỗi nào chặn đợt 7.** Tám phát hiện, nay đều đã xử lý:
+
+| # | Phát hiện | Mức | Trạng thái |
+| --- | --- | --- | --- |
+| D1 | Không có lệnh nào ÁP được `thresholds.json` lên lượt `test`, nên mục 10.2 của kế hoạch chưa có đường chạy tái lập | lỗ hổng mã | **ĐÃ SỬA** - `scripts/fit_thresholds.py --apply-to` + `fusion.applied_report` (commit `70112ad`; +4 test `tests/evaluation/test_fusion.py`, +5 test `tests/workflow/test_cli.py`). Đã chạy thử đầu-cuối trên lượt giả: số ô giữ nguyên, `price` để nguyên kèm lí do, macro ba cách |
+| D2 | Hai `README.md` + hai `config.yaml` của `lora/exp004` ghi `fit_thresholds.py --apply` - cờ KHÔNG tồn tại | chỉ dẫn sai | **ĐÃ SỬA** (commit `bc36b97`). Chỉ chú thích/README: `config_sha256` băm GIÁ TRỊ cấu hình đã hợp nhất (không băm byte file) và notebook kéo commit đã ghim, nên hai lượt chạy không đổi |
+| D3 | Mục 3.7/3.8 của chính tệp này bị chép HAI lần (một bản `XONG` kèm bằng chứng, một bản `CHƯA LÀM`) | tệp trạng thái tự mâu thuẫn | **ĐÃ SỬA** - xoá bản `CHƯA LÀM` còn sót và xếp lại thứ tự 3.5 → 3.6 → 3.7 → 3.8 |
+
+| D4 | Số gói lệch ở 7 chỗ sau khi đợt 7 thành **012 + 013** (rồi +014) | tài liệu | **ĐÃ SỬA** - đợt 8 = **gói 015**, gói cuối = **016**, ở `check_present_plan.md`, `present_plan.md` (6.2/7.1/8.7/10.5/11.3) và `P8_batch7.md` (1/2/4/9) |
+| D5 | `P8_measurement_mlflow.md` còn "**20 notebook** ghim cùng bản code, gói mới nhất là **011**" | tài liệu | **ĐÃ SỬA** - nay là **23 notebook** ghim `4571648` (tổng 40 notebook trong repo), gói mới nhất 014 |
+| D6 | `handover/README.md` viết "**Chưa lượt nào chạy trước đây**" (sai: ba lượt 0.6B đã chạy ngày 02/10/2026 và hỏng), và câu về hai lượt `test` ngụ ý phụ thuộc ngưỡng LÚC CHẠY (ngưỡng áp NGOÀI) | tài liệu | **ĐÃ SỬA** trong gói 014 |
+| D7 | Khối lịch sử mục 4.12 còn câu sai "368 → 372" dù dòng ngay sau đã đính chính | dễ đọc sai | **ĐÃ SỬA** - chèn cảnh báo tại chỗ trỏ xuống ghi chú sửa lỗi |
+| D8 | Danh sách gửi lại gọi là "sáu tệp nhẹ" nhưng (a) `09_fusion.md` liệt kê 7 tên, (b) **thiếu `predictions.csv`** - mà bước kết hợp dựng `inputs/*.csv` từ nó và lượt DÒ cần nó để đo p50/p95/p99 | thiếu sót thật khi bàn giao | **ĐÃ SỬA** - nay là **7 tệp nhẹ** (thêm `predictions.csv`) ở `handover/README.md`, `present_plan.md` (4.5/7.4/9.2), `P8_batch7.md`, `check_present_plan.md` (7.4), `09_fusion.md`, `configs/paths.yaml` |
+
+Ba phép kiểm riêng, đều ĐẠT:
+1. lượt **DÒ** có cột `token sinh` + `có <think>` trong `predictions.csv` ⇒ đo được p50/p95/p99/max, nên
+   mục 8.2 làm được (nếu chỉ gửi 6 tệp nhẹ cũ thì bước này bất khả thi - chính là D8);
+2. `max_length` 2304 + `max_new_tokens` 8192 < 32.768 ⇒ lượt DÒ không vượt cửa sổ ngữ cảnh;
+3. ba checkpoint HF mới (`uitnlp/CafeBERT`, `FPTAI/vibert-base-cased`, `vinai/phobert-large`) đều tồn tại,
+   công khai, không gate (bốn encoder còn lại đã có tiền sử chạy được).
 
 <!-- DIEM-NOI-TIEP -->
 

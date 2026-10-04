@@ -31,7 +31,7 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
 6. **Ghi thêm XÁC SUẤT từng ô** ra `probabilities.csv`: một dòng cho mỗi (review, khía cạnh), cột
    `p(mã <mã>)` mang ĐÚNG mã nhãn đã huấn luyện (không phải số thứ tự). Tệp này **chỉ đường encoder có**,
    và phần chấm điểm **không** dùng nó - bước KẾT HỢP mới cần (dò ngưỡng theo khía cạnh, ensemble nhiều
-   encoder, luật lai encoder + LLM). Nó **không** nằm trong danh sách "6 tệp nhẹ" gửi kèm mọi lượt: nhóm
+   encoder, luật lai encoder + LLM). Nó **không** nằm trong danh sách "7 tệp nhẹ" gửi kèm mọi lượt: nhóm
    encoder gửi thêm tệp này (ghi rõ ở README của gói bàn giao và `present_plan.md` mục 7.4).
 
 ## Checkpoint

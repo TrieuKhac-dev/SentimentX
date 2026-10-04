@@ -22,9 +22,10 @@ xong (trừ A-6 để cuối). Nhóm 0; A-1..A-5; B; C; D; E; F; G; H đều xon
 
 - Nhánh: `experiment` (= `origin/experiment`). Mỗi mục xong = một commit.
 - Cả 12 notebook ghim `1954681`; gói bàn giao **008** đã dựng (việc còn lại: GỬI gói 008).
-  - **Cập nhật 04/10/2026** (đợt 7): nay có **20 notebook** ghim cùng bản code, gói mới nhất là **011**;
-    đợt 7 đóng **hai gói nối tiếp**: **012** (23 notebook đợt 7 + đợt 8) và **013** (chỉ `README.md` sửa -
-    giải nén sau `012`). Số lượt chạy dùng được vẫn là **17**. Chi tiết ở `present_plan.md` +
+  - **Cập nhật 04/10/2026** (đợt 7): nay có **23 notebook** ghim CÙNG bản code (`4571648`; cả repo có
+    **40** notebook - 17 notebook cũ giữ mã ghim cũ của chúng), gói mới nhất là **014**; đợt 7 đóng **ba gói
+    nối tiếp**: **012** (23 notebook đợt 7 + đợt 8), **013** và **014** (chỉ `README.md` sửa - giải nén lần
+    lượt, gói sau đè lên gói trước). Số lượt chạy dùng được vẫn là **17**. Chi tiết ở `present_plan.md` +
     `check_present_plan.md` + `P8_batch7.md`.
 - Thời điểm dừng đợt: CI sạch, test 806 OK (skipped=2).
 - Còn lại: **A-6** (dọn run MLflow rỗng/treo `cd0cd000...`) - chỉ làm khi chạy notebook trên Colab

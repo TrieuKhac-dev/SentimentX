@@ -11,8 +11,8 @@
 
 ## 1. Mục tiêu giai đoạn
 
-1. **Chạy nốt** phần còn thiếu của vòng so công bố: 17 notebook đợt 7 (gói **012**), rồi 7-9 notebook
-   đợt 8 (gói **013**), và 3 notebook đợt 9 khi cần mốc quy mô lớn.
+1. **Chạy nốt** phần còn thiếu của vòng so công bố: 17 notebook đợt 7 (gói **012 + 013 + 014**), rồi 7-9
+   notebook đợt 8 (gói **015**), và 3 notebook đợt 9 khi cần mốc quy mô lớn.
 2. **Chốt luật trên `val` rồi mới áp lên `test`** (ngưỡng theo khía cạnh, trọng số ensemble, bảng luật
    lai) - không chọn bằng `test`.
 3. Báo cáo **bốn bước kết hợp** là phần MỚI của báo cáo: ngưỡng, ensemble encoder, lai encoder + LLM,
@@ -26,12 +26,12 @@
 - **04/10/2026**: đã dọn 6 thư mục kết quả hỏng, còn **17 lượt dùng được**; đã viết lại toàn bộ tài liệu
   theo 17 lượt đó; đã thêm 5 model (4 encoder + `qwen2.5-0.5b-instruct`) và mã cho bốn bước kết hợp.
 - Đợt 7: 17 notebook đã có cấu hình + README, đã **ghim `4571648`** và nằm trong **gói 012** (kèm **gói
-  013** chỉ chở `README.md` sửa - xem mục 9).
+  013** và **gói 014** chỉ chở `README.md` sửa - xem mục 9; gói sau đè lên gói trước).
 - Đợt 8 và đợt 9: xem mục 4 và 5 (đợt 9 chỉ chạy khi muốn mốc quy mô lớn).
-- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013** (đợt 7); **#3** sau **gói 014** (đợt 8); **#4** sau khi
-  xử lý đợt 8 xong (**gói 015** nếu có sửa mã).
+- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013 + 014** (đợt 7); **#3** sau **gói 015** (đợt 8); **#4** sau
+  khi xử lý đợt 8 xong (**gói 016** nếu có sửa mã).
 
-## 3. Đợt 7 - gói 012, 17 notebook, khoảng 10-12 giờ GPU
+## 3. Đợt 7 - gói 012 (rồi 013, 014), 17 notebook, khoảng 10-12 giờ GPU
 
 | Nhóm | Thí nghiệm | `parent` | Vì sao có mặt | Chi phí |
 | --- | --- | --- | --- | --- |
@@ -45,7 +45,7 @@
 
 **Thứ tự chạy** (rẻ và lượt chặn đường trước): C → DÒ (exp004) → A → B → D → E → F.
 
-## 4. Đợt 8 - gói 013, 7-9 notebook, khoảng 14-25 giờ GPU
+## 4. Đợt 8 - gói 015, 7-9 notebook, khoảng 14-25 giờ GPU
 
 | Thí nghiệm | `parent` | Vì sao có mặt | Chi phí |
 | --- | --- | --- | --- |
@@ -93,8 +93,10 @@ tay của lượt chạy, nên gõ tay là lần sau không tái lập được.
   `KHÔNG ĐẠT CỬA CHẤT LƯỢNG` trong `run.log`. **Cửa KHÔNG xoá dữ liệu** - nó chỉ để người đọc biết con số
   đó không dùng được.
 - Lượt **bị ngắt** thì bấm **Run all** lần nữa: chạy tiếp trong **cùng thư mục kết quả**.
-- Gửi về: **6 tệp nhẹ** của mọi lượt (`metrics.json`, `metrics.csv`, `run_meta.json`, `run.log`,
-  `mispredictions*.csv`), **thêm `probabilities.csv`** cho 6 lượt encoder, và **thời gian thực tế**.
+- Gửi về: **7 tệp nhẹ** của mọi lượt (`metrics.json`, `metrics.csv`, `run_meta.json`, `run.log`,
+  `mispredictions*.csv`, `predictions.csv`), **thêm `probabilities.csv`** cho 6 lượt encoder, và **thời gian
+  thực tế**. `predictions.csv` là tệp thứ bảy từ 04/10/2026: bước kết hợp dựng đầu vào rút gọn từ nó, và
+  lượt DÒ cần nó để đo p50/p95/p99.
 
 ### 6.3 Luật chia mức cho nhánh suy nghĩ
 
@@ -144,8 +146,8 @@ chưa chạy.
   + hai lượt `val` encoder; phiên 3-4 = `exp014`, `exp015`, `exp016`; phiên 5-6 = `exp017`.
 - **Đợt 8 (5-7 phiên):** hai lượt `test` có ngưỡng chung một phiên; `exp018`/`exp019`/`exp020`/`exp021` mỗi
   lượt một phiên; `exp005` chia 2-3 phiên, và chạy theo luật 6.1.
-- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013** (đợt 7; `013` chỉ chở `README.md` sửa, phải giải nén
-  **sau** `012`); **#3** sau **gói 014** (đợt 8); **#4** sau khi xử lý đợt 8 xong.
+- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013 + 014** (đợt 7; `013` và `014` chỉ chở `README.md` sửa,
+  phải giải nén **sau** gói trước đó); **#3** sau **gói 015** (đợt 8); **#4** sau khi xử lý đợt 8 xong.
 
 ## 10. Quy ước thực thi (bắt buộc)
 

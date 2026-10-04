@@ -115,7 +115,7 @@
   token) vào **`docs/00_workflow/02_rules.md`** - *tệp luật THẬT của dự án (22 luật); kế hoạch ghi nhầm
   `docs/05_config/02_rules.md`, tệp đó không tồn tại*. Luật mới là **luật 23**.
 - **4.5** Đường encoder xuất **xác suất từng ô** `p(mã 0..3)`: thêm tệp xác suất, khai trong
-  `configs/paths.yaml`, có kiểm thử; **không** thêm tệp này vào danh sách 6 tệp nhẹ trong tài liệu,
+  `configs/paths.yaml`, có kiểm thử; **không** thêm tệp này vào danh sách tệp nhẹ trong tài liệu,
   nhưng README gói phải ghi rõ **nhóm encoder gửi thêm tệp xác suất**.
 - **4.6** Viết `scripts/fit_thresholds.py` (dò ngưỡng theo từng khía cạnh trên tập `val`, ràng buộc số ô
   giảm dưới 5%) + kiểm thử.
@@ -163,10 +163,14 @@
 - **6.1** `git push` ⇒ **đợi CI GitHub xanh** ⇒ ghim **17 notebook** đợt 7 vào commit xanh đó ⇒ commit
   phần ghim.
 - **6.2** Chạy `scripts/build_package.py` ⇒ **gói 012** ⇒ commit sổ gói ⇒ `git push` ⇒ **MỐC DỪNG #2**.
+  **Đã thực thi 04/10/2026 (lệch nhỏ, có lí do):** đợt 7 đóng **ba** gói nối tiếp - **012** (23 notebook),
+  **013** (chỉ `README.md` sửa) và **014** (sửa `README.md` lần nữa: danh sách gửi lại + hai câu mô tả sai,
+  xem `check_present_plan.md` mục 14). Gói sau giải nén **đè lên** gói trước. Vì vậy số gói của các đợt sau
+  dịch: đợt 8 = **015**, gói cuối = **016**.
 
 ## Mục 7. Người dùng chạy đợt 7 (17 notebook, khoảng 10–12 giờ GPU)
 
-- **7.1** Giải nén **gói 012** đè lên thư mục Drive.
+- **7.1** Giải nén **lần lượt gói 012, 013 rồi 014** đè lên thư mục Drive (gói sau đè lên gói trước).
 - **7.2** Chạy **theo đúng thứ tự** sau (thứ tự này để lượt rẻ và lượt chặn đường chạy trước):
   1. bốn **encoder mới** (15–20 phút mỗi lượt, rẻ nhất và không phụ thuộc gì);
   2. lượt **DÒ** `qwen3-0.6b/prompt-cot/exp004` (chốt trần token cho nhánh suy nghĩ);
@@ -177,8 +181,9 @@
   7. `qwen3-4b-instruct-2507/prompt-cot/exp017` (lượt **`val`** cho phía LLM, 1,5–2 giờ).
 - **7.3** Điều kiện của **mỗi lượt**: `% đọc được ≥ 95%`; lượt **DÒ** phải ghi lại **p50 / p95 / max số
   token sinh**; lượt bị ngắt thì bấm **Run all** lần nữa để chạy tiếp trong **cùng thư mục kết quả**.
-- **7.4** Gửi về cho tôi: **6 tệp nhẹ** của mọi lượt; **thêm tệp xác suất** cho **6 lượt encoder**; và
-  **thời gian thực tế** của từng lượt.
+- **7.4** Gửi về cho tôi: **7 tệp nhẹ** của mọi lượt (thêm `predictions.csv` - bước kết hợp dựng đầu vào từ
+  nó, và lượt DÒ cần nó để đo p50/p95/p99); **thêm tệp xác suất** cho **6 lượt encoder**; và **thời gian
+  thực tế** của từng lượt.
 
 ## Mục 8. Xử lý đợt 7 và chốt luật (không cần GPU)
 
@@ -206,7 +211,8 @@
   JSON** (commit).
 - **8.6** Viết kết luận cho nhóm A (0.6B tắt suy nghĩ), nhóm B (Qwen2.5-0.5B), bốn encoder mới, ba lượt
   về giá; kiểm lại luật "khác `parent` đúng một thứ" của từng lượt.
-- **8.7** Tạo **hai thí nghiệm `test` có ngưỡng** ⇒ ghim ⇒ **gói 013** ⇒ commit + `git push` ⇒
+- **8.7** Hai thí nghiệm `test` có ngưỡng **đã tạo sẵn ở gói 012**; mục này nay chỉ còn: tạo **ba thí nghiệm
+  0.6B bật suy nghĩ** (trần token biết sau lượt DÒ) ⇒ **ghim** ⇒ **gói 015** ⇒ commit + `git push` ⇒
   **MỐC DỪNG #3**.
 
 ## Mục 9. Người dùng chạy đợt 8 (7–9 notebook, khoảng 14–25 giờ GPU)
@@ -222,7 +228,7 @@
      cao hơn;
   5. luôn báo cáo **tỉ lệ chạm trần** đặt cạnh `% đọc được`.
 - **9.2** Chạy **hai lượt `test` có ngưỡng**: `phobert-base-v2/lora/exp004`, `visobert/lora/exp004` (gửi
-  6 tệp nhẹ + **tệp xác suất**).
+  **7 tệp nhẹ** + **tệp xác suất**).
 - **9.3** Chạy **nhánh suy nghĩ đầy đủ**: `qwen3-0.6b/prompt-cot/exp005` (1 ví dụ), và `exp006` (0 ví dụ),
   `exp007` (5 ví dụ) **chỉ khi mỗi lượt ≤ khoảng 3 giờ**; đây là quyết định ở mục 8.2. Mỗi lượt 2–8 giờ,
   chia 2–3 phiên, chạy theo **luật 9.1**.
@@ -241,7 +247,7 @@
   **kết luận tương tác lượng hoá × lấy mẫu** (so `exp018` với `exp021`, đối chiếu khoảng chênh greedy đã
   biết là **1,17 điểm**); kết luận **chênh so với công bố có vượt nhiễu hay không**.
 - **10.5** Cập nhật toàn bộ tài liệu, kết luận, cây thí nghiệm; đóng backlog; nếu có sửa mã thì ghim lại
-  và dựng **gói 014**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #4**.
+  và dựng **gói 016**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #4**.
 
 ## Mục 11. Danh mục thí nghiệm theo từng đợt
 
@@ -249,7 +255,7 @@
   0/1/5 ví dụ với 4-bit lô 8; ba mức fp16 lô 4; ba mức 4-bit lô 4; ba biến thể prompt v2 / v3 / v4),
   `qwen3-4b-instruct-2507/prompt-one-turn/exp001`, `visobert/lora/exp001` → `exp002`,
   `phobert-base-v2/lora/exp001` → `exp002`.
-- **11.2 Đợt 7 — gói 012, 17 notebook, khoảng 10–12 giờ GPU:**
+- **11.2 Đợt 7 — gói 012 (rồi 013, 014), 17 notebook, khoảng 10–12 giờ GPU:**
 
 | Thí nghiệm | `parent` | Mục đích | Khác `parent` đúng một thứ | Chi phí |
 | --- | --- | --- | --- | --- |
@@ -271,7 +277,7 @@
 | `qwen3-4b-instruct-2507/prompt-cot/exp016` | `qwen3-4b-instruct-2507/prompt-cot/exp003` | **CHẨN ĐOÁN**: chỉ hỏi **một** khía cạnh `price` (khác tập ô nên báo cáo riêng) | `task.aspects: [price]` + prompt và ví dụ riêng | 30–40 phút |
 | `qwen3-4b-instruct-2507/prompt-cot/exp017` | `qwen3-4b-instruct-2507/prompt-cot/exp009` | lượt **`val`** cho phía LLM (điều kiện của hướng lai) | vai trò tập = `val` | 1,5–2 giờ |
 
-- **11.3 Đợt 8 — gói 013, 7–9 notebook, khoảng 14–25 giờ GPU:**
+- **11.3 Đợt 8 — gói 015, 7–9 notebook, khoảng 14–25 giờ GPU:**
 
 | Thí nghiệm | `parent` | Mục đích | Khác `parent` đúng một thứ | Chi phí |
 | --- | --- | --- | --- | --- |
