@@ -169,3 +169,27 @@ Hai điều dễ lẫn, nói thẳng:
 
 `scripts/rescore.py` CHỈ THÊM số đo: nó không bao giờ ghi đè `metrics.json`/`metrics.csv` của lượt chạy.
 
+
+## Luật đo bắt buộc khi đọc số (chốt 04/10/2026, áp cho MỌI lượt)
+
+1. **Luôn đọc kèm SỐ Ô** (`paper.cells`). Bản 4-bit trả lời ít hơn 5-6% số ô so với bản fp16, nên điểm cao
+   hơn một phần có thể là nhờ **kiêng trả lời**: số ô tụt mà điểm tăng là dấu hiệu phải kiểm, không phải
+   tin ngay.
+2. **Cửa `% đọc được` = 95%.** Lượt có `% đọc được` dưới 95% bị ghi `valid: false` **kèm lí do** (không
+   xoá dữ liệu). Đây là cách phát hiện sớm lỗi kiểu "model bật suy nghĩ ăn hết trần token" (đã gặp: 3,33%
+   và 1,36%).
+3. **Token sinh chạm trần thì lượt đó là lượt BỊ CẮT.** Nếu số token sinh trung bình **≥ 95%** của
+   `generation.max_new_tokens` thì phải coi kết quả là bị cắt và chạy lại với trần cao hơn; riêng lượt
+   **bật suy nghĩ** phải chạy một lượt **DÒ** để chốt trần trước (xem `present_plan.md` mục 9.1).
+4. **Ghi rõ CƠ SỞ và KIỂU TRUNG BÌNH**: cơ sở `paper` (để so công bố) hay `all` (đo của dự án), và
+   **macro** hay **micro** - hai con số khác nhau, không được trộn trong cùng một ô.
+5. **F1 ghi theo TỈ LỆ 0..1** (không ghi phần trăm) trong `metrics.csv` và các bảng; accuracy và
+   `% đọc được` ghi theo phần trăm. Ô có **1-6 mẫu** (như `price` âm) là **nhiễu**, phải ghi kèm cỡ mẫu.
+
+**Hai quyết định kèm theo (cùng ngày):**
+
+6. **Biểu quyết (self-consistency) dùng 3 mẫu** cho đợt này (ba `seed`); chỉ mở rộng lên 5 mẫu nếu thấy có
+   ích ở đợt sau.
+7. **KHÔNG dò ngưỡng cho khía cạnh có 0 ô âm trên `val`** (hiện là `price`): ngưỡng chỉ áp cho **6 khía
+   cạnh** còn lại; `price` đọc bằng **số lần model gán mã 2 + danh sách ô âm của `test`** (6 ô).
+
