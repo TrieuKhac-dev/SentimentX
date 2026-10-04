@@ -158,7 +158,7 @@
   suất**.
 - **5.6** Chạy `ci_checks` + `unittest` sạch; commit.
 
-## Mục 6. Ghim notebook và dựng gói 012
+## Mục 6. Ghim notebook và dựng gói 012 (rồi 013, 014)
 
 - **6.1** `git push` ⇒ **đợi CI GitHub xanh** ⇒ ghim **17 notebook** đợt 7 vào commit xanh đó ⇒ commit
   phần ghim.

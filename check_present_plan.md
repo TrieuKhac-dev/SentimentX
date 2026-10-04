@@ -294,7 +294,7 @@
   tệp xác suất"** và mục **"Nhánh suy nghĩ đắt gấp khoảng 5 lần"** + luật chống chạm trần.
 - 5.6 **XONG 04/10/2026**: `ci_checks` + `unittest` + commit + push (xem 4.13).
 
-## Mục 6. Ghim notebook và dựng gói 012
+## Mục 6. Ghim notebook và dựng gói 012 (rồi 013, 014)
 - 6.1 **XONG 04/10/2026**: push `4571648` ⇒ **ghim 23 notebook** (14 mới đợt 7 + 3 chạy lại + 6 đợt 8) vào
   đúng commit đó ⇒ `ci_checks` **sạch (mã thoát 0)** + `unittest` **889 OK** ⇒ commit ghim `002086b` ⇒ push.
   **Lệch nhỏ so với câu chữ của kế hoạch (có lí do):** với thí nghiệm MỚI, CI **không thể** xanh TRƯỚC lần
@@ -318,6 +318,13 @@
   ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7).
 - Ghi chú thêm: `templates/experiment/config.yaml` đã sửa `version: v0.1.0` → `v0.2.0` (bịt bẫy "thí nghiệm mới
   lặng lẽ chấm trên bộ dữ liệu cũ"); `ci_checks` + `unittest` xanh sau khi sửa (`34bbe45`).
+
+- 6.3 **XONG 05/10/2026** (sau khi sửa các phát hiện D1-D8 ở mục 14): `scripts/build_package.py` ⇒ **gói 014**
+  (`handover/out/SentimentX-goi-014-2eba2dc-261005.zip`, **3 file `changed`**: `README.md` bàn giao +
+  `experiments/phobert-base-v2/lora/exp004/README.md` + `experiments/visobert/lora/exp004/README.md`; 101 file
+  `kept`, 0 `new`, 0 `deleted`) ⇒ commit sổ gói `60c4adf`. `ci_checks` **sạch (mã thoát 0)** + `unittest`
+  **898 OK**. ⇒ **MỐC DỪNG #2** vẫn nguyên: ba gói **012 + 013 + 014** phải giải nén **lần lượt** lên cùng thư
+  mục Drive (gói sau đè lên gói trước).
 
 ## Mục 7. Người dùng chạy đợt 7
 - 7.1 Giải nén **lần lượt** gói 012 rồi 013 rồi **014** lên cùng thư mục Drive (gói sau đè lên gói trước) —
