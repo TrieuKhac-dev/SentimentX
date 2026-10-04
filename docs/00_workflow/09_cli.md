@@ -56,7 +56,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Đo THÊM chỉ số của một lượt chạy từ `predictions.csv` (không chạy model, không ghi đè) | `python scripts/rescore.py --dir experiments/<model>/<method>/<expNNN>/results/<hash8>` (`--reason "..."`, `--no-confusion`) |
 | Vẽ báo cáo mở được KHÔNG cần mạng | thêm `--plotlyjs local` (mặc định) hoặc `--plotlyjs cdn` khi muốn dùng CDN |
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
-| Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` (`--exclude <nhãn|hash8>` để bỏ lượt khỏi BẢNG SỐ - lượt bị loại VẪN nằm trong `attempt_registry`; lặp lại để loại nhiều lượt) |
+| Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` (`--exclude <nhãn|hash8>` để bỏ lượt khỏi BẢNG SỐ - lượt bị loại VẪN nằm trong `attempt_registry`; lặp lại để loại nhiều lượt. **Lưu ý:** đây là cờ để dựng bảng so KHÔNG có một lượt nào đó; lượt HỎNG thì nên **xoá thư mục kết quả** chứ không phải loại khỏi bảng - cách xử lý sáu thư mục hỏng ngày 04/10/2026 ở `present_plan.md` mục 2.1) |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
 | Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
 | Dựng gói bàn giao tăng dần (chỉ file mới/đã đổi) | `python scripts/build_package.py` (xem trước: `--dry-run`; `--number NNN` để đặt số gói; `--allow-red` khi đã hiểu rõ cảnh báo đỏ; `--no-zip` khi chỉ muốn ghi sổ) |

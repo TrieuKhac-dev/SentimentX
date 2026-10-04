@@ -137,14 +137,18 @@ lần nào ghi rõ là ước tính - người nhận dựa vào đây để ch�
 | Prompt một lượt (mốc so sánh) | `qwen3-4b-instruct-2507/prompt-one-turn/exp001` | **18 phút** (đo thật) |
 | Model nhỏ, ba mức ví dụ | `qwen3-0.6b/prompt-cot/exp001`, `exp002`, `exp003` | ước tính 20 đến 40 phút |
 | Đối chứng KHÔNG lượng hoá (fp16) | `qwen3-4b-instruct-2507/prompt-cot/exp005`, `exp006`, `exp007` | **2 giờ 04**, **2 giờ 20**, **3 giờ 51** (đo thật) |
-| 4-bit nhưng lô 4 - tách biến lượng hoá | `qwen3-4b-instruct-2507/prompt-cot/exp008`, `exp009`, `exp010` | ước tính 1 đến 3 giờ |
-| Ba biến thể prompt (mức 1 ví dụ) | `qwen3-4b-instruct-2507/prompt-cot/exp011`, `exp012`, `exp013` | ước tính khoảng 2 giờ mỗi lượt |
-| LoRA + trọng số lớp âm | `visobert/lora/exp002`, `phobert-base-v2/lora/exp002` | ước tính 15 phút mỗi lượt |
+| 4-bit nhưng lô 4 - tách biến lượng hoá | `qwen3-4b-instruct-2507/prompt-cot/exp008`, `exp009`, `exp010` | **2 giờ 36**, **2 giờ 47**, **7 phút** (đo thật; `exp010` là lượt CHẠY TIẾP nên số nhỏ) |
+| Ba biến thể prompt (mức 1 ví dụ) | `qwen3-4b-instruct-2507/prompt-cot/exp011`, `exp012`, `exp013` | **2 giờ 05**, **2 giờ 10**, **2 giờ 17** (đo thật) |
+| LoRA + trọng số lớp âm | `visobert/lora/exp002`, `phobert-base-v2/lora/exp002` | **12 phút**, **14 phút** (đo thật) |
 
-Hai con số trông lạ trong bảng - `exp004` (5 ví dụ, 4-bit) chỉ **42 phút**, nhanh hơn hẳn `exp003` (1 ví
-dụ, 2 giờ 04) - là số ĐO, không phải ước tính. Nghi vấn đáng kiểm đầu tiên là độ dài phần suy luận model
-sinh ra (prompt 5 ví dụ làm model trả lời ngắn hơn); kiểm bằng số token sinh ghi trong `metrics.json`
-của hai lượt đó.
+Hai con số trông lạ trong bảng - `exp004` (5 ví dụ, 4-bit) chỉ **42 phút** và `exp010` (5 ví dụ, 4-bit lô
+4) chỉ **7 phút** - là những lượt **CHẠY TIẾP (RESUME)**: phiên Colab bị đứt giữa chừng, lần chạy sau chỉ
+làm nốt phần còn lại (dùng lại **1.304 mẫu** ở `exp004` và **1.576 mẫu** ở `exp010`). Vì thế `seconds`
+trong `attempt_registry` và `cost` trong `metrics.json` của hai lượt đó **KHÔNG phải** thời gian cả lượt -
+muốn so thời gian giữa các cấu hình thì dùng các lượt `NEW`.
+*Giả thuyết cũ* ("prompt 5 ví dụ làm model trả lời ngắn hơn", ghi ở đây trước 04/10/2026) **đã bị bác bỏ**:
+nó không giải thích được vì sao cùng mức 5 ví dụ mà `exp010` còn nhanh hơn nữa, và cả hai lượt đều có
+`resume.mode = RESUME` trong `metrics.json`.
 
 Ba notebook **fp16** là bản đối chứng của ba mức ví dụ 4-bit (`parent` trỏ đúng lượt 4-bit tương ứng):
 cùng model, cùng prompt, cùng tập test, chỉ khác cách nạp trọng số - nên chúng trả lời câu "lượng hoá

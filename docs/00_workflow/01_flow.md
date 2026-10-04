@@ -208,8 +208,9 @@ và `resume.new` để người đọc biết con số trước mặt sinh ra t�
 ## Kiểm trước khi chạy
 
 Cell preflight của notebook gọi `src/workflow/preflight.py` TRƯỚC khi nạp model. Một lượt chạy tốn từ
-**18 phút** (một lượt, 4-bit) tới **gần 4 giờ** (bản KHÔNG lượng hoá, 5 ví dụ) - số đo thật nằm trong
-bảng thời gian ở `docs/00_workflow/07_colab.md` - nên phát hiện thiếu Java, thiếu `test.csv` hay Drive
+**12 phút** (encoder LoRA) tới **3 giờ 51** (bản KHÔNG lượng hoá, 5 ví dụ) theo **số đo thật của 17 lượt**
+(bảng đầy đủ ở `docs/00_workflow/07_colab.md`); hai lượt CHẠY TIẾP chỉ tốn 42 phút và 7 phút vì chỉ làm
+nốt phần còn lại, đừng lấy hai số đó làm chuẩn - nên phát hiện thiếu Java, thiếu `test.csv` hay Drive
 chỉ đọc ở mẫu thứ 800 là mất cả buổi.
 Preflight kiểm trong vài giây:
 

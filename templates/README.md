@@ -33,7 +33,7 @@ Nhiều thí nghiệm dùng chung một câu hệ thống thì để file ở `c
 ## Sửa bản mẫu
 
 Sửa `templates/experiment/` là việc **cho thí nghiệm MỚI**. Notebook của một thí nghiệm đã chạy là BẢN GHI
-của lượt đó, không phải bản sao của bản mẫu - nên sửa bản mẫu KHÔNG bắt 12 notebook đang có phải cập
+của lượt đó, không phải bản sao của bản mẫu - nên sửa bản mẫu KHÔNG bắt 20 notebook đang có phải cập
 nhật theo. Quy tắc thêm/sửa/xoá một ô, thứ tự các ô, và quy trình khi cần cập nhật CẢ BỘ notebook (việc
 một lần, bằng script rồi ghim lại cùng lượt):
 **`docs/00_workflow/10_template_notebook.md`**.

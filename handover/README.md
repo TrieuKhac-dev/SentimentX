@@ -18,8 +18,8 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Hai mươi notebook trong gói
 
-Chín notebook đã chạy xong một lần, nên cột thời gian của chúng ghi **số phút ĐO THẬT** (lấy từ
-`run_meta.json` của chính lượt đó); mười một notebook còn lại chưa chạy nên ghi rõ là **ước tính**.
+Mười bảy notebook đã chạy xong nên cột thời gian ghi **số phút ĐO THẬT** (lấy từ `run_meta.json` của
+chính lượt đó); **ba notebook 0.6B chưa chạy lần nào** nên ghi rõ là **ước tính**.
 
 | Notebook | Trả lời câu gì | Thời gian trên T4 |
 | --- | --- | --- |
@@ -29,25 +29,24 @@ Chín notebook đã chạy xong một lần, nên cột thời gian của chúng
 | `notebooks/qwen3-4b-instruct-2507/prompt-one-turn/exp001.ipynb` | Qwen3 MỘT LƯỢT (0 ví dụ) - mốc so sánh với ba mức CoT | **18 phút** |
 | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp002.ipynb` | Qwen3 4-bit CoT 0 ví dụ (zero-shot) | **1 giờ 34 phút** |
 | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp003.ipynb` | Qwen3 4-bit CoT 1 ví dụ | **2 giờ 04 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp004.ipynb` | Qwen3 4-bit CoT 5 ví dụ | **42 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp004.ipynb` | Qwen3 4-bit CoT 5 ví dụ | **42 phút** *(lượt CHẠY TIẾP: chỉ là phần còn lại)* |
 | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp005.ipynb` | Lượng hoá 4-bit làm mất bao nhiêu điểm - mức 0 ví dụ | **2 giờ 04 phút** |
 | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp006.ipynb` | như trên - mức 1 ví dụ | **2 giờ 20 phút** |
 | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp007.ipynb` | như trên - mức 5 ví dụ | **3 giờ 51 phút** |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp008.ipynb` | 4-bit nhưng LÔ 4 (exp002 dùng lô 8): tách "lượng hoá" khỏi "kích thước lô" | ước tính 2 đến 2,5 giờ |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp009.ipynb` | như exp008 - mức 1 ví dụ (cấu hình tốt nhất hiện có) | ước tính 2,5 đến 3 giờ |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp010.ipynb` | như exp008 - mức 5 ví dụ | ước tính 1 giờ |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp011.ipynb` | Ví dụ dạy CÓ nhãn âm (thay vì ví dụ toàn nhãn dương) | ước tính 2 giờ |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp012.ipynb` | Quét mọi lời phàn nàn TRƯỚC khi gán mã | ước tính 2 giờ |
-| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp013.ipynb` | Nói rõ dữ liệu lệch nhãn, cấm lấy mã 1 làm mặc định | ước tính 2 giờ |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp008.ipynb` | 4-bit nhưng LÔ 4 (exp002 dùng lô 8): tách "lượng hoá" khỏi "kích thước lô" | **2 giờ 36 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp009.ipynb` | như exp008 - mức 1 ví dụ (cấu hình tốt nhất hiện có) | **2 giờ 47 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp010.ipynb` | như exp008 - mức 5 ví dụ | **7 phút** *(lượt CHẠY TIẾP: chỉ là phần còn lại)* |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp011.ipynb` | Ví dụ dạy CÓ nhãn âm (thay vì ví dụ toàn nhãn dương) | **2 giờ 05 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp012.ipynb` | Quét mọi lời phàn nàn TRƯỚC khi gán mã | **2 giờ 10 phút** |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp013.ipynb` | Nói rõ dữ liệu lệch nhãn, cấm lấy mã 1 làm mặc định | **2 giờ 17 phút** |
 | `notebooks/visobert/lora/exp001.ipynb` | ViSoBERT học LoRA thì bằng nào công bố | **12 phút** |
-| `notebooks/visobert/lora/exp002.ipynb` | ViSoBERT + trọng số lớp âm (chống đoán mã 1) | ước tính 15 phút |
+| `notebooks/visobert/lora/exp002.ipynb` | ViSoBERT + trọng số lớp âm (chống đoán mã 1) | **12 phút** |
 | `notebooks/phobert-base-v2/lora/exp001.ipynb` | PhoBERT học LoRA thì bằng nào công bố | **13 phút** |
-| `notebooks/phobert-base-v2/lora/exp002.ipynb` | PhoBERT + trọng số lớp âm | ước tính 15 phút |
+| `notebooks/phobert-base-v2/lora/exp002.ipynb` | PhoBERT + trọng số lớp âm | **14 phút** |
 
 Mỗi notebook chấm trên **cùng tập `test` (cả split của bộ dữ liệu đang dùng)** - đó là con số để so với công bố. Mỗi
-notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau:
-chín notebook đầu và ba notebook `exp008..010` đều chạy được cùng lúc vì mỗi lượt có thư mục riêng
-theo mã băm danh tính.
+notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau: mọi
+notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riêng theo mã băm danh tính.
 
 Ba notebook `exp005`, `exp006`, `exp007` là **bản đối chứng KHÔNG lượng hoá (fp16)** của ba mức ví dụ
 4-bit: cùng model, cùng prompt, cùng tập test, chỉ khác cách nạp trọng số - nên chúng trả lời câu
