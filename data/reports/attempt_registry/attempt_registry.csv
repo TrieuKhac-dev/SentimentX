@@ -8,3 +8,11 @@ qwen3-4b-instruct-2507/prompt-cot/exp006:43aeb425,FINISHED,NEW,2026-10-02 07:52:
 phobert-base-v2/lora/exp001:363c224e,FINISHED,NEW,2026-10-02 08:03:59,761.1,phobert-base-v2,lora,exp001,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,363c224ec24c,aca047df2dc2,
 visobert/lora/exp001:83dff5ee,FINISHED,NEW,2026-10-02 08:04:11,704.5,visobert,lora,exp001,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,83dff5eefc96,aca047df2dc2,
 qwen3-4b-instruct-2507/prompt-cot/exp004:8b07affe,FINISHED,RESUME,2026-10-02 10:38:35,2533.3,qwen3-4b-instruct-2507,prompt-cot,exp004,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,8b07affed010,88d12e6846ce,chạy tiếp
+phobert-base-v2/lora/exp002:61097598,FINISHED,NEW,2026-10-02 18:52:35,814.6,phobert-base-v2,lora,exp002,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,610975981b08,8bfe96e0a352,
+visobert/lora/exp002:384b271d,FINISHED,NEW,2026-10-02 18:52:35,739.5,visobert,lora,exp002,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,384b271d3cee,8bfe96e0a352,
+qwen3-4b-instruct-2507/prompt-cot/exp008:d2ef77a9,FINISHED,NEW,2026-10-02 18:53:21,9374.6,qwen3-4b-instruct-2507,prompt-cot,exp008,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,d2ef77a91840,8bfe96e0a352,
+qwen3-4b-instruct-2507/prompt-cot/exp009:7cf3331e,FINISHED,NEW,2026-10-02 18:53:29,10001.2,qwen3-4b-instruct-2507,prompt-cot,exp009,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,7cf3331e3383,8bfe96e0a352,
+qwen3-4b-instruct-2507/prompt-cot/exp011:3c5cf0a0,FINISHED,NEW,2026-10-02 18:54:19,7504.1,qwen3-4b-instruct-2507,prompt-cot,exp011,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,3c5cf0a078ef,8bfe96e0a352,
+qwen3-4b-instruct-2507/prompt-cot/exp012:33c2d270,FINISHED,NEW,2026-10-02 18:54:27,7776.6,qwen3-4b-instruct-2507,prompt-cot,exp012,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,33c2d2701cbe,8bfe96e0a352,
+qwen3-4b-instruct-2507/prompt-cot/exp013:779e8738,FINISHED,NEW,2026-10-02 18:54:32,8195.4,qwen3-4b-instruct-2507,prompt-cot,exp013,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,779e873854a6,8bfe96e0a352,
+qwen3-4b-instruct-2507/prompt-cot/exp010:7011d28f,FINISHED,RESUME,2026-10-03 02:27:28,411.3,qwen3-4b-instruct-2507,prompt-cot,exp010,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,7011d28fb6b7,8bfe96e0a352,chạy tiếp

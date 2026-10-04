@@ -13,6 +13,15 @@ graph LR
   n9["commit aca047df2dc2"]
   n10["visobert/lora/exp001:83dff5ee"]
   n11["qwen3-4b-instruct-2507/prompt-cot/exp004:8b07affe"]
+  n12["phobert-base-v2/lora/exp002:61097598"]
+  n13["commit 8bfe96e0a352"]
+  n14["visobert/lora/exp002:384b271d"]
+  n15["qwen3-4b-instruct-2507/prompt-cot/exp008:d2ef77a9"]
+  n16["qwen3-4b-instruct-2507/prompt-cot/exp009:7cf3331e"]
+  n17["qwen3-4b-instruct-2507/prompt-cot/exp011:3c5cf0a0"]
+  n18["qwen3-4b-instruct-2507/prompt-cot/exp012:33c2d270"]
+  n19["qwen3-4b-instruct-2507/prompt-cot/exp013:779e8738"]
+  n20["qwen3-4b-instruct-2507/prompt-cot/exp010:7011d28f"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -22,4 +31,12 @@ graph LR
   n8 -->|FINISHED| n9
   n10 -->|FINISHED| n9
   n11 -->|FINISHED| n2
+  n12 -->|FINISHED| n13
+  n14 -->|FINISHED| n13
+  n15 -->|FINISHED| n13
+  n16 -->|FINISHED| n13
+  n17 -->|FINISHED| n13
+  n18 -->|FINISHED| n13
+  n19 -->|FINISHED| n13
+  n20 -->|FINISHED| n13
 ```
