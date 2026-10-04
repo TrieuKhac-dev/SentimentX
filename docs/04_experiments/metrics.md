@@ -193,3 +193,9 @@ Hai điều dễ lẫn, nói thẳng:
 7. **KHÔNG dò ngưỡng cho khía cạnh có 0 ô âm trên `val`** (hiện là `price`): ngưỡng chỉ áp cho **6 khía
    cạnh** còn lại; `price` đọc bằng **số lần model gán mã 2 + danh sách ô âm của `test`** (6 ô).
 
+**Một lưu ý về TÊN KHOÁ (để khỏi thắc mắc về sau, chốt 04/10/2026):** trần token sinh được khai bằng khoá
+**`decoding.max_new_tokens`** (nhóm `decoding` đã có sẵn: `mode`, `temperature`, `top_p`). Kế hoạch đợt 7
+và một số ghi chú trước đó gọi khoá này là **`generation.max_new_tokens`** - đó là **TÊN CŨ**, không phải
+một khoá thứ hai. Chỉ `decoding.max_new_tokens` được `KNOWN_KEYS` nhận và có tác dụng; không khai thì trần
+là 400 (`runner.DEFAULT_MAX_NEW_TOKENS`).
+
