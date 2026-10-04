@@ -58,6 +58,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` (`--exclude <nhãn|hash8>` để bỏ lượt khỏi BẢNG SỐ - lượt bị loại VẪN nằm trong `attempt_registry`; lặp lại để loại nhiều lượt. **Lưu ý:** đây là cờ để dựng bảng so KHÔNG có một lượt nào đó; lượt HỎNG thì nên **xoá thư mục kết quả** chứ không phải loại khỏi bảng - cách xử lý sáu thư mục hỏng ngày 04/10/2026 ở `present_plan.md` mục 2.1) |
 | Dò NGƯỠNG theo khía cạnh trên `val` | `python scripts/fit_thresholds.py --run experiments/<model>/<method>/<expNNN>/results/<hash8>` (ghi `data/reports/fusion/thresholds.json`; cần tệp `probabilities.csv` của đường encoder) |
+| Áp bảng ngưỡng ĐÃ CHỐT lên một lượt khác (thường là `test`) | `python scripts/fit_thresholds.py --apply-to experiments/<model>/<method>/<expNNN>/results/<hash8>` (đọc `--thresholds` mặc định `thresholds.json`; ghi `data/reports/fusion/thresholds_applied.json`; KHÔNG chạy model) |
 | Gộp nhiều encoder (ensemble) | `python scripts/ensemble.py --run <val A> --run <val B> [--weights val]` (ghi `ensemble.json` + đầu vào rút gọn vào `data/reports/fusion/inputs/`) |
 | Chốt LUẬT LAI trên `val`, rồi áp lên `test` | `python scripts/fuse.py --fit --llm <val> --encoder <val>` · `python scripts/fuse.py --apply --rules <rules.json> --llm <test> --encoder <test>` |
 | Bỏ phiếu từng ô trên các mẫu (`seed` tăng dần) | `python scripts/vote.py --run <seed1> --run <seed2> --run <seed3>` (ghi `vote.json`) |
@@ -90,6 +91,9 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | `run_token_stats.py --prompt <tên>` thiếu `--hash` | số liệu ghi vào thư mục theo phiên bản | 2 |
 | `run_check_examples.py` thiếu `--hash` | kết luận rò rỉ phải thuộc đúng bộ split đã đọc | 2 |
 | `collect_reports.py --exclude <tên lạ>` | mẫu không khớp lượt chạy nào; in kèm danh sách nhãn đang có | 2 |
+| `fit_thresholds.py` thiếu CẢ `--run` và `--apply-to`, hoặc có CẢ HAI | hai chế độ khác nhau (dò trên `val` vs áp bảng đã chốt); chọn nhầm là ra số của bước khác | 2 |
+| `fit_thresholds.py --apply-to ... --grid/--max-cells-drop` | `--grid` và `--max-cells-drop` quyết định bảng ngưỡng SINH RA, chỉ có nghĩa ở chế độ dò | 2 |
+| `fit_thresholds.py --apply-to` mà chưa có tệp ngưỡng | chưa dò thì chưa có gì để áp; in kèm lệnh dò cần chạy trước | 1 |
 | `run_pipeline.py` thiếu `--name` hoặc `--version` | mỗi tổ hợp cho ra một bộ dữ liệu khác nhau | 2 |
 | `reset_experiment.py --dry-run --yes` | `--dry-run` chỉ xem trước nên không đi với `--yes` | 2 |
 | `reset_experiment.py --run <tên> --keep-experiment` | `--run` đã không đụng tới experiment, nên cờ kia là thừa | 2 |

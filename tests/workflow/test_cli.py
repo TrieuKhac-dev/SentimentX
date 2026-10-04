@@ -41,6 +41,12 @@ COLLECT_SPEC = importlib.util.spec_from_file_location(
 collect_reports = importlib.util.module_from_spec(COLLECT_SPEC)
 COLLECT_SPEC.loader.exec_module(collect_reports)
 
+# Cùng cách đó cho `scripts/fit_thresholds.py` (hai chế độ: DÒ trên `val` và ÁP bảng đã chốt).
+FIT_SPEC = importlib.util.spec_from_file_location(
+    "fit_thresholds", paths.root() / "scripts" / "fit_thresholds.py")
+fit_thresholds = importlib.util.module_from_spec(FIT_SPEC)
+FIT_SPEC.loader.exec_module(fit_thresholds)
+
 
 class RunEdaArgsTest(unittest.TestCase):
     """`run_eda.py`: bắt buộc chọn đúng MỘT nơi đo, và không nhận lẫn nhãn."""
@@ -357,6 +363,41 @@ class CollectReportsExcludeTest(unittest.TestCase):
                                              "--dry-run", "--exclude", "khong-co"])
         self.assertEqual(code, 2)
         self.assertIn("không khớp lượt chạy nào", captured.getvalue())
+
+
+class FitThresholdsArgsTest(unittest.TestCase):
+    """`scripts/fit_thresholds.py`: hai chế độ (DÒ trên `val` / ÁP bảng đã chốt lên `test`) không lẫn nhau.
+
+    Vì sao khoá ở đây: gộp hai chế độ là mở đường cho việc "xem `test` rồi mới chọn ngưỡng" - đúng thứ
+    luật 1 của `docs/04_experiments/metrics.md` cấm. Câu lỗi phải chỉ ra chế độ nào bị sai.
+    """
+
+    def mistake(self, argv):
+        return fit_thresholds.check_args(fit_thresholds.parse_args(argv))
+
+    def test_moi_che_do_nhan_dung_mot_thu_muc(self):
+        self.assertIsNone(self.mistake(["--run", "experiments/x/lora/exp003/results/abcd1234"]))
+        self.assertIsNone(self.mistake(["--apply-to", "experiments/x/lora/exp004/results/abcd1234"]))
+
+    def test_thieu_ca_hai_thi_bi_tu_choi(self):
+        self.assertIn("chọn ĐÚNG MỘT", self.mistake([]))
+
+    def test_co_ca_hai_thi_bi_tu_choi(self):
+        self.assertIn("chọn ĐÚNG MỘT", self.mistake(["--run", "a", "--apply-to", "b"]))
+
+    def test_luoi_nguong_chi_di_kem_che_do_do(self):
+        message = self.mistake(["--apply-to", "b", "--grid", "0.1,0.2"])
+        self.assertIn("--grid", message)
+        self.assertIn("chế độ DÒ", message)
+        self.assertIn("--max-cells-drop",
+                      self.mistake(["--apply-to", "b", "--max-cells-drop", "0.02"]))
+        self.assertIsNone(self.mistake(["--run", "a", "--grid", "0.1,0.2",
+                                        "--max-cells-drop", "0.02"]))
+
+    def test_che_do_ap_doc_tep_luat_mac_dinh(self):
+        args = fit_thresholds.parse_args(["--apply-to", "a"])
+        self.assertEqual(args.thresholds, fit_thresholds.DEFAULT_OUT)
+        self.assertNotEqual(fit_thresholds.DEFAULT_APPLIED, fit_thresholds.DEFAULT_OUT)
 
 
 if __name__ == "__main__":

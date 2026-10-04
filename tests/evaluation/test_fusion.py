@@ -91,6 +91,54 @@ class ThresholdTest(unittest.TestCase):
         self.assertEqual(rules["f1_âm_macro_gốc"]["số_khía_cạnh_có_ô_âm"], 1)
 
 
+class AppliedReportTest(unittest.TestCase):
+    """Bước THỨ HAI của đường ngưỡng: lấy tệp luật đã chốt trên `val` rồi áp lên một lượt khác.
+
+    Vì sao khoá ở đây: đây là chỗ sinh ra SỐ BÁO CÁO (áp lên `test`), mà luật 1 của `metrics.md` cấm
+    gộp hai bước. Lỗi im lặng của bước này là áp nhầm không gian nhãn, hoặc làm `price` đổi theo.
+    """
+
+    def setUp(self):
+        self.run = make_run(GOLDS, PREDS_BASE, PROBS, split="test")
+        self.rules = fusion.fit_thresholds(make_run(GOLDS, PREDS_BASE, PROBS))
+
+    def test_de_nguyen_price_va_giu_nguyen_so_o(self):
+        report = fusion.applied_report(self.run, self.rules)
+        self.assertEqual(report["ngưỡng_dùng"], {"colour": 0.8})
+        self.assertEqual(report["khía_cạnh_để_nguyên"], ["smell", "price"])
+        self.assertEqual(report["số_ô_trước"], report["số_ô_sau"])
+        # `price` không có ô âm nên không có ngưỡng: F1 âm giữ nguyên `None` ở CẢ hai bên.
+        self.assertIsNone(report["f1_âm_từng_khía_cạnh_trước"]["price"])
+        self.assertIsNone(report["f1_âm_từng_khía_cạnh_sau"]["price"])
+        self.assertIsNone(report["chênh_f1_âm_từng_khía_cạnh"]["price"])
+        self.assertEqual(report["chênh_f1_âm_từng_khía_cạnh"]["colour"], 1.0)
+        self.assertIn("price", report["ghi_chú_đọc_số"])
+
+    def test_macro_ghi_ca_hai_cach_va_chenh_lenh(self):
+        report = fusion.applied_report(self.run, self.rules)
+        self.assertEqual(report["chênh_f1_âm_macro"]["macro_trên_khía_cạnh_có_ô_âm"], 1.0)
+        # Không khía cạnh nào có F1 âm > 0 ở trạng thái gốc -> chênh là `None`, KHÔNG phải 0,0.
+        self.assertIsNone(report["chênh_f1_âm_macro"]["macro_trên_khía_cạnh_đang_dương"])
+        self.assertEqual(report["f1_âm_macro_sau"]["macro_trên_khía_cạnh_đang_dương"], 1.0)
+        # Cách thứ hai (mọi khía cạnh, `price` tính 0,0): 0,0 -> 1/3.
+        self.assertEqual(report["macro_trên_mọi_khía_cạnh"]["trước"], 0.0)
+        self.assertEqual(report["macro_trên_mọi_khía_cạnh"]["sau"], round(1.0 / 3, 6))
+
+    def test_lech_khong_gian_nhan_thi_bao_loi(self):
+        rules = dict(self.rules, **{"mã_âm": 1})
+        with self.assertRaises(fusion.FusionError):
+            fusion.applied_report(self.run, rules)
+
+    def test_khia_canh_co_nguong_khong_co_o_luot_nay_thi_ghi_lai(self):
+        run = make_run([{"smell": 1}, {"smell": 2}], [{"smell": 1}, {"smell": 1}],
+                       probabilities({0: {"smell": {1: 0.2, 2: 0.8}},
+                                      1: {"smell": {1: 0.9, 2: 0.1}}}), split="test")
+        run["aspects"] = ["smell"]
+        report = fusion.applied_report(run, self.rules)
+        self.assertEqual(report["khía_cạnh_có_ngưỡng_không_có_ở_lượt_này"], ["colour"])
+        self.assertEqual(report["khía_cạnh_để_nguyên"], ["smell"])
+
+
 class EnsembleTest(unittest.TestCase):
     def setUp(self):
         weak = probabilities({index: {"colour": {1: 0.6, 2: 0.4}, "smell": {1: 0.9, 2: 0.1},

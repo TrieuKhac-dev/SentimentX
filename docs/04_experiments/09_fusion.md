@@ -46,6 +46,18 @@ Ghi `data/reports/fusion/thresholds.json`: ngưỡng chốt từng khía cạnh,
 **bảng quét đầy đủ** của từng khía cạnh (làm bằng chứng), và macro theo **hai cách** (trên các khía cạnh
 có ô âm, và trên các khía cạnh đang có F1 âm > 0) - cách thứ hai để nhiễu `price` không làm loãng kết luận.
 
+Bước **ÁP** là lệnh thứ hai, và là lệnh sinh **số báo cáo** (dò trên `val`, áp lên `test`):
+
+```
+python scripts/fit_thresholds.py --apply-to experiments/<model>/<encoder>/<expNNN>/results/<hash8>
+```
+
+Đọc bảng ngưỡng ĐÃ ĐÓNG BĂNG (`--thresholds`, mặc định `thresholds.json`) rồi áp lên lượt đang có; ghi
+`data/reports/fusion/thresholds_applied.json` với F1 âm từng khía cạnh **trước/sau**, số ô trước/sau, và
+macro **ba cách** (trên khía cạnh có ô âm, trên khía cạnh đang dương, và trên MỌI khía cạnh - cách thứ ba
+tính `price` là 0,0). Bảng luật chốt cho một **không gian nhãn** cụ thể, nên áp lên lượt khác mã âm là
+**LỖI** (cột xác suất sẽ bị đọc lệch) chứ không phải cảnh báo bỏ qua. Không chạy model, không sửa bản gốc.
+
 ### 3.2. Ensemble encoder - `scripts/ensemble.py`
 
 ```
@@ -100,7 +112,8 @@ lượt; KHÔNG chứa văn bản review). Xem `data/reports/fusion/README.md`.
 
 ## 6. Bàn giao: nhóm encoder gửi thêm tệp xác suất
 
-Sáu tệp nhẹ (`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`,
-`mispredictions_paper.csv`, `predictions.csv`) vẫn là bộ chuẩn cho MỌI lượt. Riêng **nhóm encoder** gửi
-thêm `probabilities.csv` - thiếu nó thì người nhận không chạy lại được ngưỡng/ensemble/lai. Ghi rõ ở
-`handover/README.md` và `present_plan.md` mục 7.4.
+**Bảy tệp nhẹ** (`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`,
+`mispredictions_paper.csv`, `predictions.csv`) là bộ chuẩn cho MỌI lượt. `predictions.csv` là tệp thứ
+BẢY (từ 04/10/2026): bước kết hợp dựng `inputs/*.csv` từ nó (khung ô + nhãn đúng/đoán), và lượt **DÒ**
+cần nó để đo số token sinh. Riêng **nhóm encoder** gửi thêm `probabilities.csv` - thiếu nó thì người nhận
+không chạy lại được ngưỡng/ensemble/lai. Ghi rõ ở `handover/README.md` và `present_plan.md` mục 7.4.

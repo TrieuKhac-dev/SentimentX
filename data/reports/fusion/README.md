@@ -9,7 +9,8 @@ suất từng ô, chỉ đường encoder có), chọn lại nhãn, rồi chấm
 
 | Tệp | Do lệnh nào ghi | Nội dung |
 | --- | --- | --- |
-| `thresholds.json` | `scripts/fit_thresholds.py` | ngưỡng theo từng khía cạnh + bảng quét làm bằng chứng; `price` ghi `null` kèm lí do |
+| `thresholds.json` | `scripts/fit_thresholds.py --run <val>` | ngưỡng theo từng khía cạnh + bảng quét làm bằng chứng; `price` ghi `null` kèm lí do |
+| `thresholds_applied.json` | `scripts/fit_thresholds.py --apply-to <lượt cần áp>` | số khi ÁP bảng ngưỡng đã chốt lên một lượt khác (thường `test`): F1 âm trước/sau, số ô, macro ba cách |
 | `rules.json` | `scripts/fuse.py --fit` | luật lai chốt trên `val`: mỗi khía cạnh lấy nguồn nào |
 | `ensemble.json` | `scripts/ensemble.py` | số của bản gộp trung bình xác suất + trọng số từng lượt |
 | `fuse.json` | `scripts/fuse.py --apply` | số của bản LAI khi áp luật đã chốt |

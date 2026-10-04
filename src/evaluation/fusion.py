@@ -11,6 +11,11 @@ HAI LUẬT BẮT BUỘC (đã ghi ở `present_plan.md` mục 8.4/8.5 và `docs/
 2. **`price` không có ngưỡng**: `val` có 0 ô `price` âm (train 15, test 6) nên không có gì để dò; hàm
    nào cũng trả `None` kèm lí do cho khía cạnh đó, và các ô `price` giữ nguyên quyết định của model gốc.
 
+ĐƯỜNG NGƯỠNG CÓ HAI BƯỚC, HAI LỆNH
+`fit_thresholds` DÒ trên `val` rồi ghi tệp luật ĐÓNG BĂNG; `applied_report` ÁP tệp luật đó lên một lượt
+khác (thường là `test`) rồi chấm lại. Số báo cáo là số của bước thứ hai - luật 1 ở trên nói vì sao không
+được gộp hai bước làm một.
+
 Xem `docs/04_experiments/09_fusion.md`.
 """
 
@@ -245,6 +250,92 @@ def fit_thresholds(run, grid=None, max_cells_drop=MAX_CELLS_DROP, log=None):
         "f1_âm_macro_sau": _macro(final_paper, run["aspects"]),
         "ghi_chú": ("ngưỡng chốt trên {}; áp lên tập KHÁC (test) mới là số báo cáo"
                     .format(run["split"] or "val")),
+    }
+
+
+def _delta(after, before):
+    """Chênh lệch `sau - trước`; `None` khi một đầu không có số (không tự đổi `None` thành 0,0)."""
+    if after is None or before is None:
+        return None
+    return round(float(after) - float(before), 6)
+
+
+def _macro_over_all(values):
+    """Trung bình F1 lớp âm trên MỌI khía cạnh; khía cạnh không có ô âm (như `price`) tính là 0,0.
+
+    Đây là cách đọc thứ HAI mà `present_plan.md` mục 8.4 yêu cầu, đứng cạnh `_macro`. Số này bị `price`
+    kéo xuống, nhưng `price` đóng góp 0,0 ở CẢ trước lẫn sau nên nó không làm lệch phần chênh lệch -
+    đó chính là lí do phải in cả hai cách.
+    """
+    numbers = [(value if value is not None else 0.0) for value in values.values()]
+    return round(sum(numbers) / len(numbers), 6) if numbers else None
+
+
+def applied_report(run, rules, negative=None):
+    """Số của một lượt chạy SAU KHI áp bảng ngưỡng ĐÃ ĐÓNG BĂNG - không chạy model, không sửa bản gốc.
+
+    Vì sao cần bước riêng: `fit_thresholds` chỉ so được trên CHÍNH lượt nó đọc (luật 1: chốt trên `val`),
+    nên số báo cáo - số khi áp lên `test` - phải có một chỗ ráp hai bước lại: đọc tệp luật đã ghi ->
+    `apply_thresholds` -> chấm bằng ĐÚNG engine của dự án.
+
+    Bảng luật chốt cho một KHÔNG GIAN NHÃN cụ thể (khoá `mã_âm`), nên lượt bị áp phải cùng không gian
+    nhãn: khác mã âm là LỖI (cột xác suất sẽ bị đọc lệch), không phải chuyện bỏ qua được.
+
+    Trả về: ngưỡng dùng, khía cạnh để nguyên (`price`), số của lượt TRƯỚC và SAU (hai cơ sở, số ô, F1 âm
+    từng khía cạnh, macro hai cách), và chênh lệch từng khía cạnh.
+    """
+    rules = rules or {}
+    thresholds = dict(rules.get("ngưỡng_chốt") or {})
+    negative = negative_code(run) if negative is None else int(negative)
+    saved = rules.get("mã_âm")
+    if saved is not None and int(saved) != negative:
+        raise FusionError(
+            "Bảng ngưỡng chốt cho mã âm {} nhưng lượt '{}' dùng mã âm {}: cột xác suất sẽ bị đọc lệch, "
+            "không áp được.".format(saved, utils.rel(run["dir"]), negative))
+    used = {aspect: thresholds[aspect] for aspect in run["aspects"]
+            if thresholds.get(aspect) is not None}
+    untouched = [aspect for aspect in run["aspects"] if thresholds.get(aspect) is None]
+    reasons = sorted({str(((rules.get("khía_cạnh") or {}).get(aspect) or {}).get("lí do") or "")
+                      for aspect in untouched} - {""})
+    before = report_of(run)
+    after = report_of(run, apply_thresholds(run, thresholds, negative=negative))
+    return {
+        "lượt": utils.rel(run["dir"]),
+        "split": run["split"],
+        "nguồn_luật": rules.get("nguồn"),
+        "nguồn_split": rules.get("split"),
+        "ngưỡng_dùng": used,
+        "khía_cạnh_để_nguyên": untouched,
+        "khía_cạnh_có_ngưỡng_không_có_ở_lượt_này": sorted(
+            aspect for aspect in thresholds if aspect not in run["aspects"]),
+        "số_ô_trước": before["cells_paper"],
+        "số_ô_sau": after["cells_paper"],
+        "accuracy_all_trước": before["accuracy_all"],
+        "accuracy_all_sau": after["accuracy_all"],
+        "accuracy_paper_trước": before["accuracy_paper"],
+        "accuracy_paper_sau": after["accuracy_paper"],
+        "f1_âm_từng_khía_cạnh_trước": before["f1_âm_từng_khía_cạnh"],
+        "f1_âm_từng_khía_cạnh_sau": after["f1_âm_từng_khía_cạnh"],
+        "chênh_f1_âm_từng_khía_cạnh": {
+            aspect: _delta(after["f1_âm_từng_khía_cạnh"].get(aspect),
+                           before["f1_âm_từng_khía_cạnh"].get(aspect))
+            for aspect in run["aspects"]},
+        "f1_âm_macro_trước": before["f1_âm_macro"],
+        "f1_âm_macro_sau": after["f1_âm_macro"],
+        "chênh_f1_âm_macro": {key: _delta(after["f1_âm_macro"].get(key),
+                                          before["f1_âm_macro"].get(key))
+                              for key in before["f1_âm_macro"]},
+        "macro_trên_mọi_khía_cạnh": {
+            "trước": _macro_over_all(before["f1_âm_từng_khía_cạnh"]),
+            "sau": _macro_over_all(after["f1_âm_từng_khía_cạnh"]),
+            "cách_đọc": "khía cạnh không có ô âm (price) tính là 0,0 ⇒ số này bị kéo xuống; đóng góp "
+                        "của price là 0,0 ở CẢ hai bên nên không làm lệch chênh lệch",
+        },
+        "ghi_chú_đọc_số": ("ngưỡng chốt trên '{}'; lượt này là '{}'. Khía cạnh để nguyên: {}{}. "
+                           "Số ô luôn đọc kèm (luật 1 của metrics.md)."
+                           .format(rules.get("split") or "val", run["split"] or "?",
+                                   ", ".join(untouched) or "không có",
+                                   " ({})".format("; ".join(reasons)) if reasons else "")),
     }
 
 
