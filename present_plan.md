@@ -104,7 +104,11 @@
   `build_inputs`) **chỉ truyền khoá khi mẫu chat của model thật sự có biến đó**; sửa cùng đường trong
   `src/preprocessing/token_stats.py`; cho phép khai khoá trong `src/experiments/model_config.py`;
   thêm kiểm thử; cập nhật `docs/05_config/04_models.md`.
-- **4.2** Cho `generation.max_new_tokens` **đọc được từ cấu hình thí nghiệm** (+ kiểm thử).
+- **4.2** Cho trần token sinh **đọc được từ cấu hình thí nghiệm**: khoá **`decoding.max_new_tokens`**
+  (nhóm `decoding` đã có: `mode`, `temperature`, `top_p`), thứ tự ưu tiên: tham số `max_new_tokens` truyền
+  vào lúc chạy > khoá này > 400. *Tên cũ*: kế hoạch bản đầu ghi `generation.max_new_tokens` - đó là **tên
+  cũ**, không phải khoá thứ hai (nhóm `generation` không tồn tại trong lược đồ cấu hình; `generation` chỉ
+  là tên dict lúc chạy). Kèm kiểm thử cho cả hai hàm `thinking_of` / `max_new_tokens_of`.
 - **4.3** Cửa chặn `% đọc được < 95%` ⇒ ghi `valid: false` **kèm lí do** (+ kiểm thử + ghi vào
   `docs/04_experiments/metrics.md`).
 - **4.4** Ghi luật **"một cơ chế, hai khoá không được tách rời"** (ví dụ bật suy nghĩ phải đi kèm trần

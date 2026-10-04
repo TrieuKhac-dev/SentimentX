@@ -150,16 +150,16 @@
   Ghi chú thiết kế: **lớp THÍ NGHIỆM ghi đè được lớp model** (đọc từ cấu hình ĐÃ HỢP NHẤT), nên cùng
   model 0.6B chạy được cả hai chế độ, và hai chế độ rơi vào hai thư mục kết quả khác nhau.
 - 4.2 Trần token sinh đọc từ cấu hình — **XONG 04/10/2026**: `experiment_run.max_new_tokens_of()` với thứ
-  tự ưu tiên `--max-new-tokens` > **`decoding.max_new_tokens`** của cấu hình đã hợp nhất > hằng số 400
-  của `runner`; `run_generation()` dùng hàm này; `experiments.py` thêm `decoding.max_new_tokens` vào
-  `KNOWN_KEYS`; `runner.run()` nhận `enable_thinking` và truyền xuống `qwen.build_inputs`; `plan_data`
-  và bản ghi `run_meta` mang thêm khoá `enable_thinking`, `print_config` in thêm dòng "suy nghĩ".
-  Kiểm thử: `tests/experiments/test_experiment_run.py::ThinkingAndCeilingTest` (5 test).
-  ⚠️ **KHÁC CHỮ SO VỚI KẾ HOẠCH (cần bạn xác nhận)**: kế hoạch ghi `generation.max_new_tokens`, nhưng
-  nhóm khoá đang có của cấu hình thí nghiệm là **`decoding`** (`decoding.mode/temperature/top_p`, khai ở
-  `configs/experiments/evaluation.yaml`), nên tôi dùng **`decoding.max_new_tokens`** để không sinh thêm
-  một nhóm khoá song song; ý nghĩa và tác dụng y hệt (khai trong config thí nghiệm, đi vào mã băm danh
-  tính).
+  tự ưu tiên: tham số `max_new_tokens` truyền vào lúc chạy > **`decoding.max_new_tokens`** của cấu hình đã
+  hợp nhất > hằng số 400 của `runner`; `run_generation()` dùng hàm này; `experiments.py` thêm
+  `decoding.max_new_tokens` vào `KNOWN_KEYS`; `runner.run()` nhận `enable_thinking` và truyền xuống
+  `qwen.build_inputs`; `plan_data` và bản ghi `run_meta` mang thêm khoá `enable_thinking`, `print_config`
+  in thêm dòng "suy nghĩ". Kiểm thử: `tests/experiments/test_experiment_run.py::ThinkingAndCeilingTest`
+  (5 test).
+  ✅ **ĐÃ CHỐT 04/10/2026**: giữ `decoding.max_new_tokens` và **ghi rõ `generation.max_new_tokens` là TÊN
+  CŨ** ở ba chỗ: `docs/04_experiments/metrics.md`, `docs/05_config/05_experiments_shared.md`, docstring
+  `experiment_run.max_new_tokens_of`. (Kiểm thêm: `"generation" in cfg` = **False** - nhóm khoá `generation`
+  không tồn tại; `generation` chỉ là tên dict lúc chạy.)
 - 4.3 Cửa chặn `% đọc được < 95%` ⇒ `valid: false` — CHƯA LÀM.
 - 4.4 Luật "một cơ chế, hai khoá không tách rời" vào `05_config/02_rules.md` — CHƯA LÀM.
 - 4.5 Đường encoder xuất xác suất từng ô — CHƯA LÀM.

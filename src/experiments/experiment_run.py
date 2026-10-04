@@ -454,14 +454,18 @@ def dtype_of(config_data):
 def max_new_tokens_of(config_data, passed=None):
     """Trần token sinh ĐANG dùng cho lượt chạy này, theo thứ tự ưu tiên.
 
-    `passed` (tham số dòng lệnh `--max-new-tokens`) > `decoding.max_new_tokens` của cấu hình ĐÃ HỢP
-    NHẤT > hằng số `runner.DEFAULT_MAX_NEW_TOKENS` (400, đủ cho câu trả lời JSON ngắn).
+    `passed` (tham số `max_new_tokens` truyền vào lúc chạy - notebook hoặc lời gọi hàm) > `decoding.max_new_tokens`
+    của cấu hình ĐÃ HỢP NHẤT > hằng số `runner.DEFAULT_MAX_NEW_TOKENS` (400, đủ cho câu trả lời JSON ngắn).
 
     Vì sao phải khai được trong CONFIG chứ không chỉ ở dòng lệnh: lượt **bật suy nghĩ** cần trần lớn
     hơn hẳn, vì model viết hết trần trong khối ` thinking` rồi không còn chỗ in JSON - đã gặp thật với
     `Qwen/Qwen3-0.6B` (ba lượt chỉ đọc được 3,33 / 1,36 / 1,73%). Trần token cũng đi vào dấu vân tay
     của lượt chạy (qua `run_identity`), nên nó phải là một phần CẤU HÌNH đọc lại được, không phải
     tham số gõ tay dễ quên. Xem `present_plan.md` mục 4.2 và 9.1.
+
+    **Tên khoá:** `decoding.max_new_tokens` (nhóm `decoding` đã có: `mode`, `temperature`, `top_p`).
+    Kế hoạch đợt 7 gọi nó là `generation.max_new_tokens` - đó là **TÊN CŨ**, không phải một khoá thứ
+    hai; `KNOWN_KEYS` chỉ nhận `decoding.max_new_tokens`.
     """
     if passed:
         return int(passed)
