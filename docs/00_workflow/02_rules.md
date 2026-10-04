@@ -94,3 +94,19 @@
     đóng băng một bản không kiểm được; gói bàn giao dựng từ bản đỏ cũng phải bỏ (đã gặp: gói 007 dựng từ
     bản `2f8c362` CI đỏ, bị thay bằng gói 008 - xem
     [../06_plan/P8_measurement_mlflow.md](../06_plan/P8_measurement_mlflow.md)).
+
+## Khoá đi LIỀN NHAU (một cơ chế, hai khoá)
+
+23. Có những cơ chế phải khai **ĐỒNG THỜI hai khoá**; tách rời là hỏng lượt chạy. Ca đã gặp: **bật suy
+    nghĩ** (`preprocess.enable_thinking: true`) phải đi kèm **trần token đủ lớn**
+    (`decoding.max_new_tokens`), vì model viết hết trần trong khối ` thinking` rồi không còn chỗ in ra
+    JSON - ba lượt `Qwen/Qwen3-0.6B` ngày 02/10/2026 chỉ đọc được **3,33 / 1,36 / 1,73%**. Cách làm đúng
+    cho mọi nhóm khoá loại này:
+    - **(a) chạy một lượt DÒ trước** (~60 mẫu) đo p50/p95/max số token sinh, rồi chốt
+      `max_new_tokens = làm tròn lên (p99 × 1,5)`, và **không vượt cửa sổ ngữ cảnh** của model;
+    - **(b) giữ cửa chặn**: `read_rate_min` (95%) ⇒ lượt có `% đọc được` dưới ngưỡng bị ghi
+      `read_rate.valid = false` kèm lí do;
+    - **(c) khai cả hai trong CẤU HÌNH**, không truyền tay lúc chạy - vì cả hai đi vào mã băm danh tính
+      của lượt chạy (đổi một trong hai là ra thư mục kết quả khác, đúng như mong muốn).
+    Xem `docs/04_experiments/metrics.md` luật 2-3 và `present_plan.md` mục 9.1.
+

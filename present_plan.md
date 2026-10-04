@@ -112,7 +112,8 @@
 - **4.3** Cửa chặn `% đọc được < 95%` ⇒ ghi `valid: false` **kèm lí do** (+ kiểm thử + ghi vào
   `docs/04_experiments/metrics.md`).
 - **4.4** Ghi luật **"một cơ chế, hai khoá không được tách rời"** (ví dụ bật suy nghĩ phải đi kèm trần
-  token) vào `docs/05_config/02_rules.md`.
+  token) vào **`docs/00_workflow/02_rules.md`** - *tệp luật THẬT của dự án (22 luật); kế hoạch ghi nhầm
+  `docs/05_config/02_rules.md`, tệp đó không tồn tại*. Luật mới là **luật 23**.
 - **4.5** Đường encoder xuất **xác suất từng ô** `p(mã 0..3)`: thêm tệp xác suất, khai trong
   `configs/paths.yaml`, có kiểm thử; **không** thêm tệp này vào danh sách 6 tệp nhẹ trong tài liệu,
   nhưng README gói phải ghi rõ **nhóm encoder gửi thêm tệp xác suất**.

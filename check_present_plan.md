@@ -160,8 +160,21 @@
   CŨ** ở ba chỗ: `docs/04_experiments/metrics.md`, `docs/05_config/05_experiments_shared.md`, docstring
   `experiment_run.max_new_tokens_of`. (Kiểm thêm: `"generation" in cfg` = **False** - nhóm khoá `generation`
   không tồn tại; `generation` chỉ là tên dict lúc chạy.)
-- 4.3 Cửa chặn `% đọc được < 95%` ⇒ `valid: false` — CHƯA LÀM.
-- 4.4 Luật "một cơ chế, hai khoá không tách rời" vào `05_config/02_rules.md` — CHƯA LÀM.
+- 4.3 Cửa chặn `% đọc được < 95%` ⇒ `valid: false` — **XONG 04/10/2026**: `metrics.read_rate(infos,
+  min_rate=None)` thêm ba khoá `ngưỡng` / `valid` / `reason` (chỉ khi có truyền ngưỡng);
+  `experiment_run.read_rate_min_of(config_data)` đọc khoá **`read_rate_min`** từ cấu hình đã hợp nhất (đã
+  khai `read_rate_min: 95` ở `configs/experiments/evaluation.yaml`, thêm vào `KNOWN_KEYS`); `finish()` ghi
+  thêm dòng `KHÔNG ĐẠT CỬA CHẤT LƯỢNG` vào `run.log` khi dưới ngưỡng. Kiểm thử:
+  `tests/evaluation/test_metrics.py::TestReadRateGate` (4 test: không truyền ngưỡng thì KHÔNG có cờ; dưới
+  ngưỡng ⇒ `valid=false` + lí do có cả hai số; đúng bằng ngưỡng và trên ngưỡng ⇒ đạt). Đã ghi vào
+  `docs/04_experiments/metrics.md` luật 2, kèm ghi chú `scripts/rescore.py` **không** áp cửa này.
+- 4.4 Luật "một cơ chế, hai khoá không tách rời" — **XONG 04/10/2026**: đã thêm **luật 23** vào
+  `docs/00_workflow/02_rules.md`. ⚠️ **Sửa đường dẫn so với kế hoạch**: kế hoạch ghi
+  `docs/05_config/02_rules.md` nhưng **tệp đó KHÔNG tồn tại** (đã kiểm bằng `read_files`); tệp luật thật là
+  `docs/00_workflow/02_rules.md` (22 luật cũ + luật 23 mới). Luật 23 gồm ba phần: (a) chạy lượt DÒ (~60
+  mẫu) đo p50/p95/max token sinh rồi chốt `max_new_tokens = round_up(p99 × 1,5)`, không vượt cửa sổ ngữ
+  cảnh; (b) giữ cửa `read_rate_min` 95%; (c) khai cả hai khoá trong CẤU HÌNH vì chúng đi vào mã băm danh
+  tính. Đã cập nhật cả `present_plan.md` mục 4.4 cho khớp.
 - 4.5 Đường encoder xuất xác suất từng ô — CHƯA LÀM.
 - 4.6 `scripts/fit_thresholds.py` — CHƯA LÀM.
 - 4.7 `scripts/ensemble.py` — CHƯA LÀM.
