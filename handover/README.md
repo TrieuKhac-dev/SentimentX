@@ -16,7 +16,7 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Notebook trong gói: 23 lượt của đợt 7 + 4 lượt của đợt 8
+## Notebook trong gói: 23 lượt của đợt 7 + 4 lượt của đợt 8 + 3 lượt của đợt 10
 
 **Chưa lượt nào trong bảng đợt 7 từng cho ra kết quả dùng được khi bảng được viết**, nên cột thời gian ghi **ước tính**; chỗ nào
 ước tính dựa trên một lượt đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu (ba lượt `qwen3-0.6b` đã
@@ -75,6 +75,28 @@ theo **rẻ và mở đường trước**:
 nên chỉ mở rộng khi phiên chạy thật chứng minh là kịp. Hai lượt `exp006`/`exp007` khác `exp005` **đúng số
 ví dụ**, dùng **cùng** trần 1.985 (trần này đo ở mức 1 ví dụ; hai mức 0 và 5 dùng chung và **chưa có lượt DÒ
 riêng** - đọc `run.log` để thấy tỉ lệ chạm trần trước khi tin điểm).
+
+### Đợt 10 - 3 notebook MỚI trong gói này (017): thước nhiễu cho đường encoder
+
+Gói **017** mang thêm **ba** notebook (chưa từng nằm trong gói nào trước đây). Đây là **THƯỚC NHIỄU**, KHÔNG
+phải lượt lấy điểm cao: mỗi lượt chạy lại một lượt đã có với **một hạt giống khác** (`decoding.seed: 7`; mặc
+định cũ là 42) để đo xem chênh lệch do hạt giống là bao nhiêu điểm. Không có nó thì các chênh lệch nhỏ của
+nhóm đầu phân loại (**+0,21** và **−0,15** điểm) không tách được khỏi nhiễu.
+
+| # | Notebook | Việc | Thời gian trên T4 | Trả lời câu gì |
+| --- | --- | --- | --- | --- |
+| 1 | `notebooks/cafebert/lora/exp003.ipynb` | chạy mới | ước tính 15 đến 20 phút | Biên nhiễu của lượt gốc đem so công bố (`cafebert/lora/exp001`, 97,67) là bao nhiêu |
+| 2 | `notebooks/cafebert/lora/exp004.ipynb` | chạy mới | ước tính 15 đến 20 phút | Chênh **+0,21** của vế "đầu phân loại HỌC" (`exp001 -> exp002`) có nằm NGOÀI biên nhiễu không |
+| 3 | `notebooks/vibert-base-cased/lora/exp003.ipynb` | chạy mới (**cần VnCoreNLP**) | ước tính 15 đến 20 phút | Chênh **−0,15** của cặp `vibert-base-cased exp001 -> exp002` có nằm TRONG biên nhiễu không |
+
+Ba lượt này **không** phải bản sao của nhau: mỗi lượt chạy lại **đúng một** lượt gốc khác nhau (xem cột "Trả
+lời câu gì"). Đọc kết quả: so `cafebert/lora/exp003` với `cafebert/lora/exp001`, `cafebert/lora/exp004` với
+`cafebert/lora/exp002`, `vibert-base-cased/lora/exp003` với `vibert-base-cased/lora/exp001` - chênh lệch giữa
+hai lượt **cùng cấu hình khác hạt giống** CHÍNH LÀ biên nhiễu.
+
+Ba lượt này **khác đúng MỘT khoá** so với lượt gốc của chúng (`decoding.seed`); mã nguồn đường encoder KHÔNG
+đổi giữa commit của lượt gốc (`59579e5`) và commit đã ghim - bằng chứng `git diff` RỖNG nằm trong `README.md`
+của từng lượt.
 
 Năm nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
 nguyên nhân):
