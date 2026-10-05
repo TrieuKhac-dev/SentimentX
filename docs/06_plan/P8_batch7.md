@@ -53,6 +53,14 @@
   ra**, không phải trần token. Một lượt **phải chạy lại**: `cafebert/lora/exp002` (thư mục kết quả sao chép
   thiếu). Bốn notebook **đợt 8** đã tạo: `qwen3-0.6b/prompt-cot/exp005`/`exp006`/`exp007` (bật suy nghĩ,
   trần 1985) + `qwen3-0.6b/prompt-one-turn/exp001` (bỏ suy luận, chỉ trả JSON).
+- **05/10/2026 (quyết định GIỮ NGUYÊN 5 thư mục kết quả hỏng):** năm thư mục `status: FAILED` sinh ngày
+  04/10 vì **lỗi A** (`write_csv` gọi sai thứ tự tham số, chết ở dòng cuối sau khi đã huấn luyện + suy luận
+  xong) vẫn nằm trong repo: `cafebert/lora/exp001/results/61dbdddb`,
+  `phobert-base-v2/lora/exp003/results/843cd8e9`, `vibert-base-cased/lora/exp001/results/a525cefe`,
+  `visobert/lora/exp003/results/8346cb0d`, `xlm-roberta-base/lora/exp001/results/a2f22f02`. Chúng **không
+  phải nhiễu cần dọn** mà là bằng chứng của lỗi, nên giữ nguyên và ghi rõ (mục "Năm thư mục kết quả HỎNG
+  từ 04/10/2026" của `handover/README.md`);
+  bản dùng được của cả năm lượt là các thư mục `61871aed` / `c0033f3c` / `ba615bcb` / `8b4aeafa` / `491e81cb`.
 
 
 ## 3. Đợt 7 - gói 012 (rồi 013, 014) + gói 015, 23 notebook, khoảng 11-14 giờ GPU
@@ -82,7 +90,7 @@ một chữ. `handover/README.md` (bản nằm trong gói 015) **không dùng ch
 
 | Thí nghiệm | `parent` | Vì sao có mặt | Chi phí |
 | --- | --- | --- | --- |
-| `phobert-base-v2/lora/exp004`, `visobert/lora/exp004` | `lora/exp002` | Encoder trên `test` để **áp ngưỡng** đã chốt trên `val` | ~15 phút mỗi lượt |
+| `phobert-base-v2/lora/exp004`, `visobert/lora/exp004` | `lora/exp002` | Encoder trên `test` để **áp ngưỡng** đã chốt trên `val` | ~15 phút mỗi lượt - **đã chạy xong 05/10/2026** (`14923c13` / `1bc5e80b`; thời lượng thật 771,8 / 703,8 giây) |
 | `qwen3-0.6b/prompt-cot/exp005` | `exp002` | Nhánh **bật suy nghĩ** chạy đầy đủ ở mức 1 ví dụ (trần chốt từ lượt DÒ) | 2-8 giờ |
 | `qwen3-0.6b/prompt-cot/exp006`, `exp007` | `exp001`, `exp003` | Như trên ở 0 và 5 ví dụ - **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ** (quyết định ở mục 6.3) | 2-8 giờ mỗi lượt |
 | `qwen3-4b-instruct-2507/prompt-cot/exp018`, `exp019`, `exp020` | đỉnh sau đợt 7 (mặc định `exp009`) | **Lấy mẫu** seed 1 / 2 / 3: đo dao động và làm đầu vào biểu quyết | 2,5-3 giờ mỗi lượt |

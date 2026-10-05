@@ -16,9 +16,9 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Hai mươi ba notebook trong gói (đợt 7)
+## Notebook trong gói: 23 lượt của đợt 7 + 4 lượt của đợt 8
 
-**Chưa lượt nào trong bảng này từng cho ra kết quả dùng được**, nên cột thời gian ghi **ước tính**; chỗ nào
+**Chưa lượt nào trong bảng đợt 7 từng cho ra kết quả dùng được khi bảng được viết**, nên cột thời gian ghi **ước tính**; chỗ nào
 ước tính dựa trên một lượt đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu (ba lượt `qwen3-0.6b` đã
 chạy ngày 02/10/2026 nhưng hỏng vì bật suy nghĩ ăn hết trần token, nên nay chạy lại với
 `enable_thinking: false`). Bảng xếp theo **thứ tự nên chạy** (rẻ và lượt chặn đường trước - lượt DÒ chốt
@@ -53,12 +53,28 @@ trần token cho nhánh suy nghĩ của đợt sau).
 Mỗi notebook ghi vào thư mục kết quả riêng nên chạy song song nhiều phiên cũng không giẫm lên nhau: mọi
 notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riêng theo mã băm danh tính.
 
-**Gói này còn chứa 6 notebook của ĐỢT SAU - đừng chạy vội:** `notebooks/phobert-base-v2/lora/exp004.ipynb`,
-`notebooks/visobert/lora/exp004.ipynb` (hai lượt `test` để đo tác dụng của NGƯỠNG; ngưỡng được áp **ngoài**
-lượt chạy nên hai notebook này chạy lúc nào cũng được - chỉ có ĐIỂM ĐỌC ĐƯỢC là phải chờ hai lượt `val` ở
-bảng trên chốt xong ngưỡng) và `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp018.ipynb`, `exp019.ipynb`,
-`exp020.ipynb`, `exp021.ipynb` (bốn lượt **lấy mẫu**, chạy sau khi biết cấu hình tốt nhất của đợt này). Gửi
-kèm sẵn để lần sau chỉ phải **giải nén đè** là có, không phải tải lại.
+**Trạng thái 6 notebook gửi kèm sẵn ở các gói TRƯỚC (cập nhật 05/10/2026 - đọc trước khi chạy):**
+
+| Notebook | Trạng thái nay |
+| --- | --- |
+| `notebooks/phobert-base-v2/lora/exp004.ipynb`, `notebooks/visobert/lora/exp004.ipynb` | **ĐÃ CHẠY XONG 05/10/2026** (hai lượt `test` để đo tác dụng của NGƯỠNG; thời lượng thật 771,8 và 703,8 giây). **ĐỪNG chạy lại**: nguyên nhân gốc sai và cũng làm ra thư mục kết quả thứ hai trùng số |
+| `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp018.ipynb`, `exp019.ipynb`, `exp020.ipynb`, `exp021.ipynb` | **CHƯA chạy, chưa cần chạy**: bốn lượt **lấy mẫu** (đo dao động + đầu vào biểu quyết). Ngưỡng, ensemble và luật lai đã chốt xong trên `val` nên chúng chỉ cần cho bước BIỂU QUYẾT và thước nhiễu - chạy sau |
+
+### Đợt 8 - 4 notebook MỚI trong gói này (016): thứ tự chạy
+
+Gói **016** mang thêm **bốn** notebook (chúng chưa từng nằm trong gói nào trước đây). Thứ tự dưới đây xếp
+theo **rẻ và mở đường trước**:
+
+| # | Notebook | Việc | Thời gian trên T4 | Trả lời câu gì |
+| --- | --- | --- | --- | --- |
+| 1 | `notebooks/qwen3-0.6b/prompt-one-turn/exp001.ipynb` | chạy mới | ước tính **20 đến 40 phút** (câu trả lời ngắn, không viết phần suy luận) | Ba lượt `qwen3-0.6b` tắt suy nghĩ đọc không nổi vì **ĐỊNH DẠNG** hay vì **SUY LUẬN**? Đây là lượt rẻ nhất trả lời câu đó |
+| 2 | `notebooks/qwen3-0.6b/prompt-cot/exp005.ipynb` | chạy mới | **2 đến 8 giờ** (2-3 phiên Colab; bị ngắt thì Run all lại) | Nhánh **BẬT suy nghĩ** ở mức 1 ví dụ: bật suy nghĩ có sửa được lỗi định dạng không (trần token **1.985** đã đo từ lượt DÒ `exp004`) |
+| 3 | `notebooks/qwen3-0.6b/prompt-cot/exp006.ipynb`, `exp007.ipynb` | **CHỈ chạy nếu lượt số 2 xong trong khoảng ≤ 3 giờ** | 2 đến 8 giờ mỗi lượt | Như trên ở 0 và 5 ví dụ. Không chạy cũng không sao: ghi rõ "chưa chạy" thay vì để trống |
+
+Điều kiện ở lượt số 3 là chủ ý: cùng một cơ chế nhưng **gấp khoảng 5 lần** chi phí của nhánh tắt suy nghĩ,
+nên chỉ mở rộng khi phiên chạy thật chứng minh là kịp. Hai lượt `exp006`/`exp007` khác `exp005` **đúng số
+ví dụ**, dùng **cùng** trần 1.985 (trần này đo ở mức 1 ví dụ; hai mức 0 và 5 dùng chung và **chưa có lượt DÒ
+riêng** - đọc `run.log` để thấy tỉ lệ chạm trần trước khi tin điểm).
 
 Năm nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
 nguyên nhân):
@@ -104,6 +120,26 @@ nguyên nhân):
 - **Bốn bước kết hợp đã chốt xong trên `val`**: ngưỡng theo khía cạnh, trọng số ensemble, luật lai và biểu
   quyết nằm trong `data/reports/fusion/` (repo), không cần GPU và không cần notebook.
 
+
+### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
+
+Trong thư mục kết quả của bạn còn năm thư mục có `run_meta.json` ghi `"status": "FAILED"` và **không có**
+`metrics.json`. Chúng là **bằng chứng của một lỗi thật đã sửa**: ở DÒNG CUỐI của mọi lượt encoder, hàm ghi
+tệp xác suất bị gọi sai thứ tự tham số (`utils.write_csv`) nên lượt chạy `TypeError` **sau khi đã huấn luyện
+và suy luận xong** và mất trắng kết quả (lượt `xlm-roberta-base` hỏng tới hai lần). Nay hàm đó đã tách
+riêng (`write_probabilities()`) và đã có phép kiểm gọi thẳng được.
+
+| Thư mục | Lượt |
+| --- | --- |
+| `results/61dbdddb` | `cafebert/lora/exp001` |
+| `results/843cd8e9` | `phobert-base-v2/lora/exp003` |
+| `results/a525cefe` | `vibert-base-cased/lora/exp001` |
+| `results/8346cb0d` | `visobert/lora/exp003` |
+| `results/a2f22f02` | `xlm-roberta-base/lora/exp001` |
+
+**Giữ nguyên năm thư mục này** trong repo (chúng ghi lại lỗi, không phải nhiễu cần dọn). Bản **dùng được**
+của cả năm lượt nằm ở thư mục khác (`61871aed`, `c0033f3c`, `ba615bcb`, `8b4aeafa`, `491e81cb`) - đó mới là
+thư mục phải đọc số.
 
 ### Nhóm encoder gửi thêm tệp xác suất
 
