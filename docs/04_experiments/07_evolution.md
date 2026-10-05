@@ -83,6 +83,10 @@ biến về QUY MÔ model (nhánh G: 0.6B, CHƯA có kết quả). Số dưới 
 đọc từ `data/reports/metrics_matrix/`; câu hỏi và điểm riêng của từng lượt ở
 `docs/04_experiments/08_experiment_rationale.md`.
 
+**Cập nhật 05/10/2026:** cây này là bản chụp **17 lượt CÓ kết quả**. Ngoài ra đã tạo **6 lượt ablation đầu
+phân loại** (CHƯA chạy - xem §2b của `08_experiment_rationale.md`) và registry nay có **sáu** encoder chứ
+không phải hai; nhóm mới chưa có số nên không nằm dưới đây.
+
 ```
 qwen3-4b-instruct-2507/prompt-cot/exp002   <- (gốc nhóm prompt)      đúng mức COT+0-shot của công bố
     Kết quả: acc TB khía cạnh 97,16 · F1 sắc thái macro 0,895 · 2.415 ô

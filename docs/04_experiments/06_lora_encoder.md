@@ -11,8 +11,8 @@ trị mặc định trong code:
 
 | `approach` | Model | Đường chạy | Cần gì |
 | --- | --- | --- | --- |
-| `prompt` | `qwen3-4b-instruct-2507`, `qwen3-0.6b` | `src/evaluation/runner.py`: gửi prompt rồi đọc câu trả lời | GPU, prompt của thí nghiệm |
-| `encoder` | `visobert`, `phobert-base-v2` | `src/experiments/encoder_run.py`: huấn luyện LoRA rồi suy luận | GPU, `peft`, ba vai |
+| `prompt` | `qwen3-4b-instruct-2507`, `qwen3-0.6b`, `qwen2.5-0.5b-instruct` | `src/evaluation/runner.py`: gửi prompt rồi đọc câu trả lời | GPU, prompt của thí nghiệm |
+| `encoder` | `visobert`, `phobert-base-v2`, `phobert-large`, `vibert-base-cased`, `cafebert`, `xlm-roberta-base` | `src/experiments/encoder_run.py`: huấn luyện LoRA rồi suy luận | GPU, `peft`, ba vai |
 
 Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng nó bắt buộc khai
 `training.enabled: true` (guard ở `src/experiments/experiments.py::check`).
@@ -23,8 +23,10 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
 2. **Chiếu nhãn** sang không gian nhãn của thí nghiệm
    (`src/preprocessing/loader.project_multi_head`): ô neutral bị loại mang `mask = 0` - không vào
    loss và không được chấm, nhưng KHÔNG làm mất các khía cạnh khác của cùng review.
-3. **Huấn luyện LoRA**: encoder gốc đóng băng, chỉ học adapter hạng thấp cộng một đầu phân loại
-   riêng cho mỗi khía cạnh (`khía cạnh × mã nhãn`).
+3. **Huấn luyện LoRA**: encoder gốc đóng băng, học adapter hạng thấp, cộng một đầu phân loại riêng cho
+   mỗi khía cạnh (`khía cạnh × mã nhãn`). **Đầu phân loại ĐÓNG BĂNG ở mặc định** - `peft` đóng băng mọi
+   tham số không phải adapter, nên mặc định chỉ adapter học; `head.trainable: true` mới mở đầu ra (mục
+   "Đầu phân loại" bên dưới).
 4. **Chọn `model/best` theo `val`** (độ chính xác theo Ô), rồi **suy luận trên split `eval`**.
 5. **Chấm điểm và ghi kết quả** bằng đúng bộ chấm của đường prompt (`src/evaluation/scorers/`), nên
    hai đường cho ra bảng điểm so được với nhau và với công bố.
@@ -33,6 +35,43 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
    và phần chấm điểm **không** dùng nó - bước KẾT HỢP mới cần (dò ngưỡng theo khía cạnh, ensemble nhiều
    encoder, luật lai encoder + LLM). Nó **không** nằm trong danh sách "7 tệp nhẹ" gửi kèm mọi lượt: nhóm
    encoder gửi thêm tệp này (ghi rõ ở README của gói bàn giao và `present_plan.md` mục 7.4).
+
+## Đầu phân loại: ĐÓNG BĂNG (mặc định) hay HỌC (`head.trainable`)
+
+`peft` đóng băng **mọi** tham số không phải adapter, và đầu phân loại của dự án nằm trong số đó. Hệ quả
+là ở chế độ mặc định đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN CỐ ĐỊNH: nó được khởi tạo rồi đứng
+yên, mọi thứ học được đều nằm ở adapter. Đó là **hiện trạng đã đo**, không phải phỏng đoán:
+
+- `head.pt` của bốn lượt LoRA đầu tiên (`phobert-base-v2/lora/exp001`, `exp002`, `visobert/lora/exp001`,
+  `exp002`) giống nhau **TỪNG BYTE** giữa các checkpoint (`checkpoint-1000`, `checkpoint-1100`, `best`,
+  `last`) và cả giữa hai model KHÁC NHAU;
+- `trainable_params` trong `metrics.json` bằng **đúng** tổng tham số adapter (2.678.784), tức đầu phân
+  loại không nằm trong optimizer.
+
+Vì sao vẫn để mặc định là đóng băng: đổi nó là đổi **CƠ CHẾ HỌC**, không phải sửa lỗi - bốn lượt đã
+chạy vẫn hợp lệ và đang là mốc so sánh của dự án.
+
+| Khoá | Ở đâu | Nghĩa |
+| --- | --- | --- |
+| `head.trainable: false` | `configs/experiments/training.yaml` (mặc định, mọi thí nghiệm thừa hưởng) | chỉ adapter học - đúng cơ chế của bốn lượt đã chạy |
+| `head.trainable: true` | khai ở config CỦA THÍ NGHIỆM để đè lớp dùng chung | đầu phân loại học cùng adapter, dùng CHUNG `lr` (cố ý **không** có `lr` riêng: một biến mỗi thí nghiệm) |
+
+Sáu lượt ablation trả lời câu hỏi "đóng băng hay không khác gì nhau": `phobert-base-v2/lora/exp005`,
+`visobert/lora/exp005`, `cafebert/lora/exp002`, `phobert-large/lora/exp002`,
+`vibert-base-cased/lora/exp002`, `xlm-roberta-base/lora/exp002` - mỗi lượt khác lượt gốc của nó **đúng
+một khoá đo được** (`head.trainable`); xem `08_experiment_rationale.md`.
+
+**Dấu vết để kiểm một lượt có thật sự học đầu hay không** (đọc TRƯỚC khi so điểm): `trainable_params`
+phải lớn hơn lượt đóng băng đúng bằng số tham số đầu phân loại = `số khía cạnh × (số ẩn × số mã nhãn +
+số mã nhãn)` = 7 × (768 × 3 + 3) = **16.149** (PhoBERT-large 1.024 ẩn: **21.525**); và `head.pt` giữa
+`best` với `last` phải KHÁC nhau. Cơ chế của lượt chạy được ghi vào `run.log` (dòng
+`[CONFIG] đầu phân loại:`), `run_meta.json` (khối `run.training.head_trainable`) và thẻ MLflow
+(`info.training.head_trainable`) - nhìn bảng điểm thì KHÔNG thể phân biệt hai cơ chế.
+
+**Hai đường phải cùng bật/tắt.** Lượt MỚI: `get_peft_model` đóng băng hết rồi `set_head_trainable` mở
+lại đầu. Lượt CHẠY TIẾP: `PeftModel.from_pretrained(is_trainable=True)` chỉ mở **adapter** - đầu phân
+loại VẪN đóng băng (đo được), nên phải gọi `set_head_trainable` thêm một lần. Quên vế thứ hai thì lượt
+chạy mới và lượt chạy tiếp là hai cơ chế khác nhau mà không có dấu hiệu nào trong kết quả.
 
 ## Checkpoint
 
@@ -108,7 +147,8 @@ Ba điều phải đọc kèm:
    `val` có 0 ô) - xem `08_experiment_rationale.md` §7.
 
 
-Hai notebook LoRA chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa 6 GB VRAM). Ô bootstrap
+Mọi notebook LoRA (sáu model encoder) chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa
+6 GB VRAM). Ô bootstrap
 tự cài `peft`, và với PhoBERT (`preprocess.segmenter: vncorenlp`) thì tự cài thêm `default-jdk` +
 `py-vncorenlp`, đặt `JAVA_HOME` cho tiến trình, rồi tự tải model VnCoreNLP (27 MB) về gốc dữ liệu nếu
 thiếu - người chạy không phải chép thư mục nào bằng tay.

@@ -8,6 +8,10 @@ B (Qwen3-4B hỏi bằng prompt, 9 lượt), E (ba biến thể bộ 1 ví dụ,
 lượt); nhóm **G** (Qwen3-0.6B) chưa có kết quả. Mỗi lượt chỉ khác lượt bên cạnh **một biến**; đó là điều
 kiện để con số chênh lệch có nghĩa.
 
+Ngoài 17 lượt đó, **§2b** liệt kê **6 lượt ablation đầu phân loại** (CHƯA chạy) trả lời câu "đóng băng hay
+HỌC đầu phân loại thì khác gì nhau" - mỗi lượt khác lượt gốc của nó **đúng một khoá đo được**
+(`head.trainable: true`).
+
 ## 1. Bối cảnh chung (áp cho MỌI lượt)
 
 | Hạng mục | Giá trị |
@@ -21,7 +25,7 @@ kiện để con số chênh lệch có nghĩa.
 | Bật học? | `training.enabled: false` mặc định - chỉ **bốn** lượt LoRA bật `true` (`phobert-base-v2/lora/exp001` + `exp002`, `visobert/lora/exp001` + `exp002`) |
 | Cách sinh | `greedy`, `max_new_tokens` 400, `max_length` 2304 (đường prompt); encoder `max_length` 256 |
 
-## 2. Nhóm A - hai encoder học LoRA (4 lượt, nhóm DUY NHẤT phải huấn luyện)
+## 2. Nhóm A - hai encoder học LoRA (4 lượt ĐANG có kết quả; nhóm đầu phân loại ở §2b)
 
 Vì sao hướng này: Qwen3-4B không fine-tune được trên GPU 6 GB, còn PhoBERT (135M) và ViSoBERT (~108M)
 học LoRA vừa máy. Hai encoder chọn để đối chứng **có tách từ** và **không tách từ**. Mỗi encoder có HAI
@@ -40,10 +44,50 @@ Dùng chung cho cả bốn lượt: `training.yaml` LoRA r16 / alpha32 / dropout
 grad_accum 4; chọn `model/best` theo `sentiment_f1` (macro-F1 sắc thái, không dùng accuracy vì dữ liệu
 mất cân bằng); `parent: null`; `batch_size` 16 khi suy luận; `% đọc được` = 100 ở cả bốn lượt.
 
+**Một điều áp cho CẢ bốn lượt, đọc trước khi diễn giải điểm số:** đầu phân loại **KHÔNG học** - `peft`
+đóng băng mọi tham số không phải adapter, nên mọi thứ học được đều nằm ở adapter. §2b có bằng chứng đo
+được và sáu lượt ablation trả lời câu "đóng băng hay không khác gì nhau".
+
 **Hai điều rút ra:** (a) `weighted_ce` nâng F1 lớp âm mạnh nhất ở PhoBERT (`0,540 → 0,876`) - tức hàm mất
 mát chính là chỗ sửa được, đúng như ba lượt sửa câu chữ prompt ở §3b thất bại; (b) **đảo thứ hạng**: ở
 `exp001`, ViSoBERT hơn PhoBERT **6,46 điểm**; sang `exp002`, PhoBERT (96,62) vượt ViSoBERT (95,61) **1,01
 điểm** ⇒ thứ hạng hai encoder phụ thuộc hàm mất mát, không chỉ model.
+
+## 2b. Nhóm đầu phân loại - sáu lượt ablation (CHƯA có kết quả)
+
+`peft` đóng băng **mọi** tham số không phải adapter, và đầu phân loại của dự án nằm trong số đó. Nên ở cả
+bốn lượt của §2, **đầu phân loại không hề học**: nó là một phép chiếu ngẫu nhiên CỐ ĐỊNH. Bằng chứng ĐO
+ĐƯỢC, không phải suy đoán: `head.pt` của bốn lượt giống nhau **TỪNG BYTE** giữa các checkpoint của cùng
+lượt (`checkpoint-1000`, `checkpoint-1100`, `best`, `last`) và cả giữa hai model khác nhau; còn
+`trainable_params` bằng đúng tổng tham số adapter (2.678.784).
+
+Sáu lượt dưới đây trả lời câu "ĐÓNG BĂNG hay HỌC đầu phân loại thì khác gì nhau", mỗi lượt khác lượt gốc
+của nó **đúng một khoá đo được** (`head.trainable: true`, mặc định là `false`):
+
+| Thí nghiệm | So với | Hàm mất mát | Điều kiện |
+| --- | --- | --- | --- |
+| `phobert-base-v2/lora/exp005` | `phobert-base-v2/lora/exp002` | `weighted_ce` | cần VnCoreNLP |
+| `visobert/lora/exp005` | `visobert/lora/exp002` | `weighted_ce` | `segmenter: none` |
+| `cafebert/lora/exp002` | `cafebert/lora/exp001` | `weighted_ce` | `segmenter: none` |
+| `phobert-large/lora/exp002` | `phobert-large/lora/exp001` | `weighted_ce` | cần VnCoreNLP |
+| `vibert-base-cased/lora/exp002` | `vibert-base-cased/lora/exp001` | `weighted_ce` | cần VnCoreNLP |
+| `xlm-roberta-base/lora/exp002` | `xlm-roberta-base/lora/exp001` | `weighted_ce` | `segmenter: none` |
+
+Đọc thế nào:
+
+- **Kiểm DẤU VẾT trước khi so điểm** - không có bước này thì không biết lượt nào đã thật sự học đầu:
+  `trainable_params` phải LỚN HƠN lượt gốc đúng bằng số tham số đầu phân loại = `số khía cạnh × (số ẩn ×
+  số mã nhãn + số mã nhãn)` = 7 × (768 × 3 + 3) = **16.149** (PhoBERT-large 1.024 ẩn: **21.525**); và
+  `head.pt` giữa `best` với `last` phải KHÁC nhau (ở lượt gốc chúng giống hệt nhau). Cơ chế của lượt chạy
+  cũng được ghi vào `run.log` (dòng `[CONFIG] đầu phân loại:`), `run_meta.json` và thẻ MLflow.
+- Đọc theo **CẶP chỉ số** như §2 (F1 lớp âm + macro-F1 + phát hiện khía cạnh), và nhớ `price` là **điểm mù**
+  (§7) - đừng kết luận gì từ cột đó.
+- **Một lượt mỗi nhánh nghĩa là CHƯA có thước nhiễu**: thước nhiễu hiện có của dự án là độ lệch giữa ba
+  lượt lấy mẫu của đường prompt, mà đường prompt không dùng được cho encoder. Chênh lệch nhỏ giữa hai
+  nhánh (dưới vài phần mười điểm) là **chưa kết luận được gì**; muốn kết luận thì phải chạy lại một nhánh
+  với hạt giống khác.
+- Sáu lượt này **chưa chạy**; `parent` của chúng (`exp002`/`exp001`) cũng vậy với bốn encoder mới, nên cặp
+  so sánh chỉ đọc được sau khi đợt 7 chạy xong.
 
 ## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
 

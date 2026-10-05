@@ -315,7 +315,8 @@
   đợt 8 = **gói 015**, gói cuối = **016** (đã sửa ở `P8_batch7.md` mục 1/2/4/9, `present_plan.md` mục
   6.2/7.1/8.7/10.5/11.3 và `docs/06_plan/README.md`). Không có gì phải ghim lại: hai commit sau `002086b`
   (`dfa8511` tài liệu, `34bbe45` khuôn mẫu) **không** đụng `src/` nên notebook vẫn dùng đúng bản mã đã ghim.
-  ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7).
+  ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7). **Cập nhật 05/10/2026:** đợt 7 đóng thêm **gói 015** (mục
+  15) ⇒ đợt 8 = **gói 016**, gói cuối = **017**.
 - Ghi chú thêm: `templates/experiment/config.yaml` đã sửa `version: v0.1.0` → `v0.2.0` (bịt bẫy "thí nghiệm mới
   lặng lẽ chấm trên bộ dữ liệu cũ"); `ci_checks` + `unittest` xanh sau khi sửa (`34bbe45`).
 
@@ -327,12 +328,12 @@
   mục Drive (gói sau đè lên gói trước).
 
 ## Mục 7. Người dùng chạy đợt 7
-- 7.1 Giải nén **lần lượt** gói 012 rồi 013 rồi **014** lên cùng thư mục Drive (gói sau đè lên gói trước) —
-  CHỜ NGƯỜI DÙNG.
-- 7.2 Chạy theo thứ tự 7 nhóm — CHỜ NGƯỜI DÙNG.
+- 7.1 Giải nén **lần lượt** gói 012 rồi 013 rồi **014** rồi **015** lên cùng thư mục Drive (gói sau đè lên gói
+  trước) — CHỜ NGƯỜI DÙNG.
+- 7.2 Chạy theo thứ tự 8 nhóm — CHỜ NGƯỜI DÙNG (nhóm 8 = sáu lượt ablation "đầu phân loại", thêm 05/10/2026).
 - 7.3 Điều kiện mỗi lượt (`% đọc được ≥ 95%`, DÒ ghi p50/p95/max) — CHỜ NGƯỜI DÙNG.
-- 7.4 Gửi **7 tệp nhẹ** (thêm `predictions.csv` từ 04/10/2026) **+ tệp xác suất** cho 6 lượt encoder +
-  thời gian thực tế — CHỜ NGƯỜI DÙNG.
+- 7.4 Gửi **7 tệp nhẹ** (thêm `predictions.csv` từ 04/10/2026) **+ tệp xác suất** cho **12 lượt encoder**
+  (6 lượt đợt 7/8 + 6 lượt ablation) + thời gian thực tế — CHỜ NGƯỜI DÙNG.
 
 ## Mục 8. Xử lý đợt 7 và chốt luật
 - 8.1 `collect_reports.py` + đối chiếu từng ô — CHƯA LÀM.
@@ -344,7 +345,7 @@
 - 8.5 Chốt bảng luật lai trên `val` ⇒ tệp luật JSON — CHƯA LÀM.
 - 8.6 Viết kết luận nhóm A, B, encoder mới, ba lượt giá — CHƯA LÀM.
 - 8.7 Hai thí nghiệm `test` có ngưỡng + **ba thí nghiệm 0.6B bật suy nghĩ**(tạo ở đây vì trần token chỉ biết
-  sau lượt DÒ) ⇒ ghim ⇒ **gói 015** ⇒ **MỐC DỪNG #3** — CHƯA LÀM. (Hai thí nghiệm `test` đã TẠO SẴN ở gói
+  sau lượt DÒ) ⇒ ghim ⇒ **gói 016** ⇒ **MỐC DỪNG #4** — CHƯA LÀM. (Hai thí nghiệm `test` đã TẠO SẴN ở gói
   012; mục này nay chỉ còn tạo 3 lượt 0.6B + ghim + đóng gói.)
 
 ## Mục 9. Người dùng chạy đợt 8
@@ -358,17 +359,19 @@
 - 10.2 Báo cáo ngưỡng — CHƯA LÀM.
 - 10.3 Báo cáo ensemble + lai — CHƯA LÀM.
 - 10.4 Báo cáo biểu quyết + tương tác lượng hoá × lấy mẫu — CHƯA LÀM.
-- 10.5 Cập nhật tài liệu, đóng backlog, **gói 016** (nếu có sửa mã; không sửa mã thì không cần gói mới) ⇒
-  **MỐC DỪNG #4** — CHƯA LÀM.
+- 10.5 Cập nhật tài liệu, đóng backlog, **gói 017** (nếu có sửa mã; không sửa mã thì không cần gói mới) ⇒
+  **MỐC DỪNG #5** — CHƯA LÀM.
 
 ## Mục 11. Danh mục thí nghiệm theo đợt
 - 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `present_plan.md`; số liệu thật sẽ
   đối chiếu ở mục 3.1/3.2.
-- 11.2 Đợt 7 (17 lượt) — **XONG phần tạo + ghim 04/10/2026**: 17 notebook đã có cấu hình + README, đã ghim
-  `4571648` và nằm trong **gói 012**; phần chạy là mục 7 (chờ người dùng).
+- 11.2 Đợt 7 (**23 lượt**) — **XONG phần tạo + ghim**: 17 notebook tạo và ghim `4571648` ngày 04/10/2026
+  (**gói 012**), rồi **05/10/2026** tạo thêm **6 lượt ablation "đầu phân loại"** và ghim lại **14 notebook**
+  (6 lượt mới + 8 notebook encoder đang dùng bản mã có Lỗi A) — **gói 015**, xem mục 15; phần chạy là mục 7
+  (chờ người dùng).
 - 11.3 Đợt 8 (9 lượt) — **6/9 XONG phần tạo + ghim 04/10/2026**: 6 notebook (2 lượt `test` có ngưỡng + 4
   lượt lấy mẫu) đã ghim `4571648` và nằm trong **gói 012**; 3 lượt 0.6B bật suy nghĩ chờ mục 8.2 rồi tạo ở
-  mục 8.7 (đi kèm **gói 015**).
+  mục 8.7 (đi kèm **gói 016**).
 - 11.4 Đợt 9 (3 lượt) — **CHƯA LÀM, chờ quyết định** (mục 13.4): cần 3 config model mới + cân nhắc đo lại
   19 bảng token. Danh mục đã ghi trong `present_plan.md` mục 11.4.
 
@@ -418,6 +421,61 @@ Ba phép kiểm riêng, đều ĐẠT:
 2. `max_length` 2304 + `max_new_tokens` 8192 < 32.768 ⇒ lượt DÒ không vượt cửa sổ ngữ cảnh;
 3. ba checkpoint HF mới (`uitnlp/CafeBERT`, `FPTAI/vibert-base-cased`, `vinai/phobert-large`) đều tồn tại,
    công khai, không gate (bốn encoder còn lại đã có tiền sử chạy được).
+
+## Mục 15. Sửa hai lỗi thật, thêm `head.trainable`, 6 lượt ablation (05/10/2026)
+
+Người dùng giao: "thêm thử nghiệm trên **toàn bộ** model `lora` (**không đóng băng đầu phân loại**) để xem
+đóng băng và không đóng băng khác gì nhau", kèm "sửa Lỗi A và B luôn". Ba quyết định thiết kế đã được người
+dùng chốt TRƯỚC khi sửa: khoá nằm ở **lớp dùng chung**, **không** có `lr` riêng cho đầu phân loại, và giá trị
+bool được đọc **chặt**.
+
+**Hai lỗi thật đã sửa (mỗi lỗi một commit, có test hồi quy):**
+
+| # | Lỗi | Vì sao nguy hiểm | Sửa |
+| --- | --- | --- | --- |
+| A | `encoder_run` gọi `utils.write_csv(path, columns, rows)` trong khi chữ ký là `(rows, columns, path)` | `TypeError` ở **DÒNG CUỐI** của lượt chạy: đã huấn luyện + suy luận xong mới chết, mất trắng kết quả (`predictions.csv`, `probabilities.csv`). Đã giết **5 lượt**: 4 encoder mới + lượt chạy tiếp của `xlm-roberta-base` | tách hàm THUẦN `write_probabilities()` (test gọi thẳng, không cần GPU) + `tests/experiments/test_encoder_run.py::WriteProbabilitiesTest` (3 test) — commit `0b7f006` |
+| B | `PeftModel.from_pretrained` mặc định `is_trainable=False` | đóng băng **MỌI** tham số, kể cả adapter vừa nạp ⇒ lượt CHẠY TIẾP chết ngay ở bước tạo optimizer (`optimizer got an empty parameter list`) | truyền `is_trainable=bool(trainable)` — commit `b91e2d5` |
+
+**Một cơ chế mới: `head.trainable`.** Đo được, không phải suy đoán: `peft` đóng băng mọi tham số không phải
+adapter nên ở cả bốn lượt LoRA đã chạy **đầu phân loại KHÔNG học** - `head.pt` giống nhau **TỪNG BYTE** giữa
+các checkpoint của cùng lượt (`checkpoint-1000`, `checkpoint-1100`, `best`, `last`) và cả giữa hai model khác
+nhau; `trainable_params` bằng đúng tổng tham số adapter (**2.678.784**). Khoá mới ở lớp dùng chung
+`configs/experiments/training.yaml` (`head.trainable: false` = giữ nguyên cơ chế của các lượt cũ), đọc **chặt**
+(giá trị không phải `true`/`false` là LỖI, vì `bool("flase")` là `True` - đoán hộ ở đây là bật một cơ chế học
+khác mà không ai biết), và mở đầu bằng `set_head_trainable` ở **CẢ HAI** đường: lượt mới (`get_peft_model`
+đóng băng hết) và lượt chạy tiếp (`is_trainable=True` chỉ mở **adapter**, đo được). Cơ chế của lượt chạy được
+ghi vào `run.log` (dòng `[CONFIG] đầu phân loại:`), `run_meta.json`, thẻ MLflow và console - nhìn bảng điểm
+thì KHÔNG thể phân biệt hai cơ chế.
+
+**Sáu lượt mới** - mỗi lượt khác lượt gốc **ĐÚNG MỘT khoá đo được**, đã kiểm bằng máy (so `flatten` của
+`experiments.load` + `lora.settings` cho từng cặp):
+
+| Thí nghiệm | `parent` | Khác `parent` | `trainable_params` phải tăng |
+| --- | --- | --- | --- |
+| `phobert-base-v2/lora/exp005` | `lora/exp002` | `head.trainable: true` | +16.149 |
+| `visobert/lora/exp005` | `lora/exp002` | nt | +16.149 |
+| `cafebert/lora/exp002` | `lora/exp001` | nt | +16.149 |
+| `phobert-large/lora/exp002` | `lora/exp001` | nt | **+21.525** (1024 ẩn) |
+| `vibert-base-cased/lora/exp002` | `lora/exp001` | nt | +16.149 |
+| `xlm-roberta-base/lora/exp002` | `lora/exp001` | nt | +16.149 |
+
+**Lỗi thật thứ ba, phát hiện trong lúc dò:** `phobert-large/lora/exp001` và `vibert-base-cased/lora/exp001`
+thiếu `requires_extra: [data/models/vncorenlp]` dù cả hai khai `segmenter: vncorenlp` ⇒ notebook KHÔNG kiểm
+VnCoreNLP trước khi chạy, và lỗi sẽ hiện ra muộn (sau khi đã tải model). Đã khai lại; hai lượt này **chưa
+chạy** nên sửa bây giờ là rẻ. (Trong `config.yaml` của hai lượt mới, mục này được ghi rõ là **không phải** biến
+so sánh.)
+
+**Kiểm thử:** `912 test OK` (898 cũ + **14 test mới**), `ci_checks` **8/9 nhóm sạch** - nhóm "REPO_SHA đã ghim"
+báo đúng 6 notebook mới chưa ghim, tức việc của bước ghim dưới đây.
+
+**Ghim + gói:** **14 notebook** ghim lại (6 lượt mới + **8 notebook encoder** đang trỏ vào bản mã có Lỗi A) ⇒
+**gói 015** ⇒ **MỐC DỪNG #3**; đợt 8 = **gói 016**, gói cuối = **017**.
+
+**Tài liệu đã sửa:** `docs/04_experiments/06_lora_encoder.md` (bằng chứng + cơ chế + bảng 6 encoder),
+`docs/05_config/05_experiments_shared.md` (dòng khoá mới), `docs/04_experiments/08_experiment_rationale.md`
+(**§2b**), `docs/06_plan/P8_batch7.md` (mục 1/2/3/4/6.2/8/9), `docs/06_plan/README.md`, `handover/README.md`
+(23 notebook, 5 nhóm, 12 lượt encoder), `present_plan.md` (mục 6/7/8.7/10.5/11), `check_present_plan.md`, cùng
+`README.md` + `config.yaml` của 6 lượt mới và 2 lượt `exp001`.
 
 <!-- DIEM-NOI-TIEP -->
 

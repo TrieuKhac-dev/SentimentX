@@ -11,8 +11,9 @@
 
 ## 1. Mục tiêu giai đoạn
 
-1. **Chạy nốt** phần còn thiếu của vòng so công bố: 17 notebook đợt 7 (gói **012 + 013 + 014**), rồi 7-9
-   notebook đợt 8 (gói **015**), và 3 notebook đợt 9 khi cần mốc quy mô lớn.
+1. **Chạy nốt** phần còn thiếu của vòng so công bố: **23 notebook đợt 7** = 17 notebook đã ghim (gói
+   **012 + 013 + 014**) + **6 lượt ablation đầu phân loại** (gói **015**), rồi 7-9 notebook đợt 8 (gói
+   **016**), và 3 notebook đợt 9 khi cần mốc quy mô lớn.
 2. **Chốt luật trên `val` rồi mới áp lên `test`** (ngưỡng theo khía cạnh, trọng số ensemble, bảng luật
    lai) - không chọn bằng `test`.
 3. Báo cáo **bốn bước kết hợp** là phần MỚI của báo cáo: ngưỡng, ensemble encoder, lai encoder + LLM,
@@ -28,10 +29,24 @@
 - Đợt 7: 17 notebook đã có cấu hình + README, đã **ghim `4571648`** và nằm trong **gói 012** (kèm **gói
   013** và **gói 014** chỉ chở `README.md` sửa - xem mục 9; gói sau đè lên gói trước).
 - Đợt 8 và đợt 9: xem mục 4 và 5 (đợt 9 chỉ chạy khi muốn mốc quy mô lớn).
-- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013 + 014** (đợt 7); **#3** sau **gói 015** (đợt 8); **#4** sau
-  khi xử lý đợt 8 xong (**gói 016** nếu có sửa mã).
+- **05/10/2026**: sửa **hai lỗi thật**, thêm **một cơ chế**, tạo **6 lượt ablation** (gói **015**):
+  1. **Lỗi A** - `utils.write_csv` bị gọi sai thứ tự tham số ở DÒNG CUỐI của mọi lượt encoder (chữ ký là
+     `(rows, columns, path)`), nên lượt chạy `TypeError` **sau khi đã huấn luyện + suy luận xong** và mất
+     trắng kết quả. Đã giết **5 lượt** (4 encoder mới + lượt chạy tiếp của `xlm-roberta-base`). Nay tách
+     hàm `write_probabilities()` (thuần, test gọi thẳng được).
+  2. **Lỗi B** - `PeftModel.from_pretrained` mặc định `is_trainable=False` nên đóng băng **mọi** tham số,
+     kể cả adapter vừa nạp ⇒ lượt CHẠY TIẾP chết ở `optimizer got an empty parameter list`.
+  3. **Cơ chế `head.trainable`** (mặc định `false`): `peft` đóng băng mọi tham số không phải adapter nên ở
+     cả bốn lượt LoRA đã chạy **đầu phân loại KHÔNG học** (`head.pt` giống nhau TỪNG BYTE). Sáu lượt mới
+     khác lượt gốc **đúng một khoá đo được** để trả lời "đóng băng hay không khác gì nhau".
+  4. **Sửa `requires_extra`** cho `phobert-large/lora/exp001` và `vibert-base-cased/lora/exp001` (thiếu mục
+     VnCoreNLP dù cả hai `segmenter: vncorenlp`, nên notebook không kiểm trước khi chạy).
+- **Số gói dịch MỘT bậc từ đây:** đợt 7 nay đóng **012 + 013 + 014 + 015** (015 chở 6 lượt ablation cùng bản
+  mã đã sửa và bản ghim mới); đợt 8 = **gói 016**, gói cuối = **017**.
+- **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013 + 014** (đợt 7); **#3** sau **gói 015** (6 lượt ablation);
+  **#4** sau **gói 016** (đợt 8); **#5** sau khi xử lý đợt 8 xong (**gói 017** nếu có sửa mã).
 
-## 3. Đợt 7 - gói 012 (rồi 013, 014), 17 notebook, khoảng 10-12 giờ GPU
+## 3. Đợt 7 - gói 012 (rồi 013, 014) + gói 015, 23 notebook, khoảng 11-14 giờ GPU
 
 | Nhóm | Thí nghiệm | `parent` | Vì sao có mặt | Chi phí |
 | --- | --- | --- | --- | --- |
@@ -42,10 +57,12 @@
 | D. hai lượt `val` | `phobert-base-v2/lora/exp003`, `visobert/lora/exp003` | `lora/exp002` | Điều kiện để **chốt ngưỡng và trọng số ensemble trên `val`**; bản mã ghi thêm `probabilities.csv` | ~15 phút mỗi lượt |
 | E. ba lượt về `price` | `qwen3-4b-instruct-2507/prompt-cot/exp014` (câu chữ prompt), `exp015` (ví dụ có ô giá mã 2), `exp016` (chẩn đoán: chỉ hỏi một khía cạnh) | `exp003` | `price` âm có **6 ô** ở `test`, 15 ở `train`, **0 ở `val`**; cả 17 lượt cũ và công bố đều bỏ sót khía cạnh này | ~2 giờ / lượt (exp016: 30-40 phút) |
 | F. `val` phía LLM | `qwen3-4b-instruct-2507/prompt-cot/exp017` | `exp009` | Điều kiện của **luật lai**: khía cạnh nào lấy từ LLM, khía cạnh nào lấy từ encoder | 1,5-2 giờ |
+| G. đầu phân loại (gói **015**) | `phobert-base-v2/lora/exp005`, `visobert/lora/exp005` (parent `lora/exp002`) và `cafebert/lora/exp002`, `phobert-large/lora/exp002`, `vibert-base-cased/lora/exp002`, `xlm-roberta-base/lora/exp002` (parent `lora/exp001`) | xem cột trước | `peft` đóng băng MỌI tham số không phải adapter, nên ở bốn lượt LoRA đã chạy **đầu phân loại KHÔNG học** - `head.pt` giống nhau TỪNG BYTE. Sáu lượt này khác lượt gốc **đúng một khoá đo được** (`head.trainable: true`) để biết "đóng băng hay không khác gì nhau", và là phép so ĐẦU TIÊN trong dự án đo phần đầu phân loại | 15-20 phút mỗi lượt |
 
-**Thứ tự chạy** (rẻ và lượt chặn đường trước): C → DÒ (exp004) → A → B → D → E → F.
+**Thứ tự chạy** (rẻ và lượt chặn đường trước): C → DÒ (exp004) → A → B → D → E → F → **G** (G chạy được bất
+cứ lúc nào sau khi C xong, vì `parent` của bốn lượt G là nhóm C).
 
-## 4. Đợt 8 - gói 015, 7-9 notebook, khoảng 14-25 giờ GPU
+## 4. Đợt 8 - gói 016, 7-9 notebook, khoảng 14-25 giờ GPU
 
 | Thí nghiệm | `parent` | Vì sao có mặt | Chi phí |
 | --- | --- | --- | --- |
@@ -94,7 +111,8 @@ tay của lượt chạy, nên gõ tay là lần sau không tái lập được.
   đó không dùng được.
 - Lượt **bị ngắt** thì bấm **Run all** lần nữa: chạy tiếp trong **cùng thư mục kết quả**.
 - Gửi về: **7 tệp nhẹ** của mọi lượt (`metrics.json`, `metrics.csv`, `run_meta.json`, `run.log`,
-  `mispredictions*.csv`, `predictions.csv`), **thêm `probabilities.csv`** cho 6 lượt encoder, và **thời gian
+  `mispredictions*.csv`, `predictions.csv`), **thêm `probabilities.csv`** cho **12 lượt encoder** (6 lượt
+  nhóm C/D + 6 lượt ablation nhóm G; các lượt prompt KHÔNG có tệp này), và **thời gian
   thực tế**. `predictions.csv` là tệp thứ bảy từ 04/10/2026: bước kết hợp dựng đầu vào rút gọn từ nó, và
   lượt DÒ cần nó để đo p50/p95/p99.
 
@@ -132,22 +150,26 @@ tay của lượt chạy, nên gõ tay là lần sau không tái lập được.
 ## 8. Thứ tự ưu tiên khi thiếu GPU hoặc thời gian
 
 1. Lượt **rẻ + chặn đường**: 4 encoder mới, hai lượt `val` của encoder, lượt DÒ.
-2. `exp005` (suy nghĩ đầy đủ) và `exp018`/`exp019`/`exp020` (đầu vào của biểu quyết).
-3. Ba lượt **về `price`** (`exp014`, `exp015`, `exp016`).
-4. `exp017` (điều kiện của luật lai) và `exp021` (đối chứng fp16 khi lấy mẫu).
-5. `exp006`/`exp007` và đợt 9.
+2. Sáu lượt **ablation đầu phân loại** (nhóm G): rẻ nhất trong các lượt còn lại (15-20 phút) và là câu hỏi
+   về **cơ chế học**, nên trả lời được ngay cả khi phần còn lại của đợt 7 bị cắt.
+3. `exp005` (suy nghĩ đầy đủ) và `exp018`/`exp019`/`exp020` (đầu vào của biểu quyết).
+4. Ba lượt **về `price`** (`exp014`, `exp015`, `exp016`).
+5. `exp017` (điều kiện của luật lai) và `exp021` (đối chứng fp16 khi lấy mẫu).
+6. `exp006`/`exp007` và đợt 9.
 
 Cắt lượt nào thì ghi vào tài liệu là **chưa chạy** kèm lí do; **không** suy diễn kết quả thay cho lượt
 chưa chạy.
 
 ## 9. Số phiên dự kiến và mốc dừng
 
-- **Đợt 7 (6-8 phiên):** phiên 1 = 4 encoder + lượt DÒ + 3 lượt 0.6B tắt suy nghĩ; phiên 2 = Qwen2.5-0.5B
-  + hai lượt `val` encoder; phiên 3-4 = `exp014`, `exp015`, `exp016`; phiên 5-6 = `exp017`.
+- **Đợt 7 (7-9 phiên):** phiên 1 = 4 encoder + lượt DÒ + 3 lượt 0.6B tắt suy nghĩ; phiên 2 = Qwen2.5-0.5B
+  + hai lượt `val` encoder; phiên 3-4 = `exp014`, `exp015`, `exp016`; phiên 5-6 = `exp017`; phiên 7 = **6
+  lượt ablation đầu phân loại** (nhóm G, gói 015) - một phiên là đủ vì mỗi lượt 15-20 phút.
 - **Đợt 8 (5-7 phiên):** hai lượt `test` có ngưỡng chung một phiên; `exp018`/`exp019`/`exp020`/`exp021` mỗi
   lượt một phiên; `exp005` chia 2-3 phiên, và chạy theo luật 6.1.
 - **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013 + 014** (đợt 7; `013` và `014` chỉ chở `README.md` sửa,
-  phải giải nén **sau** gói trước đó); **#3** sau **gói 015** (đợt 8); **#4** sau khi xử lý đợt 8 xong.
+  phải giải nén **sau** gói trước đó); **#3** sau **gói 015** (6 lượt ablation đầu phân loại); **#4** sau
+  **gói 016** (đợt 8); **#5** sau khi xử lý đợt 8 xong.
 
 ## 10. Quy ước thực thi (bắt buộc)
 

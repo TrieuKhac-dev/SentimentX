@@ -45,8 +45,9 @@ lệ JSON hợp lệ và F1. **Không fine-tune.**
 **Vì sao đi hướng này:** Qwen3 là LLM 4B tham số, full fine-tune cần ~64-80 GB VRAM (chỉ
 riêng trọng số ở bf16 đã 8 GB) nên **không thể** trên GPU 6 GB của máy này. Hướng đúng bản
 chất phép so sánh của dự án là dùng nó như model đa năng bằng prompt - tức "LLM thì thử
-prompt + CoT", còn PhoBERT (135M) và ViSoBERT (~108M) thì **huấn luyện bằng LoRA** (encoder
-gốc đóng băng, chỉ học adapter hạng thấp cộng một đầu phân loại riêng cho mỗi khía cạnh) -
+prompt + CoT", còn sáu encoder nhỏ thì **huấn luyện bằng LoRA** (encoder
+gốc đóng băng, chỉ học adapter hạng thấp cộng một đầu phân loại riêng cho mỗi khía cạnh; ở mặc định
+`head.trainable: false` thì ĐẦU PHÂN LOẠI cũng đóng băng) -
 xem `docs/04_experiments/06_lora_encoder.md`.
 
 **Cần gì:** `pip install torch` (bản CUDA phù hợp) + lượng hóa 4-bit lúc CHẠY

@@ -16,7 +16,7 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Mười bảy notebook trong gói (đợt 7)
+## Hai mươi ba notebook trong gói (đợt 7)
 
 **Chưa lượt nào trong bảng này từng cho ra kết quả dùng được**, nên cột thời gian ghi **ước tính**; chỗ nào
 ước tính dựa trên một lượt đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu (ba lượt `qwen3-0.6b` đã
@@ -30,6 +30,12 @@ trần token cho nhánh suy nghĩ của đợt sau).
 | `notebooks/vibert-base-cased/lora/exp001.ipynb` | Encoder tiếng Việt **khác kho** tiền huấn luyện (FPT) | ước tính 15 đến 20 phút (đã chạy thật: 12 đến 14 phút) |
 | `notebooks/cafebert/lora/exp001.ipynb` | XLM-R rồi tiền huấn luyện TIẾP bằng tiếng Việt - bậc thang giữa PhoBERT và XLM-R | ước tính 15 đến 20 phút |
 | `notebooks/xlm-roberta-base/lora/exp001.ipynb` | **Đối chứng NGUỒN tiền huấn luyện**: model đa ngữ (ít tiếng Việt) kém hơn bao nhiêu | ước tính 15 đến 20 phút |
+| `notebooks/phobert-base-v2/lora/exp005.ipynb` | **ĐẦU PHÂN LOẠI**: cho đầu phân loại **HỌC** cùng adapter (ở bốn lượt LoRA đã chạy nó bị **ĐÓNG BĂNG** vì `peft` đóng băng mọi tham số không phải adapter) - so với `exp002` | ước tính 15 đến 20 phút |
+| `notebooks/visobert/lora/exp005.ipynb` | như trên, cho ViSoBERT - so với `exp002` | ước tính 15 đến 20 phút |
+| `notebooks/phobert-large/lora/exp002.ipynb` | như trên - so với `exp001` của đúng model này | ước tính 15 đến 20 phút |
+| `notebooks/vibert-base-cased/lora/exp002.ipynb` | như trên - so với `exp001` của đúng model này | ước tính 15 đến 20 phút |
+| `notebooks/cafebert/lora/exp002.ipynb` | như trên - so với `exp001` của đúng model này | ước tính 15 đến 20 phút |
+| `notebooks/xlm-roberta-base/lora/exp002.ipynb` | như trên - so với `exp001` của đúng model này | ước tính 15 đến 20 phút |
 | `notebooks/qwen3-0.6b/prompt-cot/exp004.ipynb` | **LƯỢT DÒ**: bật suy nghĩ thì phần ` thinking` dài bao nhiêu token (chỉ 60 mẫu, trần 8.192) | ước tính 20 đến 40 phút |
 | `notebooks/qwen3-0.6b/prompt-cot/exp001.ipynb` | Qwen3 0.6B CoT 0 ví dụ (**đã tắt suy nghĩ**) | ước tính 20 đến 40 phút |
 | `notebooks/qwen3-0.6b/prompt-cot/exp002.ipynb` | Qwen3 0.6B CoT 1 ví dụ | ước tính 20 đến 40 phút |
@@ -54,7 +60,7 @@ bảng trên chốt xong ngưỡng) và `notebooks/qwen3-4b-instruct-2507/prompt
 `exp020.ipynb`, `exp021.ipynb` (bốn lượt **lấy mẫu**, chạy sau khi biết cấu hình tốt nhất của đợt này). Gửi
 kèm sẵn để lần sau chỉ phải **giải nén đè** là có, không phải tải lại.
 
-Bốn nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
+Năm nhóm MỚI của đợt này (mỗi lượt chỉ khác **một** thứ so với lượt gốc, nên đọc kết quả là đọc được
 nguyên nhân):
 
 - **Bốn encoder mới** (`phobert-large`, `vibert-base-cased`, `cafebert`, `xlm-roberta-base`) trả lời: điểm
@@ -67,10 +73,19 @@ nguyên nhân):
   `exp016` (chỉ hỏi ĐÚNG một khía cạnh). Khía cạnh `price` chỉ có **6 ô âm** ở `test` và **0 ô** ở `val`,
   nên nó được đọc bằng **số lần model gán mã 2** cộng danh sách 6 ô đó, KHÔNG bằng F1.
 - **`exp017`** là lượt **`val`** phía LLM: điều kiện để chốt **bảng luật lai** encoder + LLM.
+- **Sáu lượt "đầu phân loại"** (`phobert-base-v2/lora/exp005`, `visobert/lora/exp005`,
+  `cafebert/lora/exp002`, `phobert-large/lora/exp002`, `vibert-base-cased/lora/exp002`,
+  `xlm-roberta-base/lora/exp002`) trả lời: **đóng băng hay không đóng băng đầu phân loại thì khác gì
+  nhau?** Ở bốn lượt LoRA đã chạy, `peft` đóng băng MỌI tham số không phải adapter nên đầu phân loại chỉ
+  là một phép chiếu ngẫu nhiên cố định (`head.pt` của chúng giống nhau **từng byte** - đây là số đo, không
+  phải suy đoán). Mỗi lượt dưới đây khác lượt gốc **đúng một khoá** (`head.trainable: true`). Khi đọc:
+  kiểm `trainable_params` trong `metrics.json` **lớn hơn** lượt gốc đúng 16.149 (PhoBERT-large: 21.525)
+  trước đã, rồi mới so F1 lớp âm + macro-F1.
 
 ### Nhóm encoder gửi thêm tệp xác suất
 
-Sáu lượt encoder (bốn encoder mới + hai lượt `val`) ghi **thêm** `probabilities.csv` cạnh các tệp kết quả
+Mười hai lượt encoder (bốn encoder mới + hai lượt `val` + **sáu lượt "đầu phân loại"**) ghi **thêm**
+`probabilities.csv` cạnh các tệp kết quả
 thường: mỗi dòng là một ô (review × khía cạnh) kèm xác suất từng mã. Hai bước **ngưỡng** và **ensemble**
 không chạy notebook nào - chúng đọc tệp này, nên khi gửi kết quả về **nhớ gửi kèm tệp xác suất**; thiếu nó
 thì hai bước đó không chạy được.
@@ -84,7 +99,8 @@ hết trần rồi không còn chỗ in JSON - đã gặp thật (ba lượt 0,6
 lượt bật suy nghĩ đều phải chạy lượt DÒ trước** để chọn `max_new_tokens = làm tròn lên (p99 × 1,5)`.
 
 
-Cần chạy GPU: `Runtime > Change runtime type > T4 GPU`. Hai notebook LoRA cần thêm thư viện `peft`
+Cần chạy GPU: `Runtime > Change runtime type > T4 GPU`. Notebook LoRA (tám lượt trong gói này) cần thêm
+thư viện `peft`
 (notebook tự cài). Notebook PhoBERT cần thêm **Java + `py-vncorenlp`** cho bộ tách từ chính chủ: máy
 ảo chưa có thì notebook tự cài (bạn sẽ thấy `apt-get -> 0`, `JAVA_HOME -> ...`, `pip install -> 0`).
 Model VnCoreNLP (~27 MB) đã có trong `data/models/vncorenlp/` của gói, và nếu thiếu thì notebook tự
@@ -138,8 +154,8 @@ ngắt phiên: lúc đó bạn đang cần phiên còn sống.
     mispredictions_paper.csv  các ô đoán sai theo cách CÔNG BỐ đo (tập con của tệp trên)
     predictions.csv     từng review: prompt đã gửi model (đường prompt), nhãn đúng/đoán
     predictions/        kết quả ghi theo khối, để chạy tiếp nếu bị ngắt
-    model/last          adapter đủ để chạy tiếp (chỉ có ở hai notebook LoRA)
-    model/best          adapter để suy luận (chỉ có ở hai notebook LoRA)
+    model/last          adapter đủ để chạy tiếp (chỉ có ở các notebook LoRA - tám lượt)
+    model/best          adapter để suy luận (chỉ có ở các notebook LoRA - tám lượt)
 ```
 
 Máy đứt giữa chừng thì cứ bấm Run all lần nữa: notebook tự chạy tiếp, không làm lại phần đã xong.
@@ -150,7 +166,8 @@ tiếp có tác dụng.
 
 **Bảy** file **nhẹ**: `run.log`, `metrics.json`, `metrics.csv`, `run_meta.json`, `mispredictions.csv`,
 `mispredictions_paper.csv`, `predictions.csv`.
-Nhóm **encoder** (6 lượt: bốn encoder mới + hai lượt `val`) gửi **thêm `probabilities.csv`**.
+Nhóm **encoder** (12 lượt: bốn encoder mới + hai lượt `val` + sáu lượt "đầu phân loại") gửi **thêm
+`probabilities.csv`**.
 `predictions.csv` là tệp thứ BẢY (thêm từ 04/10/2026): bước KẾT HỢP dựng đầu vào rút gọn từ nó, và lượt
 **DÒ** phải có nó mới đo được số token sinh (`p50`/`p95`/`max`) - thiếu nó thì hai việc đó không chạy được.
 Gửi thẳng thư mục kết quả cũng được (các file nặng nằm trong `predictions/` và `model/`).

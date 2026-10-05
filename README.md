@@ -128,8 +128,9 @@ Mạng chậm thì dùng mirror (đã gặp thật: tải từ `download-r2.pyto
 
 **Vì sao cần lượng hóa 4-bit:** Qwen3-4B ở bf16 là **8 GB**, GPU của máy phát triển có **6 GB**.
 Đây là lượng hóa **khi chạy** (không phải để huấn luyện) — dự án **không** fine-tune Qwen3:
-Qwen3 dùng như model đa năng bằng **prompt**, còn PhoBERT (135M) và ViSoBERT (~108M) học
-bằng **LoRA** (encoder gốc đóng băng, chỉ học adapter hạng thấp) - không full fine-tune.
+Qwen3 dùng như model đa năng bằng **prompt**, còn sáu encoder nhỏ (PhoBERT-base/large, ViSoBERT, ViBERT,
+CafeBERT, XLM-R) học bằng **LoRA** (encoder gốc đóng băng, chỉ adapter hạng thấp học; **đầu phân loại cũng
+ĐÓNG BĂNG** ở mặc định - mở bằng `head.trainable: true`) - không full fine-tune.
 
 Phiên bản đã chạy thật ở máy này: `torch 2.14.0+cu126`, `transformers 5.17.0`,
 `accelerate 1.15.0`, `bitsandbytes 0.50.2`.

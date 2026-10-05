@@ -158,7 +158,7 @@
   suất**.
 - **5.6** Chạy `ci_checks` + `unittest` sạch; commit.
 
-## Mục 6. Ghim notebook và dựng gói 012 (rồi 013, 014)
+## Mục 6. Ghim notebook và dựng gói 012 (rồi 013, 014, 015)
 
 - **6.1** `git push` ⇒ **đợi CI GitHub xanh** ⇒ ghim **17 notebook** đợt 7 vào commit xanh đó ⇒ commit
   phần ghim.
@@ -167,10 +167,18 @@
   **013** (chỉ `README.md` sửa) và **014** (sửa `README.md` lần nữa: danh sách gửi lại + hai câu mô tả sai,
   xem `check_present_plan.md` mục 14). Gói sau giải nén **đè lên** gói trước. Vì vậy số gói của các đợt sau
   dịch: đợt 8 = **015**, gói cuối = **016**.
+- **6.3 Đã thực thi 05/10/2026 (đợt 7 nay đóng bốn gói).** Hai lỗi thật được sửa và một cơ chế được thêm
+  (xem mục 15 của `check_present_plan.md`), rồi **6 lượt ablation đầu phân loại** được tạo:
+  - bản mã **bắt buộc** phải ghim lại, vì Lỗi A (`write_csv` sai thứ tự tham số) làm chết lượt chạy ở
+    **dòng cuối** - 4 encoder mới + lượt chạy tiếp của `xlm-roberta-base` đều đã chết vì nó;
+  - vậy **14 notebook** được ghim lại: 6 lượt mới + **8 lượt encoder** của đợt 7 (4 encoder mới + 2 lượt
+    `val` + 2 lượt `test` có ngưỡng của đợt 8, tất cả đều đi đường encoder);
+  - **gói 015** chở 14 notebook ghim lại + `README.md` viết lại + tài liệu của cơ chế mới;
+  - **số gói dịch MỘT bậc:** đợt 8 = **016**, gói cuối = **017**.
 
-## Mục 7. Người dùng chạy đợt 7 (17 notebook, khoảng 10–12 giờ GPU)
+## Mục 7. Người dùng chạy đợt 7 (23 notebook, khoảng 11–14 giờ GPU)
 
-- **7.1** Giải nén **lần lượt gói 012, 013 rồi 014** đè lên thư mục Drive (gói sau đè lên gói trước).
+- **7.1** Giải nén **lần lượt gói 012, 013, 014 rồi 015** đè lên thư mục Drive (gói sau đè lên gói trước).
 - **7.2** Chạy **theo đúng thứ tự** sau (thứ tự này để lượt rẻ và lượt chặn đường chạy trước):
   1. bốn **encoder mới** (15–20 phút mỗi lượt, rẻ nhất và không phụ thuộc gì);
   2. lượt **DÒ** `qwen3-0.6b/prompt-cot/exp004` (chốt trần token cho nhánh suy nghĩ);
@@ -178,11 +186,16 @@
   4. ba lượt `qwen2.5-0.5b-instruct/prompt-cot/exp001`, `exp002`, `exp003`;
   5. hai lượt **`val`** cho encoder (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`);
   6. **ba lượt về giá**: `qwen3-4b-instruct-2507/prompt-cot/exp014`, `exp015`, `exp016`;
-  7. `qwen3-4b-instruct-2507/prompt-cot/exp017` (lượt **`val`** cho phía LLM, 1,5–2 giờ).
+  7. `qwen3-4b-instruct-2507/prompt-cot/exp017` (lượt **`val`** cho phía LLM, 1,5–2 giờ);
+  8. **sáu lượt ablation "đầu phân loại"** (`phobert-base-v2/lora/exp005`, `visobert/lora/exp005`,
+     `cafebert/lora/exp002`, `phobert-large/lora/exp002`, `vibert-base-cased/lora/exp002`,
+     `xlm-roberta-base/lora/exp002`) - 15–20 phút mỗi lượt, chạy được bất cứ lúc nào sau khi 4 encoder mới
+     xong (chúng là `parent` của bốn lượt trong nhóm này).
 - **7.3** Điều kiện của **mỗi lượt**: `% đọc được ≥ 95%`; lượt **DÒ** phải ghi lại **p50 / p95 / max số
   token sinh**; lượt bị ngắt thì bấm **Run all** lần nữa để chạy tiếp trong **cùng thư mục kết quả**.
 - **7.4** Gửi về cho tôi: **7 tệp nhẹ** của mọi lượt (thêm `predictions.csv` - bước kết hợp dựng đầu vào từ
-  nó, và lượt DÒ cần nó để đo p50/p95/p99); **thêm tệp xác suất** cho **6 lượt encoder**; và **thời gian
+  nó, và lượt DÒ cần nó để đo p50/p95/p99); **thêm tệp xác suất** cho **12 lượt encoder** (sáu lượt encoder
+  của đợt 7/8 cộng sáu lượt ablation đầu phân loại); và **thời gian
   thực tế** của từng lượt.
 
 ## Mục 8. Xử lý đợt 7 và chốt luật (không cần GPU)
@@ -212,8 +225,8 @@
 - **8.6** Viết kết luận cho nhóm A (0.6B tắt suy nghĩ), nhóm B (Qwen2.5-0.5B), bốn encoder mới, ba lượt
   về giá; kiểm lại luật "khác `parent` đúng một thứ" của từng lượt.
 - **8.7** Hai thí nghiệm `test` có ngưỡng **đã tạo sẵn ở gói 012**; mục này nay chỉ còn: tạo **ba thí nghiệm
-  0.6B bật suy nghĩ** (trần token biết sau lượt DÒ) ⇒ **ghim** ⇒ **gói 015** ⇒ commit + `git push` ⇒
-  **MỐC DỪNG #3**.
+  0.6B bật suy nghĩ** (trần token biết sau lượt DÒ) ⇒ **ghim** ⇒ **gói 016** ⇒ commit + `git push` ⇒
+  **MỐC DỪNG #4**.
 
 ## Mục 9. Người dùng chạy đợt 8 (7–9 notebook, khoảng 14–25 giờ GPU)
 
@@ -247,7 +260,7 @@
   **kết luận tương tác lượng hoá × lấy mẫu** (so `exp018` với `exp021`, đối chiếu khoảng chênh greedy đã
   biết là **1,17 điểm**); kết luận **chênh so với công bố có vượt nhiễu hay không**.
 - **10.5** Cập nhật toàn bộ tài liệu, kết luận, cây thí nghiệm; đóng backlog; nếu có sửa mã thì ghim lại
-  và dựng **gói 016**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #4**.
+  và dựng **gói 017**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #5**.
 
 ## Mục 11. Danh mục thí nghiệm theo từng đợt
 
@@ -255,7 +268,7 @@
   0/1/5 ví dụ với 4-bit lô 8; ba mức fp16 lô 4; ba mức 4-bit lô 4; ba biến thể prompt v2 / v3 / v4),
   `qwen3-4b-instruct-2507/prompt-one-turn/exp001`, `visobert/lora/exp001` → `exp002`,
   `phobert-base-v2/lora/exp001` → `exp002`.
-- **11.2 Đợt 7 — gói 012 (rồi 013, 014), 17 notebook, khoảng 10–12 giờ GPU:**
+- **11.2 Đợt 7 — gói 012 (rồi 013, 014) + gói 015, 23 notebook, khoảng 11–14 giờ GPU:**
 
 | Thí nghiệm | `parent` | Mục đích | Khác `parent` đúng một thứ | Chi phí |
 | --- | --- | --- | --- | --- |
@@ -276,8 +289,14 @@
 | `qwen3-4b-instruct-2507/prompt-cot/exp015` | `qwen3-4b-instruct-2507/prompt-cot/exp003` | **GIÁ** — ví dụ có ô `price` = mã 2 | chỉ đổi nội dung ví dụ | ~2 giờ |
 | `qwen3-4b-instruct-2507/prompt-cot/exp016` | `qwen3-4b-instruct-2507/prompt-cot/exp003` | **CHẨN ĐOÁN**: chỉ hỏi **một** khía cạnh `price` (khác tập ô nên báo cáo riêng) | `task.aspects: [price]` + prompt và ví dụ riêng | 30–40 phút |
 | `qwen3-4b-instruct-2507/prompt-cot/exp017` | `qwen3-4b-instruct-2507/prompt-cot/exp009` | lượt **`val`** cho phía LLM (điều kiện của hướng lai) | vai trò tập = `val` | 1,5–2 giờ |
+| `phobert-base-v2/lora/exp005` | `phobert-base-v2/lora/exp002` | **ĐẦU PHÂN LOẠI**: để đầu phân loại **HỌC** cùng adapter (bốn lượt LoRA đã chạy bị ĐÓNG BĂNG) | `head.trainable: true` (mặc định `false`) | 15–20 phút |
+| `visobert/lora/exp005` | `visobert/lora/exp002` | như trên | `head.trainable: true` | 15–20 phút |
+| `cafebert/lora/exp002` | `cafebert/lora/exp001` | như trên | `head.trainable: true` | 15–20 phút |
+| `phobert-large/lora/exp002` | `phobert-large/lora/exp001` | như trên | `head.trainable: true` | 15–20 phút |
+| `vibert-base-cased/lora/exp002` | `vibert-base-cased/lora/exp001` | như trên | `head.trainable: true` | 15–20 phút |
+| `xlm-roberta-base/lora/exp002` | `xlm-roberta-base/lora/exp001` | như trên | `head.trainable: true` | 15–20 phút |
 
-- **11.3 Đợt 8 — gói 015, 7–9 notebook, khoảng 14–25 giờ GPU:**
+- **11.3 Đợt 8 — gói 016, 7–9 notebook, khoảng 14–25 giờ GPU:**
 
 | Thí nghiệm | `parent` | Mục đích | Khác `parent` đúng một thứ | Chi phí |
 | --- | --- | --- | --- | --- |

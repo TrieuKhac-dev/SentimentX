@@ -11,7 +11,7 @@
 
 VÌ SAO ĐỔI CÁCH NHÌN NÀY
 Trước đây có một test bắt mọi notebook thí nghiệm phải giống hệt bản mẫu. Hệ quả: sửa một câu trong
-bản mẫu trở thành một NGHĨA VỤ - dựng lại cả 20 notebook, ghim lại cả 20, rồi dựng lại gói bàn giao -
+bản mẫu trở thành một NGHĨA VỤ - dựng lại cả 46 notebook, ghim lại cả 46, rồi dựng lại gói bàn giao -
 kể cả với những lượt chạy đã xong và số đã báo cáo. Notebook của một thí nghiệm đã chạy là **bản ghi
 của lượt chạy đó**, không phải thứ phải cập nhật theo bản mẫu: ghim lại nó là đổi bản code đứng sau
 con số đã công bố.
@@ -90,7 +90,7 @@ chặn cả việc viết logic vào file mặt tiền.
 | Xoá ô | Được, trừ ô GHIM và ô bootstrap | Đúng MỘT ô mang `RUN_MARKER` | `test_templates.py` (đếm ô chạy) |
 | Thêm ô TRƯỚC ô CHẠY | Nhớ: nó **cũng chạy** ở `--preflight-only` | `--preflight-only` là cờ của `scripts/run_notebook.py`, dừng TRƯỚC ô mang dấu | `tests/workflow/test_run_notebook.py` |
 | Thêm ô SAU ô CHẠY | Nhớ: nó **không** chạy ở `--preflight-only` (đọc `run_result`) | Ô sau ô chạy phải chịu được việc `run_result` chưa có | `test_run_notebook.py` (cắt từ ô CHẠY trở đi) |
-| Đổi bản mẫu cho thí nghiệm MỚI | Sửa `templates/experiment/`, chạy test | Không bắt 20 notebook đang có phải cập nhật theo | `tests/workflow/test_templates.py` |
+| Đổi bản mẫu cho thí nghiệm MỚI | Sửa `templates/experiment/`, chạy test | Không bắt 46 notebook đang có phải cập nhật theo | `tests/workflow/test_templates.py` |
 | Cập nhật cell cho CẢ BỘ notebook | Mục 4.1 dưới đây (script một lần) | Giữ ô GHIM; `EXP_DIR` đúng; migrate + ghim CÙNG một lượt | `test_templates.py` (per-notebook) |
 | Sửa logic | **Sửa `src/`**, không sửa ô | Ô chỉ là lớp gọi mỏng | `test_templates.py::test_o_bootstrap_mong_...` |
 
