@@ -483,6 +483,15 @@ cuối = **017**.
 (23 notebook, 5 nhóm, 12 lượt encoder), `present_plan.md` (mục 6/7/8.7/10.5/11), `check_present_plan.md`, cùng
 `README.md` + `config.yaml` của 6 lượt mới và 2 lượt `exp001`.
 
+**Đổi nhãn nhóm ablation thành `H` (05/10/2026, thuần tài liệu):** sáu lượt ablation "đầu phân loại" trong
+`docs/06_plan/P8_batch7.md` được gọi là **nhóm H** (trước ghi **G**). Lí do: chữ **G** đã mang nghĩa khác ở hai
+chỗ - `docs/04_experiments/08_experiment_rationale.md` §5 và `presentations/*` gọi **G** là **Qwen3-0.6B**,
+còn `P8_measurement_mlflow.md` dùng **A-H** cho nhóm việc hạ tầng (**H** ở đó là "chốt thiết kế"). Chữ cái
+nhóm chỉ có phạm vi **trong từng tài liệu**; đổi ở đây để người đọc không lẫn ba nghĩa của một chữ. Sáu chỗ
+đã đổi trong `P8_batch7.md` (hàng bảng §3, dòng "Thứ tự chạy", §6.2, §8, §9) kèm một đoạn giải thích; thứ tự
+chạy **không đổi** (`nhóm 8` trong `check_present_plan.md` mục 7.2 vẫn đúng vì H vẫn là nhóm thứ tám).
+`handover/README.md` vốn **không dùng chữ cái nhóm**, nên **không phải ghim lại, không phải dựng gói mới**.
+
 <!-- DIEM-NOI-TIEP -->
 
 
