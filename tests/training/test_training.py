@@ -8,7 +8,9 @@ cấu hình thì phải biết TRƯỚC khi tải dữ liệu, checkpoint của 
 chạy tiếp, và ô neutral bị loại thì không được vào loss.
 """
 
+import contextlib
 import inspect
+import io
 import json
 import shutil
 import tempfile
@@ -46,6 +48,8 @@ BASE_CONFIG = {
     "approach": "encoder",
     "trainer": "lora",
     "lora": {"r": 8, "alpha": 16, "dropout": 0.05, "target_modules": ["query", "value"]},
+    # Đầu phân loại: `false` = đóng băng (mặc định, hành vi của các lượt đã chạy).
+    "head": {"trainable": False},
     "lr": 0.0002, "batch": 4, "epochs": 1, "grad_accum": 2, "weight_decay": 0.01,
     "checkpoints": {"every_n_steps": 2, "keep_last_k": 1, "save_last": True, "save_best": True,
                     "delete_intermediate": True, "best_metric": "sentiment_f1"},
@@ -123,6 +127,7 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(found["epochs"], 1)
         self.assertEqual(found["quantization"], "none")
         self.assertEqual(found["max_length"], 64)
+        self.assertIs(found["head_trainable"], False)
 
     def test_check_without_enabled_says_so(self):
         self.assertTrue(lora.check({"enabled": False}, "visobert"))
@@ -538,5 +543,105 @@ class PlanTrainingKeysTest(unittest.TestCase):
         plan = encoder_run.plan(merged["config"], merged, ds, version_id)
         for key in checkpoints.POLICY_KEYS:
             self.assertIn(key, plan["training"], "thiếu khoá checkpoint '{}'".format(key))
+
+
+class HeadTrainableTest(unittest.TestCase):
+    """`head.trainable`: ĐÓNG BĂNG (mặc định) hay HỌC đầu phân loại.
+
+    Vì sao khoá ở đây: `peft` đóng băng MỌI tham số không phải adapter, nên ở chế độ mặc định đầu phân
+    loại không học - `head.pt` của bốn lượt LoRA đầu tiên giống nhau TỪNG BYTE giữa các checkpoint đã
+    chứng minh điều đó. Sai khoá này là đổi CƠ CHẾ HỌC của lượt chạy, mà bảng điểm không hề nói ra.
+    """
+
+    def test_default_is_frozen_and_reads_as_false(self):
+        self.assertIs(lora.settings(BASE_CONFIG, "visobert")["head_trainable"], False)
+
+    def test_true_is_read_as_true(self):
+        config = dict(BASE_CONFIG, head={"trainable": True})
+        self.assertIs(lora.settings(config, "visobert")["head_trainable"], True)
+
+    def test_missing_key_names_the_key(self):
+        config = {key: value for key, value in BASE_CONFIG.items() if key != "head"}
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.settings(config, "visobert")
+        self.assertIn("head.trainable", str(caught.exception))
+        self.assertIn("05_experiments_shared", str(caught.exception))
+
+    def test_a_string_value_is_an_error_not_a_truthy_guess(self):
+        """`bool("flase")` là `True`: đoán hộ ở đây là BẬT một cơ chế học khác mà không ai biết."""
+        config = dict(BASE_CONFIG, head={"trainable": "flase"})
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.settings(config, "visobert")
+        self.assertIn("head.trainable", str(caught.exception))
+        self.assertIn("flase", str(caught.exception))
+
+    @needs_torch
+    def test_set_head_trainable_unlocks_and_freezes_the_head(self):
+        head = torch.nn.Linear(4, 3)
+        self.assertEqual(lora.set_head_trainable(head, False), 0)
+        self.assertFalse(any(item.requires_grad for item in head.parameters()))
+        self.assertEqual(lora.set_head_trainable(head, True), 15)      # 4*3 + 3
+        self.assertTrue(all(item.requires_grad for item in head.parameters()))
+
+    @needs_torch
+    def test_build_model_takes_the_flag(self):
+        """`build_model` phải NHẬN cờ này: mặc định `False` là đường SUY LUẬN, quên truyền ở `fit()`
+        thì lượt CHẠY TIẾP chết ở `optimizer got an empty parameter list`."""
+        self.assertIn("trainable=True", inspect.getsource(lora.fit))
+        self.assertIn("is_trainable=bool(trainable)", inspect.getsource(lora.build_model))
+        self.assertIn("set_head_trainable", inspect.getsource(lora.build_model))
+
+
+class HeadTrainableVisibleTest(unittest.TestCase):
+    """Cơ chế đầu phân loại phải ĐỌC ĐƯỢC từ bản ghi: hai lượt cùng mọi con số khác chỉ khác khoá này,
+    nên bản ghi không nói ra thì không ai biết lượt nào là lượt nào."""
+
+    def plan(self, trainable):
+        config = dict(BASE_CONFIG, head={"trainable": trainable})
+        training = {**lora.settings(config, "visobert"), **checkpoints.settings(config)}
+        return {"config": dict(config, label_space="binary", neutral_policy="drop",
+                               not_mentioned="separate"),
+                "merged": {"overrides": []}, "model_id": "visobert", "method": "lora",
+                "exp_id": "exp001", "version_id": "ma-ds0.1.0", "split": "test", "limit": None,
+                "max_length": 64, "batch_size": 4, "device": "cpu", "seed": 42, "codes": [0, 1, 2],
+                "dataset": {"name": "cosmetics", "version": "v0.2.0"}, "roles": {"train": "train"},
+                "names": ["accuracy"], "model": "test/x", "info": {"n_samples": 10},
+                "training": training}
+
+    def test_log_config_writes_the_head_state(self):
+        entries = []
+
+        class Recorder(object):
+            def config(self, text):
+                entries.append(text)
+
+        encoder_run.log_config(self.plan(True), Recorder())
+        self.assertTrue(any("đầu phân loại" in text and "HỌC" in text for text in entries), entries)
+
+    def test_log_config_says_frozen_when_frozen(self):
+        entries = []
+
+        class Recorder(object):
+            def config(self, text):
+                entries.append(text)
+
+        encoder_run.log_config(self.plan(False), Recorder())
+        self.assertTrue(any("ĐÓNG BĂNG" in text for text in entries), entries)
+
+    def test_run_record_carries_the_flag(self):
+        self.assertIs(encoder_run.run_record(self.plan(False))["training"]["head_trainable"], False)
+        self.assertIs(encoder_run.run_record(self.plan(True))["training"]["head_trainable"], True)
+
+    def test_print_config_says_it_out_loud(self):
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            encoder_run.print_config(self.plan(True))
+        self.assertIn("head.trainable: true", buffer.getvalue())
+        self.assertIn("HỌC cùng adapter", buffer.getvalue())
+
+    def test_plan_info_carries_the_flag(self):
+        """`info["training"]` là bộ thẻ đẩy lên MLflow: thiếu khoá này thì lượt đầu HỌC và lượt đầu
+        ĐÓNG BĂNG mang cùng một bộ thẻ, lọc trên MLflow không tách được hai cơ chế."""
+        self.assertIn('"head_trainable"', inspect.getsource(encoder_run.plan))
 
 

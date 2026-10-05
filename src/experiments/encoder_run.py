@@ -97,6 +97,10 @@ def log_config(plan_data, log):
                    found["trainer"], found["lora_r"], found["lora_alpha"], found["lora_dropout"],
                    ", ".join(found["target_modules"]), found["lr"], found["batch"],
                    found["grad_accum"], found["epochs"], found["weight_decay"]))
+    # Cơ chế học của đầu phân loại: ĐÓNG BĂNG hay HỌC cùng adapter. Ghi vào `[CONFIG]` vì đây là
+    # khác biệt giữa hai lượt có cùng mọi con số khác - nhìn bảng điểm KHÔNG thể thấy được.
+    log.config("đầu phân loại: {}".format(
+        "HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học"))
     log.config("checkpoint: mỗi {} bước, giữ {} | lưu last={} best={} xoá trung gian={}".format(
         found["every_n_steps"], found["keep_last_k"], found["save_last"], found["save_best"],
         found["delete_intermediate"]))
@@ -121,7 +125,8 @@ def run_record(plan_data):
                      "batch": found["batch"], "grad_accum": found["grad_accum"],
                      "lr": found["lr"], "lora_r": found["lora_r"],
                      "lora_alpha": found["lora_alpha"],
-                     "target_modules": list(found["target_modules"])},
+                     "target_modules": list(found["target_modules"]),
+                     "head_trainable": found["head_trainable"]},
         # Không có prompt và không có cách sinh: hai khoá này để TRỐNG thay vì bịa, vì bản ghi là
         # chỗ tra cứu của một phép đo.
         "prompt": None,
@@ -308,7 +313,8 @@ def plan(config_data, merged, ds, version_id, split=None, limit=None, model=None
         # vào đây để `run_meta.json` nói đủ cả cách học lẫn cách lưu.
         "training": {**{key: found[key] for key in (
             "trainer", "epochs", "batch", "grad_accum", "lr", "weight_decay", "lora_r",
-            "lora_alpha", "lora_dropout", "target_modules", "quantization", "dtype")},
+            "lora_alpha", "lora_dropout", "target_modules", "quantization", "dtype",
+            "head_trainable")},
             **checkpoints.settings(config_data)},
     }
 
@@ -363,6 +369,9 @@ def print_config(plan_data):
     print("Huấn luyện : LoRA r={} alpha={} trên {} | {} epoch, batch {} (tích luỹ {})".format(
         found["lora_r"], found["lora_alpha"], ", ".join(found["target_modules"]),
         found["epochs"], found["batch"], found["grad_accum"]))
+    print("Đầu phân loại: {} ({})".format(
+        "HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học",
+        "head.trainable: true" if found["head_trainable"] else "head.trainable: false"))
     print("Chấm điểm  : {} mẫu (n={}), chỉ số {}".format(
         plan_data["info"]["n_samples"], plan_data["limit"] or "cả split", plan_data["names"]))
     print("Model      : {} | ngưỡng cắt {} token | device {}".format(
@@ -426,6 +435,19 @@ def probability_rows(plan_data, probabilities, codes):
             row.extend(sample[aspect_position][:len(codes)])
             rows.append(row)
     return rows
+
+
+def write_probabilities(out_dir, plan_data, probabilities, codes):
+    """Ghi `probabilities.csv` và trả về đường dẫn. HÀM THUẦN - không GPU, không model.
+
+    VÌ SAO TÁCH RA: `utils.write_csv` nhận `(rows, columns, path)`. Đảo ba tham số này là lỗi CHỈ lộ ra
+    ở DÒNG CUỐI của lượt chạy - sau khi đã huấn luyện và suy luận xong cả lượt - nên lượt chạy mất
+    trắng kết quả. Lỗi thật đã gặp: gọi `write_csv(path, columns, rows)` rồi nhận `TypeError` đúng chỗ
+    này, giết 5 lượt encoder (4 model mới + lượt chạy tiếp của xlm-roberta). Tách ra hàm riêng thì
+    TEST gọi thẳng được mà không cần GPU, nên lỗi này không quay lại được.
+    """
+    return utils.write_csv(probability_rows(plan_data, probabilities, codes),
+                           probability_columns(codes), out_dir / paths.pattern("probabilities"))
 
 
 def run(plan_data, log=None):
@@ -530,9 +552,7 @@ def run(plan_data, log=None):
         # Xác suất từng ô: tệp RIÊNG, chỉ đường encoder có. Bước kết hợp (ngưỡng / ensemble / lai) đọc
         # nó; phần chấm điểm KHÔNG dùng nó, nên việc ghi thêm tệp này không đổi bất kỳ con số nào.
         prob_codes = [int(code) for code in head_config["codes"]]
-        prob_path = utils.write_csv(out_dir / paths.pattern("probabilities"),
-                                    probability_columns(prob_codes),
-                                    probability_rows(plan_data, probabilities, prob_codes))
+        prob_path = write_probabilities(out_dir, plan_data, probabilities, prob_codes)
         log.step("ghi xác suất từng ô: {} ({} dòng = {} mẫu × {} khía cạnh)".format(
             utils.rel(prob_path), len(plan_data["texts"]) * len(plan_data["aspects"]),
             len(plan_data["texts"]), len(plan_data["aspects"])))
