@@ -399,8 +399,11 @@
   thật sự đổi và lượt mới rơi vào **thư mục kết quả mới**).
 - **13.7 CHỐT — ghim vào HEAD** (bản mã hiện tại) chứ không lùi về commit `59579e5` của các lượt gốc. Điều kiện
   bắt buộc để không phạm luật "khác `parent` đúng một thứ": phải dán **kết quả RỖNG** của
-  `git diff --stat 59579e5 HEAD -- src/training src/experiments src/preprocessing src/evaluation` vào `README.md`
-  của từng lượt mới (đã kiểm: rỗng, nên mã encoder **không đổi** giữa hai commit).
+  `git diff --stat 59579e5 HEAD -- src/training src/experiments src/preprocessing src/labels src/core` vào
+  `README.md` của từng lượt mới. **ĐÃ KIỂM 05/10/2026: RỖNG.** Còn **đúng một** file trong `src/` đổi giữa hai
+  commit là `src/evaluation/fusion.py`, và nó **KHÔNG thuộc đường chạy encoder**: file đó chỉ được
+  `scripts/ensemble.py`, `scripts/fit_thresholds.py`, `scripts/fuse.py`, `scripts/vote.py` nhập vào - KHÔNG
+  file nào trong `src/experiments`/`src/training` nhập nó (đã grep). Vậy đường encoder **không đổi**.
 
 ## Mục 14. Đợt 10 — ba hướng mới (thước nhiễu encoder · đầu phân loại theo khía cạnh · hai tầng theo khía cạnh)
 
@@ -423,7 +426,9 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
 - **14.3 (không cần GPU) Tạo bốn notebook đợt 10** (bảng ở mục 11.5). Mỗi `README.md` phải ghi: hỏi gì; khác
   cha **ĐÚNG MỘT khoá**; đây là **thước nhiễu**, không phải lượt lấy điểm cao; và **BẰNG CHỨNG một-biến** =
   dán kết quả RỖNG của lệnh
-  `git diff --stat 59579e5 HEAD -- src/training src/experiments src/preprocessing src/evaluation`.
+  `git diff --stat 59579e5 HEAD -- src/training src/experiments src/preprocessing src/labels src/core`,
+  kèm một dòng: `src/evaluation/fusion.py` CÓ đổi giữa hai commit nhưng **không thuộc đường encoder** (chỉ
+  `scripts/ensemble.py`, `scripts/fit_thresholds.py`, `scripts/fuse.py`, `scripts/vote.py` dùng nó).
   Bằng chứng này là **bắt buộc**: lượt thước nhiễu khác cha ở commit ghim, nên phải chứng minh mã KHÔNG đổi thì
   luật "khác `parent` đúng một thứ" (mục 5.1) mới đứng vững.
 - **14.4 (không cần GPU) Ghim bốn notebook vào HEAD** (đã có bằng chứng `git diff` RỖNG) ⇒ `ci_checks` xanh ⇒

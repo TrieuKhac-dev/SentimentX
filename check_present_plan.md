@@ -559,15 +559,21 @@ test (`test_sau_kiem_tra_deu_sach`, vì nó chính là cửa CI); **đẩy xong 
 
 Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu phần vệ sinh sổ sách.
 
-- 16.1 Vệ sinh sổ sách sau hai lượt vừa xong — **ĐANG LÀM 05/10/2026**: `collect_reports.py` đã chạy (5 nhóm
+- 16.1 Vệ sinh sổ sách sau hai lượt vừa xong — **XONG 05/10/2026**: `collect_reports.py` đã chạy (5 nhóm
   bảng nay có hai lượt mới). Số hai lượt: `cafebert/lora/exp002` (cơ sở `paper`: acc **97,88** · F1 macro
   **0,917** · F1 âm macro **0,847** · 2.737 ô · đọc được **100%** · `trainable_params` **7.132.181**) và
   `qwen3-0.6b/prompt-one-turn/exp001` (đọc được **99,94%** ⇒ VƯỢT cửa 95%; acc 87,04 · F1 macro 0,610 ·
-  F1 âm macro 0,211 · 877 ô `paper`). Còn: sửa **ba chỗ 16.149 → 21.525**, ghi kết luận vào tài liệu, commit
-  **hai lần tách miền** (bằng chứng / tài liệu), `ci_checks` + `unittest` + `git push`.
-- 16.2 Ghi ngữ nghĩa `decoding.seed` cho đường encoder — CHƯA LÀM.
-- 16.3 Tạo bốn notebook đợt 10 (ba lượt thước nhiễu + `phobert-base-v2/lora/exp006`, mỗi lượt có bằng chứng
-  `git diff` RỖNG) — CHƯA LÀM.
+  F1 âm macro 0,211 · 877 ô `paper`). Đã sửa **ba chỗ 16.149 → 21.525** (bằng chứng: 7.132.181 − 7.110.656),
+  ghi kết luận vào tài liệu, và commit + `git push` **6 commit** (`94af391` · `6d706bc` · `cdf67ab` ·
+  `f8b019f` · `e0eec0f` · `3ed6623`); `ci_checks` **9/9 sạch** + `unittest` **943 OK**.
+- 16.2 Ghi ngữ nghĩa `decoding.seed` cho đường encoder — **XONG 05/10/2026**: `configs/experiments/evaluation.yaml`
+  (khối "NGOẠI LỆ Ở ĐƯỜNG ENCODER") + dòng `decoding.seed` của `docs/05_config/05_experiments_shared.md`.
+- 16.3 Tạo bốn notebook đợt 10 — **ĐANG LÀM 05/10/2026**: ba lượt thước nhiễu đã TẠO
+  (`cafebert/lora/exp003` ← `lora/exp001`; `cafebert/lora/exp004` ← `lora/exp002`; `vibert-base-cased/lora/exp003`
+  ← `lora/exp001`), mỗi lượt `decoding.seed: 7`. **Bằng chứng một-biến ĐÃ KIỂM:** `git diff --stat 59579e5 HEAD
+  -- src/training src/experiments src/preprocessing src/labels src/core` **RỖNG** (exit 0); file duy nhất đổi
+  trong `src/` là `src/evaluation/fusion.py` và nó **KHÔNG thuộc đường encoder** (chỉ 4 script fusion dùng).
+  Lượt thứ tư (`phobert-base-v2/lora/exp006`, `head.aspect_marker`) còn CHƯA tạo - cần sửa mã (mục 16.7).
 - 16.4 Ghim bốn notebook + dựng **gói 017** — CHƯA LÀM.
 - 16.5 Người dùng chạy bốn lượt (~1,5-2 giờ GPU) — CHỜ NGƯỜI DÙNG.
 - 16.6 Đo biên nhiễu encoder (trả lời "+0,21/+0,52 có ngoài biên nhiễu không") — CHƯA LÀM.
