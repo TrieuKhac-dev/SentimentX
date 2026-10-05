@@ -148,7 +148,10 @@
   - README của ba lượt `qwen3-0.6b` chạy lại phải ghi rõ **lí do chạy lại**: khoá `enable_thinking:
     false` đã thêm vào cấu hình model vì lượt cũ (bật suy nghĩ) chỉ đọc được 1,36–3,33%.
 - **5.2** Tạo **cấu hình và README cho 9 thí nghiệm đợt 8** (2 lượt `test` có ngưỡng; 3 lượt 0.6B bật
-  suy nghĩ; 4 lượt lấy mẫu).
+  suy nghĩ; 4 lượt lấy mẫu). **Cập nhật 05/10/2026:** bốn notebook đợt 8 đã tạo - ba lượt 0.6B bật suy nghĩ
+  (trần **1985** đo từ lượt DÒ) **cộng MỘT lượt `qwen3-0.6b/prompt-one-turn/exp001`** (bỏ suy luận, chỉ trả
+  JSON). Lượt thêm mới trả lời câu "ba lượt 0,6B vướng ĐỊNH DẠNG hay vướng SUY LUẬN" với chi phí rẻ nhất;
+  ⇒ **đợt 8 là 8-10 notebook**. Hai lượt `test` có ngưỡng đã chạy xong ở đợt 7.
 - **5.3** Tạo **cấu hình và README cho 3 thí nghiệm đợt 9**, mỗi README ghi rõ **rủi ro chạm trần token**
   và cách chạy theo luật ở mục 9.1.
 - **5.4** Viết `docs/06_plan/P8_batch7.md`: luật chia mức cho nhánh suy nghĩ, luật kết hợp, thứ tự ưu
@@ -228,7 +231,7 @@
   0.6B bật suy nghĩ** (trần token biết sau lượt DÒ) ⇒ **ghim** ⇒ **gói 016** ⇒ commit + `git push` ⇒
   **MỐC DỪNG #4**.
 
-## Mục 9. Người dùng chạy đợt 8 (7–9 notebook, khoảng 14–25 giờ GPU)
+## Mục 9. Người dùng chạy đợt 8 (8–10 notebook, khoảng 14–25 giờ GPU)
 
 - **9.1** **Luật chống chạm trần token** — bắt buộc cho **mọi lượt bật suy nghĩ**, và đặc biệt cho ba lượt
   lớn ở đợt 9 (`qwen3-4b-thinking-2507/prompt-cot/exp001`, `qwen3-8b/prompt-cot/exp001`,
@@ -296,15 +299,16 @@
 | `vibert-base-cased/lora/exp002` | `vibert-base-cased/lora/exp001` | như trên | `head.trainable: true` | 15–20 phút |
 | `xlm-roberta-base/lora/exp002` | `xlm-roberta-base/lora/exp001` | như trên | `head.trainable: true` | 15–20 phút |
 
-- **11.3 Đợt 8 — gói 016, 7–9 notebook, khoảng 14–25 giờ GPU:**
+- **11.3 Đợt 8 — gói 016, 8–10 notebook, khoảng 14–25 giờ GPU:**
 
 | Thí nghiệm | `parent` | Mục đích | Khác `parent` đúng một thứ | Chi phí |
 | --- | --- | --- | --- | --- |
-| `phobert-base-v2/lora/exp004` | `phobert-base-v2/lora/exp002` | encoder trên `test` **có ngưỡng chốt trên `val`** | ngưỡng đóng băng trong cấu hình | ~15 phút |
-| `visobert/lora/exp004` | `visobert/lora/exp002` | như trên | ngưỡng đóng băng trong cấu hình | ~15 phút |
-| `qwen3-0.6b/prompt-cot/exp005` | `qwen3-0.6b/prompt-cot/exp002` | lượt **đầy đủ** 0.6B bật suy nghĩ (1 ví dụ) | trần token chốt từ lượt DÒ | 2–8 giờ, 2–3 phiên |
-| `qwen3-0.6b/prompt-cot/exp006` *(chỉ khi ≤ ~3 giờ)* | `qwen3-0.6b/prompt-cot/exp001` | như trên ở 0 ví dụ | trần token chốt từ lượt DÒ | 2–8 giờ |
-| `qwen3-0.6b/prompt-cot/exp007` *(chỉ khi ≤ ~3 giờ)* | `qwen3-0.6b/prompt-cot/exp003` | như trên ở 5 ví dụ | trần token chốt từ lượt DÒ | 2–8 giờ |
+| `phobert-base-v2/lora/exp004` | `phobert-base-v2/lora/exp002` | encoder trên `test` **có ngưỡng chốt trên `val`** | ngưỡng đóng băng trong cấu hình | ~15 phút - **đã chạy xong 05/10/2026** |
+| `visobert/lora/exp004` | `visobert/lora/exp002` | như trên | ngưỡng đóng băng trong cấu hình | ~15 phút - **đã chạy xong 05/10/2026** |
+| `qwen3-0.6b/prompt-cot/exp005` | `qwen3-0.6b/prompt-cot/exp002` | lượt **đầy đủ** 0.6B bật suy nghĩ (1 ví dụ) | `enable_thinking: true` + trần **1985** (đo từ lượt DÒ) | 2–8 giờ, 2–3 phiên |
+| `qwen3-0.6b/prompt-cot/exp006` *(chỉ khi ≤ ~3 giờ)* | `qwen3-0.6b/prompt-cot/exp001` | như trên ở 0 ví dụ | `enable_thinking: true` + trần **1985** | 2–8 giờ |
+| `qwen3-0.6b/prompt-cot/exp007` *(chỉ khi ≤ ~3 giờ)* | `qwen3-0.6b/prompt-cot/exp003` | như trên ở 5 ví dụ | `enable_thinking: true` + trần **1985** | 2–8 giờ |
+| `qwen3-0.6b/prompt-one-turn/exp001` | `null` | **vì sao ba lượt 0,6B tắt suy nghĩ không đọc được**: vướng ĐỊNH DẠNG hay vướng SUY LUẬN | prompt `absa_one_turn_v1` + system riêng (0 ví dụ, tắt suy nghĩ) | ~30–40 phút (câu trả lời ngắn) |
 | `qwen3-4b-instruct-2507/prompt-cot/exp018` | đỉnh sau đợt 7 (mặc định `exp009`) | **lấy mẫu lần 1** (đo dao động + đầu vào biểu quyết) | `mode: sample`, `seed: 1`, nhiệt độ 0,7 / top_p 0,8 / top_k 20 | 2,5–3 giờ |
 | `qwen3-4b-instruct-2507/prompt-cot/exp019` | như trên | **lấy mẫu lần 2** | `seed: 2` | 2,5–3 giờ |
 | `qwen3-4b-instruct-2507/prompt-cot/exp020` | như trên | **lấy mẫu lần 3** | `seed: 3` | 2,5–3 giờ |

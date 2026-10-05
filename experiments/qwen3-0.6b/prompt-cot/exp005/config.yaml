@@ -1,0 +1,67 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp005
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-0.6b/prompt-cot/exp002
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: qwen3-0.6b
+method: prompt-cot
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Nhanh BAT suy nghi, muc 1 vi du: luot so chinh voi nhanh tat suy nghi, tran 1985 do tu luot DO exp004"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi training.enabled: true.
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
+prompt: ../../../../configs/prompts/absa_cot_1shot_v1.txt
+# Khối ví dụ few-shot ở thư viện dùng chung. Khai TƯỜNG MINH vì `prompt` ghi bằng đường dẫn: suy theo
+# tên chỉ đúng khi prompt gọi bằng tên.
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v1.txt
+# Khối hệ thống ở thư viện dùng chung: câu hệ thống KHÔNG nằm trong file prompt.
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# `prompt.txt` KHÔNG chứa system prompt: câu hệ thống nằm ở FILE RIÊNG (khoá `system_prompt` dưới đây).
+
+# Chỉ khai khi cần:
+# examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
+# system_prompt: system.txt                   # khối system RIÊNG của thí nghiệm này (file trong thư mục này)
+# system_prompt: ../../../../configs/prompts/system/<tên>.txt   # hoặc khối DÙNG CHUNG nhiều thí nghiệm
+# requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
+#   - data/models/vncorenlp                   # mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU (trên
+
+# MỘT CƠ CHẾ, HAI KHOÁ (luật 23 của docs/00_workflow/02_rules.md): bật suy nghĩ thì PHẢI đi kèm trần
+# token đủ lớn, nếu không model viết hết trần trong khối  thinking rồi không in ra JSON - đã gặp thật
+# với chính model này (ba lượt 02/10/2026 chỉ đọc được 3,33 / 1,36 / 1,73%) và với lượt tắt suy nghĩ
+# của nhóm này (21,63-84,41% - xem docs/04_experiments/08_experiment_rationale.md §5).
+preprocess:
+  enable_thinking: true
+
+decoding:
+  # 1985 = làm tròn lên (p99 × 1,5) theo luật 23a, ĐO từ lượt DÒ `qwen3-0.6b/prompt-cot/exp004`
+  # (cùng cơ chế, cùng prompt 1 ví dụ): p50 642 / p95 1.072 / p99 1.323 / max 1.434 token sinh, và lượt
+  # DÒ đọc được 98,33%. Thoải mái dưới cửa sổ ngữ cảnh 32.768 vị trí của Qwen3-0.6B.
+  max_new_tokens: 1985
+
+#                                             # Colab là thư mục Drive); mục khác tính từ gốc repo

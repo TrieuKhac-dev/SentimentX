@@ -336,17 +336,29 @@
   (6 lượt đợt 7/8 + 6 lượt ablation) + thời gian thực tế — CHỜ NGƯỜI DÙNG.
 
 ## Mục 8. Xử lý đợt 7 và chốt luật
-- 8.1 `collect_reports.py` + đối chiếu từng ô — CHƯA LÀM.
-- 8.2 Chốt trần token từ lượt DÒ — CHƯA LÀM.
-- 8.3 Đọc kết quả ba lượt về giá (`exp014`, `exp015`, `exp016`) — CHƯA LÀM.
-- 8.4 Dò ngưỡng theo khía cạnh trên `val` ⇒ tệp luật JSON — CHƯA LÀM: **đã chốt cách làm** (04/10/2026) -
-  ngưỡng cho **6 khía cạnh**, `price: null` + lí do "val có 0 ô âm", kèm bằng chứng quét thử, báo cáo macro cả
-  trên 7 và trên 6 khía cạnh.
-- 8.5 Chốt bảng luật lai trên `val` ⇒ tệp luật JSON — CHƯA LÀM.
-- 8.6 Viết kết luận nhóm A, B, encoder mới, ba lượt giá — CHƯA LÀM.
-- 8.7 Hai thí nghiệm `test` có ngưỡng + **ba thí nghiệm 0.6B bật suy nghĩ**(tạo ở đây vì trần token chỉ biết
-  sau lượt DÒ) ⇒ ghim ⇒ **gói 016** ⇒ **MỐC DỪNG #4** — CHƯA LÀM. (Hai thí nghiệm `test` đã TẠO SẴN ở gói
-  012; mục này nay chỉ còn tạo 3 lượt 0.6B + ghim + đóng gói.)
+- 8.1 `collect_reports.py` + đối chiếu từng ô — **XONG 05/10/2026**: 22/23 lượt đợt 7 đã về, bảng tổng hợp
+  dựng lại; **một lượt phải chạy lại** (`cafebert/lora/exp002`: `run_meta.json` còn ghi `RUNNING` trong khi
+  `run.log` đã `FINISHED`, và thiếu `metrics.json` - chạy lại 2-3 phút, KHÔNG huấn luyện lại).
+- 8.2 Chốt trần token từ lượt DÒ — **XONG 05/10/2026**: `qwen3-0.6b/prompt-cot/exp004` cho
+  p50 642 / p95 1.072 / p99 1.323 / max 1.434 ⇒ **`max_new_tokens: 1985`** (luật 23a); ba notebook
+  `exp005`/`exp006`/`exp007` đã tạo với đúng trần đó.
+- 8.3 Đọc kết quả ba lượt về giá (`exp014`, `exp015`, `exp016`) — **XONG 05/10/2026**: cả ba **KHÔNG** cải
+  thiện `price` âm (F1 0,320 / 0,500 / 0,400 so với cha 0,600) vì bắt thêm 1 ô đổi lấy 15-21 báo động giả;
+  **hai trong sáu ô âm của `test`** (chỉ số 154 và 693) không lượt nào bắt được.
+- 8.4 Dò ngưỡng theo khía cạnh trên `val` ⇒ tệp luật JSON — **XONG 05/10/2026**:
+  `data/reports/fusion/thresholds.json` + `thresholds_applied.json`; đọc ra kết luận "**KHÔNG có tác dụng**"
+  (chỉ `smell` đổi: F1 âm macro 0,7757 → 0,7721, chênh dưới mức nhiễu; số ô không đổi).
+- 8.5 Chốt bảng luật lai trên `val` ⇒ tệp luật JSON — **XONG 05/10/2026**: `rules.json` + `fuse.json`;
+  chỉ `packing` lấy từ encoder ⇒ 97,77 → **98,02** và F1 âm `packing` 0,769 → **0,952**.
+  Ensemble encoder cũng đã chạy (`weights_val.json` + `ensemble.json`): **KHÔNG có tác dụng**.
+- 8.6 Viết kết luận nhóm A, B, encoder mới, ba lượt giá — **XONG 05/10/2026**: §2b (nhóm H), §5 (0,6B),
+  §5b (Qwen2.5-0.5B), §7 (`price`) của `08_experiment_rationale.md`, cây ở `07_evolution.md`, và tóm tắt
+  trong `handover/README.md`.
+- 8.7 Hai thí nghiệm `test` có ngưỡng + **thí nghiệm 0.6B nhánh suy nghĩ** ⇒ ghim ⇒ **gói 016** ⇒
+  **MỐC DỪNG #4** — **ĐANG LÀM 05/10/2026**: hai lượt `test` đã có kết quả; **BỐN** notebook đợt 8 đã tạo
+  (`qwen3-0.6b/prompt-cot/exp005`/`exp006`/`exp007` trần 1985 + `qwen3-0.6b/prompt-one-turn/exp001` - lượt
+  thứ tư THÊM MỚI vì kết luận "ba lượt 0,6B vướng ĐỊNH DẠNG, không vướng trần token"); còn **ghim + đóng
+  gói 016 + đẩy**.
 
 ## Mục 9. Người dùng chạy đợt 8
 - 9.1 Luật chống chạm trần token — CHỜ NGƯỜI DÙNG.
@@ -491,6 +503,30 @@ nhóm chỉ có phạm vi **trong từng tài liệu**; đổi ở đây để n
 đã đổi trong `P8_batch7.md` (hàng bảng §3, dòng "Thứ tự chạy", §6.2, §8, §9) kèm một đoạn giải thích; thứ tự
 chạy **không đổi** (`nhóm 8` trong `check_present_plan.md` mục 7.2 vẫn đúng vì H vẫn là nhóm thứ tám).
 `handover/README.md` vốn **không dùng chữ cái nhóm**, nên **không phải ghim lại, không phải dựng gói mới**.
+
+**Xử lý đợt 7, chốt luật, và bốn notebook đợt 8 (05/10/2026):**
+
+1. **Hai công cụ mới cho bước kết hợp.** `scripts/ensemble.py` nay chốt trọng số trên `val` rồi ghi ra TỆP
+   (`--write-weights`/`--weights-file`, khoá theo **tên model** - khoá duy nhất sống qua hai thư mục
+   `.../exp003` (val) và `.../exp004` (test)); gọi `--weights val` trên lượt KHÔNG phải `val` bị **chặn** (mã
+   thoát 1) vì đó là chọn trọng số bằng tập sẽ báo cáo. `scripts/probe_tokens.py` (mới) đo phân vị token SINH
+   RA để chốt trần theo luật 23a, đồng thời kiểm luật bị cắt (luật 3 của `metrics.md`) và kiểm trần không vượt
+   cửa sổ ngữ cảnh. Cả hai có test riêng; `unittest` **943 OK**, `ci_checks` **9/9 sạch**.
+2. **Bằng chứng kết quả vào git.** 25 thư mục kết quả đợt 7 + bảng tổng hợp dựng lại. `probabilities.csv`
+   (từng mẫu, ~0,5 MB mỗi lượt) nay **bị bỏ qua** như `predictions.csv` - bản rút gọn CÓ commit dùng cho bước
+   kết hợp là `data/reports/fusion/inputs/`; `.gitignore`, `06_lora_encoder.md` và README của `fusion/` ghi rõ.
+3. **Kết luận đã viết vào chỗ người đọc tra:** §2b (nhóm H: 4/5 cặp hơn +0,67 → +1,16 điểm, `vibert` kém
+   0,15, lớp âm gần đứng yên, chỗ đổi rõ nhất là DỊCH CHUYỂN giữa các khía cạnh), §5 + §5.1 + §5.2 (0,6B:
+   **lỗi định dạng**, DÒ cho trần **1985**), **§5b mới** (Qwen2.5-0.5B: đọc được 95,81-100% nhưng chỉ chịu
+   trả lời 239-464 ô - **kiêng trả lời**, khác hẳn cơ chế hỏng của 0,6B), §7 (`price`: cả ba lượt đều KHÔNG
+   cải thiện), cây phát triển (`07_evolution.md`) và bảng bốn bước kết hợp.
+4. **`cafebert/lora/exp002` là lượt DUY NHẤT phải chạy lại** (thư mục kết quả sao chép thiếu) - đã ghi vào
+   `handover/README.md` và mục 8.1 để người dùng biết mà chạy lại.
+5. **Bốn notebook đợt 8** (mục 8.7): `qwen3-0.6b/prompt-cot/exp005`/`exp006`/`exp007` (bật suy nghĩ, trần
+   1985) + `qwen3-0.6b/prompt-one-turn/exp001` (bỏ suy luận, chỉ trả JSON). Lượt thứ tư là THÊM MỚI so với
+   kế hoạch: nó trả lời câu "vướng ĐỊNH DẠNG hay vướng SUY LUẬN" với chi phí rẻ nhất, còn `exp005` là lượt so
+   chính. Đợt 8 nay là **8-10 notebook**.
+
 
 <!-- DIEM-NOI-TIEP -->
 

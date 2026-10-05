@@ -169,3 +169,93 @@ qwen3-0.6b/prompt-cot/exp001..003          <- (gốc)                  model nh�
 Đọc cây này kèm `04_backlog.md` (việc chưa làm) và `08_experiment_rationale.md` (câu hỏi của từng lượt).
 Nhánh G (0.6B) chưa có nút kết quả vì cả sáu thư mục cũ đều không dùng được; xem
 `08_experiment_rationale.md` §5.
+
+## Cây tính tới 05/10/2026 - 22 lượt của đợt 7 (bản chụp thứ hai, nối tiếp bản trên)
+
+Số ở cơ sở `paper` trên `test`, trừ lượt nào ghi rõ `VAL` (số `val` để CHỐT LUẬT, không so công bố). Lượt
+nào KHÔNG dùng được thì nói thẳng là không dùng được - không suy diễn thay cho lượt hỏng.
+
+```
+BỐN ENCODER MỚI (nhóm C; parent null; cùng công thức LoRA + `weighted_ce` của nhóm A):
+cafebert/lora/exp001                 <- (gốc)  kho tiếng Việt, kiến trúc DeBERTa, không tách từ
+    Kết quả: 97,67 · F1 macro 0,886 · F1 âm macro 0,788 · 2.745 ô   <-- TỐT NHẤT trong sáu encoder
+    Kết luận: GIỮ - "PhoBERT không phải lựa chọn duy nhất"
+phobert-large/lora/exp001            <- (gốc)  cùng họ PhoBERT nhưng 1.024 ẩn
+    Kết quả: 96,54 · 0,875 · 0,775 · 2.718 ô
+    Kết luận: GIỮ - to hơn KHÔNG hơn bản base (96,62)
+xlm-roberta-base/lora/exp001         <- (gốc)  ĐỐI CHỨNG đa ngữ (tiếng Việt chỉ là phần nhỏ của kho)
+    Kết quả: 95,20 · 0,853 · 0,740 · 2.715 ô
+    Kết luận: GIỮ - thua cafebert 2,47 điểm ⇒ kho tiền huấn luyện tiếng Việt CÓ giá
+vibert-base-cased/lora/exp001        <- (gốc)  kho tiếng Việt, chữ phân biệt hoa/thường
+    Kết quả: 94,99 · 0,828 · 0,692 · 2.721 ô
+    Kết luận: GIỮ - yếu nhất nhóm encoder
+
+HAI LƯỢT VAL CỦA ENCODER (nhóm D) - điều kiện để CHỐT ngưỡng và trọng số ensemble:
+phobert-base-v2/lora/exp003          <- exp002   (VAL)
+    Kết quả: 96,78 · 0,942 · F1 âm macro 0,9005 · 2.755 ô
+    Kết luận: GIỮ - vế CHỐT của ngưỡng + trọng số
+visobert/lora/exp003                 <- exp002   (VAL)
+    Kết quả: 94,24 · 0,875 · 0,7768 · 2.727 ô   (thua PhoBERT 2,54 điểm, cùng chiều như trên test)
+    Kết luận: GIỮ - vế thứ hai của ensemble
+
+HAI LƯỢT TEST ĐỂ ÁP NGƯỠNG (nhóm D):
+phobert-base-v2/lora/exp004          <- exp002   cùng cấu hình, chạy lại trên bản mã ĐÃ SỬA hai lỗi
+    Kết quả: 96,62 · 0,876 · 2.736 ô - TRÙNG KHÍT exp002 (từng dòng `metrics.csv`)
+    Kết luận: GIỮ - bằng chứng hai lỗi đã sửa KHÔNG đổi số; cũng là lượt nhận ngưỡng
+visobert/lora/exp004                 <- exp002
+    Kết quả: 95,61 · 0,836 · 2.701 ô - cũng trùng khít exp002
+    Kết luận: GIỮ - như trên
+```
+```
+BA LƯỢT VỀ `price` (nhóm E) - chi tiết ở §7 của `08_experiment_rationale.md`:
+qwen3-4b/prompt-cot/exp014           <- exp003   sửa câu chữ prompt (định nghĩa lời chê giá gián tiếp)
+    Kết quả: 97,01 (−0,71) · 0,906 · 2.228 ô · bắt 4/6 ô `price` âm nhưng gán mã 2 cho 22 ô (cha: 7)
+    Kết luận: BỎ - F1 `price` âm 0,600 -> 0,320 (bắt thêm 1 ô đổi lấy 15 báo động giả)
+qwen3-4b/prompt-cot/exp015           <- exp003   thêm ví dụ có ô giá mã 2
+    Kết quả: 97,39 (−0,33) · 0,915 · 2.436 ô · bắt 3/6 ô, gán mã 2 cho 10 ô
+    Kết luận: BỎ - 0,500, vẫn dưới cha
+qwen3-4b/prompt-cot/exp016           <- exp003   chẩn đoán: chỉ hỏi ĐÚNG một khía cạnh
+    Kết quả: 95,93 · 0,690 · **295 ô** · bắt 4/6 ô   (khác tập ô nên KHÔNG trộn vào bảng chính)
+    Kết luận: BỎ khỏi bảng chính, GIỮ làm chẩn đoán
+
+LƯỢT VAL PHÍA LLM (nhóm F):
+qwen3-4b/prompt-cot/exp017           <- exp009   (VAL)
+    Kết quả: 96,73 · 0,856 · 2.295 ô · `price` âm: val có 0 ô nhưng model vẫn gán mã 2 cho 6 ô
+    Kết luận: GIỮ - điều kiện chốt bảng LUẬT LAI
+
+SÁU LƯỢT ĐẦU PHÂN LOẠI (nhóm H; mỗi lượt khác cha ĐÚNG một khoá `head.trainable: true`):
+    phobert-large exp001->exp002     : 96,54 -> 97,69   (+1,15) · F1 âm macro 0,775 -> 0,781
+    xlm-roberta-base exp001->exp002  : 95,20 -> 96,36   (+1,16) · 0,740 -> 0,740
+    phobert-base-v2 exp002->exp005   : 96,62 -> 97,59   (+0,97) · 0,776 -> 0,784
+    visobert exp002->exp005          : 95,61 -> 96,28   (+0,67) · 0,700 -> 0,723
+    vibert-base-cased exp001->exp002 : 94,99 -> 94,84   (−0,15) · 0,692 -> 0,679
+    cafebert exp001->exp002          : 97,67 -> (thiếu kết quả - phải chạy lại một lượt)
+    Kết luận: GIỮ làm PHÉP ĐO CƠ CHẾ, không thay cha: 4/5 cặp hơn 0,67-1,16 điểm, lớp âm gần như đứng
+              yên, chỗ đổi rõ nhất là DỊCH CHUYỂN giữa các khía cạnh (`packing` rơi ở 4/5 cặp)
+
+HAI MODEL NHỎ:
+qwen2.5-0.5b-instruct/prompt-cot/exp001..003  <- (gốc)  mốc "nhỏ" ở họ KHÁC
+    Kết quả: đọc được 95,81 / 97,29 / 100,0 nhưng chỉ chịu trả lời 464 / 256 / 239 ô
+              (73,4-82,1% review bị gán "không nhắc tới" cho MỌI khía cạnh); F1 âm macro
+              0,257 / 0,056 / 0,000
+    Kết luận: GIỮ làm mốc "nhỏ thì kém" - nhưng KHÔNG so điểm trực tiếp được (khác cỡ mẫu)
+qwen3-0.6b/prompt-cot/exp001..003    <- (gốc)  mốc "nhỏ" cùng họ
+    Kết quả: KHÔNG DÙNG - dưới cửa đọc được (42,02 / 21,63 / 84,41%) và KHÔNG phải vì trần token
+    Kết luận: ĐỔI HƯỚNG - nhánh BẬT suy nghĩ (`exp005`, trần 1985) + nhánh MỘT LƯỢT
+              (`prompt-one-turn/exp001`); cả bốn notebook đã TẠO, CHƯA chạy
+qwen3-0.6b/prompt-cot/exp004         <- exp002   lượt DÒ (bật suy nghĩ, trần 8.192, 60 mẫu)
+    Kết quả: p50 642 / p95 1.072 / p99 1.323 / max 1.434 token sinh; đọc được 98,33%
+    Kết luận: GIỮ - đã CHỐT trần 1985 cho nhánh bật suy nghĩ (luật 23a)
+```
+
+
+
+BỐN BƯỚC KẾT HỢP (không chạy model; đọc lại các lượt đã có; tệp trong `data/reports/fusion/`). Luật chốt trên
+`val` rồi mới áp lên `test`:
+
+| Bước | Kết quả | Kết luận |
+| --- | --- | --- |
+| **Ngưỡng theo khía cạnh** - dò trên `val` (`phobert-base-v2/lora/exp003`) ra 0,95/0,95/0,95/**0,30**/0,95/**0,45**; `price` để nguyên; áp lên `test` (`lora/exp004`) | chỉ khía cạnh `smell` đổi: F1 âm 0,887 → **0,862**; F1 âm macro 0,7757 → **0,7721** (−0,0036); số ô KHÔNG đổi (2.736) | **KHÔNG có tác dụng** (chênh dưới mức nhiễu) - nói "không có tác dụng", KHÔNG nói "có hại" |
+| **Ensemble hai encoder** - trọng số chốt trên `val` (PhoBERT 0,5369 · ViSoBERT 0,4631), áp lên `test` | acc TB **96,61** so với PhoBERT một mình 96,62; F1 âm macro **0,7591** so với 0,7757; 2.721 ô so với 2.736 | **KHÔNG có tác dụng** - trộn một encoder kém hơn vào không cải thiện gì |
+| **Lai encoder + LLM theo khía cạnh** - luật chốt trên `val` bằng `exp017`; kết quả: chỉ `packing` lấy từ encoder | LLM `exp009` một mình: 97,77 · F1 âm `packing` 0,769 ⇒ lai: **98,02** · micro 98,28 · **F1 âm `packing` 0,952** · 2.324 ô (1.623 ô lấy từ encoder, 4 ô thiếu) | **GIỮ** - +0,25 điểm và F1 âm của khía cạnh đó tăng 0,183; chỉ ĐÚNG MỘT khía cạnh đổi |
+| **Biểu quyết 3 mẫu** | **CHƯA chạy** - cần `exp018`/`exp019`/`exp020` (đợt 8) | chưa có gì để đọc |

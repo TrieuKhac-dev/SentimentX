@@ -12,7 +12,7 @@
 ## 1. Mục tiêu giai đoạn
 
 1. **Chạy nốt** phần còn thiếu của vòng so công bố: **23 notebook đợt 7** = 17 notebook đã ghim (gói
-   **012 + 013 + 014**) + **6 lượt ablation đầu phân loại** (gói **015**), rồi 7-9 notebook đợt 8 (gói
+   **012 + 013 + 014**) + **6 lượt ablation đầu phân loại** (gói **015**), rồi 8-10 notebook đợt 8 (gói
    **016**), và 3 notebook đợt 9 khi cần mốc quy mô lớn.
 2. **Chốt luật trên `val` rồi mới áp lên `test`** (ngưỡng theo khía cạnh, trọng số ensemble, bảng luật
    lai) - không chọn bằng `test`.
@@ -45,6 +45,15 @@
   mã đã sửa và bản ghim mới); đợt 8 = **gói 016**, gói cuối = **017**.
 - **Mốc dừng:** **#2** sau khi gửi **gói 012 + 013 + 014** (đợt 7); **#3** sau **gói 015** (6 lượt ablation);
   **#4** sau **gói 016** (đợt 8); **#5** sau khi xử lý đợt 8 xong (**gói 017** nếu có sửa mã).
+- **05/10/2026 (xử lý kết quả đợt 7):** 22/23 notebook đợt 7 đã về. Bốn việc đã xong: (1) **chốt trần
+  token 1985** cho nhánh bật suy nghĩ của 0,6B (đo từ lượt DÒ, luật 23a); (2) xác nhận hai lỗi đã sửa
+  **KHÔNG đổi số** - `phobert-base-v2/lora/exp004` trùng khít `lora/exp002` từng dòng `metrics.csv`;
+  (3) chốt xong **ba bước kết hợp trên `val`** (ngưỡng, trọng số ensemble, luật lai) rồi áp lên `test`;
+  (4) đọc ra nguyên nhân ba lượt 0,6B tắt suy nghĩ bị gắn `read_rate.valid = false`: **lỗi ĐỊNH DẠNG đầu
+  ra**, không phải trần token. Một lượt **phải chạy lại**: `cafebert/lora/exp002` (thư mục kết quả sao chép
+  thiếu). Bốn notebook **đợt 8** đã tạo: `qwen3-0.6b/prompt-cot/exp005`/`exp006`/`exp007` (bật suy nghĩ,
+  trần 1985) + `qwen3-0.6b/prompt-one-turn/exp001` (bỏ suy luận, chỉ trả JSON).
+
 
 ## 3. Đợt 7 - gói 012 (rồi 013, 014) + gói 015, 23 notebook, khoảng 11-14 giờ GPU
 
@@ -69,7 +78,7 @@ Chữ cái nhóm chỉ có phạm vi **trong từng tài liệu**, nên đổi t
 một chữ. `handover/README.md` (bản nằm trong gói 015) **không dùng chữ cái nhóm** - nó gọi đủ tên "sáu lượt
 đầu phân loại" - nên việc đổi tên này **không phải ghim lại** và **không phải dựng gói mới**.
 
-## 4. Đợt 8 - gói 016, 7-9 notebook, khoảng 14-25 giờ GPU
+## 4. Đợt 8 - gói 016, 8-10 notebook, khoảng 14-25 giờ GPU
 
 | Thí nghiệm | `parent` | Vì sao có mặt | Chi phí |
 | --- | --- | --- | --- |
@@ -81,6 +90,20 @@ một chữ. `handover/README.md` (bản nằm trong gói 015) **không dùng ch
 
 Ba bước kết hợp **không cần notebook và không tốn GPU**: ensemble encoder, lai encoder + LLM theo khía
 cạnh, biểu quyết 3 mẫu. Luật và trọng số đóng băng trong repo (`data/reports/fusion/`).
+
+**Cập nhật 05/10/2026 - sau khi xử lý kết quả đợt 7 (đọc kỹ ở mục 2):**
+
+1. **Trần token đã CHỐT: `max_new_tokens: 1985`** cho MỌI lượt bật suy nghĩ của 0,6B. Số này ĐO từ lượt
+   DÒ `qwen3-0.6b/prompt-cot/exp004` theo luật 23a (p99 1.323 × 1,5), và ba notebook `exp005`/`exp006`/
+   `exp007` đã được tạo với đúng giá trị đó. Ghi rõ một điều để không đọc sai: lượt DÒ chạy ở **mức 1 ví
+   dụ**, nên 0 và 5 ví dụ dùng CHUNG trần này và **chưa có lượt DÒ riêng**.
+2. **Thêm MỘT thí nghiệm ngoài bảng trên: `qwen3-0.6b/prompt-one-turn/exp001`** (bản 0,6B của đối chứng
+   một lượt đã chạy ở 4B). Vì sao phải thêm: ba lượt tắt suy nghĩ của 0,6B chạy xong nhưng **dưới cửa đọc
+   được** (42,02 / 21,63 / 84,41%) vì model **không in khối JSON**, KHÔNG phải vì trần token. Nhánh bật
+   suy nghĩ sửa được lỗi đó nhưng **đắt gấp khoảng 5 lần**; nhánh một lượt trả lời đúng câu hỏi "vướng
+   ĐỊNH DẠNG hay vướng SUY LUẬN" với chi phí rẻ nhất (câu trả lời ngắn). ⇒ **đợt 8 nay là 8-10 notebook.**
+3. **Chưa cần chạy `exp018`/`exp019`/`exp020`/`exp021` ngay**: chúng phục vụ bước BIỂU QUYẾT và thước nhiễu,
+   mà bốn bước kết hợp kia đã chốt xong trên `val`.
 
 ## 5. Đợt 9 - 3 notebook, khoảng 15-25 giờ, chạy khi cần mốc quy mô lớn
 

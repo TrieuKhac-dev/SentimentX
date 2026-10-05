@@ -238,6 +238,33 @@ DÒ riêng** - ghi ra để người đọc không tưởng là đã đo riêng 
 Ba lượt đợt 8 tiếp theo nhóm này (trần 1985, cùng một cơ chế): `exp005` (1 ví dụ, **luôn chạy** - lượt so
 chính với nhánh tắt suy nghĩ) và `exp006`/`exp007` (0 và 5 ví dụ, **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ**).
 
+## 5b. Mốc "model nhỏ họ KHÁC" - Qwen2.5-0.5B (3 lượt, dùng lại đúng ba mức ví dụ của công bố)
+
+Ba lượt `qwen2.5-0.5b-instruct/prompt-cot/exp001`/`exp002`/`exp003` (0 / 1 / 5 ví dụ, `parent: null`) trả
+lời câu "kết luận *nhỏ thì kém* có lặp lại ở họ model khác không". Số ở cơ sở `paper`, `test`, `greedy`:
+
+| Lượt | Mức ví dụ | `% đọc được` | acc TB | F1 macro | F1 âm macro | số ô `paper` | mẫu toàn mã 0 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `exp001` | 0 ví dụ | 95,81 | 32,79 | 0,299 | 0,257 | **464** | **73,4%** (1.192/1.623) |
+| `exp002` | 1 ví dụ | 97,29 | 83,61 | 0,478 | 0,056 | **256** | **82,1%** (1.332/1.623) |
+| `exp003` | 5 ví dụ | 100,0 | 95,12 | 0,681 | **0,000** | **239** | **78,6%** (1.276/1.623) |
+
+**Kết luận "nhỏ thì kém" ĐÚNG, nhưng cơ chế hỏng KHÁC hẳn 0,6B - và đây là chỗ dễ đọc sai nhất của cả
+báo cáo:**
+
+- ba lượt này **VƯỢT cửa 95%** (`% đọc được` 95,81 / 97,29 / 100,0), tức định dạng thì ổn - khác 0,6B,
+  vốn đọc không nổi 42,02-84,41% vì không in khối JSON;
+- thứ 0,5B làm là **KIÊNG TRẢ LỜI**: 73,4-82,1% số review bị nó gán mã 0 (**"không nhắc tới"**) cho MỌI
+  khía cạnh, trong khi chỉ 1.311/1.623 review là thật sự không có nhãn nào (`test` có 1.311 review mà mọi
+  khía cạnh đều "không nhắc tới"). Hệ quả: **số ô `paper` tụt xuống 239-464** (các lượt 4B: 2.315-2.580),
+  nên **F1** được tính trên một phần rất nhỏ của tập - và F1 lớp âm macro sụp về **0,000** ở mức 5 ví dụ.
+- vì vậy **điểm `paper` của 0,5B KHÔNG so được với các lượt khác**: "acc TB 95,12" ở `exp003` là độ chính
+  xác trên **239 ô** mà model chịu nói, không phải trên cả tập. Muốn so thì phải đọc kèm **số ô** (luật 1
+  của `metrics.md`) - đây là ví dụ rõ nhất của cả dự án cho luật đó.
+- cơ chế "kiêng trả lời" này cũng có mặt ở 0,6B (`exp003`: 59,2% review toàn mã 0) nhưng **nhẹ hơn**; còn
+  0,6B cộng thêm lỗi định dạng. Hai model nhỏ hỏng theo hai kiểu khác nhau - cùng một kết luận "kém",
+  hai nguyên nhân khác nhau, và cách sửa cũng khác nhau.
+
 ## 6. Bốn điều phải nhớ khi đọc số
 
 1. **Nói rõ cơ sở đo.** Số so công bố là cơ sở `paper` (`data/reports/metrics_matrix/`, `metrics.csv` với

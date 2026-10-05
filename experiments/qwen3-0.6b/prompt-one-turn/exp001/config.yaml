@@ -1,0 +1,56 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp001
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: null
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: qwen3-0.6b
+method: prompt-one-turn
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Prompt mot luot (0 vi du) tren Qwen3-0.6B: bo phan suy nghi, chi tra JSON - do xem dinh dang dau ra co phai cho vuong khong"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi training.enabled: true.
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc repo là BỐN cấp,
+# vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
+#   prompt.txt                                  file nằm ngay trong thư mục này
+#   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
+prompt: ../../../../configs/prompts/absa_one_turn_v1.txt
+# Khối hệ thống ở thư viện dùng chung (file riêng): câu hệ thống KHÔNG nằm trong file prompt.
+system_prompt: ../../../../configs/prompts/system/absa_one_turn.txt
+# Không khai `examples`: bản 0 ví dụ không dùng ô nhớ `{examples}` (khai thừa là lỗi).
+# Cũng KHÔNG khai `preprocess.enable_thinking`: lượt này tắt suy nghĩ - mà đó ĐÃ là mặc định của
+# `configs/models/qwen3-0.6b.yaml`, nên khai lại chỉ che mất nguồn sự thật. Muốn đọc cho đúng thì so
+# `run_meta.json::overrides` của lượt này (rỗng) với lượt BẬT suy nghĩ `prompt-cot/exp005`.
+# Trần token giữ mặc định dùng chung: câu trả lời một lượt ngắn, đúng như đối chứng 4B
+# (`qwen3-4b-instruct-2507/prompt-one-turn/exp001`).
+
+# `prompt.txt` KHÔNG chứa system prompt: câu hệ thống nằm ở FILE RIÊNG (khoá `system_prompt` dưới đây).
+
+# Chỉ khai khi cần:
+# examples: examples.txt                      # khối ví dụ few-shot, khi prompt có {examples}
+# system_prompt: system.txt                   # khối system RIÊNG của thí nghiệm này (file trong thư mục này)
+# system_prompt: ../../../../configs/prompts/system/<tên>.txt   # hoặc khối DÙNG CHUNG nhiều thí nghiệm
+# requires_extra:                             # thứ notebook phải kiểm mà máy không suy ra được
+#   - data/models/vncorenlp                   # mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU (trên
+#                                             # Colab là thư mục Drive); mục khác tính từ gốc repo
