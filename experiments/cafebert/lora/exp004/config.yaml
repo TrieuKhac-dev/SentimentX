@@ -1,0 +1,44 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp004
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp002
+
+model: cafebert
+method: lora
+
+notes: "THUOC NHIEU: chay lai exp002 (dau phan loai HOC) voi decoding.seed 7"
+
+data:
+  dataset: cosmetics
+  version: v0.2.0
+
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# ĐÚNG MỘT BIẾN so với `exp002`: HẠT GIỐNG HUẤN LUYỆN (khoá `decoding.seed`).
+# Ở ĐƯỜNG ENCODER (luôn chạy `greedy`), khoá này là hạt giống huấn luyện: khởi tạo trọng số đầu phân
+# loại, dropout, xáo trộn dữ liệu - xem dòng "NGOẠI LỆ Ở ĐƯỜNG ENCODER" trong
+# `configs/experiments/evaluation.yaml`. Mặc định 42; lượt này khai 7.
+# THƯỚC NHIỄU cho vế "đầu phân loại HỌC": `exp002` chạy 1 lượt nên chênh lệch so với `exp001`
+# (97,67 -> 97,88 = +0,21) CHƯA tách được khỏi nhiễu. Lượt này cho biết biên nhiễu của chính cặp đó.
+decoding:
+  seed: 7
+
+# Giữ đúng cơ chế của `exp002` để phép so chỉ còn MỘT biến.
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Không có `requires_extra`: CafeBERT đọc nguyên bản (`segmenter: none`).

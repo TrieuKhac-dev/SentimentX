@@ -1,0 +1,50 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp003
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: vibert-base-cased/lora/exp001
+
+model: vibert-base-cased
+method: lora
+
+notes: "THUOC NHIEU: chay lai exp001 voi decoding.seed 7 (cap co delta AM -0,15) "
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# ĐÚNG MỘT BIẾN so với `exp001`: HẠT GIỐNG HUẤN LUYỆN (khoá `decoding.seed`), mặc định 42 -> 7.
+# Ở ĐƯỜNG ENCODER (luôn chạy `greedy`), khoá này là hạt giống huấn luyện - xem dòng
+# "NGOẠI LỆ Ở ĐƯỜNG ENCODER" trong `configs/experiments/evaluation.yaml`.
+# Đây là THƯỚC NHIỄU cho cặp CÓ Δ ÂM: cặp `vibert-base-cased` `lora/exp001 -> exp002` là cặp DUY NHẤT
+# tụt điểm (-0,15) trong nhóm đầu phân loại, và đó cũng là cặp chưa kết luận được vì chưa có thước
+# nhiễu (xem §2b của docs/04_experiments/08_experiment_rationale.md).
+decoding:
+  seed: 7
+
+# Y hệt `exp001`: `weighted_ce` + `class_weight: inverse`.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# LƯU Ý khi chạy - ViBERT được tiền huấn luyện trên văn bản ĐÃ TÁCH TỪ (`segmenter: vncorenlp` ở
+# `configs/models/vibert-base-cased.yaml`), nên cần VnCoreNLP:
+#   * Java (JDK/JRE 1.8+) và gói `py-vncorenlp`; trên Colab ô bootstrap tự cài, trên máy cá nhân thì
+#     chạy scripts/setup_java.ps1.
+#   * Model VnCoreNLP (~27 MB).
+# `requires_extra` để notebook kiểm VnCoreNLP TRƯỚC khi chạy (mục bắt đầu bằng `data/` tính từ GỐC
+# DỮ LIỆU); thiếu mục này là lỗi đã sửa 05/10/2026 ở hai lượt `lora/exp001`.
+requires_extra:
+  - data/models/vncorenlp
