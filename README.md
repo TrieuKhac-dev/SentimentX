@@ -266,7 +266,8 @@ SentimentX/
 │   │   ├── eda/                # kết quả EDA đo trên dữ liệu ĐÃ xử lý
 │   │   └── pipeline/           # bảng chi tiết từng bước + report.html
 │   ├── models/                 # model tải về (bỏ qua nội dung, giữ README)
-│   ├── reports/                # bảng tổng hợp sinh tự động: 5 nhóm, xem scripts/collect_reports.py
+│   ├── reports/                # bảng tổng hợp sinh tự động: 5 nhóm (scripts/collect_reports.py)
+│   │                           # + fusion/ (đầu vào & bảng của bước kết hợp) + _archive/
 │   └── reference_publication/  # số liệu công bố tham chiếu, để so kết quả
 ├── configs/
 │   ├── paths.yaml              # NGUỒN DUY NHẤT của đường dẫn và mẫu tên file
@@ -313,6 +314,10 @@ SentimentX/
 │                       # show_prompt.py, smoke_tracking.py, setup/ (3 file .ps1 cài đặt tái lập)
 ├── docs/               # tài liệu: README.md (mục lục) + 00_workflow/, 01_dataset/, 02_eda/,
 │                       # 03_pipeline/, 04_experiments/, 05_config/, 06_plan/
+├── presentations/      # bài trình bày (số liệu + sơ đồ Mermaid) cho báo cáo đồ án
+├── present_plan.md     # kế hoạch đang chạy (bản sống, cập nhật theo tiến độ)
+├── check_present_plan.md  # trạng thái thực thi, đối chiếu từng mục của present_plan.md
+├── .github/workflows/  # ci.yml: chạy scripts/ci_checks.py + unittest khi push/PR vào `experiment`
 ├── tests/              # test `unittest`, không cần GPU, xếp GƯƠNG của src/: api/, core/, evaluation/,
 │                       # experiments/, pipeline/, preprocessing/, reporting/, training/, workflow/
 ├── run_eda.py          # tính + ghi file kết quả EDA (KHÔNG vẽ báo cáo) - cần --on raw|dataset

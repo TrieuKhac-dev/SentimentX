@@ -9,7 +9,7 @@
 configs/
 +-- prompts/<tên>.txt        NỘI DUNG prompt (sửa được không cần đụng code)
 +-- prompts/examples/<tên>.txt  khối ví dụ few-shot (tuỳ chọn, khi prompt dùng {examples})
-\-- models/<model_id>.yaml   ngưỡng cắt input, cách nạp model (mặc định: qwen3-4b-instruct-2507.yaml)
+\-- models/<model_id>.yaml   ngưỡng cắt input, cách nạp model (mỗi model một file, tên trùng `model_id`)
 
 src/
 +-- experiments/             nạp + KIỂM TRA prompt, đọc config model, chạy thí nghiệm
@@ -17,8 +17,13 @@ src/
 |   \-- model_config.py      đọc configs/models/<model_id>.yaml
 \-- preprocessing/
     +-- loader.py            ĐỌC dữ liệu đã xử lý (mọi model dùng chung)
+    +-- bert_like.py         khuôn chung cho encoder kiểu BERT (khai ba hằng số rồi gọi sang)
     +-- phobert.py           tách từ + tokenizer
+    +-- phobert_large.py     PhoBERT bản LỚN (cùng kho tiền huấn luyện + bộ tách từ, khác số tham số)
     +-- visobert.py          tokenizer (không tách từ)
+    +-- vibert.py            encoder FPT (kho tiền huấn luyện khác, vẫn tách từ)
+    +-- cafebert.py          XLM-R tiền huấn luyện tiếp bằng tiếng Việt (SentencePiece)
+    +-- xlmroberta.py        đối chứng nguồn tiền huấn luyện (đa ngữ, SentencePiece)
     +-- qwen.py              prompt + chat template + tokenizer
     +-- vitasa.py            gác lại - xem [04_backlog.md](04_backlog.md) mục 1
     +-- token_stats.py       ĐO độ dài input thật (chạy: run_token_stats.py --hash <hash8> --prompt <tên>)
@@ -96,7 +101,7 @@ khuôn để điền, không phải đáp án.
 | Chú thích nguồn gốc | File **được phép** mở đầu bằng các dòng `#` để ghi nguồn ví dụ (viết tay hay lấy từ split nào). Khối này bị **cắt trước khi chèn vào prompt** (xem `prompts._split_examples_note`), nên model không thấy, và sửa mỗi lời chú thích thì số token không đổi |
 | `{example}` khác `{examples}` | `{example}` = MỘT object JSON mẫu sinh tự động theo danh sách khía cạnh; `{examples}` = khối ví dụ đọc từ file |
 | **Số ví dụ đổi được mà KHÔNG sửa prompt** | Bỏ/thêm khối `--- Ví dụ n ---` trong file ví dụ là xong. Đây là biến thực nghiệm rẻ nhất của hướng LLM |
-| Truy vết | `prompt_sha` **không đổi** khi đổi số ví dụ (nó chỉ tính nội dung file prompt), nên `prompts.examples_info()` trả thêm `examples_sha` + số ví dụ; tên file CSV có thêm `ex-<sha4>` **kể cả khi chạy bằng cấu hình dự án** - hai bộ ví dụ là hai thí nghiệm, không được ghi cùng một file |
+| Truy vết | `prompt_sha` **không đổi** khi đổi số ví dụ (nó chỉ tính nội dung file prompt), nên `prompts.examples_info()` trả thêm `examples_sha` + số ví dụ; tên file CSV có thêm `ex-<sha8>` **kể cả khi chạy bằng cấu hình dự án** - hai bộ ví dụ là hai thí nghiệm, không được ghi cùng một file |
 | Kiểm tra nguồn | `python run_check_examples.py --hash <hash8>` - kiểm cấu trúc, kiểm khoá/mã JSON có khớp `label_map.json`, và **đối chiếu từng ví dụ với cả 3 split** (trùng nguyên câu, cụm trùng dài nhất) |
 
 Quy ước dạy định dạng trong prompt CoT là **của dự án** (không phải chuẩn của Qwen):

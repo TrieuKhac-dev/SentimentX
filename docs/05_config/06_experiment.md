@@ -15,11 +15,11 @@ method: prompt-cot
 notes: "CoT 1 shot, chấm trên val"
 data:
   dataset: cosmetics
-  version: v0.1.0
-  roles: { train: train, val: val, eval: test }
+  version: v0.2.0
+  roles: { eval: test }
 prompt: prompt.txt
 examples: examples.txt
-system_prompt: configs/prompts/system/absa_cot.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
 requires_extra: []
 ```
 
@@ -76,8 +76,8 @@ sửa phần người dùng gửi model (`system_sha` đổi đúng chỗ, khôn
 | Vai     | Bắt buộc                     | Ghi chú                                                   |
 | ------- | ---------------------------- | --------------------------------------------------------- |
 | `eval`  | luôn                         | thí nghiệm chỉ prompt cũng cần, để biết chấm trên tập nào |
-| `train` | khi `training.enabled: true` |                                                           |
-| `val`   | khi `training.enabled: true` | là cơ sở chọn `model/best`                                |
+| `train` | khi `enabled: true`          |                                                           |
+| `val`   | khi `enabled: true`          | là cơ sở chọn `model/best`                                |
 
 Ngoài ra: giá trị của mỗi vai phải là khoá có thật trong `splits` của file dataset version.
 Chấm trên `train` bị chặn, vì đó là rò rỉ dữ liệu.

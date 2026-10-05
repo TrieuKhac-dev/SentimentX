@@ -1,4 +1,4 @@
-# Bốn model thực nghiệm - và vì sao tách preprocessing khỏi pipeline
+# Chín model thực nghiệm - và vì sao tách preprocessing khỏi pipeline
 
 > Đọc file này khi: thêm model mới, hoặc xem model nào chạy được trên máy nào.
 > Liên quan: `docs/05_config/04_models.md`, `docs/04_experiments/02_model_input.md`,

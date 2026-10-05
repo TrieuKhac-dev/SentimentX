@@ -95,11 +95,11 @@ EDA tách thành hai việc: **tính** và **vẽ**.
 ```bash
 # 1) Tính toán và ghi số liệu (không sinh HTML): dữ liệu gốc, hoặc dataset đã xử lý
 python run_eda.py --on raw --name cosmetics --version v0.1.0
-python run_eda.py --on dataset --hash e0ccc484        # hash8 mà run_pipeline.py in ra
+python run_eda.py --on dataset --hash e616c1e3        # hash8 mà run_pipeline.py in ra
 
 # 2) Vẽ báo cáo từ số liệu đã ghi - phải ghi rõ đích
 python build_report.py --phase eda --on raw --name cosmetics --version v0.1.0
-python build_report.py --phase eda --on dataset --hash e0ccc484
+python build_report.py --phase eda --on dataset --hash e616c1e3
 ```
 
 Kết quả nằm trong một thư mục **theo phiên bản**:
@@ -122,7 +122,7 @@ Cách mở báo cáo cũ, hoặc danh sách phiên bản đã chạy:
 
 ```bash
 python build_report.py --list                                    # xem mọi đích + lệnh copy được
-python build_report.py --phase eda --on dataset --hash e0ccc484   # vẽ một đích cụ thể
+python build_report.py --phase eda --on dataset --hash e616c1e3   # vẽ một đích cụ thể
 ```
 
 > Mã phiên bản đổi mỗi khi **config hoặc dữ liệu gốc** đổi (mã hash tính từ cả
@@ -150,13 +150,14 @@ Ví dụ cụ thể:
 | 59 dòng có dấu hiệu quảng cáo trong train (78 trên 3 split)                   | Bật `remove_ads: true`                                                                                                   |
 | 1 dòng có dấu hiệu code / HTML trong train (1 trên 3 split)                   | Bật `remove_code: true` (loại 1 dòng)                                                                                    |
 | 3604 dòng có ký tự lặp trong train                                            | `repeated_chars: false` (giữ, vì mang cảm xúc) - bật chỉ để thực nghiệm                                                  |
-| **68 dòng val/test trùng train (91 theo khoá so trùng)**                      | Bật `steps.clean.leakage.remove_eval_overlap: true`                                                                            |
+| **68 dòng val/test trùng train (91 theo khoá so trùng)**                      | `v0.1.0`: bật `steps.clean.leakage.remove_eval_overlap: true` (loại ở val/test). `v0.2.0`: khai `steps.clean.leakage.keep_priority: [test, val, train]` - giữ ở tập ưu tiên cao, loại ở tập thấp hơn (nên `test` không bao giờ bị loại) |
 | 2884 dòng không có nhãn khía cạnh nào (3 split)                               | Giữ lại trong `train.csv`, `val.csv`, `test.csv` nhưng không sinh bản ghi ABSA                                                            |
 | Teencode / từ lạ: token hay gặp nhất là `k`, `mn`, `đc`, `mng`, `sp`, `vs`... | **Không thay** - giữ nguyên văn bản gốc, chỉ ghi nhận để phân tích                                                       |
 
-> Hai con số ở dòng "rò rỉ dữ liệu" và dòng ở pipeline (84 dòng bị loại) **không
-> bằng nhau** là đúng như thiết kế: EDA đo trên dữ liệu gốc còn Clean xoá nhiễu
-> trước rồi mới xử lý rò rỉ. Chi tiết: [02_metrics.md](02_metrics.md) mục 12.
+> Hai con số ở dòng "rò rỉ dữ liệu" và dòng ở pipeline **không bằng nhau** là đúng như thiết kế: EDA đo
+> trên dữ liệu gốc còn Clean xoá nhiễu trước rồi mới xử lý rò rỉ. Số "84 dòng bị loại" ở trên là của
+> `v0.1.0` (loại ở val/test); `v0.2.0` xử lý ở phía TẬP HỌC nên loại ở `train` (249 dòng) - xem
+> `03_pipeline/01_flow.md` mục 4. Chi tiết: [02_metrics.md](02_metrics.md) mục 12.
 
 Bảng policy đầy đủ (kèm config hiện tại): [03_pipeline/01_flow.md](../03_pipeline/01_flow.md) mục 4.
 

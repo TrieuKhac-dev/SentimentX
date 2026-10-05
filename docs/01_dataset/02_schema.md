@@ -6,7 +6,7 @@
 ## 1. Schema
 
 Mỗi dòng có 9 cột, nhưng **schema không còn được viết cứng trong code**. Nó nằm
-trong `configs/datasets/cosmetics/v0.1.0.yaml`:
+trong `configs/datasets/cosmetics/v0.2.0.yaml`:
 
 | Cột            | Kiểu    | Ý nghĩa                                                     |
 | -------------- | ------- | ----------------------------------------------------------- |

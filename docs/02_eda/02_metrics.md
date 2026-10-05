@@ -284,13 +284,14 @@ bản bị trùng; chuỗi "trùng theo khoá so trùng" có 23 + 22 + 9 = 54 th
 **38** văn bản bị trùng. File `05_split_duplicate_totals.csv` ghi cả hai cách đếm để
 đối chiếu.
 
-Con số (2) chính là phép mà bước Clean thực hiện khi
-`steps.clean.leakage.remove_eval_overlap = true`: lấy khoá so trùng của **train**, rồi
-loại khỏi val/test mọi dòng có khoá đó. Vì vậy khi so EDA với pipeline, hãy so với
-con số (2) - và lưu ý Clean **xoá nhiễu TRƯỚC rồi mới xử lý rò rỉ**, nên số dòng bị
-loại vì rò rỉ trong báo cáo pipeline luôn **nhỏ hơn hoặc bằng** con số (2) của EDA
-(cosmetics: EDA (2) = 91 dòng, pipeline loại 84 vì 7 dòng trong số đó đã bị loại từ
-bước xoá nhiễu).
+Con số (2) là phép mà bước Clean thực hiện, NHƯNG cơ chế khác nhau theo phiên bản pipeline:
+`v0.1.0` bật `steps.clean.leakage.remove_eval_overlap = true` (lấy khoá so trùng của **train** rồi loại
+khỏi val/test), còn `v0.2.0` khai `steps.clean.leakage.keep_priority: [test, val, train]` (giữ ở tập ưu
+tiên cao, loại ở tập thấp hơn, nên `test` không bao giờ bị loại và dòng bị loại nằm ở `train`). Vì vậy khi
+so EDA với pipeline hãy so với con số (2) theo ĐÚNG phiên bản - và lưu ý Clean **xoá nhiễu TRƯỚC rồi mới
+xử lý rò rỉ**, nên số dòng bị loại vì rò rỉ trong báo cáo pipeline luôn **nhỏ hơn hoặc bằng** con số (2)
+của EDA (cosmetics, `v0.1.0`: EDA (2) = 91 dòng, pipeline loại 84 vì 7 dòng trong số đó đã bị loại từ bước
+xoá nhiễu; `v0.2.0` loại ở `train`: 249 dòng).
 
 ## 13. Xung đột nhãn - "review" và "ô nhãn" là hai con số khác nhau
 

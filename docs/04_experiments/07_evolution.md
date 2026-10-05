@@ -51,7 +51,7 @@ nguồn trong cùng một ô.
 
 ### Một phép đo = MỘT run MLflow
 
-`run_meta.json` giữ `tracking.run_id`; phiên chạy tiếp (RESUME) NỐI vào đúng run đó thay vì mở run
+`run_meta.json` giữ `tracking.run_id` (dòng log cũng ghi mã run đó); phiên chạy tiếp (RESUME) NỐI vào đúng run đó thay vì mở run
 mới. Tham số phẳng gửi ngay khi biết; phần SỐ của cấu trúc lớn (`read_rate`, `cost`, `resume`) đi qua
 metric (không bị giới hạn 500 ký tự như param). Số cơ sở `paper` lên MLflow với tiền tố `paper.`; run
 tham chiếu công bố do `scripts/log_reference_run.py` ghi (chạy tay khi có mạng).
@@ -167,10 +167,10 @@ qwen3-0.6b/prompt-cot/exp001..003          <- (gốc)                  model nh�
 ```
 
 Đọc cây này kèm `04_backlog.md` (việc chưa làm) và `08_experiment_rationale.md` (câu hỏi của từng lượt).
-Nhánh G (0.6B) chưa có nút kết quả vì cả sáu thư mục cũ đều không dùng được; xem
-`08_experiment_rationale.md` §5.
+Nhánh G (0.6B) có nút kết quả ở bản chụp 05/10 bên dưới; sáu thư mục của ba lượt đầu đã xoá
+(04/10/2026) vì không dùng được; xem `08_experiment_rationale.md` §5.
 
-## Cây tính tới 05/10/2026 - 22 lượt của đợt 7 (bản chụp thứ hai, nối tiếp bản trên)
+## Cây tính tới 05/10/2026 - 23 lượt của đợt 7 (bản chụp thứ hai, nối tiếp bản trên)
 
 Số ở cơ sở `paper` trên `test`, trừ lượt nào ghi rõ `VAL` (số `val` để CHỐT LUẬT, không so công bố). Lượt
 nào KHÔNG dùng được thì nói thẳng là không dùng được - không suy diễn thay cho lượt hỏng.
@@ -252,7 +252,9 @@ qwen3-0.6b/prompt-one-turn/exp001    <- (gốc)  bỏ suy luận, bắt trả JS
               0,211 · chỉ 877 ô paper (cũng KIÊNG TRẢ LỜI, khác 0,5B ở chỗ không hỏng định dạng)
     Kết luận: GIỮ - ĐỊNH DẠNG là cơ chế hỏng của ba lượt exp001..003, KHÔNG phải trần token;
               nhưng điểm vẫn thấp ⇒ 0,6B vẫn quá nhỏ để so điểm
-qwen3-0.6b/prompt-cot/exp005..007    <- exp002   ba lượt BẬT suy nghĩ, trần 1985
+qwen3-0.6b/prompt-cot/exp005        <- exp002   BẬT suy nghĩ (1 ví dụ), trần 1985
+qwen3-0.6b/prompt-cot/exp006        <- exp001   BẬT suy nghĩ (0 ví dụ), cùng trần 1985
+qwen3-0.6b/prompt-cot/exp007        <- exp003   BẬT suy nghĩ (5 ví dụ), cùng trần 1985
     Kết quả: CHƯA chạy (`exp005` luôn chạy; `exp006`/`exp007` chỉ chạy khi mỗi lượt ≤ ~3 giờ)
 ```
 

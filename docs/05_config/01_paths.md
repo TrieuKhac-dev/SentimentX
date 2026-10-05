@@ -25,6 +25,7 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `data_version`   | `{name}-ds{dataset_version}-pl{pipeline_version}-src{src}-{hash8}` với `{src}` là `<tên nguồn>@<phiên bản>` | `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3` |
 | `run_log`        | `run.log`                                                          |                                               |
 | `run_meta`       | `run_meta.json`                                                    |                                               |
+| `run_meta_dir`   | `results`                                                          | thư mục chứa các lượt chạy (một tầng; con là `<hash8>`) |
 | `metrics_json`   | `metrics.json`                                                     |                                               |
 | `metrics_csv`    | `metrics.csv`                                                      |                                               |
 | `errors`         | `errors.json`                                                      | chỉ tạo khi có lỗi                            |
@@ -47,6 +48,7 @@ File: `configs/paths.yaml`. Đây là **nguồn duy nhất** khai báo đường
 | `metrics_rescored_json` | `metrics_rescored.json`                                      | số đo THÊM (rescore) - KHÔNG ghi đè `metrics.json` |
 | `metrics_rescored_csv` | `metrics_rescored.csv`                                        | bảng dài của số đo THÊM                            |
 | `training_history` | `training_history.csv`                                           | lịch sử huấn luyện (loss/chỉ số theo bước và theo epoch) của lượt chạy encoder |
+| `probabilities`  | `probabilities.csv`                                                | xác suất từng ô `p(mã)` - CHỈ đường encoder; bước kết hợp cần (không vào git) |
 | `eda_dir`        | `eda`                                                              | thư mục kết quả EDA                           |
 | `pipeline_dir`   | `pipeline`                                                         | thư mục báo cáo của lần chạy pipeline         |
 | `experiment_config` | `config.yaml`                                                   | config riêng của một thí nghiệm               |

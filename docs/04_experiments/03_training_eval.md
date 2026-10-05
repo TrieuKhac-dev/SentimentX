@@ -212,5 +212,5 @@ Bốn điều đọc ra từ bảng này:
 
 ---
 
-Xem thêm: [01_models.md](01_models.md) - bốn model;
+Xem thêm: [01_models.md](01_models.md) - chín model;
 [02_model_input.md](02_model_input.md) - chuẩn bị input cho model.

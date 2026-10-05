@@ -14,8 +14,8 @@ trị mặc định trong code:
 | `prompt` | `qwen3-4b-instruct-2507`, `qwen3-0.6b`, `qwen2.5-0.5b-instruct` | `src/evaluation/runner.py`: gửi prompt rồi đọc câu trả lời | GPU, prompt của thí nghiệm |
 | `encoder` | `visobert`, `phobert-base-v2`, `phobert-large`, `vibert-base-cased`, `cafebert`, `xlm-roberta-base` | `src/experiments/encoder_run.py`: huấn luyện LoRA rồi suy luận | GPU, `peft`, ba vai |
 
-Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng nó bắt buộc khai
-`training.enabled: true` (guard ở `src/experiments/experiments.py::check`).
+Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng nó bắt buộc khai `enabled: true`
+(khoá ở lớp `configs/experiments/training.yaml`; guard ở `src/experiments/experiments.py::check`).
 
 ## Một lượt chạy encoder gồm gì
 
@@ -27,7 +27,8 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
    mỗi khía cạnh (`khía cạnh × mã nhãn`). **Đầu phân loại ĐÓNG BĂNG ở mặc định** - `peft` đóng băng mọi
    tham số không phải adapter, nên mặc định chỉ adapter học; `head.trainable: true` mới mở đầu ra (mục
    "Đầu phân loại" bên dưới).
-4. **Chọn `model/best` theo `val`** (độ chính xác theo Ô), rồi **suy luận trên split `eval`**.
+4. **Chọn `model/best` theo `checkpoints.best_metric` trên `val`** (mặc định `sentiment_f1` = macro-F1
+   sắc thái), rồi **suy luận trên split `eval`**.
 5. **Chấm điểm và ghi kết quả** bằng đúng bộ chấm của đường prompt (`src/evaluation/scorers/`), nên
    hai đường cho ra bảng điểm so được với nhau và với công bố.
 6. **Ghi thêm XÁC SUẤT từng ô** ra `probabilities.csv`: một dòng cho mỗi (review, khía cạnh), cột
@@ -116,7 +117,6 @@ nào thì đọc `model/best/trainer_state.json` (trường `best.step`): lượ
 1.153 bước thì `model/` gồm `best`, `last`, `checkpoint-1000`, `checkpoint-1100`; ảnh chụp cũ bị xoá
 ngay sau mỗi lần lưu.
 
-## Chạy trên Colab
 ## Chọn `model/best`, dừng sớm, và curve train/val
 
 - **Chọn best theo `checkpoints.best_metric`** (mặc định `sentiment_f1` = macro-F1 sắc thái). Vì sao
@@ -158,6 +158,7 @@ Ba điều phải đọc kèm:
 3. `price` âm vẫn **0,000 ở cả bốn lượt**, nhưng đó là **giới hạn của thước** (test chỉ có 6 ô `price` âm,
    `val` có 0 ô) - xem `08_experiment_rationale.md` §7.
 
+## Chạy trên Colab
 
 Mọi notebook LoRA (sáu model encoder) chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa
 6 GB VRAM). Ô bootstrap

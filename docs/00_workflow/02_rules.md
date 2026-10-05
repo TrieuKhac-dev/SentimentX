@@ -56,7 +56,9 @@
 
 ## Checkpoint
 
-15. Chỉ lưu `model/last` và `model/best`; xoá các checkpoint trung gian.
+15. Lượt chạy encoder giữ `model/last`, `model/best`, và tối đa `checkpoints.keep_last_k` ảnh chụp
+    `model/checkpoint-<bước>` gần nhất để chạy tiếp; `checkpoints.delete_intermediate: true` xoá ngay
+    ảnh chụp cũ hơn (mặc định `keep_last_k: 2`).
 16. Copy checkpoint và kết quả là việc thủ công ở cả hai chiều:
     - Chạy trên Colab: kết quả nằm trên Drive. Muốn xem ở máy cá nhân hoặc đưa vào git thì
       phải copy từ Drive về repo, chỉ copy phần nhẹ.

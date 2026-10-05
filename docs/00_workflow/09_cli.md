@@ -117,9 +117,10 @@ Riêng `run_check_examples.py` dùng mã **1** cho trường hợp phép kiểm 
 để dùng được trong kiểm tra tự động.
 
 `--run` của `scripts/reset_experiment.py` nhận **cả hai** cách gọi tên một run: `runName` (`<hash8>`,
-đúng cột hiện trên giao diện DagsHub, ví dụ `07637bcf`) và `run_id` (mã dài của máy chủ, ghi trong
-`run.log`). Lý do nhận cả hai: người chạy đọc `runName` trên giao diện, còn muốn mở lại đúng run thì
-tra `run_id` trong dòng log - bắt chuyển tay giữa hai cách viết là chỗ dễ xoá nhầm.
+đúng cột hiện trên giao diện DagsHub, ví dụ `07637bcf`) và `run_id` (mã dài của máy chủ, ghi ở HAI chỗ:
+`run.log` và khoá `tracking.run_id` trong `run_meta.json`). Lý do nhận cả hai: người chạy đọc `runName`
+trên giao diện, còn muốn mở lại đúng run thì tra `run_id` - bắt chuyển tay giữa hai cách viết là chỗ dễ
+xoá nhầm.
 
 `runName` **không duy nhất**: chạy lại (hoặc chạy tiếp) cùng một thư mục kết quả sinh nhiều run cùng
 tên, nên `--run 07637bcf` có thể xoá nhiều hơn một run. Script in số run khớp cho **từng** tên trước

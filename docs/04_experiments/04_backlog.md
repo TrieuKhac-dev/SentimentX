@@ -295,7 +295,7 @@ dưới đây là việc ĐÃ BIẾT và CỐ Ý chưa làm trong đợt này.
   chạy ổn định.
 - **Làm tiếp từ đâu:** (1) chốt objective = `sentiment_f1` (đã chốt); (2) chạy vài baseline LoRA; (3)
   Optuna trên **val với `n` nhỏ** (`run_token_stats`/`--limit` đã có); (4) chốt cấu hình rồi chạy full
-  `test`. Không gian tìm: `training.lora.r/alpha/dropout`, `training.lr`.
+  `test`. Không gian tìm: `lora.r/alpha/dropout`, `lr`.
 
 ### 9.2. Focal loss / trọng số theo khía cạnh - làm SAU khi có bằng chứng
 

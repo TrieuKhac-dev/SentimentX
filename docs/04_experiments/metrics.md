@@ -183,7 +183,7 @@ Hai điều dễ lẫn, nói thẳng:
    dưới 5%. Lưu ý: `scripts/rescore.py` hiện KHÔNG áp cửa này khi chấm lại (khối `read_rate` ở đó không
    có `valid`).
 3. **Token sinh chạm trần thì lượt đó là lượt BỊ CẮT.** Nếu số token sinh trung bình **≥ 95%** của
-   `generation.max_new_tokens` thì phải coi kết quả là bị cắt và chạy lại với trần cao hơn; riêng lượt
+   `decoding.max_new_tokens` thì phải coi kết quả là bị cắt và chạy lại với trần cao hơn; riêng lượt
    **bật suy nghĩ** phải chạy một lượt **DÒ** để chốt trần trước (xem `present_plan.md` mục 9.1).
 4. **Ghi rõ CƠ SỞ và KIỂU TRUNG BÌNH**: cơ sở `paper` (để so công bố) hay `all` (đo của dự án), và
    **macro** hay **micro** - hai con số khác nhau, không được trộn trong cùng một ô.

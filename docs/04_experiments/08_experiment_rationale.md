@@ -8,7 +8,7 @@ B (Qwen3-4B hỏi bằng prompt, 9 lượt), E (ba biến thể bộ 1 ví dụ,
 lượt); nhóm **G** (Qwen3-0.6B) chưa có kết quả. Mỗi lượt chỉ khác lượt bên cạnh **một biến**; đó là điều
 kiện để con số chênh lệch có nghĩa.
 
-Ngoài 17 lượt đó, **§2b** liệt kê **6 lượt ablation đầu phân loại** (CHƯA chạy) trả lời câu "đóng băng hay
+Ngoài 17 lượt đó, **§2b** liệt kê **6 lượt ablation đầu phân loại** (đã chạy trong đợt 7) trả lời câu "đóng băng hay
 HỌC đầu phân loại thì khác gì nhau" - mỗi lượt khác lượt gốc của nó **đúng một khoá đo được**
 (`head.trainable: true`).
 
@@ -21,9 +21,9 @@ HỌC đầu phân loại thì khác gì nhau" - mỗi lượt khác lượt g�
 | Dữ liệu | `cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3` - train 12.268, val 1.535, test 1.623 |
 | Cách chấm | `evaluation.n: null` (chấm cả split `test`), `decoding.mode: greedy` (tất định), năm scorer: `accuracy`, `aspect_detection`, `prf`, `aggregate`, `confusion` |
 | Hai cơ sở đo | `all` = mọi ô có nhãn đúng khác `neutral` (số trong `metrics.json::scores`) · `paper` = chỉ ô mà CẢ nhãn đúng và nhãn đoán là positive/negative (đúng cách công bố đếm) → **so công bố phải đọc cơ sở `paper`** |
-| Mỗi lượt sinh ra | `results/<hash8>/`: `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `predictions.csv`, `model/{last,best}` (chỉ hai lượt LoRA) + một run MLflow. `<hash8>` = băm của cấu hình + prompt + dữ liệu + commit đã ghim |
-| Bật học? | `training.enabled: false` mặc định - **mười** lượt LoRA bật `true`: hai encoder của §2 (`phobert-base-v2/lora/exp001` + `exp002`, `visobert/lora/exp001` + `exp002`) và **sáu lượt của §2b** (bốn encoder mới + hai lượt đầu phân loại của PhoBERT/ViSoBERT) |
-| Đầu phân loại | **ĐÓNG BĂNG** ở mọi lượt dùng mặc định; chỉ sáu lượt của §2b bật `head.trainable: true` - một cơ chế học riêng, xem §2b |
+| Mỗi lượt sinh ra | `results/<hash8>/`: `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `predictions.csv`, `model/{last,best}` (chỉ lượt encoder LoRA) + một run MLflow. `<hash8>` = băm của cấu hình + prompt + dữ liệu + commit đã ghim |
+| Bật học? | `enabled: false` mặc định - nay có **21** lượt LoRA bật `true` (đếm theo `experiments/**/config.yaml`): bốn lượt của §2, sáu lượt của §2b, và các lượt về sau (đợt 7/8/10) |
+| Đầu phân loại | **ĐÓNG BĂNG** ở mọi lượt dùng mặc định; chỉ lượt khai `head.trainable: true` mới mở đầu ra (nay **7** config, gồm sáu lượt của §2b và lượt `cafebert/lora/exp004` của đợt 10) - một cơ chế học riêng, xem §2b |
 | Cách sinh | `greedy`, `max_new_tokens` 400, `max_length` 2304 (đường prompt); encoder `max_length` 256. Nhánh BẬT suy nghĩ của Qwen3-0.6B dùng trần **1985** (đo từ lượt DÒ, §5.2) |
 
 ## 2. Nhóm A - hai encoder học LoRA (4 lượt ĐANG có kết quả; nhóm đầu phân loại ở §2b)
