@@ -444,7 +444,7 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
 - **14.5 (người dùng chạy) Bốn lượt, khoảng 1,5-2 giờ GPU**: ba lượt thước nhiễu + một lượt `aspect_marker`.
   Mỗi lượt encoder gửi **8 tệp** (thêm tệp xác suất) như mục 7.4.
 - **14.6 (không cần GPU) Đo BIÊN NHIỄU cho đường encoder** và viết vào `06_lora_encoder.md` +
-  `08_experiment_rationale.md` §2b. Trả lời thẳng hai câu: (a) chênh **+0,21** (và +0,52) của nhóm đầu phân
+  `08_experiment_rationale.md` §2b. Trả lời thẳng hai câu: (a) chênh **+0,21** (và +1,16) của nhóm đầu phân
   loại có **nằm NGOÀI** biên nhiễu không; (b) chênh **−0,15** của `vibert-base-cased` có **nằm TRONG** biên
   nhiễu không. Nếu biên ≥ khoảng 0,3 điểm thì §2b phải viết lại: **"+0,67 → +1,16" là tín hiệu yếu, chưa tách
   được khỏi nhiễu**. Commit.

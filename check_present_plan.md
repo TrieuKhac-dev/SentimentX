@@ -584,7 +584,7 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
   (`SentimentX-goi-018-7b2d4ca-261005.zip`, **1 file**: `README.md` bàn giao, vì bảng đợt 10 được thêm vào SAU
   khi dựng 017 - đúng cơ chế gói tăng dần) ⇒ **gửi 017 RỒI 018**; cả hai đã `git push`.
 - 16.5 Người dùng chạy bốn lượt (~1,5-2 giờ GPU) — CHỜ NGƯỜI DÙNG.
-- 16.6 Đo biên nhiễu encoder (trả lời "+0,21/+0,52 có ngoài biên nhiễu không") — CHƯA LÀM.
+- 16.6 Đo biên nhiễu encoder (trả lời "+0,21/+1,16 có ngoài biên nhiễu không") — CHƯA LÀM.
 - 16.7 Hướng 2: `head.aspect_marker` (sửa mã: config + `lora.py` + test + bảng dấu vết) — CHƯA LÀM.
 - 16.8 Người dùng chạy MỘT lượt `phobert-base-v2/lora/exp006` — CHỜ NGƯỜI DÙNG.
 - 16.9 Hướng 3: sáu cặp prompt một-khía-cạnh + hàm gộp (sửa mã; cập nhật `test_prompts.py`) — CHƯA LÀM.
