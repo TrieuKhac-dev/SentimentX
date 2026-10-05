@@ -17,6 +17,24 @@ Phần `model/last`, `model/best`, `model/checkpoint-<bước>` và `trainer_sta
 LoRA chỉ là MỘT cách huấn luyện, nên chính sách lưu và chỗ lưu dùng chung ở
 `src/training/checkpoints.py`, còn cách ghi trọng số nằm ở writer `src/training/savers/adapter.py`.
 
+ĐẦU PHÂN LOẠI: ĐÓNG BĂNG (mặc định) HAY HỌC (`head.trainable: true`)
+`peft` đóng băng MỌI tham số không phải adapter, và đầu phân loại của dự án nằm trong số đó - nên ở
+chế độ mặc định đầu phân loại là một phép chiếu NGẪU NHIÊN CỐ ĐỊNH, chỉ adapter học. ĐÓ LÀ HIỆN TRẠNG
+ĐÃ ĐO, không phải phỏng đoán: `head.pt` của bốn lượt LoRA đầu tiên giống nhau TỪNG BYTE giữa các
+checkpoint (bước 1000, bước 1100, `best`, `last`) và cả giữa hai model khác nhau; còn số
+`trainable_params` bằng đúng tổng tham số adapter (2.678.784) nên đầu phân loại không nằm trong
+optimizer.
+
+Vì sao vẫn giữ nó làm mặc định: đổi nó là đổi CƠ CHẾ HỌC, không phải sửa lỗi - bốn lượt đã chạy vẫn
+hợp lệ và đang là mốc so sánh. `head.trainable: true` mở khoá đầu phân loại để nó học cùng adapter, và
+cố ý KHÔNG có `lr` riêng cho đầu: MỘT BIẾN mỗi thí nghiệm, và "đầu học cùng tốc độ với LoRA" đúng là
+phép so sánh cần trả lời ("đóng băng hay không đóng băng đầu phân loại khác gì nhau").
+
+HAI CHỖ PHẢI CÙNG BẬT/TẮT, nếu không lượt chạy MỚI và lượt CHẠY TIẾP sẽ thành hai cơ chế khác nhau:
+    - lượt MỚI: `get_peft_model` đóng băng hết, rồi `set_head_trainable` mở lại đầu;
+    - lượt CHẠY TIẾP: `PeftModel.from_pretrained(is_trainable=True)` chỉ mở ADAPTER - đầu phân loại
+      VẪN đóng băng (đo được), nên phải gọi `set_head_trainable` thêm một lần.
+
 `torch`, `transformers`, `peft` được import BÊN TRONG hàm: CI không cài chúng mà vẫn phải import
 được module này để gọi `check()`.
 """
@@ -37,7 +55,7 @@ DESCRIPTION = "LoRA (peft) trên model encoder, một đầu phân loại cho m�
 REQUIRED_MODEL = ("lora.target_modules", "preprocess.max_length", "inference.batch_size",
                   "inference.dtype")
 REQUIRED_SHARED = ("trainer", "lora.r", "lora.alpha", "lora.dropout", "lr", "batch", "epochs",
-                   "grad_accum", "weight_decay")
+                   "grad_accum", "weight_decay", "head.trainable")
 
 
 def where(key):
@@ -72,6 +90,21 @@ def _get(config, key, note=None):
     return node
 
 
+def _flag(config, key):
+    """Đọc một khoá `true`/`false`. Giá trị KHÔNG phải bool là LỖI, không tự đoán.
+
+    `bool("flase")` là `True`, nên một lỗi gõ ở đây sẽ BẬT một cơ chế học khác mà không ai biết - đúng
+    loại lỗi im lặng mà dự án cấm. `yes`/`no`/`on`/`off` của YAML được PyYAML đọc thành `True`/`False`
+    nên vẫn dùng được; chỉ chuỗi thật (ví dụ `"true"` có ngoặc kép) mới bị từ chối.
+    """
+    value = _get(config, key)
+    if not isinstance(value, bool):
+        raise TrainingError(
+            "`{}` phải là `true` hoặc `false` (đang là {!r}). Khai ở {}.".format(
+                key, value, where(key)))
+    return value
+
+
 def settings(config, model_id):
     """Cấu hình HIỆU LỰC của một lượt huấn luyện, đã kiểm đủ khoá.
 
@@ -92,6 +125,9 @@ def settings(config, model_id):
         "epochs": int(_get(config, "epochs")),
         "grad_accum": int(_get(config, "grad_accum")),
         "weight_decay": float(_get(config, "weight_decay")),
+        # Cơ chế học của đầu phân loại: `false` = đóng băng (mặc định, giữ bốn lượt cũ là mốc so sánh),
+        # `true` = học cùng adapter. Không phải khoá `lora.*` vì đầu phân loại KHÔNG nằm trong adapter.
+        "head_trainable": _flag(config, "head.trainable"),
 
         "max_length": int(_get(config, "preprocess.max_length")),
         "eval_batch": int(_get(config, "inference.batch_size")),
@@ -276,12 +312,33 @@ def build_classes():
 
 
 
-def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, source=None):
+def set_head_trainable(head, trainable):
+    """Bật/tắt `requires_grad` cho đầu phân loại; trả về số tham số được mở.
+
+    VÌ SAO PHẢI GỌI TƯỜNG MINH: `peft` đóng băng mọi tham số không phải adapter
+    (`_mark_only_adapters_as_trainable`), và đầu phân loại nằm trong số đó. Ở lượt MỚI, `get_peft_model`
+    đóng băng nó; ở lượt CHẠY TIẾP, `is_trainable=True` chỉ mở adapter - đầu vẫn đóng băng. Cả hai
+    đường phải đi qua ĐÚNG hàm này, nếu không lượt chạy mới và lượt chạy tiếp lệch cơ chế - mà lệch
+    cơ chế thì không nhìn thấy được bằng mắt.
+    """
+    for parameter in head.parameters():
+        parameter.requires_grad = bool(trainable)
+    return sum(item.numel() for item in head.parameters() if item.requires_grad)
+
+
+def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, source=None,
+                trainable=False):
     """Nạp encoder, gắn LoRA và đầu phân loại. Trả về `(model, head)`.
 
     `adapter_dir` để nạp lại một checkpoint đã lưu (suy luận hoặc chạy tiếp): khi đó số khía cạnh và
     số lớp đọc từ `head_config.json` của chính checkpoint đó, vì dùng lại checkpoint cho một bài
     toán khác là lỗi im lặng nguy hiểm nhất của đường huấn luyện.
+
+    `trainable=True` khi lượt này HỌC (chạy mới hoặc chạy tiếp): nó truyền `is_trainable=True` cho
+    `PeftModel.from_pretrained` và mở đầu phân loại theo `head_trainable`. Mặc định `False` là đường
+    SUY LUẬN - ở đó `PeftModel.from_pretrained` dùng mặc định của `peft` (`is_trainable=False`), tức
+    đóng băng HẾT, và đó chính là chỗ lượt CHẠY TIẾP đã chết ở `optimizer got an empty parameter
+    list`.
     """
     import torch
     from peft import LoraConfig, PeftModel, get_peft_model, prepare_model_for_kbit_training
@@ -314,11 +371,20 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
 
     if adapter_dir is not None:
         try:
-            model = PeftModel.from_pretrained(classifier, str(adapter_dir))
+            # `is_trainable` PHẢI đi theo `trainable`: mặc định của `peft` là `False`, và khi đó MỌI
+            # tham số bị đóng băng - kể cả adapter vừa nạp - nên `optimizer` nhận danh sách rỗng và
+            # lượt CHẠY TIẾP chết ngay ở bước tạo optimizer (`got an empty parameter list`). Lượt chạy
+            # MỚI không dính lỗi này vì `get_peft_model` đã mở adapter.
+            model = PeftModel.from_pretrained(classifier, str(adapter_dir),
+                                              is_trainable=bool(trainable))
         except ImportError as exc:
             raise _peft_error(exc) from exc
         classifier.head.load_state_dict(
             torch.load(str(Path(adapter_dir) / savers.get().HEAD_WEIGHTS), map_location="cpu"))
+        if trainable:
+            # `is_trainable=True` chỉ mở ADAPTER (đo được): đầu phân loại vẫn đóng băng, nên phải mở
+            # tay để lượt chạy tiếp đi ĐÚNG cơ chế của lượt chạy mới.
+            set_head_trainable(classifier.head, found.get("head_trainable"))
         return model, classifier.head
 
     if str(found.get("quantization") or "none") == "4bit":
@@ -330,6 +396,9 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
             task_type="FEATURE_EXTRACTION"))
     except ImportError as exc:
         raise _peft_error(exc) from exc
+    if trainable:
+        # `get_peft_model` vừa đóng băng HẾT, kể cả đầu phân loại: mở lại theo `head.trainable`.
+        set_head_trainable(classifier.head, found.get("head_trainable"))
     return model, classifier.head
 
 
@@ -564,10 +633,17 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
                 utils.rel(adapter), utils.rel(out_dir)))
 
     model, head = build_model(found, device, n_aspects=len(aspects), n_codes=len(codes),
-                              adapter_dir=adapter, source=found["source"])
+                              adapter_dir=adapter, source=found["source"], trainable=True)
     if device == "cuda":
         model = model.to(device)
     trainable, total = parameter_counts(model)
+    # In ra và ghi vào log NGAY: "đầu phân loại có học hay không" là cơ chế của lượt chạy, mà số
+    # `trainable_params` đọc lại sau mới biết thì đã muộn.
+    head_state = ("HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học")
+    print("  đầu phân loại: {} | {} tham số học / {} tổng".format(head_state, trainable, total))
+    if log is not None:
+        log.step("đầu phân loại: {} | {} tham số học / {} tổng".format(
+            head_state, trainable, total))
 
     ids, masks = encode(module, train["texts"], found["max_length"])
     targets = targets_from(train["labels"], codes)

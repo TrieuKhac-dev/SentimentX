@@ -14,6 +14,15 @@ lora:
   alpha: 32
   dropout: 0.05
 
+# Đầu phân loại của đường encoder - cơ chế HỌC, không phải siêu tham số.
+# `false` = ĐÓNG BĂNG: chỉ adapter học, đầu phân loại là phép chiếu ngẫu nhiên cố định từ lúc khởi tạo.
+# Đây là hành vi mặc định và là cơ chế của các lượt đã chạy, nên giữ nguyên để chúng còn là mốc so sánh.
+# `true` = đầu phân loại HỌC cùng adapter, dùng CHUNG `lr` ở dưới (cố ý không có `lr` riêng: một biến
+# mỗi thí nghiệm). Cặp lượt chỉ khác đúng khoá này là phép đo "đóng băng hay không" khác gì nhau.
+# Xem docs/04_experiments/06_lora_encoder.md và src/training/lora.py.
+head:
+  trainable: false
+
 lr: 0.0002
 batch: 8
 epochs: 3
