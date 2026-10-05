@@ -465,11 +465,17 @@ VnCoreNLP trước khi chạy, và lỗi sẽ hiện ra muộn (sau khi đã t�
 chạy** nên sửa bây giờ là rẻ. (Trong `config.yaml` của hai lượt mới, mục này được ghi rõ là **không phải** biến
 so sánh.)
 
-**Kiểm thử:** `912 test OK` (898 cũ + **14 test mới**), `ci_checks` **8/9 nhóm sạch** - nhóm "REPO_SHA đã ghim"
-báo đúng 6 notebook mới chưa ghim, tức việc của bước ghim dưới đây.
+**Kiểm thử, trước khi ghim:** `912 test OK` (898 cũ + **14 test mới**), `ci_checks` **8/9 nhóm sạch** - nhóm
+"REPO_SHA đã ghim" báo đúng 6 notebook mới chưa ghim, tức việc của bước ghim dưới đây.
 
-**Ghim + gói:** **14 notebook** ghim lại (6 lượt mới + **8 notebook encoder** đang trỏ vào bản mã có Lỗi A) ⇒
-**gói 015** ⇒ **MỐC DỪNG #3**; đợt 8 = **gói 016**, gói cuối = **017**.
+**Ghim + gói + đẩy (05/10/2026):** **14 notebook** ghim lại (6 lượt mới + **8 notebook encoder** đang trỏ vào bản
+mã có Lỗi A) vào `59579e5` ⇒ commit ghim `57f1352` ⇒ dựng **gói 015** (`handover/out/SentimentX-goi-015-57f1352-261005.zip`,
+21 tệp: 12 tệp mới + 9 tệp đổi) ⇒ commit sổ gói `b2b7d54` ⇒ `git push origin experiment` (`85eb891..b2b7d54`,
+**7 commit**). Thứ tự đúng luật đã ghi ở mục 6.1: *đẩy commit code ⇒ ghim ⇒ commit ghim ⇒ đẩy* - nhưng lần này
+bước ghim **đi trước** lần đẩy duy nhất, nên trước khi đẩy `ci_checks` còn đúng **14 mục** "commit `59579e576fcf`
+chưa nằm trên `origin/experiment`" và `test_sau_kiem_tra_deu_sach` đỏ vì cùng lý do; **đẩy xong thì cả hai xanh**:
+`ci_checks` **9/9 nhóm sạch (mã thoát 0)** + `unittest` **912 OK**. ⇒ **MỐC DỪNG #3**; đợt 8 = **gói 016**, gói
+cuối = **017**.
 
 **Tài liệu đã sửa:** `docs/04_experiments/06_lora_encoder.md` (bằng chứng + cơ chế + bảng 6 encoder),
 `docs/05_config/05_experiments_shared.md` (dòng khoá mới), `docs/04_experiments/08_experiment_rationale.md`
