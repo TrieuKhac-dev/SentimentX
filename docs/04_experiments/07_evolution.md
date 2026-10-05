@@ -229,9 +229,10 @@ SÁU LƯỢT ĐẦU PHÂN LOẠI (nhóm H; mỗi lượt khác cha ĐÚNG một 
     phobert-base-v2 exp002->exp005   : 96,62 -> 97,59   (+0,97) · 0,776 -> 0,784
     visobert exp002->exp005          : 95,61 -> 96,28   (+0,67) · 0,700 -> 0,723
     vibert-base-cased exp001->exp002 : 94,99 -> 94,84   (−0,15) · 0,692 -> 0,679
-    cafebert exp001->exp002          : 97,67 -> (thiếu kết quả - phải chạy lại một lượt)
-    Kết luận: GIỮ làm PHÉP ĐO CƠ CHẾ, không thay cha: 4/5 cặp hơn 0,67-1,16 điểm, lớp âm gần như đứng
-              yên, chỗ đổi rõ nhất là DỊCH CHUYỂN giữa các khía cạnh (`packing` rơi ở 4/5 cặp)
+    cafebert exp001->exp002          : 97,67 -> 97,88   (+0,21) · F1 âm macro 0,788 -> 0,847
+    Kết luận: GIỮ làm PHÉP ĐO CƠ CHẾ, không thay cha: 5/6 cặp hơn 0,21-1,16 điểm, lớp âm gần như đứng
+              yên, chỗ đổi rõ nhất là DỊCH CHUYỂN giữa các khía cạnh (`packing` rơi ở 4/6 cặp).
+              ĐỢT 10: chạy lại ba nhánh với `decoding.seed: 7` để ĐO biên nhiễu cho đường encoder.
 
 HAI MODEL NHỎ:
 qwen2.5-0.5b-instruct/prompt-cot/exp001..003  <- (gốc)  mốc "nhỏ" ở họ KHÁC
@@ -242,10 +243,17 @@ qwen2.5-0.5b-instruct/prompt-cot/exp001..003  <- (gốc)  mốc "nhỏ" ở họ
 qwen3-0.6b/prompt-cot/exp001..003    <- (gốc)  mốc "nhỏ" cùng họ
     Kết quả: KHÔNG DÙNG - dưới cửa đọc được (42,02 / 21,63 / 84,41%) và KHÔNG phải vì trần token
     Kết luận: ĐỔI HƯỚNG - nhánh BẬT suy nghĩ (`exp005`, trần 1985) + nhánh MỘT LƯỢT
-              (`prompt-one-turn/exp001`); cả bốn notebook đã TẠO, CHƯA chạy
+              (`prompt-one-turn/exp001`)
 qwen3-0.6b/prompt-cot/exp004         <- exp002   lượt DÒ (bật suy nghĩ, trần 8.192, 60 mẫu)
     Kết quả: p50 642 / p95 1.072 / p99 1.323 / max 1.434 token sinh; đọc được 98,33%
     Kết luận: GIỮ - đã CHỐT trần 1985 cho nhánh bật suy nghĩ (luật 23a)
+qwen3-0.6b/prompt-one-turn/exp001    <- (gốc)  bỏ suy luận, bắt trả JSON ngay
+    Kết quả: ĐỌC ĐƯỢC 99,94% (VƯỢT cửa 95%) nhưng acc TB 87,04 · F1 macro 0,610 · F1 âm macro
+              0,211 · chỉ 877 ô paper (cũng KIÊNG TRẢ LỜI, khác 0,5B ở chỗ không hỏng định dạng)
+    Kết luận: GIỮ - ĐỊNH DẠNG là cơ chế hỏng của ba lượt exp001..003, KHÔNG phải trần token;
+              nhưng điểm vẫn thấp ⇒ 0,6B vẫn quá nhỏ để so điểm
+qwen3-0.6b/prompt-cot/exp005..007    <- exp002   ba lượt BẬT suy nghĩ, trần 1985
+    Kết quả: CHƯA chạy (`exp005` luôn chạy; `exp006`/`exp007` chỉ chạy khi mỗi lượt ≤ ~3 giờ)
 ```
 
 

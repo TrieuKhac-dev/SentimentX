@@ -54,7 +54,7 @@ mát chính là chỗ sửa được, đúng như ba lượt sửa câu chữ pr
 `exp001`, ViSoBERT hơn PhoBERT **6,46 điểm**; sang `exp002`, PhoBERT (96,62) vượt ViSoBERT (95,61) **1,01
 điểm** ⇒ thứ hạng hai encoder phụ thuộc hàm mất mát, không chỉ model.
 
-## 2b. Nhóm đầu phân loại - sáu lượt ablation (đã có 5/6 kết quả)
+## 2b. Nhóm đầu phân loại - sáu lượt ablation (đã đủ 6/6 kết quả)
 
 `peft` đóng băng **mọi** tham số không phải adapter, và đầu phân loại của dự án nằm trong số đó. Nên ở cả
 bốn lượt của §2, **đầu phân loại không hề học**: nó là một phép chiếu ngẫu nhiên CỐ ĐỊNH. Bằng chứng ĐO
@@ -74,12 +74,11 @@ của nó **đúng một khoá đo được** (`head.trainable: true`, mặc đ�
 | `phobert-base-v2` | `lora/exp002` | 96,62 | 0,876 | 0,776 | `lora/exp005` | **97,59** | 0,884 | 0,784 | **+0,97** |
 | `visobert` | `lora/exp002` | 95,61 | 0,836 | 0,700 | `lora/exp005` | **96,28** | 0,849 | 0,723 | **+0,67** |
 | `vibert-base-cased` | `lora/exp001` | 94,99 | 0,828 | 0,692 | `lora/exp002` | 94,84 | 0,822 | 0,679 | −0,15 |
-| `cafebert` | `lora/exp001` | **97,67** | **0,886** | 0,788 | `lora/exp002` | *thiếu kết quả* | | | |
+| `cafebert` | `lora/exp001` | **97,67** | **0,886** | 0,788 | `lora/exp002` | **97,88** | **0,917** | **0,847** | **+0,21** |
 
-Số ở cơ sở `paper`; `% đọc được` = 100 và `greedy` ở cả năm cặp đã đủ (xem `metrics.md` luật 1). Cặp
-`cafebert` chưa đọc được: thư mục kết quả của `lora/exp002` bị **sao chép thiếu** (`run_meta.json` còn ghi
-`RUNNING` trong khi `run.log` đã `FINISHED`, và không có `metrics.json`) - cần **chạy lại một lượt** (2-3
-phút, dùng lại checkpoint đã có, KHÔNG huấn luyện lại).
+Số ở cơ sở `paper`; `% đọc được` = 100 và `greedy` ở cả **SÁU** cặp (xem `metrics.md` luật 1). Cặp `cafebert`
+đã chạy lại xong ngày 05/10/2026 (`results/93448395`: 2-3 phút, dùng lại checkpoint đã có, KHÔNG huấn luyện
+lại) nên bảng nay đủ **6/6**: `lora/exp002` cho **97,88 · 0,917 · 0,847** trên 2.737 ô.
 
 Đọc thế nào:
 
@@ -89,23 +88,30 @@ phút, dùng lại checkpoint đã có, KHÔNG huấn luyện lại).
   `head.pt` giữa `best` với `last` phải KHÁC nhau (ở lượt gốc chúng giống hệt nhau). Cả sáu lượt đều ĐẠT
   phép kiểm này. Cơ chế của lượt chạy cũng được ghi vào `run.log` (dòng `[CONFIG] đầu phân loại:`),
   `run_meta.json` và thẻ MLflow.
-- **Cho đầu phân loại học KHÔNG tạo ra bước nhảy, nhưng cũng không phá gì.** 4/5 cặp nhỉnh hơn **+0,67 →
-  +1,16 điểm** độ chính xác, cùng chiều ở bốn họ model khác nhau; cặp thứ năm (`vibert-base-cased`) kém
-  **0,15 điểm**. Đường lớp âm gần như đứng yên: +0,008 · +0,013 · +0,006 · 0,000 · −0,013 F1 âm macro.
+- **Cho đầu phân loại học KHÔNG tạo ra bước nhảy, nhưng cũng không phá gì.** **5/6** cặp nhỉnh hơn **+0,21 →
+  +1,16 điểm** độ chính xác, cùng chiều ở năm họ model khác nhau; cặp còn lại (`vibert-base-cased`) kém
+  **0,15 điểm**. Đường lớp âm gần như đứng yên ở năm cặp (+0,008 · +0,013 · +0,006 · 0,000 · −0,013 F1 âm
+  macro), riêng `cafebert` nhích **+0,059** (0,788 → 0,847).
 - **Chỗ đổi rõ nhất không phải tổng điểm mà là DỊCH CHUYỂN giữa các khía cạnh.** Học đầu làm `packing` rơi
-  ở 4/5 cặp - `phobert-base-v2` 0,952→**0,900**, `phobert-large` 0,900→**0,818**, `vibert-base-cased`
-  0,533→**0,455**, `xlm-roberta-base` 0,889→**0,706** (chỉ ViSoBERT tăng: 0,588→0,667) - trong khi
+  ở 4/6 cặp - `phobert-base-v2` 0,952→**0,900**, `phobert-large` 0,900→**0,818**, `vibert-base-cased`
+  0,533→**0,455**, `xlm-roberta-base` 0,889→**0,706** (ViSoBERT tăng: 0,588→0,667; và `cafebert` cũng TĂNG:
+  0,982→**0,993**) - trong khi
   `stayingpower` và `texture` tăng: PhoBERT 0,915→**0,968** và 0,893→**0,936**; XLM-R 0,870→**0,891** và
   0,872→**0,927**. Nói cách khác: đầu phân loại HỌC được thì **bớt dựa vào việc đoán theo tần suất**, nên
   khía cạnh ít ô hơn mất và khía cạnh khó hơn được.
-- **Chọn MODEL quan trọng hơn chọn đầu phân loại.** Lượt ĐÓNG BĂNG tốt nhất bảng (`cafebert/lora/exp001`,
-  97,67 · 0,886) vẫn nhỉnh hơn lượt HỌC đầu tốt nhất (`phobert-large/lora/exp002`, 97,69 · 0,883) ở F1
-  macro. Vì vậy sáu lượt này được giữ như **phép đo cơ chế**, KHÔNG phải để thay các lượt cha trong bảng
-  chính: đổi cha là đổi luôn mọi so sánh đang có.
-- **Một lượt mỗi nhánh nghĩa là CHƯA có thước nhiễu cho encoder**: thước nhiễu hiện có của dự án là độ
-  lệch giữa ba lượt lấy mẫu của đường prompt (đợt 8), mà đường prompt không dùng được cho encoder. Nên
-  +0,67 → +1,16 (cùng chiều ở 4/5 cặp) là tín hiệu **yếu nhưng nhất quán**, còn −0,15 của
-  `vibert-base-cased` **chưa kết luận được gì**. Muốn kết luận thì phải chạy lại một nhánh với hạt giống khác.
+- **Chọn MODEL quan trọng hơn chọn đầu phân loại.** Lượt HỌC-đầu tốt nhất bảng (`cafebert/lora/exp002`,
+  97,88 · 0,917) vẫn là **cùng model** với lượt ĐÓNG BĂNG tốt nhất (`cafebert/lora/exp001`, 97,67 · 0,886):
+  đổi cơ chế đầu phân loại KHÔNG đưa model nào khác lên đầu bảng. Lượt HỌC-đầu tốt nhất của model khác
+  (`phobert-large/lora/exp002`, 97,69 · 0,883) vẫn dưới cả hai lượt CafeBERT. Vì vậy sáu lượt này được giữ
+  như **phép đo cơ chế**, KHÔNG phải để thay các lượt cha trong bảng chính: đổi cha là đổi luôn mọi so sánh
+  đang có.
+- **Một lượt mỗi nhánh nghĩa là CHƯA có thước nhiễu cho encoder** - đây là điều kiện còn thiếu của §2b:
+  thước nhiễu hiện có của dự án là độ lệch giữa ba lượt lấy mẫu của đường PROMPT (đợt 8), mà đường prompt
+  không dùng được cho encoder (encoder chạy `greedy` nên không có dao động lấy mẫu). Nên **+0,21 → +1,16**
+  (cùng chiều ở 5/6 cặp) là tín hiệu **yếu nhưng nhất quán**, còn −0,15 của `vibert-base-cased` **chưa kết
+  luận được gì**. **Đợt 10 (mục 14 của `present_plan.md`) đã lên kế hoạch bù**: chạy lại ba nhánh với
+  `decoding.seed: 7` (`cafebert/lora/exp003`, `cafebert/lora/exp004`, `vibert-base-cased/lora/exp003`) để
+  ĐO biên nhiễu trước khi kết luận.
 - `price` là **điểm mù** ở CẢ HAI nhánh (F1 âm = 0,000 ở mọi lượt) - đúng như §7, đừng đọc cột đó.
 
 ## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
@@ -167,7 +173,7 @@ có bắt viết phần suy luận hay không. Chênh lệch **−1,83 điểm**
 chứng CoT có tác dụng thật, không chỉ tốn token. Lượt này cũng nhanh nhất (1.081,6 giây so với 5.634,9
 giây của `exp002`), vì câu trả lời ngắn.
 
-## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ)
+## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ + 1 lượt một-lượt)
 
 | Thí nghiệm | Câu hỏi | Điểm riêng |
 | --- | --- | --- |
@@ -237,6 +243,22 @@ DÒ riêng** - ghi ra để người đọc không tưởng là đã đo riêng 
 
 Ba lượt đợt 8 tiếp theo nhóm này (trần 1985, cùng một cơ chế): `exp005` (1 ví dụ, **luôn chạy** - lượt so
 chính với nhánh tắt suy nghĩ) và `exp006`/`exp007` (0 và 5 ví dụ, **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ**).
+
+### 5.3. Lượt `prompt-one-turn/exp001` (0,6B, bỏ suy luận, chỉ trả JSON) - ĐÃ XONG 05/10/2026
+
+| `% đọc được` | acc TB | F1 macro | F1 âm macro | số ô `paper` | mẫu thiếu khía cạnh |
+| --- | --- | --- | --- | --- | --- |
+| **99,94** | 87,04 | 0,610 | 0,211 | **877** | 283 |
+
+Đây là lượt **trả lời dứt điểm câu hỏi của §5.1**: ba lượt 0,6B hỏng vì **ĐỊNH DẠNG ĐẦU RA**, KHÔNG phải vì
+trần token. Cùng model, cùng tập `test`, cùng trần `max_new_tokens: 400` như ba lượt hỏng, chỉ đổi **cách
+hỏi** (một lượt, bỏ suy luận, bắt trả JSON ngay), và `% đọc được` nhảy từ 21,63-84,41% lên **99,94%** ⇒
+**vượt cửa 95%**.
+
+Đọc kèm hai điều: (a) `% đọc được` cao **KHÔNG** có nghĩa là điểm cao - "số ô `paper`" chỉ **877** (các lượt
+4B: 2.315-2.580) và F1 âm macro chỉ **0,211**, tức nó cũng **kiêng trả lời** giống 0,5B ở §5b, chỉ khác là
+không hỏng định dạng; (b) lượt này trả lời được **cơ chế hỏng**, không phải để lấy điểm - nó vẫn là model
+0,6B, đừng đem so thẳng với các lượt 4B.
 
 ## 5b. Mốc "model nhỏ họ KHÁC" - Qwen2.5-0.5B (3 lượt, dùng lại đúng ba mức ví dụ của công bố)
 

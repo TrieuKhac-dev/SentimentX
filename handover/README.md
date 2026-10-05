@@ -97,14 +97,14 @@ nguyên nhân):
   cùng một lượt chạy - đây là số đo, không phải suy đoán; lượt bật `head.trainable: true` thì `head.pt`
   khác hẳn và khác cả giữa `best` và `last`). Mỗi lượt dưới đây khác lượt gốc **đúng một khoá**
   (`head.trainable: true`). Khi đọc:
-  kiểm `trainable_params` trong `metrics.json` **lớn hơn** lượt gốc đúng 16.149 (PhoBERT-large: 21.525)
+  kiểm `trainable_params` trong `metrics.json` **lớn hơn** lượt gốc đúng **16.149** ở năm model 768 ẩn (PhoBERT-base, ViSoBERT, ViBERT, XLM-R) và **21.525** ở hai model 1.024 ẩn (**CafeBERT**, PhoBERT-large)
   trước đã, rồi mới so F1 lớp âm + macro-F1.
 
-### Đã nhận kết quả đợt 7 (05/10/2026) - còn ĐÚNG MỘT lượt phải chạy lại
+### Đã nhận đủ kết quả đợt 7 (05/10/2026) + hai lượt đợt 8
 
-- **Chạy lại 1 lượt: `cafebert/lora/exp002`** (đầu phân loại). Thư mục kết quả sao chép về bị **thiếu**:
-  `run_meta.json` còn ghi `RUNNING` trong khi `run.log` đã ghi `FINISHED`, và không có `metrics.json`. Bấm
-  **Run all** lại trong notebook đó là xong (2-3 phút: nó dùng lại checkpoint đã lưu, **không học lại**).
+- **`cafebert/lora/exp002` (đầu phân loại) ĐÃ CHẠY LẠI XONG 05/10/2026** (`results/93448395`): thư mục kết
+  quả trước bị **sao chép thiếu** (`run_meta.json` còn `RUNNING`, không có `metrics.json`); nay đủ và cho
+  **97,88 · 0,917 · 0,847** trên 2.737 ô (`trainable_params` = 7.132.181) ⇒ nhóm đầu phân loại đủ **6/6**.
 - **Ba lượt `qwen3-0.6b/prompt-cot/exp001`/`exp002`/`exp003` chạy XONG nhưng DƯỚI CỬA ĐỌC ĐƯỢC** (42,02 /
   21,63 / 84,41% so với cửa 95%) - và **KHÔNG phải vì trần token**: trung bình/trần chỉ 0,36-0,56 và dưới
   5% mẫu chạm trần, tức theo luật 3 của `metrics.md` chúng KHÔNG bị cắt. Thứ thiếu là **định dạng đầu ra**:
@@ -113,10 +113,14 @@ nguyên nhân):
 - **Lượt DÒ `qwen3-0.6b/prompt-cot/exp004` đã xong**: p50 **642** / p95 **1.072** / p99 **1.323** / max
   **1.434** token sinh, đọc được **98,33%** ⇒ trần chốt theo luật 23a là **`max_new_tokens: 1985`** cho ba
   lượt bật suy nghĩ của đợt 8 (`exp005` luôn chạy; `exp006`/`exp007` chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ).
-- **Sáu lượt đầu phân loại: 5/6 đã có kết quả** (chờ lượt chạy lại ở trên). Đọc nhanh: cho đầu phân loại
-  HỌC thì 4/5 cặp nhỉnh hơn **+0,67 → +1,16 điểm** độ chính xác, cặp `vibert-base-cased` kém **0,15**
+- **Lượt `qwen3-0.6b/prompt-one-turn/exp001` ĐÃ XONG 05/10/2026: đọc được 99,94%** (VƯỢT cửa 95%) - xác nhận
+  dứt điểm: ba lượt 0,6B `exp001..003` hỏng vì **ĐỊNH DẠNG ĐẦU RA**, KHÔNG vì trần token. Nhưng điểm vẫn thấp
+  (acc TB 87,04 · F1 macro 0,610 · F1 âm macro 0,211 · chỉ 877 ô `paper`) ⇒ vẫn là model quá nhỏ để so điểm.
+- **Sáu lượt đầu phân loại: đủ 6/6 kết quả.** Đọc nhanh: cho đầu phân loại HỌC thì **5/6** cặp nhỉnh hơn
+  **+0,21 → +1,16 điểm** độ chính xác, cặp `vibert-base-cased` kém **0,15**
   (chưa tách được khỏi nhiễu), còn **F1 lớp âm gần như đứng yên** - chi tiết và cách đọc ở
-  `docs/04_experiments/08_experiment_rationale.md` §2b.
+  `docs/04_experiments/08_experiment_rationale.md` §2b. **Lượt THƯỚC NHIỄU cho encoder** đã lên kế hoạch ở
+  đợt 10 (chạy lại 3 nhánh với hạt giống khác; xem `present_plan.md` mục 14).
 - **Bốn bước kết hợp đã chốt xong trên `val`**: ngưỡng theo khía cạnh, trọng số ensemble, luật lai và biểu
   quyết nằm trong `data/reports/fusion/` (repo), không cần GPU và không cần notebook.
 
