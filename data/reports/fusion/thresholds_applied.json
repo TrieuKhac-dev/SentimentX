@@ -1,0 +1,246 @@
+{
+  "lượt": "experiments\\phobert-base-v2\\lora\\exp004\\results\\14923c13",
+  "split": "test",
+  "nguồn_luật": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+  "nguồn_split": "val",
+  "ngưỡng_dùng": {
+    "colour": 0.95,
+    "packing": 0.95,
+    "shipping": 0.95,
+    "smell": 0.3,
+    "stayingpower": 0.95,
+    "texture": 0.45
+  },
+  "khía_cạnh_để_nguyên": [
+    "price"
+  ],
+  "khía_cạnh_có_ngưỡng_không_có_ở_lượt_này": [],
+  "số_ô_trước": 2736,
+  "số_ô_sau": 2736,
+  "accuracy_all_trước": {
+    "macro": 93.28,
+    "micro": 93.34,
+    "when_mentioned_macro": 95.32,
+    "when_mentioned_micro": 95.59,
+    "correct": 10418,
+    "cells": 11161,
+    "by_aspect": {
+      "colour": 92.3,
+      "packing": 97.53,
+      "price": 98.4,
+      "shipping": 97.06,
+      "smell": 97.14,
+      "stayingpower": 85.72,
+      "texture": 84.8
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 95.41,
+      "packing": 97.6,
+      "price": 96.94,
+      "shipping": 97.44,
+      "smell": 94.0,
+      "stayingpower": 90.72,
+      "texture": 95.1
+    },
+    "cells_by_aspect": {
+      "colour": 1572,
+      "packing": 1621,
+      "price": 1622,
+      "shipping": 1597,
+      "smell": 1607,
+      "stayingpower": 1583,
+      "texture": 1559
+    },
+    "correct_by_aspect": {
+      "colour": 1451,
+      "packing": 1581,
+      "price": 1596,
+      "shipping": 1550,
+      "smell": 1561,
+      "stayingpower": 1357,
+      "texture": 1322
+    }
+  },
+  "accuracy_all_sau": {
+    "macro": 92.99,
+    "micro": 93.06,
+    "when_mentioned_macro": 95.17,
+    "when_mentioned_micro": 95.49,
+    "correct": 10386,
+    "cells": 11161,
+    "by_aspect": {
+      "colour": 92.3,
+      "packing": 97.53,
+      "price": 98.4,
+      "shipping": 97.06,
+      "smell": 95.15,
+      "stayingpower": 85.72,
+      "texture": 84.8
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 95.41,
+      "packing": 97.6,
+      "price": 96.94,
+      "shipping": 97.44,
+      "smell": 93.0,
+      "stayingpower": 90.72,
+      "texture": 95.1
+    },
+    "cells_by_aspect": {
+      "colour": 1572,
+      "packing": 1621,
+      "price": 1622,
+      "shipping": 1597,
+      "smell": 1607,
+      "stayingpower": 1583,
+      "texture": 1559
+    },
+    "correct_by_aspect": {
+      "colour": 1451,
+      "packing": 1581,
+      "price": 1596,
+      "shipping": 1550,
+      "smell": 1529,
+      "stayingpower": 1357,
+      "texture": 1322
+    }
+  },
+  "accuracy_paper_trước": {
+    "macro": 96.62,
+    "micro": 96.75,
+    "when_mentioned_macro": 96.62,
+    "when_mentioned_micro": 96.75,
+    "correct": 2647,
+    "cells": 2736,
+    "by_aspect": {
+      "colour": 96.41,
+      "packing": 99.65,
+      "price": 98.14,
+      "shipping": 98.02,
+      "smell": 95.92,
+      "stayingpower": 92.67,
+      "texture": 95.55
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 96.41,
+      "packing": 99.65,
+      "price": 98.14,
+      "shipping": 98.02,
+      "smell": 95.92,
+      "stayingpower": 92.67,
+      "texture": 95.55
+    },
+    "cells_by_aspect": {
+      "colour": 669,
+      "packing": 286,
+      "price": 323,
+      "shipping": 505,
+      "smell": 294,
+      "stayingpower": 232,
+      "texture": 427
+    },
+    "correct_by_aspect": {
+      "colour": 645,
+      "packing": 285,
+      "price": 317,
+      "shipping": 495,
+      "smell": 282,
+      "stayingpower": 215,
+      "texture": 408
+    }
+  },
+  "accuracy_paper_sau": {
+    "macro": 96.48,
+    "micro": 96.64,
+    "when_mentioned_macro": 96.48,
+    "when_mentioned_micro": 96.64,
+    "correct": 2644,
+    "cells": 2736,
+    "by_aspect": {
+      "colour": 96.41,
+      "packing": 99.65,
+      "price": 98.14,
+      "shipping": 98.02,
+      "smell": 94.9,
+      "stayingpower": 92.67,
+      "texture": 95.55
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 96.41,
+      "packing": 99.65,
+      "price": 98.14,
+      "shipping": 98.02,
+      "smell": 94.9,
+      "stayingpower": 92.67,
+      "texture": 95.55
+    },
+    "cells_by_aspect": {
+      "colour": 669,
+      "packing": 286,
+      "price": 323,
+      "shipping": 505,
+      "smell": 294,
+      "stayingpower": 232,
+      "texture": 427
+    },
+    "correct_by_aspect": {
+      "colour": 645,
+      "packing": 285,
+      "price": 317,
+      "shipping": 495,
+      "smell": 279,
+      "stayingpower": 215,
+      "texture": 408
+    }
+  },
+  "f1_âm_từng_khía_cạnh_trước": {
+    "colour": 0.812,
+    "packing": 0.952,
+    "price": 0.0,
+    "shipping": 0.971,
+    "smell": 0.887,
+    "stayingpower": 0.915,
+    "texture": 0.893
+  },
+  "f1_âm_từng_khía_cạnh_sau": {
+    "colour": 0.812,
+    "packing": 0.952,
+    "price": 0.0,
+    "shipping": 0.971,
+    "smell": 0.862,
+    "stayingpower": 0.915,
+    "texture": 0.893
+  },
+  "chênh_f1_âm_từng_khía_cạnh": {
+    "colour": 0.0,
+    "packing": 0.0,
+    "price": 0.0,
+    "shipping": 0.0,
+    "smell": -0.025,
+    "stayingpower": 0.0,
+    "texture": 0.0
+  },
+  "f1_âm_macro_trước": {
+    "macro_trên_khía_cạnh_có_ô_âm": 0.775714,
+    "macro_trên_khía_cạnh_đang_dương": 0.905,
+    "số_khía_cạnh_có_ô_âm": 7
+  },
+  "f1_âm_macro_sau": {
+    "macro_trên_khía_cạnh_có_ô_âm": 0.772143,
+    "macro_trên_khía_cạnh_đang_dương": 0.900833,
+    "số_khía_cạnh_có_ô_âm": 7
+  },
+  "chênh_f1_âm_macro": {
+    "macro_trên_khía_cạnh_có_ô_âm": -0.003571,
+    "macro_trên_khía_cạnh_đang_dương": -0.004167,
+    "số_khía_cạnh_có_ô_âm": 0.0
+  },
+  "macro_trên_mọi_khía_cạnh": {
+    "trước": 0.775714,
+    "sau": 0.772143,
+    "cách_đọc": "khía cạnh không có ô âm (price) tính là 0,0 ⇒ số này bị kéo xuống; đóng góp của price là 0,0 ở CẢ hai bên nên không làm lệch chênh lệch"
+  },
+  "ghi_chú_đọc_số": "ngưỡng chốt trên 'val'; lượt này là 'test'. Khía cạnh để nguyên: price (val không có ô âm nào của khía cạnh này: không có gì để dò). Số ô luôn đọc kèm (luật 1 của metrics.md).",
+  "at": "2026-10-05T17:06:14",
+  "tệp_ngưỡng": "data\\reports\\fusion\\thresholds.json"
+}

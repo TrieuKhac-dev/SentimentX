@@ -1,0 +1,128 @@
+{
+  "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp009\\results\\7cf3331e",
+  "split": "test",
+  "accuracy_all": {
+    "macro": 94.16,
+    "micro": 94.19,
+    "when_mentioned_macro": 80.97,
+    "when_mentioned_micro": 82.48,
+    "correct": 10513,
+    "cells": 11161,
+    "by_aspect": {
+      "colour": 91.41,
+      "packing": 97.53,
+      "price": 95.19,
+      "shipping": 96.74,
+      "smell": 95.33,
+      "stayingpower": 93.24,
+      "texture": 89.67
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 86.98,
+      "packing": 97.6,
+      "price": 79.82,
+      "shipping": 91.34,
+      "smell": 76.0,
+      "stayingpower": 63.29,
+      "texture": 71.79
+    },
+    "cells_by_aspect": {
+      "colour": 1572,
+      "packing": 1621,
+      "price": 1622,
+      "shipping": 1597,
+      "smell": 1607,
+      "stayingpower": 1583,
+      "texture": 1559
+    },
+    "correct_by_aspect": {
+      "colour": 1437,
+      "packing": 1581,
+      "price": 1544,
+      "shipping": 1545,
+      "smell": 1532,
+      "stayingpower": 1476,
+      "texture": 1398
+    }
+  },
+  "accuracy_paper": {
+    "macro": 98.02,
+    "micro": 98.28,
+    "when_mentioned_macro": 98.02,
+    "when_mentioned_micro": 98.28,
+    "correct": 2284,
+    "cells": 2324,
+    "by_aspect": {
+      "colour": 98.82,
+      "packing": 99.65,
+      "price": 98.49,
+      "shipping": 98.72,
+      "smell": 97.44,
+      "stayingpower": 96.15,
+      "texture": 96.86
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 98.82,
+      "packing": 99.65,
+      "price": 98.49,
+      "shipping": 98.72,
+      "smell": 97.44,
+      "stayingpower": 96.15,
+      "texture": 96.86
+    },
+    "cells_by_aspect": {
+      "colour": 595,
+      "packing": 286,
+      "price": 265,
+      "shipping": 470,
+      "smell": 234,
+      "stayingpower": 156,
+      "texture": 318
+    },
+    "correct_by_aspect": {
+      "colour": 588,
+      "packing": 285,
+      "price": 261,
+      "shipping": 464,
+      "smell": 228,
+      "stayingpower": 150,
+      "texture": 308
+    }
+  },
+  "cells_paper": 2324,
+  "f1_âm_từng_khía_cạnh": {
+    "colour": 0.925,
+    "packing": 0.952,
+    "price": 0.6,
+    "shipping": 0.981,
+    "smell": 0.933,
+    "stayingpower": 0.962,
+    "texture": 0.934
+  },
+  "f1_âm_macro": {
+    "macro_trên_khía_cạnh_có_ô_âm": 0.898143,
+    "macro_trên_khía_cạnh_đang_dương": 0.898143,
+    "số_khía_cạnh_có_ô_âm": 7
+  },
+  "at": "2026-10-05T17:07:17",
+  "cách": "lai theo khía cạnh: mỗi khía cạnh lấy nhãn của nguồn đã chốt trên val",
+  "luật": {
+    "colour": "llm",
+    "packing": "encoder",
+    "price": "llm",
+    "shipping": "llm",
+    "smell": "llm",
+    "stayingpower": "llm",
+    "texture": "llm"
+  },
+  "đếm ô theo nguồn": {
+    "llm": 9734,
+    "encoder": 1623,
+    "thiếu": 4
+  },
+  "nguồn": {
+    "llm": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp009\\results\\7cf3331e",
+    "encoder": "experiments\\phobert-base-v2\\lora\\exp004\\results\\14923c13"
+  },
+  "ghi_chú": "phải so với TỪNG nguồn một mình trên CÙNG tập; số ô đọc kèm theo luật 1 của metrics.md"
+}

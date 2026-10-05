@@ -1,0 +1,20 @@
+{
+  "khoá": "model",
+  "chốt_trên": [
+    {
+      "model": "phobert-base-v2",
+      "lượt": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+      "split": "val"
+    },
+    {
+      "model": "visobert",
+      "lượt": "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa",
+      "split": "val"
+    }
+  ],
+  "trọng_số": {
+    "phobert-base-v2": 0.536864,
+    "visobert": 0.463136
+  },
+  "at": "2026-10-05T17:06:28"
+}

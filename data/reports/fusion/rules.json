@@ -1,0 +1,50 @@
+{
+  "colour": {
+    "nguồn": "llm",
+    "f1_âm_encoder": 0.816,
+    "f1_âm_llm": 0.871,
+    "lí do": "LLM hơn 0.055 F1 âm trên val"
+  },
+  "packing": {
+    "nguồn": "encoder",
+    "f1_âm_encoder": 0.923,
+    "f1_âm_llm": 0.545,
+    "lí do": "encoder hơn 0.378 F1 âm trên val"
+  },
+  "price": {
+    "nguồn": "llm",
+    "f1_âm_encoder": null,
+    "f1_âm_llm": null,
+    "lí do": "val không có ô âm nào của khía cạnh này (cả hai nguồn)"
+  },
+  "shipping": {
+    "nguồn": "llm",
+    "f1_âm_encoder": 0.981,
+    "f1_âm_llm": 0.982,
+    "lí do": "LLM hơn 0.001 F1 âm trên val"
+  },
+  "smell": {
+    "nguồn": "llm",
+    "f1_âm_encoder": 0.925,
+    "f1_âm_llm": 0.925,
+    "lí do": "hoà F1 âm trên val -> giữ LLM (nguồn mạnh về sắc thái)"
+  },
+  "stayingpower": {
+    "nguồn": "llm",
+    "f1_âm_encoder": 0.891,
+    "f1_âm_llm": 0.925,
+    "lí do": "LLM hơn 0.034 F1 âm trên val"
+  },
+  "texture": {
+    "nguồn": "llm",
+    "f1_âm_encoder": 0.867,
+    "f1_âm_llm": 0.896,
+    "lí do": "LLM hơn 0.029 F1 âm trên val"
+  },
+  "at": "2026-10-05T17:07:10",
+  "nguồn": {
+    "llm": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp017\\results\\bcdb5855",
+    "encoder": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c"
+  },
+  "ghi_chú": "luật chốt trên 'val'; ĐÓNG BĂNG rồi mới áp lên test"
+}
