@@ -20,7 +20,7 @@ CẤU TRÚC MỘT FILE KẾT QUẢ
   "schema": 1,                     # phiên bản định dạng file kết quả
   "phase": "eda",                  # eda | pipeline
   "dataset": "cosmetics",
-  "version_id": "cosmetics-v0.1.0-1a2b3c4d",
+  "version_id": "cosmetics-ds0.1.0-pl0.1.0-srccosmetics@0.1.0-ab12cd34",
   "generated_at": "17/09/2026 10:30",
   "meta": ["câu mô tả ngắn", ...],  # chỉ là THÔNG TIN, không phải nhận xét
   "sections": [

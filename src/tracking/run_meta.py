@@ -25,6 +25,9 @@ CÁC KHỐI
                 thái riêng: `RUNNING` (đang chạy) / `FINISHED` / `FAILED` / `INTERRUPTED` (phiên bị nền
                 tảng ngắt, chốt ở lần chạy sau - xem `close_stale_attempts`)
     files       file ĐẦU VÀO của lần chạy, kèm `role` (paths, config, prompt, dataset...)
+    task        không gian nhãn/khía cạnh đã dùng (`label_space`, `neutral_policy`, `not_mentioned`, `aspects`)
+    overrides   các khoá bị lớp sau đè lên, để tra vì sao một giá trị đang là như vậy
+    tracking    `run_id` của run MLflow (rỗng nếu tracker tắt) - để lần chạy tiếp NỐI đúng run
 
 Vì sao trong một thư mục mọi attempt đều giống nhau: tên thư mục LÀ mã băm danh tính (gồm cấu hình,
 prompt + ví dụ, mã phiên bản dữ liệu và commit đã ghim), nên khác một trong những thứ đó là thư mục

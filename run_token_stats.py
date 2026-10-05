@@ -267,7 +267,7 @@ def build_tag(args, max_length_overrides=None, prompt=None):
     khó tra cứu. Giá trị hiệu lực vẫn luôn được ghi lại: cột `max_length` trong CSV, dòng
     `max_length` ở banner, và khoá `limits` trong mục lục.
 
-    NGOẠI LỆ duy nhất: `ex-<sha4>` của BỘ VÍ DỤ few-shot, và nó có mặt **kể cả khi chạy
+    NGOẠI LỆ duy nhất: `ex-<sha8>` của BỘ VÍ DỤ few-shot, và nó có mặt **kể cả khi chạy
     bằng config của dự án**. Lí do: hai bộ ví dụ (một ví dụ vs hai ví dụ) là hai thí
     nghiệm thật, trong khi `prompt_sha` của chúng GIỐNG nhau (prompt chỉ khác ở file ví
     dụ) - ghi chung một file thì thí nghiệm sau xoá mất số liệu của thí nghiệm trước.

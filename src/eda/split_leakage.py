@@ -73,9 +73,9 @@ def run(context):
     )))
 
     # Số DÒNG của val/test trùng với train - đây mới là con số quyết định policy
-    # `clean.leakage.remove_eval_overlap` (loại khỏi val/test những dòng đã có
-    # trong train). Cách đếm: lấy khoá chuẩn hoá của mọi dòng train, rồi xem mỗi
-    # dòng val/test có khoá nằm trong tập đó hay không.
+    # `clean.leakage` (`v0.1.0`: `remove_eval_overlap` loại khỏi val/test;
+    # `v0.2.0`: `keep_priority` loại ở tập thấp hơn). Cách đếm: lấy khoá chuẩn hoá
+    # của mọi dòng train, rồi xem mỗi dòng val/test có khoá nằm trong tập đó không.
     # Khác với bảng "cặp split" ở trên: bảng đó đếm VĂN BẢN chung giữa hai split
     # bất kỳ (kể cả val và test), còn hai con số dưới đây đếm DÒNG của val/test
     # trùng với train - đúng phép mà pipeline thực hiện.
@@ -165,7 +165,8 @@ def run(context):
     #   - "văn bản ở từ 2 split trở lên": một VĂN BẢN bị đếm một lần, dù nó nằm
     #     ở 2 hay 3 split;
     #   - "dòng val/test trùng train": đếm theo DÒNG và chỉ so với train - đúng
-    #     phép mà Clean dùng để chống rò rỉ dữ liệu (leakage.remove_eval_overlap).
+    #     phép mà Clean dùng để chống rò rỉ dữ liệu (`leakage.remove_eval_overlap`
+    #     ở v0.1.0, `leakage.keep_priority` ở v0.2.0).
     totals_path = utils.write_csv(
         [
             ["văn bản xuất hiện ở từ 2 split trở lên", cross_exact, cross_norm],

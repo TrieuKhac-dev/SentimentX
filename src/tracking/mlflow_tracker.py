@@ -149,9 +149,9 @@ class _Session(base.Session):
             for path in self.artifacts:
                 mlflow.log_artifact(str(path))
             mlflow.end_run(status="FINISHED" if ok else "FAILED")
-            # Mã run nằm trong DÒNG LOG, không nằm trong `run_meta.json`: bản ghi đó được chốt
-            # TRƯỚC khi run mở ra (để bản tải lên máy chủ là bản đã chốt), nên nó không thể chứa
-            # mã của chính run. Muốn mở lại run thì tra dòng này.
+            # Mã run ghi vào CẢ HAI chỗ: dòng log này, và khoá `tracking.run_id` của `run_meta.json`
+            # (ghi ngay sau `tracking.begin` trong experiment_run/encoder_run, nên `begin` lần sau
+            # đọc lại được để NỐI đúng run). Dòng log là để người đọc tra nhanh.
             self.note("đã ghi lên {}: run {} ({} tham số, {} chỉ số, {} điểm chuỗi, {} file)".format(
                 self.uri, self.run_id(), len(self.params), len(self.metrics), points,
                 len(self.artifacts)))
