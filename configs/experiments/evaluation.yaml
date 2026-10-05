@@ -23,6 +23,12 @@ read_rate_min: 95
 # và ghi vào CÙNG một thư mục kết quả - ba mẫu cho bước biểu quyết sẽ hoá thành một mẫu. Chế độ
 # `greedy` KHÔNG dùng tới khoá này (hạt giống để null trong bản ghi). Không khai ở config thí nghiệm
 # thì dùng mặc định 42, đúng bằng giá trị trước đây, nên các lượt cũ không đổi dấu vân tay.
+#
+# NGOẠI LỆ Ở ĐƯỜNG ENCODER (05/10/2026): ở lượt `approach: encoder` (chạy `greedy`), khoá này KHÔNG phải
+# hạt giống lấy mẫu mà là HẠT GIỐNG HUẤN LUYỆN - nó điều khiển khởi tạo trọng số đầu phân loại, dropout và
+# xáo trộn dữ liệu. Khai `decoding.seed: 7` ở một lượt encoder là ĐỔI hạt giống huấn luyện (đúng ý của lượt
+# THƯỚC NHIỄU ở đợt 10). Bản ghi `run_meta.json`/`metrics.json` vẫn ghi `generation.seed: null` vì `greedy`
+# không rút thăm, nên ĐỪNG đọc nhầm là khoá bị bỏ qua.
 decoding:
   mode: greedy
   temperature: null
