@@ -312,11 +312,13 @@
   `changed`** là `README.md`) ⇒ **phải gửi `012` RỒI `013`** (đúng cơ chế gói tăng dần; `013` một mình chỉ có
   README).
   **Hệ quả về số gói (cập nhật 04/10/2026 sau khi dựng gói 014):** gói của đợt 7 là **012 + 013 + 014** ⇒
-  đợt 8 = **gói 015**, gói cuối = **016** (đã sửa ở `P8_batch7.md` mục 1/2/4/9, `present_plan.md` mục
+  đợt 8 = **gói 015**, gói cuối = **016** *(LỊCH SỬ)* (đã sửa ở `P8_batch7.md` mục 1/2/4/9, `present_plan.md` mục
   6.2/7.1/8.7/10.5/11.3 và `docs/06_plan/README.md`). Không có gì phải ghim lại: hai commit sau `002086b`
   (`dfa8511` tài liệu, `34bbe45` khuôn mẫu) **không** đụng `src/` nên notebook vẫn dùng đúng bản mã đã ghim.
   ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7). **Cập nhật 05/10/2026:** đợt 7 đóng thêm **gói 015** (mục
-  15) ⇒ đợt 8 = **gói 016**, gói cuối = **017**.
+  15) ⇒ đợt 8 = **gói 016**, gói cuối = **017**. **Cập nhật lần ba 05/10/2026 (đợt 10, ba hướng mới):** đợt 8
+  đã đóng **016**; gói **017** = xử lý đợt 8 + bốn notebook thước nhiễu (mục 16), và **018** nếu hướng 2/3
+  sửa mã ⇒ **gói cuối = 018**. Hai câu "đợt 8 = 015, cuối = 016" ở trên là **LỊCH SỬ**, không phải số đang dùng.
 - Ghi chú thêm: `templates/experiment/config.yaml` đã sửa `version: v0.1.0` → `v0.2.0` (bịt bẫy "thí nghiệm mới
   lặng lẽ chấm trên bộ dữ liệu cũ"); `ci_checks` + `unittest` xanh sau khi sửa (`34bbe45`).
 
@@ -355,10 +357,12 @@
   §5b (Qwen2.5-0.5B), §7 (`price`) của `08_experiment_rationale.md`, cây ở `07_evolution.md`, và tóm tắt
   trong `handover/README.md`.
 - 8.7 Hai thí nghiệm `test` có ngưỡng + **thí nghiệm 0.6B nhánh suy nghĩ** ⇒ ghim ⇒ **gói 016** ⇒
-  **MỐC DỪNG #4** — **ĐANG LÀM 05/10/2026**: hai lượt `test` đã có kết quả; **BỐN** notebook đợt 8 đã tạo
+  **MỐC DỪNG #4** — **XONG 05/10/2026**: hai lượt `test` đã có kết quả; **BỐN** notebook đợt 8 đã tạo
   (`qwen3-0.6b/prompt-cot/exp005`/`exp006`/`exp007` trần 1985 + `qwen3-0.6b/prompt-one-turn/exp001` - lượt
-  thứ tư THÊM MỚI vì kết luận "ba lượt 0,6B vướng ĐỊNH DẠNG, không vướng trần token"); còn **ghim + đóng
-  gói 016 + đẩy**.
+  thứ tư THÊM MỚI vì kết luận "ba lượt 0,6B vướng ĐỊNH DẠNG, không vướng trần token"); đã ghim `3942144`,
+  **gói 016 đã gửi** (`handover/out/SentimentX-goi-016-6137d4d-261005.zip`, 9 tệp) và đã `git push`.
+  **Lượt `prompt-one-turn/exp001` đã chạy xong: `% đọc được` = 99,94% ⇒ VƯỢT cửa 95%**, xác nhận 0,6B hỏng vì
+  ĐỊNH DẠNG chứ không vì trần token (chi tiết mục 16.1).
 
 ## Mục 9. Người dùng chạy đợt 8
 - 9.1 Luật chống chạm trần token — CHỜ NGƯỜI DÙNG.
@@ -372,7 +376,8 @@
 - 10.3 Báo cáo ensemble + lai — CHƯA LÀM.
 - 10.4 Báo cáo biểu quyết + tương tác lượng hoá × lấy mẫu — CHƯA LÀM.
 - 10.5 Cập nhật tài liệu, đóng backlog, **gói 017** (nếu có sửa mã; không sửa mã thì không cần gói mới) ⇒
-  **MỐC DỪNG #5** — CHƯA LÀM.
+  **MỐC DỪNG #5** — CHƯA LÀM. *Lưu ý: đợt 8 đã đóng **016**, nên 017 là gói đầu tiên còn lại; đợt 10 (mục 16)
+  mở tiếp từ **018**.*
 
 ## Mục 11. Danh mục thí nghiệm theo đợt
 - 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `present_plan.md`; số liệu thật sẽ
@@ -381,9 +386,10 @@
   (**gói 012**), rồi **05/10/2026** tạo thêm **6 lượt ablation "đầu phân loại"** và ghim lại **14 notebook**
   (6 lượt mới + 8 notebook encoder đang dùng bản mã có Lỗi A) — **gói 015**, xem mục 15; phần chạy là mục 7
   (chờ người dùng).
-- 11.3 Đợt 8 (9 lượt) — **6/9 XONG phần tạo + ghim 04/10/2026**: 6 notebook (2 lượt `test` có ngưỡng + 4
-  lượt lấy mẫu) đã ghim `4571648` và nằm trong **gói 012**; 3 lượt 0.6B bật suy nghĩ chờ mục 8.2 rồi tạo ở
-  mục 8.7 (đi kèm **gói 016**).
+- 11.3 Đợt 8 (**10 notebook**) — **XONG phần tạo + ghim**: 6 notebook (2 lượt `test` có ngưỡng + 4
+  lượt lấy mẫu) đã ghim `4571648` và nằm trong **gói 012**; 4 lượt 0.6B (3 lượt bật suy nghĩ, trần 1985, chờ
+  mục 8.2 rồi tạo ở mục 8.7 + lượt `prompt-one-turn/exp001`) đã ghim `3942144` và đi kèm **gói 016**.
+  *Trước ghi "9 lượt" - nay đếm lại đúng: 2 + 3 + 1 + 4 = **10**.*
 - 11.4 Đợt 9 (3 lượt) — **CHƯA LÀM, chờ quyết định** (mục 13.4): cần 3 config model mới + cân nhắc đo lại
   19 bảng token. Danh mục đã ghi trong `present_plan.md` mục 11.4.
 
@@ -466,10 +472,15 @@ thì KHÔNG thể phân biệt hai cơ chế.
 | --- | --- | --- | --- |
 | `phobert-base-v2/lora/exp005` | `lora/exp002` | `head.trainable: true` | +16.149 |
 | `visobert/lora/exp005` | `lora/exp002` | nt | +16.149 |
-| `cafebert/lora/exp002` | `lora/exp001` | nt | +16.149 |
+| `cafebert/lora/exp002` | `lora/exp001` | nt | **+21.525** (1024 ẩn) |
 | `phobert-large/lora/exp002` | `lora/exp001` | nt | **+21.525** (1024 ẩn) |
 | `vibert-base-cased/lora/exp002` | `lora/exp001` | nt | +16.149 |
 | `xlm-roberta-base/lora/exp002` | `lora/exp001` | nt | +16.149 |
+
+**Sửa một con số SAI (05/10/2026):** cột `trainable_params` ở bảng trên ban đầu ghi `cafebert/lora/exp002` là
+**+16.149** (công thức 768 ẩn). SAI: CafeBERT rộng **1.024** ẩn. ĐO ĐƯỢC từ `metrics.json`:
+`cafebert/lora/exp002` = 7.132.181, `cafebert/lora/exp001` = 7.110.656 ⇒ hiệu = **21.525**. Đã sửa ở bảng này,
+`experiments/cafebert/lora/exp002/config.yaml` và `README.md` của cùng lượt.
 
 **Lỗi thật thứ ba, phát hiện trong lúc dò:** `phobert-large/lora/exp001` và `vibert-base-cased/lora/exp001`
 thiếu `requires_extra: [data/models/vncorenlp]` dù cả hai khai `segmenter: vncorenlp` ⇒ notebook KHÔNG kiểm
@@ -539,9 +550,33 @@ test (`test_sau_kiem_tra_deu_sach`, vì nó chính là cửa CI); **đẩy xong 
 (mã thoát 0)** + `unittest` **943 OK** (912 trước đó + 31 test mới của hai công cụ và lớp kết hợp). Chín commit lần này:
 `fix(fusion)` · `feat(scripts)` (probe_tokens) · `chore(results)` · `chore(fusion)` · `docs(experiments)` ·
 `feat(experiments)` (4 notebook + tài liệu) · `chore(experiments)` (ghim) · `chore(handover)` (gói 016) ·
-`docs(plan)` (mục này). ⇒ đợt 8 = **gói 016 đã gửi**, gói cuối = **017**.
+`docs(plan)` (mục này). ⇒ đợt 8 = **gói 016 đã gửi**; **gói cuối = 018** (017 = xử lý đợt 8 + bốn notebook
+đợt 10, 018 nếu hướng 2/3 sửa mã — xem mục 16).
 
 <!-- DIEM-NOI-TIEP -->
+
+## Mục 16. Đợt 10 — ba hướng mới (mục 14 của `present_plan.md`)
+
+Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu phần vệ sinh sổ sách.
+
+- 16.1 Vệ sinh sổ sách sau hai lượt vừa xong — **ĐANG LÀM 05/10/2026**: `collect_reports.py` đã chạy (5 nhóm
+  bảng nay có hai lượt mới). Số hai lượt: `cafebert/lora/exp002` (cơ sở `paper`: acc **97,88** · F1 macro
+  **0,917** · F1 âm macro **0,847** · 2.737 ô · đọc được **100%** · `trainable_params` **7.132.181**) và
+  `qwen3-0.6b/prompt-one-turn/exp001` (đọc được **99,94%** ⇒ VƯỢT cửa 95%; acc 87,04 · F1 macro 0,610 ·
+  F1 âm macro 0,211 · 877 ô `paper`). Còn: sửa **ba chỗ 16.149 → 21.525**, ghi kết luận vào tài liệu, commit
+  **hai lần tách miền** (bằng chứng / tài liệu), `ci_checks` + `unittest` + `git push`.
+- 16.2 Ghi ngữ nghĩa `decoding.seed` cho đường encoder — CHƯA LÀM.
+- 16.3 Tạo bốn notebook đợt 10 (ba lượt thước nhiễu + `phobert-base-v2/lora/exp006`, mỗi lượt có bằng chứng
+  `git diff` RỖNG) — CHƯA LÀM.
+- 16.4 Ghim bốn notebook + dựng **gói 017** — CHƯA LÀM.
+- 16.5 Người dùng chạy bốn lượt (~1,5-2 giờ GPU) — CHỜ NGƯỜI DÙNG.
+- 16.6 Đo biên nhiễu encoder (trả lời "+0,21/+0,52 có ngoài biên nhiễu không") — CHƯA LÀM.
+- 16.7 Hướng 2: `head.aspect_marker` (sửa mã: config + `lora.py` + test + bảng dấu vết) — CHƯA LÀM.
+- 16.8 Người dùng chạy MỘT lượt `phobert-base-v2/lora/exp006` — CHỜ NGƯỜI DÙNG.
+- 16.9 Hướng 3: sáu cặp prompt một-khía-cạnh + hàm gộp (sửa mã; cập nhật `test_prompts.py`) — CHƯA LÀM.
+- 16.10 Chốt luật gộp TRƯỚC khi chạy — CHƯA LÀM.
+- 16.11 Người dùng chạy hai lượt một-khía-cạnh (`price`, `smell`) — CHỜ NGƯỜI DÙNG.
+- 16.12 Chốt sổ + **gói 018** + **MỐC DỪNG #6** — CHƯA LÀM.
 
 
 

@@ -1,4 +1,4 @@
-# present_plan — Kế hoạch đang chạy: đợt 7 → đợt 9
+# present_plan — Kế hoạch đang chạy: đợt 7 → đợt 10
 
 > Đây là kế hoạch **ĐANG THỰC THI**, đặt ở gốc repo. Tệp đi kèm `check_present_plan.md` có **cùng mục,
 > cùng mục nhỏ**, chỉ ghi trạng thái (đã làm gì) để đọc lại nhanh; mỗi lần làm xong một mục nhỏ thì
@@ -169,7 +169,7 @@
   **Đã thực thi 04/10/2026 (lệch nhỏ, có lí do):** đợt 7 đóng **ba** gói nối tiếp - **012** (23 notebook),
   **013** (chỉ `README.md` sửa) và **014** (sửa `README.md` lần nữa: danh sách gửi lại + hai câu mô tả sai,
   xem `check_present_plan.md` mục 14). Gói sau giải nén **đè lên** gói trước. Vì vậy số gói của các đợt sau
-  dịch: đợt 8 = **015**, gói cuối = **016**.
+  dịch: đợt 8 = **015**, gói cuối = **016** *(số này nay là LỊCH SỬ - con số đang dùng ở mục 6.3)*.
 - **6.3 Đã thực thi 05/10/2026 (đợt 7 nay đóng bốn gói).** Hai lỗi thật được sửa và một cơ chế được thêm
   (xem mục 15 của `check_present_plan.md`), rồi **6 lượt ablation đầu phân loại** được tạo:
   - bản mã **bắt buộc** phải ghim lại, vì Lỗi A (`write_csv` sai thứ tự tham số) làm chết lượt chạy ở
@@ -177,7 +177,9 @@
   - vậy **14 notebook** được ghim lại: 6 lượt mới + **8 lượt encoder** của đợt 7 (4 encoder mới + 2 lượt
     `val` + 2 lượt `test` có ngưỡng của đợt 8, tất cả đều đi đường encoder);
   - **gói 015** chở 14 notebook ghim lại + `README.md` viết lại + tài liệu của cơ chế mới;
-  - **số gói dịch MỘT bậc:** đợt 8 = **016**, gói cuối = **017**.
+  - **số gói dịch MỘT bậc:** đợt 8 = **016**, gói cuối = **017**. **Cập nhật 05/10/2026 (ba hướng mới, mục 14):**
+    đợt 8 đã đóng **016**; tiếp theo là **gói 017** (xử lý đợt 8 + bốn notebook thước nhiễu / đầu phân loại
+    theo khía cạnh của đợt 10), rồi **gói 018** nếu hướng 2/3 sửa mã ⇒ **gói cuối = 018**.
 
 ## Mục 7. Người dùng chạy đợt 7 (23 notebook, khoảng 11–14 giờ GPU)
 
@@ -229,20 +231,29 @@
   về giá; kiểm lại luật "khác `parent` đúng một thứ" của từng lượt.
 - **8.7** Hai thí nghiệm `test` có ngưỡng **đã tạo sẵn ở gói 012**; mục này nay chỉ còn: tạo **ba thí nghiệm
   0.6B bật suy nghĩ** (trần token biết sau lượt DÒ) ⇒ **ghim** ⇒ **gói 016** ⇒ commit + `git push` ⇒
-  **MỐC DỪNG #4**.
+  **MỐC DỪNG #4**. **Cập nhật 05/10/2026:** đã tạo **BỐN** notebook (ba lượt 0.6B bật suy nghĩ, trần 1985,
+  cộng `qwen3-0.6b/prompt-one-turn/exp001` - lượt thứ tư THÊM MỚI để trả lời "0,6B vướng ĐỊNH DẠNG hay vướng
+  SUY LUẬN": lượt một-lượt đọc được **99,94%**), ghim `3942144`, **gói 016 đã gửi** (`git push` xong).
 
 ## Mục 9. Người dùng chạy đợt 8 (8–10 notebook, khoảng 14–25 giờ GPU)
 
-- **9.1** **Luật chống chạm trần token** — bắt buộc cho **mọi lượt bật suy nghĩ**, và đặc biệt cho ba lượt
-  lớn ở đợt 9 (`qwen3-4b-thinking-2507/prompt-cot/exp001`, `qwen3-8b/prompt-cot/exp001`,
-  `qwen3-14b/prompt-cot/exp001`), vì đã gặp lỗi: model bật suy nghĩ ăn hết trần `max_new_tokens` trong
-  khối ` thinking` rồi không in ra JSON. Các bước:
+- **9.1** **Luật chống chạm trần token** nay đã được chính thức hoá thành **luật 23** của
+  `docs/00_workflow/02_rules.md` và **CÔNG CỤ HOÁ** bằng `scripts/probe_tokens.py` (05/10/2026) - đọc luật đó
+  là đủ, phần dưới là bản nhắc lại cho ba lượt lớn ở đợt 9
+  (`qwen3-4b-thinking-2507/prompt-cot/exp001`, `qwen3-8b/prompt-cot/exp001`, `qwen3-14b/prompt-cot/exp001`),
+  vì đã gặp lỗi: model bật suy nghĩ ăn hết trần `max_new_tokens` trong khối ` thinking` rồi không in ra JSON.
+  Các bước:
   1. chạy **lượt DÒ cỡ 60 mẫu trước** với cùng cấu hình sẽ dùng;
   2. đo **p50 / p95 / max** số token sinh ra;
   3. chọn `max_new_tokens = làm tròn lên (p99 × 1,5)`, và **không được vượt cửa sổ ngữ cảnh** của model;
   4. ở lượt đầy đủ, nếu **trên 5% mẫu chạm trần** thì đánh dấu lượt là **bị cắt** và chạy lại với trần
      cao hơn;
   5. luôn báo cáo **tỉ lệ chạm trần** đặt cạnh `% đọc được`.
+
+  **Đã tự động hoá 05/10/2026:** `scripts/probe_tokens.py` làm đúng các bước trên từ tệp kết quả của lượt DÒ
+  (in p50 / p95 / p99 / max số token sinh, kiểm **luật bị cắt** của `docs/04_experiments/metrics.md`, kiểm
+  trần không vượt **cửa sổ ngữ cảnh** của model) và chốt trần theo **luật 23a**. Trần đã chốt cho nhánh suy
+  nghĩ của Qwen3-0.6B: **`max_new_tokens: 1985`** (p99 1.323 × 1,5, làm tròn lên).
 - **9.2** Chạy **hai lượt `test` có ngưỡng**: `phobert-base-v2/lora/exp004`, `visobert/lora/exp004` (gửi
   **7 tệp nhẹ** + **tệp xác suất**).
 - **9.3** Chạy **nhánh suy nghĩ đầy đủ**: `qwen3-0.6b/prompt-cot/exp005` (1 ví dụ), và `exp006` (0 ví dụ),
@@ -263,7 +274,8 @@
   **kết luận tương tác lượng hoá × lấy mẫu** (so `exp018` với `exp021`, đối chiếu khoảng chênh greedy đã
   biết là **1,17 điểm**); kết luận **chênh so với công bố có vượt nhiễu hay không**.
 - **10.5** Cập nhật toàn bộ tài liệu, kết luận, cây thí nghiệm; đóng backlog; nếu có sửa mã thì ghim lại
-  và dựng **gói 017**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #5**.
+  và dựng **gói 017**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #5**. **Lưu ý số gói:**
+  đợt 8 đã đóng **016**, nên gói đầu tiên sau đây là **017**, và đợt 10 (mục 14) mở tiếp từ **018**.
 
 ## Mục 11. Danh mục thí nghiệm theo từng đợt
 
@@ -325,7 +337,24 @@
 | `qwen3-8b/prompt-cot/exp001` | `null` | mốc quy mô lớn hơn (thế hệ 4/2025 — khai báo trung thực) | 4–6 giờ |
 | `qwen3-14b/prompt-cot/exp001` | `null` | mốc lớn nhất vừa T4 16 GB | 8–12 giờ |
 
-  Cả ba lượt này **bắt buộc** chạy theo **luật chống chạm trần ở mục 9.1** (dễ chạm trần nhất).
+  Cả ba lượt này **bắt buộc** chạy theo **luật chống chạm trần** (nay là **luật 23**; xem mục 9.1).
+
+- **11.5 Đợt 10 — 4 notebook (đợt A) + 2-6 notebook (đợt B, chạy dần), khoảng 6-12 giờ GPU** — ba hướng mới
+  (quyết định ở mục 13.5-13.7, chi tiết ở mục 14):
+
+| Thí nghiệm | `parent` | Mục đích | Khác `parent` **đúng một thứ** (đo được) | Chi phí |
+| --- | --- | --- | --- | --- |
+| `cafebert/lora/exp003` | `cafebert/lora/exp001` | **THƯỚC NHIỄU** cho lượt gốc đem so công bố (97,67) | `decoding.seed: 7` (lượt encoder chạy `greedy`, khoá này là **hạt giống HUẤN LUYỆN**) | 15–20 phút |
+| `cafebert/lora/exp004` | `cafebert/lora/exp002` | thước nhiễu cho vế **ĐẦU PHÂN LOẠI HỌC** | `decoding.seed: 7` | 15–20 phút |
+| `vibert-base-cased/lora/exp003` | `vibert-base-cased/lora/exp001` | thước nhiễu cho cặp có **Δ ÂM (−0,15)** — cặp dễ bị nhiễu nhất | `decoding.seed: 7` | 15–20 phút |
+| `phobert-base-v2/lora/exp006` | `phobert-base-v2/lora/exp002` | **ĐẦU PHÂN LOẠI theo khía cạnh** (khía cạnh vào ĐẦU VÀO, không qua ô nhớ prompt) | `head.aspect_marker: true` (mặc định `false`) | 15–60 phút |
+| 6 lượt một-khía-cạnh (**chỉ chạy 2 trước**: `price`, `smell`) | `qwen3-4b-instruct-2507/prompt-cot/exp003` | **HAI TẦNG theo khía cạnh**: lượt LLM một-khía-cạnh gộp với encoder | `task.aspects: [<một khía cạnh>]` + cặp prompt/system MỚI | ~2 giờ/lượt |
+
+  **Đợt 10 KHÁC ba việc đã làm** (đừng đọc nhầm): (a) "đo dao động bằng ba lượt lấy mẫu" (mục 11.3) là thước
+  nhiễu của **đường prompt**, KHÔNG dùng được cho encoder; (b) mục 8.5 ("bảng luật lai") dùng đúng **một lượt
+  LLM 7 khía cạnh**, còn hướng 3 chạy **thêm lượt LLM một khía cạnh**; (c) hướng 2 **thêm một DÒNG MỚI** vào
+  bảng dấu vết của đầu phân loại, không thay đầu phân loại hiện có. Lượt một-khía-cạnh **khác tập ô** nên
+  **báo cáo riêng**, không trộn bảng `paper` (tiền lệ: `exp016`).
 
 ## Mục 12. Việc để ngỏ (ghi lại để không quên)
 
@@ -338,7 +367,10 @@
   `data/reports/price_probe/`, không trộn vào bảng `paper`) - cách duy nhất để có thước đo thật cho `price`;
   việc của người, 0 GPU, **người dùng chốt để làm SAU, chưa đưa vào kế hoạch đợt này** · và **hợp nhất hai
   tệp `present_plan.md` + `check_present_plan.md` vào `docs/06_plan/P9_batch7.md`** khi kết thúc đợt (đề
-  xuất, **chờ người dùng duyệt**).
+  xuất, **chờ người dùng duyệt**). **Cập nhật 05/10/2026:** hai việc "đo dao động diện rộng (đường encoder)"
+  và "đầu phân loại theo khía cạnh / hai tầng theo khía cạnh" nay đã **rời danh sách để ngỏ** và thành **đợt 10**
+  (mục 14, bảng ở mục 11.5); "thăng cấp luật lai thành một `method`" vẫn để ngỏ nhưng **gần** hướng 3, phải
+  tách rõ khi viết.
 - **12.2** MLflow: experiment `sentimentx-absa` đã bị xoá mềm trên DagsHub nên 23 lượt không được theo
   dõi; người dùng đã quyết **không khôi phục**. Muốn theo dõi lại thì tạo experiment mới trên DagsHub —
   ghi lại để biết, **chưa làm**.
@@ -352,6 +384,76 @@
   *Mặc định: CÓ.*
 - **13.3** Ngưỡng cửa `% đọc được ≥ 95%` để gắn `valid: false` — chỉ **đánh dấu**, dữ liệu giữ nguyên,
   không xoá? → *Mặc định: 95%, có đánh dấu.*
+- **13.4** Đợt 9 (3 thí nghiệm lớn: `qwen3-4b-thinking-2507`, `qwen3-8b`, `qwen3-14b`) có làm trong đợt này
+  không? → *Mặc định: ĐỂ NGUYÊN, không tạo bây giờ* (kế hoạch vốn ghi đợt 9 là "mở rộng, chạy khi muốn").
+  Tạo 3 config model + đo lại **19 bảng token** (~18 phút, không cần GPU) là giá phải trả nếu chọn "làm luôn".
+
+**Ba quyết định ĐÃ CHỐT ngày 05/10/2026 (luật 1.7 - ghi lại vì đã đổi so với tệp này):**
+
+- **13.5 CHỐT — thước nhiễu encoder làm theo phương án (a): dùng thẳng khoá `decoding.seed`** (khoảng **0 dòng
+  mã**), chạy lại **P2 = 3 lượt**: `cafebert/lora/exp003` (thước nhiễu cho lượt đem so công bố),
+  `cafebert/lora/exp004` (cho vế đầu phân loại HỌC), `vibert-base-cased/lora/exp003` (cho cặp có Δ ÂM).
+  Cái giá đã biết trước: phải **sửa một câu chú thích** của khoá này (mục 14.2) vì câu hiện tại nói `greedy`
+  không dùng khoá đó - chỉ đúng cho đường prompt.
+- **13.6 CHỐT — hạt giống dùng để chạy lại = `decoding.seed: 7`** (khác mặc định 42, nên hạt giống huấn luyện
+  thật sự đổi và lượt mới rơi vào **thư mục kết quả mới**).
+- **13.7 CHỐT — ghim vào HEAD** (bản mã hiện tại) chứ không lùi về commit `59579e5` của các lượt gốc. Điều kiện
+  bắt buộc để không phạm luật "khác `parent` đúng một thứ": phải dán **kết quả RỖNG** của
+  `git diff --stat 59579e5 HEAD -- src/training src/experiments src/preprocessing src/evaluation` vào `README.md`
+  của từng lượt mới (đã kiểm: rỗng, nên mã encoder **không đổi** giữa hai commit).
+
+## Mục 14. Đợt 10 — ba hướng mới (thước nhiễu encoder · đầu phân loại theo khía cạnh · hai tầng theo khía cạnh)
+
+Ba hướng này đã được người dùng đồng ý (mục 13.5-13.7). Cả ba dựa trên một **tiền lệ có sẵn** trong kế hoạch:
+`qwen3-4b-instruct-2507/prompt-cot/exp016` là lượt **chẩn đoán** hỏi ĐÚNG một khía cạnh `price`, và vì **khác
+tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`.
+
+- **14.1 (không cần GPU) Vệ sinh sổ sách sau hai lượt vừa xong.** Chạy `scripts/collect_reports.py` (5 nhóm
+  bảng nay có hai lượt mới); sửa **ba chỗ ghi sai 16.149** thành **21.525** (`experiments/cafebert/lora/exp002/
+  config.yaml` dòng "= 16.149", `README.md` cùng lượt, và bảng mục 15 của `check_present_plan.md`) — CafeBERT
+  rộng **1.024** ẩn, ĐO ĐƯỢC: `7.132.181 − 7.110.656 = 21.525`; ghi kết quả hai lượt vào
+  `08_experiment_rationale.md` (§2b nay **6/6** cặp, cafebert **+0,21**) và **§5.3 mới** (lượt `prompt-one-turn`
+  của 0,6B: **99,94%** đọc được), cây ở `07_evolution.md`, `handover/README.md` (5/6 → 6/6); commit **bằng
+  chứng RỒI commit tài liệu - HAI commit riêng** (luật 1.1); `ci_checks` + `unittest` + `git push`.
+- **14.2 (không cần GPU) Ghi rõ ngữ nghĩa khoá `decoding.seed` cho đường ENCODER** ở
+  `configs/experiments/evaluation.yaml` và `docs/05_config/05_experiments_shared.md`: với lượt encoder (chạy
+  `greedy`), khoá này là **hạt giống HUẤN LUYỆN** (khởi tạo trọng số đầu phân loại, dropout, xáo trộn dữ liệu),
+  KHÔNG phải hạt giống lấy mẫu — câu chú thích hiện tại ("`greedy` KHÔNG dùng tới khoá này") chỉ đúng cho
+  **đường prompt**. Đây là cái giá của phương án (a): **0 dòng mã**, **1 lần sửa câu chữ**.
+- **14.3 (không cần GPU) Tạo bốn notebook đợt 10** (bảng ở mục 11.5). Mỗi `README.md` phải ghi: hỏi gì; khác
+  cha **ĐÚNG MỘT khoá**; đây là **thước nhiễu**, không phải lượt lấy điểm cao; và **BẰNG CHỨNG một-biến** =
+  dán kết quả RỖNG của lệnh
+  `git diff --stat 59579e5 HEAD -- src/training src/experiments src/preprocessing src/evaluation`.
+  Bằng chứng này là **bắt buộc**: lượt thước nhiễu khác cha ở commit ghim, nên phải chứng minh mã KHÔNG đổi thì
+  luật "khác `parent` đúng một thứ" (mục 5.1) mới đứng vững.
+- **14.4 (không cần GPU) Ghim bốn notebook vào HEAD** (đã có bằng chứng `git diff` RỖNG) ⇒ `ci_checks` xanh ⇒
+  commit ghim ⇒ đẩy ⇒ dựng **gói 017** ⇒ commit sổ gói ⇒ `git push`.
+- **14.5 (người dùng chạy) Bốn lượt, khoảng 1,5-2 giờ GPU**: ba lượt thước nhiễu + một lượt `aspect_marker`.
+  Mỗi lượt encoder gửi **8 tệp** (thêm tệp xác suất) như mục 7.4.
+- **14.6 (không cần GPU) Đo BIÊN NHIỄU cho đường encoder** và viết vào `06_lora_encoder.md` +
+  `08_experiment_rationale.md` §2b. Trả lời thẳng hai câu: (a) chênh **+0,21** (và +0,52) của nhóm đầu phân
+  loại có **nằm NGOÀI** biên nhiễu không; (b) chênh **−0,15** của `vibert-base-cased` có **nằm TRONG** biên
+  nhiễu không. Nếu biên ≥ khoảng 0,3 điểm thì §2b phải viết lại: **"+0,67 → +1,16" là tín hiệu yếu, chưa tách
+  được khỏi nhiễu**. Commit.
+- **14.7 (không cần GPU, SỬA MÃ) Hướng 2 - đầu phân loại theo khía cạnh.** Khai `head.aspect_marker: false` ở
+  `configs/experiments/training.yaml` (KHÔNG đặt mặc định trong mã — luật 1.4), đọc **chặt** như
+  `head.trainable` (`bool("flase")` là `True`); `src/training/lora.py` đưa vector khía cạnh vào đầu vào của đầu
+  phân loại (7 lượt encode + review), **đầu ra vẫn 7 × 3**; ghi cơ chế vào `run.log` (dòng `[CONFIG]`),
+  `run_meta.json`, thẻ MLflow; test mới; thêm **một DÒNG MỚI** vào bảng dấu vết của `06_lora_encoder.md`.
+- **14.8 (người dùng chạy) MỘT lượt rẻ nhất trước** (`phobert-base-v2/lora/exp006`, 15-60 phút) để xem cơ chế
+  mới có TÁC DỤNG không, rồi mới quyết có lan ra năm model kia hay không.
+- **14.9 (không cần GPU, SỬA MÃ) Hướng 3 - hai tầng theo khía cạnh.** Tạo **sáu cặp prompt + system MỚI** (mỗi
+  cặp một khía cạnh) — KHÔNG sửa cặp prompt cũ (luật 1.4: cặp prompt đã dùng là **bất biến**); cập nhật danh
+  sách tập-đóng trong `tests/experiments/test_prompts.py` (không thì `ci_checks` đỏ); thêm hàm gộp vào
+  `src/evaluation/fusion.py` + đường gọi ở `scripts/fuse.py` + test.
+- **14.10 (không cần GPU) CHỐT LUẬT GỘP TRƯỚC KHI CHẠY** (luật 1 + luật 11 của `02_rules.md`): khung ô lấy từ
+  **encoder**; khi encoder nói "có nhắc" mà lượt một-khía-cạnh nói "không nhắc" thì lấy **ai** — ghi vào
+  `README.md` của lượt mới. **Không** được chọn luật sau khi đã thấy kết quả.
+- **14.11 (người dùng chạy) HAI lượt một-khía-cạnh** (`qwen3-4b-instruct-2507` cho `price` và `smell`,
+  ~4-5 giờ GPU) ⇒ gộp ⇒ **bảng RIÊNG**, không trộn bảng `paper` (tiền lệ: `exp016`).
+- **14.12 (không cần GPU) Chốt sổ**: cập nhật `present_plan.md`, `check_present_plan.md`,
+  `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 018** (nếu hướng 2/3 sửa mã);
+  `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #6**.
 
 
 
