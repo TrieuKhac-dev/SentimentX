@@ -528,7 +528,20 @@ chạy **không đổi** (`nhóm 8` trong `check_present_plan.md` mục 7.2 vẫ
    chính. Đợt 8 nay là **8-10 notebook**.
 
 
+**Ghim + gói + đẩy (05/10/2026, lần hai):** **4 notebook** đợt 8 ghim vào `3942144` (commit `feat(experiments)` vừa tạo,
+nên bản ghim CHỨA `config.yaml`/`README.md` của chính bốn lượt đó) ⇒ commit ghim `6137d4d` ⇒ dựng **gói 016**
+(`handover/out/SentimentX-goi-016-6137d4d-261005.zip`, 51 KB, **9 tệp**: 4 notebook + 4 README của lượt mới + `README.md`
+của bàn giao đã cập nhật) ⇒ commit sổ gói `e40c7cd` ⇒ `git push origin experiment` (`c4f2c8c..e40c7cd`, **7 commit**).
+Thứ tự đúng luật đã ghi ở mục 6.1: *đẩy commit code ⇒ ghim ⇒ commit ghim ⇒ đẩy* - lần này giống lần trước, bước ghim **đi
+trước** lần đẩy duy nhất, nên trước khi đẩy `ci_checks` còn đúng **4 mục** "chưa ghim commit" và `unittest` đỏ đúng MỘT
+test (`test_sau_kiem_tra_deu_sach`, vì nó chính là cửa CI); **đẩy xong thì cả hai xanh**: `ci_checks` **9/9 nhóm sạch
+(mã thoát 0)** + `unittest` **943 OK** (912 trước đó + 31 test mới của hai công cụ và lớp kết hợp). Bảy commit của lần này:
+`fix(fusion)` · `feat(scripts)` (probe_tokens) · `chore(results)` · `chore(fusion)` · `docs(experiments)` ·
+`feat(experiments)` (4 notebook + tài liệu) · `chore(experiments)` (ghim). ⇒ đợt 8 = **gói 016 đã gửi**, gói cuối = **017**.
+
 <!-- DIEM-NOI-TIEP -->
+
+
 
 
 
