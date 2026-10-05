@@ -4,7 +4,7 @@
 
 **Khác `exp001`:** đúng MỘT khoá ĐO ĐƯỢC - `head.trainable: true` (mặc định ở lớp dùng chung là `false`). Mọi thứ khác y hệt `exp001`: `weighted_ce` + `class_weight: inverse`, cùng hạt giống, cùng số epoch, cùng tham số LoRA.
 
-**Kết quả:** `results/<hash8>/`. Kiểm DẤU VẾT trước khi đọc số: `trainable_params` trong `metrics.json` phải LỚN HƠN `exp001` đúng **16.149** (= 7 khía cạnh × (768 ẩn × 3 mã + 3)). Đọc theo CẶP chỉ số - F1 lớp âm + macro-F1 + số ô - KHÔNG chỉ accuracy. Mỗi nhánh mới có MỘT lượt nên chưa có thước nhiễu: chênh lệch nhỏ là chưa kết luận được gì. Không cần tài nguyên ngoài git (`segmenter: none`).
+**Kết quả:** `results/<hash8>/`. Kiểm DẤU VẾT trước khi đọc số: `trainable_params` trong `metrics.json` phải LỚN HƠN `exp001` đúng **21.525** (= 7 khía cạnh × (1.024 ẩn × 3 mã + 3); CafeBERT rộng 1.024 ẩn, đo được 7.132.181 − 7.110.656). Đọc theo CẶP chỉ số - F1 lớp âm + macro-F1 + số ô - KHÔNG chỉ accuracy. Lượt này có MỘT lượt (chưa có thước nhiễu: `cafebert/lora/exp004` chạy lại với hạt giống khác là thước nhiễu cho chính nó); chênh lệch nhỏ là chưa kết luận được gì. Không cần tài nguyên ngoài git (`segmenter: none`).
 
 ---
 

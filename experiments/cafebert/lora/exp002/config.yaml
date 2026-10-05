@@ -35,7 +35,8 @@ enabled: true
 # adapter nên đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN CỐ ĐỊNH: `head.pt` của bốn lượt LoRA đã
 # chạy giống nhau TỪNG BYTE - đó là SỐ ĐO, không phải suy đoán (src/training/lora.py).
 # Dấu vết để kiểm trong `metrics.json`: `trainable_params` phải LỚN HƠN lượt đóng băng đúng bằng số
-# tham số của đầu phân loại = 7 khía cạnh × (768 ẩn × 3 mã + 3) = 16.149.
+# tham số của đầu phân loại = 7 khía cạnh × (1.024 ẩn × 3 mã + 3) = 21.525. (CafeBERT rộng 1.024 ẩn, KHÔNG
+# phải 768: đo được 7.132.181 - 7.110.656 = 21.525.)
 head:
   trainable: true
 
