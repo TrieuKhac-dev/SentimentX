@@ -1,4 +1,4 @@
-=== lần chạy 2026-10-05 06:49:29 - mode=NEW ===
+=== lần chạy 2026-10-05 11:23:13 - mode=NEW ===
 [RUN] mode=NEW
 [RUN] dataset=cosmetics
 [RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
@@ -66,7 +66,7 @@
 [STEP] bước 900 | loss 0.0247 | val sentiment_f1=0.9110 (10554 ô) | chưa tốt hơn
 [STEP] bước 1000 | loss 0.0332 | val sentiment_f1=0.9100 (10554 ô) | chưa tốt hơn
 [STEP] bước 1100 | loss 0.1101 | val sentiment_f1=0.9150 (10554 ô) | chưa tốt hơn
-[STEP] huấn luyện xong: 1150 bước trong 1831.2 giây (7132181 tham số học / 567022613 tổng) | 1831.2 giây
+[STEP] huấn luyện xong: 1150 bước trong 1813.4 giây (7132181 tham số học / 567022613 tổng) | 1813.4 giây
 [STEP] ghi lịch sử huấn luyện: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp002/results/93448395/training_history.csv (14 điểm đo)
 [STEP] ghi biểu đồ train/val: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp002/results/93448395/plots/training.html
 [STEP] suy luận bằng /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp002/results/93448395/model/best
@@ -79,6 +79,6 @@
 [STEP] ghi 1623 dòng dự đoán
 [STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
 [STEP] ghi nhận: 0 tham số, 0 chỉ số, 0 file
-[RUN] kết thúc sau 1883.5 giây
+[RUN] kết thúc sau 1879.0 giây
 [STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
 [TRACK] không ghi nhận gì (tracker tắt)

@@ -1,61 +1,50 @@
 {
   "version": 1,
   "run": {
-    "out_dir": "93448395",
-    "hash": "93448395",
+    "out_dir": "ff3fb8fa",
+    "hash": "ff3fb8fa",
     "log": "run.log",
     "errors": "errors.json",
     "status": "FINISHED",
-    "started": "2026-10-05 11:23:13",
-    "finished": "2026-10-05 11:54:32",
+    "started": "2026-10-05 11:39:35",
+    "finished": "2026-10-05 11:56:41",
     "note": null,
-    "approach": "encoder",
     "split": "test",
     "limit": 0,
     "n_samples": 1623,
     "subset_seed": 42,
-    "quant": "none",
-    "max_length": 256,
-    "batch_size": 16,
-    "training": {
-      "trainer": "lora",
-      "epochs": 3,
-      "batch": 8,
-      "grad_accum": 4,
-      "lr": 0.0002,
-      "lora_r": 16,
-      "lora_alpha": 32,
-      "target_modules": [
-        "query",
-        "key",
-        "value",
-        "dense"
-      ],
-      "head_trainable": true
+    "quant": null,
+    "max_length": 2304,
+    "enable_thinking": false,
+    "batch_size": 4,
+    "generation": {
+      "quant": null,
+      "max_new_tokens": 400,
+      "do_sample": false,
+      "temperature": null,
+      "top_p": null,
+      "top_k": null,
+      "seed": null
     },
-    "prompt": null,
-    "prompt_sha": null,
+    "prompt": "absa_one_turn_v1",
+    "prompt_sha": "52784399",
     "examples_sha": null,
-    "system_sha": null
+    "system_sha": "ee1ed0e1"
   },
   "experiment": {
-    "model": "cafebert",
-    "method": "lora",
-    "exp_id": "exp002"
+    "model": "qwen3-0.6b",
+    "method": "prompt-one-turn",
+    "exp_id": "exp001"
   },
   "data": {
     "dataset": "cosmetics",
     "version": "v0.2.0",
     "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
     "roles": {
-      "train": "train",
-      "val": "val",
       "eval": "test"
     },
     "rows": {
-      "eval": 1623,
-      "train": 12268,
-      "val": 1535
+      "eval": 1623
     },
     "eval_lock": {
       "enforce": true,
@@ -65,14 +54,14 @@
   "repo": {
     "url": "https://github.com/TrieuKhac-dev/SentimentX",
     "branch": "experiment",
-    "sha": "59579e576fcff951db7459615567441715846a5c"
+    "sha": "3942144da4dea7016607c3863e645dc7bc6580ac"
   },
   "config": {
-    "sha256": "9344839554ee2c5ebde558ea5bca753006761f4b4393d5a780b141d9f8d94949",
+    "sha256": "ff3fb8fa2dc4e761f8dd435508c2c62b0dd66cd06a4499faf0ee8e242900eaa8",
     "layers": [
       [
         "model",
-        "configs/models/cafebert.yaml"
+        "configs/models/qwen3-0.6b.yaml"
       ],
       [
         "repo",
@@ -96,7 +85,7 @@
       ],
       [
         "experiment",
-        "experiments/cafebert/lora/exp002/config.yaml"
+        "experiments/qwen3-0.6b/prompt-one-turn/exp001/config.yaml"
       ]
     ],
     "sources": {
@@ -105,9 +94,10 @@
       "config_version": "model",
       "approach": "model",
       "preprocess.max_length": "model",
-      "preprocess.segmenter": "model",
-      "lora.target_modules": "model",
+      "preprocess.add_generation_prompt": "model",
+      "preprocess.enable_thinking": "model",
       "inference.dtype": "model",
+      "inference.quantization": "model",
       "inference.batch_size": "model",
       "url": "repo",
       "branch": "repo",
@@ -128,12 +118,12 @@
       "save.predictions": "evaluation",
       "save.plots": "evaluation",
       "save.confusion": "evaluation",
-      "enabled": "experiment",
+      "enabled": "training",
       "trainer": "training",
       "lora.r": "training",
       "lora.alpha": "training",
       "lora.dropout": "training",
-      "head.trainable": "experiment",
+      "head.trainable": "training",
       "lr": "training",
       "batch": "training",
       "epochs": "training",
@@ -145,8 +135,8 @@
       "checkpoints.save_best": "training",
       "checkpoints.delete_intermediate": "training",
       "checkpoints.best_metric": "training",
-      "loss.type": "experiment",
-      "loss.class_weight": "experiment",
+      "loss.type": "training",
+      "loss.class_weight": "training",
       "early_stop.enabled": "training",
       "early_stop.patience": "training",
       "early_stop.min_delta": "training",
@@ -168,9 +158,9 @@
       "notes": "experiment",
       "data.dataset": "experiment",
       "data.version": "experiment",
-      "data.roles.train": "experiment",
-      "data.roles.val": "experiment",
-      "data.roles.eval": "experiment"
+      "data.roles.eval": "experiment",
+      "prompt": "experiment",
+      "system_prompt": "experiment"
     }
   },
   "task": {
@@ -178,55 +168,27 @@
     "neutral_policy": "drop",
     "not_mentioned": "separate"
   },
-  "overrides": [
-    [
-      "enabled",
-      false,
-      true,
-      "experiment"
-    ],
-    [
-      "head.trainable",
-      false,
-      true,
-      "experiment"
-    ],
-    [
-      "loss.class_weight",
-      "none",
-      "inverse",
-      "experiment"
-    ],
-    [
-      "loss.type",
-      "ce",
-      "weighted_ce",
-      "experiment"
-    ]
-  ],
+  "overrides": [],
   "env": {
     "kind": "colab",
     "python": "3.13.15",
     "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
-    "device": "cuda",
+    "device": "cuda:0",
     "gpu": "Tesla T4",
-    "vram_gb": 14.6,
-    "quantization": "none",
+    "vram_gb": 1.11,
+    "quantization": "float16",
     "dtype": "float16",
-    "libs": {
-      "torch": "2.11.0+cu130",
-      "transformers": "5.17.0"
-    }
+    "libs": {}
   },
   "attempts": [
     {
       "n": 1,
-      "started": "2026-10-05 11:23:13",
-      "finished": "2026-10-05 11:54:32",
-      "seconds": 1879.0,
+      "started": "2026-10-05 11:39:35",
+      "finished": "2026-10-05 11:56:41",
+      "seconds": 1026.0,
       "status": "FINISHED",
-      "sha": "59579e576fcff951db7459615567441715846a5c",
-      "config_sha256": "9344839554ee2c5ebde558ea5bca753006761f4b4393d5a780b141d9f8d94949",
+      "sha": "3942144da4dea7016607c3863e645dc7bc6580ac",
+      "config_sha256": "ff3fb8fa2dc4e761f8dd435508c2c62b0dd66cd06a4499faf0ee8e242900eaa8",
       "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
       "note": null
     }
@@ -275,10 +237,10 @@
       "sha256": "89a12ddb67b3b731538548d21334d58f90d84f20f8af7c13e8bc68ff77f46f0d"
     },
     {
-      "path": "configs/models/cafebert.yaml",
+      "path": "configs/models/qwen3-0.6b.yaml",
       "role": "model",
-      "bytes": 1105,
-      "sha256": "53bc7d66455b8df549eb6fe088c64ecee9dfa252c916258f5b9ee8248ef1c4c5"
+      "bytes": 1593,
+      "sha256": "f33341b629537fac7072325052c6bc7634c1b95ef72aea0ab0041e169e6e4326"
     },
     {
       "path": "configs/datasets/cosmetics/v0.2.0.yaml",
@@ -291,6 +253,18 @@
       "role": "pipeline",
       "bytes": 3281,
       "sha256": "b7f6e8fc55cdaa234f71b0c0b5b1530a7d021756347516ca4f209984fa2d1da9"
+    },
+    {
+      "path": "configs/prompts/absa_one_turn_v1.txt",
+      "role": "prompt",
+      "bytes": 339,
+      "sha256": "8916bebe6401cd1e28ce40a122bb838b72065a25ea8d428d99b3e714295ceefa"
+    },
+    {
+      "path": "configs/prompts/system/absa_one_turn.txt",
+      "role": "system",
+      "bytes": 221,
+      "sha256": "b605acb6334f758aae09613228c3cf2b7617da60b8ab6155cd4c162da370b12d"
     }
   ],
   "tracking": {}
