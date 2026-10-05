@@ -180,6 +180,9 @@
   - **số gói dịch MỘT bậc:** đợt 8 = **016**, gói cuối = **017**. **Cập nhật 05/10/2026 (ba hướng mới, mục 14):**
     đợt 8 đã đóng **016**; tiếp theo là **gói 017** (xử lý đợt 8 + bốn notebook thước nhiễu / đầu phân loại
     theo khía cạnh của đợt 10), rồi **gói 018** nếu hướng 2/3 sửa mã ⇒ **gói cuối = 018**.
+    **Cập nhật lần hai 05/10/2026:** ba notebook thước nhiễu đóng **gói 017** (`SentimentX-goi-017-9278341-261005.zip`)
+    và **gói 018** (`SentimentX-goi-018-7b2d4ca-261005.zip`) chỉ chở `README.md` bàn giao vì README **nằm trong gói** -
+    phải gửi **017 RỒI 018** (đúng cơ chế gói tăng dần), nên gói cho hướng 2/3 sửa mã là **019** ⇒ **gói cuối = 019**.
 
 ## Mục 7. Người dùng chạy đợt 7 (23 notebook, khoảng 11–14 giờ GPU)
 
@@ -275,7 +278,8 @@
   biết là **1,17 điểm**); kết luận **chênh so với công bố có vượt nhiễu hay không**.
 - **10.5** Cập nhật toàn bộ tài liệu, kết luận, cây thí nghiệm; đóng backlog; nếu có sửa mã thì ghim lại
   và dựng **gói 017**; chạy `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #5**. **Lưu ý số gói:**
-  đợt 8 đã đóng **016**, nên gói đầu tiên sau đây là **017**, và đợt 10 (mục 14) mở tiếp từ **018**.
+  đợt 8 đã đóng **016**, ba notebook thước nhiễu đóng **017** (+ **018** chỉ `README.md`), nên gói cho hướng
+  2/3 sửa mã là **019**.
 
 ## Mục 11. Danh mục thí nghiệm theo từng đợt
 
@@ -431,8 +435,12 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
   `scripts/ensemble.py`, `scripts/fit_thresholds.py`, `scripts/fuse.py`, `scripts/vote.py` dùng nó).
   Bằng chứng này là **bắt buộc**: lượt thước nhiễu khác cha ở commit ghim, nên phải chứng minh mã KHÔNG đổi thì
   luật "khác `parent` đúng một thứ" (mục 5.1) mới đứng vững.
-- **14.4 (không cần GPU) Ghim bốn notebook vào HEAD** (đã có bằng chứng `git diff` RỖNG) ⇒ `ci_checks` xanh ⇒
-  commit ghim ⇒ đẩy ⇒ dựng **gói 017** ⇒ commit sổ gói ⇒ `git push`.
+- **14.4 (không cần GPU) Ghim bốn notebook vào HEAD** ⇒ `ci_checks` xanh ⇒ commit ghim ⇒ đẩy ⇒ dựng gói ⇒
+  commit sổ gói ⇒ `git push`. **ĐÃ LÀM 05/10/2026 (phần thước nhiễu):** ba notebook ghim vào `05cb8c1`
+  (commit ghim `9278341`, `ci_checks` 9/9 + `unittest` 943 OK) ⇒ **gói 017**
+  (`SentimentX-goi-017-9278341-261005.zip`, 6 file MỚI + 2 ĐỔI) rồi **gói 018**
+  (`SentimentX-goi-018-7b2d4ca-261005.zip`, 1 file: `README.md` bàn giao) - **gửi 017 RỒI 018**, cả hai đã
+  `git push`. Lượt thứ tư (`head.aspect_marker`) chờ mục 14.7 (sửa mã) nên chưa ghim.
 - **14.5 (người dùng chạy) Bốn lượt, khoảng 1,5-2 giờ GPU**: ba lượt thước nhiễu + một lượt `aspect_marker`.
   Mỗi lượt encoder gửi **8 tệp** (thêm tệp xác suất) như mục 7.4.
 - **14.6 (không cần GPU) Đo BIÊN NHIỄU cho đường encoder** và viết vào `06_lora_encoder.md` +
@@ -457,7 +465,7 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
 - **14.11 (người dùng chạy) HAI lượt một-khía-cạnh** (`qwen3-4b-instruct-2507` cho `price` và `smell`,
   ~4-5 giờ GPU) ⇒ gộp ⇒ **bảng RIÊNG**, không trộn bảng `paper` (tiền lệ: `exp016`).
 - **14.12 (không cần GPU) Chốt sổ**: cập nhật `present_plan.md`, `check_present_plan.md`,
-  `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 018** (nếu hướng 2/3 sửa mã);
+  `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 019** (nếu hướng 2/3 sửa mã);
   `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #6**.
 
 

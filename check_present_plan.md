@@ -319,6 +319,9 @@
   15) ⇒ đợt 8 = **gói 016**, gói cuối = **017**. **Cập nhật lần ba 05/10/2026 (đợt 10, ba hướng mới):** đợt 8
   đã đóng **016**; gói **017** = xử lý đợt 8 + bốn notebook thước nhiễu (mục 16), và **018** nếu hướng 2/3
   sửa mã ⇒ **gói cuối = 018**. Hai câu "đợt 8 = 015, cuối = 016" ở trên là **LỊCH SỬ**, không phải số đang dùng.
+  **Cập nhật lần bốn 05/10/2026:** ba notebook thước nhiễu đã đóng **gói 017**
+  (`SentimentX-goi-017-9278341-261005.zip`) và **gói 018** (`SentimentX-goi-018-7b2d4ca-261005.zip`) chỉ chở
+  `README.md` bàn giao (README **nằm trong gói**) - gửi **017 RỒI 018**; gói cho hướng 2/3 sửa mã là **019**.
 - Ghi chú thêm: `templates/experiment/config.yaml` đã sửa `version: v0.1.0` → `v0.2.0` (bịt bẫy "thí nghiệm mới
   lặng lẽ chấm trên bộ dữ liệu cũ"); `ci_checks` + `unittest` xanh sau khi sửa (`34bbe45`).
 
@@ -376,8 +379,8 @@
 - 10.3 Báo cáo ensemble + lai — CHƯA LÀM.
 - 10.4 Báo cáo biểu quyết + tương tác lượng hoá × lấy mẫu — CHƯA LÀM.
 - 10.5 Cập nhật tài liệu, đóng backlog, **gói 017** (nếu có sửa mã; không sửa mã thì không cần gói mới) ⇒
-  **MỐC DỪNG #5** — CHƯA LÀM. *Lưu ý: đợt 8 đã đóng **016**, nên 017 là gói đầu tiên còn lại; đợt 10 (mục 16)
-  mở tiếp từ **018**.*
+  **MỐC DỪNG #5** — CHƯA LÀM. *Lưu ý: đợt 8 đã đóng **016**, ba notebook thước nhiễu đóng **017** (+ **018** chỉ
+  `README.md`), nên gói cho hướng 2/3 sửa mã là **019**.*
 
 ## Mục 11. Danh mục thí nghiệm theo đợt
 - 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `present_plan.md`; số liệu thật sẽ
@@ -574,7 +577,12 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
   -- src/training src/experiments src/preprocessing src/labels src/core` **RỖNG** (exit 0); file duy nhất đổi
   trong `src/` là `src/evaluation/fusion.py` và nó **KHÔNG thuộc đường encoder** (chỉ 4 script fusion dùng).
   Lượt thứ tư (`phobert-base-v2/lora/exp006`, `head.aspect_marker`) còn CHƯA tạo - cần sửa mã (mục 16.7).
-- 16.4 Ghim bốn notebook + dựng **gói 017** — CHƯA LÀM.
+- 16.4 Ghim ba notebook thước nhiễu + dựng **gói 017** — **XONG 05/10/2026**: ba notebook ghim vào `05cb8c1`
+  (commit ghim `9278341`) ⇒ `ci_checks` **9/9 sạch** + `unittest` **943 OK** ⇒ **gói 017**
+  (`SentimentX-goi-017-9278341-261005.zip`; 6 file MỚI là 3 notebook + 3 `README.md` của lượt, 2 file ĐỔI là
+  `README.md` bàn giao + `experiments/cafebert/lora/exp002/README.md`) ⇒ rồi **gói 018**
+  (`SentimentX-goi-018-7b2d4ca-261005.zip`, **1 file**: `README.md` bàn giao, vì bảng đợt 10 được thêm vào SAU
+  khi dựng 017 - đúng cơ chế gói tăng dần) ⇒ **gửi 017 RỒI 018**; cả hai đã `git push`.
 - 16.5 Người dùng chạy bốn lượt (~1,5-2 giờ GPU) — CHỜ NGƯỜI DÙNG.
 - 16.6 Đo biên nhiễu encoder (trả lời "+0,21/+0,52 có ngoài biên nhiễu không") — CHƯA LÀM.
 - 16.7 Hướng 2: `head.aspect_marker` (sửa mã: config + `lora.py` + test + bảng dấu vết) — CHƯA LÀM.
@@ -582,7 +590,7 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
 - 16.9 Hướng 3: sáu cặp prompt một-khía-cạnh + hàm gộp (sửa mã; cập nhật `test_prompts.py`) — CHƯA LÀM.
 - 16.10 Chốt luật gộp TRƯỚC khi chạy — CHƯA LÀM.
 - 16.11 Người dùng chạy hai lượt một-khía-cạnh (`price`, `smell`) — CHỜ NGƯỜI DÙNG.
-- 16.12 Chốt sổ + **gói 018** + **MỐC DỪNG #6** — CHƯA LÀM.
+- 16.12 Chốt sổ + **gói 019** + **MỐC DỪNG #6** — CHƯA LÀM.
 
 
 
