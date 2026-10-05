@@ -22,8 +22,9 @@ HỌC đầu phân loại thì khác gì nhau" - mỗi lượt khác lượt g�
 | Cách chấm | `evaluation.n: null` (chấm cả split `test`), `decoding.mode: greedy` (tất định), năm scorer: `accuracy`, `aspect_detection`, `prf`, `aggregate`, `confusion` |
 | Hai cơ sở đo | `all` = mọi ô có nhãn đúng khác `neutral` (số trong `metrics.json::scores`) · `paper` = chỉ ô mà CẢ nhãn đúng và nhãn đoán là positive/negative (đúng cách công bố đếm) → **so công bố phải đọc cơ sở `paper`** |
 | Mỗi lượt sinh ra | `results/<hash8>/`: `run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`, `predictions.csv`, `model/{last,best}` (chỉ hai lượt LoRA) + một run MLflow. `<hash8>` = băm của cấu hình + prompt + dữ liệu + commit đã ghim |
-| Bật học? | `training.enabled: false` mặc định - chỉ **bốn** lượt LoRA bật `true` (`phobert-base-v2/lora/exp001` + `exp002`, `visobert/lora/exp001` + `exp002`) |
-| Cách sinh | `greedy`, `max_new_tokens` 400, `max_length` 2304 (đường prompt); encoder `max_length` 256 |
+| Bật học? | `training.enabled: false` mặc định - **mười** lượt LoRA bật `true`: hai encoder của §2 (`phobert-base-v2/lora/exp001` + `exp002`, `visobert/lora/exp001` + `exp002`) và **sáu lượt của §2b** (bốn encoder mới + hai lượt đầu phân loại của PhoBERT/ViSoBERT) |
+| Đầu phân loại | **ĐÓNG BĂNG** ở mọi lượt dùng mặc định; chỉ sáu lượt của §2b bật `head.trainable: true` - một cơ chế học riêng, xem §2b |
+| Cách sinh | `greedy`, `max_new_tokens` 400, `max_length` 2304 (đường prompt); encoder `max_length` 256. Nhánh BẬT suy nghĩ của Qwen3-0.6B dùng trần **1985** (đo từ lượt DÒ, §5.2) |
 
 ## 2. Nhóm A - hai encoder học LoRA (4 lượt ĐANG có kết quả; nhóm đầu phân loại ở §2b)
 
@@ -53,41 +54,59 @@ mát chính là chỗ sửa được, đúng như ba lượt sửa câu chữ pr
 `exp001`, ViSoBERT hơn PhoBERT **6,46 điểm**; sang `exp002`, PhoBERT (96,62) vượt ViSoBERT (95,61) **1,01
 điểm** ⇒ thứ hạng hai encoder phụ thuộc hàm mất mát, không chỉ model.
 
-## 2b. Nhóm đầu phân loại - sáu lượt ablation (CHƯA có kết quả)
+## 2b. Nhóm đầu phân loại - sáu lượt ablation (đã có 5/6 kết quả)
 
 `peft` đóng băng **mọi** tham số không phải adapter, và đầu phân loại của dự án nằm trong số đó. Nên ở cả
 bốn lượt của §2, **đầu phân loại không hề học**: nó là một phép chiếu ngẫu nhiên CỐ ĐỊNH. Bằng chứng ĐO
-ĐƯỢC, không phải suy đoán: `head.pt` của bốn lượt giống nhau **TỪNG BYTE** giữa các checkpoint của cùng
-lượt (`checkpoint-1000`, `checkpoint-1100`, `best`, `last`) và cả giữa hai model khác nhau; còn
-`trainable_params` bằng đúng tổng tham số adapter (2.678.784).
+ĐƯỢC, không phải suy đoán (chi tiết ở `06_lora_encoder.md` mục "Đầu phân loại"):
+
+- `head.pt` giống nhau TỪNG BYTE giữa các checkpoint của cùng một lượt chạy (`checkpoint-1000`,
+  `checkpoint-1100`, `best`, `last`) - và giữa hai lượt chạy của cùng một model trên hai bản mã khác nhau;
+- `trainable_params` bằng đúng tổng tham số adapter (2.678.784), tức đầu phân loại không nằm trong optimizer.
 
 Sáu lượt dưới đây trả lời câu "ĐÓNG BĂNG hay HỌC đầu phân loại thì khác gì nhau", mỗi lượt khác lượt gốc
 của nó **đúng một khoá đo được** (`head.trainable: true`, mặc định là `false`):
 
-| Thí nghiệm | So với | Hàm mất mát | Điều kiện |
-| --- | --- | --- | --- |
-| `phobert-base-v2/lora/exp005` | `phobert-base-v2/lora/exp002` | `weighted_ce` | cần VnCoreNLP |
-| `visobert/lora/exp005` | `visobert/lora/exp002` | `weighted_ce` | `segmenter: none` |
-| `cafebert/lora/exp002` | `cafebert/lora/exp001` | `weighted_ce` | `segmenter: none` |
-| `phobert-large/lora/exp002` | `phobert-large/lora/exp001` | `weighted_ce` | cần VnCoreNLP |
-| `vibert-base-cased/lora/exp002` | `vibert-base-cased/lora/exp001` | `weighted_ce` | cần VnCoreNLP |
-| `xlm-roberta-base/lora/exp002` | `xlm-roberta-base/lora/exp001` | `weighted_ce` | `segmenter: none` |
+| Model | Lượt ĐÓNG BĂNG (cha) | acc TB | F1 macro | F1 âm macro | Lượt HỌC đầu (con) | acc TB | F1 macro | F1 âm macro | Δ acc |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `phobert-large` | `lora/exp001` | 96,54 | 0,875 | 0,775 | `lora/exp002` | **97,69** | 0,883 | 0,781 | **+1,15** |
+| `xlm-roberta-base` | `lora/exp001` | 95,20 | 0,853 | 0,740 | `lora/exp002` | **96,36** | 0,857 | 0,740 | **+1,16** |
+| `phobert-base-v2` | `lora/exp002` | 96,62 | 0,876 | 0,776 | `lora/exp005` | **97,59** | 0,884 | 0,784 | **+0,97** |
+| `visobert` | `lora/exp002` | 95,61 | 0,836 | 0,700 | `lora/exp005` | **96,28** | 0,849 | 0,723 | **+0,67** |
+| `vibert-base-cased` | `lora/exp001` | 94,99 | 0,828 | 0,692 | `lora/exp002` | 94,84 | 0,822 | 0,679 | −0,15 |
+| `cafebert` | `lora/exp001` | **97,67** | **0,886** | 0,788 | `lora/exp002` | *thiếu kết quả* | | | |
+
+Số ở cơ sở `paper`; `% đọc được` = 100 và `greedy` ở cả năm cặp đã đủ (xem `metrics.md` luật 1). Cặp
+`cafebert` chưa đọc được: thư mục kết quả của `lora/exp002` bị **sao chép thiếu** (`run_meta.json` còn ghi
+`RUNNING` trong khi `run.log` đã `FINISHED`, và không có `metrics.json`) - cần **chạy lại một lượt** (2-3
+phút, dùng lại checkpoint đã có, KHÔNG huấn luyện lại).
 
 Đọc thế nào:
 
 - **Kiểm DẤU VẾT trước khi so điểm** - không có bước này thì không biết lượt nào đã thật sự học đầu:
   `trainable_params` phải LỚN HƠN lượt gốc đúng bằng số tham số đầu phân loại = `số khía cạnh × (số ẩn ×
   số mã nhãn + số mã nhãn)` = 7 × (768 × 3 + 3) = **16.149** (PhoBERT-large 1.024 ẩn: **21.525**); và
-  `head.pt` giữa `best` với `last` phải KHÁC nhau (ở lượt gốc chúng giống hệt nhau). Cơ chế của lượt chạy
-  cũng được ghi vào `run.log` (dòng `[CONFIG] đầu phân loại:`), `run_meta.json` và thẻ MLflow.
-- Đọc theo **CẶP chỉ số** như §2 (F1 lớp âm + macro-F1 + phát hiện khía cạnh), và nhớ `price` là **điểm mù**
-  (§7) - đừng kết luận gì từ cột đó.
-- **Một lượt mỗi nhánh nghĩa là CHƯA có thước nhiễu**: thước nhiễu hiện có của dự án là độ lệch giữa ba
-  lượt lấy mẫu của đường prompt, mà đường prompt không dùng được cho encoder. Chênh lệch nhỏ giữa hai
-  nhánh (dưới vài phần mười điểm) là **chưa kết luận được gì**; muốn kết luận thì phải chạy lại một nhánh
-  với hạt giống khác.
-- Sáu lượt này **chưa chạy**; `parent` của chúng (`exp002`/`exp001`) cũng vậy với bốn encoder mới, nên cặp
-  so sánh chỉ đọc được sau khi đợt 7 chạy xong.
+  `head.pt` giữa `best` với `last` phải KHÁC nhau (ở lượt gốc chúng giống hệt nhau). Cả sáu lượt đều ĐẠT
+  phép kiểm này. Cơ chế của lượt chạy cũng được ghi vào `run.log` (dòng `[CONFIG] đầu phân loại:`),
+  `run_meta.json` và thẻ MLflow.
+- **Cho đầu phân loại học KHÔNG tạo ra bước nhảy, nhưng cũng không phá gì.** 4/5 cặp nhỉnh hơn **+0,67 →
+  +1,16 điểm** độ chính xác, cùng chiều ở bốn họ model khác nhau; cặp thứ năm (`vibert-base-cased`) kém
+  **0,15 điểm**. Đường lớp âm gần như đứng yên: +0,008 · +0,013 · +0,006 · 0,000 · −0,013 F1 âm macro.
+- **Chỗ đổi rõ nhất không phải tổng điểm mà là DỊCH CHUYỂN giữa các khía cạnh.** Học đầu làm `packing` rơi
+  ở 4/5 cặp - `phobert-base-v2` 0,952→**0,900**, `phobert-large` 0,900→**0,818**, `vibert-base-cased`
+  0,533→**0,455**, `xlm-roberta-base` 0,889→**0,706** (chỉ ViSoBERT tăng: 0,588→0,667) - trong khi
+  `stayingpower` và `texture` tăng: PhoBERT 0,915→**0,968** và 0,893→**0,936**; XLM-R 0,870→**0,891** và
+  0,872→**0,927**. Nói cách khác: đầu phân loại HỌC được thì **bớt dựa vào việc đoán theo tần suất**, nên
+  khía cạnh ít ô hơn mất và khía cạnh khó hơn được.
+- **Chọn MODEL quan trọng hơn chọn đầu phân loại.** Lượt ĐÓNG BĂNG tốt nhất bảng (`cafebert/lora/exp001`,
+  97,67 · 0,886) vẫn nhỉnh hơn lượt HỌC đầu tốt nhất (`phobert-large/lora/exp002`, 97,69 · 0,883) ở F1
+  macro. Vì vậy sáu lượt này được giữ như **phép đo cơ chế**, KHÔNG phải để thay các lượt cha trong bảng
+  chính: đổi cha là đổi luôn mọi so sánh đang có.
+- **Một lượt mỗi nhánh nghĩa là CHƯA có thước nhiễu cho encoder**: thước nhiễu hiện có của dự án là độ
+  lệch giữa ba lượt lấy mẫu của đường prompt (đợt 8), mà đường prompt không dùng được cho encoder. Nên
+  +0,67 → +1,16 (cùng chiều ở 4/5 cặp) là tín hiệu **yếu nhưng nhất quán**, còn −0,15 của
+  `vibert-base-cased` **chưa kết luận được gì**. Muốn kết luận thì phải chạy lại một nhánh với hạt giống khác.
+- `price` là **điểm mù** ở CẢ HAI nhánh (F1 âm = 0,000 ở mọi lượt) - đúng như §7, đừng đọc cột đó.
 
 ## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
 
@@ -148,7 +167,7 @@ có bắt viết phần suy luận hay không. Chênh lệch **−1,83 điểm**
 chứng CoT có tác dụng thật, không chỉ tốn token. Lượt này cũng nhanh nhất (1.081,6 giây so với 5.634,9
 giây của `exp002`), vì câu trả lời ngắn.
 
-## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ): CHƯA có kết quả
+## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ)
 
 | Thí nghiệm | Câu hỏi | Điểm riêng |
 | --- | --- | --- |
@@ -182,6 +201,43 @@ thư mục kết quả MỚI vì commit và cấu hình nằm trong mã băm dan
 nhánh riêng, mở đầu bằng một lượt **DÒ** (`prompt-cot/exp004`, trần 8.192) để đo p50/p95/max số token sinh
 rồi mới chốt trần cho lượt chạy đầy đủ.
 
+### 5.1. Ba lượt chạy lại: ĐỌC ĐƯỢC, nhưng VẪN DƯỚI CỬA - và KHÔNG phải vì trần token
+
+| Lượt | `% đọc được` | Cửa 95% | p50 / p95 / p99 / max token sinh | mẫu chạm trần 400 | trung bình/trần |
+| --- | --- | --- | --- | --- | --- |
+| `exp001` (0 ví dụ) | **42,02** | **KHÔNG ĐẠT** | 108 / 276 / 400 / 400 | 24 (1,48%) | 0,36 |
+| `exp002` (1 ví dụ) | **21,63** | **KHÔNG ĐẠT** | 176 / 280 / 391 / 400 | 16 (0,99%) | 0,46 |
+| `exp003` (5 ví dụ) | **84,41** | **KHÔNG ĐẠT** | 215 / 357 / 400 / 400 | 48 (2,96%) | 0,56 |
+
+Cả ba bị gắn `read_rate.valid = false` kèm lí do, đúng luật của `metrics.md`, nên **điểm của chúng KHÔNG
+được dùng để so**. Nhưng nguyên nhân KHÔNG phải trần token - đây là điều phải nói cho đúng:
+
+- `scripts/probe_tokens.py` trả lời theo **luật 3 của `metrics.md`**: số mẫu chạm trần đều **dưới 5%** và
+  `trung bình/trần` chỉ **0,36-0,56**, nên cả ba lượt **KHÔNG bị cắt**;
+- thứ thiếu là **ĐỊNH DẠNG ĐẦU RA**: model trả lời bằng lời rồi **không in khối JSON cuối** mà bộ đọc cần
+  (vẫn cùng lí do "không thấy JSON nào" như hai lần hỏng trước);
+- lượt DÒ ngay dưới đây chứng minh điều đó từ phía đối diện: **bật suy nghĩ + trần rộng thì đọc được 98,33%**.
+
+Nói cách khác: 0,6B **không** vấp vì hết chỗ, mà vì phải dồn sức vào định dạng.
+
+### 5.2. Lượt DÒ `prompt-cot/exp004` (bật suy nghĩ, trần 8.192, 60 mẫu) - đã có kết quả
+
+| p50 | p95 | p99 | max | trung bình | `% đọc được` |
+| --- | --- | --- | --- | --- | --- |
+| 642 | 1.072 | **1.323** | 1.434 | 688 | **98,33** |
+
+⇒ **Trần chốt theo luật 23a: `max_new_tokens = 1985`** = làm tròn lên (1.323 × 1,5); cửa sổ ngữ cảnh của
+Qwen3-0.6B là 32.768 vị trí nên trần này hợp lệ. Lượt bật suy nghĩ ĐỌC ĐƯỢC gần hết (98,33%), khác hẳn
+trần 400.
+
+Hai điều phải ghi rõ khi đọc: (a) số token sinh của nhánh bật suy nghĩ **gấp khoảng 3-6 lần** nhánh tắt
+suy nghĩ (p50 642 so với 108-215) - đó là giá của cơ chế, không phải của model; (b) lượt DÒ chạy ở **mức 1
+ví dụ**, nên 1985 là số ĐO ĐƯỢC cho mức đó; hai lượt 0 và 5 ví dụ dùng **cùng trần này** và **chưa có lượt
+DÒ riêng** - ghi ra để người đọc không tưởng là đã đo riêng từng mức.
+
+Ba lượt đợt 8 tiếp theo nhóm này (trần 1985, cùng một cơ chế): `exp005` (1 ví dụ, **luôn chạy** - lượt so
+chính với nhánh tắt suy nghĩ) và `exp006`/`exp007` (0 và 5 ví dụ, **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ**).
+
 ## 6. Bốn điều phải nhớ khi đọc số
 
 1. **Nói rõ cơ sở đo.** Số so công bố là cơ sở `paper` (`data/reports/metrics_matrix/`, `metrics.csv` với
@@ -212,10 +268,31 @@ Vì vậy chỉ được nói:
 - "Muốn cải thiện `price` âm thì phải sửa DỮ LIỆU (thêm ô âm) hoặc phải có thước đo riêng" - đúng;
 - "Model X mù `price`" - **không** được nói, vì thước không đủ ô để phân biệt.
 
-Ba lượt tiếp theo về giá (`prompt-cot/exp014` sửa định nghĩa lời chê giá gián tiếp trong prompt,
-`prompt-cot/exp015` thêm ví dụ có ô `price` = mã 2, `prompt-cot/exp016` chẩn đoán chỉ hỏi một khía cạnh
-`price`) nhằm cải thiện và ĐO riêng khía cạnh này; kết quả của chúng phải báo cáo kèm **cỡ mẫu 6 ô** của
-lớp âm, và riêng `exp016` đo trên tập ô khác nên phải báo cáo RIÊNG, không trộn vào bảng `paper`.
+Ba lượt tiếp theo về giá nhằm cải thiện và ĐO riêng khía cạnh này. **Cả ba đều KHÔNG cải thiện được `price`
+âm** (số ở cơ sở `paper`, cùng `test`, cùng `greedy`; cột "gán mã 2" là số ô model gán nhãn âm cho `price`):
+
+| Lượt | Đổi đúng một thứ | acc TB | F1 macro | số ô | `price` âm: bắt được / 6 ô | gán mã 2 | F1 `price` âm |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `exp003` (**cha**, 1 ví dụ) | - | 97,72 | 0,926 | 2.315 | 3 / 6 | 7 | **0,600** |
+| `exp014` | Câu chữ prompt: định nghĩa lời chê giá gián tiếp | 97,01 (**−0,71**) | 0,906 | 2.228 | 4 / 6 | **22** | **0,320** |
+| `exp015` | Ví dụ dạy CÓ ô `price` mã 2 | 97,39 (**−0,33**) | 0,915 | 2.436 | 3 / 6 | 10 | 0,500 |
+| `exp016` | Chẩn đoán: chỉ hỏi ĐÚNG một khía cạnh | *đo trên tập ô khác (295 ô)* | 0,690 | 295 | 4 / 6 | 18 | 0,400 |
+
+Đọc cho đúng:
+
+- **Bắt thêm một ô đổi lấy cả chục báo động giả.** `exp014` bắt được 4/6 ô âm (hơn cha 1 ô) nhưng gán mã 2
+  cho **22** ô (cha: 7) ⇒ F1 **rơi** 0,600 → 0,320. `exp015` giữ 3/6 và gán mã 2 cho 10 ô ⇒ 0,500. Đây
+  đúng là hình dạng vấn đề ở §6.4: trên **6 ô** thì mỗi ô là ~0,17 F1, còn báo động giả thì nhiều vô kể.
+- **HAI ô không lượt nào bắt được.** Sáu ô `price` âm của `test` là cùng sáu review ở MỌI lượt
+  (chỉ số 52, 154, 250, 693, 1283, 1417). Chỉ số **154** và **693** không lượt nào (kể cả `exp003`,
+  `exp009` đỉnh 17 lượt, `exp004`, `exp014`, `exp015`, `exp016`) gán mã âm - đó là dữ liệu để người đọc
+  sau viết lại định nghĩa ô âm nếu muốn đi tiếp hướng này.
+- `exp016` đo trên **tập ô khác** (295 ô, chỉ khía cạnh `price`) nên **phải báo cáo RIÊNG**, không trộn vào
+  bảng `paper`; nó trả lời câu "khi chỉ phải để ý MỘT khía cạnh thì bắt được mấy ô": 4/6 - tức kể cả khi
+  không phải chia sự chú ý cho 7 khía cạnh, model vẫn bỏ sót 2 ô.
+- **Lượt `val` phía LLM `exp017`** cho biết trạng thái của `val` (điều kiện chốt luật lai): `val` có
+  **0 ô `price` âm** (đúng như §6.4) nhưng model vẫn gán mã 2 cho **6 ô** - tức 6 báo động giả. Vì vậy tệp
+  luật ghi `price: null` kèm lí do và ô `price` giữ nguyên `argmax` của model (`09_fusion.md`).
 
 ## 8. Nguồn số và xem tiếp
 
