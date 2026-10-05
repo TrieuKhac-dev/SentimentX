@@ -33,3 +33,14 @@ enabled: true
 loss:
   type: weighted_ce
   class_weight: inverse
+
+# LƯU Ý khi chạy - ViBERT được tiền huấn luyện trên văn bản ĐÃ TÁCH TỪ (`segmenter: vncorenlp` ở
+# `configs/models/vibert-base-cased.yaml`), nên cần VnCoreNLP:
+#   * Java (JDK/JRE 1.8+) và gói `py-vncorenlp`; trên Colab ô bootstrap tự cài, trên máy cá nhân thì
+#     chạy scripts/setup_java.ps1.
+#   * Model VnCoreNLP (~27 MB).
+# THIẾU MỤC NÀY LÀ LỖI ĐÃ SỬA 05/10/2026: lượt tạo ra đã quên khai, nên notebook KHÔNG kiểm VnCoreNLP
+# trước khi chạy - lỗi sẽ hiện ra MUỘN (sau khi đã tải model), đúng thứ mà `requires_extra` sinh ra để
+# chặn. Xem docs/00_workflow/07_colab.md mục 2; mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU.
+requires_extra:
+  - data/models/vncorenlp
