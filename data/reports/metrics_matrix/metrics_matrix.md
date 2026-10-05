@@ -46,7 +46,9 @@ graph LR
   n42["xlm-roberta-base exp001"]
   n43["phobert-large exp002"]
   n44["phobert-large exp001"]
-  n45["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
+  n45["cafebert exp002"]
+  n46["qwen3-0.6b exp001 #2"]
+  n47["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
   n1 -->|so với| n2
   n1 -->|so với| n3
   n1 -->|so với| n4
@@ -88,45 +90,49 @@ graph LR
   n1 -->|so với| n42
   n1 -->|so với| n43
   n1 -->|so với| n44
-  n26 -->|chấm trên| n45
-  n21 -->|chấm trên| n45
-  n2 -->|chấm trên| n45
-  n8 -->|chấm trên| n45
-  n3 -->|chấm trên| n45
-  n9 -->|chấm trên| n45
-  n27 -->|chấm trên| n45
-  n28 -->|chấm trên| n45
-  n22 -->|chấm trên| n45
-  n29 -->|chấm trên| n45
-  n30 -->|chấm trên| n45
-  n4 -->|chấm trên| n45
-  n10 -->|chấm trên| n45
-  n11 -->|chấm trên| n45
-  n12 -->|chấm trên| n45
-  n13 -->|chấm trên| n45
-  n23 -->|chấm trên| n45
-  n14 -->|chấm trên| n45
-  n31 -->|chấm trên| n45
-  n15 -->|chấm trên| n45
-  n24 -->|chấm trên| n45
-  n16 -->|chấm trên| n45
-  n5 -->|chấm trên| n45
-  n17 -->|chấm trên| n45
-  n18 -->|chấm trên| n45
-  n19 -->|chấm trên| n45
-  n6 -->|chấm trên| n45
-  n25 -->|chấm trên| n45
-  n32 -->|chấm trên| n45
-  n33 -->|chấm trên| n45
-  n34 -->|chấm trên| n45
-  n35 -->|chấm trên| n45
-  n36 -->|chấm trên| n45
-  n37 -->|chấm trên| n45
-  n38 -->|chấm trên| n45
-  n39 -->|chấm trên| n45
-  n40 -->|chấm trên| n45
-  n41 -->|chấm trên| n45
-  n42 -->|chấm trên| n45
-  n43 -->|chấm trên| n45
-  n44 -->|chấm trên| n45
+  n1 -->|so với| n45
+  n1 -->|so với| n46
+  n26 -->|chấm trên| n47
+  n21 -->|chấm trên| n47
+  n2 -->|chấm trên| n47
+  n8 -->|chấm trên| n47
+  n3 -->|chấm trên| n47
+  n9 -->|chấm trên| n47
+  n27 -->|chấm trên| n47
+  n28 -->|chấm trên| n47
+  n22 -->|chấm trên| n47
+  n29 -->|chấm trên| n47
+  n30 -->|chấm trên| n47
+  n4 -->|chấm trên| n47
+  n10 -->|chấm trên| n47
+  n11 -->|chấm trên| n47
+  n12 -->|chấm trên| n47
+  n13 -->|chấm trên| n47
+  n23 -->|chấm trên| n47
+  n14 -->|chấm trên| n47
+  n31 -->|chấm trên| n47
+  n15 -->|chấm trên| n47
+  n24 -->|chấm trên| n47
+  n16 -->|chấm trên| n47
+  n5 -->|chấm trên| n47
+  n17 -->|chấm trên| n47
+  n18 -->|chấm trên| n47
+  n19 -->|chấm trên| n47
+  n6 -->|chấm trên| n47
+  n25 -->|chấm trên| n47
+  n32 -->|chấm trên| n47
+  n33 -->|chấm trên| n47
+  n34 -->|chấm trên| n47
+  n35 -->|chấm trên| n47
+  n36 -->|chấm trên| n47
+  n37 -->|chấm trên| n47
+  n38 -->|chấm trên| n47
+  n39 -->|chấm trên| n47
+  n40 -->|chấm trên| n47
+  n41 -->|chấm trên| n47
+  n42 -->|chấm trên| n47
+  n43 -->|chấm trên| n47
+  n44 -->|chấm trên| n47
+  n45 -->|chấm trên| n47
+  n46 -->|chấm trên| n47
 ```

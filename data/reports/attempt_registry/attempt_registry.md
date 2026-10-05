@@ -49,11 +49,13 @@ graph LR
   n45["vibert-base-cased/lora/exp001:ba615bcb"]
   n46["vibert-base-cased/lora/exp002:4afd60ad"]
   n47["cafebert/lora/exp001:61871aed"]
-  n48["cafebert/lora/exp002:93448395"]
-  n49["xlm-roberta-base/lora/exp002:fb9643d0"]
-  n50["xlm-roberta-base/lora/exp001:491e81cb"]
-  n51["phobert-large/lora/exp002:2a95b70a"]
-  n52["phobert-large/lora/exp001:f92f1d6c"]
+  n48["xlm-roberta-base/lora/exp002:fb9643d0"]
+  n49["xlm-roberta-base/lora/exp001:491e81cb"]
+  n50["phobert-large/lora/exp002:2a95b70a"]
+  n51["phobert-large/lora/exp001:f92f1d6c"]
+  n52["cafebert/lora/exp002:93448395"]
+  n53["qwen3-0.6b/prompt-one-turn/exp001:ff3fb8fa"]
+  n54["commit 3942144da4de"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -96,9 +98,10 @@ graph LR
   n45 -->|FINISHED| n39
   n46 -->|FINISHED| n39
   n47 -->|FINISHED| n39
-  n48 -->|RUNNING| n39
+  n48 -->|FINISHED| n39
   n49 -->|FINISHED| n39
   n50 -->|FINISHED| n39
   n51 -->|FINISHED| n39
   n52 -->|FINISHED| n39
+  n53 -->|FINISHED| n54
 ```

@@ -47,6 +47,8 @@ graph LR
   n43["xlm-roberta-base/lora/exp001:491e81cb"]
   n44["phobert-large/lora/exp002:2a95b70a"]
   n45["phobert-large/lora/exp001:f92f1d6c"]
+  n46["cafebert/lora/exp002:93448395"]
+  n47["qwen3-0.6b/prompt-one-turn/exp001:ff3fb8fa"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -90,4 +92,6 @@ graph LR
   n4 --> n43
   n4 --> n44
   n4 --> n45
+  n4 --> n46
+  n4 --> n47
 ```
