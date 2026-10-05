@@ -59,7 +59,9 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` (`--exclude <nhãn|hash8>` để bỏ lượt khỏi BẢNG SỐ - lượt bị loại VẪN nằm trong `attempt_registry`; lặp lại để loại nhiều lượt. **Lưu ý:** đây là cờ để dựng bảng so KHÔNG có một lượt nào đó; lượt HỎNG thì nên **xoá thư mục kết quả** chứ không phải loại khỏi bảng - cách xử lý sáu thư mục hỏng ngày 04/10/2026 ở `present_plan.md` mục 2.1) |
 | Dò NGƯỠNG theo khía cạnh trên `val` | `python scripts/fit_thresholds.py --run experiments/<model>/<method>/<expNNN>/results/<hash8>` (ghi `data/reports/fusion/thresholds.json`; cần tệp `probabilities.csv` của đường encoder) |
 | Áp bảng ngưỡng ĐÃ CHỐT lên một lượt khác (thường là `test`) | `python scripts/fit_thresholds.py --apply-to experiments/<model>/<method>/<expNNN>/results/<hash8>` (đọc `--thresholds` mặc định `thresholds.json`; ghi `data/reports/fusion/thresholds_applied.json`; KHÔNG chạy model) |
-| Gộp nhiều encoder (ensemble) | `python scripts/ensemble.py --run <val A> --run <val B> [--weights val]` (ghi `ensemble.json` + đầu vào rút gọn vào `data/reports/fusion/inputs/`) |
+| Gộp nhiều encoder (ensemble): CHỐT trọng số trên `val` | `python scripts/ensemble.py --run <val A> --run <val B> --weights val --out data/reports/fusion/ensemble_val.json --write-weights data/reports/fusion/weights_val.json` (ghi số của bản gộp trên `val` + tệp trọng số khoá theo TÊN MODEL) |
+| Gộp nhiều encoder (ensemble): ÁP trọng số đã chốt lên `test` | `python scripts/ensemble.py --run <test A> --run <test B> --weights-file data/reports/fusion/weights_val.json` (ghi `ensemble.json` + đầu vào rút gọn vào `data/reports/fusion/inputs/`) |
+| Đo phân vị token SINH RA để chốt trần `max_new_tokens` | `python scripts/probe_tokens.py --run experiments/<model>/<method>/<expNNN>/results/<hash8>` (`--ceiling` để kiểm luật bị cắt, `--context-window` để chặn trần vượt cửa sổ ngữ cảnh) |
 | Chốt LUẬT LAI trên `val`, rồi áp lên `test` | `python scripts/fuse.py --fit --llm <val> --encoder <val>` · `python scripts/fuse.py --apply --rules <rules.json> --llm <test> --encoder <test>` |
 | Bỏ phiếu từng ô trên các mẫu (`seed` tăng dần) | `python scripts/vote.py --run <seed1> --run <seed2> --run <seed3>` (ghi `vote.json`) |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
@@ -94,6 +96,14 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | `fit_thresholds.py` thiếu CẢ `--run` và `--apply-to`, hoặc có CẢ HAI | hai chế độ khác nhau (dò trên `val` vs áp bảng đã chốt); chọn nhầm là ra số của bước khác | 2 |
 | `fit_thresholds.py --apply-to ... --grid/--max-cells-drop` | `--grid` và `--max-cells-drop` quyết định bảng ngưỡng SINH RA, chỉ có nghĩa ở chế độ dò | 2 |
 | `fit_thresholds.py --apply-to` mà chưa có tệp ngưỡng | chưa dò thì chưa có gì để áp; in kèm lệnh dò cần chạy trước | 1 |
+| `ensemble.py` truyền CẢ `--weights val` và `--weights-file` | hai nguồn trọng số khác nhau cho cùng một lần gộp | 2 |
+| `ensemble.py --write-weights` mà không có `--weights val`, hoặc đi cùng `--weights-file` | chỉ có gì để ghi khi vừa CHỐT trọng số; chép lại một tệp đã đọc là việc vô nghĩa | 2 |
+| `ensemble.py --val ...` mà không có `--weights val` | `--val` là các lượt để CHỐT trọng số | 2 |
+| `ensemble.py --weights val` trên lượt KHÔNG phải `val` | chọn trọng số bằng chính tập sẽ báo cáo (luật 1 của `metrics.md`); in kèm cách dùng `--weights-file` | 1 |
+| `ensemble.py --weights-file <tệp>` thiếu model nào của các lượt `--run` | trọng số khoá theo tên model; thiếu thì không ráp được, in kèm danh sách model đang có | 1 |
+| `probe_tokens.py --factor/--ceiling/--context-window` không phải số dương | trần token sai là cả lượt chạy sai | 2 |
+| `probe_tokens.py` thiếu `predictions.csv` / `run_meta.json` / cột `token sinh` | không đo được chi phí đầu ra; in kèm tệp và cột đang thiếu | 1 |
+| `probe_tokens.py` có trần đề xuất VƯỢT `--context-window` | luật 23a: không hạ trần rồi chạy im lặng; in kèm hai con số | 1 |
 | `run_pipeline.py` thiếu `--name` hoặc `--version` | mỗi tổ hợp cho ra một bộ dữ liệu khác nhau | 2 |
 | `reset_experiment.py --dry-run --yes` | `--dry-run` chỉ xem trước nên không đi với `--yes` | 2 |
 | `reset_experiment.py --run <tên> --keep-experiment` | `--run` đã không đụng tới experiment, nên cờ kia là thừa | 2 |
