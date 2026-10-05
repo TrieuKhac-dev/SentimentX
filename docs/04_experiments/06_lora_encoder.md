@@ -34,7 +34,9 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
    `p(mã <mã>)` mang ĐÚNG mã nhãn đã huấn luyện (không phải số thứ tự). Tệp này **chỉ đường encoder có**,
    và phần chấm điểm **không** dùng nó - bước KẾT HỢP mới cần (dò ngưỡng theo khía cạnh, ensemble nhiều
    encoder, luật lai encoder + LLM). Nó **không** nằm trong danh sách "7 tệp nhẹ" gửi kèm mọi lượt: nhóm
-   encoder gửi thêm tệp này (ghi rõ ở README của gói bàn giao và `present_plan.md` mục 7.4).
+   encoder gửi thêm tệp này (ghi rõ ở README của gói bàn giao và `present_plan.md` mục 7.4), và **cũng
+   không vào git** - cùng loại với `predictions.csv` (`.gitignore`); bản rút gọn có commit dùng cho bước
+   kết hợp là `data/reports/fusion/inputs/`.
 
 ## Đầu phân loại: ĐÓNG BĂNG (mặc định) hay HỌC (`head.trainable`)
 
@@ -43,8 +45,18 @@ là ở chế độ mặc định đầu phân loại chỉ là một phép chi�
 yên, mọi thứ học được đều nằm ở adapter. Đó là **hiện trạng đã đo**, không phải phỏng đoán:
 
 - `head.pt` của bốn lượt LoRA đầu tiên (`phobert-base-v2/lora/exp001`, `exp002`, `visobert/lora/exp001`,
-  `exp002`) giống nhau **TỪNG BYTE** giữa các checkpoint (`checkpoint-1000`, `checkpoint-1100`, `best`,
-  `last`) và cả giữa hai model KHÁC NHAU;
+  `exp002`) giống nhau **TỪNG BYTE** giữa các checkpoint của cùng một lượt chạy (`checkpoint-1000`,
+  `checkpoint-1100`, `best`, `last`) - đó là điều cần đo: đầu phân loại không đổi suốt lượt chạy. Giữa các
+  MODEL thì đọc theo từng cặp, không suy từ một con số chung: `phobert-base-v2/lora/` và `visobert/lora/`
+  (mọi lượt `exp001`-`exp004`) cùng ra `9679E0F37C5B`; `vibert-base-cased/lora/exp001` và
+  `xlm-roberta-base/lora/exp001` cùng ra `31BFB2E2D82E`; `cafebert/lora/exp001` ra `06586C994F70`; còn
+  `phobert-large/lora/exp001` ra `6AC8C9ED7BB0`. **Giá trị cụ thể là của model đó**; điều lặp lại được ở MỌI
+  lượt đóng băng là đầu phân loại KHÔNG đổi - kể cả giữa hai lượt chạy của cùng một model trên hai bản mã
+  khác nhau (bản `8bfe96e0` và bản đã sửa lỗi `59579e57`: `vibert-base-cased/lora/exp001` ở `a525cefe` và
+  `ba615bcb`, `xlm-roberta-base/lora/exp001` ở `491e81cb` và `a2f22f02` - bốn thư mục, cùng một hash);
+- lượt bật `head.trainable: true` thì `head.pt` KHÁC hẳn VÀ còn khác nhau giữa các checkpoint (ví dụ
+  `phobert-base-v2/lora/exp005`: `03900CDA196A` ở `checkpoint-1000`, `BA6E1553699A` ở `best`,
+  `4EDC06D56D50` ở `last`) - tức đầu phân loại CÓ học;
 - `trainable_params` trong `metrics.json` bằng **đúng** tổng tham số adapter (2.678.784), tức đầu phân
   loại không nằm trong optimizer.
 

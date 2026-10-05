@@ -1,0 +1,132 @@
+=== lần chạy 2026-10-04 18:19:59 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=FacebookAI/xlm-roberta-base
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1623
+[RUN] experiment.model=xlm-roberta-base
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp001
+[RUN] repo_sha=4571648fcb095a884794c015a5b6a5e4d6c6d077
+[RUN] config_sha256=a2f22f02f0d07b84b68241cd45652679edf8bd76ec6f842b76c863e67e70c762
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=3
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0002
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=16
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.save_last=True
+[RUN] training.save_best=True
+[RUN] training.delete_intermediate=True
+[RUN] training.best_metric=sentiment_f1
+[WARN] không mở được phiên MLflow: MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.
+[TRACK] không ghi nhận: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.
+[CONFIG] thí nghiệm: xlm-roberta-base/lora/exp001 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè enabled: False <- True
+[CONFIG] đè loss.class_weight: none <- inverse
+[CONFIG] đè loss.type: ce <- weighted_ce
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=16 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0002 batch=8 grad_accum=4 epochs=3 weight_decay=0.01
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 42
+[STEP] huấn luyện: 3 epoch, batch 8 (tích luỹ 4), 12268 mẫu train, 1535 mẫu val
+[STEP] bước 100 | loss 0.7766 | val sentiment_f1=0.2500 (10554 ô) | đã lưu model/best
+[STEP] bước 200 | loss 0.5595 | val sentiment_f1=0.4430 (10554 ô) | đã lưu model/best
+[STEP] bước 300 | loss 0.5375 | val sentiment_f1=0.5520 (10554 ô) | đã lưu model/best
+[STEP] bước 400 | loss 0.2305 | val sentiment_f1=0.5900 (10554 ô) | chưa tốt hơn
+[STEP] bước 500 | loss 0.2705 | val sentiment_f1=0.5960 (10554 ô) | chưa tốt hơn
+[STEP] bước 600 | loss 0.4070 | val sentiment_f1=0.7020 (10554 ô) | đã lưu model/best
+[STEP] bước 700 | loss 0.2381 | val sentiment_f1=0.7320 (10554 ô) | đã lưu model/best
+[STEP] bước 800 | loss 0.2353 | val sentiment_f1=0.7730 (10554 ô) | đã lưu model/best
+[STEP] bước 900 | loss 0.1225 | val sentiment_f1=0.7860 (10554 ô) | đã lưu model/best
+[STEP] bước 1000 | loss 0.1825 | val sentiment_f1=0.7820 (10554 ô) | chưa tốt hơn
+[STEP] bước 1100 | loss 0.2403 | val sentiment_f1=0.7910 (10554 ô) | đã lưu model/best
+[STEP] huấn luyện xong: 1150 bước trong 682.3 giây (2678784 tham số học / 280738581 tổng) | 682.3 giây
+[STEP] ghi lịch sử huấn luyện: /content/drive/MyDrive/ABSA_2026_2027/experiments/xlm-roberta-base/lora/exp001/results/a2f22f02/training_history.csv (14 điểm đo)
+[STEP] ghi biểu đồ train/val: /content/drive/MyDrive/ABSA_2026_2027/experiments/xlm-roberta-base/lora/exp001/results/a2f22f02/plots/training.html
+[STEP] suy luận bằng /content/drive/MyDrive/ABSA_2026_2027/experiments/xlm-roberta-base/lora/exp001/results/a2f22f02/model/best
+[STEP] suy luận xong 1623 mẫu; checkpoint huấn luyện với 7 khía cạnh, nhãn 0, 1, 2
+[ERROR] TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'list'
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 714.3 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FAILED
+[TRACK] không ghi nhận gì (tracker tắt)
+=== lần chạy 2026-10-04 18:35:14 - mode=RESUME ===
+[RUN] mode=RESUME
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=FacebookAI/xlm-roberta-base
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=0
+[RUN] experiment.model=xlm-roberta-base
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp001
+[RUN] repo_sha=4571648fcb095a884794c015a5b6a5e4d6c6d077
+[RUN] config_sha256=a2f22f02f0d07b84b68241cd45652679edf8bd76ec6f842b76c863e67e70c762
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=3
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0002
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=16
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.save_last=True
+[RUN] training.save_best=True
+[RUN] training.delete_intermediate=True
+[RUN] training.best_metric=sentiment_f1
+[WARN] không mở được phiên MLflow: MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.
+[TRACK] không ghi nhận: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.
+[CONFIG] thí nghiệm: xlm-roberta-base/lora/exp001 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè enabled: False <- True
+[CONFIG] đè loss.class_weight: none <- inverse
+[CONFIG] đè loss.type: ce <- weighted_ce
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=16 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0002 batch=8 grad_accum=4 epochs=3 weight_decay=0.01
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 42
+[STEP] huấn luyện: 3 epoch, batch 8 (tích luỹ 4), 12268 mẫu train, 1535 mẫu val
+[ERROR] ValueError: optimizer got an empty parameter list
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 26.9 giây
+[STEP] run_meta.json: lần chạy thứ 2, trạng thái FAILED
+[TRACK] không ghi nhận gì (tracker tắt)

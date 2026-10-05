@@ -1,0 +1,4132 @@
+﻿review,aspect,gold,pred
+0,stayingpower,,negative
+3,stayingpower,,negative
+8,stayingpower,positive,
+13,stayingpower,positive,
+15,stayingpower,,negative
+18,stayingpower,,không đọc được
+20,stayingpower,,positive
+21,stayingpower,,negative
+22,stayingpower,,positive
+23,stayingpower,,positive
+25,stayingpower,,không đọc được
+30,stayingpower,,positive
+32,stayingpower,,negative
+41,stayingpower,positive,
+45,stayingpower,,negative
+46,stayingpower,,negative
+47,stayingpower,,positive
+48,stayingpower,,negative
+51,stayingpower,,negative
+52,stayingpower,negative,
+61,stayingpower,negative,
+62,stayingpower,,positive
+66,stayingpower,negative,
+72,stayingpower,,negative
+79,stayingpower,negative,
+83,stayingpower,,không đọc được
+85,stayingpower,,positive
+87,stayingpower,positive,
+88,stayingpower,negative,
+89,stayingpower,positive,
+91,stayingpower,,không đọc được
+93,stayingpower,,negative
+95,stayingpower,,negative
+96,stayingpower,,negative
+98,stayingpower,,negative
+99,stayingpower,positive,negative
+101,stayingpower,positive,
+109,stayingpower,,negative
+111,stayingpower,,negative
+112,stayingpower,,negative
+121,stayingpower,,negative
+122,stayingpower,,không đọc được
+130,stayingpower,,negative
+132,stayingpower,negative,
+136,stayingpower,,positive
+139,stayingpower,positive,
+145,stayingpower,,không đọc được
+155,stayingpower,positive,negative
+157,stayingpower,negative,
+161,stayingpower,,negative
+166,stayingpower,,không đọc được
+169,stayingpower,,negative
+175,stayingpower,positive,negative
+178,stayingpower,,positive
+179,stayingpower,negative,
+183,stayingpower,positive,
+198,stayingpower,positive,
+202,stayingpower,,positive
+208,stayingpower,,không đọc được
+209,stayingpower,,negative
+211,stayingpower,positive,
+212,stayingpower,positive,
+213,stayingpower,,không đọc được
+215,stayingpower,negative,
+216,stayingpower,,positive
+223,stayingpower,positive,negative
+225,stayingpower,,negative
+227,stayingpower,positive,negative
+228,stayingpower,,negative
+229,stayingpower,,negative
+233,stayingpower,,positive
+236,stayingpower,,positive
+239,stayingpower,,negative
+251,stayingpower,positive,negative
+254,stayingpower,,negative
+255,stayingpower,,negative
+257,stayingpower,,không đọc được
+261,stayingpower,,positive
+262,stayingpower,,positive
+265,stayingpower,,không đọc được
+268,stayingpower,,positive
+274,stayingpower,positive,
+277,stayingpower,,không đọc được
+280,stayingpower,,positive
+282,stayingpower,,negative
+284,stayingpower,,không đọc được
+285,stayingpower,,negative
+288,stayingpower,,negative
+291,stayingpower,positive,negative
+293,stayingpower,negative,
+296,stayingpower,,positive
+298,stayingpower,,không đọc được
+299,stayingpower,,negative
+300,stayingpower,,negative
+302,stayingpower,positive,
+303,stayingpower,negative,
+304,stayingpower,negative,
+309,stayingpower,,negative
+310,stayingpower,negative,
+311,stayingpower,positive,
+313,stayingpower,,negative
+317,stayingpower,,positive
+324,stayingpower,,không đọc được
+325,stayingpower,,positive
+328,stayingpower,negative,
+330,stayingpower,positive,negative
+333,stayingpower,,positive
+334,stayingpower,negative,
+337,stayingpower,,negative
+348,stayingpower,,negative
+351,stayingpower,positive,
+358,stayingpower,,positive
+362,stayingpower,positive,
+364,stayingpower,,negative
+365,stayingpower,,positive
+368,stayingpower,positive,không đọc được
+369,stayingpower,,positive
+370,stayingpower,negative,
+375,stayingpower,,positive
+376,stayingpower,positive,
+377,stayingpower,,không đọc được
+378,stayingpower,negative,
+381,stayingpower,,negative
+384,stayingpower,,positive
+387,stayingpower,negative,
+392,stayingpower,negative,
+393,stayingpower,positive,
+398,stayingpower,,negative
+400,stayingpower,,negative
+401,stayingpower,positive,
+402,stayingpower,,negative
+403,stayingpower,,negative
+404,stayingpower,positive,
+406,stayingpower,negative,
+411,stayingpower,,không đọc được
+419,stayingpower,,negative
+420,stayingpower,,negative
+430,stayingpower,,negative
+436,stayingpower,,không đọc được
+439,stayingpower,positive,negative
+442,stayingpower,,positive
+443,stayingpower,positive,negative
+444,stayingpower,,negative
+445,stayingpower,negative,
+446,stayingpower,,negative
+447,stayingpower,,negative
+449,stayingpower,positive,
+450,stayingpower,negative,
+452,stayingpower,,positive
+458,stayingpower,negative,
+460,stayingpower,,không đọc được
+464,stayingpower,positive,
+467,stayingpower,,positive
+468,stayingpower,,positive
+470,stayingpower,,positive
+472,stayingpower,positive,
+473,stayingpower,,positive
+481,stayingpower,,positive
+484,stayingpower,positive,negative
+489,stayingpower,positive,
+491,stayingpower,,negative
+494,stayingpower,,negative
+496,stayingpower,,positive
+497,stayingpower,,positive
+499,stayingpower,negative,
+503,stayingpower,negative,
+504,stayingpower,,negative
+508,stayingpower,,positive
+509,stayingpower,positive,
+511,stayingpower,,không đọc được
+512,stayingpower,negative,
+514,stayingpower,negative,
+515,stayingpower,,negative
+521,stayingpower,,positive
+522,stayingpower,,positive
+527,stayingpower,positive,
+532,stayingpower,,positive
+538,stayingpower,,negative
+539,stayingpower,,negative
+542,stayingpower,negative,
+545,stayingpower,,negative
+549,stayingpower,,negative
+550,stayingpower,positive,negative
+553,stayingpower,,negative
+559,stayingpower,negative,positive
+593,stayingpower,positive,negative
+594,stayingpower,,negative
+599,stayingpower,positive,
+601,stayingpower,,negative
+603,stayingpower,,negative
+608,stayingpower,positive,
+609,stayingpower,negative,
+612,stayingpower,,negative
+613,stayingpower,negative,không đọc được
+614,stayingpower,,positive
+615,stayingpower,,không đọc được
+616,stayingpower,negative,
+618,stayingpower,,không đọc được
+619,stayingpower,negative,
+622,stayingpower,,positive
+624,stayingpower,,không đọc được
+626,stayingpower,positive,
+630,stayingpower,,negative
+632,stayingpower,positive,
+633,stayingpower,,negative
+635,stayingpower,negative,
+637,stayingpower,positive,
+640,stayingpower,positive,
+642,stayingpower,positive,
+643,stayingpower,,positive
+645,stayingpower,,không đọc được
+646,stayingpower,positive,
+648,stayingpower,,negative
+651,stayingpower,,không đọc được
+652,stayingpower,positive,
+659,stayingpower,positive,negative
+660,stayingpower,negative,
+667,stayingpower,,negative
+668,stayingpower,,negative
+672,stayingpower,,negative
+674,stayingpower,,không đọc được
+676,stayingpower,,positive
+686,stayingpower,,positive
+689,stayingpower,,negative
+693,stayingpower,negative,
+706,stayingpower,negative,
+707,stayingpower,,positive
+708,stayingpower,positive,negative
+710,stayingpower,,negative
+711,stayingpower,positive,
+716,stayingpower,,không đọc được
+722,stayingpower,,negative
+726,stayingpower,,negative
+732,stayingpower,negative,
+733,stayingpower,,không đọc được
+734,stayingpower,negative,
+741,stayingpower,,negative
+743,stayingpower,positive,negative
+746,stayingpower,,negative
+754,stayingpower,,positive
+763,stayingpower,,negative
+764,stayingpower,,positive
+766,stayingpower,positive,negative
+767,stayingpower,positive,negative
+769,stayingpower,,negative
+771,stayingpower,,positive
+772,stayingpower,positive,
+775,stayingpower,,negative
+776,stayingpower,,positive
+777,stayingpower,,không đọc được
+781,stayingpower,,không đọc được
+782,stayingpower,,không đọc được
+784,stayingpower,,positive
+798,stayingpower,,negative
+800,stayingpower,positive,
+805,stayingpower,positive,negative
+806,stayingpower,positive,negative
+807,stayingpower,negative,
+811,stayingpower,negative,
+814,stayingpower,negative,
+824,stayingpower,,negative
+825,stayingpower,,positive
+827,stayingpower,positive,negative
+829,stayingpower,positive,
+831,stayingpower,negative,
+835,stayingpower,negative,
+836,stayingpower,positive,
+837,stayingpower,,negative
+838,stayingpower,positive,
+839,stayingpower,negative,
+844,stayingpower,,negative
+846,stayingpower,,positive
+848,stayingpower,,positive
+849,stayingpower,negative,
+852,stayingpower,,negative
+854,stayingpower,,không đọc được
+855,stayingpower,positive,
+856,stayingpower,positive,
+857,stayingpower,,không đọc được
+863,stayingpower,negative,
+864,stayingpower,positive,
+867,stayingpower,positive,
+868,stayingpower,negative,
+870,stayingpower,negative,không đọc được
+878,stayingpower,,negative
+881,stayingpower,,không đọc được
+882,stayingpower,positive,
+891,stayingpower,negative,
+894,stayingpower,positive,
+898,stayingpower,,negative
+899,stayingpower,negative,
+900,stayingpower,positive,
+903,stayingpower,positive,
+906,stayingpower,positive,
+907,stayingpower,negative,
+909,stayingpower,positive,negative
+910,stayingpower,,không đọc được
+911,stayingpower,,negative
+913,stayingpower,negative,
+915,stayingpower,,negative
+919,stayingpower,,negative
+925,stayingpower,positive,
+928,stayingpower,positive,negative
+932,stayingpower,positive,
+935,stayingpower,positive,
+941,stayingpower,negative,
+942,stayingpower,,negative
+945,stayingpower,positive,negative
+956,stayingpower,,negative
+960,stayingpower,,negative
+961,stayingpower,negative,
+962,stayingpower,,positive
+967,stayingpower,positive,
+972,stayingpower,positive,
+976,stayingpower,negative,
+977,stayingpower,,không đọc được
+979,stayingpower,,positive
+982,stayingpower,,negative
+985,stayingpower,,negative
+988,stayingpower,positive,
+989,stayingpower,negative,
+993,stayingpower,positive,
+998,stayingpower,negative,positive
+1000,stayingpower,negative,
+1001,stayingpower,,negative
+1004,stayingpower,,không đọc được
+1006,stayingpower,positive,
+1013,stayingpower,,không đọc được
+1016,stayingpower,,negative
+1020,stayingpower,,positive
+1022,stayingpower,,positive
+1024,stayingpower,,negative
+1026,stayingpower,positive,
+1028,stayingpower,,negative
+1029,stayingpower,positive,
+1032,stayingpower,positive,
+1033,stayingpower,,negative
+1035,stayingpower,,positive
+1038,stayingpower,positive,
+1042,stayingpower,positive,
+1044,stayingpower,,negative
+1052,stayingpower,,negative
+1054,stayingpower,,positive
+1056,stayingpower,,không đọc được
+1057,stayingpower,,negative
+1060,stayingpower,,negative
+1061,stayingpower,,positive
+1062,stayingpower,positive,
+1071,stayingpower,,không đọc được
+1072,stayingpower,,positive
+1075,stayingpower,,không đọc được
+1076,stayingpower,positive,
+1083,stayingpower,,positive
+1093,stayingpower,,positive
+1094,stayingpower,positive,negative
+1099,stayingpower,,negative
+1103,stayingpower,,negative
+1104,stayingpower,,negative
+1106,stayingpower,,không đọc được
+1107,stayingpower,,không đọc được
+1110,stayingpower,negative,
+1111,stayingpower,negative,
+1114,stayingpower,,positive
+1116,stayingpower,,positive
+1118,stayingpower,positive,
+1121,stayingpower,,không đọc được
+1123,stayingpower,negative,
+1124,stayingpower,,positive
+1125,stayingpower,positive,
+1137,stayingpower,,positive
+1138,stayingpower,,positive
+1150,stayingpower,,positive
+1156,stayingpower,negative,
+1157,stayingpower,positive,
+1158,stayingpower,,không đọc được
+1164,stayingpower,,positive
+1166,stayingpower,,negative
+1169,stayingpower,,negative
+1171,stayingpower,positive,
+1174,stayingpower,positive,
+1180,stayingpower,negative,positive
+1183,stayingpower,,positive
+1186,stayingpower,,negative
+1188,stayingpower,negative,
+1190,stayingpower,negative,
+1191,stayingpower,,positive
+1196,stayingpower,,negative
+1198,stayingpower,,negative
+1199,stayingpower,positive,
+1205,stayingpower,,negative
+1210,stayingpower,,positive
+1214,stayingpower,,negative
+1218,stayingpower,,negative
+1219,stayingpower,,không đọc được
+1223,stayingpower,,không đọc được
+1227,stayingpower,negative,
+1233,stayingpower,,negative
+1237,stayingpower,,positive
+1240,stayingpower,,negative
+1244,stayingpower,negative,
+1247,stayingpower,,positive
+1248,stayingpower,positive,
+1249,stayingpower,negative,không đọc được
+1250,stayingpower,,không đọc được
+1251,stayingpower,negative,
+1252,stayingpower,,negative
+1253,stayingpower,,không đọc được
+1257,stayingpower,positive,không đọc được
+1258,stayingpower,negative,
+1259,stayingpower,positive,
+1260,stayingpower,negative,
+1266,stayingpower,,negative
+1269,stayingpower,,positive
+1270,stayingpower,positive,negative
+1273,stayingpower,positive,
+1275,stayingpower,positive,negative
+1276,stayingpower,,positive
+1277,stayingpower,,negative
+1279,stayingpower,,negative
+1280,stayingpower,,không đọc được
+1282,stayingpower,,negative
+1283,stayingpower,,không đọc được
+1284,stayingpower,negative,
+1286,stayingpower,,negative
+1287,stayingpower,,positive
+1291,stayingpower,negative,
+1296,stayingpower,positive,
+1297,stayingpower,,negative
+1298,stayingpower,positive,
+1302,stayingpower,,positive
+1306,stayingpower,positive,negative
+1307,stayingpower,,negative
+1308,stayingpower,,positive
+1309,stayingpower,positive,
+1311,stayingpower,positive,
+1312,stayingpower,,positive
+1323,stayingpower,positive,
+1326,stayingpower,negative,
+1329,stayingpower,,negative
+1330,stayingpower,,negative
+1331,stayingpower,positive,
+1332,stayingpower,,negative
+1334,stayingpower,negative,
+1344,stayingpower,,negative
+1346,stayingpower,,negative
+1347,stayingpower,,positive
+1348,stayingpower,,negative
+1349,stayingpower,,negative
+1350,stayingpower,positive,
+1351,stayingpower,,không đọc được
+1354,stayingpower,,positive
+1358,stayingpower,negative,
+1360,stayingpower,,negative
+1361,stayingpower,positive,
+1368,stayingpower,positive,
+1372,stayingpower,,positive
+1376,stayingpower,negative,
+1385,stayingpower,,positive
+1391,stayingpower,,không đọc được
+1393,stayingpower,positive,
+1395,stayingpower,,negative
+1396,stayingpower,negative,
+1398,stayingpower,negative,
+1402,stayingpower,,không đọc được
+1408,stayingpower,,negative
+1411,stayingpower,,positive
+1412,stayingpower,,negative
+1414,stayingpower,,positive
+1424,stayingpower,,không đọc được
+1428,stayingpower,negative,không đọc được
+1436,stayingpower,positive,
+1439,stayingpower,,negative
+1444,stayingpower,,positive
+1445,stayingpower,,positive
+1447,stayingpower,,negative
+1451,stayingpower,positive,negative
+1452,stayingpower,,positive
+1455,stayingpower,negative,
+1457,stayingpower,,positive
+1462,stayingpower,,negative
+1464,stayingpower,,negative
+1465,stayingpower,,negative
+1477,stayingpower,positive,negative
+1478,stayingpower,negative,
+1479,stayingpower,positive,
+1480,stayingpower,positive,
+1481,stayingpower,positive,
+1483,stayingpower,positive,không đọc được
+1485,stayingpower,,positive
+1490,stayingpower,negative,
+1494,stayingpower,positive,
+1495,stayingpower,,negative
+1497,stayingpower,,negative
+1499,stayingpower,,positive
+1502,stayingpower,positive,negative
+1506,stayingpower,negative,
+1508,stayingpower,,positive
+1509,stayingpower,,negative
+1510,stayingpower,positive,
+1513,stayingpower,,không đọc được
+1514,stayingpower,positive,
+1518,stayingpower,,positive
+1524,stayingpower,negative,
+1529,stayingpower,,không đọc được
+1530,stayingpower,,negative
+1531,stayingpower,,negative
+1541,stayingpower,positive,
+1543,stayingpower,positive,
+1545,stayingpower,,positive
+1548,stayingpower,,negative
+1552,stayingpower,,không đọc được
+1554,stayingpower,positive,
+1562,stayingpower,negative,
+1567,stayingpower,negative,
+1568,stayingpower,,negative
+1571,stayingpower,,positive
+1579,stayingpower,positive,
+1580,stayingpower,positive,
+1582,stayingpower,,positive
+1588,stayingpower,,negative
+1589,stayingpower,,positive
+1591,stayingpower,,không đọc được
+1593,stayingpower,,positive
+1594,stayingpower,,positive
+1598,stayingpower,,positive
+1599,stayingpower,,positive
+1600,stayingpower,,negative
+1603,stayingpower,,positive
+1604,stayingpower,positive,
+1606,stayingpower,,positive
+1607,stayingpower,,không đọc được
+1610,stayingpower,,negative
+1614,stayingpower,,positive
+1618,stayingpower,,không đọc được
+0,texture,,negative
+2,texture,positive,
+3,texture,,negative
+7,texture,negative,
+10,texture,positive,
+13,texture,positive,
+15,texture,,negative
+16,texture,positive,
+18,texture,,không đọc được
+20,texture,,positive
+25,texture,positive,không đọc được
+30,texture,negative,positive
+32,texture,,negative
+35,texture,negative,
+41,texture,positive,
+46,texture,,negative
+48,texture,,negative
+49,texture,positive,
+54,texture,positive,negative
+55,texture,positive,
+61,texture,positive,
+66,texture,negative,
+67,texture,positive,
+72,texture,,negative
+83,texture,,không đọc được
+86,texture,positive,
+88,texture,positive,
+89,texture,positive,
+91,texture,,không đọc được
+92,texture,positive,
+93,texture,positive,negative
+95,texture,,negative
+98,texture,,negative
+99,texture,positive,negative
+101,texture,positive,
+103,texture,positive,
+104,texture,positive,
+109,texture,,negative
+110,texture,positive,
+111,texture,,negative
+112,texture,,negative
+113,texture,positive,
+117,texture,positive,
+121,texture,,negative
+122,texture,positive,không đọc được
+125,texture,negative,
+130,texture,,negative
+139,texture,positive,
+140,texture,positive,
+141,texture,positive,
+143,texture,negative,positive
+145,texture,,không đọc được
+153,texture,positive,
+158,texture,positive,
+159,texture,negative,
+160,texture,positive,
+161,texture,,negative
+166,texture,,không đọc được
+167,texture,positive,
+169,texture,,negative
+174,texture,positive,
+175,texture,positive,negative
+178,texture,,positive
+179,texture,positive,
+181,texture,positive,
+187,texture,positive,
+198,texture,positive,
+206,texture,positive,
+207,texture,positive,
+208,texture,negative,không đọc được
+209,texture,,negative
+213,texture,positive,không đọc được
+214,texture,negative,
+217,texture,positive,
+223,texture,positive,negative
+227,texture,positive,negative
+228,texture,,negative
+229,texture,,negative
+233,texture,,positive
+236,texture,,positive
+238,texture,positive,
+239,texture,,negative
+242,texture,positive,
+243,texture,positive,
+246,texture,positive,
+250,texture,negative,
+251,texture,,negative
+253,texture,positive,
+257,texture,,không đọc được
+259,texture,negative,
+260,texture,positive,
+261,texture,,positive
+262,texture,,positive
+265,texture,,không đọc được
+274,texture,positive,
+276,texture,positive,
+277,texture,negative,không đọc được
+281,texture,positive,
+282,texture,positive,negative
+283,texture,positive,
+284,texture,,không đọc được
+285,texture,positive,negative
+287,texture,positive,
+288,texture,,negative
+292,texture,positive,
+298,texture,positive,không đọc được
+300,texture,positive,negative
+307,texture,positive,
+309,texture,,negative
+313,texture,,negative
+322,texture,positive,
+323,texture,positive,
+324,texture,positive,không đọc được
+328,texture,positive,
+329,texture,positive,
+333,texture,,positive
+335,texture,negative,
+337,texture,,negative
+342,texture,positive,
+343,texture,positive,
+344,texture,positive,
+346,texture,negative,
+362,texture,positive,
+364,texture,,negative
+368,texture,positive,không đọc được
+369,texture,,positive
+370,texture,negative,
+372,texture,negative,
+375,texture,,positive
+376,texture,positive,
+377,texture,,không đọc được
+381,texture,,negative
+384,texture,,positive
+388,texture,positive,
+391,texture,negative,
+393,texture,positive,
+394,texture,negative,
+396,texture,negative,
+398,texture,,negative
+399,texture,positive,
+400,texture,positive,negative
+402,texture,,negative
+403,texture,,negative
+406,texture,negative,
+410,texture,positive,
+411,texture,positive,không đọc được
+412,texture,positive,
+419,texture,,negative
+421,texture,negative,
+424,texture,positive,
+427,texture,positive,
+430,texture,,negative
+434,texture,positive,
+436,texture,positive,không đọc được
+438,texture,positive,
+439,texture,positive,negative
+441,texture,positive,negative
+443,texture,positive,negative
+444,texture,,negative
+446,texture,,negative
+447,texture,,negative
+448,texture,positive,
+450,texture,positive,
+451,texture,positive,
+452,texture,,positive
+456,texture,positive,
+460,texture,positive,không đọc được
+463,texture,positive,
+464,texture,negative,
+467,texture,,positive
+473,texture,,không đọc được
+475,texture,positive,
+481,texture,,positive
+484,texture,positive,negative
+486,texture,,negative
+491,texture,,negative
+494,texture,positive,negative
+498,texture,positive,
+499,texture,positive,
+501,texture,positive,
+504,texture,positive,negative
+508,texture,negative,
+512,texture,positive,
+513,texture,positive,
+516,texture,positive,
+518,texture,positive,không đọc được
+519,texture,positive,
+527,texture,positive,
+528,texture,positive,
+530,texture,positive,
+531,texture,positive,
+537,texture,positive,
+538,texture,,negative
+539,texture,,negative
+540,texture,positive,negative
+543,texture,positive,
+545,texture,,negative
+547,texture,positive,
+549,texture,,negative
+551,texture,positive,
+552,texture,positive,
+553,texture,,negative
+566,texture,positive,
+570,texture,positive,
+578,texture,positive,
+588,texture,positive,
+594,texture,,negative
+596,texture,positive,
+599,texture,positive,
+602,texture,positive,
+608,texture,positive,
+611,texture,positive,
+612,texture,,negative
+613,texture,negative,
+614,texture,,positive
+615,texture,,không đọc được
+616,texture,positive,
+617,texture,negative,
+618,texture,,không đọc được
+619,texture,positive,
+622,texture,,positive
+623,texture,negative,
+624,texture,,không đọc được
+626,texture,negative,
+630,texture,positive,negative
+631,texture,positive,
+632,texture,positive,
+633,texture,positive,negative
+634,texture,positive,
+635,texture,positive,
+638,texture,positive,
+640,texture,negative,
+642,texture,positive,
+644,texture,positive,
+645,texture,,không đọc được
+648,texture,,negative
+650,texture,positive,
+651,texture,positive,không đọc được
+652,texture,positive,
+654,texture,positive,
+659,texture,positive,negative
+663,texture,positive,negative
+666,texture,positive,
+667,texture,,negative
+668,texture,,negative
+672,texture,,negative
+674,texture,,không đọc được
+679,texture,positive,
+684,texture,negative,
+689,texture,,negative
+695,texture,positive,
+697,texture,negative,
+699,texture,negative,
+701,texture,positive,
+706,texture,negative,
+708,texture,positive,negative
+710,texture,,negative
+716,texture,,không đọc được
+725,texture,negative,
+726,texture,,negative
+733,texture,,không đọc được
+739,texture,positive,
+740,texture,positive,
+741,texture,,negative
+743,texture,,negative
+746,texture,,negative
+749,texture,negative,
+754,texture,,positive
+761,texture,positive,
+762,texture,positive,
+763,texture,,negative
+764,texture,,positive
+766,texture,positive,negative
+767,texture,positive,negative
+769,texture,,negative
+772,texture,positive,
+775,texture,,negative
+777,texture,negative,không đọc được
+781,texture,,không đọc được
+782,texture,positive,không đọc được
+784,texture,,positive
+785,texture,negative,
+790,texture,positive,
+798,texture,,negative
+801,texture,positive,
+806,texture,positive,negative
+810,texture,positive,
+811,texture,positive,
+812,texture,negative,
+815,texture,positive,
+816,texture,positive,
+819,texture,positive,
+824,texture,,negative
+827,texture,,negative
+828,texture,positive,
+830,texture,positive,
+834,texture,positive,
+837,texture,,negative
+839,texture,positive,
+841,texture,negative,
+844,texture,,negative
+846,texture,,positive
+847,texture,,positive
+850,texture,positive,
+852,texture,,negative
+854,texture,,không đọc được
+855,texture,negative,
+856,texture,positive,
+857,texture,,không đọc được
+858,texture,positive,
+859,texture,negative,
+864,texture,positive,
+867,texture,positive,
+870,texture,,không đọc được
+874,texture,positive,
+875,texture,positive,
+876,texture,negative,
+878,texture,positive,negative
+879,texture,positive,
+881,texture,positive,không đọc được
+890,texture,positive,
+891,texture,positive,
+893,texture,positive,
+898,texture,,negative
+899,texture,positive,
+900,texture,positive,
+903,texture,positive,
+904,texture,negative,
+905,texture,positive,
+906,texture,positive,
+907,texture,positive,
+908,texture,positive,
+910,texture,,không đọc được
+911,texture,,negative
+913,texture,positive,
+914,texture,negative,
+916,texture,positive,
+921,texture,positive,
+924,texture,positive,
+925,texture,positive,
+928,texture,positive,negative
+932,texture,positive,
+935,texture,positive,
+938,texture,positive,
+939,texture,positive,
+941,texture,positive,
+942,texture,,negative
+944,texture,positive,
+945,texture,,negative
+948,texture,positive,
+953,texture,positive,
+956,texture,,negative
+958,texture,negative,
+960,texture,,negative
+962,texture,,positive
+965,texture,,negative
+977,texture,negative,không đọc được
+982,texture,,negative
+984,texture,positive,
+985,texture,,negative
+987,texture,positive,
+988,texture,negative,
+990,texture,positive,
+995,texture,positive,không đọc được
+998,texture,positive,
+1000,texture,negative,
+1001,texture,,negative
+1004,texture,,không đọc được
+1006,texture,positive,
+1007,texture,positive,
+1010,texture,positive,
+1013,texture,positive,không đọc được
+1014,texture,positive,
+1015,texture,positive,
+1017,texture,positive,
+1021,texture,positive,
+1024,texture,,negative
+1029,texture,positive,
+1033,texture,positive,negative
+1035,texture,,positive
+1038,texture,negative,
+1040,texture,positive,
+1042,texture,positive,
+1044,texture,,negative
+1045,texture,negative,
+1052,texture,,negative
+1054,texture,,positive
+1055,texture,positive,
+1056,texture,negative,không đọc được
+1057,texture,positive,negative
+1060,texture,,negative
+1062,texture,positive,
+1065,texture,negative,
+1068,texture,positive,
+1069,texture,positive,
+1070,texture,positive,
+1071,texture,positive,không đọc được
+1073,texture,negative,
+1075,texture,,không đọc được
+1076,texture,positive,
+1083,texture,,positive
+1084,texture,negative,
+1086,texture,positive,
+1094,texture,,negative
+1101,texture,negative,
+1103,texture,positive,negative
+1104,texture,positive,negative
+1106,texture,,không đọc được
+1107,texture,,không đọc được
+1110,texture,positive,
+1111,texture,positive,
+1117,texture,positive,
+1121,texture,,không đọc được
+1124,texture,,positive
+1131,texture,positive,
+1135,texture,positive,
+1138,texture,,positive
+1149,texture,negative,
+1150,texture,,positive
+1153,texture,positive,
+1156,texture,positive,
+1157,texture,positive,
+1158,texture,,không đọc được
+1165,texture,positive,
+1166,texture,,negative
+1169,texture,positive,negative
+1170,texture,positive,
+1174,texture,positive,
+1176,texture,positive,
+1177,texture,positive,
+1179,texture,positive,
+1182,texture,positive,
+1186,texture,,negative
+1188,texture,negative,
+1190,texture,negative,
+1191,texture,,positive
+1193,texture,,negative
+1195,texture,positive,
+1196,texture,,negative
+1197,texture,positive,
+1198,texture,,negative
+1199,texture,positive,
+1205,texture,,negative
+1207,texture,negative,
+1208,texture,positive,
+1209,texture,positive,
+1213,texture,positive,
+1214,texture,,negative
+1216,texture,positive,
+1218,texture,,negative
+1219,texture,positive,không đọc được
+1220,texture,positive,
+1223,texture,,không đọc được
+1226,texture,positive,
+1228,texture,negative,
+1233,texture,,negative
+1234,texture,positive,
+1240,texture,positive,negative
+1244,texture,positive,
+1248,texture,positive,
+1249,texture,positive,không đọc được
+1250,texture,negative,không đọc được
+1252,texture,,negative
+1253,texture,positive,không đọc được
+1256,texture,negative,
+1260,texture,positive,
+1265,texture,negative,
+1266,texture,,negative
+1268,texture,positive,
+1269,texture,,positive
+1270,texture,,negative
+1273,texture,positive,
+1275,texture,positive,negative
+1276,texture,,positive
+1280,texture,,không đọc được
+1282,texture,,negative
+1283,texture,,không đọc được
+1284,texture,positive,
+1286,texture,,negative
+1287,texture,,positive
+1290,texture,negative,
+1291,texture,positive,
+1297,texture,,negative
+1301,texture,positive,
+1303,texture,positive,
+1304,texture,positive,
+1306,texture,,negative
+1307,texture,,negative
+1309,texture,positive,
+1312,texture,,positive
+1316,texture,positive,
+1320,texture,positive,
+1329,texture,,negative
+1331,texture,positive,
+1332,texture,,negative
+1336,texture,positive,
+1338,texture,negative,
+1341,texture,positive,
+1344,texture,positive,negative
+1345,texture,positive,
+1346,texture,,negative
+1347,texture,,positive
+1348,texture,,negative
+1349,texture,,negative
+1351,texture,positive,không đọc được
+1353,texture,negative,
+1354,texture,,positive
+1358,texture,positive,
+1359,texture,positive,
+1361,texture,positive,
+1367,texture,negative,
+1368,texture,positive,
+1375,texture,positive,
+1376,texture,negative,
+1383,texture,positive,
+1390,texture,positive,
+1391,texture,positive,không đọc được
+1393,texture,positive,
+1394,texture,negative,
+1396,texture,negative,
+1397,texture,positive,
+1398,texture,positive,
+1402,texture,,không đọc được
+1408,texture,,negative
+1414,texture,,positive
+1424,texture,positive,không đọc được
+1425,texture,positive,
+1428,texture,,không đọc được
+1430,texture,positive,không đọc được
+1431,texture,positive,
+1434,texture,positive,
+1436,texture,positive,
+1439,texture,,negative
+1440,texture,negative,
+1442,texture,positive,
+1443,texture,positive,
+1445,texture,,positive
+1447,texture,,negative
+1451,texture,positive,negative
+1456,texture,positive,
+1460,texture,positive,
+1464,texture,,negative
+1465,texture,positive,negative
+1468,texture,positive,
+1469,texture,positive,
+1476,texture,negative,
+1477,texture,positive,negative
+1479,texture,positive,
+1480,texture,positive,
+1481,texture,positive,
+1483,texture,positive,không đọc được
+1484,texture,positive,
+1488,texture,positive,
+1495,texture,,negative
+1496,texture,positive,
+1497,texture,,negative
+1498,texture,negative,
+1499,texture,,positive
+1500,texture,positive,
+1503,texture,positive,
+1505,texture,negative,
+1506,texture,positive,
+1508,texture,,positive
+1513,texture,,không đọc được
+1524,texture,positive,
+1527,texture,negative,
+1529,texture,positive,không đọc được
+1530,texture,,negative
+1531,texture,,negative
+1536,texture,positive,
+1543,texture,positive,
+1544,texture,positive,
+1552,texture,,không đọc được
+1554,texture,positive,
+1558,texture,positive,
+1565,texture,positive,
+1567,texture,positive,
+1568,texture,,negative
+1571,texture,,positive
+1574,texture,positive,
+1577,texture,negative,
+1580,texture,positive,
+1582,texture,positive,
+1588,texture,positive,negative
+1591,texture,,không đọc được
+1593,texture,,positive
+1594,texture,,positive
+1598,texture,,positive
+1599,texture,,positive
+1602,texture,negative,
+1606,texture,negative,
+1607,texture,,không đọc được
+1608,texture,positive,
+1610,texture,positive,negative
+1614,texture,,positive
+1618,texture,,không đọc được
+1621,texture,positive,
+0,smell,,negative
+3,smell,,negative
+11,smell,positive,
+15,smell,,negative
+18,smell,,không đọc được
+19,smell,positive,
+20,smell,,positive
+21,smell,,negative
+25,smell,,không đọc được
+27,smell,positive,
+30,smell,,positive
+32,smell,,negative
+33,smell,negative,
+37,smell,negative,
+46,smell,,negative
+48,smell,,negative
+50,smell,negative,positive
+54,smell,,negative
+58,smell,positive,
+67,smell,positive,
+70,smell,positive,
+72,smell,,negative
+74,smell,positive,
+78,smell,positive,
+83,smell,,không đọc được
+86,smell,positive,
+87,smell,positive,
+88,smell,negative,positive
+91,smell,,không đọc được
+93,smell,positive,negative
+95,smell,,negative
+98,smell,,negative
+99,smell,,negative
+101,smell,positive,
+103,smell,positive,
+109,smell,,negative
+110,smell,positive,
+112,smell,,negative
+117,smell,positive,
+118,smell,positive,
+121,smell,,negative
+122,smell,,không đọc được
+125,smell,positive,
+130,smell,,negative
+140,smell,positive,
+143,smell,,positive
+144,smell,positive,
+145,smell,positive,không đọc được
+147,smell,positive,
+155,smell,positive,negative
+157,smell,positive,
+158,smell,positive,
+161,smell,positive,negative
+166,smell,,không đọc được
+167,smell,positive,
+168,smell,negative,
+169,smell,,negative
+172,smell,positive,
+173,smell,positive,negative
+174,smell,negative,
+175,smell,,negative
+178,smell,,positive
+179,smell,positive,
+187,smell,positive,
+189,smell,,positive
+201,smell,,positive
+208,smell,positive,không đọc được
+209,smell,,negative
+213,smell,positive,không đọc được
+218,smell,positive,
+223,smell,,negative
+227,smell,positive,negative
+228,smell,positive,negative
+229,smell,,negative
+230,smell,negative,
+233,smell,,positive
+236,smell,,positive
+237,smell,positive,
+238,smell,positive,
+239,smell,,negative
+242,smell,positive,
+243,smell,positive,
+251,smell,,negative
+257,smell,positive,không đọc được
+261,smell,,positive
+262,smell,,positive
+265,smell,,không đọc được
+274,smell,positive,
+277,smell,,không đọc được
+281,smell,positive,
+282,smell,,negative
+284,smell,,không đọc được
+285,smell,,negative
+288,smell,,negative
+290,smell,positive,
+292,smell,negative,positive
+298,smell,positive,không đọc được
+299,smell,,negative
+300,smell,,negative
+302,smell,positive,
+305,smell,positive,
+307,smell,positive,
+309,smell,,negative
+313,smell,,negative
+314,smell,positive,
+317,smell,,positive
+320,smell,negative,
+324,smell,positive,không đọc được
+328,smell,positive,
+329,smell,positive,
+330,smell,,negative
+333,smell,,positive
+337,smell,,negative
+339,smell,positive,
+344,smell,positive,
+350,smell,positive,
+364,smell,,negative
+368,smell,,không đọc được
+369,smell,,positive
+370,smell,positive,
+375,smell,,positive
+377,smell,,không đọc được
+378,smell,positive,
+381,smell,,negative
+384,smell,,positive
+398,smell,,negative
+399,smell,positive,
+400,smell,,negative
+402,smell,,negative
+403,smell,,negative
+409,smell,positive,
+411,smell,positive,không đọc được
+415,smell,positive,
+419,smell,positive,negative
+434,smell,positive,
+436,smell,,không đọc được
+437,smell,,positive
+439,smell,,negative
+441,smell,,negative
+443,smell,,negative
+444,smell,,negative
+445,smell,positive,
+446,smell,,negative
+447,smell,,negative
+449,smell,positive,
+451,smell,positive,
+452,smell,,positive
+455,smell,positive,
+456,smell,positive,
+460,smell,negative,không đọc được
+465,smell,positive,
+467,smell,,positive
+468,smell,negative,positive
+470,smell,,positive
+473,smell,,không đọc được
+475,smell,positive,
+481,smell,,positive
+484,smell,,negative
+486,smell,,negative
+491,smell,positive,negative
+494,smell,,negative
+498,smell,positive,
+504,smell,,negative
+508,smell,positive,
+511,smell,,không đọc được
+518,smell,,không đọc được
+532,smell,,positive
+536,smell,positive,
+538,smell,,negative
+539,smell,,negative
+540,smell,positive,negative
+545,smell,,negative
+546,smell,positive,
+549,smell,,negative
+550,smell,,negative
+551,smell,positive,
+552,smell,positive,
+553,smell,,negative
+559,smell,positive,
+560,smell,positive,
+575,smell,negative,positive
+582,smell,negative,
+584,smell,positive,
+586,smell,positive,
+590,smell,positive,negative
+593,smell,,negative
+594,smell,,negative
+612,smell,,negative
+613,smell,positive,
+614,smell,,positive
+615,smell,,không đọc được
+618,smell,positive,không đọc được
+622,smell,,positive
+624,smell,,không đọc được
+630,smell,,negative
+633,smell,,negative
+639,smell,positive,
+644,smell,positive,
+645,smell,,không đọc được
+646,smell,positive,
+648,smell,,negative
+651,smell,,không đọc được
+654,smell,positive,
+659,smell,positive,negative
+662,smell,positive,
+663,smell,,negative
+667,smell,,negative
+668,smell,,negative
+669,smell,positive,
+672,smell,positive,negative
+674,smell,negative,không đọc được
+680,smell,positive,
+689,smell,positive,negative
+693,smell,negative,
+701,smell,positive,
+708,smell,positive,negative
+709,smell,negative,
+710,smell,,negative
+716,smell,positive,không đọc được
+721,smell,positive,
+726,smell,,negative
+727,smell,positive,
+731,smell,positive,
+733,smell,,không đọc được
+737,smell,negative,
+739,smell,negative,
+740,smell,positive,
+741,smell,,negative
+743,smell,,negative
+744,smell,positive,
+745,smell,positive,
+746,smell,,negative
+751,smell,positive,
+755,smell,positive,
+756,smell,positive,
+759,smell,negative,
+763,smell,positive,negative
+764,smell,negative,positive
+766,smell,,negative
+767,smell,,negative
+769,smell,positive,negative
+772,smell,positive,
+775,smell,,negative
+776,smell,,positive
+777,smell,,không đọc được
+780,smell,,positive
+781,smell,positive,không đọc được
+782,smell,positive,không đọc được
+784,smell,,positive
+789,smell,positive,
+795,smell,positive,
+798,smell,,negative
+802,smell,positive,
+805,smell,positive,negative
+806,smell,,negative
+808,smell,positive,
+810,smell,positive,
+811,smell,positive,
+813,smell,positive,
+816,smell,positive,
+817,smell,positive,
+824,smell,,negative
+826,smell,positive,
+827,smell,positive,negative
+834,smell,negative,
+835,smell,positive,
+837,smell,,negative
+844,smell,positive,negative
+847,smell,,positive
+852,smell,,negative
+854,smell,positive,không đọc được
+857,smell,,không đọc được
+859,smell,positive,
+863,smell,positive,
+866,smell,positive,
+870,smell,,không đọc được
+871,smell,negative,
+874,smell,positive,
+878,smell,positive,negative
+880,smell,positive,
+881,smell,,không đọc được
+891,smell,negative,positive
+898,smell,,negative
+899,smell,positive,
+903,smell,positive,
+906,smell,positive,
+909,smell,,negative
+910,smell,,không đọc được
+911,smell,,negative
+917,smell,negative,
+919,smell,positive,negative
+920,smell,positive,
+924,smell,positive,
+926,smell,positive,
+928,smell,,negative
+939,smell,positive,
+941,smell,positive,
+942,smell,positive,negative
+943,smell,positive,
+945,smell,,negative
+948,smell,positive,
+949,smell,negative,
+951,smell,positive,
+956,smell,,negative
+960,smell,,negative
+965,smell,,negative
+973,smell,positive,
+974,smell,negative,
+976,smell,positive,
+977,smell,,không đọc được
+979,smell,negative,positive
+982,smell,,negative
+983,smell,positive,
+985,smell,,negative
+1001,smell,,negative
+1004,smell,,không đọc được
+1006,smell,positive,
+1012,smell,positive,
+1013,smell,,không đọc được
+1015,smell,positive,
+1018,smell,positive,
+1024,smell,positive,negative
+1027,smell,positive,negative
+1031,smell,negative,
+1032,smell,positive,
+1033,smell,,negative
+1035,smell,,positive
+1039,smell,positive,
+1040,smell,positive,
+1042,smell,positive,
+1044,smell,,negative
+1045,smell,negative,
+1052,smell,,negative
+1054,smell,,positive
+1056,smell,,không đọc được
+1057,smell,positive,negative
+1060,smell,,negative
+1065,smell,negative,
+1070,smell,positive,
+1071,smell,positive,không đọc được
+1072,smell,,positive
+1075,smell,,không đọc được
+1080,smell,positive,
+1083,smell,,positive
+1089,smell,positive,
+1094,smell,,negative
+1098,smell,positive,
+1103,smell,positive,negative
+1104,smell,,negative
+1106,smell,,không đọc được
+1107,smell,,không đọc được
+1110,smell,positive,
+1112,smell,positive,
+1114,smell,positive,
+1118,smell,positive,
+1121,smell,,không đọc được
+1124,smell,,positive
+1125,smell,positive,
+1131,smell,positive,
+1135,smell,positive,
+1138,smell,,positive
+1144,smell,positive,
+1150,smell,,positive
+1151,smell,positive,
+1157,smell,negative,
+1158,smell,,không đọc được
+1161,smell,,positive
+1165,smell,positive,
+1166,smell,,negative
+1172,smell,negative,
+1179,smell,positive,
+1182,smell,positive,
+1186,smell,,negative
+1188,smell,positive,
+1191,smell,,positive
+1193,smell,,negative
+1194,smell,positive,
+1196,smell,,negative
+1198,smell,,negative
+1199,smell,positive,
+1204,smell,positive,
+1205,smell,,negative
+1208,smell,positive,
+1209,smell,positive,
+1214,smell,,negative
+1216,smell,positive,
+1217,smell,negative,
+1218,smell,,negative
+1223,smell,,không đọc được
+1226,smell,positive,
+1228,smell,negative,
+1233,smell,,negative
+1239,smell,positive,
+1240,smell,positive,negative
+1242,smell,positive,
+1245,smell,positive,
+1249,smell,,không đọc được
+1250,smell,negative,không đọc được
+1252,smell,positive,negative
+1253,smell,,không đọc được
+1257,smell,,không đọc được
+1266,smell,,negative
+1269,smell,,positive
+1270,smell,positive,negative
+1275,smell,,negative
+1276,smell,,positive
+1279,smell,,negative
+1280,smell,,không đọc được
+1282,smell,,negative
+1283,smell,,không đọc được
+1284,smell,positive,
+1286,smell,,negative
+1287,smell,,positive
+1291,smell,positive,
+1297,smell,,negative
+1303,smell,positive,
+1306,smell,,negative
+1307,smell,,negative
+1312,smell,,positive
+1315,smell,positive,
+1317,smell,,negative
+1319,smell,positive,
+1321,smell,positive,
+1329,smell,,negative
+1331,smell,positive,
+1332,smell,,negative
+1334,smell,positive,
+1341,smell,negative,
+1344,smell,,negative
+1346,smell,,negative
+1347,smell,,positive
+1348,smell,,negative
+1349,smell,positive,negative
+1351,smell,,không đọc được
+1354,smell,,positive
+1359,smell,positive,
+1385,smell,,positive
+1386,smell,negative,
+1387,smell,positive,
+1390,smell,positive,
+1391,smell,,không đọc được
+1399,smell,negative,positive
+1401,smell,positive,
+1402,smell,negative,không đọc được
+1408,smell,,negative
+1409,smell,positive,
+1410,smell,positive,
+1414,smell,,positive
+1416,smell,,positive
+1424,smell,,không đọc được
+1428,smell,,không đọc được
+1430,smell,,không đọc được
+1439,smell,,negative
+1440,smell,positive,
+1445,smell,,positive
+1446,smell,positive,
+1447,smell,,negative
+1451,smell,,negative
+1454,smell,positive,
+1455,smell,positive,
+1456,smell,positive,
+1459,smell,positive,
+1463,smell,positive,
+1464,smell,,negative
+1465,smell,,negative
+1466,smell,positive,
+1477,smell,,negative
+1478,smell,positive,
+1483,smell,positive,không đọc được
+1487,smell,positive,
+1492,smell,positive,
+1495,smell,,negative
+1496,smell,positive,
+1497,smell,,negative
+1498,smell,negative,
+1499,smell,,positive
+1500,smell,positive,
+1505,smell,positive,
+1506,smell,positive,negative
+1507,smell,negative,
+1508,smell,,positive
+1513,smell,,không đọc được
+1514,smell,positive,
+1529,smell,positive,không đọc được
+1530,smell,,negative
+1531,smell,positive,negative
+1548,smell,,negative
+1552,smell,,không đọc được
+1558,smell,positive,
+1565,smell,positive,
+1566,smell,positive,
+1568,smell,,negative
+1571,smell,,positive
+1574,smell,positive,
+1588,smell,positive,negative
+1589,smell,,positive
+1591,smell,,không đọc được
+1592,smell,positive,
+1597,smell,negative,positive
+1598,smell,,positive
+1599,smell,,positive
+1600,smell,,negative
+1607,smell,,không đọc được
+1610,smell,,negative
+1611,smell,positive,
+1613,smell,,positive
+1614,smell,,positive
+1618,smell,,không đọc được
+1619,smell,positive,
+1620,smell,negative,
+0,price,,negative
+3,price,,negative
+7,price,positive,
+15,price,,negative
+18,price,,không đọc được
+20,price,,positive
+21,price,,negative
+25,price,positive,không đọc được
+27,price,positive,
+32,price,positive,negative
+39,price,positive,
+43,price,positive,
+44,price,positive,
+46,price,positive,negative
+48,price,,negative
+52,price,negative,
+54,price,positive,negative
+55,price,positive,
+58,price,positive,
+72,price,,negative
+74,price,positive,
+75,price,positive,negative
+83,price,,không đọc được
+85,price,positive,
+86,price,positive,
+91,price,,không đọc được
+95,price,positive,negative
+98,price,,negative
+99,price,positive,negative
+100,price,positive,
+109,price,,negative
+110,price,positive,
+111,price,,negative
+112,price,,negative
+121,price,,negative
+122,price,,không đọc được
+123,price,positive,
+129,price,positive,
+130,price,positive,negative
+132,price,positive,
+134,price,positive,
+137,price,positive,
+138,price,positive,
+141,price,positive,
+145,price,positive,không đọc được
+146,price,positive,
+154,price,negative,
+155,price,,negative
+156,price,positive,
+161,price,,negative
+166,price,,không đọc được
+167,price,positive,
+169,price,,negative
+175,price,positive,negative
+178,price,,positive
+186,price,positive,
+191,price,positive,
+196,price,positive,
+200,price,positive,
+201,price,,positive
+202,price,positive,
+208,price,,không đọc được
+209,price,,negative
+211,price,positive,
+213,price,,không đọc được
+216,price,positive,
+217,price,positive,
+218,price,positive,
+222,price,positive,
+223,price,,negative
+224,price,,positive
+227,price,,negative
+228,price,positive,negative
+229,price,,negative
+236,price,,positive
+238,price,positive,
+239,price,positive,negative
+243,price,positive,
+245,price,,positive
+247,price,positive,
+250,price,negative,
+251,price,,negative
+253,price,positive,
+256,price,positive,
+257,price,positive,không đọc được
+261,price,,positive
+265,price,,không đọc được
+272,price,positive,
+277,price,,không đọc được
+279,price,positive,
+281,price,positive,
+282,price,,negative
+284,price,,không đọc được
+285,price,,negative
+288,price,,negative
+289,price,positive,
+290,price,positive,
+291,price,,negative
+295,price,positive,
+298,price,,không đọc được
+299,price,,negative
+300,price,positive,negative
+303,price,positive,
+305,price,positive,
+306,price,positive,
+309,price,positive,negative
+313,price,,negative
+315,price,positive,
+319,price,positive,
+324,price,,không đọc được
+327,price,positive,
+333,price,,positive
+337,price,,negative
+342,price,positive,
+349,price,positive,
+354,price,,positive
+362,price,positive,
+364,price,,negative
+368,price,,không đọc được
+370,price,positive,
+372,price,positive,
+375,price,,positive
+377,price,positive,không đọc được
+381,price,,negative
+383,price,positive,
+384,price,,positive
+392,price,positive,
+397,price,positive,
+398,price,,negative
+400,price,,negative
+402,price,,negative
+403,price,,negative
+406,price,positive,
+408,price,positive,
+410,price,positive,
+411,price,positive,không đọc được
+412,price,positive,
+419,price,,negative
+422,price,positive,
+424,price,positive,
+430,price,positive,negative
+431,price,,positive
+436,price,,không đọc được
+439,price,,negative
+441,price,,negative
+443,price,,negative
+444,price,,negative
+445,price,positive,
+446,price,,negative
+448,price,positive,
+452,price,,positive
+453,price,positive,
+460,price,,không đọc được
+465,price,positive,
+467,price,,positive
+468,price,positive,
+470,price,,positive
+472,price,positive,
+473,price,,không đọc được
+475,price,positive,
+478,price,positive,
+479,price,positive,
+481,price,,positive
+484,price,,negative
+486,price,,negative
+491,price,,negative
+494,price,,negative
+496,price,positive,
+497,price,positive,
+498,price,positive,
+499,price,positive,
+504,price,positive,negative
+505,price,positive,
+506,price,positive,
+511,price,,không đọc được
+518,price,,không đọc được
+524,price,positive,
+525,price,positive,
+527,price,positive,
+530,price,positive,
+532,price,,positive
+534,price,positive,
+538,price,,negative
+540,price,,negative
+545,price,,negative
+549,price,,negative
+550,price,,negative
+553,price,,negative
+558,price,positive,
+570,price,positive,
+572,price,,positive
+576,price,positive,
+578,price,positive,
+579,price,,positive
+582,price,positive,
+586,price,positive,
+594,price,positive,
+599,price,positive,
+612,price,,negative
+614,price,,positive
+615,price,,không đọc được
+618,price,,không đọc được
+619,price,positive,
+622,price,,positive
+624,price,,không đọc được
+629,price,positive,
+630,price,,negative
+633,price,,negative
+642,price,positive,
+643,price,positive,
+644,price,positive,
+645,price,,không đọc được
+648,price,positive,negative
+649,price,positive,
+651,price,positive,không đọc được
+655,price,positive,negative
+663,price,,negative
+667,price,,negative
+668,price,positive,negative
+672,price,,negative
+674,price,positive,không đọc được
+687,price,positive,
+689,price,positive,negative
+693,price,negative,
+698,price,positive,
+699,price,positive,
+704,price,positive,
+707,price,positive,
+708,price,,negative
+710,price,,negative
+716,price,,không đọc được
+719,price,positive,
+726,price,,negative
+729,price,positive,
+732,price,positive,
+733,price,,không đọc được
+741,price,,negative
+743,price,,negative
+746,price,,negative
+753,price,positive,
+754,price,,positive
+757,price,,positive
+763,price,positive,negative
+764,price,,positive
+765,price,,positive
+766,price,positive,negative
+767,price,,negative
+769,price,,negative
+772,price,positive,
+775,price,positive,negative
+777,price,,không đọc được
+780,price,,positive
+781,price,,không đọc được
+782,price,,không đọc được
+783,price,positive,
+785,price,positive,
+796,price,positive,
+798,price,,negative
+805,price,,negative
+806,price,,negative
+809,price,positive,
+815,price,positive,
+817,price,positive,
+819,price,positive,
+821,price,positive,
+824,price,,negative
+831,price,positive,
+833,price,positive,
+837,price,,negative
+840,price,positive,
+841,price,positive,
+844,price,,negative
+848,price,,positive
+852,price,positive,negative
+854,price,,không đọc được
+857,price,,không đọc được
+860,price,positive,
+867,price,positive,
+869,price,,positive
+870,price,positive,không đọc được
+872,price,positive,
+874,price,positive,
+878,price,,negative
+881,price,,không đọc được
+882,price,positive,
+885,price,positive,
+888,price,positive,
+890,price,positive,
+891,price,positive,
+892,price,positive,
+898,price,,negative
+902,price,positive,
+904,price,positive,
+909,price,,negative
+910,price,positive,không đọc được
+911,price,,negative
+917,price,positive,
+919,price,,negative
+923,price,positive,
+924,price,positive,
+928,price,,negative
+942,price,,negative
+945,price,,negative
+947,price,positive,
+949,price,positive,
+953,price,positive,
+955,price,positive,
+956,price,,negative
+957,price,positive,
+959,price,positive,
+960,price,,negative
+962,price,,positive
+965,price,,negative
+969,price,positive,
+974,price,positive,
+976,price,positive,
+977,price,,không đọc được
+978,price,positive,
+982,price,,negative
+983,price,positive,
+985,price,,negative
+988,price,positive,
+995,price,,không đọc được
+999,price,positive,
+1000,price,positive,
+1001,price,,negative
+1004,price,,không đọc được
+1013,price,,không đọc được
+1016,price,positive,
+1017,price,positive,
+1020,price,,positive
+1023,price,positive,
+1024,price,positive,negative
+1027,price,,negative
+1031,price,positive,
+1033,price,,negative
+1035,price,,positive
+1037,price,positive,
+1040,price,positive,
+1042,price,positive,
+1043,price,,positive
+1044,price,,negative
+1045,price,positive,
+1048,price,positive,
+1053,price,positive,
+1054,price,,positive
+1055,price,positive,
+1056,price,,không đọc được
+1057,price,,negative
+1060,price,positive,negative
+1061,price,,positive
+1066,price,positive,
+1071,price,,không đọc được
+1073,price,positive,
+1075,price,,không đọc được
+1079,price,positive,
+1087,price,positive,
+1089,price,positive,
+1094,price,positive,negative
+1100,price,positive,
+1103,price,,negative
+1104,price,,negative
+1106,price,,không đọc được
+1107,price,,không đọc được
+1110,price,positive,
+1112,price,positive,
+1121,price,,không đọc được
+1123,price,positive,
+1130,price,positive,
+1138,price,,positive
+1144,price,positive,
+1150,price,,positive
+1157,price,positive,
+1158,price,,không đọc được
+1161,price,,positive
+1165,price,positive,
+1166,price,positive,negative
+1169,price,positive,
+1171,price,positive,
+1179,price,positive,
+1186,price,,negative
+1189,price,positive,
+1190,price,positive,
+1191,price,,positive
+1193,price,,negative
+1196,price,,negative
+1198,price,positive,negative
+1200,price,positive,
+1204,price,positive,
+1205,price,positive,negative
+1208,price,positive,
+1213,price,positive,
+1214,price,,negative
+1217,price,positive,
+1218,price,positive,negative
+1219,price,,không đọc được
+1223,price,,không đọc được
+1224,price,positive,
+1226,price,positive,
+1229,price,positive,
+1233,price,,negative
+1236,price,positive,
+1238,price,positive,
+1242,price,positive,
+1243,price,positive,
+1249,price,,không đọc được
+1250,price,,không đọc được
+1252,price,positive,negative
+1253,price,positive,không đọc được
+1254,price,positive,
+1257,price,,không đọc được
+1259,price,positive,
+1261,price,positive,
+1266,price,,negative
+1267,price,positive,
+1268,price,positive,
+1269,price,,positive
+1270,price,positive,negative
+1275,price,,negative
+1276,price,,positive
+1279,price,,negative
+1280,price,positive,không đọc được
+1282,price,,negative
+1283,price,negative,không đọc được
+1286,price,,negative
+1287,price,,positive
+1291,price,positive,
+1297,price,,negative
+1298,price,positive,
+1300,price,positive,
+1305,price,positive,
+1306,price,positive,negative
+1307,price,,negative
+1312,price,,positive
+1317,price,,negative
+1329,price,positive,negative
+1332,price,,negative
+1336,price,positive,
+1337,price,positive,
+1341,price,positive,
+1344,price,,negative
+1346,price,,negative
+1347,price,,positive
+1348,price,,negative
+1349,price,,negative
+1350,price,positive,
+1351,price,,không đọc được
+1354,price,,positive
+1358,price,positive,
+1364,price,positive,
+1367,price,positive,
+1376,price,positive,
+1381,price,positive,
+1391,price,,không đọc được
+1392,price,positive,
+1401,price,positive,
+1402,price,,không đọc được
+1408,price,positive,negative
+1410,price,positive,
+1413,price,positive,
+1414,price,,positive
+1417,price,negative,
+1419,price,positive,
+1420,price,positive,
+1424,price,,không đọc được
+1425,price,positive,
+1428,price,positive,không đọc được
+1430,price,positive,không đọc được
+1434,price,positive,
+1439,price,,negative
+1442,price,positive,
+1444,price,positive,
+1445,price,,positive
+1447,price,,negative
+1448,price,positive,
+1451,price,,negative
+1457,price,positive,
+1463,price,positive,
+1464,price,,negative
+1465,price,positive,negative
+1467,price,positive,
+1470,price,positive,
+1471,price,positive,
+1473,price,positive,
+1477,price,,negative
+1481,price,positive,
+1483,price,,không đọc được
+1484,price,positive,
+1486,price,positive,
+1490,price,positive,
+1495,price,positive,negative
+1496,price,positive,
+1497,price,,negative
+1498,price,positive,
+1499,price,,positive
+1505,price,positive,
+1506,price,positive,
+1508,price,,positive
+1513,price,,không đọc được
+1515,price,positive,
+1521,price,positive,
+1524,price,positive,
+1528,price,positive,
+1529,price,,không đọc được
+1530,price,,negative
+1531,price,,negative
+1539,price,positive,
+1544,price,positive,
+1548,price,positive,negative
+1552,price,positive,không đọc được
+1555,price,positive,
+1557,price,positive,
+1558,price,positive,
+1560,price,positive,
+1563,price,positive,
+1568,price,positive,negative
+1577,price,positive,
+1578,price,positive,
+1584,price,positive,
+1586,price,positive,
+1589,price,,positive
+1591,price,,không đọc được
+1593,price,,positive
+1598,price,,positive
+1599,price,,positive
+1600,price,,negative
+1601,price,positive,
+1606,price,positive,
+1607,price,,không đọc được
+1610,price,,negative
+1612,price,positive,
+1613,price,,positive
+1618,price,,không đọc được
+1619,price,positive,
+0,colour,,negative
+3,colour,,negative
+5,colour,positive,
+8,colour,positive,
+10,colour,positive,
+11,colour,positive,
+12,colour,positive,
+13,colour,positive,
+15,colour,,negative
+16,colour,negative,
+18,colour,,không đọc được
+19,colour,positive,
+20,colour,,positive
+21,colour,positive,negative
+25,colour,,không đọc được
+31,colour,positive,
+32,colour,positive,negative
+34,colour,negative,
+36,colour,positive,
+40,colour,positive,
+41,colour,positive,
+43,colour,positive,
+45,colour,negative,
+47,colour,positive,
+48,colour,positive,negative
+49,colour,positive,
+50,colour,positive,
+54,colour,positive,negative
+55,colour,positive,
+58,colour,positive,
+65,colour,positive,
+66,colour,positive,
+68,colour,positive,
+70,colour,positive,
+72,colour,,negative
+74,colour,positive,
+75,colour,positive,
+78,colour,positive,
+80,colour,positive,
+81,colour,positive,
+83,colour,,không đọc được
+88,colour,negative,
+91,colour,,không đọc được
+92,colour,positive,
+93,colour,positive,negative
+94,colour,positive,
+98,colour,,negative
+99,colour,,negative
+103,colour,positive,
+104,colour,negative,
+106,colour,positive,
+107,colour,positive,
+108,colour,positive,
+109,colour,,negative
+110,colour,positive,
+111,colour,,negative
+112,colour,,negative
+113,colour,positive,
+118,colour,positive,
+121,colour,,negative
+122,colour,positive,không đọc được
+126,colour,positive,
+131,colour,positive,
+132,colour,positive,
+135,colour,positive,
+137,colour,positive,
+141,colour,positive,
+142,colour,positive,
+143,colour,,positive
+144,colour,positive,
+145,colour,,không đọc được
+146,colour,positive,
+149,colour,negative,
+153,colour,positive,
+154,colour,positive,
+155,colour,positive,negative
+156,colour,positive,
+157,colour,positive,
+158,colour,positive,
+159,colour,positive,
+160,colour,positive,
+161,colour,positive,không đọc được
+166,colour,,không đọc được
+168,colour,positive,
+169,colour,positive,negative
+172,colour,positive,
+174,colour,positive,
+175,colour,positive,negative
+176,colour,positive,
+177,colour,positive,
+178,colour,,positive
+179,colour,positive,
+180,colour,positive,
+181,colour,positive,
+182,colour,negative,
+183,colour,positive,
+187,colour,positive,
+189,colour,,positive
+196,colour,positive,
+198,colour,positive,
+199,colour,positive,
+201,colour,,positive
+202,colour,positive,
+206,colour,positive,
+207,colour,positive,
+208,colour,positive,không đọc được
+209,colour,positive,negative
+212,colour,positive,
+213,colour,negative,không đọc được
+215,colour,positive,
+217,colour,positive,
+221,colour,positive,
+222,colour,positive,
+223,colour,positive,negative
+226,colour,positive,
+227,colour,,negative
+228,colour,positive,negative
+229,colour,positive,negative
+230,colour,positive,
+236,colour,,positive
+237,colour,positive,
+239,colour,positive,negative
+248,colour,positive,
+250,colour,negative,
+251,colour,positive,negative
+253,colour,positive,
+256,colour,positive,
+262,colour,,positive
+264,colour,positive,
+265,colour,,không đọc được
+266,colour,positive,
+274,colour,positive,
+275,colour,positive,
+277,colour,positive,không đọc được
+278,colour,positive,
+280,colour,positive,
+281,colour,positive,
+282,colour,positive,negative
+283,colour,positive,
+284,colour,positive,không đọc được
+285,colour,positive,negative
+288,colour,,negative
+290,colour,negative,
+291,colour,,negative
+292,colour,negative,
+293,colour,positive,
+294,colour,positive,
+295,colour,positive,
+297,colour,negative,
+298,colour,positive,không đọc được
+299,colour,positive,negative
+300,colour,,negative
+301,colour,positive,
+302,colour,positive,
+306,colour,positive,
+309,colour,positive,negative
+310,colour,positive,
+313,colour,,negative
+315,colour,positive,
+317,colour,positive,
+320,colour,positive,
+321,colour,positive,
+322,colour,positive,
+323,colour,negative,
+324,colour,,không đọc được
+326,colour,positive,
+327,colour,positive,
+329,colour,positive,
+334,colour,negative,
+337,colour,,negative
+339,colour,positive,
+340,colour,positive,
+344,colour,negative,
+346,colour,positive,
+350,colour,positive,
+355,colour,positive,
+364,colour,positive,negative
+368,colour,,không đọc được
+370,colour,negative,
+372,colour,positive,
+373,colour,positive,
+374,colour,positive,
+376,colour,positive,không đọc được
+377,colour,negative,không đọc được
+380,colour,positive,
+381,colour,,negative
+382,colour,positive,
+383,colour,positive,
+384,colour,,positive
+385,colour,positive,
+387,colour,positive,
+389,colour,positive,
+392,colour,positive,
+393,colour,positive,
+394,colour,positive,
+396,colour,positive,
+397,colour,positive,
+398,colour,,negative
+399,colour,positive,
+400,colour,,negative
+402,colour,,negative
+403,colour,positive,negative
+406,colour,positive,
+407,colour,negative,
+409,colour,negative,
+410,colour,positive,
+411,colour,,không đọc được
+412,colour,positive,
+413,colour,positive,
+418,colour,positive,
+419,colour,positive,negative
+420,colour,negative,
+426,colour,positive,
+430,colour,positive,negative
+436,colour,positive,không đọc được
+438,colour,positive,
+439,colour,,negative
+440,colour,positive,
+442,colour,positive,
+443,colour,,negative
+444,colour,,negative
+446,colour,,negative
+447,colour,positive,negative
+448,colour,positive,
+452,colour,,positive
+456,colour,positive,
+458,colour,positive,
+460,colour,,không đọc được
+467,colour,,positive
+468,colour,positive,
+470,colour,,positive
+473,colour,,không đọc được
+475,colour,positive,
+477,colour,positive,
+478,colour,positive,
+480,colour,positive,
+481,colour,,positive
+484,colour,positive,negative
+489,colour,positive,
+491,colour,positive,negative
+493,colour,positive,
+494,colour,positive,negative
+497,colour,positive,
+498,colour,positive,
+501,colour,positive,
+503,colour,positive,
+504,colour,positive,negative
+506,colour,positive,
+508,colour,positive,
+509,colour,positive,
+511,colour,,không đọc được
+513,colour,positive,
+514,colour,negative,positive
+517,colour,positive,
+518,colour,,không đọc được
+519,colour,positive,
+524,colour,positive,
+525,colour,positive,
+527,colour,positive,
+528,colour,positive,
+530,colour,positive,
+532,colour,,positive
+537,colour,negative,
+539,colour,positive,
+540,colour,,negative
+542,colour,negative,
+543,colour,positive,
+545,colour,,negative
+546,colour,positive,
+547,colour,positive,
+548,colour,positive,
+549,colour,,negative
+550,colour,,negative
+552,colour,positive,
+553,colour,,negative
+554,colour,positive,
+559,colour,positive,
+560,colour,positive,
+562,colour,positive,
+566,colour,positive,
+568,colour,positive,
+576,colour,positive,
+577,colour,positive,
+578,colour,positive,
+580,colour,positive,
+581,colour,positive,
+588,colour,negative,
+589,colour,positive,
+592,colour,positive,
+594,colour,positive,
+595,colour,positive,không đọc được
+600,colour,positive,
+602,colour,positive,
+611,colour,positive,
+612,colour,,negative
+613,colour,positive,
+614,colour,,positive
+615,colour,,không đọc được
+618,colour,negative,không đọc được
+619,colour,positive,
+622,colour,,positive
+623,colour,negative,
+624,colour,,không đọc được
+629,colour,positive,
+634,colour,positive,
+635,colour,positive,
+637,colour,positive,
+638,colour,positive,
+640,colour,positive,
+645,colour,,không đọc được
+646,colour,positive,
+648,colour,,negative
+650,colour,positive,
+651,colour,positive,không đọc được
+652,colour,positive,
+654,colour,positive,
+660,colour,positive,
+663,colour,,negative
+666,colour,positive,
+668,colour,positive,negative
+669,colour,positive,
+671,colour,positive,
+672,colour,,negative
+674,colour,positive,không đọc được
+680,colour,positive,
+682,colour,positive,
+684,colour,positive,
+685,colour,positive,
+686,colour,positive,
+689,colour,positive,negative
+691,colour,positive,
+697,colour,positive,
+698,colour,positive,
+699,colour,positive,
+701,colour,negative,
+703,colour,positive,
+704,colour,positive,
+707,colour,positive,
+708,colour,positive,negative
+710,colour,positive,negative
+712,colour,positive,
+716,colour,positive,không đọc được
+726,colour,positive,negative
+727,colour,positive,
+728,colour,positive,
+729,colour,positive,
+731,colour,positive,
+732,colour,positive,
+733,colour,positive,không đọc được
+737,colour,positive,
+739,colour,positive,
+741,colour,,negative
+743,colour,positive,negative
+746,colour,,negative
+747,colour,positive,
+754,colour,,positive
+756,colour,positive,
+758,colour,positive,
+759,colour,positive,
+760,colour,positive,
+761,colour,positive,
+762,colour,positive,
+763,colour,,negative
+764,colour,,positive
+766,colour,,negative
+767,colour,,negative
+768,colour,positive,
+769,colour,,negative
+773,colour,positive,
+775,colour,positive,negative
+777,colour,positive,không đọc được
+781,colour,positive,không đọc được
+782,colour,,không đọc được
+785,colour,positive,
+790,colour,positive,
+792,colour,negative,
+794,colour,positive,
+795,colour,positive,
+797,colour,positive,
+798,colour,,negative
+800,colour,negative,
+802,colour,positive,
+803,colour,positive,
+805,colour,positive,negative
+807,colour,positive,
+808,colour,negative,
+809,colour,positive,
+810,colour,positive,
+811,colour,positive,
+814,colour,positive,
+819,colour,positive,
+824,colour,positive,negative
+828,colour,positive,
+829,colour,positive,
+830,colour,positive,
+831,colour,positive,
+834,colour,positive,
+835,colour,positive,
+837,colour,,negative
+838,colour,positive,
+841,colour,positive,
+842,colour,positive,
+844,colour,,negative
+845,colour,positive,
+851,colour,positive,
+852,colour,,negative
+854,colour,positive,không đọc được
+855,colour,positive,
+856,colour,positive,
+857,colour,,không đọc được
+858,colour,positive,
+859,colour,positive,
+864,colour,positive,
+865,colour,positive,
+867,colour,positive,
+868,colour,positive,
+870,colour,positive,không đọc được
+871,colour,positive,
+873,colour,positive,
+874,colour,positive,
+875,colour,positive,
+876,colour,negative,
+878,colour,positive,negative
+879,colour,positive,
+880,colour,positive,
+881,colour,positive,không đọc được
+882,colour,positive,
+886,colour,positive,
+891,colour,positive,
+892,colour,positive,
+893,colour,positive,
+894,colour,positive,
+895,colour,positive,
+896,colour,positive,
+902,colour,positive,
+903,colour,positive,
+904,colour,negative,
+905,colour,positive,
+907,colour,positive,
+908,colour,positive,
+909,colour,positive,negative
+910,colour,positive,không đọc được
+911,colour,,negative
+913,colour,positive,
+914,colour,positive,
+916,colour,positive,
+917,colour,positive,
+918,colour,positive,
+919,colour,positive,negative
+920,colour,positive,
+922,colour,positive,
+923,colour,positive,
+924,colour,positive,
+925,colour,positive,
+926,colour,negative,
+927,colour,positive,
+928,colour,positive,negative
+930,colour,positive,
+933,colour,positive,
+936,colour,positive,
+937,colour,positive,
+942,colour,positive,negative
+945,colour,positive,negative
+949,colour,positive,
+951,colour,positive,
+956,colour,,negative
+957,colour,positive,
+958,colour,positive,
+959,colour,positive,
+960,colour,positive,negative
+962,colour,,positive
+967,colour,positive,
+970,colour,positive,
+972,colour,positive,
+973,colour,positive,
+974,colour,positive,
+976,colour,positive,
+977,colour,negative,không đọc được
+979,colour,positive,
+982,colour,,negative
+983,colour,positive,
+985,colour,,negative
+988,colour,positive,
+992,colour,positive,
+995,colour,,không đọc được
+998,colour,positive,
+999,colour,positive,
+1001,colour,positive,negative
+1004,colour,positive,không đọc được
+1010,colour,positive,
+1013,colour,,không đọc được
+1014,colour,positive,
+1016,colour,positive,
+1019,colour,positive,
+1022,colour,positive,
+1024,colour,positive,negative
+1026,colour,positive,
+1027,colour,,negative
+1031,colour,positive,
+1032,colour,positive,
+1033,colour,,negative
+1034,colour,negative,
+1035,colour,,positive
+1037,colour,positive,
+1038,colour,positive,
+1044,colour,positive,negative
+1045,colour,positive,
+1047,colour,positive,
+1048,colour,positive,
+1050,colour,positive,
+1053,colour,positive,
+1056,colour,positive,không đọc được
+1057,colour,,negative
+1060,colour,positive,negative
+1062,colour,positive,
+1067,colour,positive,
+1068,colour,positive,
+1070,colour,positive,
+1071,colour,positive,không đọc được
+1072,colour,,positive
+1073,colour,positive,
+1074,colour,positive,
+1075,colour,,không đọc được
+1076,colour,positive,
+1079,colour,positive,
+1080,colour,positive,
+1082,colour,positive,
+1086,colour,positive,
+1092,colour,positive,
+1094,colour,,negative
+1097,colour,positive,
+1100,colour,positive,
+1101,colour,positive,
+1104,colour,,negative
+1106,colour,positive,không đọc được
+1107,colour,,không đọc được
+1108,colour,positive,
+1110,colour,positive,
+1111,colour,positive,
+1114,colour,positive,
+1117,colour,positive,
+1120,colour,positive,
+1121,colour,,không đọc được
+1122,colour,positive,
+1123,colour,positive,
+1125,colour,positive,
+1126,colour,positive,
+1128,colour,positive,
+1129,colour,positive,
+1133,colour,positive,
+1135,colour,positive,
+1138,colour,,positive
+1140,colour,negative,
+1143,colour,positive,
+1149,colour,positive,
+1150,colour,,positive
+1151,colour,positive,
+1153,colour,positive,
+1157,colour,positive,
+1166,colour,positive,negative
+1167,colour,positive,
+1168,colour,positive,
+1169,colour,positive,
+1170,colour,positive,
+1172,colour,positive,
+1173,colour,positive,
+1175,colour,positive,
+1178,colour,positive,
+1179,colour,positive,
+1180,colour,positive,
+1182,colour,positive,
+1183,colour,negative,
+1186,colour,,negative
+1188,colour,positive,
+1189,colour,positive,
+1191,colour,,positive
+1193,colour,positive,negative
+1194,colour,positive,
+1196,colour,,negative
+1197,colour,negative,positive
+1198,colour,,negative
+1199,colour,positive,
+1200,colour,positive,
+1202,colour,positive,
+1204,colour,positive,
+1205,colour,,negative
+1207,colour,positive,
+1208,colour,positive,
+1210,colour,,positive
+1213,colour,positive,
+1214,colour,positive,negative
+1218,colour,,negative
+1219,colour,positive,không đọc được
+1220,colour,positive,
+1222,colour,positive,
+1223,colour,negative,không đọc được
+1224,colour,positive,
+1225,colour,positive,
+1226,colour,positive,
+1227,colour,positive,
+1231,colour,positive,
+1232,colour,positive,
+1233,colour,positive,negative
+1234,colour,positive,
+1236,colour,positive,
+1241,colour,positive,
+1244,colour,positive,
+1245,colour,positive,
+1249,colour,,không đọc được
+1250,colour,positive,không đọc được
+1253,colour,positive,không đọc được
+1257,colour,,không đọc được
+1258,colour,positive,
+1260,colour,positive,
+1266,colour,,negative
+1269,colour,,positive
+1270,colour,positive,negative
+1271,colour,positive,
+1272,colour,positive,
+1273,colour,positive,
+1275,colour,positive,negative
+1276,colour,,positive
+1278,colour,positive,
+1279,colour,positive,negative
+1280,colour,,không đọc được
+1282,colour,,negative
+1283,colour,,không đọc được
+1286,colour,,negative
+1287,colour,,positive
+1291,colour,positive,
+1297,colour,positive,negative
+1298,colour,positive,
+1299,colour,positive,
+1301,colour,positive,
+1303,colour,positive,
+1305,colour,positive,
+1306,colour,positive,negative
+1307,colour,positive,negative
+1309,colour,positive,
+1310,colour,positive,
+1314,colour,positive,
+1315,colour,positive,
+1317,colour,,negative
+1318,colour,positive,
+1319,colour,positive,
+1320,colour,negative,
+1321,colour,positive,
+1324,colour,positive,
+1325,colour,positive,
+1329,colour,,negative
+1331,colour,positive,
+1333,colour,positive,
+1334,colour,positive,
+1336,colour,positive,
+1337,colour,positive,
+1338,colour,positive,
+1339,colour,positive,
+1344,colour,positive,negative
+1345,colour,positive,
+1346,colour,,negative
+1347,colour,,positive
+1348,colour,,negative
+1351,colour,,không đọc được
+1353,colour,positive,
+1354,colour,,positive
+1358,colour,positive,
+1366,colour,positive,
+1369,colour,positive,
+1370,colour,positive,
+1372,colour,positive,
+1373,colour,positive,
+1375,colour,positive,
+1377,colour,positive,
+1381,colour,positive,
+1383,colour,positive,
+1386,colour,positive,
+1387,colour,positive,
+1390,colour,positive,
+1391,colour,positive,không đọc được
+1392,colour,positive,
+1393,colour,positive,
+1394,colour,positive,
+1396,colour,positive,
+1399,colour,positive,
+1402,colour,,không đọc được
+1403,colour,positive,
+1405,colour,positive,
+1408,colour,,negative
+1409,colour,positive,
+1410,colour,positive,
+1413,colour,positive,
+1414,colour,,positive
+1420,colour,positive,
+1424,colour,positive,không đọc được
+1427,colour,positive,
+1428,colour,positive,không đọc được
+1429,colour,positive,
+1430,colour,positive,không đọc được
+1431,colour,positive,
+1432,colour,positive,
+1433,colour,positive,
+1436,colour,positive,
+1439,colour,,negative
+1440,colour,positive,
+1442,colour,positive,
+1443,colour,positive,
+1444,colour,positive,
+1445,colour,,positive
+1447,colour,,negative
+1448,colour,positive,
+1451,colour,,negative
+1452,colour,positive,
+1454,colour,positive,
+1464,colour,positive,negative
+1465,colour,positive,negative
+1466,colour,positive,
+1473,colour,positive,
+1475,colour,positive,
+1476,colour,positive,
+1477,colour,positive,negative
+1478,colour,positive,
+1479,colour,positive,
+1480,colour,positive,
+1481,colour,positive,
+1482,colour,positive,
+1483,colour,positive,không đọc được
+1484,colour,positive,
+1486,colour,positive,
+1488,colour,positive,
+1490,colour,positive,
+1493,colour,positive,
+1495,colour,positive,negative
+1497,colour,,negative
+1498,colour,negative,
+1499,colour,,positive
+1500,colour,positive,
+1501,colour,positive,
+1503,colour,positive,
+1505,colour,positive,
+1507,colour,positive,
+1508,colour,,positive
+1510,colour,positive,
+1513,colour,,không đọc được
+1514,colour,positive,
+1519,colour,positive,
+1522,colour,positive,
+1529,colour,,không đọc được
+1530,colour,,negative
+1531,colour,positive,negative
+1532,colour,negative,positive
+1539,colour,positive,
+1541,colour,positive,
+1543,colour,positive,
+1544,colour,positive,
+1548,colour,positive,negative
+1552,colour,,không đọc được
+1554,colour,,không đọc được
+1557,colour,positive,
+1558,colour,positive,
+1560,colour,positive,
+1564,colour,negative,
+1565,colour,positive,
+1568,colour,positive,negative
+1571,colour,,positive
+1574,colour,positive,
+1576,colour,positive,
+1579,colour,negative,
+1580,colour,negative,
+1581,colour,positive,
+1583,colour,positive,
+1585,colour,positive,
+1586,colour,positive,
+1591,colour,,không đọc được
+1596,colour,positive,
+1597,colour,positive,
+1598,colour,,positive
+1599,colour,,positive
+1600,colour,positive,negative
+1601,colour,positive,
+1602,colour,positive,
+1606,colour,positive,
+1607,colour,,không đọc được
+1609,colour,positive,
+1610,colour,positive,negative
+1611,colour,positive,
+1613,colour,,positive
+1615,colour,positive,
+1618,colour,positive,không đọc được
+1622,colour,positive,
+0,shipping,,negative
+1,shipping,positive,
+3,shipping,,negative
+8,shipping,negative,
+14,shipping,negative,
+20,shipping,,positive
+21,shipping,,negative
+22,shipping,positive,
+24,shipping,positive,
+25,shipping,,không đọc được
+26,shipping,positive,
+31,shipping,positive,
+32,shipping,,negative
+33,shipping,negative,
+36,shipping,positive,
+38,shipping,positive,
+39,shipping,positive,
+43,shipping,negative,
+45,shipping,negative,
+46,shipping,positive,negative
+48,shipping,positive,negative
+52,shipping,negative,
+58,shipping,negative,
+61,shipping,positive,
+63,shipping,negative,
+71,shipping,positive,
+72,shipping,,negative
+73,shipping,negative,
+74,shipping,negative,
+78,shipping,positive,
+83,shipping,,không đọc được
+85,shipping,positive,
+87,shipping,negative,
+91,shipping,,không đọc được
+95,shipping,,negative
+97,shipping,positive,
+98,shipping,positive,negative
+99,shipping,,negative
+101,shipping,positive,
+103,shipping,positive,
+106,shipping,positive,
+107,shipping,negative,
+109,shipping,,negative
+110,shipping,negative,
+111,shipping,,negative
+112,shipping,,negative
+119,shipping,positive,
+121,shipping,,negative
+122,shipping,,không đọc được
+123,shipping,positive,
+126,shipping,negative,
+130,shipping,,negative
+131,shipping,positive,
+133,shipping,negative,
+139,shipping,negative,
+140,shipping,positive,
+141,shipping,positive,
+142,shipping,positive,
+143,shipping,,positive
+145,shipping,,không đọc được
+148,shipping,positive,
+149,shipping,positive,
+151,shipping,positive,
+152,shipping,positive,
+154,shipping,positive,
+155,shipping,positive,negative
+159,shipping,positive,
+161,shipping,,negative
+166,shipping,,không đọc được
+167,shipping,positive,
+169,shipping,,negative
+174,shipping,negative,
+175,shipping,,negative
+177,shipping,negative,positive
+178,shipping,,positive
+182,shipping,negative,
+183,shipping,negative,
+186,shipping,positive,
+187,shipping,positive,
+189,shipping,,positive
+191,shipping,positive,
+193,shipping,positive,
+198,shipping,positive,
+200,shipping,positive,
+203,shipping,positive,
+206,shipping,positive,
+208,shipping,,không đọc được
+209,shipping,,negative
+213,shipping,negative,không đọc được
+214,shipping,positive,
+215,shipping,negative,
+217,shipping,positive,
+223,shipping,,negative
+226,shipping,positive,
+227,shipping,,negative
+228,shipping,positive,negative
+229,shipping,positive,negative
+233,shipping,,positive
+236,shipping,,positive
+237,shipping,negative,
+239,shipping,,negative
+240,shipping,negative,
+241,shipping,negative,
+242,shipping,negative,
+246,shipping,positive,
+248,shipping,negative,
+251,shipping,positive,negative
+254,shipping,positive,negative
+257,shipping,,không đọc được
+260,shipping,positive,
+261,shipping,,positive
+265,shipping,,không đọc được
+269,shipping,positive,
+271,shipping,positive,
+274,shipping,positive,
+277,shipping,,không đọc được
+278,shipping,negative,
+279,shipping,positive,
+282,shipping,,negative
+284,shipping,negative,không đọc được
+288,shipping,,negative
+289,shipping,negative,
+291,shipping,,negative
+296,shipping,negative,
+298,shipping,,không đọc được
+300,shipping,,negative
+303,shipping,negative,
+309,shipping,,negative
+310,shipping,positive,
+312,shipping,positive,
+313,shipping,positive,negative
+317,shipping,positive,
+318,shipping,positive,
+321,shipping,positive,
+324,shipping,negative,không đọc được
+325,shipping,positive,
+333,shipping,,positive
+336,shipping,positive,
+337,shipping,positive,negative
+338,shipping,positive,
+339,shipping,positive,
+340,shipping,negative,
+341,shipping,positive,
+348,shipping,negative,
+353,shipping,positive,
+355,shipping,positive,
+358,shipping,positive,
+359,shipping,positive,
+361,shipping,negative,
+363,shipping,negative,
+364,shipping,,negative
+368,shipping,negative,không đọc được
+375,shipping,negative,positive
+377,shipping,,không đọc được
+378,shipping,positive,
+379,shipping,positive,
+380,shipping,positive,
+381,shipping,,negative
+388,shipping,positive,
+390,shipping,negative,
+393,shipping,negative,
+397,shipping,negative,
+398,shipping,,negative
+399,shipping,negative,
+400,shipping,,negative
+401,shipping,positive,
+403,shipping,positive,negative
+411,shipping,,không đọc được
+415,shipping,positive,
+417,shipping,positive,
+419,shipping,positive,negative
+422,shipping,negative,
+423,shipping,positive,
+427,shipping,positive,
+430,shipping,positive,negative
+431,shipping,positive,
+433,shipping,positive,
+435,shipping,positive,
+436,shipping,,không đọc được
+438,shipping,negative,
+439,shipping,,negative
+441,shipping,,negative
+443,shipping,,negative
+444,shipping,,negative
+446,shipping,positive,negative
+451,shipping,negative,
+452,shipping,,positive
+453,shipping,negative,
+455,shipping,negative,
+460,shipping,negative,không đọc được
+462,shipping,positive,
+465,shipping,positive,
+467,shipping,,positive
+469,shipping,positive,
+471,shipping,positive,
+472,shipping,negative,
+473,shipping,,không đọc được
+479,shipping,positive,
+481,shipping,,positive
+484,shipping,,negative
+486,shipping,positive,negative
+488,shipping,positive,
+490,shipping,positive,
+494,shipping,,negative
+501,shipping,positive,
+503,shipping,negative,
+504,shipping,,negative
+505,shipping,positive,
+506,shipping,negative,
+509,shipping,positive,
+511,shipping,negative,không đọc được
+516,shipping,negative,
+517,shipping,positive,
+518,shipping,,không đọc được
+521,shipping,,positive
+525,shipping,negative,
+532,shipping,negative,positive
+534,shipping,negative,
+535,shipping,negative,
+536,shipping,positive,
+538,shipping,,negative
+539,shipping,positive,
+540,shipping,,negative
+541,shipping,positive,
+544,shipping,positive,
+545,shipping,,negative
+549,shipping,,negative
+550,shipping,,negative
+553,shipping,,negative
+554,shipping,positive,
+555,shipping,positive,
+557,shipping,positive,
+558,shipping,positive,
+560,shipping,positive,
+564,shipping,negative,
+565,shipping,positive,
+568,shipping,positive,
+579,shipping,negative,
+580,shipping,positive,
+582,shipping,positive,
+583,shipping,positive,
+584,shipping,negative,
+585,shipping,negative,
+587,shipping,positive,
+589,shipping,negative,
+598,shipping,positive,
+599,shipping,negative,
+600,shipping,positive,
+601,shipping,positive,negative
+606,shipping,negative,
+608,shipping,positive,
+612,shipping,,negative
+614,shipping,,positive
+615,shipping,,không đọc được
+616,shipping,negative,
+617,shipping,negative,
+618,shipping,negative,không đọc được
+619,shipping,positive,
+620,shipping,positive,
+622,shipping,,positive
+624,shipping,positive,không đọc được
+627,shipping,positive,
+630,shipping,,negative
+631,shipping,negative,
+632,shipping,negative,
+633,shipping,,negative
+637,shipping,positive,
+643,shipping,negative,
+645,shipping,,không đọc được
+648,shipping,,negative
+649,shipping,positive,
+650,shipping,positive,
+651,shipping,,không đọc được
+663,shipping,,negative
+665,shipping,negative,
+667,shipping,,negative
+668,shipping,,negative
+669,shipping,negative,
+672,shipping,,negative
+674,shipping,negative,không đọc được
+676,shipping,positive,
+682,shipping,positive,
+685,shipping,negative,
+687,shipping,negative,
+688,shipping,negative,
+689,shipping,,negative
+696,shipping,positive,
+698,shipping,negative,
+699,shipping,negative,
+702,shipping,positive,
+708,shipping,,negative
+710,shipping,positive,negative
+711,shipping,positive,
+715,shipping,positive,
+716,shipping,positive,không đọc được
+717,shipping,positive,
+719,shipping,positive,
+720,shipping,negative,
+723,shipping,positive,
+724,shipping,positive,
+725,shipping,positive,
+726,shipping,,negative
+728,shipping,negative,
+729,shipping,positive,
+731,shipping,positive,
+733,shipping,positive,không đọc được
+741,shipping,,negative
+743,shipping,positive,negative
+746,shipping,,negative
+747,shipping,positive,
+752,shipping,positive,
+755,shipping,positive,
+756,shipping,positive,
+761,shipping,positive,
+764,shipping,,positive
+765,shipping,negative,positive
+766,shipping,,negative
+767,shipping,positive,negative
+769,shipping,,negative
+775,shipping,,negative
+776,shipping,,positive
+777,shipping,,không đọc được
+778,shipping,positive,
+780,shipping,,positive
+781,shipping,,không đọc được
+782,shipping,positive,không đọc được
+788,shipping,negative,
+790,shipping,positive,
+791,shipping,positive,
+794,shipping,positive,
+796,shipping,positive,
+798,shipping,,negative
+804,shipping,negative,
+805,shipping,,negative
+808,shipping,positive,
+809,shipping,positive,
+814,shipping,positive,
+821,shipping,negative,
+824,shipping,positive,negative
+825,shipping,positive,
+827,shipping,positive,
+828,shipping,positive,
+831,shipping,positive,
+835,shipping,negative,
+837,shipping,,negative
+840,shipping,negative,
+842,shipping,positive,
+844,shipping,,negative
+851,shipping,negative,
+852,shipping,positive,negative
+854,shipping,,không đọc được
+855,shipping,negative,
+857,shipping,negative,không đọc được
+863,shipping,negative,
+867,shipping,positive,
+870,shipping,,không đọc được
+871,shipping,negative,
+872,shipping,positive,
+873,shipping,negative,
+874,shipping,positive,
+878,shipping,,negative
+881,shipping,,không đọc được
+883,shipping,positive,
+887,shipping,positive,
+889,shipping,positive,
+897,shipping,positive,
+898,shipping,positive,negative
+902,shipping,positive,
+908,shipping,positive,
+909,shipping,,negative
+910,shipping,,không đọc được
+911,shipping,,negative
+916,shipping,positive,
+919,shipping,,negative
+920,shipping,negative,
+921,shipping,positive,
+928,shipping,,negative
+930,shipping,positive,
+932,shipping,negative,
+938,shipping,positive,
+940,shipping,negative,
+942,shipping,,negative
+943,shipping,positive,
+944,shipping,positive,
+945,shipping,positive,negative
+949,shipping,negative,
+950,shipping,positive,
+954,shipping,negative,
+956,shipping,,negative
+960,shipping,positive,negative
+961,shipping,negative,
+962,shipping,,positive
+963,shipping,positive,
+965,shipping,,negative
+966,shipping,positive,
+968,shipping,positive,
+969,shipping,negative,
+970,shipping,positive,
+971,shipping,positive,
+973,shipping,positive,
+976,shipping,negative,
+977,shipping,,không đọc được
+982,shipping,positive,negative
+983,shipping,positive,
+984,shipping,positive,
+985,shipping,positive,negative
+995,shipping,,không đọc được
+997,shipping,positive,
+999,shipping,positive,
+1000,shipping,positive,
+1001,shipping,,negative
+1004,shipping,positive,không đọc được
+1005,shipping,positive,
+1007,shipping,positive,
+1008,shipping,positive,
+1009,shipping,positive,
+1011,shipping,positive,
+1016,shipping,positive,
+1020,shipping,,positive
+1022,shipping,negative,
+1026,shipping,positive,
+1027,shipping,,negative
+1028,shipping,negative,
+1031,shipping,positive,
+1033,shipping,positive,negative
+1035,shipping,,positive
+1036,shipping,negative,
+1037,shipping,positive,
+1040,shipping,positive,
+1041,shipping,positive,
+1042,shipping,positive,
+1044,shipping,positive,negative
+1047,shipping,positive,
+1048,shipping,positive,
+1051,shipping,negative,
+1054,shipping,negative,positive
+1055,shipping,negative,
+1056,shipping,,không đọc được
+1057,shipping,,negative
+1058,shipping,positive,
+1060,shipping,,negative
+1061,shipping,positive,
+1062,shipping,positive,
+1063,shipping,positive,
+1071,shipping,positive,không đọc được
+1072,shipping,,positive
+1074,shipping,positive,
+1075,shipping,,không đọc được
+1077,shipping,positive,
+1079,shipping,negative,positive
+1080,shipping,positive,
+1096,shipping,positive,
+1098,shipping,negative,
+1100,shipping,positive,
+1103,shipping,,negative
+1104,shipping,,negative
+1106,shipping,,không đọc được
+1107,shipping,,không đọc được
+1108,shipping,positive,
+1116,shipping,negative,
+1120,shipping,negative,
+1121,shipping,negative,không đọc được
+1127,shipping,negative,
+1128,shipping,positive,
+1129,shipping,positive,
+1132,shipping,negative,
+1136,shipping,positive,
+1138,shipping,,positive
+1141,shipping,negative,
+1142,shipping,positive,
+1143,shipping,positive,
+1150,shipping,,positive
+1151,shipping,positive,
+1158,shipping,,không đọc được
+1159,shipping,positive,
+1160,shipping,positive,
+1161,shipping,,positive
+1162,shipping,negative,
+1167,shipping,positive,
+1173,shipping,positive,
+1178,shipping,negative,
+1181,shipping,positive,
+1186,shipping,positive,negative
+1189,shipping,positive,
+1191,shipping,,positive
+1196,shipping,,negative
+1198,shipping,positive,negative
+1200,shipping,positive,
+1205,shipping,,negative
+1210,shipping,,positive
+1211,shipping,negative,
+1212,shipping,positive,
+1214,shipping,,negative
+1218,shipping,,negative
+1219,shipping,,không đọc được
+1222,shipping,negative,
+1223,shipping,,không đọc được
+1224,shipping,positive,
+1229,shipping,positive,
+1232,shipping,positive,
+1236,shipping,negative,
+1237,shipping,negative,
+1239,shipping,negative,
+1245,shipping,positive,
+1246,shipping,positive,
+1249,shipping,,không đọc được
+1250,shipping,,không đọc được
+1252,shipping,positive,negative
+1253,shipping,,không đọc được
+1255,shipping,negative,
+1256,shipping,positive,
+1257,shipping,positive,không đọc được
+1258,shipping,positive,
+1260,shipping,negative,
+1261,shipping,positive,
+1263,shipping,negative,
+1266,shipping,positive,negative
+1268,shipping,positive,
+1269,shipping,,positive
+1270,shipping,,negative
+1271,shipping,negative,
+1275,shipping,,negative
+1276,shipping,,positive
+1278,shipping,negative,
+1279,shipping,positive,negative
+1280,shipping,,không đọc được
+1281,shipping,positive,
+1283,shipping,positive,không đọc được
+1284,shipping,positive,
+1286,shipping,positive,negative
+1288,shipping,positive,
+1294,shipping,positive,
+1297,shipping,,negative
+1304,shipping,positive,
+1305,shipping,positive,
+1306,shipping,,negative
+1309,shipping,positive,
+1311,shipping,negative,
+1312,shipping,negative,positive
+1315,shipping,positive,
+1317,shipping,,negative
+1324,shipping,positive,
+1325,shipping,positive,
+1327,shipping,positive,
+1329,shipping,,negative
+1330,shipping,positive,negative
+1332,shipping,positive,negative
+1337,shipping,positive,
+1338,shipping,negative,
+1339,shipping,positive,
+1340,shipping,negative,
+1341,shipping,positive,
+1344,shipping,positive,negative
+1346,shipping,,negative
+1347,shipping,,positive
+1348,shipping,,negative
+1349,shipping,positive,negative
+1351,shipping,,không đọc được
+1354,shipping,,positive
+1355,shipping,negative,
+1359,shipping,positive,
+1366,shipping,negative,
+1373,shipping,positive,
+1375,shipping,positive,
+1380,shipping,negative,
+1381,shipping,positive,
+1383,shipping,positive,
+1388,shipping,negative,
+1391,shipping,,không đọc được
+1393,shipping,positive,
+1395,shipping,positive,negative
+1402,shipping,,không đọc được
+1405,shipping,positive,
+1409,shipping,positive,
+1414,shipping,,positive
+1418,shipping,positive,
+1423,shipping,negative,
+1424,shipping,positive,không đọc được
+1425,shipping,positive,
+1426,shipping,positive,
+1428,shipping,,không đọc được
+1430,shipping,,không đọc được
+1432,shipping,negative,
+1434,shipping,negative,
+1435,shipping,positive,
+1439,shipping,positive,negative
+1440,shipping,positive,
+1443,shipping,positive,
+1445,shipping,,positive
+1446,shipping,positive,
+1447,shipping,,negative
+1449,shipping,positive,
+1451,shipping,,negative
+1454,shipping,negative,
+1461,shipping,negative,
+1464,shipping,positive,negative
+1465,shipping,,negative
+1467,shipping,negative,
+1468,shipping,positive,
+1477,shipping,,negative
+1478,shipping,negative,
+1480,shipping,positive,
+1483,shipping,positive,không đọc được
+1486,shipping,positive,
+1488,shipping,negative,
+1492,shipping,negative,
+1493,shipping,negative,
+1495,shipping,,negative
+1497,shipping,positive,negative
+1499,shipping,,positive
+1502,shipping,negative,
+1504,shipping,positive,
+1505,shipping,positive,
+1508,shipping,,positive
+1510,shipping,positive,
+1513,shipping,,không đọc được
+1514,shipping,positive,
+1516,shipping,positive,
+1519,shipping,positive,
+1522,shipping,negative,
+1524,shipping,negative,
+1525,shipping,positive,
+1528,shipping,negative,
+1529,shipping,,không đọc được
+1530,shipping,positive,negative
+1531,shipping,,negative
+1533,shipping,positive,
+1538,shipping,positive,
+1540,shipping,positive,
+1541,shipping,positive,
+1542,shipping,positive,
+1543,shipping,negative,
+1544,shipping,negative,positive
+1546,shipping,negative,
+1548,shipping,,negative
+1552,shipping,negative,không đọc được
+1555,shipping,positive,
+1557,shipping,positive,
+1558,shipping,positive,
+1560,shipping,negative,
+1564,shipping,positive,
+1565,shipping,negative,
+1568,shipping,,negative
+1569,shipping,positive,
+1571,shipping,,positive
+1573,shipping,negative,
+1575,shipping,positive,
+1581,shipping,negative,
+1582,shipping,positive,
+1584,shipping,positive,
+1587,shipping,positive,
+1591,shipping,,không đọc được
+1592,shipping,positive,
+1593,shipping,,positive
+1594,shipping,negative,
+1597,shipping,positive,
+1598,shipping,,positive
+1599,shipping,,positive
+1600,shipping,,negative
+1607,shipping,,không đọc được
+1611,shipping,negative,
+1613,shipping,,positive
+1617,shipping,negative,positive
+1618,shipping,,không đọc được
+1620,shipping,positive,
+0,packing,positive,negative
+1,packing,positive,
+3,packing,positive,negative
+11,packing,positive,
+15,packing,,negative
+18,packing,positive,không đọc được
+20,packing,,positive
+21,packing,,negative
+24,packing,positive,
+25,packing,,không đọc được
+27,packing,positive,
+30,packing,,positive
+32,packing,,negative
+36,packing,negative,
+46,packing,positive,negative
+48,packing,positive,negative
+54,packing,positive,negative
+60,packing,positive,
+61,packing,negative,
+72,packing,,negative
+73,packing,positive,
+82,packing,positive,
+83,packing,,không đọc được
+84,packing,positive,
+91,packing,,không đọc được
+95,packing,,negative
+97,packing,positive,
+98,packing,positive,negative
+99,packing,,negative
+103,packing,positive,
+106,packing,positive,
+109,packing,,negative
+111,packing,,negative
+112,packing,,negative
+121,packing,positive,negative
+122,packing,,negative
+123,packing,positive,
+124,packing,positive,
+130,packing,,negative
+137,packing,positive,
+141,packing,positive,
+142,packing,positive,
+143,packing,,positive
+145,packing,,không đọc được
+147,packing,positive,
+148,packing,positive,
+152,packing,positive,
+155,packing,positive,negative
+161,packing,,negative
+166,packing,,không đọc được
+168,packing,positive,
+169,packing,,negative
+175,packing,,negative
+176,packing,positive,
+178,packing,,positive
+184,packing,positive,
+185,packing,positive,
+187,packing,positive,
+188,packing,positive,
+189,packing,,positive
+193,packing,positive,
+198,packing,positive,
+199,packing,positive,
+201,packing,,positive
+203,packing,positive,
+206,packing,positive,
+208,packing,,không đọc được
+209,packing,,negative
+213,packing,,không đọc được
+220,packing,positive,
+221,packing,positive,
+223,packing,,negative
+225,packing,positive,negative
+227,packing,,negative
+228,packing,,negative
+229,packing,,negative
+233,packing,,positive
+234,packing,positive,
+235,packing,positive,
+236,packing,,positive
+239,packing,,negative
+240,packing,positive,
+251,packing,positive,negative
+257,packing,,không đọc được
+261,packing,,positive
+263,packing,positive,
+265,packing,,không đọc được
+269,packing,positive,
+277,packing,,không đọc được
+280,packing,positive,
+282,packing,positive,negative
+284,packing,,không đọc được
+285,packing,positive,negative
+288,packing,,negative
+289,packing,positive,
+291,packing,,negative
+297,packing,positive,
+298,packing,,không đọc được
+299,packing,,negative
+300,packing,,negative
+309,packing,,negative
+310,packing,positive,
+313,packing,,negative
+314,packing,positive,
+318,packing,positive,
+321,packing,positive,
+323,packing,positive,
+324,packing,,không đọc được
+328,packing,positive,
+333,packing,,positive
+337,packing,positive,negative
+339,packing,positive,
+353,packing,positive,
+355,packing,positive,
+357,packing,positive,
+358,packing,positive,
+363,packing,positive,
+364,packing,,negative
+366,packing,positive,
+368,packing,positive,không đọc được
+370,packing,positive,
+374,packing,positive,
+375,packing,,positive
+377,packing,,không đọc được
+378,packing,positive,
+381,packing,,negative
+384,packing,,positive
+398,packing,,negative
+400,packing,,negative
+401,packing,positive,
+402,packing,,negative
+403,packing,,negative
+407,packing,positive,
+411,packing,,không đọc được
+417,packing,positive,
+419,packing,positive,negative
+422,packing,positive,
+423,packing,positive,
+424,packing,positive,
+426,packing,positive,
+428,packing,negative,
+430,packing,,negative
+431,packing,positive,
+435,packing,positive,
+436,packing,,không đọc được
+439,packing,,negative
+441,packing,,negative
+443,packing,,negative
+444,packing,,negative
+446,packing,,negative
+460,packing,,không đọc được
+462,packing,positive,
+466,packing,positive,
+467,packing,,positive
+468,packing,positive,
+470,packing,,positive
+471,packing,positive,
+473,packing,,không đọc được
+481,packing,,positive
+484,packing,,negative
+486,packing,,negative
+487,packing,,positive
+491,packing,,negative
+494,packing,,negative
+504,packing,,negative
+505,packing,positive,
+518,packing,,không đọc được
+521,packing,,positive
+524,packing,positive,
+532,packing,,positive
+538,packing,positive,negative
+539,packing,positive,
+540,packing,,negative
+541,packing,positive,
+545,packing,,negative
+547,packing,positive,
+549,packing,,negative
+550,packing,,negative
+553,packing,positive,negative
+557,packing,positive,
+568,packing,positive,
+573,packing,positive,
+575,packing,positive,
+577,packing,positive,
+580,packing,positive,
+581,packing,positive,
+582,packing,positive,
+587,packing,positive,
+598,packing,positive,
+600,packing,positive,
+601,packing,positive,
+605,packing,positive,
+607,packing,positive,
+608,packing,positive,
+612,packing,,negative
+614,packing,,positive
+615,packing,,không đọc được
+618,packing,,không đọc được
+622,packing,,positive
+624,packing,,không đọc được
+627,packing,positive,
+630,packing,,negative
+633,packing,,negative
+645,packing,,không đọc được
+648,packing,,negative
+649,packing,positive,
+651,packing,,không đọc được
+663,packing,,negative
+667,packing,,negative
+668,packing,,negative
+672,packing,,negative
+674,packing,,không đọc được
+675,packing,positive,
+679,packing,positive,
+683,packing,positive,
+686,packing,positive,
+688,packing,positive,
+689,packing,,negative
+696,packing,positive,
+708,packing,,negative
+710,packing,,negative
+711,packing,positive,
+716,packing,positive,không đọc được
+720,packing,positive,
+725,packing,positive,
+726,packing,,negative
+729,packing,positive,
+731,packing,positive,
+733,packing,negative,không đọc được
+741,packing,,negative
+743,packing,,negative
+746,packing,,negative
+754,packing,,positive
+756,packing,positive,
+763,packing,,negative
+764,packing,,positive
+765,packing,,positive
+766,packing,,negative
+767,packing,,negative
+769,packing,,negative
+775,packing,,negative
+777,packing,,không đọc được
+780,packing,,positive
+781,packing,,không đọc được
+782,packing,positive,không đọc được
+789,packing,positive,
+790,packing,positive,
+798,packing,,negative
+799,packing,positive,
+803,packing,positive,
+805,packing,positive,negative
+806,packing,,negative
+824,packing,,negative
+827,packing,positive,
+829,packing,positive,
+831,packing,positive,
+837,packing,positive,negative
+844,packing,,negative
+852,packing,,negative
+853,packing,positive,
+854,packing,,không đọc được
+857,packing,,không đọc được
+861,packing,positive,
+867,packing,positive,
+870,packing,,không đọc được
+878,packing,,negative
+880,packing,positive,
+881,packing,,không đọc được
+882,packing,positive,
+886,packing,positive,
+887,packing,positive,
+888,packing,positive,
+898,packing,,negative
+909,packing,,negative
+910,packing,,không đọc được
+911,packing,,negative
+918,packing,positive,
+919,packing,,negative
+928,packing,,negative
+929,packing,positive,
+930,packing,positive,
+932,packing,positive,
+939,packing,positive,
+942,packing,,negative
+945,packing,,negative
+950,packing,positive,
+955,packing,positive,
+956,packing,,negative
+959,packing,positive,
+960,packing,,negative
+963,packing,positive,
+965,packing,,negative
+968,packing,positive,
+970,packing,positive,
+971,packing,positive,
+973,packing,positive,
+977,packing,,không đọc được
+982,packing,positive,negative
+984,packing,positive,
+985,packing,,negative
+995,packing,,không đọc được
+996,packing,positive,
+1000,packing,positive,
+1001,packing,,negative
+1002,packing,positive,
+1003,packing,positive,
+1004,packing,,không đọc được
+1008,packing,positive,
+1013,packing,,không đọc được
+1014,packing,positive,
+1018,packing,positive,
+1019,packing,positive,
+1020,packing,,positive
+1024,packing,,negative
+1027,packing,,negative
+1033,packing,positive,negative
+1034,packing,positive,
+1037,packing,positive,
+1041,packing,positive,
+1042,packing,positive,
+1044,packing,positive,negative
+1047,packing,positive,
+1054,packing,,positive
+1056,packing,,không đọc được
+1057,packing,,negative
+1058,packing,negative,
+1060,packing,,negative
+1061,packing,positive,
+1071,packing,,không đọc được
+1072,packing,,positive
+1075,packing,,không đọc được
+1082,packing,positive,
+1088,packing,positive,
+1089,packing,positive,
+1094,packing,,negative
+1097,packing,positive,
+1103,packing,,negative
+1104,packing,,negative
+1106,packing,positive,không đọc được
+1107,packing,,không đọc được
+1108,packing,positive,
+1115,packing,positive,
+1121,packing,,không đọc được
+1125,packing,positive,
+1129,packing,positive,
+1132,packing,positive,
+1138,packing,,positive
+1139,packing,positive,
+1144,packing,positive,
+1145,packing,negative,
+1146,packing,positive,
+1150,packing,,positive
+1158,packing,,không đọc được
+1159,packing,positive,
+1160,packing,positive,
+1161,packing,,positive
+1166,packing,,negative
+1173,packing,positive,
+1184,packing,positive,
+1186,packing,positive,negative
+1193,packing,positive,negative
+1196,packing,,negative
+1198,packing,positive,negative
+1204,packing,positive,
+1205,packing,,negative
+1210,packing,,positive
+1211,packing,positive,
+1214,packing,,negative
+1218,packing,,negative
+1219,packing,,không đọc được
+1222,packing,positive,
+1223,packing,,không đọc được
+1224,packing,positive,
+1229,packing,positive,
+1232,packing,positive,
+1233,packing,,negative
+1245,packing,positive,
+1246,packing,positive,
+1249,packing,,không đọc được
+1250,packing,,không đọc được
+1252,packing,,negative
+1253,packing,,không đọc được
+1256,packing,positive,
+1257,packing,,không đọc được
+1259,packing,positive,
+1266,packing,positive,negative
+1270,packing,,negative
+1271,packing,positive,
+1275,packing,,negative
+1276,packing,,positive
+1278,packing,positive,
+1279,packing,,negative
+1280,packing,,không đọc được
+1281,packing,positive,
+1282,packing,,negative
+1283,packing,,không đọc được
+1286,packing,positive,negative
+1288,packing,positive,
+1293,packing,positive,
+1296,packing,positive,
+1297,packing,,negative
+1299,packing,positive,
+1306,packing,,negative
+1307,packing,,negative
+1317,packing,,negative
+1324,packing,positive,
+1325,packing,positive,
+1329,packing,,negative
+1332,packing,positive,negative
+1339,packing,positive,
+1343,packing,positive,
+1344,packing,,negative
+1346,packing,,negative
+1347,packing,,positive
+1348,packing,positive,negative
+1349,packing,,negative
+1350,packing,positive,
+1351,packing,,không đọc được
+1352,packing,positive,
+1354,packing,,positive
+1357,packing,positive,
+1359,packing,positive,
+1369,packing,positive,
+1375,packing,positive,
+1380,packing,positive,
+1387,packing,positive,
+1391,packing,,không đọc được
+1397,packing,positive,
+1402,packing,,không đọc được
+1408,packing,,negative
+1414,packing,,positive
+1415,packing,positive,
+1418,packing,positive,
+1424,packing,negative,không đọc được
+1426,packing,positive,
+1428,packing,,không đọc được
+1430,packing,,không đọc được
+1431,packing,positive,
+1432,packing,positive,
+1435,packing,positive,
+1439,packing,positive,negative
+1443,packing,positive,
+1445,packing,,positive
+1447,packing,,negative
+1450,packing,positive,
+1451,packing,,negative
+1464,packing,positive,negative
+1465,packing,positive,negative
+1468,packing,positive,
+1470,packing,positive,
+1477,packing,,negative
+1483,packing,,không đọc được
+1485,packing,positive,
+1492,packing,positive,
+1493,packing,positive,
+1495,packing,,negative
+1497,packing,positive,negative
+1499,packing,,positive
+1501,packing,positive,
+1504,packing,positive,
+1505,packing,positive,
+1511,packing,positive,
+1513,packing,,không đọc được
+1519,packing,negative,
+1524,packing,positive,
+1525,packing,positive,
+1529,packing,,không đọc được
+1530,packing,positive,negative
+1531,packing,,negative
+1534,packing,positive,
+1538,packing,positive,
+1540,packing,positive,
+1541,packing,positive,
+1548,packing,,negative
+1549,packing,positive,
+1552,packing,,không đọc được
+1555,packing,positive,
+1557,packing,positive,
+1558,packing,positive,
+1563,packing,positive,
+1564,packing,positive,
+1568,packing,,negative
+1570,packing,positive,
+1571,packing,,positive
+1573,packing,negative,
+1583,packing,positive,
+1588,packing,positive,
+1590,packing,positive,
+1591,packing,,không đọc được
+1597,packing,positive,
+1599,packing,,positive
+1600,packing,,negative
+1601,packing,positive,
+1605,packing,positive,
+1607,packing,,không đọc được
+1610,packing,,negative
+1612,packing,negative,
+1613,packing,,positive
+1615,packing,positive,
+1618,packing,,không đọc được
+1620,packing,positive,
+1622,packing,positive,

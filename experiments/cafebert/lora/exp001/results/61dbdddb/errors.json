@@ -1,0 +1,85 @@
+{
+  "run": {
+    "mode": "NEW",
+    "out_dir": "61dbdddb",
+    "log": "run.log",
+    "started": "2026-10-04 18:22:26",
+    "finished": "2026-10-04 18:54:24",
+    "seconds": 1918.5,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "split": "test",
+      "approach": "encoder",
+      "prompt": null,
+      "prompt_sha": null,
+      "model": "uitnlp/CafeBERT",
+      "quant": "none",
+      "max_length": 256,
+      "batch_size": 16,
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1623,
+      "experiment": {
+        "model": "cafebert",
+        "method": "lora",
+        "exp_id": "exp001"
+      },
+      "repo_sha": "4571648fcb095a884794c015a5b6a5e4d6c6d077",
+      "config_sha256": "61dbdddb07248f985a0a3bbec949cbdd5be9723f132be455dd7ff7abbe7064a4",
+      "label_space": "binary",
+      "neutral_policy": "drop",
+      "not_mentioned": "separate",
+      "training": {
+        "trainer": "lora",
+        "epochs": 3,
+        "batch": 8,
+        "grad_accum": 4,
+        "lr": 0.0002,
+        "weight_decay": 0.01,
+        "lora_r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "query",
+          "key",
+          "value",
+          "dense"
+        ],
+        "quantization": "none",
+        "dtype": "auto",
+        "every_n_steps": 100,
+        "keep_last_k": 2,
+        "save_last": true,
+        "save_best": true,
+        "delete_intermediate": true,
+        "best_metric": "sentiment_f1"
+      }
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-10-04 18:54:24",
+      "level": "ERROR",
+      "message": "TypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'list'",
+      "type": "TypeError",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/experiments/encoder_run.py\", line 533, in run\n    prob_path = utils.write_csv(out_dir / paths.pattern(\"probabilities\"),\n                                probability_columns(prob_codes),\n                                probability_rows(plan_data, probabilities, prob_codes))\n  File \"/content/SentimentX/src/core/utils.py\", line 115, in write_csv\n    path = Path(path)\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 503, in __init__\n    super().__init__(*args)\n    ~~~~~~~~~~~~~~~~^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 132, in __init__\n    raise TypeError(\n    ...<2 lines>...\n        f\"not {type(path).__name__!r}\")\nTypeError: argument should be a str or an os.PathLike object where __fspath__ returns a str, not 'list'\n",
+      "context": {
+        "kind": "TypeError"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "at": "2026-10-04 18:22:34",
+      "message": "không mở được phiên MLflow: MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.",
+      "context": {}
+    }
+  ]
+}

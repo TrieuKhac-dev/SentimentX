@@ -1,0 +1,65 @@
+{
+  "run": {
+    "mode": "NEW",
+    "out_dir": "fbadcdc3",
+    "log": "run.log",
+    "started": "2026-10-04 18:02:51",
+    "finished": "2026-10-04 18:10:20",
+    "seconds": 449.2,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "split": "test",
+      "prompt": "absa_cot_1shot_v5",
+      "prompt_sha": "025aef07",
+      "model": "Qwen/Qwen3-4B-Instruct-2507",
+      "quant": "4bit",
+      "dtype": "auto",
+      "max_length": 2304,
+      "generation": {
+        "quant": "4bit",
+        "max_new_tokens": 400,
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "top_k": null,
+        "seed": null
+      },
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1623,
+      "experiment": {
+        "model": "qwen3-4b-instruct-2507",
+        "method": "prompt-cot",
+        "exp_id": "exp014"
+      },
+      "repo_sha": "4571648fcb095a884794c015a5b6a5e4d6c6d077",
+      "config_sha256": "fbadcdc387953f60d3552a8e4f0789ae02b470168159468420e2ea4d60e90af7"
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-10-04 18:10:20",
+      "level": "ERROR",
+      "message": "KeyboardInterrupt: ",
+      "type": "KeyboardInterrupt",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/experiments/experiment_run.py\", line 870, in run\n    rows, _infos, _preds, cost = runner.run(\n                                 ~~~~~~~~~~^\n        plan_data[\"split\"], plan_data[\"texts\"], plan_data[\"golds\"], plan_data[\"aspects\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n        quiet=plan_data[\"quiet\"], store=plan_data[\"parts\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        columns=plan_data[\"columns\"], enable_thinking=plan_data.get(\"enable_thinking\"))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 219, in run\n    answers, lengths, seconds = generate(inputs, model, tokenizer, generation)\n                                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 154, in generate\n    output = model.generate(**inputs, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 2802, in generate\n    result = decoding_method(\n        self,\n    ...<5 lines>...\n        **model_kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 3030, in _sample\n    outputs = model_forward(**model_inputs, return_dict=True)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 939, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 482, in forward\n    outputs: BaseModelOutputWithPast = self.model(\n                                       ~~~~~~~~~~^\n        input_ids=input_ids,\n        ^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        **kwargs,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 1068, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/output_capturing.py\", line 286, in wrapper\n    outputs = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 413, in forward\n    hidden_states = decoder_layer(\n        hidden_states,\n    ...<5 lines>...\n        **kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_layers.py\", line 109, in __call__\n    return super().__call__(*args, **kwargs)\n           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 307, in forward\n    hidden_states, _ = self.self_attn(\n                       ~~~~~~~~~~~~~~^\n        hidden_states=hidden_states,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        **kwargs,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 254, in forward\n    value_states = self.v_proj(hidden_states).view(hidden_shape).transpose(1, 2)\n                   ~~~~~~~~~~~^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/nn/modules.py\", line 637, in forward\n    return bnb.matmul_4bit(x, self.weight, bias=bias, quant_state=quant_state).to(inp_dtype)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/autograd/_functions.py\", line 472, in matmul_4bit\n    result = torch.ops.bitsandbytes.gemm_4bit.default(\n        A,\n    ...<8 lines>...\n        absmax_offset=quant_state.offset,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/torch/_ops.py\", line 865, in __call__\n    return self._op(*args, **kwargs)\n           ~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/_compile.py\", line 54, in inner\n    return disable_fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/_dynamo/eval_frame.py\", line 1263, in _fn\n    return fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/library.py\", line 751, in func_no_dynamo\n    return func(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py\", line 980, in _\n    return _gemm_4bit_kernel_impl(\n        A, B, shapeB, absmax, blocksize, quant_type, bias, absmax_8bit, absmax_code, absmax_offset\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py\", line 868, in _gemm_4bit_kernel_impl\n    out = torch.empty((*A.shape[:-1], N), dtype=A.dtype, device=A.device)\nKeyboardInterrupt\n",
+      "context": {
+        "kind": "KeyboardInterrupt"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "at": "2026-10-04 18:02:55",
+      "message": "không mở được phiên MLflow: MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.",
+      "context": {}
+    }
+  ]
+}

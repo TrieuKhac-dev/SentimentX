@@ -23,6 +23,30 @@ graph LR
   n19["qwen3-4b-instruct-2507/prompt-cot/exp012:33c2d270"]
   n20["qwen3-4b-instruct-2507/prompt-cot/exp013:779e8738"]
   n21["qwen3-4b-instruct-2507/prompt-cot/exp010:7011d28f"]
+  n22["qwen3-4b-instruct-2507/prompt-cot/exp017:bcdb5855"]
+  n23["qwen3-4b-instruct-2507/prompt-cot/exp016:91564327"]
+  n24["qwen3-0.6b/prompt-cot/exp004:6f52832b"]
+  n25["qwen3-0.6b/prompt-cot/exp003:d785decb"]
+  n26["qwen3-0.6b/prompt-cot/exp002:0ebdd004"]
+  n27["qwen3-0.6b/prompt-cot/exp001:a38f368e"]
+  n28["qwen3-4b-instruct-2507/prompt-cot/exp014:fbadcdc3"]
+  n29["qwen3-4b-instruct-2507/prompt-cot/exp015:df4b8940"]
+  n30["qwen2.5-0.5b-instruct/prompt-cot/exp002:7e42a450"]
+  n31["qwen2.5-0.5b-instruct/prompt-cot/exp001:28cd778a"]
+  n32["qwen2.5-0.5b-instruct/prompt-cot/exp003:47f42c95"]
+  n33["phobert-base-v2/lora/exp003:c0033f3c"]
+  n34["visobert/lora/exp003:8b4aeafa"]
+  n35["visobert/lora/exp005:511d1e85"]
+  n36["phobert-base-v2/lora/exp005:9b7236ac"]
+  n37["visobert/lora/exp004:1bc5e80b"]
+  n38["phobert-base-v2/lora/exp004:14923c13"]
+  n39["vibert-base-cased/lora/exp001:ba615bcb"]
+  n40["vibert-base-cased/lora/exp002:4afd60ad"]
+  n41["cafebert/lora/exp001:61871aed"]
+  n42["xlm-roberta-base/lora/exp002:fb9643d0"]
+  n43["xlm-roberta-base/lora/exp001:491e81cb"]
+  n44["phobert-large/lora/exp002:2a95b70a"]
+  n45["phobert-large/lora/exp001:f92f1d6c"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -42,4 +66,28 @@ graph LR
   n4 --> n19
   n4 --> n20
   n4 --> n21
+  n4 --> n22
+  n4 --> n23
+  n4 --> n24
+  n4 --> n25
+  n4 --> n26
+  n4 --> n27
+  n4 --> n28
+  n4 --> n29
+  n4 --> n30
+  n4 --> n31
+  n4 --> n32
+  n4 --> n33
+  n4 --> n34
+  n4 --> n35
+  n4 --> n36
+  n4 --> n37
+  n4 --> n38
+  n4 --> n39
+  n4 --> n40
+  n4 --> n41
+  n4 --> n42
+  n4 --> n43
+  n4 --> n44
+  n4 --> n45
 ```

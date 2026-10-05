@@ -55,7 +55,12 @@ experiments/**/_tmp/**
 
 # Kết quả nặng thì không commit; file nhỏ (metrics.json, metrics.csv, run_meta.json, run.log)
 # vẫn được theo dõi vì đó là bằng chứng của lần chạy.
+# `probabilities.csv` (một dòng cho mỗi review × khía cạnh, vài trăm KB mỗi lượt) cùng loại với
+# `predictions.csv`: là LƯỢT CHẠY THẬT gửi qua kênh riêng, không phải bằng chứng nhẹ. Hệ quả ĐÚNG Ý:
+# muốn dựng lại bước kết hợp thì dùng `data/reports/fusion/inputs/` - bản rút gọn CÓ commit của cùng
+# dữ liệu đó (xem `data/reports/fusion/README.md`).
 experiments/**/results/**/predictions.csv
+experiments/**/results/**/probabilities.csv
 experiments/**/results/**/predictions/
 experiments/**/results/**/plots/
 experiments/**/results/**/model/
