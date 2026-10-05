@@ -400,5 +400,91 @@ class FitThresholdsArgsTest(unittest.TestCase):
         self.assertNotEqual(fit_thresholds.DEFAULT_APPLIED, fit_thresholds.DEFAULT_OUT)
 
 
+# Cùng cách đó cho `scripts/ensemble.py` (trọng số chốt trên `val` rồi áp lên `test`).
+ENSEMBLE_SPEC = importlib.util.spec_from_file_location(
+    "ensemble", paths.root() / "scripts" / "ensemble.py")
+ensemble = importlib.util.module_from_spec(ENSEMBLE_SPEC)
+ENSEMBLE_SPEC.loader.exec_module(ensemble)
+
+
+class EnsembleWeightsArgsTest(unittest.TestCase):
+    """`ensemble.py`: trọng số phải CHỐT TRÊN `val` rồi ÁP lên `test` - các tổ hợp cờ mờ bị chặn.
+
+    Lỗi im lặng cần chặn: gọi `--weights val` trên các lượt `test`, tức là chọn trọng số bằng chính tập
+    sẽ báo cáo. Luật 1 của `docs/04_experiments/metrics.md` cấm điều đó, nên `weights_of` phải chặn.
+    """
+
+    def mistake(self, argv):
+        return ensemble.check_args(ensemble.parse_args(argv))
+
+    def test_hai_nguon_trong_so_cung_luc_bi_chan(self):
+        message = self.mistake(["--run", "x", "--weights", "val", "--weights-file", "w.json"])
+        self.assertIn("--weights-file", message)
+
+    def test_ghi_trong_so_tu_mot_tep_da_co_bi_chan(self):
+        message = self.mistake(["--run", "x", "--weights-file", "w.json",
+                                "--write-weights", "khac.json"])
+        self.assertIn("--write-weights", message)
+
+    def test_ghi_trong_so_can_che_do_chot(self):
+        self.assertIn("--write-weights", self.mistake(["--run", "x", "--write-weights", "w.json"]))
+
+    def test_val_chi_dung_cung_che_do_chot(self):
+        self.assertIn("--val", self.mistake(["--run", "x", "--val", "val-a"]))
+
+    def test_hai_buoc_chot_va_ap_deu_hop_le(self):
+        self.assertIsNone(self.mistake(["--run", "val-a", "--run", "val-b", "--weights", "val",
+                                        "--write-weights", "w.json"]))
+        self.assertIsNone(self.mistake(["--run", "test-a", "--weights-file", "w.json"]))
+
+    def test_chot_tren_test_thi_bao_loi_kem_ten_luot(self):
+        """`--weights val` trên lượt `test` = chọn trọng số bằng tập sẽ báo cáo -> phải chặn."""
+        run = {"dir": Path("experiments/zz/lora/exp004/results/aaaaaaaa"), "split": "test",
+               "aspects": [], "meta": {"experiment": {"model": "zz"}}}
+        args = ensemble.parse_args(["--run", "x", "--weights", "val"])
+        with mock.patch.object(ensemble.fusion, "load_run", return_value=run):
+            with self.assertRaises(ensemble.fusion.FusionError) as found:
+                ensemble.weights_of(args, [run])
+        self.assertIn("chỉ chốt được trên `val`", str(found.exception))
+
+    def test_ap_tep_trong_so_rap_theo_ten_model(self):
+        run = {"dir": Path("experiments/zz/lora/exp004/results/aaaaaaaa"), "split": "test",
+               "aspects": [], "meta": {"experiment": {"model": "zz"}}}
+        args = ensemble.parse_args(["--run", "x", "--weights-file", "w.json"])
+        with mock.patch.object(ensemble.fusion, "load_weights", return_value={"zz": 1.0}):
+            weights, table = ensemble.weights_of(args, [run])
+        self.assertIsNone(table)
+        self.assertEqual(weights[str(run["dir"])], 1.0)
+
+
+class EnsembleDocTest(unittest.TestCase):
+    """Cách dùng HAI BƯỚC phải có trong chú thích đầu tệp - người chạy đọc nó để biết phải làm gì."""
+
+    def test_docstring_co_hai_buoc_va_ten_co(self):
+        text = ensemble.__doc__
+        self.assertIn("--write-weights", text)
+        self.assertIn("--weights-file", text)
+        self.assertIn("chỉ dùng được khi", text)
+
+
+class ProbeTokensArgsTest(unittest.TestCase):
+    """`probe_tokens.py`: hệ số và cửa sổ ngữ cảnh phải là số dương (trần sai là cả lượt sai)."""
+
+    def setUp(self):
+        PROBE_SPEC = importlib.util.spec_from_file_location(
+            "probe_tokens_cli", paths.root() / "scripts" / "probe_tokens.py")
+        self.probe = importlib.util.module_from_spec(PROBE_SPEC)
+        PROBE_SPEC.loader.exec_module(self.probe)
+
+    def mistake(self, argv):
+        return self.probe.check_args(self.probe.parse_args(argv))
+
+    def test_he_so_phai_duong(self):
+        self.assertIn("--factor", self.mistake(["--run", "x", "--factor", "-1"]))
+
+    def test_mac_dinh_hop_le(self):
+        self.assertIsNone(self.mistake(["--run", "x"]))
+
+
 if __name__ == "__main__":
     unittest.main()

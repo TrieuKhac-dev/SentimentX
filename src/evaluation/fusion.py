@@ -339,22 +339,104 @@ def applied_report(run, rules, negative=None):
     }
 
 
+def model_of(run):
+    """Tên model của một lượt (khoá `experiment.model` trong `run_meta.json`).
+
+    Đây là KHOÁ để ráp trọng số chốt trên `val` với lượt cần áp trên `test`: hai bên là hai thí nghiệm
+    KHÁC NHAU (`.../exp003` là `val`, `.../exp004` là `test`) nên đường dẫn không khớp - chỉ tên model
+    khớp. Thiếu khoá thì không ráp được, nên báo LỖI thay vì đoán.
+    """
+    experiment = (run.get("meta") or {}).get("experiment") or {}
+    name = str(experiment.get("model") or "").strip()
+    if not name:
+        raise FusionError(
+            "Không đọc được `experiment.model` của lượt '{}' nên không ráp được trọng số chốt trên "
+            "`val`.".format(utils.rel(run.get("dir") or "")))
+    return name
+
+
+def negative_macro_of(run):
+    """Macro-F1 lớp âm của CHÍNH lượt đang xét - đại lượng dùng làm TRỌNG SỐ nguồn trong ensemble."""
+    _scores, paper = scores_of(samples_of(run))
+    return float(_macro(paper, run["aspects"])["macro_trên_khía_cạnh_có_ô_âm"] or 0.0)
+
+
+def _normalise(values):
+    """Chuẩn hoá trọng số cho tổng bằng 1; mọi giá trị 0 thì trả trọng số BẰNG NHAU (không chia cho 0)."""
+    total = sum(values.values())
+    if total <= 0:
+        return {key: round(1.0 / len(values), 6) for key in values}
+    return {key: round(value / total, 6) for key, value in values.items()}
+
+
 def fit_ensemble_weights(runs):
     """Trọng số cho ensemble: macro-F1 lớp âm trên `val` của từng lượt, chuẩn hoá tổng bằng 1.
 
     Vì sao chuẩn hoá: chỉ ĐỘ LỚN tương đối có nghĩa khi trung bình xác suất; để tổng bằng 1 thì trọng
     số in ra đọc được như tỉ lệ đóng góp. Mọi lượt đều 0 (không lượt nào có ô âm) thì trả trọng số
     BẰNG NHAU - không chia cho 0, và cũng không im lặng coi như lượt nào cũng tốt.
+
+    Khoá của bảng là ĐƯỜNG DẪN thư mục kết quả, nên bảng này chỉ dùng được cho chính các lượt vừa chốt.
+    Muốn chốt trên `val` rồi áp lên `test`: dùng `fit_weights_by_model` + `weights_for`.
+    """
+    return _normalise({str(run["dir"]): negative_macro_of(run) for run in runs})
+
+
+def fit_weights_by_model(runs):
+    """Trọng số ensemble khoá theo TÊN MODEL - dạng chốt trên `val` rồi áp lên `test` được.
+
+    Vì sao cần thêm hàm này: `fit_ensemble_weights` khoá theo đường dẫn thư mục kết quả, mà lượt `val`
+    và lượt `test` của cùng một encoder nằm ở hai thư mục khác nhau (`.../exp003` và `.../exp004`).
+    Muốn giữ luật "chốt trên `val`, áp lên `test`" thì bảng trọng số phải mang khoá SỐNG QUA hai tập -
+    đó là tên model.
+
+    Hai lượt cùng model trong một lần gọi là LỖI: khi đó không biết lấy ô nào của lượt nào, và im lặng
+    chọn một trong hai đúng là kiểu lỗi cần chặn.
     """
     values = {}
     for run in runs:
-        _scores, paper = scores_of(samples_of(run))
-        values[str(run["dir"])] = float(_macro(paper, run["aspects"])["macro_trên_khía_cạnh_có_ô_âm"]
-                                        or 0.0)
-    total = sum(values.values())
-    if total <= 0:
-        return {key: round(1.0 / len(values), 6) for key in values}
-    return {key: round(value / total, 6) for key, value in values.items()}
+        model = model_of(run)
+        if model in values:
+            raise FusionError(
+                "Hai lượt cùng model '{}' trong một lần chốt trọng số; trọng số khoá theo tên model nên "
+                "không ráp được. Mỗi model đúng một lượt.".format(model))
+        values[model] = negative_macro_of(run)
+    return _normalise(values)
+
+
+def weights_document(runs, weights):
+    """Nội dung tệp trọng số: khoá là TÊN MODEL, kèm nguồn chốt để người đọc kiểm lại được."""
+    return {
+        "khoá": "model",
+        "chốt_trên": [{"model": model_of(run), "lượt": utils.rel(run["dir"]),
+                       "split": run["split"]} for run in runs],
+        "trọng_số": {model_of(run): weights[model_of(run)] for run in runs},
+    }
+
+
+def weights_for(runs, table, source=""):
+    """Ráp bảng trọng số (khoá theo tên model) vào các lượt đang có; thiếu model nào là LỖI kèm tên.
+
+    Trả về bảng khoá theo đường dẫn để `combine_probabilities` dùng được ngay.
+    """
+    table = {str(key): float(value) for key, value in dict(table or {}).items()}
+    missing = sorted({model_of(run) for run in runs if model_of(run) not in table})
+    if missing:
+        raise FusionError(
+            "Bảng trọng số{} không có model: {}. Bảng đang có: {}.".format(
+                " ({})".format(source) if source else "", ", ".join(missing),
+                ", ".join(sorted(table)) or "(rỗng)"))
+    return {str(run["dir"]): table[model_of(run)] for run in runs}
+
+
+def load_weights(path):
+    """Đọc tệp trọng số do `ensemble.py --write-weights` ghi; sai định dạng là LỖI, không đoán."""
+    table = _read_json(path).get("trọng_số")
+    if not isinstance(table, dict) or not table:
+        raise FusionError(
+            "Tệp trọng số '{}' không có khoá `trọng_số`; đây không phải tệp do "
+            "`ensemble.py --write-weights` ghi.".format(utils.rel(path)))
+    return {str(key): float(value) for key, value in table.items()}
 
 
 def combine_probabilities(runs, weights=None):

@@ -61,12 +61,25 @@ tính `price` là 0,0). Bảng luật chốt cho một **không gian nhãn** c�
 ### 3.2. Ensemble encoder - `scripts/ensemble.py`
 
 ```
-python scripts/ensemble.py --run <val A> --run <val B> [--weights val]
+# 1) CHỐT trọng số trên val (và ghi số của bản gộp trên val)
+python scripts/ensemble.py --run <val A> --run <val B> --weights val \
+    --out data/reports/fusion/ensemble_val.json \
+    --write-weights data/reports/fusion/weights_val.json
+# 2) ÁP trọng số đã chốt lên test (KHÔNG tính lại trọng số trên test)
+python scripts/ensemble.py --run <test A> --run <test B> \
+    --weights-file data/reports/fusion/weights_val.json
 ```
 
 Trung bình **xác suất** của nhiều lượt encoder theo từng ô (ô chỉ có ở một phần các lượt thì lấy trung
-bình của các lượt CÓ ô đó), rồi `argmax` theo từng khía cạnh. `--weights val` dùng trọng số theo macro-F1
-lớp âm trên `val`, chuẩn hoá tổng = 1; mặc định trọng số bằng nhau. Lượt đầu tiên là lượt **giữ khung ô**.
+bình của các lượt CÓ ô đó), rồi `argmax` theo từng khía cạnh. Lượt đầu tiên là lượt **giữ khung ô**.
+`--weights val` dùng trọng số theo macro-F1 lớp âm, chuẩn hoá tổng = 1; mặc định trọng số bằng nhau.
+
+**Vì sao trọng số phải đi qua TỆP (chốt 05/10/2026):** `--weights val` tính trọng số từ CHÍNH các lượt
+đang truyền vào, nên gọi nó trên các lượt `test` là chọn trọng số bằng tập sẽ báo cáo - đúng thứ luật 1
+cấm; công cụ **chặn** ca đó (mã thoát 1). Lượt `val` và lượt `test` của cùng một encoder nằm ở hai thư
+mục khác nhau (`.../exp003` và `.../exp004`), nên tệp trọng số khoá theo **TÊN MODEL** - đó là khoá duy
+nhất sống qua được hai tập. `--weights-file` ráp theo model và **báo lỗi kèm tên model** nếu thiếu, chứ
+không im lặng quay về trọng số bằng nhau.
 
 ### 3.3. Luật lai encoder + LLM - `scripts/fuse.py`
 

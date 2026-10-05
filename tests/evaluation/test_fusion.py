@@ -9,6 +9,7 @@ Chạy: python -m unittest discover -s tests
 """
 
 import csv
+import json
 import shutil
 import tempfile
 import unittest
@@ -236,6 +237,77 @@ class InputsTest(unittest.TestCase):
         self.assertEqual(report["cells_paper"], 12)
         self.assertIsNone(report["f1_âm_từng_khía_cạnh"]["price"])
         self.assertIn("macro_trên_khía_cạnh_có_ô_âm", report["f1_âm_macro"])
+
+
+class WeightsByModelTest(unittest.TestCase):
+    """Trọng số ensemble CHỐT TRÊN `val` rồi ÁP LÊN `test`: khoá theo tên model, thiếu là LỖI.
+
+    Vì sao khoá theo model mà không theo đường dẫn: lượt `val` và lượt `test` của cùng một encoder là
+    hai thư mục khác nhau (`.../exp003` và `.../exp004`). Nếu không có đường này thì cách duy nhất để
+    "áp trọng số val lên test" là tính lại trọng số TRÊN test - đúng thứ luật 1 của `metrics.md` cấm.
+    """
+
+    def setUp(self):
+        self.good = make_run(GOLDS, [{"colour": 2, "smell": 1, "price": 1} if index in (1, 3)
+                                     else {"colour": 1, "smell": 1, "price": 1} for index in range(4)],
+                             PROBS, name="good")
+        self.weak = make_run(GOLDS, PREDS_BASE, probabilities(
+            {index: {"colour": {1: 0.6, 2: 0.4}, "smell": {1: 0.9, 2: 0.1},
+                     "price": {1: 0.7, 2: 0.3}} for index in range(4)}), name="weak")
+        self.good["meta"] = {"experiment": {"model": "phobert-base-v2"}}
+        self.weak["meta"] = {"experiment": {"model": "visobert"}}
+
+    def test_chot_trong_so_theo_model_va_chuan_hoa(self):
+        weights = fusion.fit_weights_by_model([self.good, self.weak])
+        self.assertEqual(sorted(weights), ["phobert-base-v2", "visobert"])
+        self.assertAlmostEqual(sum(weights.values()), 1.0, places=6)
+        self.assertGreater(weights["phobert-base-v2"], weights["visobert"])
+
+    def test_hai_luot_cung_model_la_loi(self):
+        twin = make_run(GOLDS, PREDS_BASE, PROBS, name="twin")
+        twin["meta"] = {"experiment": {"model": "phobert-base-v2"}}
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.fit_weights_by_model([self.good, twin])
+        self.assertIn("phobert-base-v2", str(found.exception))
+
+    def test_thieu_khoa_model_la_loi_khong_doan(self):
+        nameless = make_run(GOLDS, PREDS_BASE, PROBS, name="nameless")
+        with self.assertRaises(fusion.FusionError):
+            fusion.model_of(nameless)
+
+    def test_rap_bang_trong_so_vao_luot_khac_ten_thu_muc(self):
+        """Ca thật: trọng số chốt trên `val` (`.../exp003`) đem áp cho lượt `test` (`.../exp004`)."""
+        table = fusion.fit_weights_by_model([self.good, self.weak])
+        test_good = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="other-dir")
+        test_good["meta"] = {"experiment": {"model": "phobert-base-v2"}}
+        weights = fusion.weights_for([test_good], table)
+        self.assertEqual(weights[str(test_good["dir"])], table["phobert-base-v2"])
+
+    def test_bang_trong_so_thieu_model_thi_bao_loi_kem_ten(self):
+        test_run = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="other")
+        test_run["meta"] = {"experiment": {"model": "cafebert"}}
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.weights_for([test_run], {"phobert-base-v2": 1.0})
+        self.assertIn("cafebert", str(found.exception))
+
+    def test_tep_trong_so_do_ghi_ro_nguon_chot(self):
+        document = fusion.weights_document([self.good, self.weak],
+                                           fusion.fit_weights_by_model([self.good, self.weak]))
+        self.assertEqual(document["khoá"], "model")
+        self.assertEqual([item["model"] for item in document["chốt_trên"]],
+                         ["phobert-base-v2", "visobert"])
+
+    def test_doc_tep_trong_so_sai_dinh_dang_thi_bao_loi(self):
+        root = Path(tempfile.mkdtemp(prefix="sentimentx-fusion-"))
+        self.addCleanup(shutil.rmtree, str(root), ignore_errors=True)
+        path = root / "weights.json"
+        path.write_text(json.dumps({"khác": 1}), encoding="utf-8")
+        with self.assertRaises(fusion.FusionError):
+            fusion.load_weights(path)
+        good = root / "ok.json"
+        good.write_text(json.dumps({"trọng_số": {"phobert-base-v2": 0.6, "visobert": 0.4}}),
+                        encoding="utf-8")
+        self.assertEqual(fusion.load_weights(good), {"phobert-base-v2": 0.6, "visobert": 0.4})
 
 
 if __name__ == "__main__":
