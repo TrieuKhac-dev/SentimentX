@@ -1,0 +1,65 @@
+{
+  "run": {
+    "mode": "NEW",
+    "out_dir": "1eb94d3d",
+    "log": "run.log",
+    "started": "2026-10-05 11:38:49",
+    "finished": "2026-10-05 12:42:23",
+    "seconds": 3813.4,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "split": "test",
+      "prompt": "absa_cot_1shot_v1",
+      "prompt_sha": "9b862ed0",
+      "model": "Qwen/Qwen3-0.6B",
+      "quant": null,
+      "dtype": "auto",
+      "max_length": 2304,
+      "generation": {
+        "quant": null,
+        "max_new_tokens": 1985,
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "top_k": null,
+        "seed": null
+      },
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1623,
+      "experiment": {
+        "model": "qwen3-0.6b",
+        "method": "prompt-cot",
+        "exp_id": "exp005"
+      },
+      "repo_sha": "3942144da4dea7016607c3863e645dc7bc6580ac",
+      "config_sha256": "1eb94d3dcf5819c568e5ffcfb3754e00f93f66194a432e98cc0509ef1b91ec8a"
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-10-05 12:42:23",
+      "level": "ERROR",
+      "message": "KeyboardInterrupt: ",
+      "type": "KeyboardInterrupt",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/experiments/experiment_run.py\", line 870, in run\n    rows, _infos, _preds, cost = runner.run(\n                                 ~~~~~~~~~~^\n        plan_data[\"split\"], plan_data[\"texts\"], plan_data[\"golds\"], plan_data[\"aspects\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n        quiet=plan_data[\"quiet\"], store=plan_data[\"parts\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        columns=plan_data[\"columns\"], enable_thinking=plan_data.get(\"enable_thinking\"))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 219, in run\n    answers, lengths, seconds = generate(inputs, model, tokenizer, generation)\n                                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 154, in generate\n    output = model.generate(**inputs, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 2802, in generate\n    result = decoding_method(\n        self,\n    ...<5 lines>...\n        **model_kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 3030, in _sample\n    outputs = model_forward(**model_inputs, return_dict=True)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 939, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 482, in forward\n    outputs: BaseModelOutputWithPast = self.model(\n                                       ~~~~~~~~~~^\n        input_ids=input_ids,\n        ^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        **kwargs,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 1068, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/output_capturing.py\", line 286, in wrapper\n    outputs = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 413, in forward\n    hidden_states = decoder_layer(\n        hidden_states,\n    ...<5 lines>...\n        **kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_layers.py\", line 109, in __call__\n    return super().__call__(*args, **kwargs)\n           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 307, in forward\n    hidden_states, _ = self.self_attn(\n                       ~~~~~~~~~~~~~~^\n        hidden_states=hidden_states,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        **kwargs,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 252, in forward\n    query_states = self.q_norm(self.q_proj(hidden_states).view(hidden_shape)).transpose(1, 2)\n                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3/modeling_qwen3.py\", line 64, in forward\n    return self.weight * hidden_states.to(input_dtype)\n                         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\nKeyboardInterrupt\n",
+      "context": {
+        "kind": "KeyboardInterrupt"
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "at": "2026-10-05 11:38:53",
+      "message": "không mở được phiên MLflow: MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.",
+      "context": {}
+    }
+  ]
+}

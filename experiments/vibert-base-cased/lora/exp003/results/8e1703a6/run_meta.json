@@ -1,0 +1,298 @@
+{
+  "version": 1,
+  "run": {
+    "out_dir": "8e1703a6",
+    "hash": "8e1703a6",
+    "log": "run.log",
+    "errors": "errors.json",
+    "status": "FINISHED",
+    "started": "2026-10-05 16:23:50",
+    "finished": "2026-10-05 16:37:25",
+    "note": null,
+    "approach": "encoder",
+    "split": "test",
+    "limit": 0,
+    "n_samples": 1623,
+    "subset_seed": 7,
+    "quant": "none",
+    "max_length": 256,
+    "batch_size": 16,
+    "training": {
+      "trainer": "lora",
+      "epochs": 3,
+      "batch": 8,
+      "grad_accum": 4,
+      "lr": 0.0002,
+      "lora_r": 16,
+      "lora_alpha": 32,
+      "target_modules": [
+        "query",
+        "key",
+        "value",
+        "dense"
+      ],
+      "head_trainable": false
+    },
+    "prompt": null,
+    "prompt_sha": null,
+    "examples_sha": null,
+    "system_sha": null
+  },
+  "experiment": {
+    "model": "vibert-base-cased",
+    "method": "lora",
+    "exp_id": "exp003"
+  },
+  "data": {
+    "dataset": "cosmetics",
+    "version": "v0.2.0",
+    "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+    "roles": {
+      "train": "train",
+      "val": "val",
+      "eval": "test"
+    },
+    "rows": {
+      "eval": 1623,
+      "train": 12268,
+      "val": 1535
+    },
+    "eval_lock": {
+      "enforce": true,
+      "declared": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38"
+    }
+  },
+  "repo": {
+    "url": "https://github.com/TrieuKhac-dev/SentimentX",
+    "branch": "experiment",
+    "sha": "05cb8c1e41bdeb1e8460f99c4e03b78dbc96a4f1"
+  },
+  "config": {
+    "sha256": "8e1703a63b14f3e3811aa2b89e19a4587da3a8a3774a6c14df513161cd343f20",
+    "layers": [
+      [
+        "model",
+        "configs/models/vibert-base-cased.yaml"
+      ],
+      [
+        "repo",
+        "configs/experiments/repo.yaml"
+      ],
+      [
+        "task",
+        "configs/experiments/task.yaml"
+      ],
+      [
+        "evaluation",
+        "configs/experiments/evaluation.yaml"
+      ],
+      [
+        "training",
+        "configs/experiments/training.yaml"
+      ],
+      [
+        "tracking",
+        "configs/experiments/tracking.yaml"
+      ],
+      [
+        "experiment",
+        "experiments/vibert-base-cased/lora/exp003/config.yaml"
+      ]
+    ],
+    "sources": {
+      "model_id": "model",
+      "checkpoint": "model",
+      "config_version": "model",
+      "approach": "model",
+      "preprocess.max_length": "model",
+      "preprocess.segmenter": "model",
+      "lora.target_modules": "model",
+      "inference.dtype": "model",
+      "inference.batch_size": "model",
+      "url": "repo",
+      "branch": "repo",
+      "allowed_branches": "repo",
+      "label_space": "task",
+      "neutral_policy": "task",
+      "not_mentioned": "task",
+      "aspects": "task",
+      "n": "evaluation",
+      "read_rate_min": "evaluation",
+      "decoding.mode": "evaluation",
+      "decoding.temperature": "evaluation",
+      "decoding.top_p": "evaluation",
+      "decoding.seed": "experiment",
+      "scores": "evaluation",
+      "scores_paper": "evaluation",
+      "group_by": "evaluation",
+      "save.predictions": "evaluation",
+      "save.plots": "evaluation",
+      "save.confusion": "evaluation",
+      "enabled": "experiment",
+      "trainer": "training",
+      "lora.r": "training",
+      "lora.alpha": "training",
+      "lora.dropout": "training",
+      "head.trainable": "training",
+      "lr": "training",
+      "batch": "training",
+      "epochs": "training",
+      "grad_accum": "training",
+      "weight_decay": "training",
+      "checkpoints.every_n_steps": "training",
+      "checkpoints.keep_last_k": "training",
+      "checkpoints.save_last": "training",
+      "checkpoints.save_best": "training",
+      "checkpoints.delete_intermediate": "training",
+      "checkpoints.best_metric": "training",
+      "loss.type": "experiment",
+      "loss.class_weight": "experiment",
+      "early_stop.enabled": "training",
+      "early_stop.patience": "training",
+      "early_stop.min_delta": "training",
+      "tracker": "tracking",
+      "experiment": "tracking",
+      "mlflow_tags.model": "tracking",
+      "mlflow_tags.method": "tracking",
+      "mlflow_tags.exp_id": "tracking",
+      "mlflow_tags.dataset": "tracking",
+      "mlflow_tags.version_id": "tracking",
+      "mlflow_tags.split": "tracking",
+      "mlflow_tags.repo_sha": "tracking",
+      "mlflow_tags.config_sha256": "tracking",
+      "artifacts": "tracking",
+      "exp_id": "experiment",
+      "parent": "experiment",
+      "model": "experiment",
+      "method": "experiment",
+      "notes": "experiment",
+      "data.dataset": "experiment",
+      "data.version": "experiment",
+      "data.roles.train": "experiment",
+      "data.roles.val": "experiment",
+      "data.roles.eval": "experiment",
+      "requires_extra": "experiment"
+    }
+  },
+  "task": {
+    "label_space": "binary",
+    "neutral_policy": "drop",
+    "not_mentioned": "separate"
+  },
+  "overrides": [
+    [
+      "decoding.seed",
+      null,
+      7,
+      "experiment"
+    ],
+    [
+      "enabled",
+      false,
+      true,
+      "experiment"
+    ],
+    [
+      "loss.class_weight",
+      "none",
+      "inverse",
+      "experiment"
+    ],
+    [
+      "loss.type",
+      "ce",
+      "weighted_ce",
+      "experiment"
+    ]
+  ],
+  "env": {
+    "kind": "colab",
+    "python": "3.13.15",
+    "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "device": "cuda",
+    "gpu": "Tesla T4",
+    "vram_gb": 14.6,
+    "quantization": "none",
+    "dtype": "float16",
+    "libs": {
+      "torch": "2.11.0+cu130",
+      "transformers": "5.17.0"
+    }
+  },
+  "attempts": [
+    {
+      "n": 1,
+      "started": "2026-10-05 16:23:50",
+      "finished": "2026-10-05 16:37:25",
+      "seconds": 815.0,
+      "status": "FINISHED",
+      "sha": "05cb8c1e41bdeb1e8460f99c4e03b78dbc96a4f1",
+      "config_sha256": "8e1703a63b14f3e3811aa2b89e19a4587da3a8a3774a6c14df513161cd343f20",
+      "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "note": null
+    }
+  ],
+  "files": [
+    {
+      "path": "configs/paths.yaml",
+      "role": "paths",
+      "bytes": 5188,
+      "sha256": "ecd1b79756d25c8b409418308b4c52825c76a50bf7b7bb62d050922979995554"
+    },
+    {
+      "path": "configs/dagshub.yaml",
+      "role": "tracking",
+      "bytes": 568,
+      "sha256": "ff38c3c94744e02b8a68df0eec4f025a316f3d74944582f28db6367bf7adb4d8"
+    },
+    {
+      "path": "configs/experiments/repo.yaml",
+      "role": "config",
+      "bytes": 396,
+      "sha256": "fe1b7b6db60b8d4aee33103e1853548aea28fb126cab252bc5a49cb1c8b62ed0"
+    },
+    {
+      "path": "configs/experiments/task.yaml",
+      "role": "config",
+      "bytes": 837,
+      "sha256": "1b22c438e46fe2cc5af8ece178c8d4f0a913f211016c41d99d8120cf5c718338"
+    },
+    {
+      "path": "configs/experiments/evaluation.yaml",
+      "role": "config",
+      "bytes": 3651,
+      "sha256": "19dd233a863784cb38a7f3b096b39f402fdb8a9fb02f50766f57d69fc6072899"
+    },
+    {
+      "path": "configs/experiments/training.yaml",
+      "role": "config",
+      "bytes": 3225,
+      "sha256": "a02968acbe41070ffef2dec7c798977837b4d9bc85c9cd60ebfe3792f19e15d8"
+    },
+    {
+      "path": "configs/experiments/tracking.yaml",
+      "role": "config",
+      "bytes": 1077,
+      "sha256": "89a12ddb67b3b731538548d21334d58f90d84f20f8af7c13e8bc68ff77f46f0d"
+    },
+    {
+      "path": "configs/models/vibert-base-cased.yaml",
+      "role": "model",
+      "bytes": 1096,
+      "sha256": "a6894086b7a51373093092a3c859a9ac96b5c761c5b748af59a7b2d1621d4b1b"
+    },
+    {
+      "path": "configs/datasets/cosmetics/v0.2.0.yaml",
+      "role": "dataset",
+      "bytes": 2780,
+      "sha256": "a5cae2b8936b4e7f680a2871426a0889a8f0c104e268c8e248c891738ed587f8"
+    },
+    {
+      "path": "configs/pipeline/v0.2.0.yaml",
+      "role": "pipeline",
+      "bytes": 3281,
+      "sha256": "b7f6e8fc55cdaa234f71b0c0b5b1530a7d021756347516ca4f209984fa2d1da9"
+    }
+  ],
+  "tracking": {}
+}

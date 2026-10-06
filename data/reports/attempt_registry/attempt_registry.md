@@ -56,6 +56,11 @@ graph LR
   n52["cafebert/lora/exp002:93448395"]
   n53["qwen3-0.6b/prompt-one-turn/exp001:ff3fb8fa"]
   n54["commit 3942144da4de"]
+  n55["qwen3-0.6b/prompt-cot/exp005:1eb94d3d"]
+  n56["cafebert/lora/exp003:8cc11244"]
+  n57["commit 05cb8c1e41bd"]
+  n58["vibert-base-cased/lora/exp003:8e1703a6"]
+  n59["cafebert/lora/exp004:43e6c243"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -104,4 +109,8 @@ graph LR
   n51 -->|FINISHED| n39
   n52 -->|FINISHED| n39
   n53 -->|FINISHED| n54
+  n55 -->|FINISHED| n54
+  n56 -->|FINISHED| n57
+  n58 -->|FINISHED| n57
+  n59 -->|FINISHED| n57
 ```

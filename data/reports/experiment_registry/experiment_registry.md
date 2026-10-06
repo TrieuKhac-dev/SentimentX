@@ -46,6 +46,10 @@ graph LR
   n42["phobert-large/lora/exp001:f92f1d6c"]
   n43["cafebert/lora/exp002:93448395"]
   n44["qwen3-0.6b/prompt-one-turn/exp001:ff3fb8fa"]
+  n45["qwen3-0.6b/prompt-cot/exp005:1eb94d3d"]
+  n46["cafebert/lora/exp003:8cc11244"]
+  n47["vibert-base-cased/lora/exp003:8e1703a6"]
+  n48["cafebert/lora/exp004:43e6c243"]
   n1 -->|NEW| n2
   n3 -->|NEW| n2
   n4 -->|NEW| n2
@@ -89,4 +93,8 @@ graph LR
   n42 -->|NEW| n2
   n43 -->|NEW| n2
   n44 -->|NEW| n2
+  n45 -->|RESUME| n2
+  n46 -->|NEW| n2
+  n47 -->|NEW| n2
+  n48 -->|NEW| n2
 ```
