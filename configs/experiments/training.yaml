@@ -22,6 +22,14 @@ lora:
 # Xem docs/04_experiments/06_lora_encoder.md và src/training/lora.py.
 head:
   trainable: false
+  # Đầu phân loại THEO KHÍA CẠNH - cơ chế học, không phải siêu tham số.
+  # `false` = mỗi khía cạnh có BỘ TRỌNG SỐ RIÊNG (hành vi của mọi lượt đã chạy; giữ nguyên để chúng
+  # còn là mốc so sánh). `true` = KHÍA CẠNH đi vào ĐẦU VÀO của đầu phân loại (một one-hot 7 chiều
+  # ghép vào vector review), tức MỘT lớp dùng chung có điều kiện.
+  # Đây là KIẾN TRÚC, nên `head_config.json` của checkpoint ghi lại giá trị này và hai kiến trúc
+  # KHÔNG nạp lẫn nhau (nạp sai là lỗi, không tự hạ cấp).
+  # Xem docs/04_experiments/06_lora_encoder.md và src/training/lora.py.
+  aspect_marker: false
 
 lr: 0.0002
 batch: 8

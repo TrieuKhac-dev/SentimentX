@@ -454,6 +454,8 @@ KNOWN_KEYS = (
     "lr", "batch", "epochs", "grad_accum", "weight_decay",
     # cơ chế học của đầu phân loại (đóng băng hay học cùng adapter) - xem src/training/lora.py
     "head.trainable",
+    # KIẾN TRÚC của đầu phân loại (khía cạnh có đi vào đầu vào hay không) - mục 14.7
+    "head.aspect_marker",
     "checkpoints.every_n_steps", "checkpoints.keep_last_k", "checkpoints.save_last",
     "checkpoints.save_best", "checkpoints.delete_intermediate", "checkpoints.best_metric",
     # dừng sớm (chỉ đường huấn luyện encoder)

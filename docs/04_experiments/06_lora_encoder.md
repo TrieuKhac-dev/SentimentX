@@ -86,6 +86,23 @@ lại đầu. Lượt CHẠY TIẾP: `PeftModel.from_pretrained(is_trainable=Tru
 loại VẪN đóng băng (đo được), nên phải gọi `set_head_trainable` thêm một lần. Quên vế thứ hai thì lượt
 chạy mới và lượt chạy tiếp là hai cơ chế khác nhau mà không có dấu hiệu nào trong kết quả.
 
+### Khía cạnh đi vào ĐẦU VÀO: `head.aspect_marker` (mục 14.7)
+
+Mặc định `false` = mỗi khía cạnh có **bộ trọng số riêng** (`Linear(hidden, 7 x 3)`). `true` = một **one-hot
+7 chiều** của khía cạnh được **ghép vào vector review** rồi tính bằng **MỘT lớp dùng chung**:
+`(B,A,H) + (B,A,A) -> (B,A,H+A) -> (B,A,n_codes)`. Đầu ra **vẫn `(B, 7, 3)`** nên phần chấm điểm không đổi;
+chỉ `head.pt` đổi hình.
+
+| Khoá | Ở đâu | Nghĩa |
+| --- | --- | --- |
+| `head.aspect_marker: false` | `configs/experiments/training.yaml` (mặc định) | 7 bộ trọng số riêng - hành vi của MỌI lượt đã chạy |
+| `head.aspect_marker: true` | khai ở config CỦA THÍ NGHIỆM để đè lớp dùng chung | khía cạnh vào đầu vào; một lớp có điều kiện |
+
+Hai kiến trúc **KHÔNG nạp `head.pt` lẫn nhau**: `head_config.json` của checkpoint ghi `aspect_marker`
+(`build_model` đọc lại từ chính checkpoint), và nạp checkpoint của kiến trúc này vào kiến trúc kia là
+**LỖI** - không tự hạ cấp. Lượt đầu tiên dùng cơ chế này: `phobert-base-v2/lora/exp006` (`parent` =
+`phobert-base-v2/lora/exp002`, khác ĐÚNG một khoá `head.aspect_marker: true`).
+
 ## Checkpoint
 
 | Thư mục | Trong đó có gì | Dùng để |

@@ -30,6 +30,13 @@ hợp lệ và đang là mốc so sánh. `head.trainable: true` mở khoá đầ
 cố ý KHÔNG có `lr` riêng cho đầu: MỘT BIẾN mỗi thí nghiệm, và "đầu học cùng tốc độ với LoRA" đúng là
 phép so sánh cần trả lời ("đóng băng hay không đóng băng đầu phân loại khác gì nhau").
 
+KHÍA CẠNH ĐI VÀO ĐẦU VÀO: `head.aspect_marker` (mục 14.7 của `present_plan.md`)
+`false` (mặc định) = mỗi khía cạnh có BỘ TRỌNG SỐ RIÊNG. `true` = một one-hot 7 chiều của khía cạnh
+được GHÉP vào vector review (`(B,A,H) + (B,A,A) -> (B,A,H+A)`) rồi tính bằng MỘT lớp dùng chung, tức
+đầu phân loại biết nó đang trả lời khía cạnh nào. Đầu ra VẪN `(B, 7, 3)` nên phần chấm điểm không đổi;
+chỉ `head.pt` đổi hình. Vì là KIẾN TRÚC, `head_config.json` của checkpoint ghi `aspect_marker`, và
+nạp checkpoint của kiến trúc này vào kiến trúc kia là **LỖI** (`build_model` chặn), không tự hạ cấp.
+
 HAI CHỖ PHẢI CÙNG BẬT/TẮT, nếu không lượt chạy MỚI và lượt CHẠY TIẾP sẽ thành hai cơ chế khác nhau:
     - lượt MỚI: `get_peft_model` đóng băng hết, rồi `set_head_trainable` mở lại đầu;
     - lượt CHẠY TIẾP: `PeftModel.from_pretrained(is_trainable=True)` chỉ mở ADAPTER - đầu phân loại
@@ -55,7 +62,7 @@ DESCRIPTION = "LoRA (peft) trên model encoder, một đầu phân loại cho m�
 REQUIRED_MODEL = ("lora.target_modules", "preprocess.max_length", "inference.batch_size",
                   "inference.dtype")
 REQUIRED_SHARED = ("trainer", "lora.r", "lora.alpha", "lora.dropout", "lr", "batch", "epochs",
-                   "grad_accum", "weight_decay", "head.trainable")
+                   "grad_accum", "weight_decay", "head.trainable", "head.aspect_marker")
 
 
 def where(key):
@@ -128,6 +135,10 @@ def settings(config, model_id):
         # Cơ chế học của đầu phân loại: `false` = đóng băng (mặc định, giữ bốn lượt cũ là mốc so sánh),
         # `true` = học cùng adapter. Không phải khoá `lora.*` vì đầu phân loại KHÔNG nằm trong adapter.
         "head_trainable": _flag(config, "head.trainable"),
+        # Đầu phân loại THEO KHÍA CẠNH: `true` thì khía cạnh đi vào ĐẦU VÀO của đầu phân loại
+        # (one-hot ghép vào vector review) - một lớp dùng chung có điều kiện, thay vì 7 bộ trọng số
+        # riêng. Cơ chế học, không phải siêu tham số; xem docs/04_experiments/06_lora_encoder.md.
+        "head_aspect_marker": _flag(config, "head.aspect_marker"),
 
         "max_length": int(_get(config, "preprocess.max_length")),
         "eval_batch": int(_get(config, "inference.batch_size")),
@@ -266,12 +277,21 @@ def build_classes():
         sẽ buộc model chọn đúng MỘT khía cạnh cho mỗi review.
         """
 
-        def __init__(self, encoder, n_aspects, n_codes):
+        def __init__(self, encoder, n_aspects, n_codes, aspect_marker=False):
             super().__init__()
             self.encoder = encoder
             self.n_aspects = int(n_aspects)
             self.n_codes = int(n_codes)
-            self.head = nn.Linear(int(encoder.config.hidden_size), self.n_aspects * self.n_codes)
+            # `aspect_marker=True`: khía cạnh đi vào ĐẦU VÀO (one-hot ghép vào vector review) nên
+            # đầu phân loại là MỘT lớp có điều kiện, không phải 7 bộ trọng số riêng. `False` =
+            # hành vi cũ (một lớp, `7 x 3` đầu ra) - giữ nguyên để mọi checkpoint đã chạy còn nạp
+            # lại được. HAI KIẾN TRÚC KHÔNG nạp lẫn nhau: `head_config.json` ghi `aspect_marker`.
+            self.aspect_marker = bool(aspect_marker)
+            hidden = int(encoder.config.hidden_size)
+            if self.aspect_marker:
+                self.head = nn.Linear(hidden + self.n_aspects, self.n_codes)
+            else:
+                self.head = nn.Linear(hidden, self.n_aspects * self.n_codes)
 
         def forward(self, input_ids=None, attention_mask=None, **kwargs):
             """`**kwargs` để chịu được tham số phụ do lớp bọc (peft) hoặc Trainer truyền vào.
@@ -285,7 +305,16 @@ def build_classes():
             # vẫn cho gradient đi qua, nên không mất gì.
             pooled = output.last_hidden_state[:, 0].to(self.head.weight.dtype)
             # Token đầu tiên là đại diện cả câu (<s> của PhoBERT và của XLM-R/ViSoBERT).
-            return self.head(pooled).view(-1, self.n_aspects, self.n_codes)
+            if not self.aspect_marker:
+                return self.head(pooled).view(-1, self.n_aspects, self.n_codes)
+            # Ghép one-hot khía cạnh vào vector review rồi tính CHUNG một lớp:
+            # (B, A, H) + (B, A, A) -> (B, A, H+A) -> (B, A, C). Đầu ra VẪN `(B, 7, 3)` nên phần
+            # chấm điểm và định dạng checkpoint không phải đổi - chỉ TRỌNG SỐ đổi hình.
+            batch = pooled.size(0)
+            repeated = pooled.unsqueeze(1).expand(batch, self.n_aspects, pooled.size(1))
+            marker = torch.eye(self.n_aspects, dtype=repeated.dtype,
+                               device=repeated.device).unsqueeze(0).expand(batch, -1, -1)
+            return self.head(torch.cat([repeated, marker], dim=-1))
 
         def loss(self, logits, targets, mask):
             """Cross-entropy trên từng ô ĐƯỢC TÍNH: `mask = 0` nghĩa là ô đó không có nhãn dùng được."""
@@ -345,10 +374,22 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
     from transformers import AutoModel
 
     MultiHeadClassifier, _Rows = build_classes()
+    aspect_marker = bool((found or {}).get("head_aspect_marker", False))
     if adapter_dir is not None:
         head_config = read_head_config(adapter_dir)
         n_aspects = int(head_config["n_aspects"])
         n_codes = int(head_config["n_codes"])
+        # KIẾN TRÚC đầu phân loại lấy từ CHÍNH checkpoint (khoá `aspect_marker`; checkpoint cũ
+        # không có khoá này nghĩa là `False`). Lệch với cấu hình lượt này là LỖI: `head.pt` của
+        # hai kiến trúc không nạp lẫn nhau, mà lỗi hình dạng thì có khi chỉ hiện ở lúc chấm điểm.
+        checkpoint_marker = bool(head_config.get("aspect_marker", False))
+        if checkpoint_marker != aspect_marker:
+            raise TrainingError(
+                "Checkpoint {} huấn luyện với `head.aspect_marker: {}` nhưng lượt này khai `{}` - "
+                "khác KIẾN TRÚC đầu phân loại. Sửa cấu hình theo checkpoint hoặc dùng checkpoint "
+                "khác.".format(utils.rel(adapter_dir), str(checkpoint_marker).lower(),
+                               str(aspect_marker).lower()))
+        aspect_marker = checkpoint_marker
     if not n_aspects or not n_codes:
         raise TrainingError(
             "Thiếu `n_aspects`/`n_codes`: số đầu và số lớp của đầu phân loại phải biết trước "
@@ -367,7 +408,7 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
             bnb_4bit_compute_dtype=torch_dtype(found["dtype"], device))
         kwargs["device_map"] = {"": 0}
     encoder = AutoModel.from_pretrained(source or found["source"], **kwargs)
-    classifier = MultiHeadClassifier(encoder, n_aspects, n_codes)
+    classifier = MultiHeadClassifier(encoder, n_aspects, n_codes, aspect_marker=aspect_marker)
 
     if adapter_dir is not None:
         try:
@@ -623,7 +664,10 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
 
     head_config = {"n_aspects": len(aspects), "n_codes": len(codes),
                    "codes": [int(code) for code in codes],
-                   "aspects": [str(name) for name in aspects]}
+                   "aspects": [str(name) for name in aspects],
+                   # KIẾN TRÚC của đầu phân loại: checkpoint phải tự nói nó thuộc kiến trúc nào, vì
+                   # `head.pt` của hai kiến trúc KHÔNG nạp lẫn nhau được.
+                   "aspect_marker": bool(found["head_aspect_marker"])}
     state = store.resume_state(fingerprint, require=False)
     adapter = store.last_dir() if state else None
     if adapter is not None and dict(read_head_config(adapter)) != head_config:
@@ -640,10 +684,13 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     # In ra và ghi vào log NGAY: "đầu phân loại có học hay không" là cơ chế của lượt chạy, mà số
     # `trainable_params` đọc lại sau mới biết thì đã muộn.
     head_state = ("HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học")
-    print("  đầu phân loại: {} | {} tham số học / {} tổng".format(head_state, trainable, total))
+    marker_state = ("BẬT - khía cạnh vào đầu vào" if found["head_aspect_marker"]
+                    else "TẮT - 7 bộ trọng số riêng")
+    print("  đầu phân loại: {} | theo khía cạnh: {} | {} tham số học / {} tổng".format(
+        head_state, marker_state, trainable, total))
     if log is not None:
-        log.step("đầu phân loại: {} | {} tham số học / {} tổng".format(
-            head_state, trainable, total))
+        log.step("đầu phân loại: {} | theo khía cạnh: {} | {} tham số học / {} tổng".format(
+            head_state, marker_state, trainable, total))
 
     ids, masks = encode(module, train["texts"], found["max_length"])
     targets = targets_from(train["labels"], codes)

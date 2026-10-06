@@ -48,8 +48,9 @@ BASE_CONFIG = {
     "approach": "encoder",
     "trainer": "lora",
     "lora": {"r": 8, "alpha": 16, "dropout": 0.05, "target_modules": ["query", "value"]},
-    # Đầu phân loại: `false` = đóng băng (mặc định, hành vi của các lượt đã chạy).
-    "head": {"trainable": False},
+    # Đầu phân loại: `trainable` = đóng băng (mặc định, hành vi của các lượt đã chạy);
+    # `aspect_marker` = KHÍA CẠNH có đi vào đầu vào của đầu phân loại hay không (mục 14.7).
+    "head": {"trainable": False, "aspect_marker": False},
     "lr": 0.0002, "batch": 4, "epochs": 1, "grad_accum": 2, "weight_decay": 0.01,
     "checkpoints": {"every_n_steps": 2, "keep_last_k": 1, "save_last": True, "save_best": True,
                     "delete_intermediate": True, "best_metric": "sentiment_f1"},
@@ -242,6 +243,44 @@ class TorchModelTest(unittest.TestCase):
         self.assertEqual(tuple(logits.shape), (2, 7, 3))
         self.assertEqual(len(rows_class(torch.zeros(2, 3), torch.ones(2, 3),
                                         torch.zeros(2, 7), torch.ones(2, 7))), 2)
+
+    def test_aspect_marker_head_keeps_the_output_shape(self):
+        """`head.aspect_marker` đổi KIẾN TRÚC nhưng KHÔNG đổi hình đầu ra `(B, 7, 3)`.
+
+        Vì sao chốt bằng test: hai kiến trúc KHÔNG nạp `head.pt` lẫn nhau, nên nếu đầu ra khác hình
+        thì lỗi chỉ hiện ở lúc chấm điểm (hoặc ở `load_state_dict`) - đúng loại lỗi muốn chặn sớm.
+        """
+        class FakeEncoder(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.config = type("C", (), {"hidden_size": 8})()
+                self.linear = torch.nn.Linear(8, 8)
+
+            def forward(self, input_ids, attention_mask):
+                hidden = self.linear(torch.ones(input_ids.shape[0], 8))
+                return type("O", (), {"last_hidden_state": hidden.unsqueeze(1)})()
+
+        classifier_class, _rows = lora.build_classes()
+        model = classifier_class(FakeEncoder(), 7, 3, aspect_marker=True)
+        logits = model(torch.zeros(2, 3, dtype=torch.long), torch.ones(2, 3, dtype=torch.long))
+        self.assertEqual(tuple(logits.shape), (2, 7, 3))
+        # Đầu vào của đầu phân loại rộng thêm ĐÚNG số khía cạnh (one-hot ghép vào vector review).
+        self.assertEqual(model.head.in_features, 8 + 7)
+
+    def test_head_aspect_marker_phai_khai_va_phai_la_bool(self):
+        """Thiếu khoá `head.aspect_marker`, hoặc giá trị không phải bool, đều là LỖI - không đoán.
+
+        Vì sao: `bool("flase")` là `True`, nên một lỗi gõ ở đây BẬT một kiến trúc đầu phân loại khác
+        mà không ai biết; còn thiếu khoá thì phải dừng kèm NƠI KHAI chứ không lặng lẽ dùng mặc định.
+        """
+        config = dict(BASE_CONFIG, head={"trainable": False})
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.settings(config, "visobert")
+        self.assertIn("head.aspect_marker", str(caught.exception))
+        config = dict(BASE_CONFIG, head={"trainable": False, "aspect_marker": "true"})
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.settings(config, "visobert")
+        self.assertIn("phải là `true` hoặc `false`", str(caught.exception))
 
 
 def _has_dataset():
@@ -557,7 +596,7 @@ class HeadTrainableTest(unittest.TestCase):
         self.assertIs(lora.settings(BASE_CONFIG, "visobert")["head_trainable"], False)
 
     def test_true_is_read_as_true(self):
-        config = dict(BASE_CONFIG, head={"trainable": True})
+        config = dict(BASE_CONFIG, head={"trainable": True, "aspect_marker": False})
         self.assertIs(lora.settings(config, "visobert")["head_trainable"], True)
 
     def test_missing_key_names_the_key(self):
@@ -597,7 +636,7 @@ class HeadTrainableVisibleTest(unittest.TestCase):
     nên bản ghi không nói ra thì không ai biết lượt nào là lượt nào."""
 
     def plan(self, trainable):
-        config = dict(BASE_CONFIG, head={"trainable": trainable})
+        config = dict(BASE_CONFIG, head={"trainable": trainable, "aspect_marker": False})
         training = {**lora.settings(config, "visobert"), **checkpoints.settings(config)}
         return {"config": dict(config, label_space="binary", neutral_policy="drop",
                                not_mentioned="separate"),
