@@ -540,6 +540,36 @@ class AspectRouterDocTest(unittest.TestCase):
         self.assertIn("KHÔNG trộn", text)
 
 
+# ... và `scripts/fuse_aspect.py` (gộp HAI TẦNG: khung ô từ encoder, sắc thái từ lượt một-khía-cạnh).
+FUSE_ASPECT_SPEC = importlib.util.spec_from_file_location(
+    "fuse_aspect", paths.root() / "scripts" / "fuse_aspect.py")
+fuse_aspect = importlib.util.module_from_spec(FUSE_ASPECT_SPEC)
+FUSE_ASPECT_SPEC.loader.exec_module(fuse_aspect)
+
+
+class TwoTierCliTest(unittest.TestCase):
+    """`fuse_aspect.py`: luật gộp đã chốt trước khi chạy, nên các ca lệch phải DỪNG chứ không đoán."""
+
+    def test_docstring_noi_ro_hai_nguon_va_luat(self):
+        text = fuse_aspect.__doc__
+        self.assertIn("--encoder", text)
+        self.assertIn("--aspect", text)
+        self.assertIn("KHUNG Ô", text)
+
+    def test_thieu_thu_muc_thi_ma_2(self):
+        self.assertEqual(fuse_aspect.main(["--encoder", "khong-co-thu-muc",
+                                           "--aspect", "cung-khong-co", "--inputs-dir", ""]), 2)
+
+    def test_luot_cham_nhieu_khia_canh_thi_ma_1(self):
+        wide = {"dir": Path("experiments/zz/lora/exp002/results/bbbbbbbb"), "split": "test",
+                "aspects": ["colour", "smell"], "sample_ids": ["0"], "preds": [{}],
+                "labels": {0: "", 1: "positive"}, "golds": [], "meta": {"experiment": {"model": "zz"}}}
+        with mock.patch.object(fuse_aspect.fusion, "load_run", return_value=wide):
+            code = fuse_aspect.main(["--encoder", str(paths.root()), "--aspect", str(paths.root()),
+                                     "--inputs-dir", ""])
+        self.assertEqual(code, 1)
+
+
 class ProbeTokensArgsTest(unittest.TestCase):
     """`probe_tokens.py`: hệ số và cửa sổ ngữ cảnh phải là số dương (trần sai là cả lượt sai)."""
 

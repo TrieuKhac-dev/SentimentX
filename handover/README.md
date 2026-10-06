@@ -148,6 +148,10 @@ nguyên nhân):
   notebook. **Bước thứ năm (router theo khía cạnh, `scripts/ensemble_aspect.py`) chỉ mới có mã + luật
   đóng băng**; lượt đầu chạy được ở máy với hai ứng viên `val` nên cả 7 khía cạnh đều chọn một lượt -
   **chưa đọc được tác dụng** cho tới khi có thêm ứng viên `val` (mỗi encoder cần một lượt `val`).
+- **Bước thứ sáu (gộp HAI TẦNG, `scripts/fuse_aspect.py`)**: mã + **luật đã đóng băng TRƯỚC khi chạy**
+  (`fusion.TWO_TIER_LAW`) + bảy cặp prompt/khối hệ thống `absa_aspect_<khía cạnh>_v1` đã có; **chưa chạy**
+  vì cần bảy lượt một-khía-cạnh (~14 giờ GPU). Đây là hướng chính để cứu lớp âm: encoder giữ khung ô, lượt
+  một-khía-cạnh quyết sắc thái.
 
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng

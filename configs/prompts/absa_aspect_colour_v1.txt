@@ -1,0 +1,35 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: đọc review rồi quyết định sắc thái của khía cạnh {aspects} - CHỈ khía cạnh này.
+
+{label_guide}
+
+`colour` (màu son) là gì: lời nói về MÀU của cây son - đậm hay nhạt, lên màu thế nào, có giống mô tả không.
+
+Dấu hiệu lời CHÊ màu:
+- lệch mô tả: "khác xa hình", "không giống swatch", "màu đậm hơn quảng cáo", "quá nhạt";
+- lên màu xấu: "lên màu tệp", "bợt", "màu chết", "tối sầm", "không hợp da";
+- lem/loang màu sang vùng khác.
+Dấu hiệu lời KHEN màu: "lên màu chuẩn", "màu tươi", "hợp da ngăm", "đúng mô tả", "màu xinh".
+
+LƯU Ý: màu là khía cạnh được nhắc NHIỀU NHẤT, nên câu "màu đẹp" xuất hiện cả trong review than phiền về
+khía cạnh khác - chỉ chốt sắc thái của RIÊNG màu, đừng kéo sắc thái của `stayingpower`/`texture` vào đây.
+
+Quy trình:
+1. Trích nguyên văn mọi câu nói về {aspects}. Nếu review KHÔNG nhắc tới thì ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đó là lời khen hay lời chê.
+3. Chốt mã số theo bảng mã ở trên.
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- {aspects}: <trích dẫn> | <lí do ngắn> | mã <số>
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT vào đó, KHÔNG chép nguyên số 0)

@@ -1,6 +1,6 @@
-# 04.09. Bước KẾT HỢP: ngưỡng, ensemble, luật lai, biểu quyết, router theo khía cạnh
+# 04.09. Bước KẾT HỢP: ngưỡng, ensemble, luật lai, biểu quyết, router, gộp hai tầng
 
-> Đọc file này khi: chạy một trong năm bước kết hợp, hoặc đọc số của chúng.
+> Đọc file này khi: chạy một trong sáu bước kết hợp, hoặc đọc số của chúng.
 > Liên quan: `metrics.md` (luật đo), `06_lora_encoder.md` (tệp xác suất), `08_experiment_rationale.md`
 > §7 (`price`), `present_plan.md` mục 8.4/8.5 và 10.2-10.4, `data/reports/fusion/README.md`.
 
@@ -14,7 +14,7 @@ Ba hướng đã cho thấy ba điểm mạnh KHÁC NHAU, nên ghép lại có c
 | Qwen3-4B hỏi bằng prompt | sắc thái tổng thể (accuracy TB 97,77) | `08_experiment_rationale.md` §3 |
 | ba lượt lấy mẫu | đo **dao động** giữa các seed | `07_evolution.md` |
 
-Năm bước dưới đây KHÔNG chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác
+Sáu bước dưới đây KHÔNG chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác
 suất từng ô - chỉ đường encoder có, xem `06_lora_encoder.md` mục 6), **chọn lại nhãn**, rồi chấm bằng
 ĐÚNG engine của dự án. Số gốc của từng lượt KHÔNG bị chạm tới.
 
@@ -27,7 +27,7 @@ suất từng ô - chỉ đường encoder có, xem `06_lora_encoder.md` mục 6
    KHÔNG đổi khi thêm ngưỡng - đó là thiết kế, không phải lỗi), và `price` được đọc bằng **số lần model
    gán mã 2 + danh sách ô âm**, KHÔNG bằng F1 (xem `08_experiment_rationale.md` §7).
 
-## 3. Năm bước, năm lệnh
+## 3. Sáu bước, sáu lệnh
 
 ### 3.1. Ngưỡng theo khía cạnh - `scripts/fit_thresholds.py`
 
@@ -143,6 +143,34 @@ kiểm lại được lựa chọn và thấy lựa chọn khác sẽ ra sao mà
 **Số phải đọc kèm**: `router_aspect.json` có `thành_viên` = số của TỪNG lượt trên cùng tập (mục 4); và nhớ
 rằng **lượt đầu giữ khung ô** - nếu các lượt có tập ô cơ sở `paper` khác nhau thì đổi thứ tự `--run` là đổi
 số ô báo cáo (không đổi luật, nhưng đổi mẫu số).
+
+### 3.6. Gộp HAI TẦNG theo khía cạnh - `scripts/fuse_aspect.py`
+
+```
+python scripts/fuse_aspect.py --encoder <lượt encoder> \
+    --aspect <lượt một-khía-cạnh của colour> --aspect <... của packing> --aspect <... của price> \
+    --aspect <... của shipping> --aspect <... của smell> --aspect <... của stayingpower> \
+    --aspect <... của texture> \
+    --out data/reports/fusion/fuse_aspect_test.json
+```
+
+Hướng HAI TẦNG: lượt **encoder** giữ **khung ô** (nó phát hiện khía cạnh tốt nhất đã đo: macro-F1
+0,967), còn sắc thái **từng khía cạnh** lấy từ một lượt **một-khía-cạnh** của đường prompt (prompt
+`absa_aspect_<khía cạnh>_v1` + khối hệ thống `system/absa_aspect_<khía cạnh>.txt`).
+
+**LUẬT ĐÃ CHỐT TRƯỚC KHI CHẠY** (mục 14.10 của `present_plan.md`; hằng số `fusion.TWO_TIER_LAW`):
+
+| Ca | Luật |
+| --- | --- |
+| khung ô | lấy từ lượt ENCODER (mọi dòng/khía cạnh của lượt đó) |
+| sắc thái | mỗi khía cạnh lấy mã của lượt MỘT-khía-cạnh của chính khía cạnh đó |
+| hai bên LỆCH về "không nhắc tới" | **giữ quyết định của ENCODER** - và ĐẾM riêng số ô đó |
+| thiếu ô ở lượt một-khía-cạnh | giữ nhãn của encoder và đếm riêng |
+| thiếu LƯỢT cho một khía cạnh, lượt chấm nhiều khía cạnh, lượt trùng khía cạnh, khác mã "không nhắc tới" | **LỖI**, không im lặng bỏ qua |
+
+`đếm_ô.lệch_giữ_encoder` là con số phải đọc kèm: luật "giữ của encoder" ĐỔI kết quả, nên nếu không đếm
+thì bản gộp chỉ còn một con số không kiểm được. Bản gộp này KHÔNG vào bảng `paper` cho tới khi được
+chốt thành `method: fuse` (tiền lệ: `exp016`) - xem mục 11.3 và `present_plan.md` mục 14.11.
 
 ## 4. Đọc số của bước kết hợp thế nào
 

@@ -66,6 +66,7 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Bỏ phiếu từng ô trên các mẫu (`seed` tăng dần) | `python scripts/vote.py --run <seed1> --run <seed2> --run <seed3>` (ghi `vote.json`) |
 | Router theo khía cạnh: CHỐT trên `val` (bắt buộc `--criterion`) | `python scripts/ensemble_aspect.py --fit --criterion f1_âm --run <val A> --run <val B> --write-router data/reports/fusion/aspect_router.json --out data/reports/fusion/router_aspect_val.json` (ghi LUẬT đã đóng băng: mỗi khía cạnh lấy lượt nào + tiêu chí + điểm mọi ứng viên) |
 | Router theo khía cạnh: ÁP luật đã chốt lên `test` | `python scripts/ensemble_aspect.py --apply --run <test A> --run <test B> --router-file data/reports/fusion/aspect_router.json` (ghi số của bản router + `thành_viên` = số TỪNG lượt trên cùng tập; KHÔNG nhận `--criterion`) |
+| Gộp HAI TẦNG: khung ô từ encoder, sắc thái từng khía cạnh từ lượt một-khía-cạnh | `python scripts/fuse_aspect.py --encoder <lượt encoder> --aspect <lượt một-khía-cạnh của colour> ... --aspect <... của texture>` (ghi `fuse_aspect.json` + `đếm_ô`; luật đã chốt ở `fusion.TWO_TIER_LAW`) |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
 | Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
 | Dựng gói bàn giao tăng dần (chỉ file mới/đã đổi) | `python scripts/build_package.py` (xem trước: `--dry-run`; `--number NNN` để đặt số gói; `--allow-red` khi đã hiểu rõ cảnh báo đỏ; `--no-zip` khi chỉ muốn ghi sổ) |

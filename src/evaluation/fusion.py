@@ -922,6 +922,106 @@ def members_report(runs):
     return found
 
 
+# ---------------------------------------------------------------------------------------------
+# GỘP HAI TẦNG (đợt 10, mục 14.9/14.10): KHUNG Ô từ ENCODER, SẮC THÁI từ lượt MỘT khía cạnh.
+#
+# LUẬT ĐÃ CHỐT - ghi TRƯỚC khi chạy bảy lượt một-khía-cạnh (luật 1.4 của `02_rules.md`; mục 14.10
+# của `present_plan.md`). Đổi luật sau khi đã thấy `test` là chọn bằng tập sẽ báo cáo:
+#   1. KHUNG Ô (dòng nào, khía cạnh nào) lấy từ lượt ENCODER - lượt ĐẦU trong danh sách;
+#   2. SẮC THÁI của mỗi khía cạnh lấy từ lượt MỘT-khía-cạnh của CHÍNH khía cạnh đó;
+#   3. LỆCH về "không nhắc tới" (một bên nói có nhắc, bên kia nói không): giữ quyết định của
+#      ENCODER - phát hiện khía cạnh là điểm mạnh ĐÃ ĐO của encoder (macro-F1 0,967 so ~0,86 của
+#      đường prompt), và đây là chỗ hai nguồn lệch nhau nhiều nhất;
+#   4. THIẾU (lượt một-khía-cạnh không có ô nào, hoặc khía cạnh không có lượt riêng): giữ nhãn của
+#      ENCODER và ĐẾM riêng.
+# Số ô lệch được ĐẾM và in trong báo cáo: luật 3 ĐỔI kết quả, nên nó phải nhìn thấy được.
+# ---------------------------------------------------------------------------------------------
+
+TWO_TIER_LAW = {
+    "khung_ô": "lấy từ lượt ENCODER (lượt đầu trong danh sách)",
+    "sắc_thái": "mỗi khía cạnh lấy mã của lượt MỘT-khía-cạnh tương ứng",
+    "lệch_về_không_nhắc_tới": "giữ quyết định của ENCODER (phát hiện khía cạnh là điểm mạnh đã đo "
+                              "của encoder: macro-F1 0,967)",
+    "thiếu_ô": "giữ nhãn của encoder và đếm riêng",
+    "đơn_vị_gộp": "một lượt MỘT-khía-cạnh cho MỖI khía cạnh; cùng không gian nhãn với encoder",
+}
+
+
+def not_mentioned_code(run):
+    """Mã nhãn của "không nhắc tới" - tra qua TÊN nhãn RỖNG của `label_map.json`.
+
+    Không lấy hằng số 0: không gian nhãn đổi theo `label_space`, nên phải tra tên như `negative_code`.
+    """
+    found = [int(code) for code, name in (run["labels"] or {}).items() if str(name) == ""]
+    if not found:
+        raise FusionError(
+            "Bảng tên nhãn không có nhãn 'không nhắc tới' (tên rỗng), nên không biết mã nào là "
+            "'không nhắc tới' (labels={}).".format(run["labels"]))
+    return found[0]
+
+
+def merge_two_tier(encoder_run, aspect_runs, not_mentioned=None):
+    """Nhãn của bản HAI TẦNG: khung ô từ `encoder_run`, sắc thái từng khía cạnh từ lượt một-khía-cạnh.
+
+    Luật ở `TWO_TIER_LAW` (chốt TRƯỚC khi chạy): khung ô của ENCODER; sắc thái của khía cạnh lấy từ
+    lượt một-khía-cạnh của CHÍNH khía cạnh đó; LỆCH về "không nhắc tới" thì giữ của ENCODER; thiếu ô
+    thì giữ của encoder và ĐẾM riêng. Không trộn xác suất (`ensemble` / `ensemble_aspect` làm việc đó).
+
+    Trả `(nhãn, đếm)`; `đếm` có số ô lấy từ mỗi lượt một-khía-cạnh, số ô LỆCH về "không nhắc tới" theo
+    từng khía cạnh, và số ô thiếu. Ba con số đó là thứ duy nhất nói được luật 3 đã đổi bao nhiêu ô -
+    thiếu chúng thì bản gộp chỉ còn là một con số không kiểm được.
+    """
+    if not aspect_runs:
+        raise FusionError("Không có lượt một-khía-cạnh nào để gộp.")
+    frame = encoder_run
+    blank = int(not_mentioned_code(frame) if not_mentioned is None else not_mentioned)
+    special = {}
+    for run in aspect_runs:
+        if len(run["aspects"]) != 1:
+            raise FusionError(
+                "Mỗi lượt một-khía-cạnh phải chấm ĐÚNG MỘT khía cạnh, nhưng '{}' chấm {} khía cạnh. "
+                "Lượt nhiều khía cạnh là đường prompt thường, không dùng cho bước gộp này.".format(
+                    utils.rel(run["dir"]), len(run["aspects"])))
+        aspect = run["aspects"][0]
+        if aspect in special:
+            raise FusionError(
+                "Hai lượt cùng khía cạnh '{}' ({} và {}): không biết lấy ô của lượt nào.".format(
+                    aspect, utils.rel(special[aspect]["dir"]), utils.rel(run["dir"])))
+        if int(not_mentioned_code(run)) != blank:
+            raise FusionError(
+                "Lượt '{}' dùng mã 'không nhắc tới' {} còn lượt encoder dùng {}: hai không gian nhãn "
+                "khác nhau, gộp vào là đọc lệch ô.".format(utils.rel(run["dir"]),
+                                                          not_mentioned_code(run), blank))
+        special[aspect] = run
+    missing = [aspect for aspect in frame["aspects"] if aspect not in special]
+    if missing:
+        raise FusionError(
+            "Thiếu lượt một-khía-cạnh cho: {}. Cần đúng MỘT lượt cho mỗi khía cạnh của lượt encoder."
+            .format(", ".join(missing)))
+    lookup = {aspect: {sid: dict(pred).get(aspect)
+                       for sid, pred in zip(run["sample_ids"], run["preds"])}
+              for aspect, run in special.items()}
+    preds = [dict(pred) for pred in frame["preds"]]
+    counts = {"từ_một_khía_cạnh": {}, "lệch_giữ_encoder": {}, "thiếu_ô": 0}
+    for position, sample_id in enumerate(frame["sample_ids"]):
+        for aspect in frame["aspects"]:
+            theirs = lookup[aspect].get(sample_id)
+            if theirs is None:
+                counts["thiếu_ô"] += 1
+                continue
+            mine = preds[position].get(aspect)
+            if (mine == blank) != (theirs == blank):
+                counts["lệch_giữ_encoder"][aspect] = counts["lệch_giữ_encoder"].get(aspect, 0) + 1
+                continue
+            preds[position][aspect] = theirs
+            counts["từ_một_khía_cạnh"][aspect] = counts["từ_một_khía_cạnh"].get(aspect, 0) + 1
+    counts["từ_một_khía_cạnh"] = dict(sorted(counts["từ_một_khía_cạnh"].items()))
+    counts["lệch_giữ_encoder"] = dict(sorted(counts["lệch_giữ_encoder"].items()))
+    counts["tổng_lệch"] = sum(counts["lệch_giữ_encoder"].values())
+    return preds, counts
+
+
+
 
 
 

@@ -1,9 +1,9 @@
-# Bảng KẾT HỢP: ngưỡng theo khía cạnh, ensemble encoder, luật lai, biểu quyết, router theo khía cạnh
+# Bảng KẾT HỢP: ngưỡng theo khía cạnh, ensemble encoder, luật lai, biểu quyết, router theo khía cạnh, gộp hai tầng
 
 > Đọc file này khi: mở thư mục này và cần biết tệp nào là gì. Cách dùng chi tiết ở
 > `docs/04_experiments/09_fusion.md`.
 
-Năm bước kết hợp KHÔNG chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác
+Sáu bước kết hợp KHÔNG chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác
 suất từng ô, chỉ đường encoder có), chọn lại nhãn, rồi chấm bằng ĐÚNG engine của dự án
 (`src/evaluation/scorers/`). Vì vậy số của chúng so được với số của từng lượt.
 
@@ -19,6 +19,7 @@ suất từng ô, chỉ đường encoder có), chọn lại nhãn, rồi chấm
 | `vote.json` | `scripts/vote.py` | số của bản bỏ phiếu + số của TỪNG mẫu + thống kê phiếu |
 | `aspect_router.json` | `scripts/ensemble_aspect.py --fit --criterion <tiêu chí>` | **LUẬT ROUTER** đã CHỐT: mỗi khía cạnh lấy lượt nào, kèm tiêu chí đã dùng, thứ tự hoà, và `điểm` của MỌI ứng viên (cả hai tiêu chí + số ô) |
 | `router_aspect_val.json` / `router_aspect.json` | `scripts/ensemble_aspect.py` | số của bản router trên tập đang áp + số của TỪNG lượt thành viên (`thành_viên`) trên cùng tập |
+| `fuse_aspect.json` | `scripts/fuse_aspect.py` | số của bản GỘP HAI TẦNG (khung ô từ encoder, sắc thái từng khía cạnh từ lượt một-khía-cạnh) + `đếm_ô` (số ô lấy từ mỗi lượt, số ô lệch giữ encoder, số ô thiếu) |
 | `inputs/*.csv` | `scripts/ensemble.py`, `scripts/ensemble_aspect.py`, `scripts/vote.py`, `dump_inputs` | **đầu vào rút gọn** của từng lượt: khung ô, nhãn đúng, nhãn đoán, `p(mã âm)`, `p(mã dương)` |
 
 **Vì sao commit `inputs/`:** phần LƯỢT CHẠY THẬT của đường encoder (`predictions.csv`,

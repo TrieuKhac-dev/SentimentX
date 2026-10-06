@@ -464,17 +464,29 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
   `run_meta.json`, thẻ MLflow; test mới; thêm **một DÒNG MỚI** vào bảng dấu vết của `06_lora_encoder.md`.
 - **14.8 (người dùng chạy) MỘT lượt rẻ nhất trước** (`phobert-base-v2/lora/exp006`, 15-60 phút) để xem cơ chế
   mới có TÁC DỤNG không, rồi mới quyết có lan ra năm model kia hay không.
-- **14.9 (không cần GPU, SỬA MÃ) Hướng 3 - hai tầng theo khía cạnh.** Tạo **BẢY cặp prompt + system MỚI** (mỗi
-  cặp một khía cạnh, đủ 7 khía cạnh của dataset) - KHÔNG sửa cặp prompt cũ (luật 1.4: cặp prompt đã dùng là
-  **bất biến**); cập nhật danh sách tập-đóng trong `tests/experiments/test_prompts.py` (không thì `ci_checks` đỏ);
-  chạy `run_check_examples.py` cho từng cặp (kiểm rò rỉ); thêm hàm gộp vào
-  `src/evaluation/fusion.py` + đường gọi ở `scripts/fuse.py` + test.
-- **14.10 (không cần GPU) CHỐT LUẬT GỘP TRƯỚC KHI CHẠY** (luật 1 + luật 11 của `02_rules.md`): khung ô lấy từ
-  **encoder**; khi encoder nói "có nhắc" mà lượt một-khía-cạnh nói "không nhắc" thì lấy **ai** — ghi vào
-  `README.md` của lượt mới. **Không** được chọn luật sau khi đã thấy kết quả.
+- 14.9 — **XONG MỘT PHẦN (06/10/2026)**: **BẢY cặp prompt + khối hệ thống** đã tạo
+  (`configs/prompts/absa_aspect_<khía cạnh>_v1.txt` + `configs/prompts/system/absa_aspect_<khía cạnh>.txt`
+  cho đủ 7 khía cạnh) và đã ĐĂNG KÝ bằng test tập-đóng mới
+  (`tests/experiments/test_prompts.py::AspectPromptTest`: đủ 7 cặp, mỗi prompt có khối hệ thống riêng, mọi ô
+  nhớ được điền, prompt chỉ hỏi MỘT khía cạnh). **Hàm gộp + luật gộp đã viết và CHỐT trước khi chạy** ở
+  `src/evaluation/fusion.py` (`TWO_TIER_LAW`, `not_mentioned_code`, `merge_two_tier`) - nhưng đường gọi nằm ở
+  **`scripts/fuse_aspect.py`** (tệp MỚI) chứ không phải `scripts/fuse.py`: `fuse.py` đã có hai chế độ
+  `--fit/--apply` cho luật LAI encoder × LLM nhiều khía cạnh, và một-lượt-một-nghĩa là không nhồi thêm chế độ
+  thứ ba vào đó. Vẫn còn: người dùng chạy bảy lượt (mục 14.11).
+- 14.10 — **XONG 06/10/2026 (chốt TRƯỚC khi chạy)**: luật gộp đã đóng băng thành hằng số
+  `fusion.TWO_TIER_LAW` và ghi vào `docs/04_experiments/09_fusion.md` §3.6: **khung ô lấy từ ENCODER**;
+  sắc thái từng khía cạnh lấy từ lượt một-khía-cạnh của CHÍNH khía cạnh đó; **khi encoder nói "có nhắc" mà
+  lượt một-khía-cạnh nói "không nhắc" (và chiều ngược lại) thì GIỮ quyết định của ENCODER** - vì phát hiện
+  khía cạnh là điểm mạnh đã đo của encoder (macro-F1 0,967) - và **ĐẾM riêng** số ô đó
+  (`đếm_ô.lệch_giữ_encoder`) để luật đổi kết quả thì nhìn thấy được. Ca thiếu lượt/trùng khía cạnh/chấm nhiều
+  khía cạnh/khác mã "không nhắc tới" đều là **LỖI**, không im lặng bỏ qua.
 - **14.11 (người dùng chạy) BẢY lượt một-khía-cạnh** (`qwen3-4b-instruct-2507`, mỗi lượt một khía cạnh trong
   `price`/`texture`/`packing`/`stayingpower`/`shipping`/`smell`/`colour`, ~14 giờ GPU) ⇒ gộp ⇒ **bảng RIÊNG**,
-  không trộn bảng `paper` (tiền lệ: `exp016`).
+  không trộn bảng `paper` (tiền lệ: `exp016`). Mỗi lượt khai `task.aspects: [<một khía cạnh>]`,
+  `prompt: ../../../../configs/prompts/absa_aspect_<khía cạnh>_v1.txt` và
+  `system_prompt: ../../../../configs/prompts/system/absa_aspect_<khía cạnh>.txt` (7 cặp đã có, xem 14.9);
+  gộp bằng `python scripts/fuse_aspect.py --encoder <lượt encoder> --aspect <lượt>×7` (luật đã đóng băng ở
+  14.10). **Ghi vào `README.md` của từng lượt**: nó là MỘT TẦNG của bản gộp, không phải một lượt so điểm.
 - **14.12 (không cần GPU) Chốt sổ**: cập nhật `present_plan.md`, `check_present_plan.md`,
   `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 019** (nếu hướng 2/3 sửa mã);
   `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #6**.

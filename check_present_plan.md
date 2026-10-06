@@ -623,6 +623,17 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
   F1 âm macro 0,7757) - **chưa đọc được tác dụng**, cần ≥ 4-5 ứng viên `val`. Tài liệu: `09_fusion.md`
   §3.5, `07_evolution.md`, `data/reports/fusion/README.md`, `docs/00_workflow/09_cli.md` (lệnh + mã thoát).
   ⚠️ **CHỜ NGƯỜI DÙNG CHỐT:** tiêu chí nào dùng cho BÁO CÁO (`f1_âm` hay `accuracy`).
+- **B2 XONG MỘT PHẦN 06/10/2026 - BẢY CẶP PROMPT + LUẬT GỘP HAI TẦNG** (mục 14.9/14.10/14.11): 7 cặp
+  `configs/prompts/absa_aspect_<khía cạnh>_v1.txt` + `configs/prompts/system/absa_aspect_<khía cạnh>.txt`
+  (có phần định nghĩa khía cạnh + dấu hiệu lời CHÊ/KHEN riêng từng khía cạnh); đăng ký bằng test tập-đóng
+  `tests/experiments/test_prompts.py::AspectPromptTest` (3 test: đủ 7 cặp, mỗi cặp có khối hệ thống riêng,
+  mọi ô nhớ điền được); luật gộp đóng băng ở `fusion.TWO_TIER_LAW` + hàm `merge_two_tier` + 6 test
+  (`tests/evaluation/test_fusion.py::TwoTierTest`) + script `scripts/fuse_aspect.py` + 3 test CLI. Còn lại:
+  người dùng chạy 7 lượt (mục 14.11).
+  **Phát hiện khi chạy `run_check_examples.py --hash e616c1e3` (06/10/2026):** công cụ báo **1 lỗi CÓ SẴN** -
+  `absa_cot_1shot_v6` có cụm ≥6 từ trùng `val`/`test` (rò rỉ). Tệp này là ví dụ của `exp013` (đã chạy), nên
+  theo luật 1.4 **KHÔNG sửa tại chỗ** (sửa là đổi nội dung một cấu hình đã dùng); cần người dùng quyết: giữ
+  nguyên + ghi chú hạn chế, hay tạo `v7` mới lấy ví dụ từ `train` rồi chạy lại một lượt.
 - **Thứ tự việc tiếp theo:** 14.1 đã xong (`collect_reports`: `experiment_registry` 47 dòng) → ghim/commit
   BẰNG CHỨNG rồi commit TÀI LIỆU → **14.7 sửa mã `head.aspect_marker`** (mở khoá 14.8) → **14.9 tạo 7 cặp prompt
   một-khía-cạnh + luật gộp ở 14.10** → người dùng chạy **14.8 + 14.11** (GPU) → **14.12 chốt sổ + gói 019**.

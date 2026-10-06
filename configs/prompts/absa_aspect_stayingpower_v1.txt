@@ -1,0 +1,35 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: đọc review rồi quyết định sắc thái của khía cạnh {aspects} - CHỈ khía cạnh này.
+
+{label_guide}
+
+`stayingpower` (độ bền màu) là gì: lời nói về KHẢ NĂNG GIỮ MÀU của cây son trên môi theo thời gian.
+
+Dấu hiệu lời CHÊ độ bền màu:
+- bay màu nhanh: "ăn xong là bay màu", "uống nước là trôi", "hai tiếng phải dặm lại", "trôi nhanh";
+- lem: "lem ra quanh môi", "lem răng", "nhòe";
+- phải dặm nhiều lần, hoặc so sánh với kỳ vọng ("tưởng bền hơn").
+Dấu hiệu lời KHEN độ bền màu: "bền màu", "cả ngày không phải dặm", "ăn uống vẫn còn màu", "giữ màu tốt".
+
+Đây là khía cạnh bị chê NHIỀU NHẤT trong dữ liệu, nên câu nói về bay màu/lem thường bị viết nhẹ nhàng
+("cũng tạm", "được cái màu đẹp") - đọc theo CƠ CHẾ: nếu review nói màu mau trôi thì đó là lời chê.
+
+Quy trình:
+1. Trích nguyên văn mọi câu nói về {aspects}. Nếu review KHÔNG nhắc tới thì ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đó là lời khen hay lời chê.
+3. Chốt mã số theo bảng mã ở trên.
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- {aspects}: <trích dẫn> | <lí do ngắn> | mã <số>
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT vào đó, KHÔNG chép nguyên số 0)

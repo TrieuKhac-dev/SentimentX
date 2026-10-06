@@ -170,6 +170,44 @@ class SoViDuTest(unittest.TestCase):
 LABEL_MAP = {"aspects": ["smell"], "label_to_id": {"": 0, "positive": 1, "negative": 2},
              "id_to_label": {"0": "", "1": "positive", "2": "negative"}}
 
+class AspectPromptTest(unittest.TestCase):
+    """Bảy cặp prompt + khối hệ thống của hướng HAI TẦNG (mỗi lượt MỘT khía cạnh).
+
+    Vì sao khoá ở đây: bảy lượt đó chỉ khác nhau ở CẶP PROMPT + KHỐI HỆ THỐNG, nên một tên viết sai
+    (hoặc thiếu file khối hệ thống) vẫn chạy ra số - chỉ là số của một cấu hình khác, và nhìn bảng
+    điểm thì không thấy. Tập ĐÓNG: thêm khía cạnh thì phải sửa danh sách dưới đây.
+    """
+
+    ASPECTS = ("colour", "packing", "price", "shipping", "smell", "stayingpower", "texture")
+
+    def test_du_bay_cap_cho_bay_khia_canh(self):
+        found = sorted(name for name in prompts.available() if name.startswith("absa_aspect_"))
+        self.assertEqual(found, ["absa_aspect_{}_v1".format(aspect) for aspect in self.ASPECTS])
+
+    def test_moi_prompt_co_khoi_he_thong_rieng_va_dung_ten(self):
+        for aspect in self.ASPECTS:
+            name = "absa_aspect_{}".format(aspect)
+            self.assertTrue(prompts.system_path(name).is_file(),
+                            "thiếu configs/prompts/system/{}.txt".format(name))
+
+    def test_moi_prompt_dien_du_o_nho_va_chi_hoi_mot_khia_canh(self):
+        for aspect in self.ASPECTS:
+            prompt = qwen.load_prompt("absa_aspect_{}_v1".format(aspect),
+                                      system="absa_aspect_{}".format(aspect))
+            self.assertIn("system_prompt", prompt.placeholders)
+            values = qwen.values("review thử", aspects=[aspect], label_map=LABEL_MAP, prompt=prompt)
+            self.assertEqual(values["aspects"], aspect)
+            self.assertIn("ABSA", values["system_prompt"])
+            text = qwen.build_prompt("review thử", aspects=[aspect], label_map=LABEL_MAP,
+                                     prompt_name=prompt.name)
+            self.assertIn("review thử", text)
+            self.assertIn(aspect, text)
+            self.assertIn("không nhắc tới", text)
+            # Ô nhớ nào còn sót lại nghĩa là model nhận một câu chưa điền - im lặng và luôn sai.
+            self.assertIsNone(re.search(r"\{[a-z_]+\}", text),
+                              "{}: còn ô nhớ chưa điền trong prompt".format(aspect))
+
+
 class BangMaNhanTest(unittest.TestCase):
     """Bảng mã trong prompt phải KHỚP không gian nhãn của thí nghiệm.
 

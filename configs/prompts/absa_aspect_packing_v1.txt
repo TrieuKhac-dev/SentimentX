@@ -1,0 +1,36 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: đọc review rồi quyết định sắc thái của khía cạnh {aspects} - CHỈ khía cạnh này.
+
+{label_guide}
+
+`packing` (đóng gói) là gì: lời nói về BAO BÌ và TÌNH TRẠNG khi nhận hàng - hộp, vỏ, seal, chống sốc.
+
+Dấu hiệu lời CHÊ đóng gói:
+- hộp/vỏ hỏng: "hộp móp", "hộp bẹp", "vỏ xước", "nắp lỏng", "hộp méo";
+- seal/niêm phong: "seal đã bung sẵn", "không còn seal", "mở ra là thấy bung";
+- son hỏng khi tới tay: "son gãy", "son nứt", "nóng chảy";
+- thiếu bảo vệ: "không bọc chống sốc", "chỉ bọc mỗi túi nilon".
+Dấu hiệu lời KHEN đóng gói: "đóng gói chắc chắn", "có chống sốc", "hộp nguyên vẹn", "đóng gói đẹp như quà".
+
+LƯU Ý quan trọng: đóng gói là khía cạnh ÍT bị chê nhất, nên "không nhắc tới" là chuyện thường và KHÔNG
+phải lời chê. Chỉ ghi mã chê khi có câu nói rõ về bao bì/tình trạng hàng.
+
+Quy trình:
+1. Trích nguyên văn mọi câu nói về {aspects}. Nếu review KHÔNG nhắc tới thì ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đó là lời khen hay lời chê.
+3. Chốt mã số theo bảng mã ở trên.
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- {aspects}: <trích dẫn> | <lí do ngắn> | mã <số>
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT vào đó, KHÔNG chép nguyên số 0)

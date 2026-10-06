@@ -1,0 +1,34 @@
+[SYSTEM]
+{system_prompt}
+
+[USER]
+Nhiệm vụ: đọc review rồi quyết định sắc thái của khía cạnh {aspects} - CHỈ khía cạnh này.
+
+{label_guide}
+
+`texture` (chất son) là gì: lời nói về TÍNH CHẤT của cây son khi lên môi - độ ẩm hay khô, độ mịn, độ
+bóng hay lì, cảm giác khi tán.
+
+Dấu hiệu lời CHÊ chất son:
+- khô: "khô môi", "môi bong tróc", "nứt môi", "căng môi", "hút ẩm";
+- không đều: "vón cục", "bết", "lem", "dính", "tán không đều", "đọng ở kẽ môi";
+- cứng hoặc nặng: "lì quá cứng khó tán", "cảm giác nặng mặt", "dày, bí môi";
+- gây khó chịu khác: "ngứa môi", "rát môi".
+Dấu hiệu lời KHEN chất son: "mịn", "êm môi", "dưỡng ẩm", "dễ tán", "nhẹ môi", "không khô", "mượt".
+
+Quy trình:
+1. Trích nguyên văn mọi câu nói về {aspects}. Nếu review KHÔNG nhắc tới chất son thì ghi "không nhắc tới".
+2. Nêu ngắn gọn vì sao đó là lời khen hay lời chê.
+3. Chốt mã số theo bảng mã ở trên.
+
+Review cần phân tích:
+"""
+{text}
+"""
+
+Trả lời ĐÚNG định dạng sau, không thêm gì khác:
+SUY LUẬN:
+- {aspects}: <trích dẫn> | <lí do ngắn> | mã <số>
+KẾT QUẢ:
+{example}
+  (dòng KẾT QUẢ trên chỉ là KHUÔN JSON: điền mã THẬT vào đó, KHÔNG chép nguyên số 0)

@@ -452,6 +452,101 @@ class AspectRouterTest(unittest.TestCase):
         self.assertEqual(fusion.load_router(good), {"colour": "visobert"})
 
 
+class TwoTierTest(unittest.TestCase):
+    """Gộp HAI TẦNG: khung ô từ ENCODER, sắc thái từng khía cạnh từ lượt MỘT khía cạnh.
+
+    Vì sao khoá ở đây: luật gộp phải chốt TRƯỚC khi chạy bảy lượt (mục 14.10), nên nhánh khó nhất -
+    hai nguồn LỆCH nhau về "không nhắc tới" - phải kiểm được bằng test, không phải bằng trí nhớ.
+    """
+
+    LABELS = {0: "", 1: "positive", 2: "negative"}
+
+    def single(self, aspect, codes, name="one", labels=None, sample_ids=None):
+        run = make_run(GOLDS, [{} for _ in GOLDS], PROBS, split="test", name=name)
+        run["aspects"] = [aspect]
+        run["preds"] = [{aspect: code} for code in codes]
+        run["labels"] = dict(self.LABELS if labels is None else labels)
+        run["meta"] = {"experiment": {"model": name}}
+        if sample_ids is not None:
+            run["sample_ids"] = list(sample_ids)
+            run["preds"] = run["preds"][:len(sample_ids)]
+        return run
+
+    def frame(self, per_aspect):
+        """Lượt ENCODER giữ khung ô: `{khía cạnh: [mã cho từng review]}`."""
+        run = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="encoder")
+        run["aspects"] = sorted(per_aspect)
+        run["preds"] = [{aspect: codes[index] for aspect, codes in per_aspect.items()}
+                        for index in range(len(GOLDS))]
+        run["labels"] = dict(self.LABELS)
+        run["meta"] = {"experiment": {"model": "phobert-base-v2"}}
+        return run
+
+    def test_sac_thai_lay_tu_luot_mot_khia_canh(self):
+        encoder = self.frame({"colour": [1, 1, 1, 1], "smell": [1, 1, 1, 1],
+                              "price": [1, 1, 1, 1]})
+        runs = [self.single("colour", [2, 2, 2, 2], name="colour-run"),
+                self.single("smell", [1, 1, 1, 1], name="smell-run"),
+                self.single("price", [1, 1, 1, 1], name="price-run")]
+        preds, counts = fusion.merge_two_tier(encoder, runs)
+        self.assertEqual([pred["colour"] for pred in preds], [2, 2, 2, 2])
+        self.assertEqual(counts["từ_một_khía_cạnh"]["colour"], 4)
+        self.assertEqual(counts["tổng_lệch"], 0)
+        self.assertEqual(counts["thiếu_ô"], 0)
+
+    def test_lech_ve_khong_nhac_toi_thi_giu_encoder(self):
+        """Hai chiều lệch: encoder nói "có nhắc" mà lượt riêng nói "không" (và ngược lại)."""
+        encoder = self.frame({"colour": [1, 0, 2, 1], "smell": [1, 1, 1, 1],
+                              "price": [1, 1, 1, 1]})
+        runs = [self.single("colour", [1, 2, 0, 1], name="colour-run"),
+                self.single("smell", [1, 1, 1, 1], name="smell-run"),
+                self.single("price", [1, 1, 1, 1], name="price-run")]
+        preds, counts = fusion.merge_two_tier(encoder, runs)
+        # Ô 1: encoder 0 / lượt riêng 2 -> giữ 0. Ô 2: encoder 2 / lượt riêng 0 -> giữ 2.
+        self.assertEqual([pred["colour"] for pred in preds], [1, 0, 2, 1])
+        self.assertEqual(counts["lệch_giữ_encoder"], {"colour": 2})
+        self.assertEqual(counts["tổng_lệch"], 2)
+        self.assertEqual(counts["từ_một_khía_cạnh"]["colour"], 2)
+
+    def test_thieu_luot_cho_mot_khia_canh_thi_bao_loi(self):
+        encoder = self.frame({"colour": [1, 1, 1, 1], "smell": [1, 1, 1, 1],
+                              "price": [1, 1, 1, 1]})
+        runs = [self.single("colour", [1, 1, 1, 1], name="colour-run")]
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.merge_two_tier(encoder, runs)
+        message = str(found.exception)
+        self.assertIn("price", message)
+        self.assertIn("smell", message)
+
+    def test_luot_nhieu_khia_canh_hoac_trung_khia_canh_la_loi(self):
+        encoder = self.frame({"colour": [1, 1, 1, 1]})
+        wide = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="wide")
+        wide["labels"] = dict(self.LABELS)
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.merge_two_tier(encoder, [wide])
+        self.assertIn("ĐÚNG MỘT khía cạnh", str(found.exception))
+        twin_a = self.single("colour", [1, 1, 1, 1], name="a")
+        twin_b = self.single("colour", [2, 2, 2, 2], name="b")
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.merge_two_tier(encoder, [twin_a, twin_b])
+        self.assertIn("Hai lượt cùng khía cạnh", str(found.exception))
+
+    def test_khac_khong_gian_nhan_la_loi(self):
+        encoder = self.frame({"colour": [1, 1, 1, 1]})
+        odd = self.single("colour", [1, 1, 1, 1], name="odd", labels={1: "positive", 2: "negative"})
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.merge_two_tier(encoder, [odd])
+        self.assertIn("không nhắc tới", str(found.exception))
+
+    def test_o_thieu_thi_giu_encoder_va_dem_rieng(self):
+        encoder = self.frame({"colour": [1, 1, 1, 1]})
+        partial = self.single("colour", [2, 2], name="partial", sample_ids=["0", "1"])
+        preds, counts = fusion.merge_two_tier(encoder, [partial])
+        self.assertEqual([pred["colour"] for pred in preds], [2, 2, 1, 1])
+        self.assertEqual(counts["thiếu_ô"], 2)
+        self.assertEqual(counts["từ_một_khía_cạnh"]["colour"], 2)
+
+
 if __name__ == "__main__":
     unittest.main()
 
