@@ -610,6 +610,11 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
 - **Hướng 3 "hai tầng theo khía cạnh": chạy CẢ 7 khía cạnh** (không chọn lọc) - mục 11.5 + 14.9/14.11 đã sửa;
   thêm **TIÊU CHÍ chọn khía cạnh** (giữ `price` vì công bố = 0 và là điểm mù; `texture`/`packing` vì khoảng cách
   lớn; `smell`/`colour` để xác nhận đang hơn).
+- **14.7 XONG 06/10/2026** - `head.aspect_marker` đã có trong mã (**KIẾN TRÚC** đầu phân loại: one-hot khía
+  cạnh ghép vào vector review, đầu ra VẪN `(B, 7, 3)`, `head_config.json` ghi `aspect_marker` và hai kiến
+  trúc không nạp lẫn nhau), đã đăng ký `KNOWN_KEYS`, đã ghi tài liệu (`05_experiments_shared.md` +
+  `06_lora_encoder.md`) và **+2 test** (945 test OK; `ci_checks` 0). Lượt mở khoá **14.8** đã TẠO và đã
+  GHIM: `phobert-base-v2/lora/exp006` (parent `exp002`, khác ĐÚNG một khoá `head.aspect_marker: true`).
 - **Thứ tự việc tiếp theo:** 14.1 đã xong (`collect_reports`: `experiment_registry` 47 dòng) → ghim/commit
   BẰNG CHỨNG rồi commit TÀI LIỆU → **14.7 sửa mã `head.aspect_marker`** (mở khoá 14.8) → **14.9 tạo 7 cặp prompt
   một-khía-cạnh + luật gộp ở 14.10** → người dùng chạy **14.8 + 14.11** (GPU) → **14.12 chốt sổ + gói 019**.
