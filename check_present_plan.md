@@ -597,3 +597,24 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
 
 
 
+
+## Mục 17. Chốt 06/10/2026 (sau bốn kết quả mới) - quyết định và việc tiếp
+
+- **Bốn kết quả mới đã về** (tổng **47** `metrics.json`): ba lượt thước nhiễu encoder + lượt 0.6B bật suy nghĩ.
+- **14.6 XONG** - biên nhiễu đường encoder **±0,33 ... ±0,67** (lấy làm việc **±0,7**) đã ghi vào
+  `docs/04_experiments/06_lora_encoder.md` và `docs/04_experiments/08_experiment_rationale.md` §2b. Hệ quả:
+  chênh **+0,21** ("đầu phân loại HỌC") và **-0,15** (ViBERT) **nằm trong nhiễu**; **kỷ lục dự án =
+  `cafebert/lora/exp004` = 98,26**.
+- **0.6B: BỎ** - `exp005` đọc được 96,98% nhưng **detection F1 0,479** ⇒ `exp006`/`exp007` **HUỶ** (mục 9.3).
+- **9.4 HOÃN** - bốn lượt lấy mẫu (thước nhiễu đường prompt) chưa cần.
+- **Hướng 3 "hai tầng theo khía cạnh": chạy CẢ 7 khía cạnh** (không chọn lọc) - mục 11.5 + 14.9/14.11 đã sửa;
+  thêm **TIÊU CHÍ chọn khía cạnh** (giữ `price` vì công bố = 0 và là điểm mù; `texture`/`packing` vì khoảng cách
+  lớn; `smell`/`colour` để xác nhận đang hơn).
+- **Thứ tự việc tiếp theo:** 14.1 đã xong (`collect_reports`: `experiment_registry` 47 dòng) → ghim/commit
+  BẰNG CHỨNG rồi commit TÀI LIỆU → **14.7 sửa mã `head.aspect_marker`** (mở khoá 14.8) → **14.9 tạo 7 cặp prompt
+  một-khía-cạnh + luật gộp ở 14.10** → người dùng chạy **14.8 + 14.11** (GPU) → **14.12 chốt sổ + gói 019**.
+- **Việc MỚI ngoài kế hoạch (đề xuất, chờ duyệt):** **ensemble per-aspect chọn trên `val`** (dùng
+  `probabilities.csv` của nhiều lượt) - trần đo được **+0,51** (oracle 98,77 so lượt đơn 98,26).
+- **Giới hạn đã biết:** macro kỳ vọng ~**98,8** (vẫn dưới trần định tuyến của chính công bố 99,07);
+  `texture`/`price`/`stayingpower`/`shipping` khó vượt công bố vì họ đạt 100.
+

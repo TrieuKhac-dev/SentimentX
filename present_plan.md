@@ -259,11 +259,13 @@
   nghĩ của Qwen3-0.6B: **`max_new_tokens: 1985`** (p99 1.323 × 1,5, làm tròn lên).
 - **9.2** Chạy **hai lượt `test` có ngưỡng**: `phobert-base-v2/lora/exp004`, `visobert/lora/exp004` (gửi
   **7 tệp nhẹ** + **tệp xác suất**).
-- **9.3** Chạy **nhánh suy nghĩ đầy đủ**: `qwen3-0.6b/prompt-cot/exp005` (1 ví dụ), và `exp006` (0 ví dụ),
-  `exp007` (5 ví dụ) **chỉ khi mỗi lượt ≤ khoảng 3 giờ**; đây là quyết định ở mục 8.2. Mỗi lượt 2–8 giờ,
-  chia 2–3 phiên, chạy theo **luật 9.1**.
-- **9.4** Chạy **bốn lượt lấy mẫu**: `qwen3-4b-instruct-2507/prompt-cot/exp018`, `exp019`, `exp020` (4-bit,
-  seed 1 / 2 / 3) và `exp021` (fp16, seed 1) — khoảng 11 giờ, chia bốn phiên.
+- **9.3 HUỶ 06/10/2026** ~~Chạy **nhánh suy nghĩ đầy đủ**~~: `exp005` (1 ví dụ, trần 1.985) ĐÃ CHẠY - đọc được
+  96,98% nhưng **detection F1 chỉ 0,479** (nhánh TẮT suy nghĩ cùng model: 0,86-0,91) ⇒ bật suy nghĩ **phá phát
+  hiện khía cạnh** ở 0.6B. **`exp006` (0 ví dụ) và `exp007` (5 ví dụ) KHÔNG chạy** (tiết kiệm 4-16 giờ GPU).
+  Xem `docs/04_experiments/08_experiment_rationale.md` §5.4.
+- **9.4 HOÃN 06/10/2026** ~~Chạy **bốn lượt lấy mẫu**~~ (`qwen3-4b-instruct-2507/prompt-cot/exp018`..`exp021`):
+  mục đích là **thước nhiễu đường PROMPT** và đầu vào cho biểu quyết, KHÔNG phải để nâng điểm; biên nhiễu của
+  đường ENCODER nay đã đo được bằng ba lượt rẻ hơn nhiều (mục 14.6). Chạy lại khi thật cần đo dao động đường prompt.
 
 ## Mục 10. Xử lý đợt 8 (không cần GPU)
 
@@ -352,7 +354,12 @@
 | `cafebert/lora/exp004` | `cafebert/lora/exp002` | thước nhiễu cho vế **ĐẦU PHÂN LOẠI HỌC** | `decoding.seed: 7` | 15–20 phút |
 | `vibert-base-cased/lora/exp003` | `vibert-base-cased/lora/exp001` | thước nhiễu cho cặp có **Δ ÂM (−0,15)** — cặp dễ bị nhiễu nhất | `decoding.seed: 7` | 15–20 phút |
 | `phobert-base-v2/lora/exp006` | `phobert-base-v2/lora/exp002` | **ĐẦU PHÂN LOẠI theo khía cạnh** (khía cạnh vào ĐẦU VÀO, không qua ô nhớ prompt) | `head.aspect_marker: true` (mặc định `false`) | 15–60 phút |
-| 6 lượt một-khía-cạnh (**chỉ chạy 2 trước**: `price`, `smell`) | `qwen3-4b-instruct-2507/prompt-cot/exp003` | **HAI TẦNG theo khía cạnh**: lượt LLM một-khía-cạnh gộp với encoder | `task.aspects: [<một khía cạnh>]` + cặp prompt/system MỚI | ~2 giờ/lượt |
+| **7 lượt một-khía-cạnh** (`price`, `texture`, `packing`, `stayingpower`, `shipping`, `smell`, `colour`) | `qwen3-4b-instruct-2507/prompt-cot/exp003` | **HAI TẦNG theo khía cạnh**: encoder giữ KHUNG Ô, lượt LLM một-khía-cạnh quyết polarity | `task.aspects: [<một khía cạnh>]` + cặp prompt/system MỚI | ~2 giờ/lượt (~14 giờ) |
+
+  **TIÊU CHÍ chọn khía cạnh (chốt 06/10/2026):** chạy **CẢ 7 khía cạnh**, KHÔNG chọn lọc theo kết quả (tránh
+  "chọn khía cạnh vì nó dễ ăn"), vì tạo cặp prompt chỉ là việc MỘT LẦN. Chi phí thêm ~8 giờ GPU so với chạy
+  2 lượt, đổi lấy việc không phải biện luận lựa chọn. Nếu buộc phải cắt, thứ tự đáng tiền là:
+  `price` -> `texture`/`packing` -> `stayingpower`/`shipping` -> `smell`/`colour`.
 
   **Đợt 10 KHÁC ba việc đã làm** (đừng đọc nhầm): (a) "đo dao động bằng ba lượt lấy mẫu" (mục 11.3) là thước
   nhiễu của **đường prompt**, KHÔNG dùng được cho encoder; (b) mục 8.5 ("bảng luật lai") dùng đúng **một lượt
@@ -442,7 +449,9 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
   (`SentimentX-goi-018-7b2d4ca-261005.zip`, 1 file: `README.md` bàn giao) - **gửi 017 RỒI 018**, cả hai đã
   `git push`. Lượt thứ tư (`head.aspect_marker`) chờ mục 14.7 (sửa mã) nên chưa ghim.
 - **14.5 (người dùng chạy) Bốn lượt, khoảng 1,5-2 giờ GPU**: ba lượt thước nhiễu + một lượt `aspect_marker`.
-  Mỗi lượt encoder gửi **8 tệp** (thêm tệp xác suất) như mục 7.4.
+  Mỗi lượt encoder gửi **8 tệp** (thêm tệp xác suất) như mục 7.4. **ĐÃ CHẠY 3/4 (05/10/2026):** ba lượt thước
+  nhiễu (`cafebert/lora/exp003`, `cafebert/lora/exp004`, `vibert-base-cased/lora/exp003`) đã có kết quả và biên
+  nhiễu đã ĐO ở mục 14.6 (±0,33 ... ±0,67). Còn lại ĐÚNG lượt `aspect_marker` (chờ mục 14.7 sửa mã).
 - **14.6 (không cần GPU) Đo BIÊN NHIỄU cho đường encoder** và viết vào `06_lora_encoder.md` +
   `08_experiment_rationale.md` §2b. Trả lời thẳng hai câu: (a) chênh **+0,21** (và +1,16) của nhóm đầu phân
   loại có **nằm NGOÀI** biên nhiễu không; (b) chênh **−0,15** của `vibert-base-cased` có **nằm TRONG** biên
@@ -455,15 +464,17 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
   `run_meta.json`, thẻ MLflow; test mới; thêm **một DÒNG MỚI** vào bảng dấu vết của `06_lora_encoder.md`.
 - **14.8 (người dùng chạy) MỘT lượt rẻ nhất trước** (`phobert-base-v2/lora/exp006`, 15-60 phút) để xem cơ chế
   mới có TÁC DỤNG không, rồi mới quyết có lan ra năm model kia hay không.
-- **14.9 (không cần GPU, SỬA MÃ) Hướng 3 - hai tầng theo khía cạnh.** Tạo **sáu cặp prompt + system MỚI** (mỗi
-  cặp một khía cạnh) — KHÔNG sửa cặp prompt cũ (luật 1.4: cặp prompt đã dùng là **bất biến**); cập nhật danh
-  sách tập-đóng trong `tests/experiments/test_prompts.py` (không thì `ci_checks` đỏ); thêm hàm gộp vào
+- **14.9 (không cần GPU, SỬA MÃ) Hướng 3 - hai tầng theo khía cạnh.** Tạo **BẢY cặp prompt + system MỚI** (mỗi
+  cặp một khía cạnh, đủ 7 khía cạnh của dataset) - KHÔNG sửa cặp prompt cũ (luật 1.4: cặp prompt đã dùng là
+  **bất biến**); cập nhật danh sách tập-đóng trong `tests/experiments/test_prompts.py` (không thì `ci_checks` đỏ);
+  chạy `run_check_examples.py` cho từng cặp (kiểm rò rỉ); thêm hàm gộp vào
   `src/evaluation/fusion.py` + đường gọi ở `scripts/fuse.py` + test.
 - **14.10 (không cần GPU) CHỐT LUẬT GỘP TRƯỚC KHI CHẠY** (luật 1 + luật 11 của `02_rules.md`): khung ô lấy từ
   **encoder**; khi encoder nói "có nhắc" mà lượt một-khía-cạnh nói "không nhắc" thì lấy **ai** — ghi vào
   `README.md` của lượt mới. **Không** được chọn luật sau khi đã thấy kết quả.
-- **14.11 (người dùng chạy) HAI lượt một-khía-cạnh** (`qwen3-4b-instruct-2507` cho `price` và `smell`,
-  ~4-5 giờ GPU) ⇒ gộp ⇒ **bảng RIÊNG**, không trộn bảng `paper` (tiền lệ: `exp016`).
+- **14.11 (người dùng chạy) BẢY lượt một-khía-cạnh** (`qwen3-4b-instruct-2507`, mỗi lượt một khía cạnh trong
+  `price`/`texture`/`packing`/`stayingpower`/`shipping`/`smell`/`colour`, ~14 giờ GPU) ⇒ gộp ⇒ **bảng RIÊNG**,
+  không trộn bảng `paper` (tiền lệ: `exp016`).
 - **14.12 (không cần GPU) Chốt sổ**: cập nhật `present_plan.md`, `check_present_plan.md`,
   `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 019** (nếu hướng 2/3 sửa mã);
   `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #6**.

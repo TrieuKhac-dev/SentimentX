@@ -5,7 +5,9 @@
 
 Mười bảy lượt đang có kết quả thuộc **bốn nhóm theo câu hỏi** - A (hai encoder học LoRA, 4 lượt),
 B (Qwen3-4B hỏi bằng prompt, 9 lượt), E (ba biến thể bộ 1 ví dụ, 3 lượt), F (Qwen3-4B hỏi một lượt, 1
-lượt); nhóm **G** (Qwen3-0.6B) chưa có kết quả. Mỗi lượt chỉ khác lượt bên cạnh **một biến**; đó là điều
+lượt). **Cập nhật 06/10/2026:** nhóm **G** (Qwen3-0.6B) NAY ĐÃ có kết quả nhưng **cả ba lượt gốc đều dưới cửa
+đọc được**, và **hai nhánh chống lưng đều không cứu được** (một-lượt: đọc được nhưng điểm thấp; bật suy nghĩ:
+đọc được nhưng phá phát hiện khía cạnh) - xem §5. Mỗi lượt chỉ khác lượt bên cạnh **một biến**; đó là điều
 kiện để con số chênh lệch có nghĩa.
 
 Ngoài 17 lượt đó, **§2b** liệt kê **6 lượt ablation đầu phân loại** (đã chạy trong đợt 7) trả lời câu "đóng băng hay
@@ -105,13 +107,12 @@ lại) nên bảng nay đủ **6/6**: `lora/exp002` cho **97,88 · 0,917 · 0,84
   (`phobert-large/lora/exp002`, 97,69 · 0,883) vẫn dưới cả hai lượt CafeBERT. Vì vậy sáu lượt này được giữ
   như **phép đo cơ chế**, KHÔNG phải để thay các lượt cha trong bảng chính: đổi cha là đổi luôn mọi so sánh
   đang có.
-- **Một lượt mỗi nhánh nghĩa là CHƯA có thước nhiễu cho encoder** - đây là điều kiện còn thiếu của §2b:
-  thước nhiễu hiện có của dự án là độ lệch giữa ba lượt lấy mẫu của đường PROMPT (đợt 8), mà đường prompt
-  không dùng được cho encoder (encoder chạy `greedy` nên không có dao động lấy mẫu). Nên **+0,21 → +1,16**
-  (cùng chiều ở 5/6 cặp) là tín hiệu **yếu nhưng nhất quán**, còn −0,15 của `vibert-base-cased` **chưa kết
-  luận được gì**. **Đợt 10 (mục 14 của `present_plan.md`) đã lên kế hoạch bù**: chạy lại ba nhánh với
-  `decoding.seed: 7` (`cafebert/lora/exp003`, `cafebert/lora/exp004`, `vibert-base-cased/lora/exp003`) để
-  ĐO biên nhiễu trước khi kết luận.
+- **ĐÃ CÓ thước nhiễu cho encoder (đo 05/10/2026).** Ba lượt chạy lại cha với `decoding.seed: 7`:
+  `cafebert/lora/exp003` **98,00** (so 97,67), `cafebert/lora/exp004` **98,26** (so 97,88),
+  `vibert-base-cased/lora/exp003` **95,66** (so 94,99) ⇒ **biên nhiễu +-0,33 ... +-0,67**. Hệ quả: **+0,21 -> +1,16**
+  (cùng chiều ở 5/6 cặp) là tín hiệu **yếu nhưng nhất quán**, còn **-0,15** của `vibert-base-cased` và **+0,21**
+  của "đầu phân loại HỌC" ở CafeBERT **nằm trong nhiễu** (không kết luận được). Kỷ lục hiện tại của dự án là
+  **`cafebert/lora/exp004` = 98,26**. Chi tiết bằng chứng: `06_lora_encoder.md`.
 - `price` là **điểm mù** ở CẢ HAI nhánh (F1 âm = 0,000 ở mọi lượt) - đúng như §7, đừng đọc cột đó.
 
 ## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
@@ -173,7 +174,7 @@ có bắt viết phần suy luận hay không. Chênh lệch **−1,83 điểm**
 chứng CoT có tác dụng thật, không chỉ tốn token. Lượt này cũng nhanh nhất (1.081,6 giây so với 5.634,9
 giây của `exp002`), vì câu trả lời ngắn.
 
-## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ + 1 lượt một-lượt)
+## 5. Nhóm G - Qwen3-0.6B hỏi bằng prompt (3 lượt chạy lại + 1 lượt DÒ + 1 lượt một-lượt + 1 lượt bật suy nghĩ)
 
 | Thí nghiệm | Câu hỏi | Điểm riêng |
 | --- | --- | --- |
@@ -241,8 +242,20 @@ suy nghĩ (p50 642 so với 108-215) - đó là giá của cơ chế, không ph�
 ví dụ**, nên 1985 là số ĐO ĐƯỢC cho mức đó; hai lượt 0 và 5 ví dụ dùng **cùng trần này** và **chưa có lượt
 DÒ riêng** - ghi ra để người đọc không tưởng là đã đo riêng từng mức.
 
-Ba lượt đợt 8 tiếp theo nhóm này (trần 1985, cùng một cơ chế): `exp005` (1 ví dụ, **luôn chạy** - lượt so
-chính với nhánh tắt suy nghĩ) và `exp006`/`exp007` (0 và 5 ví dụ, **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ**).
+### 5.4. Lượt bật suy nghĩ `prompt-cot/exp005` (1 ví dụ, trần 1.985) - ĐÃ XONG: NHÁNH NÀY BỊ BỎ
+
+| `% đọc được` | acc TB | **detection F1 (cơ sở `all`)** | F1 âm macro | số ô `paper` |
+| --- | --- | --- | --- | --- |
+| 96,98 (QUA cửa 95%) | 90,92 | **0,479** | 0,356 | 1.638 |
+
+Bật suy nghĩ giúp **đọc được** (96,98%) nhưng **phá PHÁT HIỆN khía cạnh**: detection F1 tụt còn **0,479**, so
+với **0,86-0,91** của nhánh TẮT suy nghĩ cùng model; `stayingpower` acc chỉ 70,09. Kết luận: **BỎ nhánh 0.6B
+bật suy nghĩ**; `exp006` (0 ví dụ) và `exp007` (5 ví dụ) **HUỶ - KHÔNG chạy** (chốt 06/10/2026) vì cùng cơ chế
+ở mức ví dụ khác và cơ chế đã biết không cứu được.
+
+**Tổng kết nhóm G (0.6B) - chốt:** ba lượt gốc **dưới cửa đọc được** (21,63-84,41%); lượt một-lượt **đọc được
+99,94% nhưng điểm thấp** (F1 âm macro 0,211; chỉ 877 ô); lượt bật suy nghĩ **đọc được 96,98% nhưng phá
+detection** (0,479) ⇒ **0.6B không dùng được cho nhiệm vụ này ở cả ba cách hỏi**.
 
 ### 5.3. Lượt `prompt-one-turn/exp001` (0,6B, bỏ suy luận, chỉ trả JSON) - ĐÃ XONG 05/10/2026
 

@@ -158,6 +158,28 @@ Ba điều phải đọc kèm:
 3. `price` âm vẫn **0,000 ở cả bốn lượt**, nhưng đó là **giới hạn của thước** (test chỉ có 6 ô `price` âm,
    `val` có 0 ô) - xem `08_experiment_rationale.md` §7.
 
+### Biên nhiễu của đường encoder (đo 05/10/2026)
+
+Ba lượt **thước nhiễu** chạy lại đúng cấu hình cha với **một** thay đổi: `decoding.seed: 7`
+(ở đường encoder khoá này là **hạt giống HUẤN LUYỆN** - xem `docs/05_config/05_experiments_shared.md`).
+
+| Cặp (cha -> thước nhiễu) | acc macro cha | acc macro seed 7 | Δ | detection Δ |
+| --- | --- | --- | --- | --- |
+| `cafebert/lora/exp001` (đầu ĐÓNG BĂNG) -> `exp003` | 97,67 | **98,00** | **+0,33** | 0,964 -> 0,965 |
+| `cafebert/lora/exp002` (đầu HỌC) -> `exp004` | 97,88 | **98,26** | **+0,38** | 0,967 -> 0,964 |
+| `vibert-base-cased/lora/exp001` -> `exp003` | 94,99 | 95,66 | **+0,67** | 0,931 -> 0,938 |
+
+Suy ra **biên nhiễu của đường encoder là +-0,33 ... +-0,67 điểm**; lấy làm việc: **+-0,7**. Ba hệ quả:
+
+1. **Mọi chênh lệch dưới ~0,7 điểm trên đường encoder KHÔNG kết luận được.** Áp cho "đầu phân loại HỌC"
+   (+0,21 ở CafeBERT) và -0,15 của ViBERT: cả hai **nằm trong nhiễu**. Ngược lại cặp
+   `phobert-base-v2/lora/exp001 -> exp002` (+8,22 acc; F1-âm 0,540 -> 0,876) **vượt xa** nhiễu nên vẫn vững.
+2. **Kỷ lục hiện tại của dự án: `cafebert/lora/exp004` = 98,26** (đầu phân loại HỌC, seed 7) - hơn mức tốt
+   nhất của công bố (97,70) **+0,56**. Hai lượt cùng cấu hình (`exp002`/`exp004`) cho **97,88 ... 98,26**:
+   đúng là MỘT cấu hình, HAI lần rút thăm - đọc như một khoảng, không đọc như hai thành tích.
+3. **`detection` ổn định** (Δ ≤ 0,007) trong khi `acc` đổi tới 0,67 điểm ⇒ hai thước có độ nhạy khác nhau;
+   kết luận về cơ chế nên dựa vào `detection` + F1 lớp âm nhiều hơn `acc`.
+
 ## Chạy trên Colab
 
 Mọi notebook LoRA (sáu model encoder) chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa

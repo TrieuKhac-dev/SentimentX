@@ -253,9 +253,12 @@ qwen3-0.6b/prompt-one-turn/exp001    <- (gốc)  bỏ suy luận, bắt trả JS
     Kết luận: GIỮ - ĐỊNH DẠNG là cơ chế hỏng của ba lượt exp001..003, KHÔNG phải trần token;
               nhưng điểm vẫn thấp ⇒ 0,6B vẫn quá nhỏ để so điểm
 qwen3-0.6b/prompt-cot/exp005        <- exp002   BẬT suy nghĩ (1 ví dụ), trần 1985
+    Kết quả: đọc được 96,98% (QUA cửa) nhưng acc TB 90,92 · **detection F1 0,479** · F1 âm macro 0,356
+    Kết luận: **BỎ nhánh 0.6B bật suy nghĩ** - suy nghĩ làm HỎNG phát hiện khía cạnh (det 0,479 so
+              ~0,86-0,91 của nhánh tắt suy nghĩ); 0.6B quá nhỏ, không so điểm được với công bố
 qwen3-0.6b/prompt-cot/exp006        <- exp001   BẬT suy nghĩ (0 ví dụ), cùng trần 1985
 qwen3-0.6b/prompt-cot/exp007        <- exp003   BẬT suy nghĩ (5 ví dụ), cùng trần 1985
-    Kết quả: CHƯA chạy (`exp005` luôn chạy; `exp006`/`exp007` chỉ chạy khi mỗi lượt ≤ ~3 giờ)
+    Kết quả: **HUỶ - KHÔNG chạy** (người dùng chốt 06/10/2026 sau kết quả `exp005`)
 ```
 
 
