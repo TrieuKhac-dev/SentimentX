@@ -623,6 +623,13 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
   F1 âm macro 0,7757) - **chưa đọc được tác dụng**, cần ≥ 4-5 ứng viên `val`. Tài liệu: `09_fusion.md`
   §3.5, `07_evolution.md`, `data/reports/fusion/README.md`, `docs/00_workflow/09_cli.md` (lệnh + mã thoát).
   ⚠️ **CHỜ NGƯỜI DÙNG CHỐT:** tiêu chí nào dùng cho BÁO CÁO (`f1_âm` hay `accuracy`).
+  **ĐÃ CHẠY THỬ CẢ HAI (06/10/2026)** trên cùng bộ ứng viên (2 lượt `val` đang có) và ghi chứng cứ vào
+  `data/reports/fusion/` (`aspect_router_f1am.json`, `aspect_router_accuracy.json`, `router_aspect_*_*.json`,
+  `inputs/*.csv`). Số trên **`val`** (tập để chọn): `f1_âm` acc 93,08 · F1 âm **0,9005**; `accuracy` acc
+  **95,97** · F1 âm 0,8562; **trần oracle `val` = 95,97** ⇒ tiêu chí `accuracy` đạt ĐÚNG trần và hơn cả hai
+  thành viên (95,49/93,08), còn `f1_âm` thoái hoá thành "lấy phoBERT cho mọi khía cạnh" (không đổi gì so với
+  một lượt đơn). Trên `test` (đối chiếu): `accuracy` 96,16 so oracle 96,17 · F1 âm 0,7543. **ĐỀ XUẤT:
+  `accuracy`** - chờ người dùng xác nhận; nếu chốt `f1_âm` thì đọc kèm accuracy và nói rõ router = một lượt đơn.
 - **B2 XONG MỘT PHẦN 06/10/2026 - BẢY CẶP PROMPT + LUẬT GỘP HAI TẦNG** (mục 14.9/14.10/14.11): 7 cặp
   `configs/prompts/absa_aspect_<khía cạnh>_v1.txt` + `configs/prompts/system/absa_aspect_<khía cạnh>.txt`
   (có phần định nghĩa khía cạnh + dấu hiệu lời CHÊ/KHEN riêng từng khía cạnh); đăng ký bằng test tập-đóng

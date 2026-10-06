@@ -144,6 +144,41 @@ kiểm lại được lựa chọn và thấy lựa chọn khác sẽ ra sao mà
 rằng **lượt đầu giữ khung ô** - nếu các lượt có tập ô cơ sở `paper` khác nhau thì đổi thứ tự `--run` là đổi
 số ô báo cáo (không đổi luật, nhưng đổi mẫu số).
 
+**Chạy thử HAI tiêu chí trên cùng bộ ứng viên (06/10/2026)** - để CHỌN tiêu chí đúng luật 1 (chọn trên `val`).
+Bộ ứng viên đang có ở máy chỉ **2 lượt `val`** (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`); bốn
+encoder còn lại CHƯA có lượt `val` nên không làm ứng viên được:
+
+| | acc macro | F1 âm macro (`paper`) | số ô `paper` |
+| --- | --- | --- | --- |
+| trên **`val`** (tập để CHỌN): `--criterion f1_âm` | 93,08 | **0,9005** | 2.755 |
+| trên **`val`**: `--criterion accuracy` | **95,97** | 0,8562 | 2.740 |
+| trên **`val`**: trần chọn-theo-khía-cạnh (oracle `val`) | **95,97** | - | - |
+| trên `test` (ĐỐI CHIẾU, không dùng để chọn): `f1_âm` | 93,28 | **0,7757** | 2.736 |
+| trên `test`: `accuracy` | **96,16** | 0,7543 | 2.716 |
+| trên `test`: oracle theo khía cạnh | 96,17 | - | - |
+
+Đọc bảng này:
+
+- **`--criterion accuracy` đạt ĐÚNG trần trên `val` (95,97)** và cũng sát trần trên `test` (96,16 so 96,17):
+  lựa chọn trên `val` chuyển sang `test` được, và hơn **cả hai** lượt thành viên (trên `val`: 95,97 so 95,49
+  và 93,08).
+- **`--criterion f1_âm` thoái hoá thành "lấy phoBERT cho MỌI khía cạnh"** ở bộ ứng viên này: phoBERT thắng F1
+  lớp âm ở cả 6 khía cạnh có ô âm trên `val` (xem khoá `điểm` trong `aspect_router_f1am.json`), nên router
+  KHÔNG đổi gì so với một lượt đơn; nó chỉ giữ được F1 âm tốt hơn (0,7757 so 0,7543 trên `test`).
+- **Hai tiêu chí là một ĐÁNH ĐỔI thật**: `accuracy` hơn 2,88 điểm accuracy nhưng kém 0,021 F1 âm macro. Chọn
+  cái nào là quyết định của người dùng; điều KHÔNG được làm là đổi tiêu chí sau khi đã thấy `test` mà không
+  nói ra.
+- **Số ô `paper` ĐỔI theo lựa chọn** (2.736 / 2.716 trên `test`): cơ sở `paper` phụ thuộc cả nhãn ĐOÁN, nên
+  đổi router là đổi mẫu số - luôn đọc số ô kèm con số (luật 1 của `metrics.md`).
+
+**ĐỀ XUẤT (chờ người dùng xác nhận): dùng `accuracy`** cho số báo cáo - vì nó đạt trần trên `val` (tập dùng để
+chọn) và hơn cả hai thành viên, còn `f1_âm` không chọn được gì khác ngoài lượt mạnh nhất. Nếu chốt `f1_âm` thì
+phải đọc kèm cả accuracy và nói rõ router chỉ bằng một lượt đơn.
+
+Chứng cứ đã commit: `aspect_router_f1am.json`, `aspect_router_accuracy.json`, `router_aspect_val_*.json`,
+`router_aspect_*.json` và `inputs/*.csv` của 4 lượt tham gia (tái lập bằng hai lệnh ở đầu mục 3.5 với
+`--criterion` tương ứng và `--write-router` khác tên).
+
 ### 3.6. Gộp HAI TẦNG theo khía cạnh - `scripts/fuse_aspect.py`
 
 ```
