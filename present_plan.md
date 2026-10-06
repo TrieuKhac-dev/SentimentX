@@ -478,6 +478,20 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
 - **14.12 (không cần GPU) Chốt sổ**: cập nhật `present_plan.md`, `check_present_plan.md`,
   `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 019** (nếu hướng 2/3 sửa mã);
   `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #6**.
+- **14.13 (XONG 06/10/2026, không cần GPU) ROUTER THEO KHÍA CẠNH** - việc MỚI ngoài kế hoạch gốc, thêm vì
+  đo được rằng chọn-theo-khía-cạnh có **trần cao hơn lượt đơn tốt nhất ~0,5 điểm**: mã ở
+  `src/evaluation/fusion.py` (`aspect_scores`, `fit_aspect_router`, `router_document`, `load_router`,
+  `router_for`, `router_predictions`, `members_report`) + `scripts/ensemble_aspect.py` (hai bước
+  `--fit`/`--apply`) + **11 test** (`tests/evaluation/test_fusion.py::AspectRouterTest`) và 8 test cờ CLI.
+  **LUẬT ĐÃ ĐÓNG BĂNG** (`fusion.ROUTER_LAW`), hai điểm phải đọc kỹ:
+  1. **TIÊU CHÍ là tham số BẮT BUỘC lúc chốt** (`--criterion f1_âm|accuracy`) và bị **CẤM** lúc áp - hai tiêu
+     chí cho hai router KHÁC NHAU (một lượt có thể thắng F1 âm cả 7 khía cạnh mà vẫn thua accuracy ở vài khía
+     cạnh), nên đổi tiêu chí sau khi thấy `test` là tự lừa mình. Tệp luật ghi kèm **điểm của MỌI ứng viên**
+     (cả hai tiêu chí + số ô) để người đọc dò lại được.
+  2. **Lượt ĐẦU trong `--run` giữ KHUNG Ô**, nên đổi thứ tự `--run` đổi mẫu số cơ sở `paper` (không đổi luật).
+  ⚠️ **CÒN PHẢI NGƯỜI DÙNG QUYẾT:** tiêu chí nào dùng cho BÁO CÁO (`f1_âm` theo luật dự án, hay `accuracy` khớp
+  con số trần `+0,51` đã đo). Lượt thử ở máy chỉ có **2 ứng viên `val`** nên cả 7 khía cạnh đều chọn một lượt ⇒
+  bản router TRÙNG lượt thành viên (chưa đọc được tác dụng); muốn thấy tác dụng cần ≥ 4-5 ứng viên `val`.
 
 
 

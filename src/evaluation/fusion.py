@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""KẾT HỢP các lượt chạy: dò ngưỡng theo khía cạnh, ensemble encoder, luật lai, biểu quyết.
+"""KẾT HỢP các lượt chạy: dò ngưỡng theo khía cạnh, ensemble encoder, luật lai, biểu quyết, router.
 
 VÌ SAO CÓ MODULE NÀY
-Ba việc này không chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác suất
+Năm việc này không chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác suất
 từng ô - chỉ đường encoder có) rồi CHẤM LẠI bằng ĐÚNG engine của dự án (`src/evaluation/scorers/`).
 Nhờ vậy số của bước kết hợp so được với số của từng lượt, và không có "định nghĩa metric thứ hai".
 
@@ -590,7 +590,7 @@ def report_of(run, preds=None, extra=None):
     """Số của một bộ nhãn đoán, dạng ghi được vào JSON: hai cơ sở, số ô, F1 âm từng khía cạnh.
 
     `preds=None` nghĩa là chấm CHÍNH nhãn của lượt chạy (dùng để làm mốc so trước/sau).
-    Dùng CHUNG cho cả bốn bước kết hợp (ngưỡng, ensemble, lai, biểu quyết) để chúng không mỗi bước
+    Dùng CHUNG cho cả năm bước kết hợp (ngưỡng, ensemble, lai, biểu quyết, router) để chúng không mỗi bước
     báo một kiểu số khác nhau - và để mọi bước đều kèm số ô theo luật 1 của `metrics.md`.
     """
     samples = samples_of(run, preds)
@@ -655,4 +655,273 @@ def _macro(scores_paper, aspects):
             "macro_trên_khía_cạnh_đang_dương": (
                 round(sum(macro_positive) / len(macro_positive), 6) if macro_positive else None),
             "số_khía_cạnh_có_ô_âm": len(usable)}
+
+
+# ---------------------------------------------------------------------------------------------
+# ROUTER THEO KHÍA CẠNH (đợt 10) - bước kết hợp thứ NĂM
+#
+# VÌ SAO CẦN BƯỚC NÀY
+# `ensemble_predictions` gộp xác suất bằng MỘT bộ trọng số cho MỌI khía cạnh, mà các lượt encoder
+# mạnh yếu KHÁC NHAU theo từng khía cạnh: chọn-theo-khía-cạnh có trần cao hơn lượt đơn tốt nhất
+# khoảng 0,5 điểm (`docs/04_experiments/09_fusion.md` mục 3.5). Router giữ KHUNG Ô của lượt đầu rồi,
+# cho TỪNG khía cạnh, lấy nhãn của một lượt đã chốt làm nguồn.
+#
+# LUẬT ĐÃ CHỐT - đóng băng vào tệp JSON TRƯỚC khi áp lên `test` (luật 1 ở đầu tệp này; luật 1.4 của
+# `docs/00_workflow/02_rules.md`): đổi luật sau khi đã thấy `test` là chọn bằng tập sẽ báo cáo.
+#   1. tiêu chí: **F1 lớp ÂM của chính khía cạnh đó trên `val`** (cơ sở `paper`);
+#   2. khía cạnh **không có ô âm nào trên `val`** (ca `price`): chuyển sang **accuracy của ô thuộc
+#      khía cạnh** (cơ sở `all`), và GHI LÍ DO vào tệp luật - đổi tiêu chí mà im lặng là chọn mò;
+#   3. HOÀ: xét **accuracy ô của khía cạnh**; vẫn hoà: lượt **ĐẦU** trong danh sách người chạy đưa
+#      vào - nên THỨ TỰ truyền vào là một phần của luật, và tệp luật ghi lại thứ tự đó;
+#   4. khoá của tệp luật là **TÊN MODEL**, vì lượt `val` và lượt `test` của cùng một encoder nằm ở
+#      hai thư mục khác nhau (`.../exp003` và `.../exp004` - xem `weights_for` ở trên).
+# ---------------------------------------------------------------------------------------------
+
+ROUTER_CRITERIA = {
+    "f1_âm": "F1 lớp ÂM của khía cạnh đó trên `val` (cơ sở `paper`) - luật của dự án khi chỉ được chọn "
+             "MỘT số, vì lớp âm là chỗ mọi lượt đều yếu",
+    "accuracy": "accuracy của ô thuộc khía cạnh trên `val` (cơ sở `all`) - sát chỉ số BÁO CÁO hơn, nên "
+                "kỳ vọng tăng được nhiều hơn, nhưng KHÔNG nhìn tới lớp âm",
+}
+
+ROUTER_LAW = {
+    "tiêu_chí": "CHỌN MỘT trong `ROUTER_CRITERIA`; chốt LÚC DỰNG luật và ghi vào tệp - `--apply` đọc lại "
+                "từ tệp nên KHÔNG đổi được sau khi đã thấy `test` (luật 1.4 của 02_rules.md)",
+    "không_có_ô_âm_trên_val": "chuyển sang ACCURACY của ô thuộc khía cạnh (cơ sở `all`); lí do ghi vào "
+                             "từng khía cạnh của tệp luật",
+    "hoà": "xét theo tiêu chí còn lại; vẫn hoà thì lượt ĐẦU trong danh sách truyền vào",
+    "khoá_luật": "tên model (lượt val và lượt test của cùng encoder nằm ở hai thư mục khác nhau)",
+    "đơn_vị_chọn": "MỘT lượt cho MỖI khía cạnh; KHÔNG trộn xác suất (đó là việc của ensemble)",
+}
+
+
+def aspect_scores(run):
+    """Điểm của TỪNG khía cạnh ở MỘT lượt - đầu vào duy nhất của router.
+
+    Hai số, hai cơ sở, cố ý: **F1 lớp âm** trên cơ sở `paper` (tiêu chí chính, và `None` khi khía
+    cạnh không có ô âm nào để so) và **accuracy** trên cơ sở `all` (đọc thẳng `by_aspect` của bộ
+    chấm `accuracy`, không tự đếm - dự án chỉ có MỘT định nghĩa metric).
+
+    Số ô cũng trả về, để người đọc tệp luật thấy ngay khía cạnh nào chỉ có 1-6 ô (`price`).
+    """
+    scores, paper = scores_of(samples_of(run))
+    accuracy = scores.get("accuracy") or {}
+    paper_accuracy = paper.get("accuracy") or {}
+    cells = accuracy.get("cells_by_aspect") or {}
+    paper_cells = paper_accuracy.get("cells_by_aspect") or {}
+    found = {}
+    for aspect in run["aspects"]:
+        found[aspect] = {
+            "f1_âm": negative_f1(paper, aspect),
+            "accuracy": (accuracy.get("by_aspect") or {}).get(aspect),
+            "ô": int(cells.get(aspect) or 0),
+            "ô_paper": int(paper_cells.get(aspect) or 0),
+        }
+    return found
+
+
+def _criterion_value(item, name):
+    """`(có số không, giá trị)` của một tiêu chí ở một khía cạnh - `None` khác hẳn 0,0."""
+    if name == "accuracy":
+        value = item.get("accuracy")
+    else:
+        value = item.get("f1_âm")
+    return (value is not None, float(value or 0.0))
+
+
+def _router_prefers(left, right, criterion="f1_âm"):
+    """`left` có thắng `right` cho một khía cạnh không - ĐÚNG luật ở `ROUTER_LAW`.
+
+    Thứ tự: **tiêu chí đã chốt** -> **tiêu chí còn lại** -> (là chuyện của chỗ gọi) thứ tự truyền vào.
+    Một bên `None` (không có số) mà bên kia có thì bên CÓ SỐ thắng: `price` trên `val` không có ô âm nào
+    nên F1 lớp âm là `None` ở MỌI lượt - đúng ca phải rơi xuống accuracy.
+    """
+    order = ("accuracy", "f1_âm") if criterion == "accuracy" else ("f1_âm", "accuracy")
+    for name in order:
+        left_has, left_value = _criterion_value(left, name)
+        right_has, right_value = _criterion_value(right, name)
+        if left_has != right_has:
+            return left_has
+        if left_has and left_value != right_value:
+            return left_value > right_value
+    return False
+
+
+def _router_reason(item, criterion="f1_âm"):
+    """Vì sao khía cạnh này chọn lượt đó - câu người đọc kiểm lại được, không phải mã lỗi."""
+    if criterion == "accuracy":
+        return "accuracy ô của khía cạnh cao nhất trên val ({})".format(
+            round(float(item.get("accuracy") or 0.0), 4))
+    if item.get("f1_âm") is None:
+        return ("val không có ô âm nào của khía cạnh này (ô {}): chuyển sang accuracy"
+                .format(item.get("ô")))
+    return "F1 lớp âm cao nhất trên val ({})".format(round(float(item["f1_âm"]), 4))
+
+
+def fit_aspect_router(runs, criterion="f1_âm"):
+    """Chốt ROUTER trên các lượt `val`: `{khía cạnh: {model, lượt, lí_do, điểm}}`.
+
+    `criterion` là tiêu chí chốt (một khoá của `ROUTER_CRITERIA`); mặc định `f1_âm` là luật của dự án
+    khi chỉ được chọn MỘT số. Tiêu chí này ĐI VÀO tệp luật (`router_document`), nên đổi nó giữa chừng là
+    nhìn thấy được.
+
+    Vì sao khoá là TÊN MODEL (không phải đường dẫn): cùng một encoder chạy `val` ở thư mục này và
+    `test` ở thư mục khác, nên chỉ tên model sống qua được hai tập - y như `fit_weights_by_model`.
+
+    Chỉ chốt trên `val`: đưa lượt `test` vào là LỖI (luật 1). Mỗi model đúng MỘT lượt: hai lượt cùng
+    model thì không biết lấy ô của lượt nào, nên báo lỗi chứ không im lặng chọn một.
+
+    Bảng `điểm` giữ số của MỌI ứng viên cho khía cạnh đó (cả hai tiêu chí): nhờ vậy người đọc kiểm lại
+    được lựa chọn, và tệp luật tự nó đủ để dò lại bằng tiêu chí khác - không phải chạy lại model.
+    """
+    if not runs:
+        raise FusionError("Không có lượt nào để chốt router.")
+    criterion = str(criterion or "")
+    if criterion not in ROUTER_CRITERIA:
+        raise FusionError(
+            "Tiêu chí router '{}' không có. Chọn ĐÚNG MỘT trong: {} - và phải chốt TRƯỚC khi áp lên "
+            "`test` (luật 1.4 của 02_rules.md).".format(criterion,
+                                                        ", ".join(sorted(ROUTER_CRITERIA))))
+    wrong = [run for run in runs if str(run["split"]) != "val"]
+    if wrong:
+        raise FusionError(
+            "Router chỉ chốt được trên `val`, nhưng có lượt không phải `val`: {}. Chốt trên `val` rồi "
+            "áp lên tập khác bằng `--router-file`.".format(
+                ", ".join("{} (split={})".format(utils.rel(run["dir"]), run["split"] or "?")
+                          for run in wrong)))
+    tables = []
+    seen = {}
+    for run in runs:
+        model = model_of(run)
+        if model in seen:
+            raise FusionError(
+                "Hai lượt cùng model '{}' trong một lần chốt router; luật khoá theo tên model nên bảng "
+                "điểm của chúng sẽ ghi đè nhau. Mỗi model đúng một lượt.".format(model))
+        seen[model] = run
+        tables.append((run, aspect_scores(run)))
+    router = {}
+    for aspect in runs[0]["aspects"]:
+        best_run, best_item = None, None
+        for run, table in tables:
+            item = table[aspect]
+            if best_item is None or _router_prefers(item, best_item, criterion):
+                best_run, best_item = run, item
+        router[aspect] = {
+            "model": model_of(best_run),
+            "lượt": utils.rel(best_run["dir"]),
+            "lí_do": _router_reason(best_item, criterion),
+            "điểm": {model_of(run): table[aspect] for run, table in tables},
+        }
+    return router
+
+
+def router_document(runs, router, criterion="f1_âm"):
+    """Nội dung tệp luật router: LUẬT + tiêu chí đã chốt + nguồn chốt + lựa chọn + ĐIỂM mọi ứng viên.
+
+    Ghi cả `điểm` của mọi ứng viên (hai tiêu chí, số ô): tệp luật tự nó đủ để người đọc dò lại lựa chọn
+    và thấy lựa chọn khác sẽ ra sao - ĐÓ là điều kiện để việc đóng băng luật có nghĩa.
+    """
+    return {
+        "khoá": "model",
+        "tiêu_chí": criterion,
+        "luật": dict(ROUTER_LAW),
+        "chốt_trên": [{"model": model_of(run), "lượt": utils.rel(run["dir"]), "split": run["split"]}
+                      for run in runs],
+        "thứ_tự_hoà": [model_of(run) for run in runs],
+        "router": {aspect: {"model": item["model"], "lí_do": item["lí_do"], "điểm": item["điểm"]}
+                   for aspect, item in router.items()},
+    }
+
+
+def load_router(path):
+    """Đọc tệp luật router do `ensemble_aspect.py --write-router` ghi; sai định dạng là LỖI."""
+    table = _read_json(path).get("router")
+    if not isinstance(table, dict) or not table:
+        raise FusionError(
+            "Tệp router '{}' không có khoá `router`; đây không phải tệp do "
+            "`ensemble_aspect.py --write-router` ghi.".format(utils.rel(path)))
+    chosen = {}
+    for aspect, item in table.items():
+        model = str((item or {}).get("model") or "").strip()
+        if not model:
+            raise FusionError(
+                "Tệp router '{}' thiếu `model` cho khía cạnh '{}': không ráp được với các lượt đang "
+                "áp.".format(utils.rel(path), aspect))
+        chosen[str(aspect)] = model
+    return chosen
+
+
+def router_for(runs, table, source=""):
+    """Ráp bảng luật router (khoá tên model) vào các lượt đang có -> `{khía cạnh: đường dẫn lượt}`.
+
+    Thiếu model nào là LỖI kèm TÊN và khía cạnh đang cần nó: im lặng quay về lượt đầu là tự đổi luật
+    đã đóng băng.
+    """
+    by_model = {}
+    for run in runs:
+        model = model_of(run)
+        if model in by_model:
+            raise FusionError(
+                "Hai lượt cùng model '{}' trong một lần áp router; luật khoá theo tên model nên không "
+                "ráp được. Mỗi model đúng một lượt.".format(model))
+        by_model[model] = run
+    missing = {}
+    for aspect, model in dict(table or {}).items():
+        if model not in by_model:
+            missing.setdefault(model, []).append(aspect)
+    if missing:
+        raise FusionError(
+            "Bảng luật router{} chọn model không có trong các lượt đang áp: {}. Đang có: {}.".format(
+                " ({})".format(source) if source else "",
+                "; ".join("{} (khía cạnh {})".format(model, ", ".join(aspects))
+                          for model, aspects in sorted(missing.items())),
+                ", ".join(sorted(by_model)) or "(rỗng)"))
+    return {aspect: str(by_model[model]["dir"]) for aspect, model in dict(table or {}).items()}
+
+
+def router_predictions(base_run, runs, choices):
+    """Nhãn của bản ROUTER: giữ KHUNG Ô của `base_run`, mỗi khía cạnh lấy nhãn của lượt đã chốt.
+
+    Trả `(nhãn, đếm)`. Khía cạnh không có trong luật hoặc ô mà nguồn không có thì **giữ nhãn của
+    `base_run`** và ĐẾM RIÊNG (`không_có_trong_luật`, `thiếu_ô`): đổi luật âm thầm mới là lỗi, còn hai
+    ca này phải nhìn thấy được trong báo cáo.
+    """
+    lookup = {str(run["dir"]): {sid: dict(pred) for sid, pred in zip(run["sample_ids"], run["preds"])}
+              for run in runs}
+    preds = [dict(pred) for pred in base_run["preds"]]
+    per_aspect, missing, not_in_law = {}, 0, set()
+    for position, sample_id in enumerate(base_run["sample_ids"]):
+        for aspect in base_run["aspects"]:
+            source = (choices or {}).get(aspect)
+            if source is None:
+                not_in_law.add(aspect)
+                continue
+            found = (lookup.get(source) or {}).get(sample_id) or {}
+            if aspect not in found:
+                missing += 1
+                continue
+            preds[position][aspect] = found[aspect]
+            per_aspect[aspect] = per_aspect.get(aspect, 0) + 1
+    return preds, {"theo_khía_cạnh": dict(sorted(per_aspect.items())),
+                   "thiếu_ô": missing, "không_có_trong_luật": sorted(not_in_law)}
+
+
+def members_report(runs):
+    """Số của TỪNG lượt thành viên trên cùng tập - bắt buộc để đọc số của bản gộp/router.
+
+    Vì sao nằm ở đây: `docs/04_experiments/09_fusion.md` mục 4 nói bản kết hợp chỉ có nghĩa khi đứng
+    cạnh số của từng thành viên trên CÙNG tập; để chỗ gọi tự ráp là mở đường cho việc so sai tập.
+    """
+    found = []
+    for run in runs:
+        report = report_of(run)
+        found.append({"lượt": utils.rel(run["dir"]), "split": run["split"],
+                      "f1_âm_macro": report["f1_âm_macro"],
+                      "accuracy_all": report["accuracy_all"],
+                      "cells_paper": report["cells_paper"]})
+    return found
+
+
+
+
 

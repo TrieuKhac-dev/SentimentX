@@ -263,7 +263,7 @@ qwen3-0.6b/prompt-cot/exp007        <- exp003   BẬT suy nghĩ (5 ví dụ), c�
 
 
 
-BỐN BƯỚC KẾT HỢP (không chạy model; đọc lại các lượt đã có; tệp trong `data/reports/fusion/`). Luật chốt trên
+NĂM BƯỚC KẾT HỢP (không chạy model; đọc lại các lượt đã có; tệp trong `data/reports/fusion/`). Luật chốt trên
 `val` rồi mới áp lên `test`:
 
 | Bước | Kết quả | Kết luận |
@@ -272,3 +272,4 @@ BỐN BƯỚC KẾT HỢP (không chạy model; đọc lại các lượt đã c
 | **Ensemble hai encoder** - trọng số chốt trên `val` (PhoBERT 0,5369 · ViSoBERT 0,4631), áp lên `test` | acc TB **96,61** so với PhoBERT một mình 96,62; F1 âm macro **0,7591** so với 0,7757; 2.721 ô so với 2.736 | **KHÔNG có tác dụng** - trộn một encoder kém hơn vào không cải thiện gì |
 | **Lai encoder + LLM theo khía cạnh** - luật chốt trên `val` bằng `exp017`; kết quả: chỉ `packing` lấy từ encoder | LLM `exp009` một mình: 97,77 · F1 âm `packing` 0,769 ⇒ lai: **98,02** · micro 98,28 · **F1 âm `packing` 0,952** · 2.324 ô (1.623 ô lấy từ encoder, 4 ô thiếu) | **GIỮ** - +0,25 điểm và F1 âm của khía cạnh đó tăng 0,183; chỉ ĐÚNG MỘT khía cạnh đổi |
 | **Biểu quyết 3 mẫu** | **CHƯA chạy** - cần `exp018`/`exp019`/`exp020` (đợt 8) | chưa có gì để đọc |
+| **Router theo khía cạnh** (mới, `scripts/ensemble_aspect.py`) - chốt trên `val` với **2 ứng viên đang có ở máy** (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`) | cả 7 khía cạnh đều chọn PhoBERT-base-v2 ⇒ bản router **trùng** lượt `phobert-base-v2/lora/exp004` (acc macro 93,28; F1 âm macro 0,7757; 2.736 ô). ViSoBERT **cao accuracy hơn** (95,97) nhưng **F1 âm thấp hơn** (0,7004), nên luật `--criterion f1_âm` KHÔNG chọn nó | **chưa đọc được gì** - cần ≥ 4-5 ứng viên `val` mới thấy tác dụng của việc chọn-theo-khía-cạnh. Đây là lần chạy ĐẦU để thử đường ống, không phải một thành tích |

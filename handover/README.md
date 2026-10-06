@@ -143,8 +143,11 @@ nguyên nhân):
   (chưa tách được khỏi nhiễu), còn **F1 lớp âm gần như đứng yên** - chi tiết và cách đọc ở
   `docs/04_experiments/08_experiment_rationale.md` §2b. **Lượt THƯỚC NHIỄU cho encoder** đã lên kế hoạch ở
   đợt 10 (chạy lại 3 nhánh với hạt giống khác; xem `present_plan.md` mục 14).
-- **Bốn bước kết hợp đã chốt xong trên `val`**: ngưỡng theo khía cạnh, trọng số ensemble, luật lai và biểu
-  quyết nằm trong `data/reports/fusion/` (repo), không cần GPU và không cần notebook.
+- **Năm bước kết hợp**: **bốn bước đầu đã chốt xong trên `val`** - ngưỡng theo khía cạnh, trọng số
+  ensemble, luật lai và biểu quyết nằm trong `data/reports/fusion/` (repo), không cần GPU và không cần
+  notebook. **Bước thứ năm (router theo khía cạnh, `scripts/ensemble_aspect.py`) chỉ mới có mã + luật
+  đóng băng**; lượt đầu chạy được ở máy với hai ứng viên `val` nên cả 7 khía cạnh đều chọn một lượt -
+  **chưa đọc được tác dụng** cho tới khi có thêm ứng viên `val` (mỗi encoder cần một lượt `val`).
 
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng

@@ -467,6 +467,79 @@ class EnsembleDocTest(unittest.TestCase):
         self.assertIn("chỉ dùng được khi", text)
 
 
+# Cùng cách đó cho `scripts/ensemble_aspect.py` (luật ROUTER chốt trên `val` rồi áp lên `test`).
+ROUTER_SPEC = importlib.util.spec_from_file_location(
+    "ensemble_aspect", paths.root() / "scripts" / "ensemble_aspect.py")
+router_aspect = importlib.util.module_from_spec(ROUTER_SPEC)
+ROUTER_SPEC.loader.exec_module(router_aspect)
+
+
+class AspectRouterArgsTest(unittest.TestCase):
+    """`ensemble_aspect.py`: luật phải CHỐT TRÊN `val` rồi ÁP lên `test` - tổ hợp cờ mờ bị chặn.
+
+    Lỗi im lặng cần chặn: chốt router rồi KHÔNG ghi luật (lần sau sẽ chốt lại, và rất dễ chốt bằng
+    chính tập đang báo cáo), và đọc một tệp luật không tồn tại mà vẫn chạy tiếp.
+    """
+
+    def mistake(self, argv):
+        return router_aspect.check_args(router_aspect.parse_args(argv))
+
+    def test_fit_phai_ghi_luat_ra_tep(self):
+        message = self.mistake(["--fit", "--run", "x"])
+        self.assertIn("--write-router", message)
+
+    def test_apply_khong_ghi_luat(self):
+        message = self.mistake(["--apply", "--run", "x", "--write-router", "w.json"])
+        self.assertIn("--write-router", message)
+
+    def test_hai_buoc_chot_va_ap_deu_hop_le(self):
+        self.assertIsNone(self.mistake(["--fit", "--run", "val-a", "--write-router", "w.json",
+                                        "--criterion", "f1_âm"]))
+        self.assertIsNone(self.mistake(["--apply", "--run", "test-a", "--router-file", "w.json"]))
+
+    def test_fit_phai_khai_tieu_chi(self):
+        """Hai tiêu chí cho hai router khác nhau, nên chốt mà không nói chốt theo số nào là lỗi."""
+        message = self.mistake(["--fit", "--run", "x", "--write-router", "w.json"])
+        self.assertIn("--criterion", message)
+
+    def test_apply_khong_doi_duoc_tieu_chi(self):
+        """Đổi tiêu chí lúc áp = đổi luật sau khi đã thấy `test` -> chặn."""
+        message = self.mistake(["--apply", "--run", "x", "--criterion", "accuracy"])
+        self.assertIn("--criterion", message)
+
+    def test_ap_tep_luat_khong_co_thi_bao_loi(self):
+        """Thiếu tệp luật là lỗi khi CHẠY (mã 1), không phải lỗi câu lệnh - giống `fuse.py`."""
+        run = {"dir": Path("experiments/zz/lora/exp004/results/aaaaaaaa"), "split": "test",
+               "aspects": ["colour"], "sample_ids": [], "preds": [], "golds": [],
+               "meta": {"experiment": {"model": "zz"}}}
+        with mock.patch.object(router_aspect.fusion, "load_run", return_value=run):
+            code = router_aspect.main(["--apply", "--run", str(paths.root()),
+                                       "--router-file", "khong-co.json", "--inputs-dir", ""])
+        self.assertEqual(code, 1)
+
+    def test_che_do_ap_doc_tep_luat_mac_dinh(self):
+        args = router_aspect.parse_args(["--apply", "--run", "a"])
+        self.assertEqual(args.router_file, router_aspect.DEFAULT_ROUTER)
+
+    def test_chot_tren_test_thi_bao_loi_kem_ten_luot(self):
+        """`fit_aspect_router` trên lượt `test` = chọn nguồn bằng tập sẽ báo cáo -> phải chặn."""
+        run = {"dir": Path("experiments/zz/lora/exp004/results/aaaaaaaa"), "split": "test",
+               "aspects": [], "meta": {"experiment": {"model": "zz"}}}
+        with self.assertRaises(router_aspect.fusion.FusionError) as found:
+            router_aspect.fusion.fit_aspect_router([run])
+        self.assertIn("chỉ chốt được trên `val`", str(found.exception))
+
+
+class AspectRouterDocTest(unittest.TestCase):
+    """Cách dùng HAI BƯỚC phải có trong chú thích đầu tệp - người chạy đọc nó để biết phải làm gì."""
+
+    def test_docstring_co_hai_buoc_va_noi_ro_khac_ensemble(self):
+        text = router_aspect.__doc__
+        self.assertIn("--write-router", text)
+        self.assertIn("--router-file", text)
+        self.assertIn("KHÔNG trộn", text)
+
+
 class ProbeTokensArgsTest(unittest.TestCase):
     """`probe_tokens.py`: hệ số và cửa sổ ngữ cảnh phải là số dương (trần sai là cả lượt sai)."""
 

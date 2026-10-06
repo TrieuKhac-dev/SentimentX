@@ -7,7 +7,7 @@
 > [P8_measurement_mlflow.md](P8_measurement_mlflow.md), [../../present_plan.md](../../present_plan.md),
 > [../../check_present_plan.md](../../check_present_plan.md),
 > [../04_experiments/08_experiment_rationale.md](../04_experiments/08_experiment_rationale.md) (bản NGƯỜI ĐỌC),
-> [../04_experiments/09_fusion.md](../04_experiments/09_fusion.md) (đặc tả bốn bước kết hợp).
+> [../04_experiments/09_fusion.md](../04_experiments/09_fusion.md) (đặc tả các bước kết hợp).
 
 ## 1. Mục tiêu giai đoạn
 

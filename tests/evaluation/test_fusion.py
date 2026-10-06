@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Test bốn bước KẾT HỢP (src/evaluation/fusion.py): ngưỡng, ensemble, lai, biểu quyết.
+"""Test năm bước KẾT HỢP (src/evaluation/fusion.py): ngưỡng, ensemble, lai, biểu quyết, router.
 
-Vì sao khoá ở đây: bốn bước này ăn điểm bằng cách CHỌN LẠI nhãn từ thứ đã đo, nên lỗi của chúng là lỗi
+Vì sao khoá ở đây: năm bước này ăn điểm bằng cách CHỌN LẠI nhãn từ thứ đã đo, nên lỗi của chúng là lỗi
 im lặng (ghép nhầm ô, hoà chọn sai lượt, ngưỡng học trên tập sẽ báo cáo). Dữ liệu ở đây là TỔNG HỢP
 (không cần GPU, không cần dữ liệu thật) nhưng đi qua ĐÚNG engine chấm điểm của dự án.
 
@@ -15,7 +15,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.core import paths
+from src.core import paths, utils
 from src.evaluation import fusion
 
 TASK = {"label_space": "binary", "neutral_policy": "drop", "not_mentioned": "separate"}
@@ -310,5 +310,148 @@ class WeightsByModelTest(unittest.TestCase):
         self.assertEqual(fusion.load_weights(good), {"phobert-base-v2": 0.6, "visobert": 0.4})
 
 
+class AspectRouterTest(unittest.TestCase):
+    """Router theo khía cạnh: chọn nguồn theo LUẬT đã chốt, hoà phải tất định, thiếu model là LỖI.
+
+    Vì sao khoá ở đây: router ăn điểm bằng cách CHỌN LẠI nhãn, nên lỗi của nó là lỗi im lặng - chọn sai
+    lượt cho một khía cạnh vẫn ra một con số trông hợp lệ. Luật (`fusion.ROUTER_LAW`) phải kiểm được
+    từng nhánh: F1 lớp âm, chuyển sang accuracy khi không có ô âm, và thứ tự khi hoà.
+    """
+
+    def setUp(self):
+        # `good`: đoán ĐÚNG hai ô âm của `colour` -> F1 âm `colour` = 1,0.
+        good_preds = [{"colour": 2 if index in (1, 3) else 1, "smell": 1, "price": 1}
+                      for index in range(4)]
+        self.good = make_run(GOLDS, good_preds, PROBS, name="good")
+        self.good["meta"] = {"experiment": {"model": "phobert-base-v2"}}
+        # `weak`: đoán "dương" mọi ô -> F1 âm mọi khía cạnh = 0,0.
+        self.weak = make_run(GOLDS, PREDS_BASE, PROBS, name="weak")
+        self.weak["meta"] = {"experiment": {"model": "visobert"}}
+
+    def test_chon_theo_f1_am_tung_khia_canh(self):
+        router = fusion.fit_aspect_router([self.good, self.weak])
+        self.assertEqual(router["colour"]["model"], "phobert-base-v2")
+        self.assertIn("F1 lớp âm", router["colour"]["lí_do"])
+        # `price`: val không có ô âm nào ở CẢ hai lượt -> chuyển sang accuracy, và GHI RÕ lí do.
+        self.assertIn("không có ô âm", router["price"]["lí_do"])
+
+    def test_bang_diem_giu_so_cua_MOI_ung_vien(self):
+        router = fusion.fit_aspect_router([self.good, self.weak])
+        self.assertEqual(sorted(router["colour"]["điểm"]), ["phobert-base-v2", "visobert"])
+        self.assertEqual(router["colour"]["điểm"]["phobert-base-v2"]["f1_âm"], 1.0)
+        self.assertEqual(router["colour"]["điểm"]["visobert"]["f1_âm"], 0.0)
+
+    def test_khong_co_o_am_thi_accuracy_quyet_dinh(self):
+        first = make_run(GOLDS, [{"colour": 1, "smell": 1, "price": 2} for _ in range(4)], PROBS,
+                         name="first")
+        first["meta"] = {"experiment": {"model": "a-model"}}
+        second = make_run(GOLDS, [{"colour": 1, "smell": 1, "price": 1} for _ in range(4)], PROBS,
+                          name="second")
+        second["meta"] = {"experiment": {"model": "b-model"}}
+        router = fusion.fit_aspect_router([first, second])
+        # `price` không có ô âm nào -> xét accuracy: `second` đoán đúng -> thắng dù đứng SAU.
+        self.assertEqual(router["price"]["model"], "b-model")
+        self.assertIn("chuyển sang accuracy", router["price"]["lí_do"])
+
+    def test_hoa_tuyet_doi_thi_chon_luot_dau_va_ghi_thu_tu(self):
+        same_a = make_run(GOLDS, PREDS_BASE, PROBS, name="same-a")
+        same_a["meta"] = {"experiment": {"model": "a-model"}}
+        same_b = make_run(GOLDS, PREDS_BASE, PROBS, name="same-b")
+        same_b["meta"] = {"experiment": {"model": "b-model"}}
+        router = fusion.fit_aspect_router([same_a, same_b])
+        self.assertEqual(router["colour"]["model"], "a-model")
+        document = fusion.router_document([same_a, same_b], router)
+        self.assertEqual(document["khoá"], "model")
+        self.assertEqual(document["tiêu_chí"], "f1_âm")
+        self.assertEqual(document["thứ_tự_hoà"], ["a-model", "b-model"])
+        self.assertIn("khoá_luật", document["luật"])
+        self.assertEqual(document["router"]["colour"]["model"], "a-model")
+
+    def test_tieu_chi_accuracy_cho_router_khac_va_di_vao_tep_luat(self):
+        """Đổi tiêu chí là đổi LỰA CHỌN, nên tiêu chí phải nằm trong tệp luật (chốt trước khi áp)."""
+        first = make_run(GOLDS, [{"colour": 1, "smell": 1, "price": 2} for _ in range(4)], PROBS,
+                         name="first-acc")
+        first["meta"] = {"experiment": {"model": "a-model"}}
+        second = make_run(GOLDS, [{"colour": 1, "smell": 1, "price": 1} for _ in range(4)], PROBS,
+                          name="second-acc")
+        second["meta"] = {"experiment": {"model": "b-model"}}
+        router = fusion.fit_aspect_router([first, second], criterion="accuracy")
+        # `price` không có ô âm nào -> cả hai tiêu chí đều xét accuracy -> `b-model` đoán đúng.
+        self.assertEqual(router["price"]["model"], "b-model")
+        self.assertIn("accuracy ô của khía cạnh", router["price"]["lí_do"])
+        document = fusion.router_document([first, second], router, criterion="accuracy")
+        self.assertEqual(document["tiêu_chí"], "accuracy")
+        self.assertEqual(sorted(document["router"]["price"]["điểm"]), ["a-model", "b-model"])
+
+    def test_tieu_chi_la_thi_bao_loi(self):
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.fit_aspect_router([self.good], criterion="macro_f1")
+        self.assertIn("không có", str(found.exception))
+
+    def test_chot_tren_test_thi_bao_loi(self):
+        wrong = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="t")
+        wrong["meta"] = {"experiment": {"model": "zz"}}
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.fit_aspect_router([wrong])
+        self.assertIn("chỉ chốt được trên `val`", str(found.exception))
+
+    def test_hai_luot_cung_model_la_loi(self):
+        twin = make_run(GOLDS, PREDS_BASE, PROBS, name="twin")
+        twin["meta"] = {"experiment": {"model": "phobert-base-v2"}}
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.fit_aspect_router([self.good, twin])
+        self.assertIn("phobert-base-v2", str(found.exception))
+
+    def test_ap_luat_thieu_model_thi_bao_loi_kem_ten_va_khia_canh(self):
+        test_run = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="other")
+        test_run["meta"] = {"experiment": {"model": "cafebert"}}
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.router_for([test_run], {"colour": "phobert-base-v2"})
+        message = str(found.exception)
+        self.assertIn("cafebert", message)
+        self.assertIn("colour", message)
+
+    def test_router_lay_nhan_theo_tung_khia_canh_va_giu_khung_o(self):
+        base = make_run(GOLDS, PREDS_BASE, PROBS, split="test", name="base")
+        base["meta"] = {"experiment": {"model": "a-model"}}
+        other = make_run(GOLDS, [{"colour": 2 if index in (1, 3) else 1, "smell": 1, "price": 1}
+                                 for index in range(4)], PROBS, split="test", name="other")
+        other["meta"] = {"experiment": {"model": "b-model"}}
+        choices = {aspect: str(other["dir"]) for aspect in other["aspects"]}
+        preds, counts = fusion.router_predictions(base, [base, other], choices)
+        self.assertEqual([pred["colour"] for pred in preds], [1, 2, 1, 2])
+        self.assertEqual(counts["theo_khía_cạnh"]["colour"], 4)
+        self.assertEqual(counts["thiếu_ô"], 0)
+        self.assertEqual(counts["không_có_trong_luật"], [])
+        # Khía cạnh không có trong luật thì GIỮ nhãn của lượt đầu và ĐẾM RIÊNG, không im lặng.
+        _preds, counts2 = fusion.router_predictions(base, [base, other],
+                                                    {"colour": str(other["dir"])})
+        self.assertEqual(counts2["không_có_trong_luật"], ["price", "smell"])
+
+    def test_members_report_giu_so_tung_luot(self):
+        found = fusion.members_report([self.good, self.weak])
+        self.assertEqual([item["lượt"] for item in found],
+                         [utils.rel(self.good["dir"]), utils.rel(self.weak["dir"])])
+        self.assertGreater(found[0]["f1_âm_macro"]["macro_trên_khía_cạnh_có_ô_âm"],
+                           found[1]["f1_âm_macro"]["macro_trên_khía_cạnh_có_ô_âm"])
+
+    def test_doc_tep_router_sai_dinh_dang_thi_bao_loi(self):
+        root = Path(tempfile.mkdtemp(prefix="sentimentx-router-"))
+        self.addCleanup(shutil.rmtree, str(root), ignore_errors=True)
+        bad = root / "bad.json"
+        bad.write_text(json.dumps({"khác": 1}), encoding="utf-8")
+        with self.assertRaises(fusion.FusionError):
+            fusion.load_router(bad)
+        nameless = root / "nameless.json"
+        nameless.write_text(json.dumps({"router": {"colour": {"lí_do": "x"}}}), encoding="utf-8")
+        with self.assertRaises(fusion.FusionError) as found:
+            fusion.load_router(nameless)
+        self.assertIn("colour", str(found.exception))
+        good = root / "ok.json"
+        good.write_text(json.dumps({"router": {"colour": {"model": "visobert"}}}), encoding="utf-8")
+        self.assertEqual(fusion.load_router(good), {"colour": "visobert"})
+
+
 if __name__ == "__main__":
     unittest.main()
+

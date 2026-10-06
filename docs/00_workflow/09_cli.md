@@ -64,6 +64,8 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Đo phân vị token SINH RA để chốt trần `max_new_tokens` | `python scripts/probe_tokens.py --run experiments/<model>/<method>/<expNNN>/results/<hash8>` (`--ceiling` để kiểm luật bị cắt, `--context-window` để chặn trần vượt cửa sổ ngữ cảnh) |
 | Chốt LUẬT LAI trên `val`, rồi áp lên `test` | `python scripts/fuse.py --fit --llm <val> --encoder <val>` · `python scripts/fuse.py --apply --rules <rules.json> --llm <test> --encoder <test>` |
 | Bỏ phiếu từng ô trên các mẫu (`seed` tăng dần) | `python scripts/vote.py --run <seed1> --run <seed2> --run <seed3>` (ghi `vote.json`) |
+| Router theo khía cạnh: CHỐT trên `val` (bắt buộc `--criterion`) | `python scripts/ensemble_aspect.py --fit --criterion f1_âm --run <val A> --run <val B> --write-router data/reports/fusion/aspect_router.json --out data/reports/fusion/router_aspect_val.json` (ghi LUẬT đã đóng băng: mỗi khía cạnh lấy lượt nào + tiêu chí + điểm mọi ứng viên) |
+| Router theo khía cạnh: ÁP luật đã chốt lên `test` | `python scripts/ensemble_aspect.py --apply --run <test A> --run <test B> --router-file data/reports/fusion/aspect_router.json` (ghi số của bản router + `thành_viên` = số TỪNG lượt trên cùng tập; KHÔNG nhận `--criterion`) |
 | Kiểm tĩnh của CI | `python scripts/ci_checks.py` |
 | Dọn rác máy sinh ra (`__pycache__`, `*.pyc`, `.ipynb_checkpoints`) | `python scripts/clean.py` (xem trước: `--dry-run`; không bao giờ xoá file đang được git theo dõi) |
 | Dựng gói bàn giao tăng dần (chỉ file mới/đã đổi) | `python scripts/build_package.py` (xem trước: `--dry-run`; `--number NNN` để đặt số gói; `--allow-red` khi đã hiểu rõ cảnh báo đỏ; `--no-zip` khi chỉ muốn ghi sổ) |
@@ -101,6 +103,11 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | `ensemble.py --val ...` mà không có `--weights val` | `--val` là các lượt để CHỐT trọng số | 2 |
 | `ensemble.py --weights val` trên lượt KHÔNG phải `val` | chọn trọng số bằng chính tập sẽ báo cáo (luật 1 của `metrics.md`); in kèm cách dùng `--weights-file` | 1 |
 | `ensemble.py --weights-file <tệp>` thiếu model nào của các lượt `--run` | trọng số khoá theo tên model; thiếu thì không ráp được, in kèm danh sách model đang có | 1 |
+| `ensemble_aspect.py --fit` mà không có `--criterion` | hai tiêu chí (`f1_âm`, `accuracy`) cho hai router KHÁC NHAU; luật phải nói rõ chốt theo số nào | 2 |
+| `ensemble_aspect.py --apply` mà có `--criterion`, hoặc có `--write-router` | `--apply` đọc tiêu chí từ CHÍNH tệp luật (đổi tiêu chí sau khi thấy `test` = chọn bằng tập sẽ báo cáo); `--write-router` chỉ dùng khi CHỐT | 2 |
+| `ensemble_aspect.py --fit` có lượt KHÔNG phải `val` | chốt luật bằng chính tập sẽ báo cáo (luật 1 của `metrics.md`); in kèm tên lượt và split của nó | 1 |
+| `ensemble_aspect.py --apply --router-file <tệp>` không tồn tại | chưa chốt thì chưa có gì để áp; in kèm lệnh `--fit` cần chạy trước | 1 |
+| `ensemble_aspect.py` luật chọn model không có trong các lượt đang `--run` | luật khoá theo tên model; im lặng quay về lượt đầu là tự đổi luật đã đóng băng - in kèm tên model và khía cạnh đang cần | 1 |
 | `probe_tokens.py --factor/--ceiling/--context-window` không phải số dương | trần token sai là cả lượt chạy sai | 2 |
 | `probe_tokens.py` thiếu `predictions.csv` / `run_meta.json` / cột `token sinh` | không đo được chi phí đầu ra; in kèm tệp và cột đang thiếu | 1 |
 | `probe_tokens.py` có trần đề xuất VƯỢT `--context-window` | luật 23a: không hạ trần rồi chạy im lặng; in kèm hai con số | 1 |

@@ -1,6 +1,6 @@
-# 04.09. Bước KẾT HỢP: ngưỡng, ensemble, luật lai, biểu quyết
+# 04.09. Bước KẾT HỢP: ngưỡng, ensemble, luật lai, biểu quyết, router theo khía cạnh
 
-> Đọc file này khi: chạy một trong bốn bước kết hợp, hoặc đọc số của chúng.
+> Đọc file này khi: chạy một trong năm bước kết hợp, hoặc đọc số của chúng.
 > Liên quan: `metrics.md` (luật đo), `06_lora_encoder.md` (tệp xác suất), `08_experiment_rationale.md`
 > §7 (`price`), `present_plan.md` mục 8.4/8.5 và 10.2-10.4, `data/reports/fusion/README.md`.
 
@@ -14,7 +14,7 @@ Ba hướng đã cho thấy ba điểm mạnh KHÁC NHAU, nên ghép lại có c
 | Qwen3-4B hỏi bằng prompt | sắc thái tổng thể (accuracy TB 97,77) | `08_experiment_rationale.md` §3 |
 | ba lượt lấy mẫu | đo **dao động** giữa các seed | `07_evolution.md` |
 
-Bốn bước dưới đây KHÔNG chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác
+Năm bước dưới đây KHÔNG chạy model: chúng đọc `predictions.csv` (nhãn cứng) và `probabilities.csv` (xác
 suất từng ô - chỉ đường encoder có, xem `06_lora_encoder.md` mục 6), **chọn lại nhãn**, rồi chấm bằng
 ĐÚNG engine của dự án. Số gốc của từng lượt KHÔNG bị chạm tới.
 
@@ -27,7 +27,7 @@ suất từng ô - chỉ đường encoder có, xem `06_lora_encoder.md` mục 6
    KHÔNG đổi khi thêm ngưỡng - đó là thiết kế, không phải lỗi), và `price` được đọc bằng **số lần model
    gán mã 2 + danh sách ô âm**, KHÔNG bằng F1 (xem `08_experiment_rationale.md` §7).
 
-## 3. Bốn bước, bốn lệnh
+## 3. Năm bước, năm lệnh
 
 ### 3.1. Ngưỡng theo khía cạnh - `scripts/fit_thresholds.py`
 
@@ -106,6 +106,43 @@ Bỏ phiếu **từng ô** trên các lượt lấy mẫu; **ba mẫu** cho đ�
 bỏ phiếu nếu **đọc được ở ít nhất một lượt**; **hoà thì lấy nhãn của lượt ĐẦU TIÊN** - nên phải truyền
 các lượt theo thứ tự `seed` TĂNG DẦN (1, 2, 3). JSON ghi cả **số của từng mẫu** (để đo dao động) và
 **thống kê phiếu** (số ô đủ phiếu, số ô hoà, số ô không lượt nào đọc được).
+
+### 3.5. Router theo khía cạnh - `scripts/ensemble_aspect.py`
+
+```
+# 1) CHỐT luật trên val (ghi tệp luật + số của bản router trên val)
+python scripts/ensemble_aspect.py --fit --criterion f1_âm --run <val A> --run <val B> \
+    --write-router data/reports/fusion/aspect_router.json \
+    --out data/reports/fusion/router_val.json
+
+# 2) ÁP lên test (đọc ĐÚNG tệp luật; KHÔNG chốt lại trên test)
+python scripts/ensemble_aspect.py --apply --run <test A> --run <test B> \
+    --router-file data/reports/fusion/aspect_router.json \
+    --out data/reports/fusion/router_test.json
+```
+
+KHÁC ensemble (3.2): ensemble **trộn xác suất** bằng MỘT bộ trọng số cho mọi khía cạnh; router KHÔNG trộn -
+mỗi khía cạnh lấy nhãn của **MỘT** lượt đã chốt. Lượt ĐẦU trong `--run` giữ **khung ô**, và **thứ tự truyền
+vào là một phần của luật** (dùng khi hoà).
+
+**Tiêu chí chốt là BẮT BUỘC và chỉ truyền được ở `--fit`** (`--criterion`), vì hai tiêu chí cho hai router
+KHÁC NHAU - và tối ưu hai thứ khác nhau:
+
+| Tiêu chí | Đo gì trên `val` | Kỳ vọng |
+| --- | --- | --- |
+| `f1_âm` | F1 lớp ÂM của chính khía cạnh (cơ sở `paper`) | sát luật của dự án (lớp âm là chỗ mọi lượt yếu), nhưng KHÔNG tối ưu accuracy |
+| `accuracy` | accuracy ô của khía cạnh (cơ sở `all`) | sát chỉ số BÁO CÁO (bảng accuracy theo khía cạnh) |
+
+Luật đầy đủ ở `fusion.ROUTER_LAW`: xét tiêu chí đã chốt -> tiêu chí còn lại -> **lượt ĐẦU** trong danh
+sách; khía cạnh **không có ô âm nào trên `val`** (ca `price`) rơi xuống `accuracy` và tệp luật GHI RÕ lí do.
+
+**Chống "chọn luật sau khi thấy `test`"** (luật 1.4): `--apply` **không nhận** `--criterion` - nó đọc tiêu
+chí từ CHÍNH tệp luật; và tệp luật ghi kèm `điểm` của MỌI ứng viên (cả hai tiêu chí + số ô), nên người đọc
+kiểm lại được lựa chọn và thấy lựa chọn khác sẽ ra sao mà không phải chạy lại model nào.
+
+**Số phải đọc kèm**: `router_aspect.json` có `thành_viên` = số của TỪNG lượt trên cùng tập (mục 4); và nhớ
+rằng **lượt đầu giữ khung ô** - nếu các lượt có tập ô cơ sở `paper` khác nhau thì đổi thứ tự `--run` là đổi
+số ô báo cáo (không đổi luật, nhưng đổi mẫu số).
 
 ## 4. Đọc số của bước kết hợp thế nào
 
