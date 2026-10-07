@@ -29,7 +29,7 @@ data:
   # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
   # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
   # Khai `train` và `val` khi enabled: true.
-  roles: {eval: test}
+  roles: {train: train, val: val, eval: test}
 
 # Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
 # Bật huấn luyện (lớp dùng chung để `enabled: false`).

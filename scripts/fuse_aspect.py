@@ -17,6 +17,9 @@ Luật đã CHỐT TRƯỚC khi chạy bảy lượt (`fusion.TWO_TIER_LAW`, m�
 Thiếu lượt cho một khía cạnh nào của encoder, lượt chấm nhiều khía cạnh, lượt trùng khía cạnh, hoặc
 khác mã "không nhắc tới" đều là LỖI - không im lặng bỏ qua.
 
+Lượt MỘT-khía-cạnh KHÔNG cần `probabilities.csv`: luật gộp chỉ dùng **nhãn cứng**, mà đường prompt (nguồn
+của bảy lượt này) không ghi tệp xác suất - xem `merge_two_tier` ở `src/evaluation/fusion.py`.
+
 Ghi: JSON số của bản hai tầng (hai cơ sở đo, số ô, F1 âm từng khía cạnh) + số của TỪNG nguồn trên cùng
 tập (`thành_viên`), + `đếm_ô` (số ô lấy từ mỗi lượt, số ô lệch giữ encoder, số ô thiếu). Đầu vào rút gọn
 của mọi lượt tham gia được ghi vào `data/reports/fusion/inputs/` để con số tái lập được TỪ REPO.
@@ -84,7 +87,10 @@ def main(argv=None):
         return 2
     try:
         encoder_run = fusion.load_run(args.encoder)
-        aspect_runs = [fusion.load_run(path, need_probabilities=True) for path in args.aspect]
+        # KHÔNG đòi `probabilities.csv` ở lượt MỘT-khía-cạnh: luật `TWO_TIER_LAW` chỉ dùng **nhãn cứng**
+        # (`merge_two_tier` không đọc xác suất), mà đường PROMPT không ghi tệp xác suất - đòi nó là chặn
+        # đúng ca dùng (bảy lượt `qwen3-4b-instruct-2507/prompt-aspect`).
+        aspect_runs = [fusion.load_run(path) for path in args.aspect]
         preds, counts = fusion.merge_two_tier(encoder_run, aspect_runs)
     except fusion.FusionError as exc:
         print("LỖI: {}".format(exc))

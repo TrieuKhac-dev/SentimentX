@@ -1,0 +1,156 @@
+{
+  "khoá": "model",
+  "tiêu_chí": "accuracy",
+  "luật": {
+    "tiêu_chí": "CHỌN MỘT trong `ROUTER_CRITERIA`; chốt LÚC DỰNG luật và ghi vào tệp - `--apply` đọc lại từ tệp nên KHÔNG đổi được sau khi đã thấy `test` (luật 1.4 của 02_rules.md)",
+    "không_có_ô_âm_trên_val": "chuyển sang ACCURACY của ô thuộc khía cạnh (cơ sở `all`); lí do ghi vào từng khía cạnh của tệp luật",
+    "hoà": "xét theo tiêu chí còn lại; vẫn hoà thì lượt ĐẦU trong danh sách truyền vào",
+    "khoá_luật": "tên model (lượt val và lượt test của cùng encoder nằm ở hai thư mục khác nhau)",
+    "đơn_vị_chọn": "MỘT lượt cho MỖI khía cạnh; KHÔNG trộn xác suất (đó là việc của ensemble)"
+  },
+  "chốt_trên": [
+    {
+      "model": "phobert-base-v2",
+      "lượt": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+      "split": "val"
+    },
+    {
+      "model": "visobert",
+      "lượt": "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa",
+      "split": "val"
+    }
+  ],
+  "thứ_tự_hoà": [
+    "phobert-base-v2",
+    "visobert"
+  ],
+  "router": {
+    "colour": {
+      "model": "visobert",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (93.72)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": 0.816,
+          "accuracy": 91.57,
+          "ô": 1482,
+          "ô_paper": 693
+        },
+        "visobert": {
+          "f1_âm": 0.702,
+          "accuracy": 93.72,
+          "ô": 1482,
+          "ô_paper": 689
+        }
+      }
+    },
+    "packing": {
+      "model": "phobert-base-v2",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (98.17)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": 0.923,
+          "accuracy": 98.17,
+          "ô": 1534,
+          "ô_paper": 301
+        },
+        "visobert": {
+          "f1_âm": 0.476,
+          "accuracy": 97.2,
+          "ô": 1534,
+          "ô_paper": 295
+        }
+      }
+    },
+    "price": {
+      "model": "phobert-base-v2",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (98.82)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": null,
+          "accuracy": 98.82,
+          "ô": 1531,
+          "ô_paper": 315
+        },
+        "visobert": {
+          "f1_âm": null,
+          "accuracy": 98.63,
+          "ô": 1531,
+          "ô_paper": 314
+        }
+      }
+    },
+    "shipping": {
+      "model": "phobert-base-v2",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (97.06)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": 0.981,
+          "accuracy": 97.06,
+          "ô": 1499,
+          "ô_paper": 536
+        },
+        "visobert": {
+          "f1_âm": 0.952,
+          "accuracy": 94.86,
+          "ô": 1499,
+          "ô_paper": 530
+        }
+      }
+    },
+    "smell": {
+      "model": "visobert",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (98.36)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": 0.925,
+          "accuracy": 98.09,
+          "ô": 1522,
+          "ô_paper": 288
+        },
+        "visobert": {
+          "f1_âm": 0.873,
+          "accuracy": 98.36,
+          "ô": 1522,
+          "ô_paper": 286
+        }
+      }
+    },
+    "stayingpower": {
+      "model": "visobert",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (94.95)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": 0.891,
+          "accuracy": 85.51,
+          "ô": 1504,
+          "ô_paper": 229
+        },
+        "visobert": {
+          "f1_âm": 0.832,
+          "accuracy": 94.95,
+          "ô": 1504,
+          "ô_paper": 229
+        }
+      }
+    },
+    "texture": {
+      "model": "visobert",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (90.69)",
+      "điểm": {
+        "phobert-base-v2": {
+          "f1_âm": 0.867,
+          "accuracy": 82.32,
+          "ô": 1482,
+          "ô_paper": 393
+        },
+        "visobert": {
+          "f1_âm": 0.826,
+          "accuracy": 90.69,
+          "ô": 1482,
+          "ô_paper": 384
+        }
+      }
+    }
+  },
+  "at": "2026-10-06T16:04:05"
+}

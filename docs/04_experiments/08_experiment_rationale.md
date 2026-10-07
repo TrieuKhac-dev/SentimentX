@@ -114,6 +114,14 @@ lại) nên bảng nay đủ **6/6**: `lora/exp002` cho **97,88 · 0,917 · 0,84
   của "đầu phân loại HỌC" ở CafeBERT **nằm trong nhiễu** (không kết luận được). Kỷ lục hiện tại của dự án là
   **`cafebert/lora/exp004` = 98,26**. Chi tiết bằng chứng: `06_lora_encoder.md`.
 - `price` là **điểm mù** ở CẢ HAI nhánh (F1 âm = 0,000 ở mọi lượt) - đúng như §7, đừng đọc cột đó.
+- **Nhóm `head.aspect_marker` - cơ chế KHÁC, không vào bảng trên (có kết quả 07/10/2026).** Lượt
+  `phobert-base-v2/lora/exp006` (cha `exp002`, khác đúng một khoá `head.aspect_marker: true`) **ÂM RẤT
+  MẠNH**: acc TB 93,28 &#8594; **51,60**, cơ sở `paper` 96,62 &#8594; **74,05**, phát hiện khía cạnh F1 macro
+  0,891 &#8594; **0,495** (precision macro 0,356; `tp` 2.433 / `fp` 4.426). Đọc từ mã: cách cài đặt cho đầu
+  phân loại dùng CHUNG một lớp nên khía cạnh chỉ thêm được một **hằng số riêng**, và năng lực đầu giảm từ
+  **16.149** xuống **2.328** tham số ⇒ lượt này **giảm NĂNG LỰC** chứ không thêm thông tin. **Bỏ khoá này**
+  (giữ mặc định `false`). Vì đầu phân loại đóng băng, kết quả này CHƯA trả lời được câu hỏi về ý tưởng - lượt
+  trả lời là `phobert-base-v2/lora/exp007`. Chi tiết: `06_lora_encoder.md`.
 
 ## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
 
@@ -368,6 +376,14 @@ Ba lượt tiếp theo về giá nhằm cải thiện và ĐO riêng khía cạn
 - **Lượt `val` phía LLM `exp017`** cho biết trạng thái của `val` (điều kiện chốt luật lai): `val` có
   **0 ô `price` âm** (đúng như §6.4) nhưng model vẫn gán mã 2 cho **6 ô** - tức 6 báo động giả. Vì vậy tệp
   luật ghi `price: null` kèm lí do và ô `price` giữ nguyên `argmax` của model (`09_fusion.md`).
+- **Bản gộp HAI TẦNG là thứ ĐẦU TIÊN làm `price` âm khác 0 (07/10/2026).** Lấy KHUNG Ô từ lượt encoder
+  (`phobert-base-v2/lora/exp004`) và sắc thái `price` từ lượt một-khía-cạnh
+  (`qwen3-4b-instruct-2507/prompt-aspect/exp001`, prompt `absa_aspect_price_v1`): `price` F1 âm
+  **0,000 &#8594; 0,357** (2 trong 6 ô), F1 âm macro `paper` 0,7757 &#8594; **0,8159** (+0,040); giá phải trả là
+  acc TB (`paper`) 96,62 &#8594; 95,87 và acc TB (`all`) 93,28 &#8594; 93,15. Con số 0,357 vẫn được tính trên
+  **6 ô**, nên đọc đúng như trên: nó chứng minh "**có đường chạm tới lớp âm của `price`**", KHÔNG chứng minh
+  model đã giỏi `price`. Luật đã đóng băng TRƯỚC khi chạy (`fusion.TWO_TIER_LAW`) và chứng cứ nằm ở
+  `data/reports/fusion/fuse_aspect_test.json` - chi tiết ở `09_fusion.md` §3.6.
 
 ## 8. Nguồn số và xem tiếp
 

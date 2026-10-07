@@ -18,16 +18,40 @@
       "model": "visobert",
       "lượt": "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa",
       "split": "val"
+    },
+    {
+      "model": "cafebert",
+      "lượt": "experiments\\cafebert\\lora\\exp005\\results\\cfbf68e4",
+      "split": "val"
+    },
+    {
+      "model": "phobert-large",
+      "lượt": "experiments\\phobert-large\\lora\\exp003\\results\\5b192ca8",
+      "split": "val"
+    },
+    {
+      "model": "vibert-base-cased",
+      "lượt": "experiments\\vibert-base-cased\\lora\\exp004\\results\\97cae249",
+      "split": "val"
+    },
+    {
+      "model": "xlm-roberta-base",
+      "lượt": "experiments\\xlm-roberta-base\\lora\\exp003\\results\\777fafbf",
+      "split": "val"
     }
   ],
   "thứ_tự_hoà": [
     "phobert-base-v2",
-    "visobert"
+    "visobert",
+    "cafebert",
+    "phobert-large",
+    "vibert-base-cased",
+    "xlm-roberta-base"
   ],
   "router": {
     "colour": {
-      "model": "phobert-base-v2",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.816)",
+      "model": "cafebert",
+      "lí_do": "F1 lớp âm cao nhất trên val (0.855)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.816,
@@ -40,6 +64,30 @@
           "accuracy": 93.72,
           "ô": 1482,
           "ô_paper": 689
+        },
+        "cafebert": {
+          "f1_âm": 0.855,
+          "accuracy": 96.36,
+          "ô": 1482,
+          "ô_paper": 690
+        },
+        "phobert-large": {
+          "f1_âm": 0.85,
+          "accuracy": 94.53,
+          "ô": 1482,
+          "ô_paper": 691
+        },
+        "vibert-base-cased": {
+          "f1_âm": 0.783,
+          "accuracy": 92.38,
+          "ô": 1482,
+          "ô_paper": 690
+        },
+        "xlm-roberta-base": {
+          "f1_âm": 0.731,
+          "accuracy": 92.44,
+          "ô": 1482,
+          "ô_paper": 692
         }
       }
     },
@@ -58,11 +106,35 @@
           "accuracy": 97.2,
           "ô": 1534,
           "ô_paper": 295
+        },
+        "cafebert": {
+          "f1_âm": 0.857,
+          "accuracy": 97.59,
+          "ô": 1534,
+          "ô_paper": 302
+        },
+        "phobert-large": {
+          "f1_âm": 0.8,
+          "accuracy": 98.04,
+          "ô": 1534,
+          "ô_paper": 299
+        },
+        "vibert-base-cased": {
+          "f1_âm": 0.0,
+          "accuracy": 96.48,
+          "ô": 1534,
+          "ô_paper": 290
+        },
+        "xlm-roberta-base": {
+          "f1_âm": 0.625,
+          "accuracy": 97.72,
+          "ô": 1534,
+          "ô_paper": 299
         }
       }
     },
     "price": {
-      "model": "phobert-base-v2",
+      "model": "cafebert",
       "lí_do": "val không có ô âm nào của khía cạnh này (ô 1531): chuyển sang accuracy",
       "điểm": {
         "phobert-base-v2": {
@@ -76,12 +148,36 @@
           "accuracy": 98.63,
           "ô": 1531,
           "ô_paper": 314
+        },
+        "cafebert": {
+          "f1_âm": null,
+          "accuracy": 99.09,
+          "ô": 1531,
+          "ô_paper": 313
+        },
+        "phobert-large": {
+          "f1_âm": null,
+          "accuracy": 98.3,
+          "ô": 1531,
+          "ô_paper": 309
+        },
+        "vibert-base-cased": {
+          "f1_âm": null,
+          "accuracy": 96.6,
+          "ô": 1531,
+          "ô_paper": 314
+        },
+        "xlm-roberta-base": {
+          "f1_âm": null,
+          "accuracy": 98.5,
+          "ô": 1531,
+          "ô_paper": 310
         }
       }
     },
     "shipping": {
-      "model": "phobert-base-v2",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.981)",
+      "model": "cafebert",
+      "lí_do": "F1 lớp âm cao nhất trên val (0.987)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.981,
@@ -94,12 +190,36 @@
           "accuracy": 94.86,
           "ô": 1499,
           "ô_paper": 530
+        },
+        "cafebert": {
+          "f1_âm": 0.987,
+          "accuracy": 97.4,
+          "ô": 1499,
+          "ô_paper": 534
+        },
+        "phobert-large": {
+          "f1_âm": 0.979,
+          "accuracy": 96.26,
+          "ô": 1499,
+          "ô_paper": 534
+        },
+        "vibert-base-cased": {
+          "f1_âm": 0.958,
+          "accuracy": 94.8,
+          "ô": 1499,
+          "ô_paper": 533
+        },
+        "xlm-roberta-base": {
+          "f1_âm": 0.971,
+          "accuracy": 96.0,
+          "ô": 1499,
+          "ô_paper": 538
         }
       }
     },
     "smell": {
-      "model": "phobert-base-v2",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.925)",
+      "model": "cafebert",
+      "lí_do": "F1 lớp âm cao nhất trên val (0.942)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.925,
@@ -112,12 +232,36 @@
           "accuracy": 98.36,
           "ô": 1522,
           "ô_paper": 286
+        },
+        "cafebert": {
+          "f1_âm": 0.942,
+          "accuracy": 99.21,
+          "ô": 1522,
+          "ô_paper": 288
+        },
+        "phobert-large": {
+          "f1_âm": 0.909,
+          "accuracy": 98.82,
+          "ô": 1522,
+          "ô_paper": 285
+        },
+        "vibert-base-cased": {
+          "f1_âm": 0.847,
+          "accuracy": 98.62,
+          "ô": 1522,
+          "ô_paper": 289
+        },
+        "xlm-roberta-base": {
+          "f1_âm": 0.885,
+          "accuracy": 98.23,
+          "ô": 1522,
+          "ô_paper": 287
         }
       }
     },
     "stayingpower": {
-      "model": "phobert-base-v2",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.891)",
+      "model": "cafebert",
+      "lí_do": "F1 lớp âm cao nhất trên val (0.96)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.891,
@@ -130,12 +274,36 @@
           "accuracy": 94.95,
           "ô": 1504,
           "ô_paper": 229
+        },
+        "cafebert": {
+          "f1_âm": 0.96,
+          "accuracy": 97.94,
+          "ô": 1504,
+          "ô_paper": 228
+        },
+        "phobert-large": {
+          "f1_âm": 0.872,
+          "accuracy": 96.14,
+          "ô": 1504,
+          "ô_paper": 227
+        },
+        "vibert-base-cased": {
+          "f1_âm": 0.829,
+          "accuracy": 92.62,
+          "ô": 1504,
+          "ô_paper": 228
+        },
+        "xlm-roberta-base": {
+          "f1_âm": 0.798,
+          "accuracy": 87.83,
+          "ô": 1504,
+          "ô_paper": 225
         }
       }
     },
     "texture": {
-      "model": "phobert-base-v2",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.867)",
+      "model": "cafebert",
+      "lí_do": "F1 lớp âm cao nhất trên val (0.871)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.867,
@@ -148,9 +316,33 @@
           "accuracy": 90.69,
           "ô": 1482,
           "ô_paper": 384
+        },
+        "cafebert": {
+          "f1_âm": 0.871,
+          "accuracy": 94.06,
+          "ô": 1482,
+          "ô_paper": 386
+        },
+        "phobert-large": {
+          "f1_âm": 0.857,
+          "accuracy": 88.26,
+          "ô": 1482,
+          "ô_paper": 392
+        },
+        "vibert-base-cased": {
+          "f1_âm": 0.795,
+          "accuracy": 88.19,
+          "ô": 1482,
+          "ô_paper": 378
+        },
+        "xlm-roberta-base": {
+          "f1_âm": 0.814,
+          "accuracy": 82.93,
+          "ô": 1482,
+          "ô_paper": 390
         }
       }
     }
   },
-  "at": "2026-10-06T16:04:03"
+  "at": "2026-10-07T15:10:17"
 }

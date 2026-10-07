@@ -144,9 +144,8 @@ kiểm lại được lựa chọn và thấy lựa chọn khác sẽ ra sao mà
 rằng **lượt đầu giữ khung ô** - nếu các lượt có tập ô cơ sở `paper` khác nhau thì đổi thứ tự `--run` là đổi
 số ô báo cáo (không đổi luật, nhưng đổi mẫu số).
 
-**Chạy thử HAI tiêu chí trên cùng bộ ứng viên (06/10/2026)** - để CHỌN tiêu chí đúng luật 1 (chọn trên `val`).
-Bộ ứng viên đang có ở máy chỉ **2 lượt `val`** (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`); bốn
-encoder còn lại CHƯA có lượt `val` nên không làm ứng viên được:
+**Lần chạy ĐẦU (06/10/2026, 2 ứng viên) - để thử đường ống, KHÔNG phải một thành tích.** Bộ ứng viên lúc đó
+chỉ **2 lượt `val`** (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`):
 
 | | acc macro | F1 âm macro (`paper`) | số ô `paper` |
 | --- | --- | --- | --- |
@@ -157,21 +156,45 @@ encoder còn lại CHƯA có lượt `val` nên không làm ứng viên được
 | trên `test`: `accuracy` | **96,16** | 0,7543 | 2.716 |
 | trên `test`: oracle theo khía cạnh | 96,17 | - | - |
 
+Ba điều đọc được (và đây là lí do phải đo lại): `accuracy` **đạt ĐÚNG trần `val`** (95,97) nên lựa chọn trên
+`val` chuyển được sang `test`; `f1_âm` **thoái hoá** thành "lấy phoBERT cho MỌI khía cạnh"; hai tiêu chí là
+một ĐÁNH ĐỔI thật (2,88 điểm accuracy so 0,021 F1 âm). Luật + `điểm` của mọi ứng viên:
+`aspect_router_f1am_2model.json`, `aspect_router_accuracy_2model.json`.
+
+**Lần chạy THỨ HAI (07/10/2026, 6 ứng viên) - mỗi encoder nay đã có MỘT lượt `val`** (bốn lượt `val` mới:
+`cafebert/lora/exp005`, `phobert-large/lora/exp003`, `vibert-base-cased/lora/exp004`,
+`xlm-roberta-base/lora/exp003`), nên bộ ứng viên đủ rộng để đo **TRẦN** của việc chọn-theo-khía-cạnh:
+
+| | acc macro (`all`) | acc macro (`paper`) | F1 âm macro (`paper`) | số ô `paper` |
+| --- | --- | --- | --- | --- |
+| trên **`val`** (CHỌN): router, **cả hai tiêu chí** | 97,46 | 97,92 | 0,923 | 2.740 |
+| trên **`val`**: **TRẦN** chọn-theo-khía-cạnh (oracle) | **97,46** | - | - | - |
+| trên **`val`**: lượt đơn tốt nhất (`cafebert/lora/exp005`) | 97,38 | - | - | 2.741 |
+| trên `test` (ĐỐI CHIẾU): router, **cả hai tiêu chí** | **97,66** | 97,72 | 0,795 | 2.741 |
+| trên `test`: **TRẦN** oracle | **97,67** | - | - | - |
+| trên `test`: lượt đơn tốt nhất (`cafebert/lora/exp001`) | 97,63 | - | - | 2.745 |
+
 Đọc bảng này:
 
-- **`--criterion accuracy` đạt ĐÚNG trần trên `val` (95,97)** và cũng sát trần trên `test` (96,16 so 96,17):
-  lựa chọn trên `val` chuyển sang `test` được, và hơn **cả hai** lượt thành viên (trên `val`: 95,97 so 95,49
-  và 93,08).
-- **`--criterion f1_âm` thoái hoá thành "lấy phoBERT cho MỌI khía cạnh"** ở bộ ứng viên này: phoBERT thắng F1
-  lớp âm ở cả 6 khía cạnh có ô âm trên `val` (xem khoá `điểm` trong `aspect_router_f1am.json`), nên router
-  KHÔNG đổi gì so với một lượt đơn; nó chỉ giữ được F1 âm tốt hơn (0,7757 so 0,7543 trên `test`).
-- **Hai tiêu chí là một ĐÁNH ĐỔI thật**: `accuracy` hơn 2,88 điểm accuracy nhưng kém 0,021 F1 âm macro. Chọn
-  cái nào là quyết định của người dùng; điều KHÔNG được làm là đổi tiêu chí sau khi đã thấy `test` mà không
-  nói ra.
-- **Số ô `paper` ĐỔI theo lựa chọn** (2.736 / 2.716 trên `test`): cơ sở `paper` phụ thuộc cả nhãn ĐOÁN, nên
-  đổi router là đổi mẫu số - luôn đọc số ô kèm con số (luật 1 của `metrics.md`).
+- **HAI TIÊU CHÍ NAY CHỌN CÙNG MỘT ROUTER** - `cafebert` 6/7 khía cạnh, chỉ `packing` lấy
+  `phobert-base-v2` - nên hai dòng trùng số và router **không còn là một đánh đổi** như ở bộ 2 lượt. Hai tệp
+  luật vẫn đóng băng riêng theo tiêu chí (`aspect_router_f1am.json`, `aspect_router_accuracy.json`) và mỗi
+  tệp ghi `điểm` của MỌI ứng viên ở MỌI khía cạnh (cả hai tiêu chí + số ô) nên lựa chọn kiểm lại được.
+- **TRẦN của việc chọn-theo-khía-cạnh ở bộ 6 ứng viên chỉ hơn lượt đơn tốt nhất +0,08 (`val`) / +0,04
+  (`test`)**; router đo được **+0,03** trên `test` (97,66 so 97,63). Nói thẳng: ở bộ ứng viên này bước router
+  **không đáng kể**.
+- **ĐÍNH CHÍNH con số "+0,51" (ghi 06/10/2026).** Số đó là một ƯỚC LƯỢNG đọc từ bộ ứng viên 2 lượt, KHÔNG
+  phải số đo của bộ 6 lượt; số ĐO được là như bảng trên. Mọi chỗ đã ghi "+0,51" đã được sửa theo số đo (xem
+  `check_present_plan.md` mục 17).
+- **Vì sao trần thấp:** sáu ứng viên cùng MỘT họ huấn luyện (`lora` + `weighted_ce`, đầu phân loại đóng băng)
+  nên chúng **sai giống nhau**; chọn theo khía cạnh không tạo ra thông tin chưa có. Muốn có đất thật thì bộ
+  ứng viên phải khác nhau về CƠ CHẾ (ví dụ một lượt đầu phân loại HỌC) - đó là lí do tạo `cafebert/lora/exp006`.
+- **`f1_âm` HẾT thoái hoá:** với 6 ứng viên nó chọn `cafebert` ở **5/6** khía cạnh có ô âm, chỉ thua `packing`
+  (0,900 so `phobert-base-v2` **0,923**) - tức tiêu chí nay PHÂN BIỆT được.
+- **Số ô `paper` vẫn phụ thuộc lựa chọn** (2.740 / 2.741 / 2.745 trên `test`): cơ sở `paper` phụ thuộc cả nhãn
+  ĐOÁN nên đổi router là đổi mẫu số - luôn đọc số ô kèm con số (luật 1 của `metrics.md`).
 
-**Vì sao `f1_âm` "thoái hoá" ở bộ ứng viên này** - bảng người thắng của TỪNG khía cạnh trên `val`:
+**Vì sao `f1_âm` "thoái hoá" ở bộ 2 LƯỢT (lần chạy ĐẦU)** - bảng người thắng của TỪNG khía cạnh trên `val`:
 
 | Khía cạnh | F1 âm trên `val` (phoBERT / ViSoBERT) | thắng | accuracy trên `val` (phoBERT / ViSoBERT) | thắng |
 | --- | --- | --- | --- | --- |
@@ -183,29 +206,29 @@ encoder còn lại CHƯA có lượt `val` nên không làm ứng viên được
 | stayingpower | **0,891** / 0,832 | phoBERT | 85,51 / **94,95** | ViSoBERT |
 | texture | **0,867** / 0,826 | phoBERT | 82,32 / **90,69** | ViSoBERT |
 
-`f1_âm` chọn **phoBERT cho CẢ 7 khía cạnh**, nên bản router **trùng khít** lượt phoBERT chạy một mình:
-trên `test`, bản gộp ra đúng `acc macro 93,28 · 2.736 ô · F1 âm macro 0,7757` - tức con số của MỘT lượt đơn.
-Đó là nghĩa hẹp của "thoái hoá": tiêu chí mất khả năng **phân biệt** nên router không chọn được gì mới.
-Ngược lại `accuracy` chọn **4 ViSoBERT + 3 phoBERT** ⇒ trộn thật, và bản trộn **hơn cả hai** lượt đơn trên
-`val` (95,97 so 95,49 / 93,08) - đúng bằng trần chọn-theo-khía-cạnh.
+Ở bộ 2 lượt, `f1_âm` chọn **phoBERT cho CẢ 7 khía cạnh** nên bản router **trùng khít** lượt phoBERT chạy một
+mình (`acc macro 93,28 · 2.736 ô · F1 âm macro 0,7757` trên `test`) - đó là nghĩa hẹp của "thoái hoá": tiêu
+chí mất khả năng **phân biệt**. Ngược lại `accuracy` chọn **4 ViSoBERT + 3 phoBERT** ⇒ trộn thật.
 
-**Phạm vi của kết luận này HẸP có chủ ý:** nó nói về **bộ ứng viên đang có là 2 lượt** (chỉ hai encoder có
-lượt `val`: `phobert-base-v2/lora/exp003`, `visobert/lora/exp003`; bốn encoder còn lại chưa có lượt `val` nên
-không làm ứng viên được). Có 4-5 ứng viên thì `f1_âm` rất có thể phân biệt được, nên **phải đo lại**; và vì
-tiêu chí đã nằm trong tệp luật đóng băng, đổi tiêu chí là việc phải **công bố**, không được sửa sau khi thấy
-`test`.
+**Bảng trên là DẤU VẾT của một hiện tượng đã hết:** nó thuộc bộ ứng viên **2 lượt**. Ở bộ 6 lượt (bảng đầu
+mục này) cả hai tiêu chí đều chọn `cafebert` 6/7 khía cạnh, nên "thoái hoá" đến từ **bộ ứng viên quá hẹp**,
+KHÔNG phải từ bản chất tiêu chí - đúng như dự đoán đã ghi lúc chốt và nay đã ĐO được.
 
-**QUYẾT ĐỊNH (chốt 06/10/2026): BÁO CÁO CẢ HAI DÒNG.** Bảng riêng của router có **hai dòng** - một dòng
+**QUYẾT ĐỊNH (chốt 06/10/2026, giữ nguyên): BÁO CÁO CẢ HAI DÒNG.** Bảng router có **hai dòng** - một dòng
 `--criterion accuracy`, một dòng `--criterion f1_âm` - mỗi dòng ghi rõ **tiêu chí của nó**, số ô, và số của
-các lượt thành viên. Hai bản có **hai tệp luật đóng băng riêng** (`aspect_router_accuracy.json`,
-`aspect_router_f1am.json`) nên mỗi dòng gắn cứng với một luật: đây KHÔNG phải "chọn luật sau khi thấy `test`"
-- cả hai luật được chốt trên `val` rồi mới áp lên `test`. **Dòng `accuracy` là dòng chính** (khớp bảng
-accuracy theo khía cạnh của dự án); **dòng `f1_âm` là bản nghiêng về lớp âm**, và phải đọc kèm câu nói rõ nó
-**bằng một lượt đơn** (phoBERT) ở bộ ứng viên hiện tại.
+các lượt thành viên, gắn cứng với **một tệp luật đóng băng** (`aspect_router_accuracy.json`,
+`aspect_router_f1am.json`): đây KHÔNG phải "chọn luật sau khi thấy `test`" - cả hai luật được chốt trên `val`
+rồi mới áp lên `test`. **Dòng `accuracy` là dòng chính** (khớp bảng accuracy theo khía cạnh của dự án).
+**Khác so với lúc chốt:** ở bộ 6 ứng viên hai tiêu chí chọn CÙNG một router nên hai dòng **trùng số**; giữ đủ
+hai dòng vẫn cần vì nó là dấu vết cho thấy tiêu chí đã chốt TRƯỚC khi thấy `test`, và vì `điểm` của mọi ứng
+viên nằm trong tệp luật nên người đọc dò lại được cả lựa chọn lẫn điều sẽ xảy ra nếu chọn tiêu chí kia.
 
-Chứng cứ đã commit: `aspect_router_f1am.json`, `aspect_router_accuracy.json`, `router_aspect_val_*.json`,
-`router_aspect_*.json` và `inputs/*.csv` của 4 lượt tham gia (tái lập bằng hai lệnh ở đầu mục 3.5 với
-`--criterion` tương ứng và `--write-router` khác tên).
+Chứng cứ đã commit: `aspect_router_f1am.json` / `aspect_router_accuracy.json` (LUẬT, 6 ứng viên),
+`router_aspect_val_f1am.json` / `router_aspect_val_accuracy.json` (số trên `val`),
+`router_aspect_f1am.json` / `router_aspect_accuracy.json` (số trên `test`), mỗi tệp kèm `thành_viên` = số của
+TỪNG lượt trên cùng tập, và `inputs/*.csv` của **12 lượt** tham gia. Bộ **2 ứng viên** giữ làm dấu vết bằng
+hậu tố `_2model` (`*_2model.json` của lần chạy đầu); tái lập bằng hai lệnh ở đầu mục 3.5 với `--criterion`
+và `--write-router` tương ứng.
 
 ### 3.6. Gộp HAI TẦNG theo khía cạnh - `scripts/fuse_aspect.py`
 
@@ -234,6 +257,35 @@ Hướng HAI TẦNG: lượt **encoder** giữ **khung ô** (nó phát hiện kh
 `đếm_ô.lệch_giữ_encoder` là con số phải đọc kèm: luật "giữ của encoder" ĐỔI kết quả, nên nếu không đếm
 thì bản gộp chỉ còn một con số không kiểm được. Bản gộp này KHÔNG vào bảng `paper` cho tới khi được
 chốt thành `method: fuse` (tiền lệ: `exp016`) - xem mục 11.3 và `present_plan.md` mục 14.11.
+
+**KẾT QUẢ ĐO (07/10/2026, `test`, cùng bảy lượt một-khía-cạnh)** - hai khung, để thấy luật "lệch về không
+nhắc tới thì giữ encoder" đổi kết quả thế nào. Bảy lượt một-khía-cạnh là `qwen3-4b-instruct-2507/prompt-aspect/exp001..007`
+(`price`, `texture`, `packing`, `stayingpower`, `shipping`, `smell`, `colour`):
+
+| Bản | acc TB (`all`) | acc TB (`paper`) | F1 âm macro (`paper`) | `price` F1 âm | ô lệch giữ encoder | số ô `paper` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `phobert-base-v2/lora/exp004` một mình (mốc) | **93,28** | **96,62** | 0,7757 | **0,000** | - | 2.736 |
+| **gộp hai tầng**, khung `phobert-base-v2/lora/exp004` | 93,15 | 95,87 | **0,8159** | **0,357** | 1.058 | 2.736 |
+| `cafebert/lora/exp001` một mình (mốc) | **97,63** | **97,72** | 0,7876 | **0,000** | - | 2.745 |
+| **gộp hai tầng**, khung `cafebert/lora/exp001` | **97,38** | 96,42 | 0,8124 | 0,320 | 653 | 2.745 |
+
+Đọc cho đúng:
+
+- **Đây là thứ ĐẦU TIÊN làm F1 âm của `price` khác 0** (0,000 &#8594; 0,357) và đẩy F1 âm macro `paper` lên
+  **+0,040** - đó là TOÀN BỘ phần được, và nó vẫn chỉ tính trên **6 ô** (đọc như §7 của
+  `08_experiment_rationale.md`: "có đường chạm tới lớp âm", KHÔNG phải "model đã giỏi `price`").
+- **Giá phải trả:** khung phobert mất **−0,75** acc TB `paper` (96,62 &#8594; 95,87) và 0,13 điểm acc TB `all`;
+  khung cafebert mất ít hơn trên `all` (−0,25) nhưng nhiều hơn trên `paper` (−1,30). **Khung nào cũng đánh đổi
+  ~0,75 điểm `paper` để lấy +0,040 F1 âm macro** - vì vậy bản hai tầng **không** thay bảng chính.
+- **Luật "lệch về không nhắc tới thì giữ encoder" KHÔNG phải chi tiết nhỏ:** nó giữ lại **1.058 ô** (khung
+  phobert) / **653 ô** (khung cafebert). Thiếu con số đó thì không biết bản gộp lấy bao nhiêu ô từ mỗi bên,
+  và `price` là khía cạnh lệch nhiều nhất trong nhóm dùng được (`stayingpower` 320 · `texture` 298 ở khung
+  phobert).
+- **Lượt một-khía-cạnh KHÔNG cần `probabilities.csv`**: luật gộp chỉ dùng **nhãn cứng** (`merge_two_tier`), mà
+  đường prompt không ghi tệp xác suất - `scripts/fuse_aspect.py` đã bỏ đòi hỏi đó (kèm test chống tái phát),
+  nếu không thì bước này không chạy được trên đúng bảy lượt nó sinh ra để dùng.
+- Chứng cứ đã commit: `fuse_aspect_test.json` (khung phobert) + `fuse_aspect_test_cafebert.json` (khung
+  cafebert) + `inputs/*.csv` của **8 lượt** tham gia (1 encoder + 7 lượt một-khía-cạnh).
 
 ## 4. Đọc số của bước kết hợp thế nào
 

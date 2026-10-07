@@ -103,6 +103,34 @@ Hai kiến trúc **KHÔNG nạp `head.pt` lẫn nhau**: `head_config.json` của
 **LỖI** - không tự hạ cấp. Lượt đầu tiên dùng cơ chế này: `phobert-base-v2/lora/exp006` (`parent` =
 `phobert-base-v2/lora/exp002`, khác ĐÚNG một khoá `head.aspect_marker: true`).
 
+**KẾT QUẢ LƯỢT ĐẦU (đọc 07/10/2026): ÂM RÕ RỆT - và lí do là NĂNG LỰC, không phải ý tưởng.**
+
+`phobert-base-v2/lora/exp006` (đầu phân loại vẫn ĐÓNG BĂNG) so với cha `exp002` trên cùng `test`:
+
+| Lượt | acc TB (`all`) | acc TB (`paper`) | F1 sắc thái macro (`paper`) | phát hiện khía cạnh: F1 macro (`all`) | khi có nhắc (`all`) | `trainable_params` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `phobert-base-v2/lora/exp002` (cha) | **93,28** | **96,62** | **0,876** | **0,891** | 95,32 | 2.678.784 |
+| `phobert-base-v2/lora/exp006` (con) | 51,60 | 74,05 | 0,655 | 0,495 | 65,58 | 2.678.784 |
+
+Đọc bằng HAI thước của dự án (`metrics.md` luật 1): phát hiện khía cạnh **SỤP** (F1 macro 0,891 &#8594; 0,495)
+và model gán "có nhắc" cho **gần gấp ba** số ô đúng (micro ở cơ sở `all`: `tp` 2.433 / **`fp` 4.426**;
+precision macro 0,356 so 0,825) - tức lượt này phần lớn là **BÁO ĐỘNG GIẢ**, không phải "đọc sai sắc thái":
+`read_rate` vẫn **100%** và `trainable_params` **không đổi** (2.678.784), nên lượt chạy HỢP LỆ, chỉ là kém.
+
+**Vì sao hỏng - đọc từ mã.** Ở lượt cha, mỗi khía cạnh có **bộ trọng số riêng** (`Linear(hidden, 7 x 3)` =
+7 x (768 x 3 + 3) = **16.149** tham số). Ở lượt con, khía cạnh đi vào ĐẦU VÀO nên đầu phân loại là **MỘT lớp
+dùng chung** `(B, A, H+A) -> (B, A, n_codes)` = **2.328** tham số (= (768 + 7) x 3 + 3). Logit của khía cạnh
+`a` vì thế bằng `W[:, :H] · h + W[:, H:] · e_a + b` - tức khía cạnh chỉ đóng góp được một **HẰNG SỐ riêng
+theo khía cạnh**, còn phần quyết định vẫn là MỘT phép chiếu chung. Nói cách khác lượt này **GIẢM năng lực
+16.149 &#8594; 2.328 tham số (mất 85%)** mà **không thêm thông tin** nào model chưa có: khía cạnh vốn đã nằm
+trong khung ô `(B, 7, 3)`.
+
+Kết luận ĐÚNG phạm vi: **bỏ khoá `head.aspect_marker`** (giữ mặc định `false`). Nhưng lượt này KHÔNG kết luận
+được về ý tưởng "cho đầu phân loại biết khía cạnh", vì hai lí do: (a) đầu phân loại ĐÓNG BĂNG nên cả 16.149
+lẫn 2.328 tham số đều KHÔNG học (chỉ là một phép chiếu ngẫu nhiên cố định); (b) thiết kế một-lớp-dùng-chung
+gộp khía cạnh thành hằng số như trên. Câu hỏi "cơ chế có cứu được khi đầu phân loại ĐƯỢC HỌC không" để lượt
+`phobert-base-v2/lora/exp007` trả lời (mục 14.14) - không suy đoán trước.
+
 ## Checkpoint
 
 | Thư mục | Trong đó có gì | Dùng để |

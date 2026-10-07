@@ -17,9 +17,10 @@ suất từng ô, chỉ đường encoder có), chọn lại nhãn, rồi chấm
 | `ensemble.json` | `scripts/ensemble.py` | số của bản gộp trung bình xác suất + trọng số từng lượt |
 | `fuse.json` | `scripts/fuse.py --apply` | số của bản LAI khi áp luật đã chốt |
 | `vote.json` | `scripts/vote.py` | số của bản bỏ phiếu + số của TỪNG mẫu + thống kê phiếu |
-| `aspect_router.json` | `scripts/ensemble_aspect.py --fit --criterion <tiêu chí>` | **LUẬT ROUTER** đã CHỐT: mỗi khía cạnh lấy lượt nào, kèm tiêu chí đã dùng, thứ tự hoà, và `điểm` của MỌI ứng viên (cả hai tiêu chí + số ô) |
-| `router_aspect_val.json` / `router_aspect.json` | `scripts/ensemble_aspect.py` | số của bản router trên tập đang áp + số của TỪNG lượt thành viên (`thành_viên`) trên cùng tập |
-| `fuse_aspect.json` | `scripts/fuse_aspect.py` | số của bản GỘP HAI TẦNG (khung ô từ encoder, sắc thái từng khía cạnh từ lượt một-khía-cạnh) + `đếm_ô` (số ô lấy từ mỗi lượt, số ô lệch giữ encoder, số ô thiếu) |
+| `aspect_router_<tiêu chí>.json` | `scripts/ensemble_aspect.py --fit --criterion <tiêu chí>` | **LUẬT ROUTER** đã CHỐT (bộ **6 ứng viên**, 07/10/2026): mỗi khía cạnh lấy lượt nào, kèm tiêu chí đã dùng, thứ tự hoà, và `điểm` của MỌI ứng viên (cả hai tiêu chí + số ô) |
+| `aspect_router_<tiêu chí>_2model.json` | như trên | **LUẬT của lần chạy ĐẦU (2 ứng viên, 06/10/2026)** - giữ làm dấu vết; hậu tố `_2model` nói bộ ứng viên lúc đó chỉ có 2 lượt |
+| `router_aspect_val_<tiêu chí>.json` / `router_aspect_<tiêu chí>.json` | `scripts/ensemble_aspect.py` | số của bản router trên tập đang áp + số của TỪNG lượt thành viên (`thành_viên`) trên cùng tập (bản `*_2model.json` là của lần chạy đầu) |
+| `fuse_aspect_test.json` / `fuse_aspect_test_cafebert.json` | `scripts/fuse_aspect.py` | số của bản GỘP HAI TẦNG (khung ô từ encoder, sắc thái từng khía cạnh từ lượt một-khía-cạnh) + `đếm_ô` (số ô lấy từ mỗi lượt, số ô lệch giữ encoder, số ô thiếu); **tên tệp ghi rõ KHUNG** đã dùng |
 | `inputs/*.csv` | `scripts/ensemble.py`, `scripts/ensemble_aspect.py`, `scripts/vote.py`, `dump_inputs` | **đầu vào rút gọn** của từng lượt: khung ô, nhãn đúng, nhãn đoán, `p(mã âm)`, `p(mã dương)` |
 
 **Vì sao commit `inputs/`:** phần LƯỢT CHẠY THẬT của đường encoder (`predictions.csv`,

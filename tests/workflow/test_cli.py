@@ -570,6 +570,24 @@ class TwoTierCliTest(unittest.TestCase):
         self.assertEqual(code, 1)
 
 
+    def test_khong_doi_xac_suat_o_luot_mot_khia_canh(self):
+        """Đường PROMPT không ghi `probabilities.csv`, mà luật gộp chỉ dùng NHÃN CỨNG -> không được đòi."""
+        run = {"dir": Path("experiments/zz/lora/exp002/results/bbbbbbbb"), "split": "test",
+               "aspects": ["colour"], "sample_ids": ["0"], "preds": [{"colour": 1}],
+               "labels": {0: "", 1: "positive"}, "golds": [], "meta": {"experiment": {"model": "zz"}}}
+        with mock.patch.object(fuse_aspect.fusion, "load_run", return_value=run) as loader, \
+                mock.patch.object(fuse_aspect.fusion, "members_report", return_value=[]), \
+                mock.patch.object(fuse_aspect.fusion, "report_of",
+                                   return_value={"f1_âm_macro": {}}), \
+                mock.patch.object(fuse_aspect, "write_report"):
+            code = fuse_aspect.main(["--encoder", str(paths.root()), "--aspect", str(paths.root()),
+                                     "--out", "khong-ghi.json", "--inputs-dir", ""])
+        self.assertEqual(code, 0)
+        self.assertTrue(loader.call_args_list)
+        for call in loader.call_args_list:
+            self.assertFalse(call.kwargs.get("need_probabilities"))
+
+
 class ProbeTokensArgsTest(unittest.TestCase):
     """`probe_tokens.py`: hệ số và cửa sổ ngữ cảnh phải là số dương (trần sai là cả lượt sai)."""
 

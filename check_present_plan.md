@@ -652,8 +652,11 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
 - **Thứ tự việc tiếp theo:** 14.1 đã xong (`collect_reports`: `experiment_registry` 47 dòng) → ghim/commit
   BẰNG CHỨNG rồi commit TÀI LIỆU → **14.7 sửa mã `head.aspect_marker`** (mở khoá 14.8) → **14.9 tạo 7 cặp prompt
   một-khía-cạnh + luật gộp ở 14.10** → người dùng chạy **14.8 + 14.11** (GPU) → **14.12 chốt sổ + gói 019**.
-- **Việc MỚI ngoài kế hoạch (đề xuất, chờ duyệt):** **ensemble per-aspect chọn trên `val`** (dùng
-  `probabilities.csv` của nhiều lượt) - trần đo được **+0,51** (oracle 98,77 so lượt đơn 98,26).
+- **Việc MỚI ngoài kế hoạch (đã chốt 06/10/2026):** **router per-aspect chốt trên `val`** (dùng
+  `probabilities.csv` của nhiều lượt). ⚠️ Số "+0,51" ghi ở đây ngày 06/10/2026 là **ƯỚC LƯỢNG** của bộ ứng
+  viên cũ (2 lượt), **KHÔNG phải số đo**: khi bốn lượt `val` còn thiếu đã chạy xong (07/10/2026) và bộ ứng
+  viên đủ **6 lượt**, số ĐO được là trần chọn-theo-khía-cạnh hơn lượt đơn tốt nhất **+0,08 trên `val`** và
+  **+0,04 trên `test`** (router 97,66 so cafebert 97,63) - xem `09_fusion.md` §3.5 và `07_evolution.md`.
 - **Giới hạn đã biết:** macro kỳ vọng ~**98,8** (vẫn dưới trần định tuyến của chính công bố 99,07);
   `texture`/`price`/`stayingpower`/`shipping` khó vượt công bố vì họ đạt 100.
 
