@@ -1,0 +1,391 @@
+{
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+  "split": "test",
+  "prompt": "absa_aspect_shipping_v1",
+  "prompt_sha": "80f5f0e0",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "quant": "4bit",
+  "dtype": "auto",
+  "max_length": 2304,
+  "generation": {
+    "quant": "4bit",
+    "max_new_tokens": 400,
+    "do_sample": false,
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "seed": null
+  },
+  "subset": {
+    "limit": 0,
+    "seed": 42,
+    "how": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"
+  },
+  "n_samples": 1623,
+  "experiment": {
+    "model": "qwen3-4b-instruct-2507",
+    "method": "prompt-aspect",
+    "exp_id": "exp005"
+  },
+  "repo_sha": "d42de24d50934483fcbdd8da5c79c8b9c2935416",
+  "config_sha256": "4e11fb2e1c5590b0c09a64dbfed01b009db9864ecc6c6a85e2fb836f8f4efb4d",
+  "prompt_examples": null,
+  "model_info": {
+    "model": "Qwen/Qwen3-4B-Instruct-2507",
+    "quant": "4-bit nf4 (tính bằng float16)",
+    "cách nạp": "4-bit + device_map=auto (float16)",
+    "thiết bị": "cuda:0",
+    "dtype": "float16",
+    "gpu": "Tesla T4",
+    "vram_gb": 2.49
+  },
+  "read_rate": {
+    "tổng": 1623,
+    "đọc được": 1623,
+    "% đọc được": 100.0,
+    "có khối suy luận": 1623,
+    "có <think>": 0,
+    "thiếu khía cạnh": 0,
+    "lí do lỗi": {},
+    "ngưỡng": 95.0,
+    "valid": true,
+    "reason": null
+  },
+  "cost": {
+    "split": "test",
+    "số mẫu": 1623,
+    "token sinh": 83465,
+    "token sinh TB": 51.4,
+    "giây": 2116.5,
+    "token sinh/giây": 39.4,
+    "lô": 8
+  },
+  "scores_order": [
+    "accuracy",
+    "aspect_detection",
+    "prf",
+    "aggregate",
+    "confusion"
+  ],
+  "resume": {
+    "mode": "NEW",
+    "reason": "chưa có lần chạy nào trong thư mục này",
+    "reused": 0,
+    "new": 1623
+  },
+  "label_space": "binary",
+  "neutral_policy": "drop",
+  "not_mentioned": "separate",
+  "separate_not_mentioned": true,
+  "codes": [
+    0,
+    1,
+    2
+  ],
+  "dropped_neutral": 26,
+  "dropped_neutral_by_aspect": {
+    "shipping": 26
+  },
+  "n_reviews": 1623,
+  "aspects": [
+    "shipping"
+  ],
+  "scores": {
+    "accuracy": {
+      "macro": 96.93,
+      "micro": 96.93,
+      "when_mentioned_macro": 92.72,
+      "when_mentioned_micro": 92.72,
+      "correct": 1548,
+      "cells": 1597,
+      "by_aspect": {
+        "shipping": 96.93
+      },
+      "when_mentioned_by_aspect": {
+        "shipping": 92.72
+      },
+      "cells_by_aspect": {
+        "shipping": 1597
+      },
+      "correct_by_aspect": {
+        "shipping": 1548
+      }
+    },
+    "aspect_detection": {
+      "macro": {
+        "accuracy": 97.56,
+        "precision": 0.976,
+        "recall": 0.947,
+        "f1": 0.961
+      },
+      "micro": {
+        "tp": 481,
+        "fp": 12,
+        "fn": 27,
+        "tn": 1077,
+        "cells": 1597,
+        "precision": 0.976,
+        "recall": 0.947,
+        "f1": 0.961,
+        "accuracy": 97.56
+      },
+      "support": {
+        "mentioned": 508,
+        "not_mentioned": 1089
+      },
+      "by_aspect": {
+        "shipping": {
+          "accuracy": 97.56,
+          "precision": 0.976,
+          "recall": 0.947,
+          "f1": 0.961,
+          "tp": 481,
+          "fp": 12,
+          "fn": 27,
+          "tn": 1077,
+          "cells": 1597
+        }
+      }
+    },
+    "prf": {
+      "macro": {
+        "precision": 0.959,
+        "recall": 0.917,
+        "f1": 0.937
+      },
+      "micro": {
+        "precision": 0.955,
+        "recall": 0.927,
+        "f1": 0.941,
+        "support": 508
+      },
+      "sentiments": [
+        "positive",
+        "negative"
+      ],
+      "by_aspect": {
+        "shipping": {
+          "positive": {
+            "precision": 0.949,
+            "recall": 0.949,
+            "f1": 0.949,
+            "support": 334
+          },
+          "negative": {
+            "precision": 0.969,
+            "recall": 0.885,
+            "f1": 0.925,
+            "support": 174
+          }
+        }
+      }
+    },
+    "aggregate": {
+      "accuracy_macro": 96.93,
+      "accuracy_micro": 96.93,
+      "when_mentioned_macro": 92.72,
+      "detection": {
+        "macro": {
+          "precision": 0.976,
+          "recall": 0.947,
+          "f1": 0.961,
+          "accuracy": 97.56
+        },
+        "micro": {
+          "tp": 481,
+          "fp": 12,
+          "fn": 27,
+          "tn": 1077,
+          "cells": 1597,
+          "precision": 0.976,
+          "recall": 0.947,
+          "f1": 0.961,
+          "accuracy": 97.56
+        }
+      },
+      "sentiment": {
+        "macro": {
+          "precision": 0.959,
+          "recall": 0.917,
+          "f1": 0.937
+        },
+        "micro": {
+          "precision": 0.955,
+          "recall": 0.927,
+          "f1": 0.941,
+          "support": 508
+        }
+      },
+      "exact_match": {
+        "reviews": 1623,
+        "correct": 1574,
+        "percent": 96.98
+      },
+      "reviews": 1623,
+      "aspects": 1,
+      "cells": 1597
+    },
+    "confusion": {
+      "aspects": [
+        "shipping"
+      ],
+      "labels": [
+        "",
+        "positive",
+        "negative",
+        "không đọc được"
+      ],
+      "cells": 1597,
+      "dropped_neutral": 26
+    }
+  },
+  "tables": {
+    "confusion": {
+      "by_aspect": {
+        "shipping": {
+          "": {
+            "": 1077,
+            "positive": 12
+          },
+          "positive": {
+            "positive": 317,
+            "": 12,
+            "negative": 5
+          },
+          "negative": {
+            "negative": 154,
+            "": 15,
+            "positive": 5
+          }
+        }
+      }
+    }
+  },
+  "scores_order_paper": [
+    "accuracy",
+    "prf",
+    "aggregate"
+  ],
+  "scores_paper": {
+    "accuracy": {
+      "macro": 97.92,
+      "micro": 97.92,
+      "when_mentioned_macro": 97.92,
+      "when_mentioned_micro": 97.92,
+      "correct": 471,
+      "cells": 481,
+      "by_aspect": {
+        "shipping": 97.92
+      },
+      "when_mentioned_by_aspect": {
+        "shipping": 97.92
+      },
+      "cells_by_aspect": {
+        "shipping": 481
+      },
+      "correct_by_aspect": {
+        "shipping": 471
+      }
+    },
+    "prf": {
+      "macro": {
+        "precision": 0.976,
+        "recall": 0.976,
+        "f1": 0.976
+      },
+      "micro": {
+        "precision": 0.979,
+        "recall": 0.979,
+        "f1": 0.979,
+        "support": 481
+      },
+      "sentiments": [
+        "positive",
+        "negative"
+      ],
+      "by_aspect": {
+        "shipping": {
+          "positive": {
+            "precision": 0.984,
+            "recall": 0.984,
+            "f1": 0.984,
+            "support": 322
+          },
+          "negative": {
+            "precision": 0.969,
+            "recall": 0.969,
+            "f1": 0.969,
+            "support": 159
+          }
+        }
+      }
+    },
+    "aggregate": {
+      "accuracy_macro": 97.92,
+      "accuracy_micro": 97.92,
+      "when_mentioned_macro": 97.92,
+      "detection": {
+        "macro": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "accuracy": 100.0
+        },
+        "micro": {
+          "tp": 481,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "cells": 481,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "accuracy": 100.0
+        }
+      },
+      "sentiment": {
+        "macro": {
+          "precision": 0.976,
+          "recall": 0.976,
+          "f1": 0.976
+        },
+        "micro": {
+          "precision": 0.979,
+          "recall": 0.979,
+          "f1": 0.979,
+          "support": 481
+        }
+      },
+      "exact_match": {
+        "reviews": 1623,
+        "correct": 1613,
+        "percent": 99.38
+      },
+      "reviews": 1623,
+      "aspects": 1,
+      "cells": 481
+    }
+  },
+  "tables_paper": {},
+  "paper": {
+    "variant": "paper",
+    "label_filter": [
+      "positive",
+      "negative"
+    ],
+    "codes": [
+      1,
+      2
+    ],
+    "cells": 481,
+    "dropped_not_two_sided": 1116,
+    "dropped_not_two_sided_by_aspect": {
+      "shipping": 1116
+    },
+    "dropped_unreadable": 0,
+    "dropped_unreadable_by_aspect": {
+      "shipping": 0
+    }
+  }
+}

@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "run": {
+    "out_dir": "f39bc983",
+    "hash": "f39bc983",
+    "log": "run.log",
+    "errors": "errors.json",
+    "status": "FINISHED",
+    "started": "2026-10-07 06:59:56",
+    "finished": "2026-10-07 07:33:43",
+    "note": null,
+    "split": "test",
+    "limit": 0,
+    "n_samples": 1623,
+    "subset_seed": 42,
+    "quant": "4bit",
+    "max_length": 2304,
+    "enable_thinking": null,
+    "batch_size": 8,
+    "generation": {
+      "quant": "4bit",
+      "max_new_tokens": 400,
+      "do_sample": false,
+      "temperature": null,
+      "top_p": null,
+      "top_k": null,
+      "seed": null
+    },
+    "prompt": "absa_aspect_stayingpower_v1",
+    "prompt_sha": "8e8bb98d",
+    "examples_sha": null,
+    "system_sha": "a4468eac"
+  },
+  "experiment": {
+    "model": "qwen3-4b-instruct-2507",
+    "method": "prompt-aspect",
+    "exp_id": "exp004"
+  },
+  "data": {
+    "dataset": "cosmetics",
+    "version": "v0.2.0",
+    "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+    "roles": {
+      "eval": "test"
+    },
+    "rows": {
+      "eval": 1623
+    },
+    "eval_lock": {
+      "enforce": true,
+      "declared": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38"
+    }
+  },
+  "repo": {
+    "url": "https://github.com/TrieuKhac-dev/SentimentX",
+    "branch": "experiment",
+    "sha": "d42de24d50934483fcbdd8da5c79c8b9c2935416"
+  },
+  "config": {
+    "sha256": "f39bc983521403e5fc0926338ca507cb26c493fb3918744ba00147aaf8681033",
+    "layers": [
+      [
+        "model",
+        "configs/models/qwen3-4b-instruct-2507.yaml"
+      ],
+      [
+        "repo",
+        "configs/experiments/repo.yaml"
+      ],
+      [
+        "task",
+        "configs/experiments/task.yaml"
+      ],
+      [
+        "evaluation",
+        "configs/experiments/evaluation.yaml"
+      ],
+      [
+        "training",
+        "configs/experiments/training.yaml"
+      ],
+      [
+        "tracking",
+        "configs/experiments/tracking.yaml"
+      ],
+      [
+        "experiment",
+        "experiments/qwen3-4b-instruct-2507/prompt-aspect/exp004/config.yaml"
+      ]
+    ],
+    "sources": {
+      "model_id": "model",
+      "checkpoint": "model",
+      "config_version": "model",
+      "approach": "model",
+      "preprocess.max_length": "model",
+      "preprocess.add_generation_prompt": "model",
+      "inference.dtype": "model",
+      "inference.quantization": "model",
+      "inference.batch_size": "model",
+      "url": "repo",
+      "branch": "repo",
+      "allowed_branches": "repo",
+      "label_space": "task",
+      "neutral_policy": "task",
+      "not_mentioned": "task",
+      "aspects": "experiment",
+      "n": "evaluation",
+      "read_rate_min": "evaluation",
+      "decoding.mode": "evaluation",
+      "decoding.temperature": "evaluation",
+      "decoding.top_p": "evaluation",
+      "decoding.seed": "evaluation",
+      "scores": "evaluation",
+      "scores_paper": "evaluation",
+      "group_by": "evaluation",
+      "save.predictions": "evaluation",
+      "save.plots": "evaluation",
+      "save.confusion": "evaluation",
+      "enabled": "training",
+      "trainer": "training",
+      "lora.r": "training",
+      "lora.alpha": "training",
+      "lora.dropout": "training",
+      "head.trainable": "training",
+      "head.aspect_marker": "training",
+      "lr": "training",
+      "batch": "training",
+      "epochs": "training",
+      "grad_accum": "training",
+      "weight_decay": "training",
+      "checkpoints.every_n_steps": "training",
+      "checkpoints.keep_last_k": "training",
+      "checkpoints.save_last": "training",
+      "checkpoints.save_best": "training",
+      "checkpoints.delete_intermediate": "training",
+      "checkpoints.best_metric": "training",
+      "loss.type": "training",
+      "loss.class_weight": "training",
+      "early_stop.enabled": "training",
+      "early_stop.patience": "training",
+      "early_stop.min_delta": "training",
+      "tracker": "tracking",
+      "experiment": "tracking",
+      "mlflow_tags.model": "tracking",
+      "mlflow_tags.method": "tracking",
+      "mlflow_tags.exp_id": "tracking",
+      "mlflow_tags.dataset": "tracking",
+      "mlflow_tags.version_id": "tracking",
+      "mlflow_tags.split": "tracking",
+      "mlflow_tags.repo_sha": "tracking",
+      "mlflow_tags.config_sha256": "tracking",
+      "artifacts": "tracking",
+      "exp_id": "experiment",
+      "parent": "experiment",
+      "model": "experiment",
+      "method": "experiment",
+      "notes": "experiment",
+      "data.dataset": "experiment",
+      "data.version": "experiment",
+      "data.roles.eval": "experiment",
+      "prompt": "experiment",
+      "system_prompt": "experiment"
+    }
+  },
+  "task": {
+    "label_space": "binary",
+    "neutral_policy": "drop",
+    "not_mentioned": "separate"
+  },
+  "overrides": [
+    [
+      "aspects",
+      "all",
+      [
+        "stayingpower"
+      ],
+      "experiment"
+    ]
+  ],
+  "env": {
+    "kind": "colab",
+    "python": "3.13.15",
+    "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "device": "cuda:0",
+    "gpu": "Tesla T4",
+    "vram_gb": 2.49,
+    "quantization": "4-bit nf4 (tính bằng float16)",
+    "dtype": "float16",
+    "libs": {}
+  },
+  "attempts": [
+    {
+      "n": 1,
+      "started": "2026-10-07 06:59:56",
+      "finished": "2026-10-07 07:33:43",
+      "seconds": 2027.0,
+      "status": "FINISHED",
+      "sha": "d42de24d50934483fcbdd8da5c79c8b9c2935416",
+      "config_sha256": "f39bc983521403e5fc0926338ca507cb26c493fb3918744ba00147aaf8681033",
+      "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "note": null
+    }
+  ],
+  "files": [
+    {
+      "path": "configs/paths.yaml",
+      "role": "paths",
+      "bytes": 5188,
+      "sha256": "ecd1b79756d25c8b409418308b4c52825c76a50bf7b7bb62d050922979995554"
+    },
+    {
+      "path": "configs/dagshub.yaml",
+      "role": "tracking",
+      "bytes": 568,
+      "sha256": "ff38c3c94744e02b8a68df0eec4f025a316f3d74944582f28db6367bf7adb4d8"
+    },
+    {
+      "path": "configs/experiments/repo.yaml",
+      "role": "config",
+      "bytes": 396,
+      "sha256": "fe1b7b6db60b8d4aee33103e1853548aea28fb126cab252bc5a49cb1c8b62ed0"
+    },
+    {
+      "path": "configs/experiments/task.yaml",
+      "role": "config",
+      "bytes": 837,
+      "sha256": "1b22c438e46fe2cc5af8ece178c8d4f0a913f211016c41d99d8120cf5c718338"
+    },
+    {
+      "path": "configs/experiments/evaluation.yaml",
+      "role": "config",
+      "bytes": 3651,
+      "sha256": "19dd233a863784cb38a7f3b096b39f402fdb8a9fb02f50766f57d69fc6072899"
+    },
+    {
+      "path": "configs/experiments/training.yaml",
+      "role": "config",
+      "bytes": 3941,
+      "sha256": "817da7351184c9d54c2fd12b47d2543ced0af20ed650055192ea19cab302d679"
+    },
+    {
+      "path": "configs/experiments/tracking.yaml",
+      "role": "config",
+      "bytes": 1077,
+      "sha256": "89a12ddb67b3b731538548d21334d58f90d84f20f8af7c13e8bc68ff77f46f0d"
+    },
+    {
+      "path": "configs/models/qwen3-4b-instruct-2507.yaml",
+      "role": "model",
+      "bytes": 2171,
+      "sha256": "4e630994d8907a7c9038e83ba7e190652c62d9e05b7fb28d06256376243fae59"
+    },
+    {
+      "path": "configs/datasets/cosmetics/v0.2.0.yaml",
+      "role": "dataset",
+      "bytes": 2780,
+      "sha256": "a5cae2b8936b4e7f680a2871426a0889a8f0c104e268c8e248c891738ed587f8"
+    },
+    {
+      "path": "configs/pipeline/v0.2.0.yaml",
+      "role": "pipeline",
+      "bytes": 3281,
+      "sha256": "b7f6e8fc55cdaa234f71b0c0b5b1530a7d021756347516ca4f209984fa2d1da9"
+    },
+    {
+      "path": "configs/prompts/absa_aspect_stayingpower_v1.txt",
+      "role": "prompt",
+      "bytes": 1552,
+      "sha256": "ce0d850634421b582903534691058224887d3c4262967f9c7fef0008932ab0d5"
+    },
+    {
+      "path": "configs/prompts/system/absa_aspect_stayingpower.txt",
+      "role": "system",
+      "bytes": 548,
+      "sha256": "8d4f04af32f5223fdc639052281170f8bbe7db2a3660e6a867cc1dd600816e60"
+    }
+  ],
+  "tracking": {}
+}

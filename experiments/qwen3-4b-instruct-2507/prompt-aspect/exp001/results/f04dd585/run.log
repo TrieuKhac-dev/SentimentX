@@ -1,0 +1,47 @@
+=== lần chạy 2026-10-07 07:02:54 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_aspect_price_v1
+[RUN] prompt_sha=f09d1b6f
+[RUN] model=Qwen/Qwen3-4B-Instruct-2507
+[RUN] quant=4bit
+[RUN] dtype=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1623
+[RUN] experiment.model=qwen3-4b-instruct-2507
+[RUN] experiment.method=prompt-aspect
+[RUN] experiment.exp_id=exp001
+[RUN] repo_sha=d42de24d50934483fcbdd8da5c79c8b9c2935416
+[RUN] config_sha256=f04dd58537f007d234293bce572af2734df54a62b00abcf0208e7a2e80ab6f76
+[WARN] không mở được phiên MLflow: MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.
+[TRACK] không ghi nhận: Cannot set a deleted experiment 'sentimentx-absa' as the active experiment. You can restore the experiment, or permanently delete the experiment to create a new one.
+[CONFIG] thí nghiệm: qwen3-4b-instruct-2507/prompt-aspect/exp001 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè aspects: all <- ['price']
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_aspect_price_v1 (sha f09d1b6f) | ví dụ: không dùng | sinh: greedy
+[CONFIG] chạy: dtype=auto | max_length=2304 | max_new_tokens=400 | batch=8 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: Qwen/Qwen3-4B-Instruct-2507 (quant=4bit, dtype=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 109.4 giây
+[STEP] bắt đầu sinh 1623 mẫu của split test (batch 8)
+[STEP] sinh xong 1623 mẫu mới | 2048.4 giây
+[STEP] tổng 1623 mẫu (1623 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 1 ô neutral theo neutral_policy=drop
+[STEP] cơ sở đo paper: 297 ô giữ lại, loại 1325 ô không phải hai chiều, 0 ô không đọc được
+[STEP] ghi 1623 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
+[STEP] ghi nhận: 0 tham số, 0 chỉ số, 0 file
+[RUN] kết thúc sau 2166.0 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
+[TRACK] không ghi nhận gì (tracker tắt)
