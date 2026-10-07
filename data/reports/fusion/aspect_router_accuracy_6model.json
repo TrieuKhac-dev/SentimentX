@@ -1,6 +1,6 @@
 {
   "khoá": "model",
-  "tiêu_chí": "f1_âm",
+  "tiêu_chí": "accuracy",
   "luật": {
     "tiêu_chí": "CHỌN MỘT trong `ROUTER_CRITERIA`; chốt LÚC DỰNG luật và ghi vào tệp - `--apply` đọc lại từ tệp nên KHÔNG đổi được sau khi đã thấy `test` (luật 1.4 của 02_rules.md)",
     "không_có_ô_âm_trên_val": "chuyển sang ACCURACY của ô thuộc khía cạnh (cơ sở `all`); lí do ghi vào từng khía cạnh của tệp luật",
@@ -21,7 +21,7 @@
     },
     {
       "model": "cafebert",
-      "lượt": "experiments\\cafebert\\lora\\exp006\\results\\ba564752",
+      "lượt": "experiments\\cafebert\\lora\\exp005\\results\\cfbf68e4",
       "split": "val"
     },
     {
@@ -50,8 +50,8 @@
   ],
   "router": {
     "colour": {
-      "model": "phobert-large",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.85)",
+      "model": "cafebert",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (96.36)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.816,
@@ -66,10 +66,10 @@
           "ô_paper": 689
         },
         "cafebert": {
-          "f1_âm": 0.847,
-          "accuracy": 96.69,
+          "f1_âm": 0.855,
+          "accuracy": 96.36,
           "ô": 1482,
-          "ô_paper": 691
+          "ô_paper": 690
         },
         "phobert-large": {
           "f1_âm": 0.85,
@@ -93,7 +93,7 @@
     },
     "packing": {
       "model": "phobert-base-v2",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.923)",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (98.17)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.923,
@@ -109,7 +109,7 @@
         },
         "cafebert": {
           "f1_âm": 0.857,
-          "accuracy": 98.17,
+          "accuracy": 97.59,
           "ô": 1534,
           "ô_paper": 302
         },
@@ -135,7 +135,7 @@
     },
     "price": {
       "model": "cafebert",
-      "lí_do": "val không có ô âm nào của khía cạnh này (ô 1531): chuyển sang accuracy",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (99.09)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": null,
@@ -151,9 +151,9 @@
         },
         "cafebert": {
           "f1_âm": null,
-          "accuracy": 99.02,
+          "accuracy": 99.09,
           "ô": 1531,
-          "ô_paper": 312
+          "ô_paper": 313
         },
         "phobert-large": {
           "f1_âm": null,
@@ -177,7 +177,7 @@
     },
     "shipping": {
       "model": "cafebert",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.989)",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (97.4)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.981,
@@ -192,10 +192,10 @@
           "ô_paper": 530
         },
         "cafebert": {
-          "f1_âm": 0.989,
-          "accuracy": 97.53,
+          "f1_âm": 0.987,
+          "accuracy": 97.4,
           "ô": 1499,
-          "ô_paper": 536
+          "ô_paper": 534
         },
         "phobert-large": {
           "f1_âm": 0.979,
@@ -219,7 +219,7 @@
     },
     "smell": {
       "model": "cafebert",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.952)",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (99.21)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.925,
@@ -234,8 +234,8 @@
           "ô_paper": 286
         },
         "cafebert": {
-          "f1_âm": 0.952,
-          "accuracy": 99.34,
+          "f1_âm": 0.942,
+          "accuracy": 99.21,
           "ô": 1522,
           "ô_paper": 288
         },
@@ -261,7 +261,7 @@
     },
     "stayingpower": {
       "model": "cafebert",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.972)",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (97.94)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.891,
@@ -276,10 +276,10 @@
           "ô_paper": 229
         },
         "cafebert": {
-          "f1_âm": 0.972,
-          "accuracy": 97.74,
+          "f1_âm": 0.96,
+          "accuracy": 97.94,
           "ô": 1504,
-          "ô_paper": 230
+          "ô_paper": 228
         },
         "phobert-large": {
           "f1_âm": 0.872,
@@ -303,7 +303,7 @@
     },
     "texture": {
       "model": "cafebert",
-      "lí_do": "F1 lớp âm cao nhất trên val (0.94)",
+      "lí_do": "accuracy ô của khía cạnh cao nhất trên val (94.06)",
       "điểm": {
         "phobert-base-v2": {
           "f1_âm": 0.867,
@@ -318,10 +318,10 @@
           "ô_paper": 384
         },
         "cafebert": {
-          "f1_âm": 0.94,
-          "accuracy": 96.36,
+          "f1_âm": 0.871,
+          "accuracy": 94.06,
           "ô": 1482,
-          "ô_paper": 383
+          "ô_paper": 386
         },
         "phobert-large": {
           "f1_âm": 0.857,
@@ -344,5 +344,5 @@
       }
     }
   },
-  "at": "2026-10-07T17:14:30"
+  "at": "2026-10-07T15:10:20"
 }

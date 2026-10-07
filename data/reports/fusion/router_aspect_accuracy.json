@@ -2,29 +2,29 @@
   "lượt": "experiments\\phobert-base-v2\\lora\\exp004\\results\\14923c13",
   "split": "test",
   "accuracy_all": {
-    "macro": 97.66,
-    "micro": 97.67,
-    "when_mentioned_macro": 96.7,
+    "macro": 97.86,
+    "micro": 97.87,
+    "when_mentioned_macro": 96.73,
     "when_mentioned_micro": 96.71,
-    "correct": 10901,
+    "correct": 10923,
     "cells": 11161,
     "by_aspect": {
       "colour": 96.69,
       "packing": 97.53,
-      "price": 98.58,
-      "shipping": 98.18,
-      "smell": 98.57,
-      "stayingpower": 98.61,
-      "texture": 95.45
+      "price": 98.89,
+      "shipping": 98.12,
+      "smell": 98.76,
+      "stayingpower": 98.17,
+      "texture": 96.86
     },
     "when_mentioned_by_aspect": {
-      "colour": 96.3,
+      "colour": 96.15,
       "packing": 97.6,
       "price": 97.55,
-      "shipping": 97.64,
-      "smell": 94.67,
+      "shipping": 97.44,
+      "smell": 95.0,
       "stayingpower": 96.62,
-      "texture": 96.5
+      "texture": 96.74
     },
     "cells_by_aspect": {
       "colour": 1572,
@@ -38,73 +38,73 @@
     "correct_by_aspect": {
       "colour": 1520,
       "packing": 1581,
-      "price": 1599,
-      "shipping": 1568,
-      "smell": 1584,
-      "stayingpower": 1561,
-      "texture": 1488
+      "price": 1604,
+      "shipping": 1567,
+      "smell": 1587,
+      "stayingpower": 1554,
+      "texture": 1510
     }
   },
   "accuracy_paper": {
-    "macro": 97.72,
-    "micro": 97.7,
-    "when_mentioned_macro": 97.72,
-    "when_mentioned_micro": 97.7,
+    "macro": 97.93,
+    "micro": 97.88,
+    "when_mentioned_macro": 97.93,
+    "when_mentioned_micro": 97.88,
     "correct": 2678,
-    "cells": 2741,
+    "cells": 2736,
     "by_aspect": {
       "colour": 97.6,
       "packing": 99.65,
-      "price": 98.46,
-      "shipping": 98.22,
-      "smell": 95.95,
+      "price": 99.07,
+      "shipping": 98.02,
+      "smell": 96.28,
       "stayingpower": 97.45,
-      "texture": 96.73
+      "texture": 97.42
     },
     "when_mentioned_by_aspect": {
       "colour": 97.6,
       "packing": 99.65,
-      "price": 98.46,
-      "shipping": 98.22,
-      "smell": 95.95,
+      "price": 99.07,
+      "shipping": 98.02,
+      "smell": 96.28,
       "stayingpower": 97.45,
-      "texture": 96.73
+      "texture": 97.42
     },
     "cells_by_aspect": {
-      "colour": 667,
+      "colour": 666,
       "packing": 286,
-      "price": 324,
+      "price": 322,
       "shipping": 505,
       "smell": 296,
       "stayingpower": 235,
-      "texture": 428
+      "texture": 426
     },
     "correct_by_aspect": {
-      "colour": 651,
+      "colour": 650,
       "packing": 285,
       "price": 319,
-      "shipping": 496,
-      "smell": 284,
+      "shipping": 495,
+      "smell": 285,
       "stayingpower": 229,
-      "texture": 414
+      "texture": 415
     }
   },
-  "cells_paper": 2741,
+  "cells_paper": 2736,
   "f1_âm_từng_khía_cạnh": {
-    "colour": 0.869,
+    "colour": 0.867,
     "packing": 0.952,
-    "price": 0.0,
-    "shipping": 0.974,
-    "smell": 0.882,
-    "stayingpower": 0.968,
-    "texture": 0.92
+    "price": 0.4,
+    "shipping": 0.971,
+    "smell": 0.891,
+    "stayingpower": 0.969,
+    "texture": 0.933
   },
   "f1_âm_macro": {
-    "macro_trên_khía_cạnh_có_ô_âm": 0.795,
-    "macro_trên_khía_cạnh_đang_dương": 0.9275,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.854714,
+    "macro_trên_khía_cạnh_đang_dương": 0.854714,
     "số_khía_cạnh_có_ô_âm": 7
   },
-  "at": "2026-10-07T15:10:24",
+  "at": "2026-10-07T17:14:37",
   "cách": "router theo khía cạnh: mỗi khía cạnh lấy nhãn của MỘT lượt đã chốt trên val",
   "luật": {
     "tiêu_chí": "CHỌN MỘT trong `ROUTER_CRITERIA`; chốt LÚC DỰNG luật và ghi vào tệp - `--apply` đọc lại từ tệp nên KHÔNG đổi được sau khi đã thấy `test` (luật 1.4 của 02_rules.md)",
@@ -138,7 +138,7 @@
   "nguồn": [
     "experiments\\phobert-base-v2\\lora\\exp004\\results\\14923c13",
     "experiments\\visobert\\lora\\exp004\\results\\1bc5e80b",
-    "experiments\\cafebert\\lora\\exp001\\results\\61871aed",
+    "experiments\\cafebert\\lora\\exp002\\results\\93448395",
     "experiments\\phobert-large\\lora\\exp001\\results\\f92f1d6c",
     "experiments\\vibert-base-cased\\lora\\exp001\\results\\ba615bcb",
     "experiments\\xlm-roberta-base\\lora\\exp001\\results\\491e81cb"
@@ -253,37 +253,37 @@
       "cells_paper": 2701
     },
     {
-      "lượt": "experiments\\cafebert\\lora\\exp001\\results\\61871aed",
+      "lượt": "experiments\\cafebert\\lora\\exp002\\results\\93448395",
       "split": "test",
       "f1_âm_macro": {
-        "macro_trên_khía_cạnh_có_ô_âm": 0.787571,
-        "macro_trên_khía_cạnh_đang_dương": 0.918833,
+        "macro_trên_khía_cạnh_có_ô_âm": 0.847286,
+        "macro_trên_khía_cạnh_đang_dương": 0.847286,
         "số_khía_cạnh_có_ô_âm": 7
       },
       "accuracy_all": {
-        "macro": 97.63,
-        "micro": 97.64,
-        "when_mentioned_macro": 96.84,
-        "when_mentioned_micro": 96.82,
-        "correct": 10898,
+        "macro": 97.89,
+        "micro": 97.89,
+        "when_mentioned_macro": 96.73,
+        "when_mentioned_micro": 96.71,
+        "correct": 10926,
         "cells": 11161,
         "by_aspect": {
           "colour": 96.69,
-          "packing": 97.35,
-          "price": 98.58,
-          "shipping": 98.18,
-          "smell": 98.57,
-          "stayingpower": 98.61,
-          "texture": 95.45
+          "packing": 97.72,
+          "price": 98.89,
+          "shipping": 98.12,
+          "smell": 98.76,
+          "stayingpower": 98.17,
+          "texture": 96.86
         },
         "when_mentioned_by_aspect": {
-          "colour": 96.3,
-          "packing": 98.63,
+          "colour": 96.15,
+          "packing": 97.6,
           "price": 97.55,
-          "shipping": 97.64,
-          "smell": 94.67,
+          "shipping": 97.44,
+          "smell": 95.0,
           "stayingpower": 96.62,
-          "texture": 96.5
+          "texture": 96.74
         },
         "cells_by_aspect": {
           "colour": 1572,
@@ -296,15 +296,15 @@
         },
         "correct_by_aspect": {
           "colour": 1520,
-          "packing": 1578,
-          "price": 1599,
-          "shipping": 1568,
-          "smell": 1584,
-          "stayingpower": 1561,
-          "texture": 1488
+          "packing": 1584,
+          "price": 1604,
+          "shipping": 1567,
+          "smell": 1587,
+          "stayingpower": 1554,
+          "texture": 1510
         }
       },
-      "cells_paper": 2745
+      "cells_paper": 2737
     },
     {
       "lượt": "experiments\\phobert-large\\lora\\exp001\\results\\f92f1d6c",

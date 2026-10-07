@@ -23,7 +23,7 @@ graph LR
   n19["qwen2.5-0.5b-instruct exp002"]
   n20["qwen3-0.6b exp005"]
   n21["<công bố COT+5-shot>"]
-  n22["exp007"]
+  n22["qwen3-4b-instruct-2507 exp007"]
   n23["qwen3-4b-instruct-2507 exp004"]
   n24["exp010"]
   n25["qwen3-0.6b exp003"]
@@ -60,11 +60,13 @@ graph LR
   n56["phobert-base-v2 exp006"]
   n57["qwen3-4b-instruct-2507 exp005 #2"]
   n58["qwen3-4b-instruct-2507 exp002 #2"]
-  n59["exp007 #2"]
+  n59["qwen3-4b-instruct-2507 exp007 #2"]
   n60["qwen3-4b-instruct-2507 exp006 #2"]
   n61["qwen3-4b-instruct-2507 exp001 #2"]
   n62["qwen3-4b-instruct-2507 exp003 #2"]
-  n63["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
+  n63["cafebert exp006"]
+  n64["phobert-base-v2 exp007"]
+  n65["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
   n1 -->|so với| n2
   n1 -->|so với| n3
   n1 -->|so với| n4
@@ -124,63 +126,67 @@ graph LR
   n1 -->|so với| n60
   n1 -->|so với| n61
   n1 -->|so với| n62
-  n27 -->|chấm trên| n63
-  n22 -->|chấm trên| n63
-  n2 -->|chấm trên| n63
-  n8 -->|chấm trên| n63
-  n3 -->|chấm trên| n63
-  n9 -->|chấm trên| n63
-  n28 -->|chấm trên| n63
-  n29 -->|chấm trên| n63
-  n23 -->|chấm trên| n63
-  n30 -->|chấm trên| n63
-  n31 -->|chấm trên| n63
-  n4 -->|chấm trên| n63
-  n10 -->|chấm trên| n63
-  n11 -->|chấm trên| n63
-  n12 -->|chấm trên| n63
-  n13 -->|chấm trên| n63
-  n24 -->|chấm trên| n63
-  n14 -->|chấm trên| n63
-  n32 -->|chấm trên| n63
-  n15 -->|chấm trên| n63
-  n25 -->|chấm trên| n63
-  n16 -->|chấm trên| n63
-  n5 -->|chấm trên| n63
-  n17 -->|chấm trên| n63
-  n18 -->|chấm trên| n63
-  n19 -->|chấm trên| n63
-  n6 -->|chấm trên| n63
-  n26 -->|chấm trên| n63
-  n33 -->|chấm trên| n63
-  n34 -->|chấm trên| n63
-  n35 -->|chấm trên| n63
-  n36 -->|chấm trên| n63
-  n37 -->|chấm trên| n63
-  n38 -->|chấm trên| n63
-  n39 -->|chấm trên| n63
-  n40 -->|chấm trên| n63
-  n41 -->|chấm trên| n63
-  n42 -->|chấm trên| n63
-  n43 -->|chấm trên| n63
-  n44 -->|chấm trên| n63
-  n45 -->|chấm trên| n63
-  n46 -->|chấm trên| n63
-  n47 -->|chấm trên| n63
-  n20 -->|chấm trên| n63
-  n48 -->|chấm trên| n63
-  n49 -->|chấm trên| n63
-  n50 -->|chấm trên| n63
-  n51 -->|chấm trên| n63
-  n52 -->|chấm trên| n63
-  n53 -->|chấm trên| n63
-  n54 -->|chấm trên| n63
-  n55 -->|chấm trên| n63
-  n56 -->|chấm trên| n63
-  n57 -->|chấm trên| n63
-  n58 -->|chấm trên| n63
-  n59 -->|chấm trên| n63
-  n60 -->|chấm trên| n63
-  n61 -->|chấm trên| n63
-  n62 -->|chấm trên| n63
+  n1 -->|so với| n63
+  n1 -->|so với| n64
+  n27 -->|chấm trên| n65
+  n22 -->|chấm trên| n65
+  n2 -->|chấm trên| n65
+  n8 -->|chấm trên| n65
+  n3 -->|chấm trên| n65
+  n9 -->|chấm trên| n65
+  n28 -->|chấm trên| n65
+  n29 -->|chấm trên| n65
+  n23 -->|chấm trên| n65
+  n30 -->|chấm trên| n65
+  n31 -->|chấm trên| n65
+  n4 -->|chấm trên| n65
+  n10 -->|chấm trên| n65
+  n11 -->|chấm trên| n65
+  n12 -->|chấm trên| n65
+  n13 -->|chấm trên| n65
+  n24 -->|chấm trên| n65
+  n14 -->|chấm trên| n65
+  n32 -->|chấm trên| n65
+  n15 -->|chấm trên| n65
+  n25 -->|chấm trên| n65
+  n16 -->|chấm trên| n65
+  n5 -->|chấm trên| n65
+  n17 -->|chấm trên| n65
+  n18 -->|chấm trên| n65
+  n19 -->|chấm trên| n65
+  n6 -->|chấm trên| n65
+  n26 -->|chấm trên| n65
+  n33 -->|chấm trên| n65
+  n34 -->|chấm trên| n65
+  n35 -->|chấm trên| n65
+  n36 -->|chấm trên| n65
+  n37 -->|chấm trên| n65
+  n38 -->|chấm trên| n65
+  n39 -->|chấm trên| n65
+  n40 -->|chấm trên| n65
+  n41 -->|chấm trên| n65
+  n42 -->|chấm trên| n65
+  n43 -->|chấm trên| n65
+  n44 -->|chấm trên| n65
+  n45 -->|chấm trên| n65
+  n46 -->|chấm trên| n65
+  n47 -->|chấm trên| n65
+  n20 -->|chấm trên| n65
+  n48 -->|chấm trên| n65
+  n49 -->|chấm trên| n65
+  n50 -->|chấm trên| n65
+  n51 -->|chấm trên| n65
+  n52 -->|chấm trên| n65
+  n53 -->|chấm trên| n65
+  n54 -->|chấm trên| n65
+  n55 -->|chấm trên| n65
+  n56 -->|chấm trên| n65
+  n57 -->|chấm trên| n65
+  n58 -->|chấm trên| n65
+  n59 -->|chấm trên| n65
+  n60 -->|chấm trên| n65
+  n61 -->|chấm trên| n65
+  n62 -->|chấm trên| n65
+  n63 -->|chấm trên| n65
+  n64 -->|chấm trên| n65
 ```

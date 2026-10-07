@@ -117,15 +117,17 @@ câu hỏi riêng. Mọi số lấy từ `data/reports/fusion/` (luật + đầu
 
 | # | Bước | Số (split `test`, 1.623 dòng) | Kết luận |
 | --- | --- | --- | --- |
-| F1 | **Router theo khía cạnh, tiêu chí `accuracy`** (chốt trên `val`, 6 ứng viên) | acc 97,66 (`all`) · 97,72 (`paper`) · F1 âm macro 0,795 · 2.741 ô | **KHÔNG đáng kể:** trần chọn-theo-khía-cạnh 97,67, lượt đơn tốt nhất 97,63 ⇒ hơn **+0,04**, dưới cả mức nhiễu (±0,7) |
-| F2 | **Router theo khía cạnh, tiêu chí `f1_âm`** | **cùng số như F1** - hai tiêu chí chọn CÙNG một router (`cafebert` 6/7 khía cạnh) | Giữ đủ hai dòng vì tiêu chí chốt TRƯỚC khi xem `test`, nhưng đọc như MỘT kết quả |
-| F3 | **Gộp HAI TẦNG** (khung ô từ `phobert-base-v2/lora/exp004`, sắc thái từ 7 lượt một-khía-cạnh) | acc 93,15 (`all`) · 95,87 (`paper`) · F1 âm macro **0,8159** (từ 0,7757) · **`price` F1 âm 0,000 &#8594; 0,357** | **Lần ĐẦU TIÊN `price` âm khác 0**; giá phải trả ~**0,75** điểm accuracy `paper` ⇒ giữ làm hướng phụ, KHÔNG thay bảng chính |
-| C1 | **Nhánh `head.aspect_marker`** (`phobert-base-v2/lora/exp006`) | acc 51,60 (`all`) · 74,05 (`paper`) · phát hiện khía cạnh F1 macro 0,891 &#8594; **0,495** | **BỎ khoá này**: cách cài đặt giảm năng lực đầu phân loại (16.149 &#8594; 2.328 tham số) mà không thêm thông tin |
+| F1 | **Router theo khía cạnh, tiêu chí `accuracy`** (chốt trên `val`, 6 ứng viên, có MỘT lượt **đầu HỌC**) | acc 97,86 (`all`) · 97,93 (`paper`) · F1 âm macro 0,8547 · 2.736 ô | **KHÔNG vượt lượt đơn tốt nhất:** `cafebert/lora/exp002` **97,89**, trần chọn-theo-khía-cạnh 97,8871 ⇒ router chậm **−0,03**, dưới cả mức nhiễu (±0,7) |
+| F2 | **Router theo khía cạnh, tiêu chí `f1_âm`** | acc 97,56 (`all`) · 97,97 (`paper`) · F1 âm macro **0,857** · 2.735 ô | Sau khi `colour` được chuyển cho `phobert-large`: khác dòng `accuracy` rất ít (acc `all` −0,30; F1 âm macro +0,002), và cả hai luật chốt TRƯỚC khi xem `test` |
+| F3 | **Gộp HAI TẦNG** (khung ô từ `phobert-base-v2/lora/exp004`, sắc thái từ 7 lượt một-khía-cạnh) | acc 93,15 (`all`) · 95,87 (`paper`) · F1 âm macro **0,8159** (từ 0,7757) · **`price` F1 âm 0,000 &#8594; 0,357** | **Lần ĐẦU TIÊN `price` âm khác 0** (CẢ ba khung: 0,357 / 0,320 / 0,261), nhưng F1 âm macro **chỉ tăng khi khung YẾU** - ở khung mạnh nhất (`cafebert/lora/exp002`) nó giảm 0,8473 &#8594; 0,8064; accuracy luôn giảm ⇒ hướng PHỤ, không thay bảng chính |
+| C1 | **Nhánh `head.aspect_marker`** - HAI lượt: `phobert-base-v2/lora/exp006` (đầu ĐÓNG BĂNG) và `exp007` (đầu HỌC) | **51,60** và **50,51** (`all`) so cha **93,28** / **97,25** · phát hiện khía cạnh F1 macro 0,891 &#8594; 0,495 và 0,959 &#8594; 0,489 | **BỎ khoá này**: cho đầu phân loại HỌC **KHÔNG cứu được** ⇒ lỗi là **CẤU TRÚC** (khía cạnh chỉ vào được như một HẰNG SỐ; một lớp dùng chung cho 7 khía cạnh; năng lực cắt 16.149 &#8594; 2.328 tham số) |
 
-Đọc kèm ba điều: (a) chênh lệch dưới **±0,7** trên đường encoder không kết luận được, nên F1/F2 là "không có
-tác dụng", KHÔNG phải "có hại"; (b) F3 là đánh đổi thật nên phải nói CẢ HAI vế (F1 âm +0,040 và accuracy
-`paper` −0,75); (c) F1/F2 dùng `test` chỉ để ĐỐI CHIẾU - cả hai luật được chốt trên `val`, và `điểm` của mọi
-ứng viên nằm trong tệp luật.
+Đọc kèm bốn điều: (a) chênh lệch dưới **±0,7** trên đường encoder không kết luận được, nên F1/F2 là "không
+vượt được lượt đơn", KHÔNG phải "có hại"; (b) ở F3 kết luận **phụ thuộc KHUNG** nên phải đọc cả ba khung
+(`fuse_aspect_test.json`, `fuse_aspect_test_cafebert_exp001.json`, `fuse_aspect_test_cafebert_exp002.json`) -
+chọn khung đẹp nhất là tự lừa mình; (c) F1/F2 dùng `test` chỉ để ĐỐI CHIẾU - cả hai luật chốt trên `val`, và
+`điểm` của mọi ứng viên nằm trong tệp luật; (d) F3 đo trên `test` với luật đã đóng băng TRƯỚC khi chạy bảy lượt
+(`fusion.TWO_TIER_LAW`).
 
 ## 6. Trade-off
 

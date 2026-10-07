@@ -609,6 +609,22 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
 - **9.4 HOÃN** - bốn lượt lấy mẫu (thước nhiễu đường prompt) chưa cần.
 - **Hướng 3 "hai tầng theo khía cạnh": chạy CẢ 7 khía cạnh** (không chọn lọc) - mục 11.5 + 14.9/14.11 đã sửa;
   thêm **TIÊU CHÍ chọn khía cạnh** (giữ `price` vì công bố = 0 và là điểm mù; `texture`/`packing` vì khoảng cách
+
+- **MỐC 07/10/2026 (đợt 10, sau gói 020) - HAI LƯỢT TUỲ CHỌN ĐÃ CHẠY XONG, đã gộp vào tài liệu:**
+  `cafebert/lora/exp006` (val, đầu HỌC: **97,84** `all` / **98,53** `paper`; `trainable_params` 7.132.181) và
+  `phobert-base-v2/lora/exp007` (`aspect_marker` + đầu HỌC: **50,51** / 78,55 so cha 97,25 ⇒ **−46,74**). Router
+  chạy **lần BA** (6 ứng viên, `cafebert` = lượt đầu HỌC): trên `test` router **97,86** so lượt đơn tốt nhất
+  **97,89**, trần **97,8871** ⇒ **router KHÔNG vượt lượt đơn** - thứ nâng điểm là **ỨNG VIÊN**; nhánh `f1_âm`
+  cho F1 âm macro **0,857**. Gộp hai tầng đo thêm khung **MẠNH NHẤT** (`cafebert/lora/exp002`): `price` âm
+  0,000 &#8594; 0,261 nhưng F1 âm macro **giảm** 0,8473 &#8594; 0,8064 ⇒ hai tầng là hướng PHỤ. **`aspect_marker`
+  BỎ**, và lí do đã ĐO được là **CẤU TRÚC** (hai lượt marker xấp xỉ nhau ⇒ không phải "đầu không học được").
+  Tài liệu đã sửa: `06_lora_encoder.md`, `08_experiment_rationale.md` §2b, `09_fusion.md` §3.5/§3.6,
+  `07_evolution.md`, `present_report.md`+`sent.md`, README `exp007`, `handover/README.md`; gói **021** mang các
+  README đã đổi (`exp007` + 7 README `prompt-aspect`).
+- **Việc CÒN TREO cho đợt sau (KHÔNG cần chạy gì thêm cho đợt này):** biểu quyết 3 mẫu
+  (`qwen3-4b-instruct-2507/prompt-cot/exp018/019/020`, cần GPU) và - nếu muốn router có trần rộng hơn - một
+  lượt `val` cho mỗi encoder còn thiếu (hiện mỗi model chỉ có đúng một lượt `val`, nên mỗi model chỉ vào được
+  MỘT chỗ trong bộ ứng viên).
   lớn; `smell`/`colour` để xác nhận đang hơn).
 - **14.7 XONG 06/10/2026** - `head.aspect_marker` đã có trong mã (**KIẾN TRÚC** đầu phân loại: one-hot khía
   cạnh ghép vào vector review, đầu ra VẪN `(B, 7, 3)`, `head_config.json` ghi `aspect_marker` và hai kiến

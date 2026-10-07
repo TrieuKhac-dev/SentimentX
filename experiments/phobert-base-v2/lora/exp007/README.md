@@ -1,18 +1,20 @@
 # exp007 (PhoBERT-base-v2) - Đầu phân loại HỌC + khía cạnh vào ĐẦU VÀO (`aspect_marker`)
 
 **Hỏi:** `exp006` (`head.aspect_marker: true` nhưng đầu phân loại **ĐÓNG BĂNG**) đã **SỤP**: acc macro
-**51,60** so cha 93,28, detection F1 0,891 → **0,495**, precision "có nhắc" 0,825 → 0,356. Kết quả đó **chưa**
-kết luận được về cơ chế, vì ở chế độ đóng băng đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN. Lượt này lặp
-lại ĐÚNG cơ chế nhưng **cho đầu phân loại HỌC**: cơ chế có cứu được không?
+**51,60** so cha 93,28, detection F1 0,891 → **0,495**, precision "có nhắc" 0,825 → 0,356. Câu hỏi còn treo:
+cho đầu phân loại **HỌC** thì cơ chế này có cứu được không?
 
 **Khác `phobert-base-v2/lora/exp005`:** đúng MỘT khoá - `head.aspect_marker: true`.
 
-**Đọc kèm cảnh báo thiết kế:** cách cài đặt cho đầu phân loại dùng **CHUNG một lớp**
-(`logit = W[:,:H]·h + W[:,H:]·e_khía_cạnh + b`), nên khía cạnh chỉ đóng góp được một **hằng số riêng** chứ
-không phải **bộ trọng số riêng**; năng lực của đầu (2.328 tham số) thấp hơn thiết kế mặc định (16.149). Vì
-vậy kết quả XẤU vẫn có thể là do **năng lực**, không phải do ý tưởng "cho đầu phân loại biết khía cạnh".
+**KẾT QUẢ (đọc 07/10/2026): KHÔNG cứu được - và đó là điều đáng giá nhất lượt này mang lại.** acc TB
+**50,51** (`all`) · 78,55 (`paper`) so cha `exp005` (đầu CŨNG học) **97,25** ⇒ **−46,74**; detection F1 macro
+0,959 → **0,489**; F1 âm macro 0,719 → **0,236**. Hai lượt marker (đóng băng 51,60 và học 50,51) cho kết quả
+**xấp xỉ nhau** ⇒ lỗi là của **CẤU TRÚC**, KHÔNG phải của việc đầu có học: cách cài đặt dùng **CHUNG một lớp**
+(`logit = W[:,:H]·h + W[:,H:]·e_khía_cạnh + b`) nên khía cạnh chỉ vào được như một **HẰNG SỐ riêng** - nó
+không đổi được CÁCH ánh xạ review → sắc thái, mà ABSA cần đúng thứ đó. **Khoá `head.aspect_marker` đã bị BỎ**
+(giữ mặc định `false`), nên đọc lượt này như bằng chứng cho KẾT LUẬN, không phải như lượt để chọn tham số.
 
-**Kết quả:** `results/<hash8>/`. Cần VnCoreNLP (xem `requires_extra`).
+**Kết quả:** `results/3e52a2a3/`. Cần VnCoreNLP (xem `requires_extra`).
 
 ---
 

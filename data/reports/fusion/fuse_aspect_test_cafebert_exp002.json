@@ -1,0 +1,417 @@
+{
+  "lượt": "experiments\\cafebert\\lora\\exp002\\results\\93448395",
+  "split": "test",
+  "accuracy_all": {
+    "macro": 97.56,
+    "micro": 97.57,
+    "when_mentioned_macro": 95.2,
+    "when_mentioned_micro": 95.41,
+    "correct": 10890,
+    "cells": 11161,
+    "by_aspect": {
+      "colour": 96.37,
+      "packing": 97.72,
+      "price": 98.03,
+      "shipping": 98.12,
+      "smell": 98.51,
+      "stayingpower": 97.73,
+      "texture": 96.47
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 95.41,
+      "packing": 97.6,
+      "price": 93.27,
+      "shipping": 97.44,
+      "smell": 93.67,
+      "stayingpower": 93.67,
+      "texture": 95.34
+    },
+    "cells_by_aspect": {
+      "colour": 1572,
+      "packing": 1621,
+      "price": 1622,
+      "shipping": 1597,
+      "smell": 1607,
+      "stayingpower": 1583,
+      "texture": 1559
+    },
+    "correct_by_aspect": {
+      "colour": 1515,
+      "packing": 1584,
+      "price": 1590,
+      "shipping": 1567,
+      "smell": 1583,
+      "stayingpower": 1547,
+      "texture": 1504
+    }
+  },
+  "accuracy_paper": {
+    "macro": 96.33,
+    "micro": 96.53,
+    "when_mentioned_macro": 96.33,
+    "when_mentioned_micro": 96.53,
+    "correct": 2642,
+    "cells": 2737,
+    "by_aspect": {
+      "colour": 96.85,
+      "packing": 99.3,
+      "price": 94.72,
+      "shipping": 98.02,
+      "smell": 94.93,
+      "stayingpower": 94.47,
+      "texture": 96.01
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 96.85,
+      "packing": 99.3,
+      "price": 94.72,
+      "shipping": 98.02,
+      "smell": 94.93,
+      "stayingpower": 94.47,
+      "texture": 96.01
+    },
+    "cells_by_aspect": {
+      "colour": 666,
+      "packing": 287,
+      "price": 322,
+      "shipping": 505,
+      "smell": 296,
+      "stayingpower": 235,
+      "texture": 426
+    },
+    "correct_by_aspect": {
+      "colour": 645,
+      "packing": 285,
+      "price": 305,
+      "shipping": 495,
+      "smell": 281,
+      "stayingpower": 222,
+      "texture": 409
+    }
+  },
+  "cells_paper": 2737,
+  "f1_âm_từng_khía_cạnh": {
+    "colour": 0.824,
+    "packing": 0.9,
+    "price": 0.261,
+    "shipping": 0.971,
+    "smell": 0.857,
+    "stayingpower": 0.935,
+    "texture": 0.897
+  },
+  "f1_âm_macro": {
+    "macro_trên_khía_cạnh_có_ô_âm": 0.806429,
+    "macro_trên_khía_cạnh_đang_dương": 0.806429,
+    "số_khía_cạnh_có_ô_âm": 7
+  },
+  "at": "2026-10-07T17:14:39",
+  "cách": "hai tầng: khung ô từ encoder, sắc thái từng khía cạnh từ lượt một-khía-cạnh",
+  "luật": {
+    "khung_ô": "lấy từ lượt ENCODER (lượt đầu trong danh sách)",
+    "sắc_thái": "mỗi khía cạnh lấy mã của lượt MỘT-khía-cạnh tương ứng",
+    "lệch_về_không_nhắc_tới": "giữ quyết định của ENCODER (phát hiện khía cạnh là điểm mạnh đã đo của encoder: macro-F1 0,967)",
+    "thiếu_ô": "giữ nhãn của encoder và đếm riêng",
+    "đơn_vị_gộp": "một lượt MỘT-khía-cạnh cho MỖI khía cạnh; cùng không gian nhãn với encoder"
+  },
+  "nguồn": {
+    "encoder": "experiments\\cafebert\\lora\\exp002\\results\\93448395",
+    "một_khía_cạnh": {
+      "price": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp001\\results\\f04dd585",
+      "texture": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp002\\results\\df008443",
+      "packing": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp003\\results\\5cab7e03",
+      "stayingpower": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp004\\results\\f39bc983",
+      "shipping": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp005\\results\\4e11fb2e",
+      "smell": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp006\\results\\e3add676",
+      "colour": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp007\\results\\aee896b8"
+    }
+  },
+  "đếm_ô": {
+    "từ_một_khía_cạnh": {
+      "colour": 1508,
+      "packing": 1554,
+      "price": 1578,
+      "shipping": 1565,
+      "smell": 1578,
+      "stayingpower": 1484,
+      "texture": 1467
+    },
+    "lệch_giữ_encoder": {
+      "colour": 115,
+      "packing": 69,
+      "price": 45,
+      "shipping": 58,
+      "smell": 45,
+      "stayingpower": 139,
+      "texture": 156
+    },
+    "thiếu_ô": 0,
+    "tổng_lệch": 627
+  },
+  "thành_viên": [
+    {
+      "lượt": "experiments\\cafebert\\lora\\exp002\\results\\93448395",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.847286,
+        "macro_trên_khía_cạnh_đang_dương": 0.847286,
+        "số_khía_cạnh_có_ô_âm": 7
+      },
+      "accuracy_all": {
+        "macro": 97.89,
+        "micro": 97.89,
+        "when_mentioned_macro": 96.73,
+        "when_mentioned_micro": 96.71,
+        "correct": 10926,
+        "cells": 11161,
+        "by_aspect": {
+          "colour": 96.69,
+          "packing": 97.72,
+          "price": 98.89,
+          "shipping": 98.12,
+          "smell": 98.76,
+          "stayingpower": 98.17,
+          "texture": 96.86
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 96.15,
+          "packing": 97.6,
+          "price": 97.55,
+          "shipping": 97.44,
+          "smell": 95.0,
+          "stayingpower": 96.62,
+          "texture": 96.74
+        },
+        "cells_by_aspect": {
+          "colour": 1572,
+          "packing": 1621,
+          "price": 1622,
+          "shipping": 1597,
+          "smell": 1607,
+          "stayingpower": 1583,
+          "texture": 1559
+        },
+        "correct_by_aspect": {
+          "colour": 1520,
+          "packing": 1584,
+          "price": 1604,
+          "shipping": 1567,
+          "smell": 1587,
+          "stayingpower": 1554,
+          "texture": 1510
+        }
+      },
+      "cells_paper": 2737
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp001\\results\\f04dd585",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.357,
+        "macro_trên_khía_cạnh_đang_dương": 0.357,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 96.24,
+        "micro": 96.24,
+        "when_mentioned_macro": 85.32,
+        "when_mentioned_micro": 85.32,
+        "correct": 1561,
+        "cells": 1622,
+        "by_aspect": {
+          "price": 96.24
+        },
+        "when_mentioned_by_aspect": {
+          "price": 85.32
+        },
+        "cells_by_aspect": {
+          "price": 1622
+        },
+        "correct_by_aspect": {
+          "price": 1561
+        }
+      },
+      "cells_paper": 297
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp002\\results\\df008443",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.905,
+        "macro_trên_khía_cạnh_đang_dương": 0.905,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 91.21,
+        "micro": 91.21,
+        "when_mentioned_macro": 77.86,
+        "when_mentioned_micro": 77.86,
+        "correct": 1422,
+        "cells": 1559,
+        "by_aspect": {
+          "texture": 91.21
+        },
+        "when_mentioned_by_aspect": {
+          "texture": 77.86
+        },
+        "cells_by_aspect": {
+          "texture": 1559
+        },
+        "correct_by_aspect": {
+          "texture": 1422
+        }
+      },
+      "cells_paper": 348
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp003\\results\\5cab7e03",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.941,
+        "macro_trên_khía_cạnh_đang_dương": 0.941,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 94.63,
+        "micro": 94.63,
+        "when_mentioned_macro": 85.62,
+        "when_mentioned_micro": 85.62,
+        "correct": 1534,
+        "cells": 1621,
+        "by_aspect": {
+          "packing": 94.63
+        },
+        "when_mentioned_by_aspect": {
+          "packing": 85.62
+        },
+        "cells_by_aspect": {
+          "packing": 1621
+        },
+        "correct_by_aspect": {
+          "packing": 1534
+        }
+      },
+      "cells_paper": 251
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp004\\results\\f39bc983",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.938,
+        "macro_trên_khía_cạnh_đang_dương": 0.938,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 92.55,
+        "micro": 92.55,
+        "when_mentioned_macro": 54.43,
+        "when_mentioned_micro": 54.43,
+        "correct": 1465,
+        "cells": 1583,
+        "by_aspect": {
+          "stayingpower": 92.55
+        },
+        "when_mentioned_by_aspect": {
+          "stayingpower": 54.43
+        },
+        "cells_by_aspect": {
+          "stayingpower": 1583
+        },
+        "correct_by_aspect": {
+          "stayingpower": 1465
+        }
+      },
+      "cells_paper": 138
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp005\\results\\4e11fb2e",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.969,
+        "macro_trên_khía_cạnh_đang_dương": 0.969,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 96.93,
+        "micro": 96.93,
+        "when_mentioned_macro": 92.72,
+        "when_mentioned_micro": 92.72,
+        "correct": 1548,
+        "cells": 1597,
+        "by_aspect": {
+          "shipping": 96.93
+        },
+        "when_mentioned_by_aspect": {
+          "shipping": 92.72
+        },
+        "cells_by_aspect": {
+          "shipping": 1597
+        },
+        "correct_by_aspect": {
+          "shipping": 1548
+        }
+      },
+      "cells_paper": 481
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp006\\results\\e3add676",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.854,
+        "macro_trên_khía_cạnh_đang_dương": 0.854,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 96.64,
+        "micro": 96.64,
+        "when_mentioned_macro": 82.67,
+        "when_mentioned_micro": 82.67,
+        "correct": 1553,
+        "cells": 1607,
+        "by_aspect": {
+          "smell": 96.64
+        },
+        "when_mentioned_by_aspect": {
+          "smell": 82.67
+        },
+        "cells_by_aspect": {
+          "smell": 1607
+        },
+        "correct_by_aspect": {
+          "smell": 1553
+        }
+      },
+      "cells_paper": 262
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-aspect\\exp007\\results\\aee896b8",
+      "split": "test",
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.826,
+        "macro_trên_khía_cạnh_đang_dương": 0.826,
+        "số_khía_cạnh_có_ô_âm": 1
+      },
+      "accuracy_all": {
+        "macro": 92.43,
+        "micro": 92.43,
+        "when_mentioned_macro": 87.43,
+        "when_mentioned_micro": 87.43,
+        "correct": 1453,
+        "cells": 1572,
+        "by_aspect": {
+          "colour": 92.43
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 87.43
+        },
+        "cells_by_aspect": {
+          "colour": 1572
+        },
+        "correct_by_aspect": {
+          "colour": 1453
+        }
+      },
+      "cells_paper": 610
+    }
+  ],
+  "ghi_chú": "mọi lượt phải chấm CÙNG split; số ô đọc kèm theo luật 1 của metrics.md; số của bản gộp chỉ có nghĩa khi đứng cạnh `thành_viên`, và `đếm_ô.lệch_giữ_encoder` nói luật lệch-về-không-nhắc-tới đã giữ lại bao nhiêu ô của encoder"
+}

@@ -76,6 +76,10 @@ graph LR
   n72["qwen3-4b-instruct-2507/prompt-aspect/exp006:e3add676"]
   n73["qwen3-4b-instruct-2507/prompt-aspect/exp001:f04dd585"]
   n74["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
+  n75["cafebert/lora/exp006:ba564752"]
+  n76["commit 9746d0cdcff7"]
+  n77["phobert-base-v2/lora/exp007:3e52a2a3"]
+  n78["commit c82c20d8d1c3"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -140,4 +144,6 @@ graph LR
   n72 -->|FINISHED| n66
   n73 -->|FINISHED| n66
   n74 -->|FINISHED| n66
+  n75 -->|FINISHED| n76
+  n77 -->|FINISHED| n78
 ```

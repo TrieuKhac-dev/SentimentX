@@ -55,14 +55,14 @@ Mỗi ô ghi `positive / negative`.
 
 ## Bước kết hợp (đợt 10, split `test`)
 
-**Router theo khía cạnh** - 6 ứng viên `val`, chốt trên `val` rồi mới áp lên `test`:
+**Router theo khía cạnh** - 6 ứng viên `val` (có MỘT lượt **đầu HỌC**), chốt trên `val` rồi mới áp lên `test`:
 
 | Tiêu chí chốt trên `val` | acc (`all`) | acc (`paper`) | F1 âm macro (`paper`) | số ô `paper` |
 | --- | ---: | ---: | ---: | ---: |
-| `accuracy` | 97.66 | 97.72 | 0.795 | 2741 |
-| `f1_âm` | 97.66 | 97.72 | 0.795 | 2741 |
-| *mốc*: lượt đơn tốt nhất (`cafebert/lora/exp001`) | 97.63 | 97.72 | 0.788 | 2745 |
-| *mốc*: trần chọn-theo-khía-cạnh (oracle) | 97.67 | - | - | - |
+| `accuracy` | 97.86 | 97.93 | 0.8547 | 2736 |
+| `f1_âm` | 97.56 | 97.97 | 0.857 | 2735 |
+| *mốc*: lượt đơn tốt nhất (`cafebert/lora/exp002`) | **97.89** | 97.88 | 0.847 | 2737 |
+| *mốc*: trần chọn-theo-khía-cạnh (oracle) | 97.8871 | - | - | - |
 
 **Gộp hai tầng** - khung ô từ encoder, sắc thái từng khía cạnh từ 7 lượt một-khía-cạnh:
 
@@ -72,11 +72,15 @@ Mỗi ô ghi `positive / negative`.
 | `phobert-base-v2/lora/exp004` + hai tầng | 93.15 | 95.87 | **0.816** | **0.357** | 1058 |
 | `cafebert/lora/exp001` (mốc) | 97.63 | 97.72 | 0.788 | 0.000 | - |
 | `cafebert/lora/exp001` + hai tầng | 97.38 | 96.42 | 0.812 | 0.320 | 653 |
+| `cafebert/lora/exp002` (mốc, encoder MẠNH NHẤT) | **97.89** | **97.88** | **0.847** | 0.000 | - |
+| `cafebert/lora/exp002` + hai tầng | 97.56 | 96.33 | 0.806 | 0.261 | 627 |
 
-**Nhánh `head.aspect_marker`** (`phobert-base-v2/lora/exp006` so cha `exp002`, cùng `test`):
+**Nhánh `head.aspect_marker`** - bố cục 2x2 (có/không marker × đầu ĐÓNG BĂNG/HỌC), cùng `test`:
 
-| Lượt | acc (`all`) | acc (`paper`) | F1 sắc thái macro (`paper`) | phát hiện khía cạnh F1 macro (`all`) | precision "có nhắc" (`all`) |
+| Lượt | acc (`all`) | acc (`paper`) | F1 âm macro (`all`) | F1 âm macro (`paper`) | phát hiện khía cạnh F1 macro (`all`) |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `phobert-base-v2/lora/exp002` (cha) | 93.28 | 96.62 | 0.876 | 0.891 | 0.825 |
-| `phobert-base-v2/lora/exp006` | 51.60 | 74.05 | 0.655 | 0.495 | 0.356 |
+| `phobert-base-v2/lora/exp002` (đầu ĐÓNG BĂNG) | 93.28 | 96.62 | 0.658 | 0.776 | 0.891 |
+| `phobert-base-v2/lora/exp006` (ĐÓNG BĂNG + marker) | 51.60 | 74.05 | 0.232 | 0.497 | 0.495 |
+| `phobert-base-v2/lora/exp005` (đầu HỌC) | 97.25 | 97.59 | 0.719 | 0.784 | 0.959 |
+| `phobert-base-v2/lora/exp007` (HỌC + marker) | 50.51 | 78.55 | 0.236 | 0.515 | 0.489 |
 

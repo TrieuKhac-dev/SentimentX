@@ -65,6 +65,8 @@ graph LR
   n61["qwen3-4b-instruct-2507/prompt-aspect/exp006:e3add676"]
   n62["qwen3-4b-instruct-2507/prompt-aspect/exp001:f04dd585"]
   n63["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
+  n64["cafebert/lora/exp006:ba564752"]
+  n65["phobert-base-v2/lora/exp007:3e52a2a3"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -126,4 +128,6 @@ graph LR
   n4 --> n61
   n4 --> n62
   n4 --> n63
+  n4 --> n64
+  n4 --> n65
 ```

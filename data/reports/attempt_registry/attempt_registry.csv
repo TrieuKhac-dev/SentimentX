@@ -63,3 +63,5 @@ qwen3-4b-instruct-2507/prompt-aspect/exp007:aee896b8,FINISHED,NEW,2026-10-07 07:
 qwen3-4b-instruct-2507/prompt-aspect/exp006:e3add676,FINISHED,NEW,2026-10-07 07:02:26,1874.3,qwen3-4b-instruct-2507,prompt-aspect,exp006,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,e3add676d186,d42de24d5093,
 qwen3-4b-instruct-2507/prompt-aspect/exp001:f04dd585,FINISHED,NEW,2026-10-07 07:02:54,2048.4,qwen3-4b-instruct-2507,prompt-aspect,exp001,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,f04dd58537f0,d42de24d5093,
 qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03,FINISHED,NEW,2026-10-07 07:05:44,2118.1,qwen3-4b-instruct-2507,prompt-aspect,exp003,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,5cab7e035e13,d42de24d5093,
+cafebert/lora/exp006:ba564752,FINISHED,NEW,2026-10-07 09:20:30,1866.5,cafebert,lora,exp006,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,ba564752854b,9746d0cdcff7,
+phobert-base-v2/lora/exp007:3e52a2a3,FINISHED,NEW,2026-10-07 09:22:08,790.0,phobert-base-v2,lora,exp007,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,3e52a2a3c349,c82c20d8d1c3,

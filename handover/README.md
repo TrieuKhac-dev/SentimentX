@@ -122,12 +122,11 @@ nguyên nhân):
   kiểm `trainable_params` trong `metrics.json` **lớn hơn** lượt gốc đúng **16.149** ở năm model 768 ẩn (PhoBERT-base, ViSoBERT, ViBERT, XLM-R) và **21.525** ở hai model 1.024 ẩn (**CafeBERT**, PhoBERT-large)
   trước đã, rồi mới so F1 lớp âm + macro-F1.
 
-### Đợt 10 - 2 notebook TUỲ CHỌN trong gói này (020): cho bộ ứng viên router có đất, và để trả lời `aspect_marker`
+### Đợt 10 - 2 notebook TUỲ CHỌN trong gói này (020) - ĐÃ CHẠY 07/10/2026
 
-Gói **020** mang thêm **hai** notebook (chưa từng nằm trong gói nào trước đây). **Cả hai là TUỲ CHỌN**: kết
-luận của đợt đã đứng vững mà không cần chúng; chúng chỉ trả lời hai câu còn treo. **THỨ TỰ CHẠY: chạy (1)
-trước; chỉ chạy (2) nếu còn thời gian GPU** - lượt (2) đã có một bản chạy với đầu phân loại ĐÓNG BĂNG cho kết
-quả RẤT ÂM, và lí do là CƠ CHẾ (xem bên dưới) nên khả năng cao vẫn kém hơn mặc định.
+Gói **020** mang thêm **hai** notebook (chưa từng nằm trong gói nào trước đây). **Cả hai là TUỲ CHỌN** - kết
+luận của đợt đã đứng vững mà không cần chúng - và **bạn đã chạy xong cả hai ngày 07/10/2026**. Mục này giữ
+nguyên để biết gói 020 chứa gì; số đo cùng kết luận đã được ghi vào `docs/04_experiments/`.
 
 | # | Notebook | Việc | Thời gian trên T4 | Trả lời câu gì |
 | --- | --- | --- | --- | --- |
@@ -139,13 +138,19 @@ loại đóng băng) nên chúng sai giống nhau, và trần chọn-theo-khía-
 `test`. Thêm một model **đầu HỌC** (CafeBERT - cũng là model mạnh thứ nhì dự án) là cách duy nhất kiểm tra xem
 cái trần đó là hạn chế của **bộ ứng viên** hay của chính ý tưởng router.
 
-**Vì sao (2) khả năng cao vẫn kém hơn mặc định:** bản chạy có đầu phân loại đóng băng
-(`phobert-base-v2/lora/exp006`) cho acc TB **51,60** so cha 93,28 và phát hiện khía cạnh F1 macro 0,891
-&#8594; **0,495**. Đọc từ mã: cách cài đặt cho đầu phân loại dùng **CHUNG một lớp**, nên logit chỉ thêm được
-một **hằng số riêng theo khía cạnh** (`W[:, :H] · h + W[:, H:] · e_a + b`), và năng lực đầu giảm
-**16.149 &#8594; 2.328** tham số - tức lượt đó **giảm năng lực** mà không thêm thông tin. Cho đầu phân loại
-HỌC không chữa được việc mất năng lực, nên kết luận hành động đã chốt là **bỏ khoá `head.aspect_marker`**;
-lượt (2) chỉ để câu trả lời có SỐ thay vì suy luận.
+**Kết quả (1):** `cafebert/lora/exp006` cho acc TB **97,84** (`all`) · **98,53** (`paper`) trên `val` (lượt đầu
+đóng băng cùng model `exp005`: 97,38). Nhờ đó **lượt đơn tốt nhất trên `test` nhảy 97,63 &#8594; 97,89** và
+**router nhảy 97,66 &#8594; 97,86**, còn F1 âm macro của nhánh `f1_âm` nhảy 0,795 &#8594; **0,857** - nhưng
+router **vẫn không vượt** lượt đơn (97,86 so 97,89) và trần chọn-theo-khía-cạnh trên `test` nay **~0,00**. ⇒
+Thứ nâng điểm là **ỨNG VIÊN**, không phải việc định tuyến.
+
+**Kết quả (2) - và đây là chỗ tôi DỰ ĐOÁN SAI một nửa:** `phobert-base-v2/lora/exp007` cho acc TB **50,51**
+so cha `exp005` (đầu CŨNG học) **97,25** ⇒ **−46,74**, detection F1 macro 0,959 &#8594; **0,489**. Đúng là
+"vẫn kém hơn mặc định" như đã đoán, nhưng LÍ DO thì khác: hai lượt marker (đóng băng **51,60** và học **50,51**)
+cho kết quả **xấp xỉ nhau** ⇒ lỗi là của **CẤU TRÚC**, không phải của việc đầu có học hay không. Cách cài đặt
+dùng **CHUNG một lớp**, nên khía cạnh chỉ vào được như một **HẰNG SỐ riêng** (`W[:, :H] · h + W[:, H:] ·
+e_a + b`) - nó không đổi được CÁCH ánh xạ review &#8594; sắc thái, mà ABSA cần đúng thứ đó; năng lực đầu cũng
+bị cắt **16.149 &#8594; 2.328** tham số. **Khoá `head.aspect_marker` đã bị BỎ** (giữ mặc định `false`).
 
 ### Đã nhận đủ kết quả đợt 7 (05/10/2026) + hai lượt đợt 8
 
@@ -168,22 +173,25 @@ lượt (2) chỉ để câu trả lời có SỐ thay vì suy luận.
   (chưa tách được khỏi nhiễu), còn **F1 lớp âm gần như đứng yên** - chi tiết và cách đọc ở
   `docs/04_experiments/08_experiment_rationale.md` §2b. **Lượt THƯỚC NHIỄU cho encoder** đã lên kế hoạch ở
   đợt 10 (chạy lại 3 nhánh với hạt giống khác; xem `present_plan.md` mục 14).
-- **`phobert-base-v2/lora/exp006` (`head.aspect_marker: true`) ĐÃ CHẠY (07/10/2026): ÂM RÕ RỆT.** acc TB
-  93,28 &#8594; **51,60** (paper 96,62 &#8594; 74,05), phát hiện khía cạnh F1 macro 0,891 &#8594; **0,495**
-  (precision "có nhắc" 0,825 &#8594; 0,356). Đọc từ mã: đầu phân loại dùng CHUNG một lớp nên khía cạnh chỉ
-  thêm được một **hằng số riêng**, và năng lực đầu giảm **16.149 &#8594; 2.328** tham số ⇒ **bỏ khoá
-  `head.aspect_marker`** (giữ mặc định `false`). Chi tiết + dấu vết: `docs/04_experiments/06_lora_encoder.md`.
+- **`head.aspect_marker` ĐÃ CHẠY ĐỦ HAI LƯỢT (07/10/2026) - CẢ HAI ĐỀU ÂM, và lí do là CẤU TRÚC.** Bố cục 2x2
+  (có/không marker × đầu ĐÓNG BĂNG/HỌC): `exp002` 93,28 vs `exp006` **51,60** (đầu đóng băng) và `exp005`
+  97,25 vs `exp007` **50,51** (đầu học); detection F1 macro 0,891 &#8594; 0,495 và 0,959 &#8594; 0,489. **Cho
+  đầu phân loại HỌC không cứu được** ⇒ lỗi là **CẤU TRÚC** (khía cạnh chỉ vào như một HẰNG SỐ riêng, một lớp
+  dùng chung cho 7 khía cạnh; năng lực cắt 16.149 &#8594; 2.328 tham số) ⇒ **BỎ khoá** (giữ mặc định `false`).
+  Chi tiết + dấu vết: `docs/04_experiments/06_lora_encoder.md`.
 - **Sáu bước kết hợp: NĂM bước đầu đã chốt xong** - ngưỡng theo khía cạnh, trọng số ensemble, luật lai,
   biểu quyết và **router theo khía cạnh** nằm trong `data/reports/fusion/` (repo), không cần GPU. Router đã
-  chạy ĐỦ hai lần: lần ĐẦU chỉ có **2 ứng viên** `val` (luật của lần đó giữ ở các tệp hậu tố `_2model`), lần
-  HAI có **6 ứng viên** sau khi bốn lượt `val` mới chạy xong - **cả hai tiêu chí chọn cùng một router**
-  (`cafebert` 6/7 khía cạnh) và trần chọn-theo-khía-cạnh chỉ hơn lượt đơn tốt nhất **+0,04** trên `test` ⇒
-  bước này **không đáng kể** khi mọi ứng viên cùng một cơ chế (lí do tồn tại notebook (1) ở mục trên).
+  chạy **BA lần** (2 &#8594; 6 &#8594; 6 ứng viên có một lượt đầu HỌC; luật hai lần cũ giữ ở hậu tố
+  `_2model`/`_6model`) và lần BA là số đang dùng: router **97,86** (`accuracy`) so lượt đơn tốt nhất **97,89**
+  ⇒ **router không vượt lượt đơn**, trần chọn-theo-khía-cạnh trên `test` nay **~0,00**. Thứ nâng điểm của đợt
+  là **ỨNG VIÊN** (97,63 &#8594; 97,89), không phải định tuyến (lí do tồn tại notebook (1) ở mục trên).
 - **Bước thứ SÁU (gộp HAI TẦNG, `scripts/fuse_aspect.py`) ĐÃ CHẠY (07/10/2026)** trên bảy lượt một-khía-cạnh
-  `prompt-aspect/exp001..007`: lần ĐẦU TIÊN `price` âm khác 0 (**0,000 &#8594; 0,357**), F1 âm macro `paper`
-  0,7757 &#8594; **0,8159**; giá phải trả ~**0,75 điểm** accuracy `paper` (96,62 &#8594; 95,87). Chứng cứ:
-  `fuse_aspect_test.json` (khung `phobert-base-v2/lora/exp004`) + `fuse_aspect_test_cafebert.json`. Lưu ý: lượt
-  một-khía-cạnh **KHÔNG** cần `probabilities.csv` (luật gộp chỉ dùng nhãn cứng).
+  `prompt-aspect/exp001..007`, đo trên BA khung: `price` âm khác 0 ở CẢ BA (0,000 &#8594; **0,357 / 0,320 /
+  0,261**), nhưng F1 âm macro `paper` **chỉ tăng khi khung YẾU** (0,7757 &#8594; 0,8159 và 0,7876 &#8594; 0,8124)
+  - ở khung MẠNH NHẤT (`cafebert/lora/exp002`) nó **giảm** 0,8473 &#8594; 0,8064, và accuracy luôn giảm. ⇒ hướng
+  PHỤ, không thay bảng chính. Chứng cứ: `fuse_aspect_test.json` + `fuse_aspect_test_cafebert_exp001.json` +
+  `fuse_aspect_test_cafebert_exp002.json`. Lưu ý: lượt một-khía-cạnh **KHÔNG** cần `probabilities.csv` (luật
+  gộp chỉ dùng nhãn cứng).
 
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng

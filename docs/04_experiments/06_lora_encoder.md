@@ -103,19 +103,27 @@ Hai kiến trúc **KHÔNG nạp `head.pt` lẫn nhau**: `head_config.json` của
 **LỖI** - không tự hạ cấp. Lượt đầu tiên dùng cơ chế này: `phobert-base-v2/lora/exp006` (`parent` =
 `phobert-base-v2/lora/exp002`, khác ĐÚNG một khoá `head.aspect_marker: true`).
 
-**KẾT QUẢ LƯỢT ĐẦU (đọc 07/10/2026): ÂM RÕ RỆT - và lí do là NĂNG LỰC, không phải ý tưởng.**
+**KẾT QUẢ HAI LƯỢT (đọc 07/10/2026): ÂM RÕ RỆT Ở CẢ HAI CHẾ ĐỘ ĐẦU - lí do là CẤU TRÚC.**
 
-`phobert-base-v2/lora/exp006` (đầu phân loại vẫn ĐÓNG BĂNG) so với cha `exp002` trên cùng `test`:
+Hai lượt chạy theo bố cục **2x2** (có/không marker × đầu ĐÓNG BĂNG/HỌC), tất cả trên cùng `test`:
 
-| Lượt | acc TB (`all`) | acc TB (`paper`) | F1 sắc thái macro (`paper`) | phát hiện khía cạnh: F1 macro (`all`) | khi có nhắc (`all`) | `trainable_params` |
-| --- | --- | --- | --- | --- | --- | --- |
-| `phobert-base-v2/lora/exp002` (cha) | **93,28** | **96,62** | **0,876** | **0,891** | 95,32 | 2.678.784 |
-| `phobert-base-v2/lora/exp006` (con) | 51,60 | 74,05 | 0,655 | 0,495 | 65,58 | 2.678.784 |
+| Đầu phân loại | KHÔNG marker (cha) | CÓ marker (`head.aspect_marker: true`) |
+| --- | --- | --- |
+| **ĐÓNG BĂNG** (`peft` giữ nguyên đầu) | `phobert-base-v2/lora/exp002`: acc **93,28** (`all`) · 96,62 (`paper`) · detection F1 **0,891** · F1 âm macro 0,776 (`paper`) | `phobert-base-v2/lora/exp006`: **51,60** · 74,05 · **0,495** · 0,497 |
+| **HỌC** (`head.trainable: true`) | `phobert-base-v2/lora/exp005`: **97,25** · 97,59 · **0,959** · 0,784 | `phobert-base-v2/lora/exp007`: **50,51** · 78,55 · **0,489** · 0,515 |
 
-Đọc bằng HAI thước của dự án (`metrics.md` luật 1): phát hiện khía cạnh **SỤP** (F1 macro 0,891 &#8594; 0,495)
-và model gán "có nhắc" cho **gần gấp ba** số ô đúng (micro ở cơ sở `all`: `tp` 2.433 / **`fp` 4.426**;
-precision macro 0,356 so 0,825) - tức lượt này phần lớn là **BÁO ĐỘNG GIẢ**, không phải "đọc sai sắc thái":
-`read_rate` vẫn **100%** và `trainable_params` **không đổi** (2.678.784), nên lượt chạy HỢP LỆ, chỉ là kém.
+Bốn lượt này là hai CẶP sạch: `exp002 → exp006` và `exp005 → exp007` (mỗi cặp khác ĐÚNG một khoá
+`head.aspect_marker`), nên đọc được NGUYÊN NHÂN chứ không chỉ đọc được hiệu ứng. Dấu vết kiểm được ở cả hai
+lượt marker: `head_config.json` ghi `"aspect_marker": true`, `head.pt` của `best` KHÁC `last`, `read_rate`
+**100%**, và `trainable_params` khớp ĐÚNG thiết kế (`exp006`: 2.678.784 = đầu vẫn đóng băng; `exp007`:
+2.681.112 = adapter 2.678.784 + đầu 2.328).
+
+Đọc bằng HAI thước của dự án (`metrics.md` luật 1): ở CẢ HAI chế độ đầu, marker làm **phát hiện khía cạnh SỤP**
+(0,891 &#8594; 0,495 khi đóng băng; 0,959 &#8594; 0,489 khi học) và model gán "có nhắc" cho **gần gấp ba** số ô
+đúng (`exp006` micro ở cơ sở `all`: `tp` 2.433 / **`fp` 4.426**; precision macro 0,825 &#8594; 0,356) - tức
+phần lớn là **BÁO ĐỘNG GIẢ**, không phải "đọc sai sắc thái". Mức thiệt hại gần như y hệt nhau (**−41,68** và
+**−46,74** điểm accuracy `all`; hai lượt marker xấp xỉ 51 điểm), nên **cho đầu phân loại HỌC KHÔNG cứu được
+cơ chế**: đây là tính chất của **KIẾN TRÚC**, không phải của việc đầu có học hay không.
 
 **Vì sao hỏng - đọc từ mã.** Ở lượt cha, mỗi khía cạnh có **bộ trọng số riêng** (`Linear(hidden, 7 x 3)` =
 7 x (768 x 3 + 3) = **16.149** tham số). Ở lượt con, khía cạnh đi vào ĐẦU VÀO nên đầu phân loại là **MỘT lớp
@@ -125,11 +133,15 @@ theo khía cạnh**, còn phần quyết định vẫn là MỘT phép chiếu c
 16.149 &#8594; 2.328 tham số (mất 85%)** mà **không thêm thông tin** nào model chưa có: khía cạnh vốn đã nằm
 trong khung ô `(B, 7, 3)`.
 
-Kết luận ĐÚNG phạm vi: **bỏ khoá `head.aspect_marker`** (giữ mặc định `false`). Nhưng lượt này KHÔNG kết luận
-được về ý tưởng "cho đầu phân loại biết khía cạnh", vì hai lí do: (a) đầu phân loại ĐÓNG BĂNG nên cả 16.149
-lẫn 2.328 tham số đều KHÔNG học (chỉ là một phép chiếu ngẫu nhiên cố định); (b) thiết kế một-lớp-dùng-chung
-gộp khía cạnh thành hằng số như trên. Câu hỏi "cơ chế có cứu được khi đầu phân loại ĐƯỢC HỌC không" để lượt
-`phobert-base-v2/lora/exp007` trả lời (mục 14.14) - không suy đoán trước.
+Kết luận ĐÚNG phạm vi - và nay đã ĐO ĐƯỢC, không còn suy đoán: **bỏ khoá `head.aspect_marker`** (giữ mặc
+định `false`). Nguyên nhân chính là **CẤU TRÚC**, hai điểm kiểm được từ mã: (a) khía cạnh chỉ vào được như một
+**HẰNG SỐ riêng** (`W[:, H:] · e_a`), nên nó **không đổi được CÁCH** ánh xạ review &#8594; sắc thái mà chỉ
+DỊCH logit - trong khi AB-SA cần đúng thứ đó (cùng một review có thể dương ở `smell` và âm ở `colour`);
+(b) một lớp **dùng chung cho cả 7 khía cạnh** thay cho 7 bộ trọng số riêng, kèm năng lực bị cắt
+16.149 &#8594; 2.328 tham số. Bằng chứng quyết định là lượt `phobert-base-v2/lora/exp007`: **đầu ĐƯỢC HỌC mà
+vẫn 50,51** (so cha 97,25 với đầu cũng học) &#8594; KHÔNG thể quy cho "đầu không học được" như cách đọc hẹp
+trước đây; nếu còn muốn theo hướng "cho đầu phân loại biết khía cạnh" thì phải đổi KIẾN TRÚC (khía cạnh phải
+điều khiển được TRỌNG SỐ, không chỉ cộng thêm một hằng số).
 
 ## Checkpoint
 

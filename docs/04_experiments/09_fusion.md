@@ -161,38 +161,51 @@ Ba điều đọc được (và đây là lí do phải đo lại): `accuracy` *
 một ĐÁNH ĐỔI thật (2,88 điểm accuracy so 0,021 F1 âm). Luật + `điểm` của mọi ứng viên:
 `aspect_router_f1am_2model.json`, `aspect_router_accuracy_2model.json`.
 
-**Lần chạy THỨ HAI (07/10/2026, 6 ứng viên) - mỗi encoder nay đã có MỘT lượt `val`** (bốn lượt `val` mới:
-`cafebert/lora/exp005`, `phobert-large/lora/exp003`, `vibert-base-cased/lora/exp004`,
-`xlm-roberta-base/lora/exp003`), nên bộ ứng viên đủ rộng để đo **TRẦN** của việc chọn-theo-khía-cạnh:
+**Lần chạy THỨ HAI (07/10/2026, 6 ứng viên, đầu phân loại ĐÓNG BĂNG)** - lúc đó mỗi encoder đã có một lượt
+`val`, nên bộ ứng viên đủ rộng để đo TRẦN: trên `val` cả hai tiêu chí cho **97,46** bằng ĐÚNG trần; trên `test`
+router **97,66** so lượt đơn tốt nhất **97,63** (trần 97,67) ⇒ **+0,03**, và nhánh `f1_âm` cho F1 âm macro
+**0,795**. Luật + số của lần này ở các tệp hậu tố `_6model`. Đọc tiếp bảng dưới cùng một thước: thứ đã đổi
+giữa lần HAI và lần BA **không phải luật** mà là **ỨNG VIÊN**.
+
+**Lần chạy THỨ BA (07/10/2026) - ĐÂY LÀ SỐ ĐANG BÁO CÁO: bộ ứng viên có một lượt ĐẦU HỌC.** Lượt
+`cafebert/lora/exp006` (val, `head.trainable: true`) thay `cafebert/lora/exp005` làm đại diện của model
+`cafebert`, vì luật khoá theo **TÊN MODEL** nên mỗi model chỉ vào được MỘT lượt (lượt `test` đi kèm là
+`cafebert/lora/exp002`). Năm ứng viên còn lại không đổi:
 
 | | acc macro (`all`) | acc macro (`paper`) | F1 âm macro (`paper`) | số ô `paper` |
 | --- | --- | --- | --- | --- |
-| trên **`val`** (CHỌN): router, **cả hai tiêu chí** | 97,46 | 97,92 | 0,923 | 2.740 |
-| trên **`val`**: **TRẦN** chọn-theo-khía-cạnh (oracle) | **97,46** | - | - | - |
-| trên **`val`**: lượt đơn tốt nhất (`cafebert/lora/exp005`) | 97,38 | - | - | 2.741 |
-| trên `test` (ĐỐI CHIẾU): router, **cả hai tiêu chí** | **97,66** | 97,72 | 0,795 | 2.741 |
-| trên `test`: **TRẦN** oracle | **97,67** | - | - | - |
-| trên `test`: lượt đơn tốt nhất (`cafebert/lora/exp001`) | 97,63 | - | - | 2.745 |
+| trên **`val`** (CHỌN): router `--criterion accuracy` | **97,84** | 98,58 | 0,9372 | 2.741 |
+| trên **`val`**: router `--criterion f1_âm` | 97,53 | 98,58 | 0,9377 | 2.741 |
+| trên **`val`**: **TRẦN** chọn-theo-khía-cạnh (oracle) | **97,8357** | - | - | - |
+| trên **`val`**: lượt đơn tốt nhất (`cafebert/lora/exp006`) | 97,84 | 98,53 | - | 2.741 |
+| trên `test` (ĐỐI CHIẾU): router `--criterion accuracy` | **97,86** | 97,93 | 0,8547 | 2.736 |
+| trên `test`: router `--criterion f1_âm` | 97,56 | **97,97** | **0,857** | 2.735 |
+| trên `test`: **TRẦN** oracle | **97,8871** | - | - | - |
+| trên `test`: lượt đơn tốt nhất (`cafebert/lora/exp002`) | **97,89** | - | - | 2.737 |
 
 Đọc bảng này:
 
-- **HAI TIÊU CHÍ NAY CHỌN CÙNG MỘT ROUTER** - `cafebert` 6/7 khía cạnh, chỉ `packing` lấy
-  `phobert-base-v2` - nên hai dòng trùng số và router **không còn là một đánh đổi** như ở bộ 2 lượt. Hai tệp
-  luật vẫn đóng băng riêng theo tiêu chí (`aspect_router_f1am.json`, `aspect_router_accuracy.json`) và mỗi
-  tệp ghi `điểm` của MỌI ứng viên ở MỌI khía cạnh (cả hai tiêu chí + số ô) nên lựa chọn kiểm lại được.
-- **TRẦN của việc chọn-theo-khía-cạnh ở bộ 6 ứng viên chỉ hơn lượt đơn tốt nhất +0,08 (`val`) / +0,04
-  (`test`)**; router đo được **+0,03** trên `test` (97,66 so 97,63). Nói thẳng: ở bộ ứng viên này bước router
-  **không đáng kể**.
-- **ĐÍNH CHÍNH con số "+0,51" (ghi 06/10/2026).** Số đó là một ƯỚC LƯỢNG đọc từ bộ ứng viên 2 lượt, KHÔNG
-  phải số đo của bộ 6 lượt; số ĐO được là như bảng trên. Mọi chỗ đã ghi "+0,51" đã được sửa theo số đo (xem
-  `check_present_plan.md` mục 17).
-- **Vì sao trần thấp:** sáu ứng viên cùng MỘT họ huấn luyện (`lora` + `weighted_ce`, đầu phân loại đóng băng)
-  nên chúng **sai giống nhau**; chọn theo khía cạnh không tạo ra thông tin chưa có. Muốn có đất thật thì bộ
-  ứng viên phải khác nhau về CƠ CHẾ (ví dụ một lượt đầu phân loại HỌC) - đó là lí do tạo `cafebert/lora/exp006`.
-- **`f1_âm` HẾT thoái hoá:** với 6 ứng viên nó chọn `cafebert` ở **5/6** khía cạnh có ô âm, chỉ thua `packing`
-  (0,900 so `phobert-base-v2` **0,923**) - tức tiêu chí nay PHÂN BIỆT được.
-- **Số ô `paper` vẫn phụ thuộc lựa chọn** (2.740 / 2.741 / 2.745 trên `test`): cơ sở `paper` phụ thuộc cả nhãn
-  ĐOÁN nên đổi router là đổi mẫu số - luôn đọc số ô kèm con số (luật 1 của `metrics.md`).
+- **ĐÂY LÀ LẦN ĐO TRẢ LỜI CÂU HỎI ĐẶT RA Ở LẦN HAI** ("muốn có đất thì bộ ứng viên phải khác nhau về CƠ
+  CHẾ"). Thay đại diện của `cafebert` bằng lượt **đầu HỌC** (`exp006` val &#8596; `exp002` test) làm **lượt
+  đơn tốt nhất nhảy 97,63 &#8594; 97,89** và **router nhảy 97,66 &#8594; 97,86**, còn F1 âm macro của nhánh
+  `f1_âm` nhảy 0,795 &#8594; **0,857**. Kết luận: thứ nâng điểm là **ỨNG VIÊN** (một model mạnh hơn), KHÔNG
+  phải việc định tuyến.
+- **Router vẫn KHÔNG vượt lượt đơn tốt nhất:** trên `test` router 97,86 so `cafebert/lora/exp002` **97,89**
+  (trần oracle 97,8871 &#8776; 97,89, chênh trong mức làm tròn) &#8594; chênh **−0,03**. Nguyên nhân ĐỌC ĐƯỢC:
+  trên `val` khía cạnh `packing` là một **HOÀ** (`phobert-base-v2` và `cafebert` cùng 98,17; luật hoà xét tiêu
+  chí còn lại rồi mới tới thứ tự truyền vào, mà F1 âm của `phobert-base-v2` cao hơn: 0,923 so 0,857) nên luật
+  chọn `phobert-base-v2` - nhưng trên `test` `packing` của cafebert (**97,72**) tốt hơn `phobert-base-v2`
+  (97,53). Đây là ví dụ sạch của "chọn trên `val` rồi áp lên `test` có thể mất điểm", KHÔNG phải lỗi cài đặt.
+- **Trần chọn-theo-khía-cạnh trên `test` nay ~0,00** (97,8871 so lượt đơn 97,89) vì `cafebert` thắng gần hết
+  khía cạnh trên `test`; trên `val` trần là 97,8357 và router đạt **ĐÚNG** trần đó. Hai con số khác nhau vì
+  trần là thứ ĐO ĐƯỢC, còn thứ CHỌN ĐƯỢC chỉ đến từ `val`.
+- **ĐÍNH CHÍNH con số "+0,51" (ghi 06/10/2026).** Số đó là một ƯỚC LƯỢNG của bộ ứng viên 2 lượt, KHÔNG phải số
+  đo; số ĐO được qua ba lần chạy là **+0,03 … +0,04** trên `test` (xem `check_present_plan.md` mục 17).
+- **Hai tiêu chí lại KHÁC nhau** (khác lần HAI): `accuracy` chọn `cafebert` 6/7 khía cạnh (chỉ `packing` cho
+  `phobert-base-v2`), `f1_âm` chọn `phobert-large` cho `colour` - nên hai dòng KHÔNG còn trùng số, nhưng chênh
+  nhau **rất ít** (acc `all` −0,30; acc `paper` +0,04; F1 âm macro **+0,002**). Nói ra vì đó là đánh đổi, dù nhỏ.
+- **Số ô `paper` vẫn phụ thuộc lựa chọn** (2.735 / 2.736 / 2.737 / 2.741 trên `test`): cơ sở `paper` phụ thuộc
+  cả nhãn ĐOÁN nên đổi router là đổi mẫu số - luôn đọc số ô kèm con số (luật 1 của `metrics.md`).
 
 **Vì sao `f1_âm` "thoái hoá" ở bộ 2 LƯỢT (lần chạy ĐẦU)** - bảng người thắng của TỪNG khía cạnh trên `val`:
 
@@ -223,12 +236,12 @@ rồi mới áp lên `test`. **Dòng `accuracy` là dòng chính** (khớp bản
 hai dòng vẫn cần vì nó là dấu vết cho thấy tiêu chí đã chốt TRƯỚC khi thấy `test`, và vì `điểm` của mọi ứng
 viên nằm trong tệp luật nên người đọc dò lại được cả lựa chọn lẫn điều sẽ xảy ra nếu chọn tiêu chí kia.
 
-Chứng cứ đã commit: `aspect_router_f1am.json` / `aspect_router_accuracy.json` (LUẬT, 6 ứng viên),
+Chứng cứ đã commit: `aspect_router_f1am.json` / `aspect_router_accuracy.json` (LUẬT đang dùng),
 `router_aspect_val_f1am.json` / `router_aspect_val_accuracy.json` (số trên `val`),
-`router_aspect_f1am.json` / `router_aspect_accuracy.json` (số trên `test`), mỗi tệp kèm `thành_viên` = số của
-TỪNG lượt trên cùng tập, và `inputs/*.csv` của **12 lượt** tham gia. Bộ **2 ứng viên** giữ làm dấu vết bằng
-hậu tố `_2model` (`*_2model.json` của lần chạy đầu); tái lập bằng hai lệnh ở đầu mục 3.5 với `--criterion`
-và `--write-router` tương ứng.
+`router_aspect_f1am.json` / `router_aspect_accuracy.json` (số trên `test`) - mỗi tệp kèm `thành_viên` = số của
+TỪNG lượt trên cùng tập - và `inputs/*.csv` của **14 lượt** tham gia cả ba lần chạy. Hai thế hệ luật CŨ giữ
+nguyên làm dấu vết: **2 ứng viên** (`*_2model.json`) và **6 ứng viên đầu đóng băng** (`*_6model.json`); tái
+lập bằng hai lệnh ở đầu mục 3.5 với `--criterion`/`--write-router` tương ứng và đổi `--run` theo bảng nào.
 
 ### 3.6. Gộp HAI TẦNG theo khía cạnh - `scripts/fuse_aspect.py`
 
@@ -258,34 +271,42 @@ Hướng HAI TẦNG: lượt **encoder** giữ **khung ô** (nó phát hiện kh
 thì bản gộp chỉ còn một con số không kiểm được. Bản gộp này KHÔNG vào bảng `paper` cho tới khi được
 chốt thành `method: fuse` (tiền lệ: `exp016`) - xem mục 11.3 và `present_plan.md` mục 14.11.
 
-**KẾT QUẢ ĐO (07/10/2026, `test`, cùng bảy lượt một-khía-cạnh)** - hai khung, để thấy luật "lệch về không
-nhắc tới thì giữ encoder" đổi kết quả thế nào. Bảy lượt một-khía-cạnh là `qwen3-4b-instruct-2507/prompt-aspect/exp001..007`
-(`price`, `texture`, `packing`, `stayingpower`, `shipping`, `smell`, `colour`):
+**KẾT QUẢ ĐO (07/10/2026, `test`, cùng bảy lượt một-khía-cạnh)** - BA khung, để thấy luật "lệch về không
+nhắc tới thì giữ encoder" đổi kết quả thế nào và để thấy kết luận phụ thuộc KHUNG ra sao. Bảy lượt
+một-khía-cạnh là `qwen3-4b-instruct-2507/prompt-aspect/exp001..007` (`price`, `texture`, `packing`,
+`stayingpower`, `shipping`, `smell`, `colour`):
 
 | Bản | acc TB (`all`) | acc TB (`paper`) | F1 âm macro (`paper`) | `price` F1 âm | ô lệch giữ encoder | số ô `paper` |
 | --- | --- | --- | --- | --- | --- | --- |
-| `phobert-base-v2/lora/exp004` một mình (mốc) | **93,28** | **96,62** | 0,7757 | **0,000** | - | 2.736 |
-| **gộp hai tầng**, khung `phobert-base-v2/lora/exp004` | 93,15 | 95,87 | **0,8159** | **0,357** | 1.058 | 2.736 |
-| `cafebert/lora/exp001` một mình (mốc) | **97,63** | **97,72** | 0,7876 | **0,000** | - | 2.745 |
-| **gộp hai tầng**, khung `cafebert/lora/exp001` | **97,38** | 96,42 | 0,8124 | 0,320 | 653 | 2.745 |
+| `phobert-base-v2/lora/exp004` một mình (mốc) | 93,28 | 96,62 | 0,7757 | **0,000** | - | 2.736 |
+| **gộp hai tầng**, khung `phobert-base-v2/lora/exp004` | 93,15 | **95,87** | **0,8159** | **0,357** | 1.058 | 2.736 |
+| `cafebert/lora/exp001` một mình (mốc) | 97,63 | 97,72 | 0,7876 | **0,000** | - | 2.745 |
+| **gộp hai tầng**, khung `cafebert/lora/exp001` | 97,38 | 96,42 | 0,8124 | 0,320 | 653 | 2.745 |
+| `cafebert/lora/exp002` một mình (mốc, encoder MẠNH NHẤT) | **97,89** | **97,88** | **0,8473** | **0,000** | - | 2.737 |
+| **gộp hai tầng**, khung `cafebert/lora/exp002` | 97,56 | 96,33 | 0,8064 | 0,261 | 627 | 2.737 |
 
-Đọc cho đúng:
+Đọc cho đúng - và kết luận này KHÁC nhau theo khung, nên phải có đủ ba khung mới nói được:
 
-- **Đây là thứ ĐẦU TIÊN làm F1 âm của `price` khác 0** (0,000 &#8594; 0,357) và đẩy F1 âm macro `paper` lên
-  **+0,040** - đó là TOÀN BỘ phần được, và nó vẫn chỉ tính trên **6 ô** (đọc như §7 của
-  `08_experiment_rationale.md`: "có đường chạm tới lớp âm", KHÔNG phải "model đã giỏi `price`").
-- **Giá phải trả:** khung phobert mất **−0,75** acc TB `paper` (96,62 &#8594; 95,87) và 0,13 điểm acc TB `all`;
-  khung cafebert mất ít hơn trên `all` (−0,25) nhưng nhiều hơn trên `paper` (−1,30). **Khung nào cũng đánh đổi
-  ~0,75 điểm `paper` để lấy +0,040 F1 âm macro** - vì vậy bản hai tầng **không** thay bảng chính.
-- **Luật "lệch về không nhắc tới thì giữ encoder" KHÔNG phải chi tiết nhỏ:** nó giữ lại **1.058 ô** (khung
-  phobert) / **653 ô** (khung cafebert). Thiếu con số đó thì không biết bản gộp lấy bao nhiêu ô từ mỗi bên,
-  và `price` là khía cạnh lệch nhiều nhất trong nhóm dùng được (`stayingpower` 320 · `texture` 298 ở khung
-  phobert).
+- **Đây là thứ ĐẦU TIÊN làm F1 âm của `price` khác 0** (0,000 &#8594; 0,357 / 0,320 / 0,261 ở ba khung) - đó là
+  phần ĐƯỢC, và nó vẫn chỉ tính trên **6 ô** (đọc như §7 của `08_experiment_rationale.md`: "có đường chạm tới
+  lớp âm", KHÔNG phải "model đã giỏi `price`").
+- **Nhưng F1 âm macro chỉ TĂNG khi khung YẾU.** Khung yếu: 0,7757 &#8594; **0,8159** (+0,040) và 0,7876 &#8594;
+  0,8124 (+0,025). Khung **MẠNH NHẤT** (`cafebert/lora/exp002`): 0,8473 &#8594; **0,8064** (**−0,041**) - tức
+  trên encoder tốt nhất, bản gộp **làm hỏng** đúng cái thước mà nó sinh ra để cứu. Vì vậy câu "hai tầng cứu lớp
+  âm" KHÔNG được nói chung chung.
+- **Accuracy luôn GIẢM**, và giảm nhiều hơn khi khung mạnh hơn: `all` −0,13 / −0,25 / −0,33; `paper` −0,75 /
+  −1,30 / −1,55. Đánh đổi này KHÔNG đổi dấu ở khung nào.
+- **Luật "lệch về không nhắc tới thì giữ encoder" KHÔNG phải chi tiết nhỏ:** nó giữ lại **1.058 / 653 / 627 ô**
+  ở ba khung. Thiếu con số đó thì không biết bản gộp lấy bao nhiêu ô từ mỗi bên (khung càng mạnh thì càng ít ô
+  phải giữ, vì khung ô của nó khớp với lượt một-khía-cạnh hơn).
 - **Lượt một-khía-cạnh KHÔNG cần `probabilities.csv`**: luật gộp chỉ dùng **nhãn cứng** (`merge_two_tier`), mà
   đường prompt không ghi tệp xác suất - `scripts/fuse_aspect.py` đã bỏ đòi hỏi đó (kèm test chống tái phát),
   nếu không thì bước này không chạy được trên đúng bảy lượt nó sinh ra để dùng.
-- Chứng cứ đã commit: `fuse_aspect_test.json` (khung phobert) + `fuse_aspect_test_cafebert.json` (khung
-  cafebert) + `inputs/*.csv` của **8 lượt** tham gia (1 encoder + 7 lượt một-khía-cạnh).
+- KẾT LUẬN HÀNH ĐỘNG: hai tầng là **hướng PHỤ, để CHẠM được `price`**, không phải bước nâng chất lượng; nếu
+  đưa vào báo cáo thì phải nói cả ba khung chứ không được chọn khung đẹp nhất.
+- Chứng cứ đã commit: `fuse_aspect_test.json` (khung phobert) +
+  `fuse_aspect_test_cafebert_exp001.json` / `fuse_aspect_test_cafebert_exp002.json` (hai khung cafebert) +
+  `inputs/*.csv` của **8 lượt** tham gia (1 encoder + 7 lượt một-khía-cạnh).
 
 ## 4. Đọc số của bước kết hợp thế nào
 

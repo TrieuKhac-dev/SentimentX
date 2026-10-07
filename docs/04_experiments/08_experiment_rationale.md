@@ -114,14 +114,15 @@ lại) nên bảng nay đủ **6/6**: `lora/exp002` cho **97,88 · 0,917 · 0,84
   của "đầu phân loại HỌC" ở CafeBERT **nằm trong nhiễu** (không kết luận được). Kỷ lục hiện tại của dự án là
   **`cafebert/lora/exp004` = 98,26**. Chi tiết bằng chứng: `06_lora_encoder.md`.
 - `price` là **điểm mù** ở CẢ HAI nhánh (F1 âm = 0,000 ở mọi lượt) - đúng như §7, đừng đọc cột đó.
-- **Nhóm `head.aspect_marker` - cơ chế KHÁC, không vào bảng trên (có kết quả 07/10/2026).** Lượt
-  `phobert-base-v2/lora/exp006` (cha `exp002`, khác đúng một khoá `head.aspect_marker: true`) **ÂM RẤT
-  MẠNH**: acc TB 93,28 &#8594; **51,60**, cơ sở `paper` 96,62 &#8594; **74,05**, phát hiện khía cạnh F1 macro
-  0,891 &#8594; **0,495** (precision macro 0,356; `tp` 2.433 / `fp` 4.426). Đọc từ mã: cách cài đặt cho đầu
-  phân loại dùng CHUNG một lớp nên khía cạnh chỉ thêm được một **hằng số riêng**, và năng lực đầu giảm từ
-  **16.149** xuống **2.328** tham số ⇒ lượt này **giảm NĂNG LỰC** chứ không thêm thông tin. **Bỏ khoá này**
-  (giữ mặc định `false`). Vì đầu phân loại đóng băng, kết quả này CHƯA trả lời được câu hỏi về ý tưởng - lượt
-  trả lời là `phobert-base-v2/lora/exp007`. Chi tiết: `06_lora_encoder.md`.
+- **Nhóm `head.aspect_marker` - cơ chế KHÁC, không vào bảng trên (đã đủ HAI lượt, 07/10/2026).** Bố cục
+  **2x2** (có/không marker × đầu ĐÓNG BĂNG/HỌC) trên cùng `test`, ở cơ sở `all`: `exp002` **93,28** /
+  `exp006` **51,60** (đầu đóng băng) và `exp005` **97,25** / `exp007` **50,51** (đầu học). Marker làm **phát
+  hiện khía cạnh SỤP** (0,891 &#8594; 0,495 và 0,959 &#8594; 0,489) và biến model thành máy BÁO ĐỘNG GIẢ
+  (precision "có nhắc" macro 0,825 &#8594; 0,356), mất **−41,68** và **−46,74** điểm. **Cho đầu phân loại HỌC
+  KHÔNG cứu được** (hai lượt marker xấp xỉ nhau) ⇒ nguyên nhân là **CẤU TRÚC**: khía cạnh chỉ vào được như một
+  **hằng số riêng** (`W[:, H:] · e_a`) nên nó không đổi được CÁCH ánh xạ review &#8594; sắc thái, cộng thêm
+  năng lực đầu bị cắt **16.149 &#8594; 2.328** tham số. **Bỏ khoá này** (giữ mặc định `false`). Chi tiết +
+  dấu vết: `06_lora_encoder.md`.
 
 ## 3. Nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt): ba mức ví dụ × ba cấu hình sinh
 
