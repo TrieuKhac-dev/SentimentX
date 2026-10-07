@@ -1,0 +1,65 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp007
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: phobert-base-v2/lora/exp005
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: phobert-base-v2
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Dau phan loai HOC + khia canh vao dau vao (aspect_marker true)"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+# Giữ NGUYÊN `head.trainable: true` của `phobert-base-v2/lora/exp005` (đầu phân loại HỌC cùng adapter),
+# để phép so chỉ còn MỘT biến.
+head:
+  trainable: true
+  # ĐÚNG MỘT BIẾN so với `phobert-base-v2/lora/exp005`: KIẾN TRÚC đầu phân loại - khía cạnh đi vào ĐẦU VÀO
+  # (one-hot ghép vào vector review), thay vì mỗi khía cạnh một bộ trọng số riêng.
+  # Vì sao cần lượt này: `exp006` (cùng khoá nhưng đầu ĐÓNG BĂNG) đã cho kết quả rất xấu (acc macro 51,60
+  # so cha 93,28; detection F1 0,891 -> 0,495) - xem `06_lora_encoder.md`. Kết quả xấu đó KHÔNG kết luận
+  # được về cơ chế, vì ở chế độ đóng băng đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN, mà cách cài đặt
+  # này còn làm đầu phân loại dùng CHUNG một lớp (logit = W[:,:H]·h + W[:,H:]·e_khía_cạnh + b), tức chỉ
+  # thêm được một HẰNG SỐ riêng theo khía cạnh chứ không phải bộ trọng số riêng. Lượt này cho đầu phân loại
+  # HỌC, nên trả lời đúng câu hỏi: cơ chế này có cứu được không khi nó được phép học?
+  aspect_marker: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# LƯU Ý khi chạy - PhoBERT cần bộ tách từ VnCoreNLP, gồm HAI thứ không có trong git:
+#   * Java (JDK/JRE 1.8+) và gói `py-vncorenlp`. Trên Colab ô bootstrap tự cài (`default-jdk` + pip);
+#     trên máy cá nhân thì chạy scripts/setup_java.ps1.
+#   * Model VnCoreNLP (~27 MB: `VnCoreNLP-1.2.jar` + `models/wordsegmenter/`). Khai ở
+#     `requires_extra` dưới đây để notebook kiểm TRƯỚC khi chạy; gói bàn giao đã kèm sẵn thư mục đó.
+requires_extra:
+  # Mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU, không phải gốc repo: trên Colab gốc đó là thư mục
+  # Drive, còn mã nguồn nằm ở `/content/SentimentX`. (Khác `prompt`/`examples`: những đường dẫn đó
+  # tính từ thư mục thí nghiệm trước.) Xem docs/00_workflow/07_colab.md mục 2.
+  - data/models/vncorenlp
