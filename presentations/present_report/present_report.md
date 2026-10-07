@@ -154,6 +154,6 @@ chọn khung đẹp nhất là tự lừa mình; (c) F1/F2 dùng `test` chỉ đ
   hình** (chỉ khác hạt giống huấn luyện) - đọc như một khoảng **97,88 … 98,26** và là **đỉnh của dự án**.
 - Số của ba bước kết hợp (mục 5b): `data/reports/fusion/` - luật router (`aspect_router_accuracy.json`,
   `aspect_router_f1am.json`), số router trên `val`/`test` (`router_aspect_*.json`), bản gộp hai tầng
-  (`fuse_aspect_test.json`, `fuse_aspect_test_cafebert.json`), và **đầu vào rút gọn** của mọi lượt tham gia ở
+  (`fuse_aspect_test.json`, `fuse_aspect_test_cafebert_exp001.json`, `fuse_aspect_test_cafebert_exp002.json`), và **đầu vào rút gọn** của mọi lượt tham gia ở
   `inputs/`. Lần chạy router ĐẦU chỉ có 2 ứng viên - luật của lần đó giữ ở các tệp hậu tố `_2model`.
 
