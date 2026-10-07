@@ -13,7 +13,7 @@ một khía cạnh), nên nó KHÔNG vào bảng cơ sở `paper` (tiền lệ: 
 chỗ đáng tiền nhất của hướng hai tầng.
 
 **Kết quả:** `results/<hash8>/`; đọc bằng số ô + F1 lớp âm của khía cạnh này, và đặt cạnh số của lượt encoder
-trên cùng tập (`fuse_aspect.json` ghi `thành_viên`).
+trên cùng tập (`fuse_aspect_test.json` ghi `thành_viên`).
 
 ---
 

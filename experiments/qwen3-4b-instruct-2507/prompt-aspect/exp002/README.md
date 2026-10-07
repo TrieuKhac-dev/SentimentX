@@ -12,7 +12,7 @@ khía cạnh), nên nó KHÔNG vào bảng cơ sở `paper` (tiền lệ: `promp
 `aspects: [texture]`, và không có khối ví dụ.
 
 **Kết quả:** `results/<hash8>/`; đọc bằng số ô + F1 lớp âm của khía cạnh này, và đặt cạnh số của lượt encoder
-trên cùng tập (`fuse_aspect.json` ghi `thành_viên`).
+trên cùng tập (`fuse_aspect_test.json` ghi `thành_viên`).
 
 ---
 
