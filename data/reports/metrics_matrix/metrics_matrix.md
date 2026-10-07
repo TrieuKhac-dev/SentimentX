@@ -10,7 +10,7 @@ graph LR
   n6["qwen2.5-0.5b-instruct exp001"]
   n7["<công bố COT+1-shot>"]
   n8["qwen3-4b-instruct-2507 exp003"]
-  n9["exp006"]
+  n9["qwen3-4b-instruct-2507 exp006"]
   n10["exp009"]
   n11["exp011"]
   n12["exp012"]
@@ -52,7 +52,19 @@ graph LR
   n48["cafebert exp003"]
   n49["vibert-base-cased exp003"]
   n50["cafebert exp004"]
-  n51["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
+  n51["xlm-roberta-base exp003"]
+  n52["vibert-base-cased exp004"]
+  n53["phobert-large exp003"]
+  n54["cafebert exp005"]
+  n55["qwen3-4b-instruct-2507 exp004 #2"]
+  n56["phobert-base-v2 exp006"]
+  n57["qwen3-4b-instruct-2507 exp005 #2"]
+  n58["qwen3-4b-instruct-2507 exp002 #2"]
+  n59["exp007 #2"]
+  n60["qwen3-4b-instruct-2507 exp006 #2"]
+  n61["qwen3-4b-instruct-2507 exp001 #2"]
+  n62["qwen3-4b-instruct-2507 exp003 #2"]
+  n63["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
   n1 -->|so với| n2
   n1 -->|so với| n3
   n1 -->|so với| n4
@@ -100,51 +112,75 @@ graph LR
   n1 -->|so với| n48
   n1 -->|so với| n49
   n1 -->|so với| n50
-  n27 -->|chấm trên| n51
-  n22 -->|chấm trên| n51
-  n2 -->|chấm trên| n51
-  n8 -->|chấm trên| n51
-  n3 -->|chấm trên| n51
-  n9 -->|chấm trên| n51
-  n28 -->|chấm trên| n51
-  n29 -->|chấm trên| n51
-  n23 -->|chấm trên| n51
-  n30 -->|chấm trên| n51
-  n31 -->|chấm trên| n51
-  n4 -->|chấm trên| n51
-  n10 -->|chấm trên| n51
-  n11 -->|chấm trên| n51
-  n12 -->|chấm trên| n51
-  n13 -->|chấm trên| n51
-  n24 -->|chấm trên| n51
-  n14 -->|chấm trên| n51
-  n32 -->|chấm trên| n51
-  n15 -->|chấm trên| n51
-  n25 -->|chấm trên| n51
-  n16 -->|chấm trên| n51
-  n5 -->|chấm trên| n51
-  n17 -->|chấm trên| n51
-  n18 -->|chấm trên| n51
-  n19 -->|chấm trên| n51
-  n6 -->|chấm trên| n51
-  n26 -->|chấm trên| n51
-  n33 -->|chấm trên| n51
-  n34 -->|chấm trên| n51
-  n35 -->|chấm trên| n51
-  n36 -->|chấm trên| n51
-  n37 -->|chấm trên| n51
-  n38 -->|chấm trên| n51
-  n39 -->|chấm trên| n51
-  n40 -->|chấm trên| n51
-  n41 -->|chấm trên| n51
-  n42 -->|chấm trên| n51
-  n43 -->|chấm trên| n51
-  n44 -->|chấm trên| n51
-  n45 -->|chấm trên| n51
-  n46 -->|chấm trên| n51
-  n47 -->|chấm trên| n51
-  n20 -->|chấm trên| n51
-  n48 -->|chấm trên| n51
-  n49 -->|chấm trên| n51
-  n50 -->|chấm trên| n51
+  n1 -->|so với| n51
+  n1 -->|so với| n52
+  n1 -->|so với| n53
+  n1 -->|so với| n54
+  n1 -->|so với| n55
+  n1 -->|so với| n56
+  n1 -->|so với| n57
+  n1 -->|so với| n58
+  n1 -->|so với| n59
+  n1 -->|so với| n60
+  n1 -->|so với| n61
+  n1 -->|so với| n62
+  n27 -->|chấm trên| n63
+  n22 -->|chấm trên| n63
+  n2 -->|chấm trên| n63
+  n8 -->|chấm trên| n63
+  n3 -->|chấm trên| n63
+  n9 -->|chấm trên| n63
+  n28 -->|chấm trên| n63
+  n29 -->|chấm trên| n63
+  n23 -->|chấm trên| n63
+  n30 -->|chấm trên| n63
+  n31 -->|chấm trên| n63
+  n4 -->|chấm trên| n63
+  n10 -->|chấm trên| n63
+  n11 -->|chấm trên| n63
+  n12 -->|chấm trên| n63
+  n13 -->|chấm trên| n63
+  n24 -->|chấm trên| n63
+  n14 -->|chấm trên| n63
+  n32 -->|chấm trên| n63
+  n15 -->|chấm trên| n63
+  n25 -->|chấm trên| n63
+  n16 -->|chấm trên| n63
+  n5 -->|chấm trên| n63
+  n17 -->|chấm trên| n63
+  n18 -->|chấm trên| n63
+  n19 -->|chấm trên| n63
+  n6 -->|chấm trên| n63
+  n26 -->|chấm trên| n63
+  n33 -->|chấm trên| n63
+  n34 -->|chấm trên| n63
+  n35 -->|chấm trên| n63
+  n36 -->|chấm trên| n63
+  n37 -->|chấm trên| n63
+  n38 -->|chấm trên| n63
+  n39 -->|chấm trên| n63
+  n40 -->|chấm trên| n63
+  n41 -->|chấm trên| n63
+  n42 -->|chấm trên| n63
+  n43 -->|chấm trên| n63
+  n44 -->|chấm trên| n63
+  n45 -->|chấm trên| n63
+  n46 -->|chấm trên| n63
+  n47 -->|chấm trên| n63
+  n20 -->|chấm trên| n63
+  n48 -->|chấm trên| n63
+  n49 -->|chấm trên| n63
+  n50 -->|chấm trên| n63
+  n51 -->|chấm trên| n63
+  n52 -->|chấm trên| n63
+  n53 -->|chấm trên| n63
+  n54 -->|chấm trên| n63
+  n55 -->|chấm trên| n63
+  n56 -->|chấm trên| n63
+  n57 -->|chấm trên| n63
+  n58 -->|chấm trên| n63
+  n59 -->|chấm trên| n63
+  n60 -->|chấm trên| n63
+  n61 -->|chấm trên| n63
+  n62 -->|chấm trên| n63
 ```

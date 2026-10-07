@@ -50,6 +50,18 @@ graph LR
   n46["cafebert/lora/exp003:8cc11244"]
   n47["vibert-base-cased/lora/exp003:8e1703a6"]
   n48["cafebert/lora/exp004:43e6c243"]
+  n49["xlm-roberta-base/lora/exp003:777fafbf"]
+  n50["vibert-base-cased/lora/exp004:97cae249"]
+  n51["phobert-large/lora/exp003:5b192ca8"]
+  n52["cafebert/lora/exp005:cfbf68e4"]
+  n53["qwen3-4b-instruct-2507/prompt-aspect/exp004:f39bc983"]
+  n54["phobert-base-v2/lora/exp006:d0bfc92e"]
+  n55["qwen3-4b-instruct-2507/prompt-aspect/exp005:4e11fb2e"]
+  n56["qwen3-4b-instruct-2507/prompt-aspect/exp002:df008443"]
+  n57["qwen3-4b-instruct-2507/prompt-aspect/exp007:aee896b8"]
+  n58["qwen3-4b-instruct-2507/prompt-aspect/exp006:e3add676"]
+  n59["qwen3-4b-instruct-2507/prompt-aspect/exp001:f04dd585"]
+  n60["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
   n1 -->|NEW| n2
   n3 -->|NEW| n2
   n4 -->|NEW| n2
@@ -97,4 +109,16 @@ graph LR
   n46 -->|NEW| n2
   n47 -->|NEW| n2
   n48 -->|NEW| n2
+  n49 -->|NEW| n2
+  n50 -->|NEW| n2
+  n51 -->|NEW| n2
+  n52 -->|NEW| n2
+  n53 -->|NEW| n2
+  n54 -->|NEW| n2
+  n55 -->|NEW| n2
+  n56 -->|NEW| n2
+  n57 -->|NEW| n2
+  n58 -->|NEW| n2
+  n59 -->|NEW| n2
+  n60 -->|NEW| n2
 ```

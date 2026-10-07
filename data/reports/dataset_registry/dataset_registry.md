@@ -53,6 +53,18 @@ graph LR
   n49["cafebert/lora/exp003:8cc11244"]
   n50["vibert-base-cased/lora/exp003:8e1703a6"]
   n51["cafebert/lora/exp004:43e6c243"]
+  n52["xlm-roberta-base/lora/exp003:777fafbf"]
+  n53["vibert-base-cased/lora/exp004:97cae249"]
+  n54["phobert-large/lora/exp003:5b192ca8"]
+  n55["cafebert/lora/exp005:cfbf68e4"]
+  n56["qwen3-4b-instruct-2507/prompt-aspect/exp004:f39bc983"]
+  n57["phobert-base-v2/lora/exp006:d0bfc92e"]
+  n58["qwen3-4b-instruct-2507/prompt-aspect/exp005:4e11fb2e"]
+  n59["qwen3-4b-instruct-2507/prompt-aspect/exp002:df008443"]
+  n60["qwen3-4b-instruct-2507/prompt-aspect/exp007:aee896b8"]
+  n61["qwen3-4b-instruct-2507/prompt-aspect/exp006:e3add676"]
+  n62["qwen3-4b-instruct-2507/prompt-aspect/exp001:f04dd585"]
+  n63["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -102,4 +114,16 @@ graph LR
   n4 --> n49
   n4 --> n50
   n4 --> n51
+  n4 --> n52
+  n4 --> n53
+  n4 --> n54
+  n4 --> n55
+  n4 --> n56
+  n4 --> n57
+  n4 --> n58
+  n4 --> n59
+  n4 --> n60
+  n4 --> n61
+  n4 --> n62
+  n4 --> n63
 ```

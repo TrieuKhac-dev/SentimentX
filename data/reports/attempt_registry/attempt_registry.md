@@ -61,6 +61,21 @@ graph LR
   n57["commit 05cb8c1e41bd"]
   n58["vibert-base-cased/lora/exp003:8e1703a6"]
   n59["cafebert/lora/exp004:43e6c243"]
+  n60["xlm-roberta-base/lora/exp003:777fafbf"]
+  n61["commit e27d958c8120"]
+  n62["vibert-base-cased/lora/exp004:97cae249"]
+  n63["phobert-large/lora/exp003:5b192ca8"]
+  n64["cafebert/lora/exp005:cfbf68e4"]
+  n65["qwen3-4b-instruct-2507/prompt-aspect/exp004:f39bc983"]
+  n66["commit d42de24d5093"]
+  n67["phobert-base-v2/lora/exp006:d0bfc92e"]
+  n68["commit ca8b1a04a3fd"]
+  n69["qwen3-4b-instruct-2507/prompt-aspect/exp005:4e11fb2e"]
+  n70["qwen3-4b-instruct-2507/prompt-aspect/exp002:df008443"]
+  n71["qwen3-4b-instruct-2507/prompt-aspect/exp007:aee896b8"]
+  n72["qwen3-4b-instruct-2507/prompt-aspect/exp006:e3add676"]
+  n73["qwen3-4b-instruct-2507/prompt-aspect/exp001:f04dd585"]
+  n74["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -113,4 +128,16 @@ graph LR
   n56 -->|FINISHED| n57
   n58 -->|FINISHED| n57
   n59 -->|FINISHED| n57
+  n60 -->|FINISHED| n61
+  n62 -->|FINISHED| n61
+  n63 -->|FINISHED| n61
+  n64 -->|FINISHED| n61
+  n65 -->|FINISHED| n66
+  n67 -->|FINISHED| n68
+  n69 -->|FINISHED| n66
+  n70 -->|FINISHED| n66
+  n71 -->|FINISHED| n66
+  n72 -->|FINISHED| n66
+  n73 -->|FINISHED| n66
+  n74 -->|FINISHED| n66
 ```
