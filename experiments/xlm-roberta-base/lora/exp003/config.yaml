@@ -1,0 +1,47 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp003
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: xlm-roberta-base/lora/exp001
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: xlm-roberta-base
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "Luot VAL cho ROUTER theo khia canh: cung cau hinh exp001, chi doi tap danh gia"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: val}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+# Cùng cấu hình với `xlm-roberta-base/lora/exp001` (`weighted_ce` + `class_weight: inverse`) - hướng DUY
+# NHẤT đã chứng minh kéo được lớp âm lên. Đọc kết quả theo CẶP chỉ số: F1 lớp âm VÀ phát hiện khía cạnh.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Vì sao `eval: val`: lượt này KHÔNG để lấy điểm báo cáo mà để làm **ứng viên `val`** cho ROUTER theo khía
+# cạnh (`scripts/ensemble_aspect.py`). Router chốt trên `val` rồi áp lên `test` của CÙNG một model (luật 1
+# của `metrics.md`), mà khoá ráp là TÊN MODEL - nên lượt này phải cùng cấu hình với lượt `test` của chính
+# nó. **ĐÚNG MỘT BIẾN** so với `xlm-roberta-base/lora/exp001`: tập đánh giá (`eval: val`).
