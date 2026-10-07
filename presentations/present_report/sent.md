@@ -52,3 +52,31 @@ Mỗi ô ghi `positive / negative`.
 | Stayingpower | 100 / 80 | 90 / 100 | 94.74 / 88.89 | 98.8 / 95.6 | 96.5 / 98.5 | 97.6 / 97.0 | 98.6 / 95.9 | 97.1 / 97.9 | 97.8 / 96.9 | 97.8 / 95.7 | 97.1 / 96.8 | 97.5 / 96.3 | 64.4 / 100 | 100 / 2.7 | 78.3 / 5.3 | 98.4 / 85.8 | 89.2 / 97.8 | 93.6 / 91.5 |
 | Packing | 100 / 100 | 100 / 100 | 100 / 100 | 99.6 / 64.3 | 98.2 / 90.0 | 98.9 / 75.0 | 100 / 81.8 | 99.3 / 100 | 99.6 / 90.0 | 99.6 / 75.0 | 98.9 / 90.0 | 99.3 / 81.8 | 96.8 / 0 | 100 / 0 | 98.4 / 0 | 100 / 90.9 | 99.6 / 100 | 99.8 / 95.2 |
 | Shipping | 96.88 / 96.3 | 98.41 / 92.86 | 94.74 / 94.55 | 98.4 / 97.0 | 98.4 / 97.0 | 98.4 / 97.0 | 99.1 / 96.0 | 97.9 / 98.2 | 98.5 / 97.1 | 99.4 / 94.9 | 97.3 / 98.8 | 98.3 / 96.8 | 98.5 / 97.6 | 98.8 / 97.0 | 98.6 / 97.3 | 99.1 / 96.0 | 97.9 / 98.3 | 98.5 / 97.1 |
+
+## Bước kết hợp (đợt 10, split `test`)
+
+**Router theo khía cạnh** - 6 ứng viên `val`, chốt trên `val` rồi mới áp lên `test`:
+
+| Tiêu chí chốt trên `val` | acc (`all`) | acc (`paper`) | F1 âm macro (`paper`) | số ô `paper` |
+| --- | ---: | ---: | ---: | ---: |
+| `accuracy` | 97.66 | 97.72 | 0.795 | 2741 |
+| `f1_âm` | 97.66 | 97.72 | 0.795 | 2741 |
+| *mốc*: lượt đơn tốt nhất (`cafebert/lora/exp001`) | 97.63 | 97.72 | 0.788 | 2745 |
+| *mốc*: trần chọn-theo-khía-cạnh (oracle) | 97.67 | - | - | - |
+
+**Gộp hai tầng** - khung ô từ encoder, sắc thái từng khía cạnh từ 7 lượt một-khía-cạnh:
+
+| Khung (encoder) | acc (`all`) | acc (`paper`) | F1 âm macro (`paper`) | `price` F1 âm | ô lệch giữ encoder |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `phobert-base-v2/lora/exp004` (mốc) | 93.28 | 96.62 | 0.776 | 0.000 | - |
+| `phobert-base-v2/lora/exp004` + hai tầng | 93.15 | 95.87 | **0.816** | **0.357** | 1058 |
+| `cafebert/lora/exp001` (mốc) | 97.63 | 97.72 | 0.788 | 0.000 | - |
+| `cafebert/lora/exp001` + hai tầng | 97.38 | 96.42 | 0.812 | 0.320 | 653 |
+
+**Nhánh `head.aspect_marker`** (`phobert-base-v2/lora/exp006` so cha `exp002`, cùng `test`):
+
+| Lượt | acc (`all`) | acc (`paper`) | F1 sắc thái macro (`paper`) | phát hiện khía cạnh F1 macro (`all`) | precision "có nhắc" (`all`) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `phobert-base-v2/lora/exp002` (cha) | 93.28 | 96.62 | 0.876 | 0.891 | 0.825 |
+| `phobert-base-v2/lora/exp006` | 51.60 | 74.05 | 0.655 | 0.495 | 0.356 |
+

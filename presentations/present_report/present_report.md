@@ -110,6 +110,23 @@ Tên nguồn trên tiêu đề cột chính là tên lượt chạy: `COT+0shot 
 (F1 âm 66,67 / 66,67 / 50 -> 87,4 / 93,3 / 90,7) và **ở Price** (0 -> 26,7 / 60,0 / 50,0);
 **thua ở Texture / Stayingpower / Packing / Shipping** (công bố chạm 100 ở vài mức).
 
+## 5b. Ba bước kết hợp của đợt 10 (không chạy model mới)
+
+Ba bước này đọc lại các lượt ĐÃ CÓ nên không nằm trong "bảy thử nghiệm được chọn" ở mục 3; chúng trả lời ba
+câu hỏi riêng. Mọi số lấy từ `data/reports/fusion/` (luật + đầu vào rút gọn đều có trong repo).
+
+| # | Bước | Số (split `test`, 1.623 dòng) | Kết luận |
+| --- | --- | --- | --- |
+| F1 | **Router theo khía cạnh, tiêu chí `accuracy`** (chốt trên `val`, 6 ứng viên) | acc 97,66 (`all`) · 97,72 (`paper`) · F1 âm macro 0,795 · 2.741 ô | **KHÔNG đáng kể:** trần chọn-theo-khía-cạnh 97,67, lượt đơn tốt nhất 97,63 ⇒ hơn **+0,04**, dưới cả mức nhiễu (±0,7) |
+| F2 | **Router theo khía cạnh, tiêu chí `f1_âm`** | **cùng số như F1** - hai tiêu chí chọn CÙNG một router (`cafebert` 6/7 khía cạnh) | Giữ đủ hai dòng vì tiêu chí chốt TRƯỚC khi xem `test`, nhưng đọc như MỘT kết quả |
+| F3 | **Gộp HAI TẦNG** (khung ô từ `phobert-base-v2/lora/exp004`, sắc thái từ 7 lượt một-khía-cạnh) | acc 93,15 (`all`) · 95,87 (`paper`) · F1 âm macro **0,8159** (từ 0,7757) · **`price` F1 âm 0,000 &#8594; 0,357** | **Lần ĐẦU TIÊN `price` âm khác 0**; giá phải trả ~**0,75** điểm accuracy `paper` ⇒ giữ làm hướng phụ, KHÔNG thay bảng chính |
+| C1 | **Nhánh `head.aspect_marker`** (`phobert-base-v2/lora/exp006`) | acc 51,60 (`all`) · 74,05 (`paper`) · phát hiện khía cạnh F1 macro 0,891 &#8594; **0,495** | **BỎ khoá này**: cách cài đặt giảm năng lực đầu phân loại (16.149 &#8594; 2.328 tham số) mà không thêm thông tin |
+
+Đọc kèm ba điều: (a) chênh lệch dưới **±0,7** trên đường encoder không kết luận được, nên F1/F2 là "không có
+tác dụng", KHÔNG phải "có hại"; (b) F3 là đánh đổi thật nên phải nói CẢ HAI vế (F1 âm +0,040 và accuracy
+`paper` −0,75); (c) F1/F2 dùng `test` chỉ để ĐỐI CHIẾU - cả hai luật được chốt trên `val`, và `điểm` của mọi
+ứng viên nằm trong tệp luật.
+
 ## 6. Trade-off
 
 | Được (nhắm W1-W4) | Mất (so công bố) |
@@ -133,4 +150,8 @@ Tên nguồn trên tiêu đề cột chính là tên lượt chạy: `COT+0shot 
   `decoding.seed: 7`); lấy làm việc **±0,7** - chênh lệch dưới mức đó không kết luận.
 - `cafebert/lora/exp002` (97,88) và `cafebert/lora/exp004` (98,26) là HAI lần rút thăm của **cùng một cấu
   hình** (chỉ khác hạt giống huấn luyện) - đọc như một khoảng **97,88 … 98,26** và là **đỉnh của dự án**.
+- Số của ba bước kết hợp (mục 5b): `data/reports/fusion/` - luật router (`aspect_router_accuracy.json`,
+  `aspect_router_f1am.json`), số router trên `val`/`test` (`router_aspect_*.json`), bản gộp hai tầng
+  (`fuse_aspect_test.json`, `fuse_aspect_test_cafebert.json`), và **đầu vào rút gọn** của mọi lượt tham gia ở
+  `inputs/`. Lần chạy router ĐẦU chỉ có 2 ứng viên - luật của lần đó giữ ở các tệp hậu tố `_2model`.
 

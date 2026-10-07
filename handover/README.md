@@ -16,7 +16,7 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Notebook trong gói: 23 lượt của đợt 7 + 4 lượt của đợt 8 + 3 lượt của đợt 10
+## Notebook trong gói: 23 lượt của đợt 7 + 4 lượt của đợt 8 + 3 lượt của đợt 10 + 2 lượt TUỲ CHỌN của đợt 10
 
 **Chưa lượt nào trong bảng đợt 7 từng cho ra kết quả dùng được khi bảng được viết**, nên cột thời gian ghi **ước tính**; chỗ nào
 ước tính dựa trên một lượt đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu (ba lượt `qwen3-0.6b` đã
@@ -122,6 +122,31 @@ nguyên nhân):
   kiểm `trainable_params` trong `metrics.json` **lớn hơn** lượt gốc đúng **16.149** ở năm model 768 ẩn (PhoBERT-base, ViSoBERT, ViBERT, XLM-R) và **21.525** ở hai model 1.024 ẩn (**CafeBERT**, PhoBERT-large)
   trước đã, rồi mới so F1 lớp âm + macro-F1.
 
+### Đợt 10 - 2 notebook TUỲ CHỌN trong gói này (020): cho bộ ứng viên router có đất, và để trả lời `aspect_marker`
+
+Gói **020** mang thêm **hai** notebook (chưa từng nằm trong gói nào trước đây). **Cả hai là TUỲ CHỌN**: kết
+luận của đợt đã đứng vững mà không cần chúng; chúng chỉ trả lời hai câu còn treo. **THỨ TỰ CHẠY: chạy (1)
+trước; chỉ chạy (2) nếu còn thời gian GPU** - lượt (2) đã có một bản chạy với đầu phân loại ĐÓNG BĂNG cho kết
+quả RẤT ÂM, và lí do là CƠ CHẾ (xem bên dưới) nên khả năng cao vẫn kém hơn mặc định.
+
+| # | Notebook | Việc | Thời gian trên T4 | Trả lời câu gì |
+| --- | --- | --- | --- | --- |
+| 1 | `notebooks/cafebert/lora/exp006.ipynb` | chạy mới (ĐÁNH GIÁ trên `val`, dùng lại checkpoint `exp002`) | ước tính 2 đến 5 phút | Đưa một lượt **đầu phân loại HỌC** vào bộ ứng viên `val` thì trần chọn-theo-khía-cạnh của router có dâng lên không (hiện chỉ **+0,04**) |
+| 2 | `notebooks/phobert-base-v2/lora/exp007.ipynb` | chạy mới (**cần VnCoreNLP**; huấn luyện lại vì đổi kiến trúc đầu) | ước tính 15 đến 30 phút | Cơ chế "khía cạnh đi vào ĐẦU VÀO" (`head.aspect_marker: true`) có cứu được không khi đầu phân loại ĐƯỢC HỌC |
+
+**Vì sao (1) có ích:** sáu ứng viên `val` hiện có đều thuộc **cùng một họ** (`lora` + `weighted_ce`, đầu phân
+loại đóng băng) nên chúng sai giống nhau, và trần chọn-theo-khía-cạnh chỉ hơn lượt đơn tốt nhất **+0,04** trên
+`test`. Thêm một model **đầu HỌC** (CafeBERT - cũng là model mạnh thứ nhì dự án) là cách duy nhất kiểm tra xem
+cái trần đó là hạn chế của **bộ ứng viên** hay của chính ý tưởng router.
+
+**Vì sao (2) khả năng cao vẫn kém hơn mặc định:** bản chạy có đầu phân loại đóng băng
+(`phobert-base-v2/lora/exp006`) cho acc TB **51,60** so cha 93,28 và phát hiện khía cạnh F1 macro 0,891
+&#8594; **0,495**. Đọc từ mã: cách cài đặt cho đầu phân loại dùng **CHUNG một lớp**, nên logit chỉ thêm được
+một **hằng số riêng theo khía cạnh** (`W[:, :H] · h + W[:, H:] · e_a + b`), và năng lực đầu giảm
+**16.149 &#8594; 2.328** tham số - tức lượt đó **giảm năng lực** mà không thêm thông tin. Cho đầu phân loại
+HỌC không chữa được việc mất năng lực, nên kết luận hành động đã chốt là **bỏ khoá `head.aspect_marker`**;
+lượt (2) chỉ để câu trả lời có SỐ thay vì suy luận.
+
 ### Đã nhận đủ kết quả đợt 7 (05/10/2026) + hai lượt đợt 8
 
 - **`cafebert/lora/exp002` (đầu phân loại) ĐÃ CHẠY LẠI XONG 05/10/2026** (`results/93448395`): thư mục kết
@@ -143,15 +168,22 @@ nguyên nhân):
   (chưa tách được khỏi nhiễu), còn **F1 lớp âm gần như đứng yên** - chi tiết và cách đọc ở
   `docs/04_experiments/08_experiment_rationale.md` §2b. **Lượt THƯỚC NHIỄU cho encoder** đã lên kế hoạch ở
   đợt 10 (chạy lại 3 nhánh với hạt giống khác; xem `present_plan.md` mục 14).
-- **Năm bước kết hợp**: **bốn bước đầu đã chốt xong trên `val`** - ngưỡng theo khía cạnh, trọng số
-  ensemble, luật lai và biểu quyết nằm trong `data/reports/fusion/` (repo), không cần GPU và không cần
-  notebook. **Bước thứ năm (router theo khía cạnh, `scripts/ensemble_aspect.py`) chỉ mới có mã + luật
-  đóng băng**; lượt đầu chạy được ở máy với hai ứng viên `val` nên cả 7 khía cạnh đều chọn một lượt -
-  **chưa đọc được tác dụng** cho tới khi có thêm ứng viên `val` (mỗi encoder cần một lượt `val`).
-- **Bước thứ sáu (gộp HAI TẦNG, `scripts/fuse_aspect.py`)**: mã + **luật đã đóng băng TRƯỚC khi chạy**
-  (`fusion.TWO_TIER_LAW`) + bảy cặp prompt/khối hệ thống `absa_aspect_<khía cạnh>_v1` đã có; **chưa chạy**
-  vì cần bảy lượt một-khía-cạnh (~14 giờ GPU). Đây là hướng chính để cứu lớp âm: encoder giữ khung ô, lượt
-  một-khía-cạnh quyết sắc thái.
+- **`phobert-base-v2/lora/exp006` (`head.aspect_marker: true`) ĐÃ CHẠY (07/10/2026): ÂM RÕ RỆT.** acc TB
+  93,28 &#8594; **51,60** (paper 96,62 &#8594; 74,05), phát hiện khía cạnh F1 macro 0,891 &#8594; **0,495**
+  (precision "có nhắc" 0,825 &#8594; 0,356). Đọc từ mã: đầu phân loại dùng CHUNG một lớp nên khía cạnh chỉ
+  thêm được một **hằng số riêng**, và năng lực đầu giảm **16.149 &#8594; 2.328** tham số ⇒ **bỏ khoá
+  `head.aspect_marker`** (giữ mặc định `false`). Chi tiết + dấu vết: `docs/04_experiments/06_lora_encoder.md`.
+- **Sáu bước kết hợp: NĂM bước đầu đã chốt xong** - ngưỡng theo khía cạnh, trọng số ensemble, luật lai,
+  biểu quyết và **router theo khía cạnh** nằm trong `data/reports/fusion/` (repo), không cần GPU. Router đã
+  chạy ĐỦ hai lần: lần ĐẦU chỉ có **2 ứng viên** `val` (luật của lần đó giữ ở các tệp hậu tố `_2model`), lần
+  HAI có **6 ứng viên** sau khi bốn lượt `val` mới chạy xong - **cả hai tiêu chí chọn cùng một router**
+  (`cafebert` 6/7 khía cạnh) và trần chọn-theo-khía-cạnh chỉ hơn lượt đơn tốt nhất **+0,04** trên `test` ⇒
+  bước này **không đáng kể** khi mọi ứng viên cùng một cơ chế (lí do tồn tại notebook (1) ở mục trên).
+- **Bước thứ SÁU (gộp HAI TẦNG, `scripts/fuse_aspect.py`) ĐÃ CHẠY (07/10/2026)** trên bảy lượt một-khía-cạnh
+  `prompt-aspect/exp001..007`: lần ĐẦU TIÊN `price` âm khác 0 (**0,000 &#8594; 0,357**), F1 âm macro `paper`
+  0,7757 &#8594; **0,8159**; giá phải trả ~**0,75 điểm** accuracy `paper` (96,62 &#8594; 95,87). Chứng cứ:
+  `fuse_aspect_test.json` (khung `phobert-base-v2/lora/exp004`) + `fuse_aspect_test_cafebert.json`. Lưu ý: lượt
+  một-khía-cạnh **KHÔNG** cần `probabilities.csv` (luật gộp chỉ dùng nhãn cứng).
 
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
