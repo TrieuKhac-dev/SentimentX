@@ -147,7 +147,7 @@ số ô báo cáo (không đổi luật, nhưng đổi mẫu số).
 **Lần chạy ĐẦU (06/10/2026, 2 ứng viên) - để thử đường ống, KHÔNG phải một thành tích.** Bộ ứng viên lúc đó
 chỉ **2 lượt `val`** (`phobert-base-v2/lora/exp003`, `visobert/lora/exp003`):
 
-| | acc macro | F1 âm macro (`paper`) | số ô `paper` |
+| | acc macro (`all`) | F1 âm macro (`paper`) | số ô `paper` |
 | --- | --- | --- | --- |
 | trên **`val`** (tập để CHỌN): `--criterion f1_âm` | 93,08 | **0,9005** | 2.755 |
 | trên **`val`**: `--criterion accuracy` | **95,97** | 0,8562 | 2.740 |
