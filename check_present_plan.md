@@ -622,14 +622,22 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
   chọn `phobert-base-v2` ⇒ bản router **trùng** lượt `phobert-base-v2/lora/exp004` (acc macro 93,28 ·
   F1 âm macro 0,7757) - **chưa đọc được tác dụng**, cần ≥ 4-5 ứng viên `val`. Tài liệu: `09_fusion.md`
   §3.5, `07_evolution.md`, `data/reports/fusion/README.md`, `docs/00_workflow/09_cli.md` (lệnh + mã thoát).
-  ⚠️ **CHỜ NGƯỜI DÙNG CHỐT:** tiêu chí nào dùng cho BÁO CÁO (`f1_âm` hay `accuracy`).
-  **ĐÃ CHẠY THỬ CẢ HAI (06/10/2026)** trên cùng bộ ứng viên (2 lượt `val` đang có) và ghi chứng cứ vào
-  `data/reports/fusion/` (`aspect_router_f1am.json`, `aspect_router_accuracy.json`, `router_aspect_*_*.json`,
-  `inputs/*.csv`). Số trên **`val`** (tập để chọn): `f1_âm` acc 93,08 · F1 âm **0,9005**; `accuracy` acc
-  **95,97** · F1 âm 0,8562; **trần oracle `val` = 95,97** ⇒ tiêu chí `accuracy` đạt ĐÚNG trần và hơn cả hai
-  thành viên (95,49/93,08), còn `f1_âm` thoái hoá thành "lấy phoBERT cho mọi khía cạnh" (không đổi gì so với
-  một lượt đơn). Trên `test` (đối chiếu): `accuracy` 96,16 so oracle 96,17 · F1 âm 0,7543. **ĐỀ XUẤT:
-  `accuracy`** - chờ người dùng xác nhận; nếu chốt `f1_âm` thì đọc kèm accuracy và nói rõ router = một lượt đơn.
+  ✅ **ĐÃ CHỐT (06/10/2026): báo cáo CẢ HAI DÒNG** - một dòng `--criterion accuracy`, một dòng
+  `--criterion f1_âm`, mỗi dòng ghi rõ tiêu chí + số ô + số thành viên; hai tệp luật đóng băng riêng
+  (`aspect_router_accuracy.json`, `aspect_router_f1am.json`) nên không có chuyện đổi luật sau khi thấy `test`.
+  Dòng `accuracy` là dòng CHÍNH (đạt ĐÚNG trần `val` 95,97 = oracle, hơn cả hai thành viên 95,49/93,08);
+  dòng `f1_âm` là bản nghiêng lớp âm và **bằng một lượt đơn** (phoBERT) ở bộ ứng viên 2 lượt hiện tại -
+  giải thích "thoái hoá" + bảng người thắng từng khía cạnh đã ghi ở `09_fusion.md` §3.5. Số trên `test`:
+  `accuracy` 96,16 (oracle 96,17) · `f1_âm` 93,28 với F1 âm macro 0,7757.
+- **B-DOC + C: XONG 06/10/2026** - (c) thêm `absa_cot_1shot_v7` (prompt byte-identical v1/v6, sha `1a6ff63b…`;
+  ví dụ `sha 135c4025`, câu KHEN viết lại, câu chê giá giữ nguyên) + dòng mới trong danh sách tập-đóng
+  `tests/experiments/test_prompts.py`; `run_check_examples.py --prompt absa_cot_1shot_v7` ⇒ **"không rò rỉ"**
+  (còn 1 cụm 4 từ, dưới ngưỡng 6 - như MỌI ví dụ khác của thư viện). (b) ghi "hạn chế đã biết của `v6`" vào
+  `08_experiment_rationale.md` §7: cụm `chất son mịn lên màu chuẩn` (train 5 · val 0 · test 1) nằm ở CÂU
+  KHEN nên kết luận `price` của `exp015` KHÔNG đổi; KHÔNG sửa `v6` tại chỗ (`exp015` đã ghi `examples_sha
+  7f766223`, mà file ví dụ là một phần của `config_sha256`). **Quyết định về công cụ: (ii) GIỮ NGUYÊN** -
+  lệnh quét cả thư viện vẫn đỏ đúng 1 mục (`v6`) và điều đó là CỐ Ý; CI KHÔNG chạy công cụ này
+  (`docs/00_workflow/03_ci.md`: CI chỉ chạy `ci_checks.py` + `unittest`), nên không nới cổng nào.
 - **B2 XONG MỘT PHẦN 06/10/2026 - BẢY CẶP PROMPT + LUẬT GỘP HAI TẦNG** (mục 14.9/14.10/14.11): 7 cặp
   `configs/prompts/absa_aspect_<khía cạnh>_v1.txt` + `configs/prompts/system/absa_aspect_<khía cạnh>.txt`
   (có phần định nghĩa khía cạnh + dấu hiệu lời CHÊ/KHEN riêng từng khía cạnh); đăng ký bằng test tập-đóng

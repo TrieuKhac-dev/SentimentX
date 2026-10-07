@@ -1,0 +1,23 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án — KHÔNG được gửi cho model) ---
+# Nguồn: người viết dự án tự soạn, KHÔNG lấy từ dữ liệu (không có trong train/val/test).
+# Kiểm chứng: python run_check_examples.py --hash e616c1e3 --prompt absa_cot_1shot_v7
+# Biến thể v7 = bản v6 với CÂU KHEN viết lại. Lý do: v6 dùng câu "Chất son mịn, lên màu chuẩn như hình..."
+# và cụm 6 từ "chất son mịn lên màu chuẩn" TRÙNG với 1 review `test` (và 5 review `train`), nên công cụ
+# chặn bộ ví dụ đó (xem `08_experiment_rationale.md` §7, mục "hạn chế đã biết"). v7 giữ NGUYÊN TỪNG CHỮ
+# câu chê giá - đó mới là biến của họ v6 - và chỉ đổi câu khen để không còn cụm trùng.
+# Prompt đi kèm (`absa_cot_1shot_v7.txt`) GIỐNG TỪNG BYTE bản v1, nên một lượt chạy bằng v7 so với `exp003`
+# (v1) là so ĐÚNG MỘT biến: "dạy bằng ví dụ có ô giá mã 2, câu khen viết khác".
+# CHƯA có lượt nào chạy bằng bộ ví dụ này.
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Chất son mượt mà, tán nhẹ là tệp, màu lên đúng tông, mùi thơm thoang thoảng. Nhưng so với mấy thỏi cùng tầm tiền thì thỏi này hơi chát, mua xong thấy tiếc ví. Vỏ hộp nhựa mỏng, được cái giao hàng nhanh."
+SUY LUẬN:
+- colour: "màu lên đúng tông" | khen màu đúng như mong đợi | mã 1
+- texture: "chất son mượt mà, tán nhẹ là tệp" | chất son mượt, dễ tán | mã 1
+- smell: "mùi thơm thoang thoảng" | mùi dễ chịu | mã 1
+- price: "so với mấy thỏi cùng tầm tiền thì thỏi này hơi chát, mua xong thấy tiếc ví" | chê giá cao so với mặt bằng, không đáng tiền - chê GIÁN TIẾP | mã 2
+- packing: "vỏ hộp nhựa mỏng" | chê vỏ hộp mỏng | mã 2
+- shipping: "giao hàng nhanh" | khen giao nhanh | mã 1
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+KẾT QUẢ:
+{"colour": 1, "texture": 1, "smell": 1, "price": 2, "packing": 2, "shipping": 1, "stayingpower": 0}

@@ -159,7 +159,7 @@ class SoViDuTest(unittest.TestCase):
         self.assertEqual(sorted(checked),
                          ["absa_cot_1shot_v1", "absa_cot_1shot_v2", "absa_cot_1shot_v3",
                           "absa_cot_1shot_v4", "absa_cot_1shot_v5", "absa_cot_1shot_v6",
-                          "absa_cot_5shot_v1"],
+                          "absa_cot_1shot_v7", "absa_cot_5shot_v1"],
                          "danh sách prompt có mức ví dụ đã đổi: thêm prompt mới thì cập nhật dòng này")
         # Vì sao v5/v6 có mặt (đợt 7): `v5` = bản v1 + một đoạn định nghĩa lời CHÊ GIÁ GIÁN TIẾP (đổi câu
         # chữ, ví dụ byte-identical với v1); `v6` = prompt byte-identical với v1 nhưng ví dụ CÓ Ô GIÁ MÃ 2

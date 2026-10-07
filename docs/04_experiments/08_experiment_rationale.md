@@ -352,6 +352,19 @@ Ba lượt tiếp theo về giá nhằm cải thiện và ĐO riêng khía cạn
 - `exp016` đo trên **tập ô khác** (295 ô, chỉ khía cạnh `price`) nên **phải báo cáo RIÊNG**, không trộn vào
   bảng `paper`; nó trả lời câu "khi chỉ phải để ý MỘT khía cạnh thì bắt được mấy ô": 4/6 - tức kể cả khi
   không phải chia sự chú ý cho 7 khía cạnh, model vẫn bỏ sót 2 ô.
+- **Hạn chế đã biết của bộ ví dụ `v6` (ghi 06/10/2026).** `python run_check_examples.py --hash e616c1e3`
+  báo `absa_cot_1shot_v6` **rò rỉ**: cụm 6 từ `chất son mịn lên màu chuẩn` trùng với **1 review `test`**
+  (và **5 review `train`**; `val` **0**). Đọc cho đúng: cụm đó nằm ở **câu KHEN** (`texture`/`colour`
+  dương), **không** nằm ở câu chê giá - mà câu chê giá mới là biến của `v6` - nên **kết luận của bảng trên
+  về `price` KHÔNG đổi** (0,500 · 3/6 ô · 10 báo động giả). Cụm này còn xuất hiện **5 lần trong `train`**,
+  tức là câu khen thông thường của ngành son, không phải câu riêng của review nào. **`v6` KHÔNG được sửa
+  tại chỗ** (luật 1.4): `exp015` đã ghi `examples_sha 7f766223` vào `run_meta.json` + `metrics.json`, và
+  file ví dụ là một phần của `config_sha256` (luật 13) - sửa là số đã chạy không tái lập được. Bản sạch
+  thay thế là **`absa_cot_1shot_v7`** (prompt byte-identical v1, câu khen viết lại, giữ nguyên câu chê giá):
+  công cụ kết luận **"không rò rỉ"**, còn 1 cụm 4 từ dưới ngưỡng 6 - như MỌI ví dụ khác của thư viện
+  (`v1/v2/v3/v4/v5/5shot` đều có cụm 3-4 từ). **`v7` chưa được chạy** nên chưa có số.
+  Hệ quả: `run_check_examples.py` ở chế độ **quét cả thư viện** vẫn **đỏ đúng 1 mục** (`v6`) và điều đó là
+  CỐ Ý - CI không chạy công cụ này (xem `docs/00_workflow/03_ci.md`), nên `ci_checks` + `unittest` vẫn xanh.
 - **Lượt `val` phía LLM `exp017`** cho biết trạng thái của `val` (điều kiện chốt luật lai): `val` có
   **0 ô `price` âm** (đúng như §6.4) nhưng model vẫn gán mã 2 cho **6 ô** - tức 6 báo động giả. Vì vậy tệp
   luật ghi `price: null` kèm lí do và ô `price` giữ nguyên `argmax` của model (`09_fusion.md`).

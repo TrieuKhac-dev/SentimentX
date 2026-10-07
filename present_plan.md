@@ -501,9 +501,11 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
      cạnh), nên đổi tiêu chí sau khi thấy `test` là tự lừa mình. Tệp luật ghi kèm **điểm của MỌI ứng viên**
      (cả hai tiêu chí + số ô) để người đọc dò lại được.
   2. **Lượt ĐẦU trong `--run` giữ KHUNG Ô**, nên đổi thứ tự `--run` đổi mẫu số cơ sở `paper` (không đổi luật).
-  ⚠️ **CÒN PHẢI NGƯỜI DÙNG QUYẾT:** tiêu chí nào dùng cho BÁO CÁO (`f1_âm` theo luật dự án, hay `accuracy` khớp
-  con số trần `+0,51` đã đo). Lượt thử ở máy chỉ có **2 ứng viên `val`** nên cả 7 khía cạnh đều chọn một lượt ⇒
-  bản router TRÙNG lượt thành viên (chưa đọc được tác dụng); muốn thấy tác dụng cần ≥ 4-5 ứng viên `val`.
+  ✅ **CHỐT 06/10/2026:** báo cáo **CẢ HAI DÒNG** (mỗi dòng ghi rõ tiêu chí + số ô; hai luật đóng băng riêng,
+  nên không phải "chọn luật sau khi thấy `test`"); dòng `accuracy` là dòng CHÍNH, dòng `f1_âm` phải đọc kèm
+  câu "bằng một lượt đơn" (chi tiết + bảng người thắng từng khía cạnh: `09_fusion.md` §3.5). Bộ ứng viên hiện
+  có **2 lượt `val`** ⇒ với tiêu chí `f1_âm` cả 7 khía cạnh rơi vào cùng một lượt; muốn thấy tác dụng của việc
+  chọn-theo-khía-cạnh thì cần thêm lượt `val` cho các encoder còn lại (mỗi encoder một lượt `val`).
 
 
 

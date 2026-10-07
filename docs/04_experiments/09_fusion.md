@@ -171,9 +171,37 @@ encoder còn lại CHƯA có lượt `val` nên không làm ứng viên được
 - **Số ô `paper` ĐỔI theo lựa chọn** (2.736 / 2.716 trên `test`): cơ sở `paper` phụ thuộc cả nhãn ĐOÁN, nên
   đổi router là đổi mẫu số - luôn đọc số ô kèm con số (luật 1 của `metrics.md`).
 
-**ĐỀ XUẤT (chờ người dùng xác nhận): dùng `accuracy`** cho số báo cáo - vì nó đạt trần trên `val` (tập dùng để
-chọn) và hơn cả hai thành viên, còn `f1_âm` không chọn được gì khác ngoài lượt mạnh nhất. Nếu chốt `f1_âm` thì
-phải đọc kèm cả accuracy và nói rõ router chỉ bằng một lượt đơn.
+**Vì sao `f1_âm` "thoái hoá" ở bộ ứng viên này** - bảng người thắng của TỪNG khía cạnh trên `val`:
+
+| Khía cạnh | F1 âm trên `val` (phoBERT / ViSoBERT) | thắng | accuracy trên `val` (phoBERT / ViSoBERT) | thắng |
+| --- | --- | --- | --- | --- |
+| colour | 0,816 / 0,702 | phoBERT | 91,57 / **93,72** | ViSoBERT |
+| packing | **0,923** / 0,476 | phoBERT | **98,17** / 97,20 | phoBERT |
+| price | (0 ô âm) / (0 ô âm) | *rơi xuống accuracy* | **98,82** / 98,63 | phoBERT |
+| shipping | **0,981** / 0,952 | phoBERT | **97,06** / 94,86 | phoBERT |
+| smell | **0,925** / 0,873 | phoBERT | 98,09 / **98,36** | ViSoBERT |
+| stayingpower | **0,891** / 0,832 | phoBERT | 85,51 / **94,95** | ViSoBERT |
+| texture | **0,867** / 0,826 | phoBERT | 82,32 / **90,69** | ViSoBERT |
+
+`f1_âm` chọn **phoBERT cho CẢ 7 khía cạnh**, nên bản router **trùng khít** lượt phoBERT chạy một mình:
+trên `test`, bản gộp ra đúng `acc macro 93,28 · 2.736 ô · F1 âm macro 0,7757` - tức con số của MỘT lượt đơn.
+Đó là nghĩa hẹp của "thoái hoá": tiêu chí mất khả năng **phân biệt** nên router không chọn được gì mới.
+Ngược lại `accuracy` chọn **4 ViSoBERT + 3 phoBERT** ⇒ trộn thật, và bản trộn **hơn cả hai** lượt đơn trên
+`val` (95,97 so 95,49 / 93,08) - đúng bằng trần chọn-theo-khía-cạnh.
+
+**Phạm vi của kết luận này HẸP có chủ ý:** nó nói về **bộ ứng viên đang có là 2 lượt** (chỉ hai encoder có
+lượt `val`: `phobert-base-v2/lora/exp003`, `visobert/lora/exp003`; bốn encoder còn lại chưa có lượt `val` nên
+không làm ứng viên được). Có 4-5 ứng viên thì `f1_âm` rất có thể phân biệt được, nên **phải đo lại**; và vì
+tiêu chí đã nằm trong tệp luật đóng băng, đổi tiêu chí là việc phải **công bố**, không được sửa sau khi thấy
+`test`.
+
+**QUYẾT ĐỊNH (chốt 06/10/2026): BÁO CÁO CẢ HAI DÒNG.** Bảng riêng của router có **hai dòng** - một dòng
+`--criterion accuracy`, một dòng `--criterion f1_âm` - mỗi dòng ghi rõ **tiêu chí của nó**, số ô, và số của
+các lượt thành viên. Hai bản có **hai tệp luật đóng băng riêng** (`aspect_router_accuracy.json`,
+`aspect_router_f1am.json`) nên mỗi dòng gắn cứng với một luật: đây KHÔNG phải "chọn luật sau khi thấy `test`"
+- cả hai luật được chốt trên `val` rồi mới áp lên `test`. **Dòng `accuracy` là dòng chính** (khớp bảng
+accuracy theo khía cạnh của dự án); **dòng `f1_âm` là bản nghiêng về lớp âm**, và phải đọc kèm câu nói rõ nó
+**bằng một lượt đơn** (phoBERT) ở bộ ứng viên hiện tại.
 
 Chứng cứ đã commit: `aspect_router_f1am.json`, `aspect_router_accuracy.json`, `router_aspect_val_*.json`,
 `router_aspect_*.json` và `inputs/*.csv` của 4 lượt tham gia (tái lập bằng hai lệnh ở đầu mục 3.5 với
