@@ -304,6 +304,23 @@ class TestBootstrap(unittest.TestCase):
         self.assertEqual(lines[-1], "print(end_session())")
         self.assertIn("from src.api import end_session", source)
 
+    def test_o_ket_thuc_chiu_duoc_khi_chua_co_ket_qua(self):
+        """Ô SAU ô CHẠY phải chịu được việc `run_result` CHƯA có (luật đã ghi ở 10_template_notebook).
+
+        Vì sao là lỗi thật: lượt chạy có thể LỖI (hoặc tự dừng ở chế độ STOP) trước khi kịp có
+        `run_result`, và khi đó ô cuối đọc `run_result["out_dir"]` ném `NameError: run_result` - một
+        lỗi vô nghĩa làm người đọc tưởng notebook hỏng, trong khi lỗi THẬT nằm ở ô trên. Đã gặp thật
+        khi chạy smoke đợt 11 (lượt PhoBERT chết vì `SENTIMENTX_MODEL` trỏ nhầm sang Qwen3-4B).
+        """
+        source = self.cell_with("KẾT THÚC")
+        check = 'if "run_result" not in globals():'
+        self.assertIn(check, source, "ô kết thúc phải KIỂM `run_result` có hay chưa trước khi đọc")
+        self.assertLess(source.index(check), source.index('run_result["out_dir"]'),
+                        "phép kiểm phải đứng TRƯỚC chỗ đọc kết quả")
+        self.assertIn("else:", source)
+        # Nhánh "chưa có kết quả" phải NÓI VIỆC CẦN LÀM, không chỉ im lặng bỏ qua.
+        self.assertIn("errors.json", source)
+
 
 class TestConfigCell(unittest.TestCase):
     """Ô CẤU HÌNH ĐANG DÙNG phải in được cấu hình cho CẢ HAI đường chạy.
