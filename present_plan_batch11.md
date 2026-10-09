@@ -117,11 +117,14 @@ trong `README.md` của thí nghiệm để không ai tưởng là lỗi.
 - [x] Chốt kế hoạch, ghi ra tệp này
 - [x] Đ1: mã `lora.fit_generic` + `none.py` + `savers/head_only.py` + test (994 test xanh theo từng phần)
 - [x] Đ1: tạo 9 thí nghiệm + commit (`e38bb7d`); đã CHỨNG MINH mỗi lượt khác parent đúng 1 khoá đo được
-- [x] Đ1: push code (`1e34ffd`) rồi **ghim 9 notebook vào `1d172e1`** (bản `ci_checks` XANH, mã y hệt HEAD
-      vì `e38bb7d` chỉ thêm thư mục thí nghiệm) → commit `de20984` → push. `ci_checks` **9/9 sạch** +
-      994 test xanh trên trạng thái sau ghim
-- [ ] Đ1: **xác nhận CI GitHub xanh trên `de20984`** (CHỜ NGƯỜI DÙNG - máy không có `gh`)
-- [ ] Đ1: người dùng chạy 9 notebook trên Colab + thu kết quả (CỔNG 1)
+- [x] Đ1: push code (`1e34ffd`), ghim 9 notebook → `de20984` (CI **ĐỎ**: 4 test mới giả định máy có `torch`)
+- [x] Đ1: **sửa gốc** - `none.py` kiểm cấu hình TRƯỚC khi import thư viện nặng; sửa test lọc thông báo
+      "chưa cài thư viện". **Mô phỏng CI** bằng stub chặn `torch`/`transformers`: 15/15 test của
+      `test_none` chạy được, 2 test cần torch bỏ qua đúng cách
+- [x] Đ1: push `4a1dec8` + `017d9b1`, rồi **ghim lại 9 notebook vào `017d9b1`** → `398f80f` → push.
+      Trạng thái cuối: `ci_checks` 9/9 sạch + **994 test xanh** (chín nhánh)
+- [ ] Đ1: **xác nhận CI GitHub xanh trên `398f80f`** (CHỜ NGƯỜI DÙNG - máy không có `gh`)
+- [ ] Đ1: dựng gói 022 + người dùng chạy 9 notebook trên Colab (CỔNG 1)
 - [ ] Đ1: người dùng chạy trên Colab + thu kết quả (CỔNG 1)
 - [ ] Đ2 · Đ3 (CỔNG 2) · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
 
