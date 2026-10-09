@@ -318,3 +318,41 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
 
 
 
+
+## 9. Cập nhật 10/10/2026 - chạy smoke trên máy cá nhân, bốn lỗi nhỏ đã sửa
+
+**Ba lượt smoke (bộ tối thiểu đã chốt), chạy THẬT trên RTX 3050 6 GB:**
+
+| # | Lượt | Kết quả |
+| --- | --- | --- |
+| 1 | `phobert-base-v2/none/exp001` (SÀN) | **PASS** 6,9 giây: `trainable_params: 0` / `total_params: 135.014.421`, `số bước: 0`, sentiment macro-F1 0,126 (vô nghĩa ĐÚNG mức SÀN) ⇒ ống dẫn nạp-chấm-ghi đúng |
+| 2 | `phobert-base-v2/none/exp002` (LINEAR PROBE) | Đường chạy ĐÚNG: in `16149 tham số học / 135014421 tổng`, val F1 0,188 → 0,329, có lưu `model/best`. **Chủ động dừng** ở bước ~600/4.602 vì `--limit` KHÔNG rút ngắn phần huấn luyện (xem lỗi 4) |
+| 3 | `cafebert/none/exp001` (SÀN) | **PASS** 11,9 giây: `trainable_params: 0` / `total_params: 559.911.957`, `số bước: 0`, sentiment macro-F1 0,169 |
+
+Cả ba ghi đủ 7 tệp (đường encoder thêm `probabilities.csv`), và preflight in đúng dòng "đọc bản thí nghiệm
+khai v0.2.0, KHÔNG phải bản mới nhất" ⇒ **bản sửa lỗi chặn `data.version` của đợt 11 đã được xác nhận đầu-cuối**.
+
+**Bốn lỗi nhỏ do chính lượt smoke tìm ra, đã sửa (mỗi lỗi kèm test):**
+
+| Lỗi | Sửa | Test | Commit |
+| --- | --- | --- | --- |
+| `.env` còn dòng `SENTIMENTX_MODEL` ⇒ lượt PhoBERT nạp Qwen3-4B rồi chết `RuntimeError: bad allocation` | `plan()` **IN CẢNH BÁO** khi nguồn trọng số bị đè sang model KHÁC (`model_override_note`); trỏ vào thư mục CÙNG TÊN model thì im lặng | `test_experiment_run.py::ModelOverrideNoteTest` (4 ca) | `e2bfefd` |
+| Lượt SÀN in nhãn "ĐÓNG BĂNG - chỉ adapter học" dù nó KHÔNG có adapter nào | Nhãn lấy từ CÁCH HUẤN LUYỆN (`training.head_state`) chứ không từ mỗi `head.trainable` | `test_training.py::HeadStateByTrainerTest` (7 ca) | `4606df7` |
+| Mất sạch phần ghi nhận MLflow: `Cannot set a deleted experiment 'sentimentx-absa'` | Tự **KHÔI PHỤC** (hoặc TẠO LẠI) experiment rồi nối tiếp; không xong thì `[WARN] ... KHÔNG sửa được` | `test_tracking.py::DeletedExperimentTest` (7 ca) | `09598eb` |
+| Ô cuối notebook ném `NameError: run_result` khi ô CHẠY lỗi (trái luật đã ghi ở `10_template_notebook.md`) | Ô kết thúc có khối `if "run_result" not in globals():` in ra việc cần làm | `test_templates.py::test_o_ket_thuc_chiu_duoc_khi_chua_co_ket_qua` | `9a50b92` |
+
+**Thêm cờ `--smoke` / `--epochs` cho `scripts/run_notebook.py`** (`31da713`): `--limit` chỉ ép số MẪU CHẤM
+nên lượt chạy thử vẫn học hết 12.268 review × 3 epoch (1-2 giờ trên GPU 6 GB). `--smoke` = `--limit 8
+--epochs 1`; đã kiểm bằng tay rằng giá trị ép **đi tới tận** `plan()["training"]["epochs"] = 1`. Kèm theo
+đó sửa câu nói **SAI** rằng tên thư mục kết quả có `n8` (tên thư mục là mã băm của danh tính lượt chạy,
+không mang dấu nào) - muốn biết một thư mục là lượt chạy thử thì đọc `subset.limit` và `training.epochs`
+trong chính `metrics.json` của nó. Tài liệu: `2c55487`.
+
+**Ba thư mục kết quả smoke** (untracked, KHÔNG tính vào bảng điểm, xoá được bất cứ lúc nào):
+`experiments/phobert-base-v2/none/exp001/results/`, `.../exp002/results/`, `experiments/cafebert/none/exp001/results/`.
+
+**Một test đỏ CÓ SẴN TỪ TRƯỚC, không do đợt này**: `tests/training/test_full.py::FullBuildModelTest::
+test_every_parameter_is_trainable` - `mock.patch("transformers.AutoModel")` gặp `KeyError: 'AutoModel'`
+khi chạy CẢ bộ test nhưng PASS khi chạy riêng (`transformers` 5.17 nạp lười thuộc tính đó). Đã chứng minh
+bằng cách cất TOÀN BỘ thay đổi của đợt này rồi chạy lại: `Ran 1054 ... FAILED (errors=1)` y hệt.
+

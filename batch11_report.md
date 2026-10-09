@@ -310,3 +310,13 @@ Tám điều kiện đang được áp. Nhìn vào chúng là biết phép so c�
   `docs/04_experiments/08_experiment_rationale.md`.
 
 
+
+## Cập nhật 10/10/2026 - bốn lỗi nhỏ tìm ra khi chạy smoke
+
+- Bốn bản sửa (kèm test) đã vào `e2bfefd`, `4606df7`, `09598eb`, `9a50b92`; cờ `--smoke`/`--epochs` vào
+  `31da713`; tài liệu vào `2c55487`. Chi tiết + bằng chứng ở `present_plan_batch11.md` §9.
+- **KHÔNG ảnh hưởng số trong báo cáo này**: cả bốn đều là lỗi CHỮ NGHĨA / ĐƯỜNG CHẠY (nhãn in sai, thiếu
+  cảnh báo khi bị đè model, mất phần ghi nhận DagsHub, ô cuối ném `NameError`) - không lỗi nào đổi cách
+  chấm điểm. Ba lượt smoke chạy trên bản code TRƯỚC khi sửa cũng chỉ để xác nhận ống dẫn, và nằm ở thư mục
+  kết quả riêng (`subset.limit: 8` ghi rõ trong `metrics.json` của chúng).
+
