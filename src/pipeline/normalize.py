@@ -68,6 +68,16 @@ def normalize_steps(text, ncfg, max_repeat):
         if step != result:
             changed.append("khoảng trắng")
         result = step
+    if ncfg.get("remove_emoji"):
+        step = utils.remove_emoji(result)
+        # Review CHỈ có emoji (không còn chữ nào) thì GIỮ NGUYÊN bản gốc. Bỏ hết emoji ở đó sẽ tạo
+        # một dòng RỖNG, mà bước Clean (bước duy nhất loại review rỗng) đã chạy TRƯỚC bước này nên
+        # không còn ai loại nó nữa. Số review rơi vào trường hợp này được đếm trong
+        # `empty_after` của báo cáo bước Normalize.
+        if step.strip():
+            if step != result:
+                changed.append("emoji")
+            result = step
     if ncfg["repeated_chars"]:
         step = utils.collapse_repeated_chars(result, int(max_repeat))
         if step != result:
@@ -95,6 +105,8 @@ def run(context):
         method_labels.append("unicode (NFC)")
     if ncfg["whitespace"]:
         method_labels.append("khoảng trắng")
+    if ncfg.get("remove_emoji"):
+        method_labels.append("emoji")
     if ncfg["repeated_chars"]:
         method_labels.append("ký tự lặp")
 
@@ -159,12 +171,19 @@ def run(context):
         ["lowercase (chuyển về chữ thường)", utils.on_off(ncfg["lowercase"])],
         ["unicode (chuẩn hoá Unicode NFC)", utils.on_off(ncfg["unicode"])],
         ["whitespace (chuẩn hoá khoảng trắng)", utils.on_off(ncfg["whitespace"])],
+    ]
+    # Dòng này CHỈ xuất hiện ở phiên bản pipeline có khai khoá `remove_emoji` (từ v0.3.0): bản
+    # v0.1.0 và v0.2.0 không có khoá đó, nên bảng cấu hình của chúng giữ NGUYÊN số dòng như trước.
+    if "remove_emoji" in ncfg:
+        config_rows.append(
+            ["remove_emoji (bỏ emoji khỏi review)", utils.on_off(ncfg["remove_emoji"])])
+    config_rows.extend([
         ["repeated_chars (rút gọn ký tự lặp)", utils.on_off(ncfg["repeated_chars"])],
         ["repeated_chars_max (số lần ký tự được giữ lại)",
          max_repeat],
         ["phạm vi được SỬA (apply_to)", ", ".join(editable)],
         ["split giữ nguyên bản gốc (không chuẩn hoá)", ", ".join(protected) or "-"],
-    ]
+    ])
 
     # Biểu đồ chỉ vẽ các phép ĐANG BẬT, nên đổi config là biểu đồ đổi theo.
     change_chart = {

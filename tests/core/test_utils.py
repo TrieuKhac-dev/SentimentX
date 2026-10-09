@@ -76,5 +76,37 @@ class WriteCsvTest(unittest.TestCase):
         self.assertEqual(len(path.read_text(encoding="utf-8-sig").splitlines()), 3)
 
 
+class RemoveEmojiTest(unittest.TestCase):
+    """`utils.remove_emoji` - phép chuẩn hoá mới của pipeline v0.3.0.
+
+    Định nghĩa emoji là định nghĩa DÙNG CHUNG với EDA (`EMOJI_PATTERN`), nên số review mà bước
+    Normalize báo là "bị thay đổi" đọc ngang được với số "có emoji" mà EDA đã công bố. Nếu ở đây
+    dùng một biểu thức riêng thì hai con số lệch nhau mà không ai biết vì sao.
+    """
+
+    def test_bo_emoji_va_gop_khoang_trang(self):
+        self.assertEqual(utils.remove_emoji("đẹp ❤️ quá"), "đẹp quá")
+
+    def test_khong_co_emoji_thi_giu_nguyen(self):
+        self.assertEqual(utils.remove_emoji("son đẹp thật"), "son đẹp thật")
+
+    def test_chi_co_emoji_thi_tra_chuoi_rong(self):
+        # Hàm này KHÔNG tự giữ lại: việc giữ nguyên review chỉ có emoji thuộc về bước Normalize
+        # (`normalize_steps`), nơi biết bước Clean đã chạy trước đó rồi.
+        self.assertEqual(utils.remove_emoji("🥰🥰"), "")
+
+    def test_emoji_gia_dinh_va_tong_mau_da(self):
+        self.assertEqual(utils.remove_emoji("nhà 👨‍👩‍👧 vui 👍🏻"), "nhà vui")
+
+    def test_cat_khoang_trang_thua_o_hai_dau(self):
+        self.assertEqual(utils.remove_emoji("  😊 đẹp  "), "đẹp")
+
+    def test_nhat_quan_voi_has_emoji(self):
+        for text in ("đẹp ❤️ quá", "nhà 👨‍👩‍👧 vui", "ok 😊!!", "không có gì"):
+            with self.subTest(text=text):
+                if not utils.has_emoji(text):
+                    self.assertEqual(utils.remove_emoji(text), text)
+
+
 if __name__ == "__main__":
     unittest.main()

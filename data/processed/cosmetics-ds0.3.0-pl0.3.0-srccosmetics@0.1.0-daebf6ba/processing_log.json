@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "version_id": "cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba",
+  "dataset": {
+    "name": "cosmetics",
+    "version": "v0.3.0",
+    "config": "configs/datasets/cosmetics/v0.3.0.yaml",
+    "config_sha256": "1130901539ca0a349960794e3f6edf4b1bf806c48810fb0699ea7f08873e84d4",
+    "sources": [
+      {
+        "kind": "raw",
+        "name": "cosmetics",
+        "version": "v0.1.0",
+        "dir": "data/raw/cosmetics/v0.1.0",
+        "files": [
+          {
+            "name": "data_train.csv",
+            "sha256": "53486079c41a902e2de87bac98da1ae68cd9d5881685bfa59391c5a3e0037944"
+          },
+          {
+            "name": "data_val.csv",
+            "sha256": "6d8c959fb7c44b5ad08bc9c19e48d641474ac9480b857dcea3ececd8d00dd1f7"
+          },
+          {
+            "name": "data_test.csv",
+            "sha256": "4c6157503647c7d2df0a03f57d3fd4a1b1d9b5f69cb59706a472891317b0fbdf"
+          },
+          {
+            "name": "full_data.csv",
+            "sha256": "edaa772264be7ce4804027e2f159380a0546f7ffa0bf879d5b46effbc59eb5ca"
+          }
+        ]
+      }
+    ]
+  },
+  "pipeline": {
+    "version": "v0.3.0",
+    "config": "configs/pipeline/v0.3.0.yaml",
+    "config_sha256": "de49843280a91cc777dc85d40ed4f2960f2c053ed2792fcf55da05c9b7304d18",
+    "settings": {
+      "version": "v0.3.0",
+      "parent": "v0.2.0",
+      "notes": "Khác v0.2.0 đúng MỘT điều: bước Normalize có thêm khoá `remove_emoji: true`, bỏ emoji khỏi văn bản của `train` và `val` trước khi đưa vào model. Mục đích là trả lời câu hỏi phản biện \"tiền xử lý emoji có ảnh hưởng tới kết quả không\" bằng một PHÉP ĐO thật thay vì suy đoán: số review có emoji chỉ chiếm khoảng 14% mỗi split (1.931/12.981 ở train, 233/1.623 ở val), nên đây là phép can thiệp nhỏ, và mọi chênh lệch quan sát được đều phải đọc kèm biên nhiễu +-0,7 điểm. `test` VẪN KHÔNG BỊ SỬA (như v0.2.0): văn bản của test giữ nguyên từng ký tự, kể cả emoji - đó là điều kiện để còn so được với công bố tham chiếu. Review CHỈ gồm emoji (không còn chữ nào) thì được GIỮ NGUYÊN: bỏ hết sẽ tạo dòng rỗng, mà bước Clean - bước duy nhất loại review rỗng - đã chạy trước bước Normalize. Đây là lựa chọn có chủ ý, không phải sót.\n",
+      "steps": {
+        "validate": {
+          "check_schema": true,
+          "check_content": true
+        },
+        "clean": {
+          "apply_to": [
+            "train",
+            "val"
+          ],
+          "remove_empty": true,
+          "remove_gibberish": true,
+          "remove_ads": true,
+          "remove_code": true,
+          "deduplicate": {
+            "exact": true,
+            "normalized": true,
+            "ignore_diacritics": false,
+            "scope": "within_split",
+            "conflict_policy": "quarantine"
+          },
+          "leakage": {
+            "keep_priority": [
+              "test",
+              "val",
+              "train"
+            ]
+          }
+        },
+        "normalize": {
+          "apply_to": [
+            "train",
+            "val"
+          ],
+          "lowercase": false,
+          "unicode": true,
+          "whitespace": true,
+          "remove_emoji": true,
+          "repeated_chars": false
+        },
+        "transform": {
+          "format": "multi_head"
+        }
+      },
+      "thresholds": {
+        "repeated_chars_max": 2
+      }
+    }
+  },
+  "record_counts": {
+    "before": {
+      "train": 12981,
+      "val": 1623,
+      "test": 1623
+    },
+    "after": {
+      "train": 12268,
+      "val": 1535,
+      "test": 1623
+    },
+    "removed_total": 801
+  },
+  "number_of_validation_issues": 0,
+  "number_of_json_records": 13219,
+  "outputs": [
+    "train.csv",
+    "val.csv",
+    "test.csv",
+    "label_map.json"
+  ],
+  "eval_lock": {
+    "enforce": true,
+    "declared_sha256": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38",
+    "declared_records_sha256": null,
+    "measured": {
+      "schema": 1,
+      "file": "test.csv",
+      "sha256": "af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38",
+      "records_sha256": "73d39d84536b14e35c07bc2012e8059ee9867165629b029ed24bddcf3eda3cb6",
+      "rows": 1623
+    },
+    "match": true,
+    "lock_file": "data/processed/cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba/eval_lock.json",
+    "written": true
+  }
+}

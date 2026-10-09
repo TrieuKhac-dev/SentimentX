@@ -1,0 +1,84 @@
+# Phiên bản 3 của dataset cosmetics: dữ liệu gốc v0.1.0 đi qua pipeline v0.3.0.
+#
+# File này BẤT BIẾN. Nội dung của nó, cùng file pipeline và nội dung dữ liệu gốc, đi vào mã
+# phiên bản dữ liệu, nên sửa tại chỗ là hai định nghĩa khác nhau mang cùng một nhãn và kết
+# quả cũ không còn tra được. Muốn đổi thì tạo file mới.
+# Xem docs/05_config/03_datasets.md.
+
+schema_version: 1
+name: cosmetics
+
+# Nhãn phiên bản dataset, trùng tên file.
+version: v0.3.0
+
+# Nguồn đi vào dataset. Mỗi phần tử có `kind` riêng: raw hoặc dataset.
+sources:
+  - kind: raw
+    name: cosmetics
+    raw_version: v0.1.0
+
+# Phiên bản pipeline dùng để tạo dataset này.
+pipeline_version: v0.3.0
+
+# Định dạng file nguồn; thêm định dạng mới thì thêm một loader trong src/loaders/.
+format: csv
+
+# Tên file trong thư mục dữ liệu gốc, đúng như khi nhận được.
+splits:
+  train: data_train.csv
+  val: data_val.csv
+  test: data_test.csv
+
+# File gộp toàn bộ dữ liệu, dùng để đối chiếu.
+full: full_data.csv
+
+schema:
+  # Cột chứa nội dung review trong file gốc.
+  text:
+    column: data
+  # Dataset chưa có cột định danh; để null, dành chỗ khi nào có.
+  id:
+    column: null
+  aspects:
+    - stayingpower
+    - texture
+    - smell
+    - price
+    - colour
+    - shipping
+    - packing
+  labels:
+    - positive
+    - negative
+    - neutral
+  # Cột có trong file gốc nhưng KHÔNG dùng: "others" chỉ có nhãn neutral và ô trống,
+  # không mang tín hiệu phân loại cảm xúc.
+  drop:
+    - others
+  keep: []
+
+# Cách xử lý khi các nguồn có bộ khía cạnh khác nhau. Hiện chỉ có một nguồn.
+aspect_policy: union
+
+parent: v0.2.0
+notes: >
+  Bản thứ ba: dữ liệu gốc v0.1.0 đi qua pipeline v0.3.0 (bỏ emoji ở train + val). `test` KHÔNG bị
+  sửa - như v0.2.0, và đây là bản duy nhất khác v0.2.0 ở đúng MỘT phép chuẩn hoá của hai tập HỌC.
+  Dùng cho nhánh phản biện "tiền xử lý emoji có đổi kết quả không": cùng model, cùng siêu tham số,
+  chỉ khác `data.version` (v0.3.0 so với v0.2.0).
+
+# Chốt tập đánh giá để kết quả so được với công bố tham chiếu.
+# Ba giá trị dưới đây là số ĐO ĐƯỢC của `test.csv` - CHÉP NGUYÊN từ v0.2.0, không phải chạy thử
+# lại: `test` không nằm trong `apply_to` của Clean lẫn Normalize ở cả hai phiên bản, nên file
+# test.csv sinh ra phải từng byte giống nhau. Khai trước rồi mới chạy, vì file phiên bản là bất
+# biến sau khi dùng.
+# `records_sha256` trong `eval_lock.json` (băm theo BẢN GHI, bỏ qua định dạng file) mới là giá trị
+# được ĐỐI CHIẾU; `sha256` ở đây là dấu vết của bản đã công bố. Trên Windows, cùng một nội dung có
+# thể ra byte khác bản trên Colab (kiểu xuống dòng khi checkout git) - lệch byte mà vân tay bản ghi
+# khớp chỉ là ghi chú, không phải lỗi. Xem docs/06_plan/P7_rerun.md.
+eval_lock:
+  enforce: true
+  test:
+    file: test.csv
+    sha256: af349bf51739884b545e277ac5e0f8492e6a59aaba2739cd9fcb171ed3beba38
+    rows: 1623

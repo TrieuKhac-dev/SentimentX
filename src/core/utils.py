@@ -317,6 +317,29 @@ def count_emoji(text):
     return len(EMOJI_PATTERN.findall(text))
 
 
+def remove_emoji(text):
+    """Bỏ emoji khỏi review, giữ nguyên phần chữ còn lại.
+
+    Dùng ĐÚNG `EMOJI_PATTERN` mà `has_emoji` / `count_emoji` của EDA dùng, nên số review mà bước
+    Normalize nói là "bị thay đổi" đọc lại được bằng con số EDA đã công bố - hai định nghĩa emoji
+    không thể lệch nhau.
+
+    Sau khi bỏ, khoảng trắng dư được gộp lại NGAY TRONG HÀM NÀY (không để bước "khoảng trắng" làm hộ):
+    bước đó chạy TRƯỚC, nên "đẹp  quá" sẽ ở lại giữa văn bản nếu chờ nó. Ví dụ "đẹp ❤️ quá" -> "đẹp quá".
+
+    BA PHÉP GỘP Ở ĐÂY PHẢI LÀ BẢN SAO CỦA `normalize_whitespace` (gộp space/tab, bỏ space quanh xuống
+    dòng, cắt hai đầu) - KHÔNG phải `re.sub(r"\\s+", " ")`. Bản `\\s+` nuốt CẢ KÝ TỰ XUỐNG DÒNG, nên
+    nó sửa cả những review KHÔNG hề có emoji: đo được 4.158 dòng đổi ở `train` trong khi chỉ 1.877
+    dòng thật sự có emoji (lỗi thật, phát hiện bằng phép so từng dòng giữa hai phiên bản dữ liệu).
+    Với ba phép này, văn bản KHÔNG có emoji đi qua hàm mà KHÔNG ĐỔI MỘT KÝ TỰ - vì nó đã ở đúng dạng
+    chuẩn sau bước "khoảng trắng" chạy trước đó.
+    """
+    cleaned = EMOJI_PATTERN.sub(" ", text)
+    cleaned = re.sub(r"[ \t]+", " ", cleaned)
+    cleaned = re.sub(r" *\n *", "\n", cleaned)
+    return cleaned.strip()
+
+
 def has_repeated_chars(text, min_repeat=config.REPEATED_CHAR_MIN):
     """Review có ký tự lặp liên tiếp từ min_repeat lần trở lên hay không."""
     pattern = re.compile(r"(.)\1{%d,}" % (min_repeat - 1), re.UNICODE)

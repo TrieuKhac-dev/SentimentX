@@ -1,0 +1,64 @@
+# Phiên bản 3 của cách xử lý dữ liệu: BỎ EMOJI Ở TẬP HỌC (train, val).
+#
+# File này BẤT BIẾN: nội dung của nó đi vào mã phiên bản dữ liệu, nên sửa tại chỗ sẽ làm hai
+# định nghĩa khác nhau mang cùng một nhãn và kết quả cũ không còn tra được. Muốn đổi thì tạo
+# file mới. Xem docs/05_config/02_pipeline.md.
+
+version: v0.3.0
+
+# Phiên bản trước đó; null nghĩa là bản đầu tiên.
+parent: v0.2.0
+
+notes: >
+  Khác v0.2.0 đúng MỘT điều: bước Normalize có thêm khoá `remove_emoji: true`, bỏ emoji khỏi văn
+  bản của `train` và `val` trước khi đưa vào model. Mục đích là trả lời câu hỏi phản biện "tiền xử
+  lý emoji có ảnh hưởng tới kết quả không" bằng một PHÉP ĐO thật thay vì suy đoán: số review có
+  emoji chỉ chiếm khoảng 14% mỗi split (1.931/12.981 ở train, 233/1.623 ở val), nên đây là phép
+  can thiệp nhỏ, và mọi chênh lệch quan sát được đều phải đọc kèm biên nhiễu +-0,7 điểm.
+  `test` VẪN KHÔNG BỊ SỬA (như v0.2.0): văn bản của test giữ nguyên từng ký tự, kể cả emoji - đó
+  là điều kiện để còn so được với công bố tham chiếu.
+  Review CHỈ gồm emoji (không còn chữ nào) thì được GIỮ NGUYÊN: bỏ hết sẽ tạo dòng rỗng, mà bước
+  Clean - bước duy nhất loại review rỗng - đã chạy trước bước Normalize. Đây là lựa chọn có chủ ý,
+  không phải sót.
+
+# Bật/tắt từng bước. true = có biến đổi, false = giữ nguyên.
+steps:
+  # Chỉ kiểm tra, không sửa dữ liệu.
+  validate:
+    check_schema: true
+    check_content: true
+
+  clean:
+    # PHẠM VI: chỉ hai tập này được SỬA. `test` không có tên ở đây, nên MỌI dòng của nó - kể cả
+    # dòng nhiễu - được giữ nguyên.
+    apply_to: [train, val]
+    remove_empty: true
+    remove_gibberish: true
+    remove_ads: true
+    remove_code: true
+    deduplicate:
+      exact: true
+      normalized: true
+      ignore_diacritics: false
+      scope: within_split
+      conflict_policy: quarantine
+    leakage:
+      keep_priority: [test, val, train]
+
+  normalize:
+    # Như Clean: văn bản của test giữ nguyên từng ký tự.
+    apply_to: [train, val]
+    lowercase: false
+    unicode: true
+    whitespace: true
+    # ĐIỂM KHÁC DUY NHẤT so với v0.2.0. Dùng đúng định nghĩa emoji của EDA (`utils.EMOJI_PATTERN`,
+    # kể cả tông màu da và chuỗi nối ZWJ), nên con số "số review bị đổi" ở bước Normalize đọc
+    # ngang được với số "có emoji" mà EDA 03 đã công bố.
+    remove_emoji: true
+    repeated_chars: false
+
+  transform:
+    format: multi_head
+
+thresholds:
+  repeated_chars_max: 2
