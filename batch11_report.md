@@ -8,10 +8,11 @@
 > cơ sở `all` thì đọc theo `all`. Số lấy từ `experiments/**/results/<hash8>/metrics.json`, KHÔNG lấy từ
 > `data/reports/**`. Mục nào còn chờ lượt chạy thì ghi **CHỜ KẾT QUẢ**.
 
-## Trạng thái đợt 11: 48 lượt mới đã tạo + ghim (Đ1-Đ7), 6 lượt LLM còn chặn vì repo GATED
+## Trạng thái đợt 11: 48 lượt mới đã tạo + ghim (Đ1-Đ7) - **0/48 đã chạy**; 6 lượt LLM còn chặn vì repo GATED
 
 Mọi lượt dưới đây **đã tạo, đã ghim vào một commit có thật trên `origin/experiment`, và đã đóng gói bàn
-giao** (`handover/out/`, gói duy nhất **028** - thay cho 022/023/024/026/027). Cột "khác cha" là khoá DUY
+giao** (`handover/out/`, gói duy nhất **029** - thay cho 022/023/024/026/027/028; bản 029 chỉ sửa TÀI LIỆU
+trong README của gói, 48 notebook y nguyên). Cột "khác cha" là khoá DUY
 NHẤT khác lượt cha - đã kiểm bằng phép so cấu hình ĐÃ HỢP NHẤT, không bằng mắt.
 
 **Lỗi chặn đã sửa 09/10/2026 (trước khi có lượt nào chạy xong).** Người chạy mở 8 notebook đầu tiên của
@@ -31,7 +32,7 @@ Cách sửa (3 commit `7d69b32`, `4f65864`, `c96dec8`): nạp file phiên bản 
 CŨ là hợp lệ (chỉ còn một **dòng ghi chú** "đọc bản thí nghiệm khai, KHÔNG phải bản mới nhất"); khai một bản
 **không tồn tại** thì vẫn DỪNG kèm danh sách bản đang có. Khoá bằng 5 test mới, và kiểm bằng chính công cụ
 của dự án: `run_notebook.py <exp> --preflight-only` cho **48/48 notebook xanh** ở commit ghim mới
-(`4f65864`), trong đó có đủ 8 notebook đã chặn người chạy hôm nay. Gói **028** mang đúng 48 notebook đó,
+(`4f65864`), trong đó có đủ 8 notebook đã chặn người chạy hôm nay. Gói **029** (nối tiếp **028**) mang đúng 48 notebook đó,
 giữ nguyên cấu hình và thứ tự chạy.
 
 | Nhóm | Lượt | Số | Khác cha ở đâu | Trạng thái |

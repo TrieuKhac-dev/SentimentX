@@ -49,16 +49,21 @@
 
 ## 4. Tổng quan 8 đợt
 
-| Đợt | Nội dung | Lượt | ~GPU | Mục |
-| --- | --- | --- | --- | --- |
-| Đ1 | `trainer: none` (SÀN + PROBE) ×2 model · `best_metric: accuracy_cell` ×3 · thước nhiễu head ×2 | 9 | ~2 h | 1, 3, 4 |
-| Đ2 | Tiền xử lý: segmentation ×3 · `underthesea` ×3 · `pyvi` ×3 · icon ×3 + pipeline `v0.3.0` | 12 | ~3 h | 2 |
-| Đ3 | Wave 1 tham số LoRA ×2 model | 10 | ~2,5 h | 5 |
-| Đ4 | `focal` · `inverse_by_aspect` · DoRA ×2 model | 6 | ~1,5 h | 6, 7 |
-| Đ5 | Full fine-tune ×2 model (+ partial FT tuỳ chọn ×2) | 2 (+2) | ~1,5-3 h | 1, 7 |
-| Đ6 | Qwen3-8B ×3 mức · Qwen3-4B-Thinking (DÒ + 1 lượt) | 5 | ~2-4 h | 9 |
-| Đ7 | Llama-3.1-8B · Mistral-7B · Vistral-7B ×3 mức | 9 | ~5 h | 10 |
-| Đ8 | Viết báo cáo (10 mục) | 0 | 0 | 8, 11 |
+| Đợt | Nội dung | Lượt (kế hoạch) | Đã tạo | ~GPU | Mục |
+| --- | --- | --- | --- | --- | --- |
+| Đ1 | `trainer: none` (SÀN + PROBE) ×2 model · `best_metric: accuracy_cell` ×3 · thước nhiễu head ×2 | 9 | 9 | ~2 h | 1, 3, 4 |
+| Đ2 | Tiền xử lý: segmentation ×3 · `underthesea` ×3 · `pyvi` ×3 · icon ×3 + pipeline `v0.3.0` | 12 | 12 | ~3 h | 2 |
+| Đ3 | Wave 1 tham số LoRA ×2 model | 10 | 10 | ~2,5 h | 5 |
+| Đ4 | `focal` · `inverse_by_aspect` · DoRA ×2 model | 6 | 6 | ~1,5 h | 6, 7 |
+| Đ5 | Full fine-tune ×2 model (+ partial FT tuỳ chọn ×2) | 2 (+2 tuỳ chọn) | **3** | ~1,5-3 h | 1, 7 |
+| Đ6 | Qwen3-8B ×3 mức · Qwen3-4B-Thinking (DÒ + 1 lượt) | 5 | 5 | ~2-4 h | 9 |
+| Đ7 | Llama-3.1-8B · Mistral-7B · Vistral-7B ×3 mức | 9 | **3** (6 lượt Llama/Vistral CHƯA TẠO: repo GATED) | ~5 h | 10 |
+| Đ8 | Viết báo cáo (10 mục) | 0 | 0 (báo cáo; xem §7) | 0 | 8, 11 |
+
+**Cộng: kế hoạch 53 lượt bắt buộc (+2 tuỳ chọn) → ĐÃ TẠO 48** = 9 + 12 + 10 + 6 + 3 + 5 + 3. Hai chỗ lệch
+kế hoạch: Đ5 nhiều hơn **1** lượt (thêm `cafebert/full/exp001` khi tách `lr` của PhoBERT), Đ7 thiếu **6** lượt
+GATED. Đây cũng đúng là con số của gói bàn giao (48 notebook), và **0/48 lượt đã chạy** (kiểm 09/10/2026:
+không lượt nào trong 48 có thư mục kết quả - xem mục rà soát ở §7).
 
 ## 5. Đ1 - chi tiết (đợt đang làm)
 
@@ -260,6 +265,11 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       **48/48** notebook vào `4f65864` (commit `c96dec8`); kiểm bằng chính công cụ dự án:
       `run_notebook.py <exp> --preflight-only` cho **48/48 xanh** (có đủ 8 notebook đã chặn). Gói mới:
       **`SentimentX-goi-028-c96dec8-261009.zip`** (49 file) - giữ nguyên 48 notebook, cấu hình và thứ tự chạy.
+      Sau đó phát hành **`SentimentX-goi-029-...`** (09/10/2026): bản này **chỉ sửa TÀI LIỆU trong
+      `handover/README.md`** - thêm **dòng cộng đủ 48** ngay dưới tiêu đề bảng thứ tự chạy, sửa cách đếm dòng
+      "~13-16 phút" (`exp011` → `exp023` là **13** lượt, không phải 14), và gắn nhãn **CHỜ NHÓM GHIM LẠI** cho
+      `qwen3-4b-thinking-2507/prompt-cot/exp002`. 48 notebook y nguyên, cùng một revision; không sửa code,
+      config hay dữ liệu.
 - [x] **Kiểm OFFLINE tokenizer 3 LLM mới + 3 bộ tách từ (09/10/2026)**: prompt dựng đúng chat template
       từng họ (`<|im_start|>system...` cho hai bản Qwen, `<s>[INST] ...` cho Mistral) và số token đo lại
       **khớp đúng** bảng đã ghi: 5 ví dụ ở `test` - `qwen3-8b` TB 1.878,34 / max **1.993** (ngưỡng 2304,
@@ -277,6 +287,22 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       của các encoder quá 25 phút dù CPU vẫn chạy, nên đã dừng; công cụ này không in tiến độ nên không biết
       đang ở model nào. KHÔNG chạy nền kèm chuyển hướng output: `py-vncorenlp` trao đổi với tiến trình Java
       qua stdio nên chuyển hướng là treo.
+- [x] **RÀ SOÁT TOÀN KẾ HOẠCH (09/10/2026) - đếm lại bằng chính file trên đĩa, không bằng trí nhớ**:
+      **115** thí nghiệm trong repo = **48** lượt đợt 11 (tất cả ghim `4f65864`) + **67** lượt cũ (12 revision cũ).
+      **0/48** lượt mới có thư mục kết quả ⇒ 48 lượt "đã tạo + đã ghim + đã gói" nhưng **CHƯA CHẠY**; **61** thư mục
+      kết quả trên đĩa đều của lượt cũ, trong đó 5 thư mục có 2 bản ghi = đúng "năm thư mục kết quả HỎNG 04/10"
+      mà `handover/README.md` nói. **CHƯA TẠO**: 6 lượt GATED (`llama-3.1-8b-instruct` ×3, `vistral-7b-chat` ×3 -
+      không có thư mục `experiments/llama*`/`vistral*` nào) + 2 lượt partial FT tuỳ chọn của Đ5 (không có thư mục
+      method `partial` nào). **6 lượt CŨ không có kết quả**: `qwen3-0.6b/prompt-cot/exp006-007` và
+      `qwen3-4b-instruct-2507/prompt-cot/exp018-021` - cần xác nhận là cố ý (ngoài phạm vi đợt 11).
+      **Hai lỗi ĐẾM trong tài liệu (không phải lỗi code/config) đã sửa**: `handover/README.md` ghi dòng "~13-16
+      phút" là "(14 lượt)" cho `exp011` → `exp023` (đúng: **13**; 14 là số của cả dòng) - chính lỗi này làm một
+      người đọc bảng đếm ra 49 lượt; và bảng §4 ở trên ghi Đ5 "2" trong khi đã tạo **3**. Nay bảng thứ tự chạy có
+      **dòng cộng 2+4+2+1+2+14+14+6+1+1+1 = 48**, lượt `qwen3-4b-thinking-2507/prompt-cot/exp002` có nhãn **CHỜ
+      NHÓM GHIM LẠI**, và §4 có thêm cột **Đã tạo**. **CI (luật 22)**: mọi run từ `0d9de8a` trở đi đều XANH;
+      riêng `4f65864` không có run mang đúng SHA đó vì `4f65864` và `c96dec8` đi trong CÙNG một lần `push` nên
+      GitHub chỉ chạy cho đỉnh (`c96dec8` = xanh) - nội dung `4f65864` đã được CI kiểm trong run đó, bản ghim là
+      đáng tin; ai muốn có run mang đúng SHA thì đẩy thêm một commit rỗng, **không** cần ghim lại notebook nào.
 - [ ] Đ8 (báo cáo): các mục M1/M2/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 

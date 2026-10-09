@@ -18,12 +18,20 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-028-<mã>-261009.zip`** - 48 notebook, và **cả 48 ghim vào
+> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-029-<mã>-261009.zip`** - 48 notebook, và **cả 48 ghim vào
 > cùng một revision** (cùng một bản code, nên không thể lẫn hai bản giữa các lượt). Các gói **022/023/024/
-> 026/027** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế, **027** bị
-> **028** thay thế) - nếu bạn đã tải chúng thì cứ dùng **028** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11"
-> bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem bảng ở mục "Đợt 11 - thứ tự chạy" (gần cuối
-> file này).
+> 026/027/028** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế, **027** bị
+> **028** thay thế, **028** bị **029** thay thế) - nếu bạn đã tải chúng thì cứ dùng **029** là đủ, khỏi ghép
+> nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem bảng ở mục
+> "Đợt 11 - thứ tự chạy" (gần cuối file này).
+>
+> **Vì sao 028 bị 029 thay (09/10/2026):** bản 029 chỉ sửa **TÀI LIỆU trong chính file này** - không sửa một
+> dòng code, một config hay một notebook nào (48 notebook y nguyên, cùng revision). Hai chỗ gây **đếm sai**
+> đã sửa: (1) dòng "~13-16 phút" ghi `exp011` → `exp023` là "14 lượt" trong khi khoảng đó có **13** lượt (14
+> là số của **cả dòng**, tính thêm `exp008`) - đã có người đọc bảng này và đếm ra 49 lượt; (2) lượt
+> `qwen3-4b-thinking-2507/prompt-cot/exp002` chưa được đánh dấu rõ là **CHỜ NHÓM GHIM LẠI**. Nay ngay dưới
+> tiêu đề bảng có **dòng cộng đủ 48**, và lượt `exp002` có nhãn riêng. Bản 028 (và 027 trở về trước) không
+> có gì sai về nội dung chạy - nhưng nếu đã tải 028 thì cứ dùng **029** cho khỏi lẫn khi đếm.
 >
 > **Vì sao gói 027 bị 028 thay (09/10/2026):** bản 027 chạy ra lỗi ngay ở ô kiểm trước và dừng **45/48**
 > notebook: *"Thí nghiệm khai `data.version` v0.2.0 nhưng file config dataset khai v0.3.0"*. Lỗi nằm ở phía
@@ -364,15 +372,20 @@ tải khi chạy, KHÔNG phải chép gì lên Drive. Nếu muốn chạy offlin
 
 ### Đợt 11 - thứ tự chạy 48 notebook (xếp theo thời gian GIẢM DẦN)
 
+**Cộng cả bảng: 2 + 4 + 2 + 1 + 2 + 14 + 14 + 6 + 1 + 1 + 1 = 48 notebook.** Số trong ngoặc của một dòng
+là số lượt **của khoảng `exp` ghi ngay trước nó**, KHÔNG phải số lượt của cả dòng - hai chỗ dễ đếm sai:
+dòng ~15-20 phút có 13 lượt `cafebert/lora` **cộng** `cafebert/none/exp002` = 14; dòng ~13-16 phút có 13
+lượt `phobert-base-v2/lora` **cộng** `lora/exp008` = 14.
+
 | Bậc | Notebook | Trả lời câu gì |
 | --- | --- | --- |
 | ~60-90 phút | `qwen3-8b/prompt-cot/exp003` · `mistral-7b-instruct-v0.3/prompt-cot/exp003` | LLM 5 ví dụ - đắt nhất, nên vào **phiên Colab mới** |
 | ~40-60 phút | `qwen3-8b/prompt-cot/exp001` · `exp002` · `mistral-7b-instruct-v0.3/prompt-cot/exp001` · `exp002` | 0 và 1 ví dụ của hai họ LLM mới |
 | ~30-45 phút | `qwen3-4b-thinking-2507/prompt-cot/exp001` (**lượt DÒ**) · `cafebert/full/exp001` | DÒ chốt trần token; full fine-tune model lớn nhất |
-| ~40-60 phút | `qwen3-4b-thinking-2507/prompt-cot/exp002` | lượt "suy nghĩ" 1 ví dụ - **phải CHẠY SAU lượt DÒ** để lấy trần đúng (xem ghi chú dưới bảng) |
+| ~40-60 phút | `qwen3-4b-thinking-2507/prompt-cot/exp002` - **CHỜ NHÓM GHIM LẠI: ĐỪNG chạy ở lượt này** (xem ghi chú 1) | lượt "suy nghĩ" 1 ví dụ; trần sinh đang là giá trị **TẠM** nên phải chờ số đo của lượt DÒ |
 | ~20-30 phút | `phobert-base-v2/full/exp001` · `exp002` | full fine-tune, hai mức `lr` (giữ nguyên 2e-4 và hạ 2e-5) |
 | ~15-20 phút | `cafebert/lora/exp007` → `exp019` (13 lượt) · `cafebert/none/exp002` | 14 lượt CafeBERT: tiêu chí chọn best, tiền xử lý, tham số LoRA, mất mát, DoRA, linear probe |
-| ~13-16 phút | `phobert-base-v2/lora/exp008` · `exp011` → `exp023` (14 lượt) | 14 lượt PhoBERT cùng nhóm câu hỏi |
+| ~13-16 phút | `phobert-base-v2/lora/exp008` · `exp011` → `exp023` (13 lượt; **cả dòng** là 14) | 14 lượt PhoBERT cùng nhóm câu hỏi |
 | ~12-15 phút | `phobert-base-v2/lora/exp009` · `exp010` · `visobert/lora/exp006-009` | tiêu chí chọn `model/best` + thước nhiễu; ViSoBERT ×4 (bộ tách từ + emoji) |
 | ~10 phút | `phobert-base-v2/none/exp002` | LINEAR PROBE - encoder đóng băng, chỉ đầu phân loại học |
 | ~4 phút | `cafebert/none/exp001` | SÀN CafeBERT |
@@ -383,6 +396,9 @@ tải khi chạy, KHÔNG phải chép gì lên Drive. Nếu muốn chạy offlin
 1. **Lượt DÒ phải chạy trước lượt "suy nghĩ"**: trần sinh của `qwen3-4b-thinking-2507/prompt-cot/exp002`
    đang là giá trị **TẠM 4.096**; số đúng là `làm tròn lên (p99 × 1,5)` lấy từ số đo của `exp001`. Gửi
    kết quả `exp001` về, nhóm cập nhật rồi ghim lại **đúng một** notebook này (không phải chạy lại `exp001`).
+   ⇒ Trong lượt này **BỎ QUA `exp002`**: nó vẫn nằm trong `notebooks/` (vì cả 48 lượt đi trong một gói) nhưng
+   CHƯA nên chạy - nhóm sẽ ghim lại nó vào commit mới có trần đúng rồi gửi trong gói kế tiếp. Chạy sớm thì
+   lượt đó sinh quá trần, bị luật cắt (trung bình ≥ 95% trần) đánh dấu và **phải chạy lại**, tốn 40-60 phút.
 2. **Về chẩn đoán, hai lượt SÀN (~3 và ~4 phút) đứng đầu bảng thứ tự RẺ trước vẫn hơn** (đúng như kế
    hoạch đã xếp cho nhóm 1): SÀN = encoder đóng băng + đầu phân loại NGẪU NHIÊN, nên nếu SÀN **không xấu**
    thì có gì đó sai ở ống dẫn - biết sau 3 phút thay vì sau 90 phút. Nếu bạn đi theo đúng bảng giảm dần
