@@ -243,6 +243,17 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       `.env.colab` cho Colab) + bấm nhận điều khoản trên trang model. Máy này KHÔNG có token HF nào trong
       `.env`/`.env.colab` (chỉ có `DAGSHUB_TOKEN` + `HF_HOME`). Sau khi có token, chỉ cần: 2 file
       `configs/models/*.yaml` + 2 dòng `_chat_spec` + đo token + 6 notebook.
+      **Kiểm lại 10/10/2026 (theo yêu cầu người dùng): token HF KHÔNG tồn tại ở bất kỳ đâu** - không có chuỗi
+      `hf_...` trong repo, không có `~/.cache/huggingface/token` hay `~/.huggingface/token`, không có biến
+      `HF_TOKEN`/`HUGGING_FACE_HUB_TOKEN` trong môi trường máy, và không file env nào có khoá đó. Nay khoá đã
+      **KHAI SẴN ở cả bốn tệp env**: `.env` và `.env.colab` để TRỐNG cho người dùng dán (khoá rỗng bị bỏ qua
+      nên để trống vẫn chạy bình thường); `.env.example` + `.env.colab.example` (nơi DUY NHẤT khai biến mới,
+      theo `docs/05_config/07_env.md`) có kèm chú thích cách lấy token; tài liệu env đã thêm dòng `HF_TOKEN`.
+      **KHÔNG phải sửa mã**: Colab Secrets đọc tên này từ trước (`runtime._from_colab_secrets`) và
+      `scripts/run_notebook.py::forward_env` chuyển tiếp MỌI khoá không-trống của `.env` cho kernel.
+      Việc còn lại chỉ NGƯỜI DÙNG làm được: tạo token quyền Read ở https://huggingface.co/settings/tokens →
+      bấm **Agree** trên cả hai trang model GATED → dán vào `.env` (máy này) và Colab Secrets (Colab).
+      Kiểm bằng `python _scratch/check_hf_access.py` (in tên tài khoản + thử tải `config.json` của từng repo).
 - [x] **Sửa một LỖI THẬT phát hiện khi kiểm lại đường ghim**: 3 notebook Đ5 (`full/exp001-002`,
       `cafebert/full/exp001`) ghim vào `0d41b00` - commit đó **chỉ chứa mã, KHÔNG chứa `config.yaml`** của
       chúng (config được thêm ở commit sau), nên notebook sẽ clone repo rồi chết ở ô kiểm trước vì thiếu
