@@ -16,7 +16,13 @@ Gói chứa mọi thứ cần để chạy. Bạn **không cần cài gì, khôn
 
 Hết. Notebook tự làm phần còn lại.
 
-## Notebook trong gói: 23 lượt của đợt 7 + 4 lượt của đợt 8 + 3 lượt của đợt 10 + 2 lượt TUỲ CHỌN của đợt 10
+## Notebook trong gói
+
+> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 67.** Con số này TĂNG theo
+> từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn
+> đúng, không phải làm gì). Muốn biết một gói **NNN** mang thêm gì thì mở
+> `handover/packages/NNN/manifest.csv` và đọc cột `class`. Bảng dưới liệt kê các lượt theo **thứ tự nên
+> chạy**, kèm mỗi lượt trả lời câu gì.
 
 **Chưa lượt nào trong bảng đợt 7 từng cho ra kết quả dùng được khi bảng được viết**, nên cột thời gian ghi **ước tính**; chỗ nào
 ước tính dựa trên một lượt đã chạy thật thì ghi rõ số đo thật đó để bạn đối chiếu (ba lượt `qwen3-0.6b` đã
