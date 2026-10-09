@@ -50,6 +50,45 @@ requires_dataset = unittest.skipUnless(
     HAS_DATASET, "cần dataset đã xử lý trên đĩa (CI không có dữ liệu)")
 
 
+class ModelOverrideNoteTest(unittest.TestCase):
+    """`SENTIMENTX_MODEL`/`--model` đè nguồn trọng số của MỌI thí nghiệm, nên phải CẢNH BÁO.
+
+    Lỗi thật đã gặp khi chạy smoke đợt 11: `.env` còn một dòng trỏ vào Qwen3-4B, và lượt PhoBERT nạp
+    Qwen3-4B rồi chết bằng `RuntimeError: bad allocation`. Ca nguy hiểm hơn là nó KHÔNG chết: lượt
+    chạy xong bình thường nhưng con số là của model khác - nhìn bảng điểm không thể biết.
+
+    Trỏ vào bản trọng số có sẵn của ĐÚNG model (cách dùng chính thức trong `docs/00_workflow/08_local.md`)
+    là hợp lệ, nên phép kiểm so theo TÊN đã chuẩn hoá chứ không so cả đường dẫn.
+    """
+
+    def test_a_different_model_is_reported(self):
+        note = experiment_run.model_override_note(
+            "D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/Qwen3-4B-Instruct-2507",
+            "vinai/phobert-base-v2")
+        self.assertIsNotNone(note)
+        self.assertIn("CẢNH BÁO", note)
+        self.assertIn("MODEL KHÁC", note)
+        self.assertIn("Qwen3-4B-Instruct-2507", note)
+        self.assertIn("vinai/phobert-base-v2", note)
+
+    def test_a_local_copy_of_the_same_model_is_fine(self):
+        """Hai cách viết cùng một model phải được coi là MỘT (tên HF và thư mục cùng tên)."""
+        for override in ("vinai/phobert-base-v2",
+                         "D:/TrieuKhac/Documents/SentimentX/SentimentX/data/models/phobert-base-v2",
+                         "phobert_base_v2"):
+            with self.subTest(override=override):
+                self.assertIsNone(experiment_run.model_override_note(
+                    override, "vinai/phobert-base-v2"))
+
+    def test_no_override_means_no_note(self):
+        for empty in (None, ""):
+            self.assertIsNone(experiment_run.model_override_note(empty, "vinai/phobert-base-v2"))
+
+    def test_missing_checkpoint_is_reported_not_ignored(self):
+        """Config thiếu `checkpoint` là lỗi khác, nhưng ở đây không được im lặng bỏ qua."""
+        self.assertIsNotNone(experiment_run.model_override_note("Qwen/Qwen3-4B", None))
+
+
 class NoRootOverrideMixin:
     """Bỏ ghi đè gốc đường dẫn của MÁY đang chạy trong lúc test.
 

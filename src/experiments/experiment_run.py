@@ -411,6 +411,40 @@ def run_model(config_data, model=None):
     return model or config_data.get("hf_model") or config_data.get("checkpoint") or qwen.MODEL_NAME
 
 
+def _model_key(value):
+    """Khoá so TÊN MODEL: bỏ đường dẫn, bỏ dấu phân cách, chữ thường.
+
+    Cần vì hai cách viết cùng một model phải được coi là MỘT: `vinai/phobert-base-v2` (tên trên
+    Hugging Face) và `D:/.../data/models/phobert-base-v2` (bản trọng số có sẵn trên máy).
+    """
+    name = str(value or "").replace("\\", "/").rstrip("/").split("/")[-1]
+    return "".join(character for character in name.lower() if character.isalnum())
+
+
+def model_override_note(override, checkpoint):
+    """Cảnh báo khi nguồn trọng số bị ĐÈ sang một MODEL KHÁC của thí nghiệm, hoặc None.
+
+    VÌ SAO PHẢI CẢNH BÁO: `SENTIMENTX_MODEL`/`--model` đè nguồn trọng số của MỌI thí nghiệm, mà
+    không có gì chặn nó lại. Một dòng còn sót trong `.env` (ví dụ trỏ vào Qwen3-4B) khiến lượt
+    PhoBERT/CafeBERT nạp Qwen3-4B: hoặc chết bằng `RuntimeError: bad allocation`, hoặc - tệ hơn -
+    chạy xong và cho ra một con số CỦA MODEL KHÁC mà nhìn bảng điểm không thể biết. Đã gặp thật khi
+    chạy smoke đợt 11.
+
+    Trỏ vào bản trọng số CÓ SẴN của ĐÚNG model (cách dùng chính thức trong
+    `docs/00_workflow/08_local.md`: `data/models/<tên model>/`) là hợp lệ nên KHÔNG cảnh báo - vì vậy
+    so theo TÊN ĐÃ CHUẨN HOÁ (`_model_key`) chứ không so cả chuỗi đường dẫn.
+    """
+    if not override:
+        return None
+    if _model_key(override) == _model_key(checkpoint):
+        return None
+    return ("CẢNH BÁO: nguồn trọng số đang bị ĐÈ - `SENTIMENTX_MODEL`/`--model` = {!r}, còn "
+            "`checkpoint` của thí nghiệm là {!r}. Lượt này sẽ chạy bằng MODEL KHÁC (số ra không so "
+            "được với các lượt khác của thí nghiệm). Bỏ biến đó đi nếu không cố ý, hoặc trỏ nó vào "
+            "bản trọng số có sẵn của ĐÚNG model (thư mục cùng tên, xem docs/00_workflow/08_local.md)."
+            .format(str(override), str(checkpoint)))
+
+
 def run_prompt(config_data, model_id=None, method=None, exp_id=None, prompt=None, examples=None,
                base_dir=None):
     """Nạp prompt của một lượt chạy (và đăng ký vào `qwen` cho các bước sau dùng theo tên).
@@ -603,6 +637,11 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     # Giữ lại tham số ĐÈ của người gọi (dòng lệnh hoặc `SENTIMENTX_MODEL`): đường encoder dùng nó
     # làm nguồn trọng số, còn đường prompt để `run_model` suy tiếp từ config.
     model_override = model
+    # ...và CẢNH BÁO ngay nếu nó là model KHÁC của thí nghiệm: đây là loại sai không sửa lại được
+    # sau khi lượt chạy đã xong, nên phải nói TRƯỚC khi nạp model (chi tiết ở `model_override_note`).
+    note = model_override_note(model_override, config_data.get("checkpoint"))
+    if note:
+        print(note)
     model = run_model(config_data, model)
     # Số review mỗi lượt sinh: tham số truyền vào (dòng lệnh) -> `inference.batch_size` của model.
     if not batch_size:
