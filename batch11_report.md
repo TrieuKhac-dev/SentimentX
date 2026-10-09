@@ -11,8 +11,28 @@
 ## Trạng thái đợt 11: 48 lượt mới đã tạo + ghim (Đ1-Đ7), 6 lượt LLM còn chặn vì repo GATED
 
 Mọi lượt dưới đây **đã tạo, đã ghim vào một commit có thật trên `origin/experiment`, và đã đóng gói bàn
-giao** (`handover/out/`, các gói **022 → 024**). Cột "khác cha" là khoá DUY NHẤT khác lượt cha - đã kiểm
-bằng phép so cấu hình ĐÃ HỢP NHẤT, không bằng mắt.
+giao** (`handover/out/`, gói duy nhất **028** - thay cho 022/023/024/026/027). Cột "khác cha" là khoá DUY
+NHẤT khác lượt cha - đã kiểm bằng phép so cấu hình ĐÃ HỢP NHẤT, không bằng mắt.
+
+**Lỗi chặn đã sửa 09/10/2026 (trước khi có lượt nào chạy xong).** Người chạy mở 8 notebook đầu tiên của
+gói 027 và cả 8 đều DỪNG ở ô kiểm trước với cùng một việc: *"Thí nghiệm khai `data.version` v0.2.0 nhưng
+file config dataset khai v0.3.0"*. Nguyên nhân không nằm ở config (45/48 lượt khai v0.2.0 là **cố ý** -
+chúng phải so với kết quả cũ vốn chấm trên bản đó), mà ở ba chỗ nạp file phiên bản dữ liệu: ô cấu hình của
+notebook, `preflight`, và phần chọn chế độ chạy (`plan`) đều gọi hàm nạp mà **không truyền `data.version`**
+- hàm đó khi thiếu version lấy bản **mới nhất theo tên file**, nên:
+
+1. preflight so `data.version` (v0.2.0) với bản nó vừa tự nạp (v0.3.0) → báo lệch → DỪNG người chạy (45/48
+   lượt; chỉ 3 lượt nhánh emoji khai v0.3.0 mới qua);
+2. và **nếu chỉ bỏ phép kiểm thì mọi lượt sẽ lặng lẽ chấm trên bộ v0.3.0** trong khi config khai v0.2.0 -
+   tức phép ablation so với cha (chạy trên v0.2.0) mất tính "một biến", mà lại còn giấu đi.
+
+Cách sửa (3 commit `7d69b32`, `4f65864`, `c96dec8`): nạp file phiên bản dữ liệu qua **một chỗ duy nhất**
+`experiments.dataset_of(config)` cho cả ô cấu hình notebook, `preflight`, `checks` và `plan`; khai một bản
+CŨ là hợp lệ (chỉ còn một **dòng ghi chú** "đọc bản thí nghiệm khai, KHÔNG phải bản mới nhất"); khai một bản
+**không tồn tại** thì vẫn DỪNG kèm danh sách bản đang có. Khoá bằng 5 test mới, và kiểm bằng chính công cụ
+của dự án: `run_notebook.py <exp> --preflight-only` cho **48/48 notebook xanh** ở commit ghim mới
+(`4f65864`), trong đó có đủ 8 notebook đã chặn người chạy hôm nay. Gói **028** mang đúng 48 notebook đó,
+giữ nguyên cấu hình và thứ tự chạy.
 
 | Nhóm | Lượt | Số | Khác cha ở đâu | Trạng thái |
 | --- | --- | --- | --- | --- |

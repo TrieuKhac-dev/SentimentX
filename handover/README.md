@@ -18,11 +18,23 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-027-<mã>-261009.zip`** - 48 notebook, và **cả 48 ghim vào
+> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-028-<mã>-261009.zip`** - 48 notebook, và **cả 48 ghim vào
 > cùng một revision** (cùng một bản code, nên không thể lẫn hai bản giữa các lượt). Các gói **022/023/024/
-> 026** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế) - nếu bạn đã
-> tải chúng thì cứ dùng **027** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả
-> lời câu gì; thứ tự chạy thì xem bảng ở mục "Đợt 11 - thứ tự chạy" (gần cuối file này).
+> 026/027** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế, **027** bị
+> **028** thay thế) - nếu bạn đã tải chúng thì cứ dùng **028** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11"
+> bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem bảng ở mục "Đợt 11 - thứ tự chạy" (gần cuối
+> file này).
+>
+> **Vì sao gói 027 bị 028 thay (09/10/2026):** bản 027 chạy ra lỗi ngay ở ô kiểm trước và dừng **45/48**
+> notebook: *"Thí nghiệm khai `data.version` v0.2.0 nhưng file config dataset khai v0.3.0"*. Lỗi nằm ở phía
+> NHÓM, không phải ở config của bạn: cả ba chỗ nạp file phiên bản dữ liệu (ô cấu hình của notebook,
+> `preflight`, bước chọn chế độ chạy) đều gọi hàm nạp mà KHÔNG truyền `data.version`, nên hàm đó lấy bản
+> **mới nhất** - rồi preflight so hai giá trị, thấy lệch (do chính nó gây ra) và DỪNG. Nếu chỉ bỏ phép kiểm
+> thì tệ hơn: đường chạy sẽ LẶNG LẼ chấm trên bộ v0.3.0 trong khi config khai v0.2.0. Nay MỘT chỗ quyết định
+> (`experiments.dataset_of`); khai một bản cũ là hợp lệ (chỉ còn một dòng ghi chú *"KHÔNG phải bản mới
+> nhất"*), còn khai một bản **không tồn tại** thì vẫn DỪNG kèm danh sách bản đang có. Bản 028 giữ nguyên 48
+> notebook, thứ tự chạy và mọi cấu hình; **chỉ bản code bên trong đổi**. Đã kiểm bằng chính công cụ của dự
+> án: chạy `run_notebook.py <exp> --preflight-only` cho **48/48 notebook khoanh vùng xanh** ở commit ghim mới.
 
 > **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 115.** Con số này TĂNG theo
 > từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn

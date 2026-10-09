@@ -249,6 +249,17 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       `handover/README.md` nay nói rõ: dùng **027** là đủ (022/023/024/026 là bản gửi trước, 025 bị 026 thay
       thế), và có thêm mục **"Đợt 11 - thứ tự chạy 48 notebook (giảm dần theo thời gian)"** + 2 ghi chú về
       thứ tự (DÒ trước lượt "suy nghĩ"; hai lượt SÀN nên nằm ở phiên đầu để kiểm ống dẫn)
+- [x] **SỬA LỖI CHẶN do chính nhóm gây ra, rồi gói lại (09/10/2026)**: người chạy mở 8 notebook đầu của gói
+      027 → cả 8 DỪNG ở ô kiểm trước: *"Thí nghiệm khai `data.version` v0.2.0 nhưng file config dataset khai
+      v0.3.0"*. Ba chỗ nạp file phiên bản dữ liệu (ô cấu hình notebook, `preflight`, `plan`) đều gọi hàm nạp
+      mà THIẾU `data.version` ⇒ hàm đó lấy bản mới nhất ⇒ preflight tự tạo ra cái lệch rồi DỪNG (45/48 lượt
+      khai v0.2.0), còn đường chạy thì sẽ **lặng lẽ chấm trên v0.3.0** nếu ai bỏ phép kiểm - đúng loại lỗi
+      im lặng dự án cấm. Sửa: MỘT chỗ quyết định - `experiments.dataset_of(config)` cho cả notebook,
+      `preflight`, `checks` và `plan` (commit `7d69b32`, `4f65864`); bản cũ = một **dòng ghi chú**, bản
+      KHÔNG tồn tại = DỪNG kèm danh sách bản đang có; **+5 test** (kể cả test khoá mẫu notebook). Ghim lại
+      **48/48** notebook vào `4f65864` (commit `c96dec8`); kiểm bằng chính công cụ dự án:
+      `run_notebook.py <exp> --preflight-only` cho **48/48 xanh** (có đủ 8 notebook đã chặn). Gói mới:
+      **`SentimentX-goi-028-c96dec8-261009.zip`** (49 file) - giữ nguyên 48 notebook, cấu hình và thứ tự chạy.
 - [ ] Đ8 (báo cáo): các mục M1/M2/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 
