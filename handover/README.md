@@ -18,7 +18,7 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 67.** Con số này TĂNG theo
+> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 98.** Con số này TĂNG theo
 > từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn
 > đúng, không phải làm gì). Muốn biết một gói **NNN** mang thêm gì thì mở
 > `handover/packages/NNN/manifest.csv` và đọc cột `class`. Bảng dưới liệt kê các lượt theo **thứ tự nên
@@ -199,6 +199,80 @@ bị cắt **16.149 &#8594; 2.328** tham số. **Khoá `head.aspect_marker` đã
   `fuse_aspect_test_cafebert_exp002.json`. Lưu ý: lượt một-khía-cạnh **KHÔNG** cần `probabilities.csv` (luật
   gộp chỉ dùng nhãn cứng).
 
+
+### Đợt 11 - 31 notebook MỚI trong gói này (022): ba nhóm phản biện + hai lỗi thật đã sửa
+
+Ba nhóm dưới đây trả lời ba câu phản biện, **chạy theo đúng thứ tự trong bảng** (rẻ trước; nhóm PhoBERT
+đứng đầu để lộ ngay nếu máy ảo thiếu Java/VnCoreNLP). Mỗi lượt khác lượt CHA của nó **đúng MỘT khoá đo
+được** - đã kiểm bằng phép so cấu hình ĐÃ HỢP NHẤT của con với cha, nên cột "khác cha" là dấu vết bạn đối
+chiếu được với `run_meta.json` của lượt chạy.
+
+> **Vì sao cả 31 notebook phải ghim lại trong gói này:** hai lỗi thật đã được sửa. (1) Đường huấn luyện
+> **bỏ qua** bộ tách từ mà lượt chạy khai (`preprocess.segmenter`), nên một lượt khai `pyvi` vẫn chạy bằng
+> bộ mặc định của model - phép đo sẽ ra "mọi bộ tách từ như nhau" mà không có gì báo. (2) Bước bỏ emoji bản
+> đầu nuốt luôn ký tự XUỐNG DÒNG: 4.158 dòng `train` đổi trong khi chỉ 1.877 dòng có emoji. Bản ghim cũ có
+> cả hai lỗi; bản này không.
+
+**Nhóm 1 - KHÔNG học gì / chỉ học đầu phân loại / LoRA (9 lượt, ~1,5-2 giờ).** Trả lời "điểm đến từ đâu".
+SÀN = encoder đóng băng + đầu phân loại NGẪU NHIÊN, không có vòng lặp huấn luyện; PROBE = encoder đóng
+băng, chỉ đầu phân loại học. SÀN đứng đầu vì nó còn là **bước kiểm ống dẫn**: SÀN mà KHÔNG xấu thì có gì
+đó sai, và biết sau ~3 phút thay vì sau 2 giờ.
+
+| # | Notebook | Trả lời câu gì | Khác cha ở đâu | T4 |
+| --- | --- | --- | --- | --- |
+| 1 | `notebooks/phobert-base-v2/none/exp001.ipynb` | SÀN - không tối ưu gì | `trainer: none` (cha là lượt LoRA) | ~3 phút |
+| 2 | `notebooks/cafebert/none/exp001.ipynb` | SÀN cho model lớn hơn | `trainer: none` | ~4 phút |
+| 3 | `notebooks/phobert-base-v2/none/exp002.ipynb` | LINEAR PROBE - chỉ đầu phân loại học | `head.trainable: true` | ~10 phút |
+| 4 | `notebooks/cafebert/none/exp002.ipynb` | LINEAR PROBE cho CafeBERT | `head.trainable: true` | ~15 phút |
+| 5 | `notebooks/phobert-base-v2/lora/exp009.ipynb` | chọn `model/best` theo ACCURACY thay vì F1 (đầu ĐÓNG BĂNG) | `checkpoints.best_metric: accuracy_cell` | ~12-15 phút |
+| 6 | `notebooks/phobert-base-v2/lora/exp010.ipynb` | thước nhiễu thứ hai cho đầu ĐÓNG BĂNG | `decoding.seed: 7` | ~12-15 phút |
+| 7 | `notebooks/phobert-base-v2/lora/exp008.ipynb` | chọn `model/best` theo ACCURACY (đầu HỌC) | `checkpoints.best_metric: accuracy_cell` | ~13-16 phút |
+| 8 | `notebooks/phobert-base-v2/lora/exp011.ipynb` | thước nhiễu thứ hai cho đầu HỌC | `decoding.seed: 7` | ~13-16 phút |
+| 9 | `notebooks/cafebert/lora/exp007.ipynb` | chọn `model/best` theo ACCURACY trên model mạnh nhất | `checkpoints.best_metric: accuracy_cell` | ~15-20 phút |
+
+**Nhóm 2 - TIỀN XỬ LÝ: bộ tách từ và emoji (12 lượt, ~3 giờ).** Cùng một model, chỉ khác khâu chia văn
+bản - trả lời "tiền xử lý có đáng công không". `icon` là nhánh bỏ emoji ở `train`/`val` (test KHÔNG bị
+sửa), và nó là biến thể duy nhất đổi `data.version` (v0.2.0 -> v0.3.0). Bộ tách từ dự phòng
+(`underthesea`, `pyvi`) do ô bootstrap tự cài; `vncorenlp` cần Java + model 27 MB, cũng do ô đó lo.
+
+| # | Notebook | Trả lời câu gì | Khác cha ở đâu | T4 |
+| --- | --- | --- | --- | --- |
+| 10 | `notebooks/phobert-base-v2/lora/exp012.ipynb` | PhoBERT KHÔNG tách từ (bộ chính chủ là vncorenlp) | `preprocess.segmenter: none` | ~13-16 phút |
+| 11 | `notebooks/phobert-base-v2/lora/exp014.ipynb` | PhoBERT + `pyvi` | `preprocess.segmenter: pyvi` | ~13-16 phút |
+| 12 | `notebooks/phobert-base-v2/lora/exp013.ipynb` | PhoBERT + `underthesea` | `preprocess.segmenter: underthesea` | ~13-16 phút |
+| 13 | `notebooks/phobert-base-v2/lora/exp015.ipynb` | PhoBERT + BỎ EMOJI ở train/val | `data.version: v0.3.0` | ~13-16 phút |
+| 14 | `notebooks/visobert/lora/exp006.ipynb` | ViSoBERT + `vncorenlp` (gốc là không tách từ) | `preprocess.segmenter: vncorenlp` | ~12-15 phút |
+| 15 | `notebooks/visobert/lora/exp008.ipynb` | ViSoBERT + `pyvi` | `preprocess.segmenter: pyvi` | ~12-15 phút |
+| 16 | `notebooks/visobert/lora/exp007.ipynb` | ViSoBERT + `underthesea` | `preprocess.segmenter: underthesea` | ~12-15 phút |
+| 17 | `notebooks/visobert/lora/exp009.ipynb` | ViSoBERT + BỎ EMOJI ở train/val | `data.version: v0.3.0` | ~12-15 phút |
+| 18 | `notebooks/cafebert/lora/exp008.ipynb` | CafeBERT + `vncorenlp` (gốc là không tách từ) | `preprocess.segmenter: vncorenlp` | ~15-20 phút |
+| 19 | `notebooks/cafebert/lora/exp010.ipynb` | CafeBERT + `pyvi` | `preprocess.segmenter: pyvi` | ~15-20 phút |
+| 20 | `notebooks/cafebert/lora/exp009.ipynb` | CafeBERT + `underthesea` | `preprocess.segmenter: underthesea` | ~15-20 phút |
+| 21 | `notebooks/cafebert/lora/exp011.ipynb` | CafeBERT + BỎ EMOJI ở train/val | `data.version: v0.3.0` | ~15-20 phút |
+
+**Nhóm 3 - THAM SỐ LoRA (10 lượt, ~2,5 giờ).** Hiện mọi lượt dùng CÙNG một bộ (`r 16 · alpha 32 · lr
+2e-4 · 2-4 module`). Mỗi lượt ở đây đổi **đúng một** tham số. Ghi khi đọc: đổi `r` mà GIỮ `alpha` là đổi
+luôn tỉ lệ scaling `alpha / r` (8 -> 4 và 1); lượt `exp020`/`exp016` giảm số module được gắn adapter, nên
+`trainable_params` trong `metrics.json` **GIẢM** - đó là dấu vết để kiểm trước khi đọc điểm.
+
+| # | Notebook | Trả lời câu gì | Khác cha ở đâu | T4 |
+| --- | --- | --- | --- | --- |
+| 22 | `notebooks/phobert-base-v2/lora/exp016.ipynb` | hạng adapter NHỎ hơn (r 16 -> 8) | `lora.r: 8` | ~13-16 phút |
+| 23 | `notebooks/phobert-base-v2/lora/exp017.ipynb` | hạng adapter LỚN hơn (r 16 -> 32) | `lora.r: 32` | ~13-16 phút |
+| 24 | `notebooks/phobert-base-v2/lora/exp018.ipynb` | học CHẬM hơn (lr 2e-4 -> 1e-4) | `lr: 0.0001` | ~13-16 phút |
+| 25 | `notebooks/phobert-base-v2/lora/exp019.ipynb` | học NHANH hơn (lr 2e-4 -> 4e-4) | `lr: 0.0004` | ~13-16 phút |
+| 26 | `notebooks/phobert-base-v2/lora/exp020.ipynb` | gắn adapter vào 2 module thay vì 4 | `lora.target_modules: [query, value]` | ~13-16 phút |
+| 27 | `notebooks/cafebert/lora/exp012.ipynb` | (như #22, model mạnh nhất) | `lora.r: 8` | ~15-20 phút |
+| 28 | `notebooks/cafebert/lora/exp013.ipynb` | (như #23) | `lora.r: 32` | ~15-20 phút |
+| 29 | `notebooks/cafebert/lora/exp014.ipynb` | (như #24) | `lr: 0.0001` | ~15-20 phút |
+| 30 | `notebooks/cafebert/lora/exp015.ipynb` | (như #25) | `lr: 0.0004` | ~15-20 phút |
+| 31 | `notebooks/cafebert/lora/exp016.ipynb` | (như #26) | `lora.target_modules: [query, value]` | ~15-20 phút |
+
+**Cách đọc số của cả 31 lượt:** luôn đọc theo **CẶP chỉ số** - F1 lớp âm + macro-F1 **và** số ô - không
+chỉ accuracy; và nhớ **biên nhiễu của đường encoder là +-0,33 ... +-0,67 điểm** (ba lượt chạy lại cha với
+`decoding.seed: 7`, xem `docs/04_experiments/06_lora_encoder.md`). Chênh lệch nhỏ hơn mức đó thì kết luận
+là "chưa thấy khác biệt", KHÔNG phải "không khác biệt". Nếu một lượt cho số lạ (ví dụ SÀN mà accuracy cao
+bất thường), gửi lại nguyên thư mục kết quả để nhóm dò ống dẫn trước khi đọc tiếp.
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
 
