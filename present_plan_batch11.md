@@ -260,6 +260,19 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       **48/48** notebook vào `4f65864` (commit `c96dec8`); kiểm bằng chính công cụ dự án:
       `run_notebook.py <exp> --preflight-only` cho **48/48 xanh** (có đủ 8 notebook đã chặn). Gói mới:
       **`SentimentX-goi-028-c96dec8-261009.zip`** (49 file) - giữ nguyên 48 notebook, cấu hình và thứ tự chạy.
+- [x] **Kiểm OFFLINE tokenizer 3 LLM mới + 3 bộ tách từ (09/10/2026)**: prompt dựng đúng chat template
+      từng họ (`<|im_start|>system...` cho hai bản Qwen, `<s>[INST] ...` cho Mistral) và số token đo lại
+      **khớp đúng** bảng đã ghi: 5 ví dụ ở `test` - `qwen3-8b` TB 1.878,34 / max **1.993** (ngưỡng 2304,
+      0% cắt), `qwen3-4b-thinking-2507` TB 1.880,34 / max **1.995** (2304, 0% cắt), `mistral-7b-instruct-v0.3`
+      TB 3.194,50 / max **3.380** test - **3.522** train (ngưỡng **3584**, 0% cắt). Ba bộ tách từ đối chứng
+      đều chạy được trên máy này (`pyvi` 0.1.1, `underthesea` 9.5.0, `vncorenlp` Java 17) và **cho kết quả
+      khác nhau thật** (PhoBERT: `none` TB 33,68 vs `pyvi` 30,29; ViBERT 37,16 vs 40,20; `<unk>` 0,90% vs
+      8,03%) ⇒ phép ablation có tín hiệu, không phải lượt trùng. Số này nay ghi ở
+      `docs/04_experiments/02_model_input.md` (mục 4.3, phần "Đợt 11").
+- [ ] Bảng token ĐÃ GHI của Mistral còn cột `max_length` cũ (2304 - thời điểm bảng được dựng) nên vẫn ghi
+      `% review > max_length = 100.0`: cần chạy lại `python run_token_stats.py --hash e616c1e3 --prompt
+      absa_cot_5shot_v1 --system absa_cot` (đo cả 12 model, ~30-40 phút vì phải tách từ 15k review cho các
+      encoder). **Không ảnh hưởng lượt chạy** (config đọc 3584), nhưng để bảng khớp config thì phải đo lại.
 - [ ] Đ8 (báo cáo): các mục M1/M2/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 

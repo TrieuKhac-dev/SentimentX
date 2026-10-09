@@ -502,6 +502,29 @@ gần hết prompt.
 - **Hai Qwen = 2304**: cùng `tokenizer.json` (giống từng byte) và cùng bộ prompt nên cùng số token; vẫn khai
   riêng mỗi model một file vì mỗi model một tokenizer.
 
+#### Đợt 11: ba model chat mới - hai ngưỡng, và một bẫy đã bắt được bằng phép đo
+
+Ba model chat thêm ở đợt 11 dùng prompt/ví dụ Y HỆT hai bản Qwen đang có, nên chỉ **tokenizer** quyết định
+số token. Số dưới đây đo ở đúng `absa_cot_5shot_v1` (mức ví dụ DÀI NHẤT - mức mà công bố so), phiên bản dữ
+liệu v0.2.0, bộ tách từ `none` (model chat không tách từ):
+
+| Model | Tokenizer | TB (train) | Max (train / val / test) | `max_length` | Bị cắt |
+| --- | --- | --- | --- | --- | --- |
+| `qwen3-8b` | Qwen2Tokenizer | 1.877,51 | 2.122 / 2.029 / 1.993 | 2304 | **0%** |
+| `qwen3-4b-thinking-2507` | Qwen2Tokenizer | 1.879,51 | 2.124 / 2.031 / 1.995 | 2304 | **0%** |
+| `mistral-7b-instruct-v0.3` | Llama-BPE | 3.194,26 | **3.522** / 3.360 / 3.380 | **3584** | **0%** |
+
+Hai điều đáng đọc:
+
+- **Cùng họ Qwen3 ⇒ cùng số token.** `qwen3-8b` và bản `qwen3-4b-thinking-2507` cho **đúng cùng** số token
+  với `qwen3-4b-instruct-2507` (max train 2.122 / 2.124 so với 2.122), vì cả ba dùng **một** `tokenizer.json`.
+  Đó cũng là một phép KIỂM CHÉO: lệch số nghĩa là đã lấy nhầm tokenizer.
+- **Khác họ ⇒ khác ngưỡng.** Tokenizer Llama-BPE của Mistral chẻ tiếng Việt nhiều hơn hẳn (**1,70 lần**),
+  nên ngưỡng 2.304 của Qwen **cắt 100% review** (mọi review Mistral đều dài hơn 2.304). Ngưỡng đúng là
+  **3584** = làm tròn lên của mẫu dài nhất 3.522, và ở đó **0% bị cắt** ở cả ba split. Đây là lỗi **bắt được
+  bằng phép đo token TRƯỚC khi đốt lượt chạy**, không phải bằng cách đọc model card - đúng lí do `max_length`
+  là số ĐO chứ không phải số sao chép.
+
 #### Vì sao đúng 256 cho encoder
 
 - **ViSoBERT**: review dài nhất 229 < 256 → **0% cắt**.
