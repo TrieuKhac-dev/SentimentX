@@ -238,6 +238,17 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       `.env.colab` cho Colab) + bấm nhận điều khoản trên trang model. Máy này KHÔNG có token HF nào trong
       `.env`/`.env.colab` (chỉ có `DAGSHUB_TOKEN` + `HF_HOME`). Sau khi có token, chỉ cần: 2 file
       `configs/models/*.yaml` + 2 dòng `_chat_spec` + đo token + 6 notebook.
+- [x] **Sửa một LỖI THẬT phát hiện khi kiểm lại đường ghim**: 3 notebook Đ5 (`full/exp001-002`,
+      `cafebert/full/exp001`) ghim vào `0d41b00` - commit đó **chỉ chứa mã, KHÔNG chứa `config.yaml`** của
+      chúng (config được thêm ở commit sau), nên notebook sẽ clone repo rồi chết ở ô kiểm trước vì thiếu
+      file cấu hình. Kiểm bằng `git ls-tree` trên từng commit đã ghim (Đ1-Đ3 `9515701` ✓, Đ4 `ff4fd26` ✓,
+      Đ6/Đ7 `0d9de8a` ✓). **Đã ghim lại CẢ 48 notebook vào MỘT revision xanh `4aaac5c`** - commit `e0e87b0`,
+      kiểm lại: 48/48 ghim đúng, **0 notebook còn "chưa ghim"**
+- [x] **Bàn giao lại thành MỘT gói**: `handover/out/SentimentX-goi-027-e0e87b0-261009.zip` (**49 file: 48
+      notebook + README**) - một revision, một gói, nên không thể lẫn hai bản code giữa các lượt.
+      `handover/README.md` nay nói rõ: dùng **027** là đủ (022/023/024/026 là bản gửi trước, 025 bị 026 thay
+      thế), và có thêm mục **"Đợt 11 - thứ tự chạy 48 notebook (giảm dần theo thời gian)"** + 2 ghi chú về
+      thứ tự (DÒ trước lượt "suy nghĩ"; hai lượt SÀN nên nằm ở phiên đầu để kiểm ống dẫn)
 - [ ] Đ8 (báo cáo): các mục M1/M2/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 
