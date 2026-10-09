@@ -515,11 +515,12 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
 
     # 2. Config dataset: kiểm luôn ở đây vì mọi phép kiểm sau đều dựa vào nó.
     if ds is None and data.get("dataset"):
-        # Nạp THEO `data.version` mà thí nghiệm khai. Không truyền version thì `load_config` lấy
-        # bản mới nhất theo tên file, và một thí nghiệm khai v0.2.0 sẽ đọc (rồi chấm trên) bộ dữ
-        # liệu v0.3.0 - đúng lỗi im lặng mà `version_report` sinh ra để bắt.
+        # Nạp qua `experiments.dataset_of`: nó đọc THEO `data.version` mà thí nghiệm khai. Không
+        # truyền version thì `load_config` lấy bản mới nhất theo tên file, và một thí nghiệm khai
+        # v0.2.0 sẽ đọc (rồi chấm trên) bộ dữ liệu v0.3.0 - đúng lỗi im lặng mà `version_report` sinh
+        # ra để bắt.
         ds = _collect(problems, notes, "config dataset",
-                      dataset_module.load_config, data["dataset"], data.get("version"))
+                      experiments.dataset_of, config)
 
     # 2b. Dữ liệu GỐC của nguồn `raw`. Kể TRƯỚC mọi việc khác: thiếu nó là nguyên nhân gốc, còn
     # "chưa có dataset đã xử lý" và "thiếu tập đánh giá" chỉ là hệ quả của cùng một thiếu sót.

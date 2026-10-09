@@ -102,6 +102,17 @@ class TestNotebookTemplate(unittest.TestCase):
         self.assertIn("from src.api import bootstrap", text)
         self.assertIn("bootstrap.verify_checkout", text)
 
+    def test_the_config_cell_reads_the_dataset_version_the_experiment_declares(self):
+        """`data.version` là bản ĐỂ ĐỌC, và ô cấu hình phải hỏi CÙNG một chỗ với preflight/`plan()`.
+
+        Khoá lỗi 09/10/2026: ô cấu hình tự gọi `dataset.load_config(tên)` - hàm đó khi thiếu version
+        lấy bản MỚI NHẤT theo tên file - nên một thí nghiệm khai v0.2.0 vừa in sai phiên bản, vừa làm
+        preflight DỪNG (nó nhận `ds` của bản mới nhất, lệch với `data.version`).
+        """
+        text = json.dumps(notebook(), ensure_ascii=False)
+        self.assertIn("experiments.dataset_of(config)", text)
+        self.assertNotIn("dataset.load_config(dataset_name)", text)
+
     def test_it_stops_when_the_preflight_finds_problems(self):
         text = json.dumps(notebook(), ensure_ascii=False)
         self.assertIn("SystemExit", text)

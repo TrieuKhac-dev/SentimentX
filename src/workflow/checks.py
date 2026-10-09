@@ -330,9 +330,7 @@ def experiment_configs(root=None):
             continue
         try:
             config = result["config"]
-            dataset_name = (config.get("data") or {}).get("dataset")
-            dataset_cfg = dataset_module.load_config(
-                dataset_name, (config.get("data") or {}).get("version"))
+            dataset_cfg = experiments.dataset_of(config)
             # CI cố ý KHÔNG có dữ liệu (luật 20), nên thiếu file gốc thì chưa tính được mã phiên bản.
             # Việc thiếu dữ liệu là việc của preflight trên máy có dữ liệu; ở đây vẫn kiểm tiếp được
             # các đường dẫn nằm trong repo (prompt, ví dụ) nên không bỏ qua phần kiểm đó.

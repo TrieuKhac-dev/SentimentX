@@ -36,7 +36,7 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src.core import config, dataset, paths, versioning
+from src.core import config, paths, versioning
 from src.experiments import experiments, model_config
 from src import labels
 from src.preprocessing import loader, qwen
@@ -164,7 +164,7 @@ def main(argv=None):
     merged = result["config"]
     experiment_dir = paths.experiment_dir(model_id, method, exp_id)
 
-    ds = dataset.load_config(merged["data"]["dataset"], (merged["data"] or {}).get("version"))
+    ds = experiments.dataset_of(merged)
     version_id = versioning.compute_id(ds)
     checkpoint = model_config.load(model_id).get("checkpoint")
     _tokenizer, tokenizer_name = use_run_tokenizer(model_id, checkpoint)

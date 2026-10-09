@@ -19,7 +19,7 @@ from pathlib import Path
 from unittest import mock
 
 from src.experiments import experiments, model_config
-from src.core import paths
+from src.core import dataset as dataset_module, paths
 
 TEST_MODEL = "zz-test-model"
 TEST_METHOD = "test-method"
@@ -396,6 +396,43 @@ class TestIdentityKeys(ExperimentCase):
         before = experiments.config_sha256(self.load())
         after = experiments.config_sha256(self.load(extra="n: 7\n"))
         self.assertNotEqual(before, after)
+
+
+class DatasetOfTest(unittest.TestCase):
+    """`experiments.dataset_of`: MỘT chỗ quyết định thí nghiệm ĐỌC phiên bản dữ liệu nào.
+
+    Khoá lỗi 09/10/2026: ô cấu hình của notebook, `preflight` và `plan()` mỗi nơi tự gọi
+    `dataset.load_config(tên)`; hàm đó khi thiếu version lấy bản MỚI NHẤT theo tên file, nên thí
+    nghiệm khai v0.2.0 (để so với kết quả cũ) vừa bị preflight DỪNG, vừa bị `plan()` chấm trên bộ
+    v0.3.0 nếu phép kiểm bị bỏ đi.
+    """
+
+    def versions(self):
+        found = dataset_module.versions("cosmetics")
+        if len(found) < 2:
+            raise unittest.SkipTest("dataset này chưa có bản thứ hai để phân biệt")
+        return found
+
+    def test_it_reads_the_version_the_config_declares(self):
+        found = self.versions()
+        older = found[0]
+        config = experiments.dataset_of(
+            {"data": {"dataset": "cosmetics", "version": older}})
+        self.assertEqual(config["version"], older)
+        self.assertNotEqual(config["version"], found[-1])
+
+    def test_the_name_may_be_overridden_but_the_version_comes_from_config(self):
+        found = self.versions()
+        config = experiments.dataset_of(
+            {"data": {"dataset": "khong-co-that", "version": found[0]}}, name="cosmetics")
+        self.assertEqual(config["name"], "cosmetics")
+        self.assertEqual(config["version"], found[0])
+
+    def test_a_version_that_does_not_exist_is_an_error_listing_the_ones_that_do(self):
+        with self.assertRaises(dataset_module.DatasetError) as caught:
+            experiments.dataset_of({"data": {"dataset": "cosmetics", "version": "v9.9.9"}})
+        self.assertIn("v9.9.9", str(caught.exception))
+        self.assertIn(self.versions()[0], str(caught.exception))
 
 
 if __name__ == "__main__":

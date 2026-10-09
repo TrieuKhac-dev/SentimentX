@@ -549,6 +549,27 @@ def check(result, dataset_cfg=None):
     return result
 
 
+def dataset_of(config_data, name=None):
+    """Cấu hình dataset mà một thí nghiệm ĐỌC: theo `data.dataset` + `data.version` của nó.
+
+    MỘT chỗ duy nhất quyết định "đọc phiên bản dữ liệu nào", vì ba nơi cần CÙNG câu trả lời: ô cấu
+    hình của notebook (in ra đang chạy gì), `preflight` (kiểm trên bộ nào) và `plan()` (chấm trên bộ
+    nào). Trước 09/10/2026 mỗi nơi tự gọi `dataset.load_config(tên)` mà KHÔNG truyền version - và hàm
+    đó, khi thiếu version, lấy bản MỚI NHẤT theo tên file. Hệ quả thật: 45/48 notebook của đợt
+    ablation khai `data.version: v0.2.0` (để so với kết quả cũ chạy trên đúng bản đó) bị preflight
+    DỪNG ngay, còn `plan()` thì lặng lẽ chấm trên bộ v0.3.0 nếu ai đó bỏ phép kiểm đi.
+
+    `data.version` là bản ĐỂ ĐỌC, không phải "bản mới nhất"; khai một bản không tồn tại thì
+    `load_config` ném `DatasetError` kèm danh sách bản đang có. `name` chỉ để ĐÈ khi chạy nhanh trên
+    dòng lệnh - version vẫn theo config, vì đổi tên dataset mà giữ version cũ là chuyện phải sửa ở
+    config, không phải đoán hộ.
+    """
+    data = (config_data or {}).get("data") or {}
+    from src.core import dataset as dataset_module
+    return dataset_module.load_config(
+        name or data.get("dataset"), data.get("version"))
+
+
 def _splits_of(data, dataset, dataset_cfg):
     """`splits` của file phiên bản dataset mà thí nghiệm trỏ tới; None nếu không đọc được."""
     if not dataset or not isinstance(dataset, str):
