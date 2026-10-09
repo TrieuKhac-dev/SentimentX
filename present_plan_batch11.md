@@ -79,7 +79,7 @@ Thí nghiệm (9 lượt; `expNNN` là số DỰ KIẾN, `new_experiment.py` t�
 | --- | --- | --- | --- |
 | 1 | `phobert-base-v2/none/exp001` | `phobert-base-v2/lora/exp002` | `trainer: none`, `head.trainable: false` (SÀN) |
 | 2 | `phobert-base-v2/none/exp002` | `phobert-base-v2/none/exp001` | `head.trainable: true` (PROBE) |
-| 3 | `cafebert/none/exp001` | `cafebert/lora/exp002` | `trainer: none`, `head.trainable: false` |
+| 3 | `cafebert/none/exp001` | `cafebert/lora/exp001` | `trainer: none`, `head.trainable: false` |
 | 4 | `cafebert/none/exp002` | `cafebert/none/exp001` | `head.trainable: true` |
 | 5 | `cafebert/lora/exp007` | `cafebert/lora/exp002` | `checkpoints.best_metric: accuracy_cell` |
 | 6 | `phobert-base-v2/lora/exp008` | `phobert-base-v2/lora/exp005` | `checkpoints.best_metric: accuracy_cell` |
@@ -116,7 +116,8 @@ trong `README.md` của thí nghiệm để không ai tưởng là lỗi.
 
 - [x] Chốt kế hoạch, ghi ra tệp này
 - [x] Đ1: mã `lora.fit_generic` + `none.py` + `savers/head_only.py` + test (994 test xanh theo từng phần)
-- [ ] Đ1: tạo 9 thí nghiệm + ghim + commit
+- [x] Đ1: tạo 9 thí nghiệm + commit (`e38bb7d`); đã CHỨNG MINH mỗi lượt khác parent đúng 1 khoá đo được
+- [ ] Đ1: `git push` → CI GitHub xanh → `pin.py` 9 notebook → commit bản ghim → push (CHỜ NGƯỜI DÙNG: máy không có `gh` nên không đọc được trạng thái CI)
 - [ ] Đ1: người dùng chạy trên Colab + thu kết quả (CỔNG 1)
 - [ ] Đ2 · Đ3 (CỔNG 2) · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
 
