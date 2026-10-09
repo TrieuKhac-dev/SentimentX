@@ -18,7 +18,7 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 104.** Con số này TĂNG theo
+> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 107.** Con số này TĂNG theo
 > từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn
 > đúng, không phải làm gì). Muốn biết một gói **NNN** mang thêm gì thì mở
 > `handover/packages/NNN/manifest.csv` và đọc cột `class`. Bảng dưới liệt kê các lượt theo **thứ tự nên
@@ -294,6 +294,25 @@ so chúng với cha `weighted_ce` là so HAI biến (hàm mất mát VÀ trọng
 `predictions.csv`, đừng chỉ nhìn chênh lệch điểm; (b) `inverse_by_aspect` (#33/#36) mới là lượt so SẠCH
 với cha: cùng hàm mất mát, chỉ khác chỗ đếm trọng số; (c) `trainable_params` của lượt DoRA **KHÁC** lượt
 cha (DoRA thêm tham số độ lớn) - đó là dấu vết để kiểm trước khi đọc điểm.
+
+### Đợt 11 - 3 notebook MỚI trong gói này (024): FULL FINE-TUNE (học toàn bộ model)
+
+Ba lượt này trả lời câu "nếu cho model học **TẤT CẢ** tham số (encoder + đầu phân loại) thay vì chỉ sửa
+adapter thì hơn bao nhiêu" - mốc đối chứng của cả nhóm LoRA, và là mốc mà các bài báo ABSA thường công bố.
+Chúng nằm ở thư mục `full/` (đường chạy mới), không phải `lora/`.
+
+| # | Notebook | Trả lời câu gì | Khác cha ở đâu | T4 |
+| --- | --- | --- | --- | --- |
+| 38 | `notebooks/phobert-base-v2/full/exp001.ipynb` | full fine-tune, **giữ nguyên `lr` 2e-4** ⇒ phép so chỉ đổi MỘT biến: cơ chế học | `method` + `trainer: full` | ~20-30 phút |
+| 39 | `notebooks/cafebert/full/exp001.ipynb` | như #38, trên model mạnh nhất | `method` + `trainer: full` | ~30-45 phút |
+| 40 | `notebooks/phobert-base-v2/full/exp002.ipynb` | full fine-tune + **`lr` 2e-5** (mức thông lệ cho full fine-tune) | `method` + `trainer: full` + `lr: 0.00002` | ~20-30 phút |
+
+**Ba điều cần biết trước khi chạy nhóm này:** (a) mỗi lượt chiếm **đĩa lớn** - checkpoint chứa CẢ model
+cộng optimizer (cỡ hàng GB, xem `src/training/savers/state_dict.py`), nên chạy xong thì tải thư mục kết
+quả về rồi xoá bớt `model/last` trên Drive nếu chật; (b) kiểm **`trainable_params` phải BẰNG `total_params`**
+trong `metrics.json` - nhỏ hơn nghĩa là đã rơi về đóng băng một phần, và lượt chạy KHÔNG còn là full
+fine-tune; (c) `trainer: full` **không đi** với `inference.quantization: 4bit` (4 bit đóng băng trọng số
+gốc, đó là QLoRA) - notebook sẽ báo lỗi ngay ở ô kiểm tra nếu ai đó khai như vậy.
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
 
