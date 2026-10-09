@@ -8,7 +8,7 @@
 > cơ sở `all` thì đọc theo `all`. Số lấy từ `experiments/**/results/<hash8>/metrics.json`, KHÔNG lấy từ
 > `data/reports/**`. Mục nào còn chờ lượt chạy thì ghi **CHỜ KẾT QUẢ**.
 
-## Trạng thái đợt 11: 40 lượt mới đã tạo + ghim (Đ1-Đ5), 14 lượt LLM còn chặn (Đ6/Đ7)
+## Trạng thái đợt 11: 48 lượt mới đã tạo + ghim (Đ1-Đ7), 6 lượt LLM còn chặn vì repo GATED
 
 Mọi lượt dưới đây **đã tạo, đã ghim vào một commit có thật trên `origin/experiment`, và đã đóng gói bàn
 giao** (`handover/out/`, các gói **022 → 024**). Cột "khác cha" là khoá DUY NHẤT khác lượt cha - đã kiểm
@@ -21,7 +21,8 @@ bằng phép so cấu hình ĐÃ HỢP NHẤT, không bằng mắt.
 | **Đ3** tham số LoRA | `phobert-base-v2/lora/exp016-020`, `cafebert/lora/exp012-016` | 10 | `lora.r` / `lr` / `lora.target_modules` | đã ghim, chờ chạy |
 | **Đ4** mất mát & cách học | `phobert-base-v2/lora/exp021-023`, `cafebert/lora/exp017-019` | 6 | `loss.type: focal` / `loss.class_weight: inverse_by_aspect` / `lora.use_dora` | đã ghim, chờ chạy |
 | **Đ5** full fine-tune | `phobert-base-v2/full/exp001-002`, `cafebert/full/exp001` | 3 | `method` + `trainer: full` (+ `lr` ở `exp002`) | đã ghim, chờ chạy |
-| **Đ6/Đ7** LLM lớn hơn & khác họ | `qwen3-8b`, `qwen3-4b-thinking-2507`, `llama-3.1-8b-instruct`, `mistral-7b-instruct-v0.3`, `vistral-7b-chat` | 14 | mỗi lượt một cấu hình hỏi (0/1/5 ví dụ) | **CHƯA TẠO** - xem chặn ở `present_plan_batch11.md` mục 7 |
+| **Đ6/Đ7** LLM lớn hơn & khác họ | `qwen3-8b` (0/1/5 ví dụ) · `qwen3-4b-thinking-2507` (DÒ + 1 lượt) · `mistral-7b-instruct-v0.3` (0/1/5 ví dụ) | 8 | `model` (+ các khoá thuộc LỚP MODEL: checkpoint, batch, ngưỡng cắt đo được) | đã ghim, chờ chạy |
+| **Đ6/Đ7** phần CHẶN | `llama-3.1-8b-instruct` · `vistral-7b-chat` | 6 | - | **CHƯA TẠO: repo GATED**, cần `HF_TOKEN` |
 
 Bảng này là **cái để đối chiếu khi có kết quả**: mỗi nhóm ghi số vào đúng mục M của báo cáo này
 (Đ1 → M1/M3 · Đ2 → M2 · Đ3 → M5 · Đ4 → M6/M7 · Đ5 → M7 · Đ6/Đ7 → M9).

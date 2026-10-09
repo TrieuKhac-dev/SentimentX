@@ -223,6 +223,15 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       generic theo `model_id` (bản 0.6B và Qwen2.5 đang dùng chính nó; khoá `enable_thinking` chỉ được
       truyền khi config khai) - viết thêm một module nữa là tạo hai nguồn sự thật cho cùng một đường chat,
       đúng thứ dự án cấm. Đổi tên helper `_qwen_spec` -> `_chat_spec` cho đúng nghĩa.
+- [x] Đ6/Đ7 (phần làm được): **8 notebook đã tạo + ghim + đóng gói** (gói **025** rồi **026** sau khi ghim
+      lại vào bản CI xanh `0d9de8a`): `qwen3-8b/prompt-cot/exp001-003` (0/1/5 ví dụ),
+      `qwen3-4b-thinking-2507/prompt-cot/exp001` (DÒ) + `exp002` (lượt chạy), `mistral-7b-instruct-v0.3/
+      prompt-cot/exp001-003`. Mỗi lượt khác cha ĐÚNG khoá thuộc lớp model - đã kiểm, và script kiểm còn
+      khẳng định `prompt`/`examples`/`system_prompt`/`n`/`decoding.*`/`data.version`/`data.roles` GIỐNG HỆT
+      cha. **Phép ĐO token bắt được một lỗi thật:** tokenizer Llama-BPE của Mistral cho **3.194
+      token/review** (Qwen3: 1.877) nên ngưỡng 2.304 sẽ **cắt 100% review** ⇒ đã nâng lên **3.584** (làm
+      tròn lên của mẫu dài nhất 3.522) và ghi số đo vào config; Qwen3-8B/Thinking giữ 2.304 vì cùng họ
+      tokenizer và **0% bị cắt**.
 - [ ] **HAI model GATED chưa làm được**: `meta-llama/Llama-3.1-8B-Instruct` (họ Llama) và
       `Viet-Mistral/Vistral-7B-Chat` (tiếng Việt chuyên biệt, cùng cỡ Mistral). Đã THỬ TẢI và bị từ chối
       (`You are trying to access a gated repo`). Cần: `HF_TOKEN` (điền vào `.env` cho máy này và
