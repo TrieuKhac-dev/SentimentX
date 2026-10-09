@@ -523,7 +523,14 @@ Bảng tra lỗi đầy đủ nằm ở `docs/00_workflow/07_colab.md` mục 7 (
 
 - `env/.env.colab` đã có sẵn token DagsHub của nhóm, nên kết quả tự hiện trên DagsHub. File này
   **không** được commit lên git; muốn dùng token riêng thì thay giá trị trong đó, hoặc thêm
-  `DAGSHUB_TOKEN` vào Colab Secrets (Secrets được đọc trước, nên sẽ thắng tệp này).
+  `DAGSHUB_TOKEN` vào Colab Secrets (Secrets được đọc trước, nên sẽ thắng tệp này). Nếu experiment
+  `sentimentx-absa` bị xoá trên máy chủ, thư viện tự **khôi phục (hoặc tạo lại) rồi nối tiếp**; khi
+  không sửa được thì `run.log` có dòng `[WARN] ... KHÔNG sửa được` và kết quả vẫn nằm đủ trong thư
+  mục kết quả. Không thấy run nào trên DagsHub thì mở `run.log` tìm dòng `[TRACK]` - dòng đó nói lý do.
+- `SENTIMENTX_MODEL` trong tệp env phải để **TRỐNG** khi chạy các lượt khác: biến này ĐÈ nguồn trọng
+  số của MỌI thí nghiệm, nên một dòng còn sót sẽ khiến lượt PhoBERT/CafeBERT nạp nhầm model khác (đã
+  gặp thật: `RuntimeError: bad allocation`). Từ đợt 11, `plan()` **IN CẢNH BÁO** khi biến này trỏ vào
+  model khác `checkpoint` của thí nghiệm - thấy dòng đó thì bỏ biến đi rồi chạy lại.
 - Hai khoá `SENTIMENTX_DATA_ROOT` và `SENTIMENTX_RESULTS_ROOT` trong tệp env để nguyên **dạng chú
   thích**: notebook tự đặt chúng theo thư mục Drive mà nó tìm được. Nếu tệp env khai chúng thì giá
   trị trong tệp sẽ **thắng**, nên chỉ bỏ chú thích khi bạn muốn chỉ đích danh thư mục của mình.

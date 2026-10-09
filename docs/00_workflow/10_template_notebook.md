@@ -89,7 +89,7 @@ chặn cả việc viết logic vào file mặt tiền.
 | Sửa câu chữ trong ô của thí nghiệm CHƯA chạy | Sửa rồi `pin.py` ghim lại | ô GHIM vẫn là ô code đầu tiên | `test_templates.py` (`o_ghim_la_o_code_dau_tien`) |
 | Xoá ô | Được, trừ ô GHIM và ô bootstrap | Đúng MỘT ô mang `RUN_MARKER` | `test_templates.py` (đếm ô chạy) |
 | Thêm ô TRƯỚC ô CHẠY | Nhớ: nó **cũng chạy** ở `--preflight-only` | `--preflight-only` là cờ của `scripts/run_notebook.py`, dừng TRƯỚC ô mang dấu | `tests/workflow/test_run_notebook.py` |
-| Thêm ô SAU ô CHẠY | Nhớ: nó **không** chạy ở `--preflight-only` (đọc `run_result`) | Ô sau ô chạy phải chịu được việc `run_result` chưa có | `test_run_notebook.py` (cắt từ ô CHẠY trở đi) |
+| Thêm ô SAU ô CHẠY | Nhớ: nó **không** chạy ở `--preflight-only` (đọc `run_result`) | Ô sau ô chạy phải chịu được việc `run_result` chưa có - **bản mẫu nay đã làm**: ô kết thúc có khối `if "run_result" not in globals():` in ra việc cần làm thay vì ném `NameError` | `test_run_notebook.py` (cắt từ ô CHẠY trở đi), `test_templates.py::test_o_ket_thuc_chiu_duoc_khi_chua_co_ket_qua` |
 | Đổi bản mẫu cho thí nghiệm MỚI | Sửa `templates/experiment/`, chạy test | Không bắt 46 notebook đang có phải cập nhật theo | `tests/workflow/test_templates.py` |
 | Cập nhật cell cho CẢ BỘ notebook | Mục 4.1 dưới đây (script một lần) | Giữ ô GHIM; `EXP_DIR` đúng; migrate + ghim CÙNG một lượt | `test_templates.py` (per-notebook) |
 | Sửa logic | **Sửa `src/`**, không sửa ô | Ô chỉ là lớp gọi mỏng | `test_templates.py::test_o_bootstrap_mong_...` |
@@ -114,10 +114,12 @@ lượt. Ai sửa ô này thì `test_templates.py::test_moi_o_co_the_loi_deu_co_
 3. **Chạy thử trên máy cá nhân**, không cần Jupyter:
    ```bash
    python scripts/run_notebook.py <model>/<method>/<expNNN> --preflight-only   # chỉ tới ô kiểm trước
-   python scripts/run_notebook.py <model>/<method>/<expNNN> --limit 8          # chạy nhanh 8 mẫu
+   python scripts/run_notebook.py <model>/<method>/<expNNN> --smoke            # n = 8 và 1 epoch
    ```
-   `--limit` chỉ đổi `n` trong RAM, không ghi file nào. Hai cờ này là của `scripts/run_notebook.py`;
-   notebook thật trên Colab không có cờ nào.
+   `--limit N` chỉ đổi `n` trong RAM và `--epochs N` chỉ đổi số epoch, cả hai không ghi file nào;
+   `--smoke` là viết gọn của `--limit 8 --epochs 1`. **`--limit` một mình không rút ngắn phần huấn
+   luyện** (nó chỉ rút số mẫu CHẤM), nên chạy thử nhanh thì dùng `--smoke`. Các cờ này là của
+   `scripts/run_notebook.py`; notebook thật trên Colab không có cờ nào.
 4. **Ghim rồi commit**: `python scripts/pin.py <model>/<method>/<expNNN>` - một mình file notebook,
    rồi đẩy lên nhánh `experiment` (`docs/00_workflow/01_flow.md`).
 5. **KHÔNG dựng lại notebook của thí nghiệm đã chạy.** Chỉ khi bản ghi đó thật sự sai (ví dụ trỏ sai

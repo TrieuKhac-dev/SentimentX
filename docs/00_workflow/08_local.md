@@ -91,6 +91,8 @@ thư mục chưa theo dõi đều còn nguyên - cuối lượt chạy script t�
 | Chạy đủ (như Run all) | `python scripts/run_notebook.py <model>/<method>/<expNNN>` |
 | Kiểm trước khi chạy, chưa tốn GPU (~30 giây) | thêm `--preflight-only` |
 | Chạy thử vài mẫu (`n = N`, KHÔNG sửa file nào) | thêm `--limit 8` |
+| Chạy thử NHANH thật sự (`n = 8` + `1` epoch) | thêm `--smoke` |
+| Ép số epoch cho lượt chạy thử | thêm `--epochs 1` |
 | Ghi thêm toàn bộ đầu ra ra file | thêm `--log <đường dẫn>` |
 | Giữ thư mục code tạm để soi | thêm `--keep` |
 
@@ -101,8 +103,17 @@ Colab.` - đó là bình thường (`docs/00_workflow/07_colab.md` mục 4.3).
 Notebook gồm những ô nào, thứ tự ra sao, và sửa một ô thì phải làm gì:
 `docs/00_workflow/10_template_notebook.md`.
 
-`--limit N` hoạt động bằng cách ép `n = N` ngay trong RAM sau khi nạp config, nên tên thư mục kết quả
-có `nN` và không lẫn với lượt chạy đủ; config trong git vẫn nguyên.
+`--limit N` ép `n = N` và `--epochs N` ép số epoch, cả hai **chỉ trong RAM** sau khi nạp config - file
+config trong git vẫn nguyên. `--smoke` là viết gọn của `--limit 8 --epochs 1`.
+
+**`--limit` một mình KHÔNG làm lượt chạy nhanh hơn**: nó chỉ rút số MẪU CHẤM, còn phần huấn luyện vẫn
+học hết `train` với đủ số epoch - một lượt probe/LoRA vẫn mất 1-2 giờ trên GPU 6 GB (đã gặp thật đợt
+11). Muốn chạy thử nhanh thật thì dùng `--smoke`.
+
+**Tên thư mục kết quả KHÔNG đánh dấu lượt chạy thử**: nó là mã băm của danh tính lượt chạy (config +
+dữ liệu + commit đã ghim), không mang `n8`/`e1`. Muốn biết một thư mục là lượt chạy thử hay lượt đủ
+thì đọc `subset.limit` và `training.epochs` trong chính `metrics.json` của thư mục đó, và **xoá thư
+mục chạy thử sau khi dùng** để nó không lẫn vào bảng điểm.
 
 **Cách thay thế: mở notebook bằng Jupyter/VS Code rồi bấm Run all.** Được, nhưng nhớ hai điều:
 kernel phải có `ipykernel` (mục 2), và bootstrap sẽ `git checkout` commit ghim NGAY TRONG repo -

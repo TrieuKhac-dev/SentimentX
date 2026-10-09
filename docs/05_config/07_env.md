@@ -34,7 +34,7 @@ Việt); tệp `.env*` của máy cá nhân để UTF-8 không BOM.
 | `SENTIMENTX_ENV`          | `colab` hoặc `local`                                          |
 | `HF_HOME`                 | nơi cache model; trên Colab để ở đĩa tạm, không để trên Drive |
 | `HF_TOKEN`                | token Hugging Face, **chỉ cần khi tải repo GATED** (`meta-llama/Llama-3.1-8B-Instruct`, `Viet-Mistral/Vistral-7B-Chat`): tạo ở https://huggingface.co/settings/tokens (quyền Read) **và** bấm nhận điều khoản trên trang model. Colab đọc tên này từ Secrets TRƯỚC file env (`runtime._from_colab_secrets`); máy cá nhân điền trong `.env`, và `scripts/run_notebook.py::forward_env` chuyển tiếp mọi khoá không-trống cho kernel |
-| `SENTIMENTX_MODEL`        | đường dẫn bản trọng số có sẵn trên máy (ô chạy của notebook đọc biến này); bỏ trống thì dùng `checkpoint` trong `configs/models/<model_id>.yaml` |
+| `SENTIMENTX_MODEL`        | đường dẫn bản trọng số có sẵn trên máy (ô chạy của notebook đọc biến này); bỏ trống thì dùng `checkpoint` trong `configs/models/<model_id>.yaml`. Biến này **ĐÈ model của MỌI thí nghiệm**: trỏ vào model KHÁC `checkpoint` thì `plan()` in CẢNH BÁO ngay (đã từng làm lượt PhoBERT nạp Qwen3-4B rồi chết `bad allocation`); trỏ vào thư mục **cùng tên** model thì không cảnh báo |
 | `SENTIMENTX_END_SESSION`  | `1` (mặc định) = ngắt phiên Colab khi chạy xong / khi một ô lỗi / khi ô kiểm trước dừng; `0` = giữ phiên lại. Trên máy cá nhân không có tác dụng. Giá trị lạ thì notebook báo rõ và **giữ** phiên |
 
 ## Thứ tự nạp
