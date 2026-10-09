@@ -22,11 +22,12 @@ Thêm cách huấn luyện mới: viết một module trong thư mục này rồ
 khai `training.trainer: <tên>` trong config của thí nghiệm.
 """
 
-from src.training import encoders, lora
+from src.training import encoders, lora, none
 
 # Các cách huấn luyện đang có, theo thứ tự đọc.
 TRAINERS = {
     lora.NAME: lora,
+    none.NAME: none,
 }
 
 
