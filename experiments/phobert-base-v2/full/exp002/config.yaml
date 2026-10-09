@@ -1,0 +1,76 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp002
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: phobert-base-v2/lora/exp005
+
+model: phobert-base-v2
+method: full
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác.
+notes: "Full fine-tune + lr 2e-5 (muc thong le cho full fine-tune)"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `val` để chọn `model/best`.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+# ĐÚNG MỘT BIẾN so với `exp002`: CƠ CHẾ HỌC của đầu phân loại.
+# `head.trainable: true` = đầu phân loại HỌC cùng adapter, dùng CHUNG `lr` với LoRA (cố ý không có
+# `lr` riêng: một biến mỗi thí nghiệm). Ở mặc định `false`, `peft` đóng băng mọi tham số không phải
+# adapter nên đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN CỐ ĐỊNH: `head.pt` của bốn lượt LoRA đã
+# chạy giống nhau TỪNG BYTE - đó là SỐ ĐO, không phải suy đoán (src/training/lora.py).
+# Dấu vết để kiểm trong `metrics.json`: `trainable_params` phải LỚN HƠN lượt đóng băng đúng bằng số
+# tham số của đầu phân loại = 7 khía cạnh × (768 ẩn × 3 mã + 3) = 16.149.
+head:
+  trainable: true
+
+# Cùng công thức với `exp002` (và cũng là công thức của bốn lượt LoRA đã chạy): `weighted_ce` +
+# `class_weight: inverse`; giữ nguyên để phép so chỉ còn MỘT biến. Đọc kết quả theo CẶP chỉ số: F1
+# lớp âm VÀ phát hiện khía cạnh, KHÔNG bằng accuracy.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# LƯU Ý khi chạy - PhoBERT cần bộ tách từ VnCoreNLP, gồm HAI thứ không có trong git:
+#   * Java (JDK/JRE 1.8+) và gói `py-vncorenlp`. Trên Colab ô bootstrap tự cài (`default-jdk` + pip);
+#     trên máy cá nhân thì chạy scripts/setup_java.ps1.
+#   * Model VnCoreNLP (~27 MB: `VnCoreNLP-1.2.jar` + `models/wordsegmenter/`). Khai ở
+#     `requires_extra` dưới đây để notebook kiểm TRƯỚC khi chạy; gói bàn giao đã kèm sẵn thư mục đó.
+requires_extra:
+  # Mục bắt đầu bằng `data/` tính từ GỐC DỮ LIỆU, không phải gốc repo: trên Colab gốc đó là thư mục
+  # Drive, còn mã nguồn nằm ở `/content/SentimentX`. (Khác `prompt`/`examples`: những đường dẫn đó
+  # tính từ thư mục thí nghiệm trước.) Xem docs/00_workflow/07_colab.md mục 2.
+  - data/models/vncorenlp
+
+trainer: full
+lr: 0.00002
+
+# --- Đ5: FULL FINE-TUNE -----------------------------------------------------
+# Lượt này KHÁC cha ở ĐÚNG HAI khoá: `method` (tên đường chạy) và `trainer` (cách huấn luyện). Mọi siêu
+# tham số khác giữ nguyên: cùng dữ liệu, cùng hàm mất mát, cùng số epoch, cùng `lr` - riêng lượt này HẠ `lr` xuống 0.00002, cùng cơ chế
+# đầu phân loại (`head.trainable: true`). Nghĩa là phép so trả lời đúng một câu: ĐỔI CƠ CHẾ HỌC (chỉ sửa
+# adapter so với sửa toàn bộ model) được bao nhiêu điểm - không trộn thêm biến nào khác.
+# Cha: phobert-base-v2/lora/exp005
+#
+# Full fine-tune + lr 2e-5 (muc thong le cho full fine-tune)
+#
+# HAI ĐIỀU PHẢI ĐỌC KÈM:
+#   * `trainable_params` trong `metrics.json` phải BẰNG `total_params` (mọi tham số đều học). Nếu nó nhỏ
+#     hơn, cấu hình đã rơi về đóng băng một phần và lượt chạy KHÔNG còn là full fine-tune.
+#   * Checkpoint của lượt này NẶNG (cả encoder + optimizer), cỡ hàng GB - xem
+#     `src/training/savers/state_dict.py`. Đây là lượt ĐỐI CHỨNG, không chạy cho mọi model.
