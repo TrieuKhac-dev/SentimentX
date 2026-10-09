@@ -1,0 +1,68 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp015
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp002
+
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác.
+notes: "learning rate 4e-4 (lon hon 2e-4)"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `val` để chọn `model/best`.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+# ĐÚNG MỘT BIẾN so với `exp001`: CƠ CHẾ HỌC của đầu phân loại.
+# `head.trainable: true` = đầu phân loại HỌC cùng adapter, dùng CHUNG `lr` với LoRA (cố ý không có
+# `lr` riêng: một biến mỗi thí nghiệm). Ở mặc định `false`, `peft` đóng băng mọi tham số không phải
+# adapter nên đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN CỐ ĐỊNH: `head.pt` của bốn lượt LoRA đã
+# chạy giống nhau TỪNG BYTE - đó là SỐ ĐO, không phải suy đoán (src/training/lora.py).
+# Dấu vết để kiểm trong `metrics.json`: `trainable_params` phải LỚN HƠN lượt đóng băng đúng bằng số
+# tham số của đầu phân loại = 7 khía cạnh × (1.024 ẩn × 3 mã + 3) = 21.525. (CafeBERT rộng 1.024 ẩn, KHÔNG
+# phải 768: đo được 7.132.181 - 7.110.656 = 21.525.)
+head:
+  trainable: true
+
+# Cùng công thức với `exp001`: `weighted_ce` + `class_weight: inverse` - hướng DUY NHẤT đã chứng minh
+# có tác dụng với lớp âm (PhoBERT 88,40 → 96,62). Giữ nguyên để phép so chỉ còn MỘT biến; đọc kết quả
+# theo CẶP chỉ số (F1 lớp âm VÀ phát hiện khía cạnh), KHÔNG chỉ accuracy.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Không có `requires_extra`: CafeBERT đọc nguyên bản (`segmenter: none`).
+
+lr: 0.0004
+
+# --- Đ3: THAM SỐ LoRA -------------------------------------------------------
+# Lượt này KHÁC cha ĐÚNG MỘT khoá ĐO ĐƯỢC, phần còn lại y hệt cha (cùng seed, cùng hàm mất mát, cùng
+# cơ chế đầu phân loại, cùng số epoch). Biến của lượt này: `lr: 0.0004`
+# Cha: cafebert/lora/exp002
+#
+# learning rate 4e-4 (lon hon 2e-4)
+#
+# HAI ĐIỀU PHẢI GHI KHI ĐỌC:
+#   * đổi `lora.r` mà GIỮ `lora.alpha` = 32 nghĩa là đổi luôn tỉ lệ scaling `alpha / r` (16 -> 4 khi r = 8,
+#     và -> 1 khi r = 32). Vì vậy lượt này đo "đổi bậc tự do CÙNG vơi hệ số scaling" chứ không tách riêng
+#     hai thứ; muốn tách thì phải chạy thêm cặp giữ nguyên `alpha / r`.
+#   * `lora.target_modules` đổi từ 4 module (`query`, `key`, `value`, `dense`) xuống 2 (`query`, `value`)
+#     nên `trainable_params` GIẢM - con số đó là DẤU VẾT kiểm trước khi đọc điểm.
+# Đọc theo CẶP chỉ số (F1 lớp âm + macro-F1 + số ô), không chỉ accuracy: xem docs/04_experiments/metrics.md.
+# Biên nhiễu của encoder đã đo là +-0,33...+-0,67 điểm, nên chênh lệch nhỏ hơn mức đó KHÔNG kết luận được.
