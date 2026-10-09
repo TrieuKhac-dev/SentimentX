@@ -194,8 +194,26 @@ ngay sau mỗi lần lưu.
   bootstrap của notebook tự cài hai gói này; xem `docs/00_workflow/06_conventions.md` mục "Import").
 - **Chuỗi theo bước lên MLflow**: mỗi điểm val được gửi kèm `step`, nên MLflow tự vẽ curve - phiên bị
   ngắt giữa chừng vẫn còn phần đã chạy.
-- **Hàm mất mát** (`loss.type`): `ce` mặc định, `weighted_ce` + `loss.class_weight: inverse` khi muốn
-  chống mất cân bằng. Đổi loss đổi `config_sha256` nên ra thư mục kết quả MỚI.
+- **Hàm mất mát** (`loss.type`) - ba lựa chọn:
+  - `ce` (mặc định): cross-entropy thường;
+  - `weighted_ce` + `loss.class_weight` khác `none`: nhân trọng số lớp;
+  - `focal` + `loss.gamma: <số > 0>` (đợt 11): nhân thêm `(1 - p_t)^gamma` để dồn gradient vào những ô
+    model còn yếu. `gamma = 0` bị **TỪ CHỐI**: nó chính là `ce`, nên nhận nó nghĩa là bảng so sánh có
+    một dòng tưởng đã thử focal mà thực ra không thử gì.
+
+  `loss.class_weight` áp cho **mọi** hàm (`focal` + trọng số = "focal có trọng số"), và có hai cách đếm:
+  `inverse` đếm **toàn cục** (một bảng `C`), `inverse_by_aspect` đếm **riêng từng khía cạnh** (bảng
+  `A x C`) - cách thứ hai để một khía cạnh gần như chỉ có nhãn dương (`price`: 15 ô âm ở train, 0 ô âm ở
+  val) không bị pha loãng bởi sáu khía cạnh còn lại. Hai cách dùng **cùng một công thức chuẩn hoá**, nên
+  đổi qua lại chỉ đổi CHỖ ĐẾM. `ce` + trọng số bị **từ chối** vì nó TRÙNG `weighted_ce`.
+- **Cách huấn luyện** (`trainer`) và **DoRA** (đợt 11): `lora` là adapter `peft` của mọi lượt đã chạy,
+  `none` là không adapter (SÀN / linear probe). Thêm khoá **tuỳ chọn** `lora.use_dora: true` để chạy
+  **DoRA** (weight-decomposed LoRA): adapter học cả **độ lớn** của cập nhật, không chỉ hướng. Khoá này
+  KHÔNG khai trong `configs/experiments/training.yaml` mà khai ở lớp thí nghiệm: khai ở file dùng chung
+  là đổi mã băm danh tính (`_identity_config`) của **mọi** lượt chạy, tức mọi lượt cũ chạy lại sẽ rơi vào
+  thư mục kết quả mới. Đó cũng là lý do `ce`/`weighted_ce`/`focal` phải được chọn bằng một khoá CÓ SẴN
+  (`loss.type`), không thêm khoá mới.
+- Đổi loss/hàm huấn luyện đổi `config_sha256` nên ra thư mục kết quả MỚI.
 
 ### Kết quả hai hàm mất mát (số đo thật, bốn lượt LoRA)
 

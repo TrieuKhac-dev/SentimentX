@@ -450,7 +450,7 @@ KNOWN_KEYS = (
     "save.predictions", "save.plots", "save.confusion",
     # lớp training
     "enabled", "trainer",
-    "lora.r", "lora.alpha", "lora.dropout", "lora.target_modules",
+    "lora.r", "lora.alpha", "lora.dropout", "lora.target_modules", "lora.use_dora",
     "lr", "batch", "epochs", "grad_accum", "weight_decay",
     # cơ chế học của đầu phân loại (đóng băng hay học cùng adapter) - xem src/training/lora.py
     "head.trainable",
@@ -460,8 +460,8 @@ KNOWN_KEYS = (
     "checkpoints.save_best", "checkpoints.delete_intermediate", "checkpoints.best_metric",
     # dừng sớm (chỉ đường huấn luyện encoder)
     "early_stop.enabled", "early_stop.patience", "early_stop.min_delta",
-    # hàm mất mát
-    "loss.type", "loss.class_weight",
+    # hàm mất mát. `loss.gamma` chỉ được đọc khi `loss.type: focal` (bắt buộc > 0 ở đó).
+    "loss.type", "loss.class_weight", "loss.gamma",
     # lớp tracking
     "tracker", "experiment", "artifacts",
     # lớp config thí nghiệm

@@ -112,6 +112,28 @@ def _flag(config, key):
     return value
 
 
+def _optional_flag(config, key, default=False):
+    """Đọc một khoá `true`/`false` mà lượt chạy KHÔNG buộc phải khai. Thiếu khoá = `default`.
+
+    Dùng cho khoá MỚI thêm sau khi đã có kết quả: khai nó vào file dùng chung
+    (`configs/experiments/training.yaml`) là ĐỔI hàm băm danh tính của MỌI lượt chạy - vì mã danh tính
+    băm cả cấu hình đã hợp nhất (`experiments._identity_config`) - nên mọi lượt cũ chạy lại sẽ rơi vào
+    thư mục kết quả MỚI. Đọc kiểu chịu được thiếu thì giữ nguyên danh tính của các lượt đã chạy mà vẫn
+    khai được ở lớp thí nghiệm. Giá trị khai SAI KIỂU vẫn là lỗi (`_flag`).
+    """
+    node = config
+    for part in str(key).split("."):
+        if not isinstance(node, dict) or part not in node:
+            return bool(default)
+        node = node[part]
+    if node is None:
+        return bool(default)
+    if not isinstance(node, bool):
+        raise TrainingError(
+            "`{}` phải là `true` hoặc `false` (đang là {!r}).".format(key, node))
+    return node
+
+
 def _segmenter(config):
     """Bộ tách từ của lượt chạy: `preprocess.segmenter` trong cấu hình đã hợp nhất.
 
@@ -158,6 +180,10 @@ def settings(config, model_id):
         # (one-hot ghép vào vector review) - một lớp dùng chung có điều kiện, thay vì 7 bộ trọng số
         # riêng. Cơ chế học, không phải siêu tham số; xem docs/04_experiments/06_lora_encoder.md.
         "head_aspect_marker": _flag(config, "head.aspect_marker"),
+        # DoRA (weight-decomposed LoRA): adapter học cả ĐỘ LỚN thay vì chỉ hướng cập nhật.
+        # KHOÁ TUỲ CHỌN - xem `_optional_flag`: khai nó vào file dùng chung là đổi mã danh tính của
+        # mọi lượt chạy, nên nó chỉ được khai ở LỚP THÍ NGHIỆM, khoá `lora.use_dora`.
+        "use_dora": _optional_flag(config, "lora.use_dora"),
 
         "max_length": int(_get(config, "preprocess.max_length")),
         # Bộ tách từ đưa vào `build_inputs()` - xem `_segmenter()` ngay trên.
@@ -461,10 +487,13 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
     if str(found.get("quantization") or "none") == "4bit":
         classifier.encoder = prepare_model_for_kbit_training(classifier.encoder)
     try:
+        # `use_dora` CHỈ truyền khi lượt chạy khai `true`: bản `peft` cũ không có tham số này, và mọi
+        # lượt đã chạy đều dùng đường mặc định (LoRA thường) nên không có lý do gì chạm vào chúng.
+        options = {"use_dora": True} if found.get("use_dora") else {}
         model = get_peft_model(classifier, LoraConfig(
             r=found["lora_r"], lora_alpha=found["lora_alpha"], lora_dropout=found["lora_dropout"],
             target_modules=list(found["target_modules"]), bias="none",
-            task_type="FEATURE_EXTRACTION"))
+            task_type="FEATURE_EXTRACTION", **options))
     except ImportError as exc:
         raise _peft_error(exc) from exc
     if trainable:
@@ -502,61 +531,148 @@ def read_head_config(directory):
     return savers.get().read_metadata(directory)
 
 
-def masked_loss(logits, targets, mask, n_codes, weights=None):
+def masked_loss(logits, targets, mask, n_codes, weights=None, gamma=0.0):
     """Cross-entropy trên từng ô ĐƯỢC TÍNH: ô `mask = 0` không vào tử số lẫn mẫu số.
 
     Mẫu số là số ô được tính (không phải số ô), nên một review chỉ nhắc một khía cạnh vẫn đóng góp
     đúng trọng số của nó thay vì bị pha loãng bởi sáu khía cạnh không nhắc.
 
-    `weights` (tuỳ chọn): trọng số theo LỚP (`class_weight: inverse`) để chống mất cân bằng - lớp
-    hiếm được đẩy trọng số lên. `None` nghĩa là cross-entropy thường.
+    `weights` (tuỳ chọn): trọng số chống mất cân bằng. Hai hình dạng được nhận:
+    - `(C,)` - theo LỚP (`class_weight: inverse`): mọi khía cạnh dùng chung một bảng;
+    - `(A, C)` - theo KHÍA CẠNH (`class_weight: inverse_by_aspect`): mỗi khía cạnh có bảng riêng, vì
+      một khía cạnh gần như chỉ có nhãn dương (ví dụ `price`) sẽ bị pha loãng khi cân chung.
+
+    `gamma > 0` (tuỳ chọn): **FOCAL** - nhân thêm `(1 - p_t)^gamma`, tức dồn gradient vào những ô model
+    còn yếu (p_t nhỏ) và giảm dần ảnh hưởng của ô đã đoán đúng. `p_t = exp(-ce)` vì `ce = -log p_t`.
+    Hệ số focal được nhân SAU trọng số lớp, nên `focal` + `inverse*` là "focal CÓ trọng số" - ghi ra
+    đây để người đọc số không tưởng là hai thứ đó loại trừ nhau.
     """
     import torch
 
+    flat_targets = targets.reshape(-1)
     flat = torch.nn.functional.cross_entropy(
-        logits.reshape(-1, int(n_codes)), targets.reshape(-1), reduction="none")
+        logits.reshape(-1, int(n_codes)), flat_targets, reduction="none")
     if weights is not None:
-        flat = flat * weights.to(flat.dtype)[targets.reshape(-1)]
+        table = weights.to(flat.dtype)
+        if table.dim() == 2:
+            # Ô thứ i của một lô LÀ khía cạnh thứ `i % A` (nhãn có đúng `A` ô cho mỗi review) - cùng quy
+            # ước với `class_weights(per_aspect=True)`; hai nơi phải sửa cùng nhau.
+            cells = flat.shape[0]
+            aspect = torch.arange(cells, device=flat.device) % table.size(0)
+            flat = flat * table[aspect, flat_targets]
+        else:
+            flat = flat * table[flat_targets]
+    if gamma:
+        flat = flat * (1.0 - torch.exp(-flat)) ** float(gamma)
     weights_mask = mask.reshape(-1).to(flat.dtype)
     return (flat * weights_mask).sum() / weights_mask.sum().clamp(min=1.0)
 
 
+# Hàm mất mát hợp lệ và cách tính trọng số lớp. Một nguồn duy nhất: `loss_settings` kiểm theo hai bộ này,
+# nên thêm hàm mới chỉ phải sửa ở đây + `masked_loss` (nơi dùng `gamma`).
+LOSS_TYPES = ("ce", "weighted_ce", "focal")
+CLASS_WEIGHTS = ("none", "inverse", "inverse_by_aspect")
+
+
 def loss_settings(config):
-    """Cấu hình hàm mất mát. Thiếu khoá là LỖI kèm nơi khai (không đặt mặc định trong code)."""
+    """Cấu hình hàm mất mát. Thiếu khoá là LỖI kèm nơi khai (không đặt mặc định trong code).
+
+    Ba hàm:
+    - `ce`: cross-entropy thường;
+    - `weighted_ce`: cross-entropy NHÂN TRỌNG SỐ LỚP - phải đi kèm `class_weight` khác `none`;
+    - `focal`: cross-entropy nhân `(1 - p_t)^gamma` - BẮT BUỘC khai `loss.gamma > 0`. `gamma` là tham số
+      của hàm nên không đoán hộ; `gamma = 0` chính là cross-entropy thường, muốn thế thì khai `ce`.
+
+    `class_weight` áp cho MỌI hàm (`focal` + trọng số = "focal có trọng số"). Riêng `ce` + trọng số là
+    LỖI vì nó TRÙNG `weighted_ce`: hai tên cho cùng một phép tính thì bảng so sánh sẽ có hai dòng trông
+    như hai thí nghiệm khác nhau.
+    """
     kind = str(_get(config, "loss.type")).strip().lower()
-    if kind not in ("ce", "weighted_ce"):
-        raise TrainingError(
-            "`loss.type` = '{}' không hợp lệ. Chọn `ce` hoặc `weighted_ce`.".format(kind))
+    if kind not in LOSS_TYPES:
+        raise TrainingError("`loss.type` = '{}' không hợp lệ. Chọn {}.".format(
+            kind, ", ".join("`{}`".format(name) for name in LOSS_TYPES)))
     class_weight = str(_get(config, "loss.class_weight")).strip().lower()
-    if class_weight not in ("none", "inverse"):
+    if class_weight not in CLASS_WEIGHTS:
+        raise TrainingError("`loss.class_weight` = '{}' không hợp lệ. Chọn {}.".format(
+            class_weight, ", ".join("`{}`".format(name) for name in CLASS_WEIGHTS)))
+    if kind == "weighted_ce" and class_weight == "none":
         raise TrainingError(
-            "`loss.class_weight` = '{}' không hợp lệ. Chọn `none` hoặc `inverse`.".format(class_weight))
-    if kind == "weighted_ce" and class_weight != "inverse":
+            "`loss.type: weighted_ce` cần `loss.class_weight` là `inverse` hoặc `inverse_by_aspect` "
+            "(đang là 'none'): không có trọng số thì nó trùng `loss.type: ce`, và hai lượt chạy sẽ trông "
+            "như một phép so trong khi thực ra không đo gì.")
+    if kind == "ce" and class_weight != "none":
         raise TrainingError(
-            "`loss.type: weighted_ce` cần `loss.class_weight: inverse` (đang là '{}').".format(
-                class_weight))
-    return {"type": kind, "class_weight": class_weight}
+            "`loss.type: ce` với `loss.class_weight: {}` trùng `loss.type: weighted_ce` - khai một "
+            "trong hai, đừng khai cả hai tên cho cùng một phép tính.".format(class_weight))
+    gamma = 0.0
+    if kind == "focal":
+        gamma = float(_get(config, "loss.gamma"))
+        if gamma <= 0:
+            raise TrainingError(
+                "`loss.gamma` = {} không hợp lệ: focal cần `gamma > 0` (gamma = 0 là cross-entropy "
+                "thường - muốn thế thì khai `loss.type: ce`).".format(gamma))
+    return {"type": kind, "class_weight": class_weight, "gamma": gamma}
 
 
-def class_weights(labels, mask, codes, device):
+def class_weights(labels, mask, codes, device, per_aspect=False, n_aspects=None):
     """Trọng số lớp = NGHỊCH ĐẢO tần suất, chuẩn hoá để trung bình bằng 1.
 
     Đếm trên các ô ĐƯỢC TÍNH của tập train (ô bị loại không vào đếm). Lớp không xuất hiện nhận trọng
     số 0 - nó không có ô nào nên trọng số không ảnh hưởng gì.
+
+    `per_aspect=True`: đếm RIÊNG theo từng khía cạnh và trả về bảng `(n_aspects, n_codes)`. VÌ SAO CẦN:
+    với `inverse` toàn cục, một khía cạnh gần như chỉ có nhãn dương (dự án này: `price` có 15 ô âm ở
+    train, 0 ô âm ở val) bị PHA LOÃNG - khối lượng ô của sáu khía cạnh khác quyết định trọng số lớp, nên
+    đầu phân loại học được cách "đoán theo tần suất" cho khía cạnh đó. Đếm riêng thì mỗi khía cạnh được
+    cân bằng ĐÚNG phần dữ liệu của nó; khía cạnh không có mã nào vẫn nhận trọng số 0.
+
+    Chuẩn hoá DÙNG CHUNG MỘT CÔNG THỨC cho cả hai đường (`tổng_của_dòng / (số_mã × tần_suất)`), nên đổi
+    từ `inverse` sang `inverse_by_aspect` KHÔNG đổi thang độ lớn của trọng số - nó chỉ đổi CHỖ ĐẾM (toàn
+    cục hay từng khía cạnh). Giữ nguyên công thức cũ là điều kiện để lượt `weighted_ce + inverse` đã chạy
+    còn là mốc so sánh.
     """
     import torch
 
-    counts = {int(code): 0 for code in codes}
-    for row, keep in zip(labels, mask):
-        for value, flag in zip(row, keep):
-            if flag and int(value) in counts:
-                counts[int(value)] += 1
-    total = sum(counts.values())
-    if not total:
-        return None
     k = len(codes)
-    values = [total / (k * counts[int(code)]) if counts[int(code)] else 0.0 for code in codes]
-    return torch.tensor(values, dtype=torch.float32, device=device)
+    positions = {int(code): position for position, code in enumerate(codes)}
+
+    def normalise(counts):
+        total = sum(counts)
+        if not total:
+            return None
+        return [total / (k * count) if count else 0.0 for count in counts]
+
+    if not per_aspect:
+        counts = {int(code): 0 for code in codes}
+        for row, keep in zip(labels, mask):
+            for value, flag in zip(row, keep):
+                if flag and int(value) in counts:
+                    counts[int(value)] += 1
+        values = normalise([counts[int(code)] for code in codes])
+        if values is None:
+            return None
+        return torch.tensor(values, dtype=torch.float32, device=device)
+
+    # Mỗi review có ĐÚNG `A` ô, và ô thứ i LÀ khía cạnh thứ i (không phải `A x C`: nhãn là MỘT mã cho
+    # mỗi khía cạnh, đúng dạng đầu phân loại trả về `(B, A, C)` sau khi lấy `argmax` qua trục mã). Cùng
+    # quy ước với `masked_loss`, nên hai nơi phải sửa cùng nhau - lệch là trọng số rơi sang khía cạnh
+    # khác mà không có gì báo.
+    a = int(n_aspects or 0)
+    if a <= 0:
+        raise TrainingError(
+            "`class_weight: inverse_by_aspect` cần biết số khía cạnh, nhưng không có khía cạnh nào.")
+    grid = [[0] * k for _ in range(a)]
+    for row, keep in zip(labels, mask):
+        for index, (value, flag) in enumerate(zip(row, keep)):
+            position = positions.get(int(value)) if flag else None
+            if position is None:
+                continue
+            grid[index % a][position] += 1
+    rows = []
+    for counts in grid:
+        values = normalise(counts)
+        rows.append(values if values is not None else [0.0] * k)
+    return torch.tensor(rows, dtype=torch.float32, device=device)
 
 
 def parameter_counts(model):
@@ -734,14 +850,22 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
                         segmenter=found["segmenter"])
     targets = targets_from(train["labels"], codes)
     keep = torch.tensor(train["mask"], dtype=torch.float32)
-    # Trọng số lớp (chống mất cân bằng) chỉ dùng khi config khai `weighted_ce` + `inverse`.
+    # Trọng số lớp (chống mất cân bằng) chỉ dùng khi config khai `class_weight` khác `none`. `inverse`
+    # đếm TOÀN CỤC (một bảng `C`); `inverse_by_aspect` đếm RIÊNG từng khía cạnh (bảng `A x C`).
     loss_weights = None
-    if loss_policy["type"] == "weighted_ce" and loss_policy["class_weight"] == "inverse":
+    if loss_policy["class_weight"] == "inverse":
         loss_weights = class_weights(train["labels"], train["mask"], codes, device)
-        found["loss_weights"] = [float(value) for value in loss_weights.tolist()] if loss_weights is not None else None
-    else:
+    elif loss_policy["class_weight"] == "inverse_by_aspect":
+        loss_weights = class_weights(train["labels"], train["mask"], codes, device,
+                                     per_aspect=True, n_aspects=len(aspects))
+    if loss_weights is None:
         found["loss_weights"] = None
+    elif loss_weights.dim() == 2:
+        found["loss_weights"] = [[float(value) for value in row] for row in loss_weights.tolist()]
+    else:
+        found["loss_weights"] = [float(value) for value in loss_weights.tolist()]
     found["loss_policy"] = dict(loss_policy)
+    found["loss_gamma"] = float(loss_policy.get("gamma") or 0.0)
     _Multi, Rows = build_classes()
     loader = DataLoader(Rows(ids, masks, targets, keep), batch_size=found["batch"], shuffle=True,
                         generator=torch.Generator().manual_seed(seed))
@@ -825,7 +949,8 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
         for index, batch in enumerate(loader):
             batch = {key: value.to(device) for key, value in batch.items()}
             logits = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
-            loss = masked_loss(logits, batch["labels"], batch["mask"], len(codes), loss_weights)
+            loss = masked_loss(logits, batch["labels"], batch["mask"], len(codes), loss_weights,
+                               gamma=loss_policy.get("gamma") or 0.0)
             (loss / found["grad_accum"]).backward()
             pending += 1
             if pending < found["grad_accum"]:

@@ -159,6 +159,20 @@ class SettingsTest(unittest.TestCase):
             lora.encode(FakeModule, ["a", "b"], 64, segmenter="pyvi")
         self.assertEqual(seen["segmenter"], "pyvi")
 
+    def test_use_dora_is_optional_and_off_by_default(self):
+        """`lora.use_dora` là khoá TUỲ CHỌN (thiếu = tắt): lượt cũ giữ nguyên hành vi và mã danh tính.
+
+        Khai nó vào file dùng chung sẽ đổi hàm băm danh tính của MỌI lượt chạy (mã đó băm cả cấu hình đã
+        hợp nhất), nên nó chỉ thuộc lớp thí nghiệm - xem `lora._optional_flag`.
+        """
+        self.assertIs(lora.settings(BASE_CONFIG, "visobert")["use_dora"], False)
+        base = {"r": 8, "alpha": 16, "dropout": 0.05, "target_modules": ["query"]}
+        self.assertIs(lora.settings(dict(BASE_CONFIG, lora=dict(base, use_dora=True)),
+                                    "visobert")["use_dora"], True)
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.settings(dict(BASE_CONFIG, lora=dict(base, use_dora="true")), "visobert")
+        self.assertIn("lora.use_dora", str(caught.exception))
+
     def test_check_without_enabled_says_so(self):
         self.assertTrue(lora.check({"enabled": False}, "visobert"))
 
@@ -553,7 +567,38 @@ class LossSettingsTest(unittest.TestCase):
     def test_reads_the_policy(self):
         self.assertEqual(
             lora.loss_settings({"loss": {"type": "weighted_ce", "class_weight": "inverse"}}),
-            {"type": "weighted_ce", "class_weight": "inverse"})
+            {"type": "weighted_ce", "class_weight": "inverse", "gamma": 0.0})
+
+    def test_focal_requires_a_positive_gamma(self):
+        """`focal` mà không khai `loss.gamma` (hoặc khai 0) là LỖI: gamma là tham số của hàm.
+
+        `gamma = 0` chính là cross-entropy thường, nên nhận nó nghĩa là bảng so sánh có một dòng trông
+        như đã thử focal mà thực ra không thử gì.
+        """
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.loss_settings({"loss": {"type": "focal", "class_weight": "none"}})
+        self.assertIn("loss.gamma", str(caught.exception))
+        with self.assertRaises(lora.TrainingError):
+            lora.loss_settings({"loss": {"type": "focal", "class_weight": "none", "gamma": 0}})
+        self.assertEqual(
+            lora.loss_settings({"loss": {"type": "focal", "class_weight": "none", "gamma": 2}}),
+            {"type": "focal", "class_weight": "none", "gamma": 2.0})
+        # `focal` đi được với trọng số theo khía cạnh: đó là hai trục khác nhau, không loại trừ nhau.
+        self.assertEqual(
+            lora.loss_settings({"loss": {"type": "focal", "class_weight": "inverse_by_aspect",
+                                         "gamma": 2}}),
+            {"type": "focal", "class_weight": "inverse_by_aspect", "gamma": 2.0})
+
+    def test_ce_with_class_weights_is_rejected_as_a_duplicate_name(self):
+        """`ce` + trọng số TRÙNG `weighted_ce`: hai tên cho một phép tính thì bảng so sánh bị lẫn."""
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.loss_settings({"loss": {"type": "ce", "class_weight": "inverse"}})
+        self.assertIn("weighted_ce", str(caught.exception))
+
+    def test_unknown_class_weight_names_the_valid_ones(self):
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.loss_settings({"loss": {"type": "weighted_ce", "class_weight": "inverse_by_label"}})
+        self.assertIn("inverse_by_aspect", str(caught.exception))
 
 
 @needs_torch
@@ -568,6 +613,72 @@ class ClassWeightsTest(unittest.TestCase):
     def test_masked_cells_are_not_counted(self):
         weights = lora.class_weights([[0], [1]], [[1], [0]], [0, 1], "cpu")
         self.assertEqual(weights.tolist()[1], 0.0)
+
+
+@needs_torch
+class MaskedLossTest(unittest.TestCase):
+    """Đợt 11: `focal` và trọng số THEO KHÍA CẠNH phải đúng số học, không chỉ chạy được."""
+
+    def test_focal_multiplies_by_one_minus_p(self):
+        """`focal = (1 - p_t)^gamma * ce` với `p_t = exp(-ce)` - kiểm bằng tay.
+
+        Logit bằng 0 cho ba mã nên `p_t = 1/3`; sai công thức (ví dụ quên `exp`, hoặc dùng `p_t` thay
+        `1 - p_t`) sẽ ra một số khác và bị bắt ở đây.
+        """
+        import math
+
+        import torch
+
+        logits = torch.zeros(1, 1, 3)
+        targets = torch.tensor([[0]])
+        mask = torch.ones(1, 1)
+        plain = float(lora.masked_loss(logits, targets, mask, 3))
+        focal = float(lora.masked_loss(logits, targets, mask, 3, gamma=2.0))
+        self.assertAlmostEqual(focal, plain * (1.0 - math.exp(-plain)) ** 2, places=6)
+
+    def test_weights_by_aspect_land_on_the_right_aspect(self):
+        """Bảng `(A, C)` phải tra theo KHÍA CẠNH của từng ô - tra sai chỗ là trọng số rơi sang khía cạnh khác.
+
+        Logit bằng 0 nên mọi ô có cùng `ce = log 3`; hai ô (hai khía cạnh) có mã đúng KHÁC nhau (0 và 1)
+        và bảng trọng số đặt hai giá trị khác nhau (10 và 100) ⇒ kết quả đúng là `ce * 55`. Ba kiểu sai
+        đều cho số khác: hoán vị hai khía cạnh (0), tra sai mã nhãn (5), dùng chung một dòng bảng (10).
+        """
+        import math
+
+        import torch
+
+        logits = torch.zeros(1, 2, 3)          # 1 review, 2 khía cạnh, 3 mã nhãn
+        targets = torch.tensor([[0, 1]])       # khía cạnh 0 -> mã 0; khía cạnh 1 -> mã 1
+        mask = torch.ones(1, 2)
+        table = torch.tensor([[10.0, 0.0, 0.0], [0.0, 100.0, 0.0]])
+        loss = float(lora.masked_loss(logits, targets, mask, 3, table))
+        self.assertAlmostEqual(loss, math.log(3) * 55.0, places=6)
+
+
+@needs_torch
+class ClassWeightsPerAspectTest(unittest.TestCase):
+    """Đợt 11: `inverse_by_aspect` đếm RIÊNG từng khía cạnh (khía cạnh toàn dương không bị pha loãng)."""
+
+    def test_counts_are_kept_per_aspect(self):
+        import torch
+
+        # 2 review x 2 khía cạnh: khía cạnh 0 chỉ có mã 0; khía cạnh 1 có mã 0 và mã 1.
+        labels = [[0, 0], [0, 1]]
+        mask = [[1, 1], [1, 1]]
+        table = lora.class_weights(labels, mask, [0, 1, 2], "cpu", per_aspect=True, n_aspects=2)
+        self.assertEqual(tuple(table.shape), (2, 3))
+        # Khía cạnh 0 KHÔNG có ô mã 1 hay 2 nên trọng số của chúng bằng 0; khía cạnh 1 thì có.
+        self.assertEqual(float(table[0][1]), 0.0)
+        self.assertGreater(float(table[1][1]), 0.0)
+        # Mã 0 hiếm hơn ở khía cạnh 1 (1 trong 2 ô) nên trọng số lớn hơn - đây là điều mà cách đếm TOÀN
+        # CỤC không thấy được (nó chỉ nhìn tổng số ô của cả bảy khía cạnh).
+        self.assertGreater(float(table[1][0]), float(table[0][0]))
+
+    def test_needs_the_number_of_aspects(self):
+        """Thiếu `n_aspects` là LỖI: công thức chia ô theo khía cạnh, đoán số đó là rơi trọng số sai chỗ."""
+        with self.assertRaises(lora.TrainingError) as caught:
+            lora.class_weights([[0]], [[1]], [0], "cpu", per_aspect=True)
+        self.assertIn("khía cạnh", str(caught.exception))
 
 
 class EncoderRunGuardTest(unittest.TestCase):
