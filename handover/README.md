@@ -314,7 +314,7 @@ trong `metrics.json` - nhỏ hơn nghĩa là đã rơi về đóng băng một p
 fine-tune; (c) `trainer: full` **không đi** với `inference.quantization: 4bit` (4 bit đóng băng trọng số
 gốc, đó là QLoRA) - notebook sẽ báo lỗi ngay ở ô kiểm tra nếu ai đó khai như vậy.
 
-### Đợt 11 - 8 notebook MỚI trong gói này (025): LLM LỚN HƠN, KHÁC CHẾ ĐỘ, KHÁC HỌ
+### Đợt 11 - 8 notebook MỚI trong gói này (026): LLM LỚN HƠN, KHÁC CHẾ ĐỘ, KHÁC HỌ
 
 Ba model MỚI (đều là repo MỞ, tải được không cần token). Mỗi lượt dùng **đúng cấu hình prompt/ví dụ của
 lượt cha 4B cùng mức**, khác đúng MỘT khoá: `model`.
