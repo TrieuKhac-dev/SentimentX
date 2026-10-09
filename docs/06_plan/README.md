@@ -29,6 +29,12 @@
 Bảng trên là **nguồn duy nhất** nói đang ở bước nào: sửa mục 2 của file con thì sửa luôn dòng tương
 ứng ở đây, để không lặp lại việc tài liệu nói một đằng, việc đã làm một nẻo.
 
+> **Số lượng HIỆN TẠI** (đo **09/10/2026**, commit `adfb5de` nhánh `experiment`): repo có **67 notebook đã
+> ghim** (`experiments/**/notebook.ipynb`, tất cả `REPO_SHA` là sha thật) và **61 thư mục kết quả có
+> `metrics.json`** trên đĩa (trong đó 3 lượt khai `read_rate.valid = false`). Con số **"17 lượt"** ở hàng
+> P7 và **"33 notebook"** ở hàng P8b là **MỐC LỊCH SỬ** ở ngày ghi, KHÔNG phải số hiện tại. Nguồn đối
+> chiếu chuẩn là `python scripts/collect_reports.py --dry-run` (bảng `attempt_registry`).
+
 ## Cổng kiểm tra bắt buộc
 
 Trước khi làm bất cứ việc gì phụ thuộc MLflow, phải đạt **cổng ở P4**:
