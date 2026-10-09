@@ -1,0 +1,34 @@
+# Cấu hình dùng chung của Qwen3-8B: mọi thứ không thuộc riêng một thí nghiệm.
+# Prompt, examples, roles và dataset nằm trong config của thí nghiệm.
+# Xem docs/05_config/04_models.md.
+#
+# Vì sao có: câu hỏi "LLM LỚN hơn thì hơn bao nhiêu" - cùng HỌ và cùng thế hệ với
+# Qwen3-4B-Instruct-2507 đang là mốc tốt nhất của dự án, nên đây là phép so SẠCH về quy mô
+# (khác đúng một biến: số tham số). Tokenizer CÙNG HỌ Qwen3 (vocab 151.669) nên ngưỡng cắt
+# 2304 giữ nguyên - đã kiểm bằng phép ĐO token của prompt 5 ví dụ.
+# Cần 4-bit vì T4 chỉ có 6 GB VRAM: trọng số fp16 của bản 8B là ~16 GB.
+
+model_id: qwen3-8b
+checkpoint: Qwen/Qwen3-8B
+
+# Tăng số này mỗi khi sửa file.
+config_version: 1
+
+# prompt: model sinh (LLM) nhận prompt rồi trả lời. Đường chạy dùng `src/evaluation/runner.py`.
+approach: prompt
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). SỐ ĐO (09/10/2026, prompt `absa_cot_5shot_v1`): TB 1.877,51 token/review, p99 1.946,
+  # mẫu dài nhất 2.122 ⇒ 0% review bị cắt. Giữ nguyên 2.304 của bản 4B vì CÙNG họ
+  # tokenizer (vocab 151.643) cho ra CÙNG con số.
+  max_length: 2304
+  # Bắt buộc với model chat ở chế độ prompt: chèn lượt "assistant" rỗng để model bắt đầu sinh.
+  add_generation_prompt: true
+
+inference:
+  # `auto` = mã chọn theo máy: bf16 khi GPU hỗ trợ THẬT, fp16 khi không (T4), fp32 trên CPU.
+  dtype: auto
+  # Bản 8B ở fp16 tốn ~16 GB, quá VRAM 6 GB của T4, nên BẮT BUỘC lượng hoá 4-bit.
+  quantization: 4bit
+  # Nhỏ hơn bản 4B (8): bản 8B tốn gấp đôi bộ nhớ hoạt động cho cùng batch.
+  batch_size: 4

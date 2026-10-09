@@ -246,10 +246,17 @@ test nữa.)
 
 | Nhóm | Model | Số lượt | Trạng thái |
 | --- | --- | --- | --- |
-| Cùng họ, LỚN hơn | `qwen3-8b` (4-bit) | 3 (0/1/5 ví dụ) | chờ Đ6 |
-| Cùng cỡ, khác CHẾ ĐỘ | `qwen3-4b-thinking-2507` | 1 DÒ + 1 chạy (1 ví dụ) | chờ Đ6 |
-| Khác họ | `llama-3.1-8b-instruct` · `mistral-7b-instruct-v0.3` | 3 + 3 | chờ Đ7 |
-| Tiếng Việt chuyên biệt | `vistral-7b-chat` | 3 | chờ Đ7 |
+| Cùng họ, LỚN hơn | `qwen3-8b` (4-bit) | 3 (0/1/5 ví dụ) | đã tạo + ghim, chờ chạy |
+| Cùng cỡ, khác CHẾ ĐỘ | `qwen3-4b-thinking-2507` | 1 DÒ + 1 chạy (1 ví dụ) | đã tạo + ghim, chờ chạy |
+| Khác họ | `mistral-7b-instruct-v0.3` | 3 (0/1/5 ví dụ) | đã tạo + ghim, chờ chạy |
+| Khác họ | `llama-3.1-8b-instruct` | 3 | **CHẶN: repo GATED** (cần `HF_TOKEN` + nhận điều khoản) |
+| Tiếng Việt chuyên biệt | `vistral-7b-chat` | 3 | **CHẶN: repo GATED** (như trên) |
+
+Vì sao "khác họ" quan trọng: nếu Qwen3-4B/8B và một họ hoàn toàn khác (Mistral, chat template `[INST]`,
+tokenizer Llama-BPE) đều cho CÙNG kết luận về mức ví dụ và cách hỏi, thì kết luận không còn là chuyện riêng
+của một họ model. `qwen3-4b-thinking-2507` là lượt trả lời trực tiếp bài học 0.6B: model bật suy nghĩ ăn hết
+trần token rồi không in JSON - nên **lượt DÒ (`exp001`, 60 mẫu, trần 8.192) phải chạy TRƯỚC**, rồi trần của
+lượt chạy (`exp002`) cập nhật theo công thức `làm tròn lên (p99 × 1,5)`.
 
 Luật đọc: mọi lượt 4-bit **in kèm SỐ Ô** - bản 4-bit trả lời ít hơn **5-6%** số ô, và trên cặp Qwen3-4B 5-shot đã có
 ca **đảo chiều** khi đổi cơ sở đo (xem §4.3 của `present_report.md`).

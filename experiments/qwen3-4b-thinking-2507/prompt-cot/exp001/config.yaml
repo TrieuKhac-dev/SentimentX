@@ -1,0 +1,55 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp001
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: qwen3-0.6b/prompt-cot/exp004
+
+model: qwen3-4b-thinking-2507
+method: prompt-cot
+
+notes: "LUOT DO: ban Thinking ton bao nhieu token (60 mau, tran 8192) - chot tran cho exp002"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  roles: {eval: test}
+
+# Đường dẫn tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là BỐN cấp).
+prompt: ../../../../configs/prompts/absa_cot_1shot_v1.txt
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v1.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# MỘT CƠ CHẾ, HAI KHOÁ (luật 23 của docs/00_workflow/02_rules.md): bật suy nghĩ thì PHẢI đi kèm trần
+# token đủ lớn, nếu không model viết hết trần trong khối  thinking rồi không in ra JSON (đã gặp với
+# chính model này: ba lượt 02/10/2026 chỉ đọc được 3,33 / 1,36 / 1,73%).
+
+decoding:
+  # Trần RỘNG cho lượt DÒ: mục đích là ĐO phần suy nghĩ dài bao nhiêu (p50/p95/max), rồi chốt trần
+  # cho lượt chạy đầy đủ theo công thức max_new_tokens = làm tròn lên (p99 × 1,5) và KHÔNG vượt cửa sổ
+  # ngữ cảnh của model (32.768 vị trí với Qwen3-0.6B).
+  max_new_tokens: 8192
+
+# Chỉ 60 mẫu: lượt này để ĐO độ dài, không phải để lấy điểm.
+n: 60
+
+# --- Đ6/Đ7: LLM LỚN HƠN / KHÁC HỌ --------------------------------------------
+# Lượt này KHÁC cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `model` (đổi họ hoặc đổi quy mô model). Prompt, ví dụ,
+# system, roles, dataset và mọi thông số giải mã giữ NGUYÊN - nên phép so trả lời đúng một câu.
+# Cha (cùng mức ví dụ, model đang là mốc tốt nhất của dự án): qwen3-0.6b/prompt-cot/exp004
+#
+# Vì sao lượt này: LUOT DO: ban Thinking ton bao nhieu token (60 mau, tran 8192) - chot tran cho exp002
+#
+# ĐỌC SỐ KÈM BA THỨ: (1) `% đọc được` phải QUA cửa 95% - dưới cửa thì điểm không so được (bài học 0.6B:
+# 21,63-84,41%); (2) SỐ Ô chấm được (model nhỏ hay "kiêng trả lời" thì số ô tụt); (3) mọi lượt 4-bit trả
+# lời ít hơn vài phần trăm số ô so với fp16 - xem docs/04_experiments/08_experiment_rationale.md.
+# Ngưỡng cắt của model này KHÔNG phải 2304 của Qwen: xem `preprocess.max_length` trong
+# `configs/models/<model_id>.yaml` - số đó lấy từ PHÉP ĐO token của chính model (Mistral cần 3.584 vì
+# tokenizer Llama-BPE chẻ tiếng Việt nhiều hơn hẳn).

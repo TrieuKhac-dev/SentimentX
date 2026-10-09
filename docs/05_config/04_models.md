@@ -50,6 +50,9 @@ inference:
 | `qwen3-4b-instruct-2507` | chỉ dùng cho thí nghiệm prompt      |
 | `qwen3-0.6b`             | model THỨ TƯ của thử nghiệm: cùng ba mức ví dụ của công bố để đo khoảng cách của một model nhỏ (chạy được cả CPU). **Mặc định BẬT suy nghĩ** nên đã khai `preprocess.enable_thinking: false` |
 | `qwen2.5-0.5b-instruct`  | model nhỏ KHÁC HỌ (thế hệ `qwen2`): mốc "nhỏ thì kém" thứ hai, để kết luận về quy mô không phụ thuộc một họ model |
+| `qwen3-8b`               | LLM **LỚN hơn** trong CÙNG HỌ Qwen3 (đợt 11): cùng prompt/ví dụ với bản 4B nên phép so quy mô chỉ đổi MỘT biến. Bắt buộc 4-bit (bản 8B fp16 ~16 GB, quá VRAM 6 GB của T4) |
+| `qwen3-4b-thinking-2507` | cùng CỠ nhưng KHÁC CHẾ ĐỘ (đợt 11): model được huấn luyện để **suy nghĩ** trước khi trả lời. Chat template của bản này **luôn** suy nghĩ (không có công tắc `enable_thinking`), nên trần sinh phải do lượt chạy khai và phải có một lượt **DÒ** chốt số |
+| `mistral-7b-instruct-v0.3` | LLM **họ KHÁC** (Mistral, chat template `[INST]...[/INST]`, tokenizer Llama-BPE): để kết luận về prompt không phụ thuộc một họ model (đợt 11) |
 | `phobert-base-v2`        | encoder, huấn luyện LoRA hoặc QLoRA |
 | `phobert-large`          | encoder: cùng kho tiền huấn luyện, cùng bộ tách từ với bản base - chỉ khác số tham số (một biến sạch) |
 | `visobert`               | encoder, huấn luyện LoRA hoặc QLoRA |

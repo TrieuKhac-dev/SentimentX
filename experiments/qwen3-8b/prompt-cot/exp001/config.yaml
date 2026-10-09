@@ -1,0 +1,43 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp001
+
+# Ba mức 0/1/5 ví dụ của công bố là ba thí nghiệm NGANG HÀNG, không phải bản làm lại của nhau.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp002
+
+model: qwen3-8b
+method: prompt-cot
+
+notes: "Qwen3-8B + CoT 0 vi du (dung muc COT+0-shot cua cong bo)"
+
+data:
+  dataset: cosmetics
+  version: v0.2.0
+
+  # Chỉ chấm (model sinh không học): vai `eval` là bắt buộc, `train`/`val` chỉ cần khi huấn luyện.
+  roles: {eval: test}
+
+# Prompt lấy từ THƯ VIỆN DÙNG CHUNG, tính từ thư mục thí nghiệm trước rồi tới gốc repo (bốn cấp).
+# Bản 0 ví dụ KHÔNG dùng ô nhớ `{examples}`, nên không khai `examples`.
+prompt: ../../../../configs/prompts/absa_cot_zeroshot_v1.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+
+# --- Đ6/Đ7: LLM LỚN HƠN / KHÁC HỌ --------------------------------------------
+# Lượt này KHÁC cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `model` (đổi họ hoặc đổi quy mô model). Prompt, ví dụ,
+# system, roles, dataset và mọi thông số giải mã giữ NGUYÊN - nên phép so trả lời đúng một câu.
+# Cha (cùng mức ví dụ, model đang là mốc tốt nhất của dự án): qwen3-4b-instruct-2507/prompt-cot/exp002
+#
+# Vì sao lượt này: Qwen3-8B + CoT 0 vi du (dung muc COT+0-shot cua cong bo)
+#
+# ĐỌC SỐ KÈM BA THỨ: (1) `% đọc được` phải QUA cửa 95% - dưới cửa thì điểm không so được (bài học 0.6B:
+# 21,63-84,41%); (2) SỐ Ô chấm được (model nhỏ hay "kiêng trả lời" thì số ô tụt); (3) mọi lượt 4-bit trả
+# lời ít hơn vài phần trăm số ô so với fp16 - xem docs/04_experiments/08_experiment_rationale.md.
+# Ngưỡng cắt của model này KHÔNG phải 2304 của Qwen: xem `preprocess.max_length` trong
+# `configs/models/<model_id>.yaml` - số đó lấy từ PHÉP ĐO token của chính model (Mistral cần 3.584 vì
+# tokenizer Llama-BPE chẻ tiếng Việt nhiều hơn hẳn).

@@ -18,7 +18,7 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 107.** Con số này TĂNG theo
+> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 115.** Con số này TĂNG theo
 > từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn
 > đúng, không phải làm gì). Muốn biết một gói **NNN** mang thêm gì thì mở
 > `handover/packages/NNN/manifest.csv` và đọc cột `class`. Bảng dưới liệt kê các lượt theo **thứ tự nên
@@ -313,6 +313,36 @@ quả về rồi xoá bớt `model/last` trên Drive nếu chật; (b) kiểm **
 trong `metrics.json` - nhỏ hơn nghĩa là đã rơi về đóng băng một phần, và lượt chạy KHÔNG còn là full
 fine-tune; (c) `trainer: full` **không đi** với `inference.quantization: 4bit` (4 bit đóng băng trọng số
 gốc, đó là QLoRA) - notebook sẽ báo lỗi ngay ở ô kiểm tra nếu ai đó khai như vậy.
+
+### Đợt 11 - 8 notebook MỚI trong gói này (025): LLM LỚN HƠN, KHÁC CHẾ ĐỘ, KHÁC HỌ
+
+Ba model MỚI (đều là repo MỞ, tải được không cần token). Mỗi lượt dùng **đúng cấu hình prompt/ví dụ của
+lượt cha 4B cùng mức**, khác đúng MỘT khoá: `model`.
+
+| # | Notebook | Trả lời câu gì | T4 |
+| --- | --- | --- | --- |
+| 41 | `notebooks/qwen3-8b/prompt-cot/exp001.ipynb` | 8B + CoT 0 ví dụ | ~40-60 phút |
+| 42 | `notebooks/qwen3-8b/prompt-cot/exp002.ipynb` | 8B + CoT 1 ví dụ | ~40-60 phút |
+| 43 | `notebooks/qwen3-8b/prompt-cot/exp003.ipynb` | 8B + CoT 5 ví dụ | ~60-90 phút |
+| 44 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp001.ipynb` | **LƯỢT DÒ**: bản "luôn suy nghĩ" tốn bao nhiêu token (60 mẫu, trần 8.192) | ~30-45 phút |
+| 45 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp002.ipynb` | cùng cỡ, KHÁC CHẾ ĐỘ: suy nghĩ trước khi trả lời, 1 ví dụ | ~40-60 phút |
+| 46 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp001.ipynb` | HỌ KHÁC (Mistral) + CoT 0 ví dụ | ~40-60 phút |
+| 47 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp002.ipynb` | HỌ KHÁC + CoT 1 ví dụ | ~40-60 phút |
+| 48 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp003.ipynb` | HỌ KHÁC + CoT 5 ví dụ | ~60-90 phút |
+
+**CHẠY #44 TRƯỚC #45** (thứ tự có lý do): #45 là lượt mang tên "suy nghĩ", và trần sinh của nó phải lấy từ
+số ĐO của #44. Trong config của #45, `decoding.max_new_tokens` đang là **giá trị tạm 4.096**; sau khi #44
+xong, con số đúng là `làm tròn lên (p99 × 1,5)` - nhóm sẽ cập nhật rồi ghim lại notebook đó (một thao tác,
+không cần chạy lại #44).
+
+**Ba model mới chỉ cần internet để tải tokenizer** (~10-50 MB, giống mọi lượt Qwen hiện có): notebook tự
+tải khi chạy, KHÔNG phải chép gì lên Drive. Nếu muốn chạy offline thì trỏ `SENTIMENTX_MODEL` trong
+`env/.env.colab` vào một thư mục tokenizer/trọng số trên Drive (đường đó áp cho MỘT model mỗi lần).
+
+> **HAI model của nhóm này CHƯA gửi được:** `llama-3.1-8b-instruct` (họ Llama) và `vistral-7b-chat` (tiếng
+> Việt chuyên biệt, cùng cỡ Mistral) là repo **GATED** - máy dự án đã thử tải và bị từ chối. Cần `HF_TOKEN`
+> có quyền + bấm nhận điều khoản trên trang model; khi có thì nhóm thêm 6 notebook mà không phải sửa gì
+> trong gói cũ.
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
 

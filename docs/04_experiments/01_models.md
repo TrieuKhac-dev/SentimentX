@@ -1,4 +1,4 @@
-# Chín model thực nghiệm - và vì sao tách preprocessing khỏi pipeline
+# Mười hai model thực nghiệm - và vì sao tách preprocessing khỏi pipeline
 
 > Đọc file này khi: thêm model mới, hoặc xem model nào chạy được trên máy nào.
 > Liên quan: `docs/05_config/04_models.md`, `docs/04_experiments/02_model_input.md`,
@@ -20,10 +20,19 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 | Qwen3-4B-Instruct | https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507 | mô hình sinh lớn (dùng theo dạng prompt) |
 | Qwen3-0.6B        | https://huggingface.co/Qwen/Qwen3-0.6B             | mô hình sinh nhỏ (dùng theo dạng prompt) |
 | Qwen2.5-0.5B-Instruct | https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct | mô hình sinh nhỏ KHÁC HỌ (thế hệ `qwen2`) |
+| Qwen3-8B          | https://huggingface.co/Qwen/Qwen3-8B                | mô hình sinh LỚN hơn trong cùng họ Qwen3 (đợt 11) |
+| Qwen3-4B-Thinking-2507 | https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507 | mô hình sinh cùng cỡ, KHÁC CHẾ ĐỘ: luôn suy nghĩ trước khi trả lời (đợt 11) |
+| Mistral-7B-Instruct-v0.3 | https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3 | mô hình sinh họ KHÁC (đa ngữ, chat template `[INST]`) (đợt 11) |
 
-Chín model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
-PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và ba mô hình sinh dùng theo dạng
-prompt (prompt -> sinh JSON) ở hai thế hệ khác nhau. Về **bộ tách từ**, ba encoder tách từ theo kiểu
+> **Hai model của đợt 11 CHƯA vào bảng này:**
+> `meta-llama/Llama-3.1-8B-Instruct` (họ Llama) và `Viet-Mistral/Vistral-7B-Chat` (tiếng Việt chuyên
+> biệt, cùng cỡ với Mistral). Cả hai là repo **GATED** trên Hugging Face: máy dự án đã thử tải và bị từ
+> chối, nên chưa đo được token và chưa tạo được lượt. Cần `HF_TOKEN` có quyền + bấm nhận điều khoản trên
+> trang model - xem `present_plan_batch11.md` mục 7.
+
+Mười hai model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
+PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và **sáu mô hình sinh** dùng theo dạng
+prompt (prompt -> sinh JSON), gồm hai thế hệ Qwen và một họ KHÁC (Mistral). Về **bộ tách từ**, ba encoder tách từ theo kiểu
 từ tiếng Việt (PhoBERT hai bản, ViBERT) và ba encoder dùng SentencePiece trên văn bản nguyên bản
 (ViSoBERT, CafeBERT, XLM-R) - mỗi dòng số liệu ghi rõ đã dùng bộ nào.
 Hai bản Qwen3 là **một biến thực nghiệm về QUY MÔ**: cùng tokenizer (bản 0.6B có `tokenizer.json` giống

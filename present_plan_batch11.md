@@ -217,20 +217,19 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       `0d41b00` → `a130424`; `ci_checks` sạch + bộ test xanh (test mới: `tests/training/test_full.py`)
 - [x] **Bàn giao gói 024** (`handover/out/SentimentX-goi-024-a130424-261009.zip`, 7 file); README thêm mục
       "Đợt 11 - 3 notebook MỚI (024): FULL FINE-TUNE" + con số notebook 104 → **107**
-- [ ] **Đ6/Đ7 (LLM lớn hơn & khác họ) - BỊ CHẶN ở máy này, cần môi trường Colab.** Ba điều kiện chưa có:
-      (a) **file tokenizer** của model mới trong `data/models/<tên>/` (ba model Qwen-family hiện có đều có
-      sẵn ở đó; model mới phải tải về, mà `meta-llama/Llama-3.1-8B-Instruct` là model **GATED** - cần token
-      Hugging Face có quyền); (b) **phép ĐO `run_token_stats.py`** cho từng model + prompt - dự án BẮT BUỘC
-      có số đo token/review TRƯỚC khi tạo lượt (không có thì không biết ngưỡng cắt có làm mất phần đuôi
-      prompt hay không); (c) **một lượt DÒ** chốt trần `max_new_tokens` cho nhánh suy nghĩ (bài học 0.6B).
-      Việc CÒN LẠI phải viết khi có môi trường: `src/preprocessing/chat_like.py` (module chat dùng chung
-      cho họ KHÔNG phải Qwen) + 5 `configs/models/*.yaml` + 5 dòng trong `token_stats.MODELS` + 14 notebook
-      (`qwen3-8b/prompt-cot/exp001-003`, `qwen3-4b-thinking-2507/prompt-cot/exp001-002`,
-      `llama-3.1-8b-instruct|mistral-7b-instruct-v0.3|vistral-7b-chat/prompt-cot/exp001-003`).
-      GHI CHÚ ĐÃ KIỂM: `src/preprocessing/qwen.py` **đã generic theo `model_id`** (bản 0.6B và Qwen2.5 dùng
-      chung module này), nên HAI model Qwen3 mới chỉ cần 1 file config + 1 dòng `token_stats` - không cần
-      module mới. Ba họ còn lại mới cần `chat_like.py`.
-- [ ] Đ8 (báo cáo): các mục M1/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
+- [x] **Đ6/Đ7 (PHẦN LÀM ĐƯỢC)**: thêm **3 model MỞ** - `qwen3-8b`, `qwen3-4b-thinking-2507`,
+      `mistral-7b-instruct-v0.3` (`configs/models/*.yaml` + đăng ký `_chat_spec` trong `token_stats.MODELS`
+      + ĐO token bằng prompt 5 ví dụ). **KHÔNG cần `chat_like.py`**: đã KIỂM `src/preprocessing/qwen.py`
+      generic theo `model_id` (bản 0.6B và Qwen2.5 đang dùng chính nó; khoá `enable_thinking` chỉ được
+      truyền khi config khai) - viết thêm một module nữa là tạo hai nguồn sự thật cho cùng một đường chat,
+      đúng thứ dự án cấm. Đổi tên helper `_qwen_spec` -> `_chat_spec` cho đúng nghĩa.
+- [ ] **HAI model GATED chưa làm được**: `meta-llama/Llama-3.1-8B-Instruct` (họ Llama) và
+      `Viet-Mistral/Vistral-7B-Chat` (tiếng Việt chuyên biệt, cùng cỡ Mistral). Đã THỬ TẢI và bị từ chối
+      (`You are trying to access a gated repo`). Cần: `HF_TOKEN` (điền vào `.env` cho máy này và
+      `.env.colab` cho Colab) + bấm nhận điều khoản trên trang model. Máy này KHÔNG có token HF nào trong
+      `.env`/`.env.colab` (chỉ có `DAGSHUB_TOKEN` + `HF_HOME`). Sau khi có token, chỉ cần: 2 file
+      `configs/models/*.yaml` + 2 dòng `_chat_spec` + đo token + 6 notebook.
+- [ ] Đ8 (báo cáo): các mục M1/M2/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 
 

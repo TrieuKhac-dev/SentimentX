@@ -1,0 +1,40 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+
+exp_id: exp002
+
+# Ba mức 0/1/5 ví dụ của công bố là ba thí nghiệm NGANG HÀNG, không phải bản làm lại của nhau.
+parent: qwen3-4b-instruct-2507/prompt-cot/exp003
+
+model: qwen3-8b
+method: prompt-cot
+
+notes: "Qwen3-8B + CoT 1 vi du (dung muc COT+1-shot cua cong bo)"
+
+data:
+  dataset: cosmetics
+  version: v0.2.0
+  roles: {eval: test}
+
+# Prompt và bộ ví dụ đều ở THƯ VIỆN DÙNG CHUNG; đường dẫn tính từ thư mục thí nghiệm trước (bốn
+# cấp lên gốc repo). Prompt khai bằng ĐƯỜNG DẪN thì file ví dụ phải khai TƯỜNG MINH: suy theo tên
+# chỉ đúng khi prompt gọi bằng tên.
+prompt: ../../../../configs/prompts/absa_cot_1shot_v1.txt
+system_prompt: ../../../../configs/prompts/system/absa_cot.txt
+examples: ../../../../configs/prompts/examples/absa_cot_1shot_v1.txt
+
+# `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
+
+# --- Đ6/Đ7: LLM LỚN HƠN / KHÁC HỌ --------------------------------------------
+# Lượt này KHÁC cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `model` (đổi họ hoặc đổi quy mô model). Prompt, ví dụ,
+# system, roles, dataset và mọi thông số giải mã giữ NGUYÊN - nên phép so trả lời đúng một câu.
+# Cha (cùng mức ví dụ, model đang là mốc tốt nhất của dự án): qwen3-4b-instruct-2507/prompt-cot/exp003
+#
+# Vì sao lượt này: Qwen3-8B + CoT 1 vi du (dung muc COT+1-shot cua cong bo)
+#
+# ĐỌC SỐ KÈM BA THỨ: (1) `% đọc được` phải QUA cửa 95% - dưới cửa thì điểm không so được (bài học 0.6B:
+# 21,63-84,41%); (2) SỐ Ô chấm được (model nhỏ hay "kiêng trả lời" thì số ô tụt); (3) mọi lượt 4-bit trả
+# lời ít hơn vài phần trăm số ô so với fp16 - xem docs/04_experiments/08_experiment_rationale.md.
+# Ngưỡng cắt của model này KHÔNG phải 2304 của Qwen: xem `preprocess.max_length` trong
+# `configs/models/<model_id>.yaml` - số đó lấy từ PHÉP ĐO token của chính model (Mistral cần 3.584 vì
+# tokenizer Llama-BPE chẻ tiếng Việt nhiều hơn hẳn).

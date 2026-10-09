@@ -1,0 +1,34 @@
+# Cấu hình dùng chung của Qwen3-4B-Thinking-2507: mọi thứ không thuộc riêng một thí nghiệm.
+# Prompt, examples, roles và dataset nằm trong config của thí nghiệm.
+# Xem docs/05_config/04_models.md.
+#
+# Vì sao có: câu hỏi "CHẾ ĐỘ của model có đổi kết quả không" - cùng CỠ và cùng họ với
+# Qwen3-4B-Instruct-2507, chỉ khác model được huấn luyện để SUY NGHĨ trước khi trả lời.
+# Đây là lượt trả lời trực tiếp bài học 0.6B (model bật suy nghĩ ăn hết trần token rồi
+# không in JSON), nên phải đi kèm một lượt DÒ chốt trần.
+
+model_id: qwen3-4b-thinking-2507
+checkpoint: Qwen/Qwen3-4B-Thinking-2507
+
+# Tăng số này mỗi khi sửa file.
+config_version: 1
+
+# prompt: model sinh (LLM) nhận prompt rồi trả lời. Đường chạy dùng `src/evaluation/runner.py`.
+approach: prompt
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). SỐ ĐO: cùng họ tokenizer với bản 4B, phần PROMPT giống hệt (phần suy nghĩ do model tự sinh).
+  max_length: 2304
+  # Bắt buộc với model chat ở chế độ prompt: chèn lượt "assistant" rỗng để model bắt đầu sinh.
+  add_generation_prompt: true
+  # KHÔNG khai `enable_thinking`: chat template của bản Thinking-2507 LUÔN suy nghĩ, không có công tắc.
+  # Trần sinh vì thế phải do LƯỢT CHẠY khai (`decoding.max_new_tokens`) và phải có một lượt DÒ chốt số
+  # - xem docs/04_experiments/metrics.md luật 3a. Cấu hình này cố ý không "tắt suy nghĩ" hộ.
+
+inference:
+  # `auto` = mã chọn theo máy: bf16 khi GPU hỗ trợ THẬT, fp16 khi không (T4), fp32 trên CPU.
+  dtype: auto
+  # Giống bản 4B: T4 có 6 GB VRAM.
+  quantization: 4bit
+  # Giống bản 4B (đã chạy ổn định ở mức này).
+  batch_size: 8

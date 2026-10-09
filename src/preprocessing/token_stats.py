@@ -51,13 +51,13 @@ def _word_count(texts, **kwargs):
 # DANH TÍNH CỦA MỘT MỤC LÀ `model_id`, tức TÊN FILE cấu hình `configs/models/<model_id>.yaml`: cột
 # `model` của bảng số liệu ghi thẳng giá trị này và `--max-length <model_id>=<số>` cũng dùng nó.
 # Không còn tên ngắn (`qwen`, `phobert`): một model một tên, và tên nào cũng tra ra được file cấu hình.
-def _qwen_spec(model_id):
-    """Mục đo cho MỘT model Qwen3.
+def _chat_spec(model_id):
+    """Mục đo cho MỘT model CHAT (đường prompt), không riêng họ Qwen.
 
-    Bản 4B và bản 0.6B dùng CÙNG module `qwen`, nên mọi hàm ở đây được gọi kèm `model_id`: ngưỡng cắt
-    và tokenizer tra theo config của chính bản đó. Hiện hai bản có cùng tokenizer (cùng `tokenizer.json`)
-    và cùng ngưỡng cắt 2304, nên số liệu của chúng GIỐNG NHAU - đó là điều đúng cần ghi lại, không
-    phải lỗi trùng lặp, và mỗi dòng vẫn phân biệt được nhờ cột `model`.
+    Mọi model chat dùng CÙNG module `qwen` (đó là hiện thực của đường chat template, xem docstring đầu
+    `src/preprocessing/qwen.py`), nên hàm này được gọi kèm `model_id`: ngưỡng cắt và tokenizer tra theo
+    config của chính model đó. Tên cũ `_qwen_spec` khiến người đọc tưởng chỉ Qwen đi được đường này,
+    trong khi Qwen2.5, Mistral và các model thêm sau đợt 11 đều đi qua đây.
     """
     return {
         "model_id": model_id,
@@ -125,9 +125,16 @@ MODELS = (
         "tokenizer": xlmroberta.tokenizer,
         "info": xlmroberta.info,
     },
-    _qwen_spec("qwen3-4b-instruct-2507"),
-    _qwen_spec("qwen3-0.6b"),
-    _qwen_spec("qwen2.5-0.5b-instruct"),
+    _chat_spec("qwen3-4b-instruct-2507"),
+    _chat_spec("qwen3-0.6b"),
+    _chat_spec("qwen2.5-0.5b-instruct"),
+    # Đợt 11 (Đ6/Đ7): ba model MỞ - tải tokenizer được mà không cần token. HAI model còn lại của nhóm
+    # này (`meta-llama/Llama-3.1-8B-Instruct`, `Viet-Mistral/Vistral-7B-Chat`) là repo GATED: đã thử tải
+    # và bị từ chối, nên CHƯA đăng ký - đăng ký một model không tải được là làm hỏng phép đo của MỌI
+    # model khác trong cùng lần chạy. Xem present_plan_batch11.md mục 7.
+    _chat_spec("qwen3-8b"),
+    _chat_spec("qwen3-4b-thinking-2507"),
+    _chat_spec("mistral-7b-instruct-v0.3"),
 )
 
 

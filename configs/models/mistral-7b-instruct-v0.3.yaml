@@ -1,0 +1,37 @@
+# Cấu hình dùng chung của Mistral-7B-Instruct-v0.3: mọi thứ không thuộc riêng một thí nghiệm.
+# Prompt, examples, roles và dataset nằm trong config của thí nghiệm.
+# Xem docs/05_config/04_models.md.
+#
+# Vì sao có: câu hỏi "kết luận có phụ thuộc một HỌ model không" - họ KHÁC hẳn Qwen
+# (Mistral, chat template [INST]...[/INST]), nên nếu cùng kết luận thì kết luận về prompt
+# không còn là chuyện riêng của Qwen.
+# NGƯỠNG CẮT PHẢI LỚN HƠN HẲN QWEN, và đây là chỗ phép ĐO cứu một lỗi thật: cùng prompt
+# 5 ví dụ, tokenizer Llama-BPE của Mistral cho **3.194 token/review** (Qwen3: 1.877) vì nó
+# chẻ tiếng Việt thành nhiều mảnh hơn (148,54 subword/từ so với 87,31). Để 2304 như Qwen thì
+# **100% review bị cắt** - mà với prompt dạng chat, phần bị cắt chính là YÊU CẦU ĐỊNH DẠNG
+# ĐẦU RA ở cuối, nên lượt chạy sẽ hỏng theo kiểu khó thấy (model trả lời văn xuôi).
+# 3584 = làm tròn lên của mẫu DÀI NHẤT đo được (3.522) theo mốc 512.
+
+model_id: mistral-7b-instruct-v0.3
+checkpoint: mistralai/Mistral-7B-Instruct-v0.3
+
+# Tăng số này mỗi khi sửa file.
+config_version: 1
+
+# prompt: model sinh (LLM) nhận prompt rồi trả lời. Đường chạy dùng `src/evaluation/runner.py`.
+approach: prompt
+
+preprocess:
+  # Ngưỡng cắt input, tính bằng TOKEN (kể cả prompt). SỐ ĐO (09/10/2026, prompt `absa_cot_5shot_v1`): TB 3.194,26 token/review, p99 3.323,
+  # mẫu dài nhất 3.522 ⇒ làm tròn lên 3.584 để KHÔNG review nào bị cắt (mục tiêu 0%).
+  max_length: 3584
+  # Bắt buộc với model chat ở chế độ prompt: chèn lượt "assistant" rỗng để model bắt đầu sinh.
+  add_generation_prompt: true
+
+inference:
+  # `auto` = mã chọn theo máy: bf16 khi GPU hỗ trợ THẬT, fp16 khi không (T4), fp32 trên CPU.
+  dtype: auto
+  # Bản 7B ở fp16 tốn ~14 GB, quá VRAM 6 GB của T4, nên BẮT BUỘC lượng hoá 4-bit.
+  quantization: 4bit
+  # Nhỏ hơn Qwen (8) vì mỗi review dài gần gấp đôi: 3.584 token × 4 vừa VRAM 6 GB.
+  batch_size: 4
