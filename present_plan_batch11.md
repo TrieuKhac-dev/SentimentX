@@ -168,10 +168,23 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
 - [x] Đ2: 12 thí nghiệm + chứng minh mỗi lượt khác cha ĐÚNG MỘT khoá đo được (`preprocess.segmenter`, hoặc
       `data.version` cho nhánh emoji) - commit `9645322`; ghim 12 notebook → `c0c953e` → `b739b53`, push
 - [x] Đ2: `ci_checks` sạch + **1.012 test xanh** (chín nhánh) + docs cập nhật (`618e811`...`c0c953e`)
-- [ ] Đ1: **xác nhận CI GitHub xanh trên `398f80f`** và trên `b739b53` (CHỜ NGƯỜI DÙNG - máy không có `gh`)
+- [x] Đ1: **CI GitHub XANH trên `398f80f`** - đã xác nhận bằng `gh` (run `37908033692`, success). Ghi chú
+      dùng lại: `gh.exe` nằm ở `G:\my_app\GitHub CLI\gh.exe`; PATH của shell trong VS Code còn cũ nên phải
+      gọi bằng đường dẫn đầy đủ, và phải `cd` vào repo trước (gh tìm repo theo thư mục hiện tại)
+- [x] **Sửa test đỏ đã làm CI đỏ ở `c0c953e`…`f1721bd`** (4 lượt liền): `test_encode_chuyen_tiep_segmenter`
+      chạm `import torch`, mà `requirements-ci.txt` CỐ Ý không cài `torch`. Nay đoạn dựng chunk (chỉ gọi
+      module model, không cần tensor) chạy TRƯỚC `import torch` ⇒ phép kiểm "bộ tách từ đi tới
+      `build_inputs()`" chạy được cả trên CI. Đã mô phỏng CI bằng stub chặn torch (1 test OK) và ở máy
+      (130 test OK) - commit `f1721bd`
+- [x] Đ3: 10 thí nghiệm (`phobert-base-v2/lora/exp016-020`, `cafebert/lora/exp012-016`) + chứng minh mỗi
+      lượt khác cha ĐÚNG MỘT khoá đo được (`lora.r`, `lr`, `lora.target_modules`) - commit `f1721bd`
+- [x] Đ3: ghim 10 notebook → `f1721bd` → `606c35b`, push; `ci_checks` sạch
+- [x] **CI GitHub XANH trên `606c35b`** (run `37915580140`, success) - các lượt đỏ liền trước đều do ĐÚNG
+      một test thiếu torch, không có lỗi nào khác (đã đọc log của run `37914121125`)
 - [ ] Đ1 (CỔNG 1): dựng gói 022 + chạy 9 notebook trên Colab
 - [ ] Đ2 (CỔNG 2): chạy 12 notebook trên Colab (ba nhóm × bốn: bộ tách từ A/B1/B2 + nhánh emoji)
-- [ ] Đ3 · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
+- [ ] Đ3 (CỔNG 3): chạy 10 notebook trên Colab (r = 8/32, lr = 1e-4/4e-4, 2 module thay vì 4)
+- [ ] Đ4 · Đ5 · Đ6 · Đ7 · Đ8
 
 
 

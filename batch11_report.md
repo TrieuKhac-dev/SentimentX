@@ -127,6 +127,10 @@ grad_accum 4 · weight_decay 0,01`. Wave 1 đổi **mỗi lượt đúng một k
 Hai điều phải ghi khi đọc: đổi `r` mà giữ `alpha` là **đổi luôn tỉ lệ scaling** `α/r`; và luôn đọc **cặp chỉ số**
 (F1 lớp âm **và** `detection_f1`) vì `weighted_ce` đã biết là **hạ phát hiện khía cạnh**.
 
+**Trạng thái:** 10 lượt đã **tạo + ghim** (commit `606c35b`); mỗi lượt khác lượt cha **đúng một khoá đo
+được** - đã kiểm bằng phép so cấu hình ĐÃ HỢP NHẤT của con với cha, không phải bằng mắt. Chưa có kết quả:
+cột số sẽ điền khi chạy xong trên Colab.
+
 ## M6. Hàm mất mát - **MỘT PHẦN** (đã có `ce` → `weighted_ce`; `focal` và `inverse_by_aspect` đang chờ)
 
 | Hàm mất mát | Lượt | acc TB | F1 âm macro | detection F1 |
