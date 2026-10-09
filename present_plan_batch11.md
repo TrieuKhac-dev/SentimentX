@@ -91,6 +91,32 @@ Chung cho #1-#4: `enabled: true`, `roles: {train: train, val: val, eval: test}`,
 `loss: {type: weighted_ce, class_weight: inverse}`. Ở hai lượt SÀN, `train` **không dùng** - ghi rõ
 trong `README.md` của thí nghiệm để không ai tưởng là lỗi.
 
+### 5.1 Thứ tự CHẠY 9 lượt (thời gian TĂNG DẦN)
+
+Chạy đúng thứ tự này: rẻ nhất trước. Hai lượt SÀN đứng đầu vì chúng còn là **bước kiểm ống dẫn** - nếu
+SÀN KHÔNG xấu (acc ~ mức đoán theo tần suất, F1 âm ~ 0) thì có gì đó sai, và ta biết sau ~3 phút thay
+vì sau 2 giờ. Nhóm PhoBERT cũng nằm sớm, nên nếu thiếu Java/VnCoreNLP thì lộ ra ngay ở lượt đầu.
+
+| # | Lượt | Là gì | ~T4 |
+| --- | --- | --- | --- |
+| 1 | `phobert-base-v2/none/exp001` | SÀN PhoBERT - KHÔNG vòng lặp huấn luyện | ~3 phút |
+| 2 | `cafebert/none/exp001` | SÀN CafeBERT | ~4 phút |
+| 3 | `phobert-base-v2/none/exp002` | PROBE PhoBERT - chỉ đầu phân loại học | ~10 phút |
+| 4 | `cafebert/none/exp002` | PROBE CafeBERT | ~15 phút |
+| 5 | `phobert-base-v2/lora/exp009` | LoRA PhoBERT, đầu ĐÓNG BĂNG, `accuracy_cell` | ~12-15 phút |
+| 6 | `phobert-base-v2/lora/exp010` | LoRA PhoBERT, đầu ĐÓNG BĂNG, `seed 7` | ~12-15 phút |
+| 7 | `phobert-base-v2/lora/exp008` | LoRA PhoBERT, đầu HỌC, `accuracy_cell` | ~13-16 phút |
+| 8 | `phobert-base-v2/lora/exp011` | LoRA PhoBERT, đầu HỌC, `seed 7` | ~13-16 phút |
+| 9 | `cafebert/lora/exp007` | LoRA CafeBERT, đầu HỌC, `accuracy_cell` | ~15-20 phút |
+
+Cơ sở xếp thứ tự: **SÀN < PROBE < LoRA** theo số việc phải tối ưu (SÀN không tối ưu gì; PROBE chỉ học
+đầu phân loại với encoder đóng băng, không backward qua encoder), rồi **PhoBERT-base (135M) trước
+CafeBERT (278M)** vì mỗi bước chậm hơn; trong nhóm LoRA, đầu ĐÓNG BĂNG ít tham số học hơn đầu HỌC
+(chênh 16.149 tham số - nằm trong nhiễu, nên đây chỉ là thứ tự cho gọn). Tổng **~1,5-2 giờ**.
+
+Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô bootstrap của notebook tự cài khi
+`configs/models/phobert-base-v2.yaml` khai `segmenter: vncorenlp`.
+
 ## 6. Đ2 - Đ8 (tóm tắt; chi tiết khi tới đợt)
 
 - **Đ2**: mã `utils.remove_emoji` (dùng `EMOJI_PATTERN` đã có) + nhánh `remove_emoji` trong
