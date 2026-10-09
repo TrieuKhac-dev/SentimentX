@@ -1,0 +1,46 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp010
+
+parent: phobert-base-v2/lora/exp002
+
+model: phobert-base-v2
+method: lora
+
+notes: "Thuoc nhieu: chay lai exp002 voi seed 7."
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `val` để chọn `model/best`.
+  roles: {train: train, val: val, eval: test}
+
+# Bật huấn luyện: model encoder không có prompt để tự trả lời nên bắt buộc `enabled: true`.
+enabled: true
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ NGUYÊN hàm mất mát của lượt gốc (`weighted_ce` + `class_weight: inverse`): hướng DUY NHẤT đã
+# chứng minh có tác dụng với lớp âm. Đọc kết quả theo CẶP chỉ số (F1 lớp âm VÀ phát hiện khía cạnh).
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# LƯU Ý khi chạy - PhoBERT cần bộ tách từ VnCoreNLP (Java + model ~27 MB, không có trong git):
+# notebook kiểm TRƯỚC khi chạy nhờ mục này, và gói bàn giao đã kèm sẵn thư mục đó.
+requires_extra:
+  - data/models/vncorenlp
+
+# ĐÚNG MỘT BIẾN so với lượt gốc: HẠT GIỐNG HUẤN LUYỆN. Ở đường encoder (luôn `greedy`), `decoding.seed`
+# là hạt giống HUẤN LUYỆN - xem khối "NGOẠI LỆ Ở ĐƯỜNG ENCODER" trong
+# `configs/experiments/evaluation.yaml`. Lượt này là THƯỚC NHIỄU, không phải lượt lấy điểm cao.
+decoding:
+  seed: 7

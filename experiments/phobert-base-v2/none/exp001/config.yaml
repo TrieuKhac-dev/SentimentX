@@ -1,0 +1,42 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp001
+
+parent: phobert-base-v2/lora/exp002
+
+model: phobert-base-v2
+method: none
+
+notes: "Muc SAN: KHONG huan luyen gi - dau phan loai ngau nhien, encoder dong bang."
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `val` để chọn `model/best`.
+  roles: {train: train, val: val, eval: test}
+
+# Bật huấn luyện: model encoder không có prompt để tự trả lời nên bắt buộc `enabled: true`.
+enabled: true
+
+# CÁCH HUẤN LUYỆN: KHÔNG gói adapter (không LoRA). Xem docs/04_experiments/06_lora_encoder.md.
+# `head.trainable` để nguyên mặc định `false` = KHÔNG tối ưu gì: encoder đóng băng + đầu phân loại là
+# phép chiếu NGẪU NHIÊN CỐ ĐỊNH. Đây là mức SÀN - đối chứng âm cho câu hỏi "tại sao phải LoRA".
+# Ba vai vẫn khai đủ vì `enabled: true`; mức SÀN KHÔNG dùng `train`.
+trainer: none
+
+# Giữ y hệt nhánh LoRA (`weighted_ce` + `class_weight: inverse`) để phép so chỉ còn MỘT biến: CÁCH HỌC.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# LƯU Ý khi chạy - PhoBERT cần bộ tách từ VnCoreNLP (Java + model ~27 MB, không có trong git):
+# notebook kiểm TRƯỚC khi chạy nhờ mục này, và gói bàn giao đã kèm sẵn thư mục đó.
+requires_extra:
+  - data/models/vncorenlp
