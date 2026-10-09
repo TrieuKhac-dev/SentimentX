@@ -28,6 +28,11 @@ reports:
   attempt_registry: reports/attempt_registry
   model_input: reports/model_input
   metrics_matrix: reports/metrics_matrix
+  # Bảng KẾT HỢP (ngưỡng theo khía cạnh, ensemble, luật lai, biểu quyết, router theo khía cạnh, gộp hai
+  # tầng) - do sáu script `scripts/fit_thresholds|ensemble|fuse|vote|ensemble_aspect|fuse_aspect.py`
+  # ghi. KHÁC năm nhóm trên: nó KHÔNG phải một nhóm của `scripts/collect_reports.py` (nhóm đó cố định
+  # ở `reports.GROUPS`), nhưng vẫn khai ở đây để sáu script không phải viết cứng đường dẫn.
+  fusion: reports/fusion
 
 configs:
   datasets: datasets
