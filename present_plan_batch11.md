@@ -117,7 +117,11 @@ trong `README.md` của thí nghiệm để không ai tưởng là lỗi.
 - [x] Chốt kế hoạch, ghi ra tệp này
 - [x] Đ1: mã `lora.fit_generic` + `none.py` + `savers/head_only.py` + test (994 test xanh theo từng phần)
 - [x] Đ1: tạo 9 thí nghiệm + commit (`e38bb7d`); đã CHỨNG MINH mỗi lượt khác parent đúng 1 khoá đo được
-- [ ] Đ1: `git push` → CI GitHub xanh → `pin.py` 9 notebook → commit bản ghim → push (CHỜ NGƯỜI DÙNG: máy không có `gh` nên không đọc được trạng thái CI)
+- [x] Đ1: push code (`1e34ffd`) rồi **ghim 9 notebook vào `1d172e1`** (bản `ci_checks` XANH, mã y hệt HEAD
+      vì `e38bb7d` chỉ thêm thư mục thí nghiệm) → commit `de20984` → push. `ci_checks` **9/9 sạch** +
+      994 test xanh trên trạng thái sau ghim
+- [ ] Đ1: **xác nhận CI GitHub xanh trên `de20984`** (CHỜ NGƯỜI DÙNG - máy không có `gh`)
+- [ ] Đ1: người dùng chạy 9 notebook trên Colab + thu kết quả (CỔNG 1)
 - [ ] Đ1: người dùng chạy trên Colab + thu kết quả (CỔNG 1)
 - [ ] Đ2 · Đ3 (CỔNG 2) · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
 
