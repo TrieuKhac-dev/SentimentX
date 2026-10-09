@@ -1,6 +1,6 @@
 package_path,source,group,sha256,size
 .sentimentx_root,,marker,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,0
-README.md,handover/README.md,package_readme,f16e49515e7edda8725c75a11d772ec0d50ca7293cedf98b92812d6085c36382,42952
+README.md,handover/README.md,package_readme,4a17e7fe7ff68ba508538aae85fa8651722beee5c86b0da4f79758248faad120,45523
 data/models/vncorenlp/VnCoreNLP-1.2.jar,data/models/vncorenlp/VnCoreNLP-1.2.jar,data,9e2811cdbc2ddfc71d04be5dc36e185c88dcd1ad4d5d69e4ff2e1369dccf7793,27412703
 data/models/vncorenlp/models/wordsegmenter/vi-vocab,data/models/vncorenlp/models/wordsegmenter/vi-vocab,data,0a47c5b55bbce163029d37730a67b9479740388695c29c106c112b815613eaa5,526544
 data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,data,9e62f96bd93e37a24f364238e8d8ae986fa5dad6dbc9f4eae622ab3651b7fa06,128508
@@ -51,6 +51,9 @@ experiments/cafebert/lora/exp018/README.md,experiments/cafebert/lora/exp018/READ
 experiments/cafebert/lora/exp019/README.md,experiments/cafebert/lora/exp019/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/cafebert/none/exp001/README.md,experiments/cafebert/none/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/cafebert/none/exp002/README.md,experiments/cafebert/none/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/mistral-7b-instruct-v0.3/prompt-cot/exp001/README.md,experiments/mistral-7b-instruct-v0.3/prompt-cot/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/mistral-7b-instruct-v0.3/prompt-cot/exp002/README.md,experiments/mistral-7b-instruct-v0.3/prompt-cot/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/mistral-7b-instruct-v0.3/prompt-cot/exp003/README.md,experiments/mistral-7b-instruct-v0.3/prompt-cot/exp003/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/full/exp001/README.md,experiments/phobert-base-v2/full/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/full/exp002/README.md,experiments/phobert-base-v2/full/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/lora/exp001/README.md,experiments/phobert-base-v2/lora/exp001/README.md,experiment_readme,7114a4236cbe61a90b2ef64ead6eea28d9d6881d6c2bfc0eaee568049aa82d7e,1995
@@ -120,6 +123,11 @@ experiments/qwen3-4b-instruct-2507/prompt-cot/exp019/README.md,experiments/qwen3
 experiments/qwen3-4b-instruct-2507/prompt-cot/exp020/README.md,experiments/qwen3-4b-instruct-2507/prompt-cot/exp020/README.md,experiment_readme,755e6643814d44ffc100d4187d13a67442926d51554ac391c71ca1418f492339,3822
 experiments/qwen3-4b-instruct-2507/prompt-cot/exp021/README.md,experiments/qwen3-4b-instruct-2507/prompt-cot/exp021/README.md,experiment_readme,f94d6ceb96c0432884a5329d2e4efd485ad3b62408e7e3b6c1aa94d6b98b71d7,4054
 experiments/qwen3-4b-instruct-2507/prompt-one-turn/exp001/README.md,experiments/qwen3-4b-instruct-2507/prompt-one-turn/exp001/README.md,experiment_readme,f3262cc7ebe30f560b09bc0d57a8789dd82c6c14a0267a3c099d13955a4e53bb,1918
+experiments/qwen3-4b-thinking-2507/prompt-cot/exp001/README.md,experiments/qwen3-4b-thinking-2507/prompt-cot/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/qwen3-4b-thinking-2507/prompt-cot/exp002/README.md,experiments/qwen3-4b-thinking-2507/prompt-cot/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/qwen3-8b/prompt-cot/exp001/README.md,experiments/qwen3-8b/prompt-cot/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/qwen3-8b/prompt-cot/exp002/README.md,experiments/qwen3-8b/prompt-cot/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/qwen3-8b/prompt-cot/exp003/README.md,experiments/qwen3-8b/prompt-cot/exp003/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/vibert-base-cased/lora/exp001/README.md,experiments/vibert-base-cased/lora/exp001/README.md,experiment_readme,e8449a6463541178aaa311d40da10d2d7b445c67a79bcfcce952eabae80b9af5,3795
 experiments/vibert-base-cased/lora/exp002/README.md,experiments/vibert-base-cased/lora/exp002/README.md,experiment_readme,5c2d6cfad82dda376a80e11607f3c65c08ec1e4b170d09fbb01c1911dd563456,4910
 experiments/vibert-base-cased/lora/exp003/README.md,experiments/vibert-base-cased/lora/exp003/README.md,experiment_readme,7732a2d026113e567871f1655aae03b06c6587d856094d65237afd0116a8e2bb,5754
@@ -158,6 +166,9 @@ notebooks/cafebert/lora/exp018.ipynb,experiments/cafebert/lora/exp018/notebook.i
 notebooks/cafebert/lora/exp019.ipynb,experiments/cafebert/lora/exp019/notebook.ipynb,notebook,69ac1833d553b909194c62cb868da19219ee4c7978a716dac6a3f9d487a868ba,19992
 notebooks/cafebert/none/exp001.ipynb,experiments/cafebert/none/exp001/notebook.ipynb,notebook,322b9364b58dfd51676ad01fab998ec1cb6bf4b3af16b71ac3ca608c607f68e8,19992
 notebooks/cafebert/none/exp002.ipynb,experiments/cafebert/none/exp002/notebook.ipynb,notebook,0d8c1ff0af1687e65e5537b358318f4871851b67b7007a8231df8080455b2f50,19992
+notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp001.ipynb,experiments/mistral-7b-instruct-v0.3/prompt-cot/exp001/notebook.ipynb,notebook,8cbe46be5506a668ec57da14292bcd7ea89639614e5b66abec426e5e5bc9ae6f,20014
+notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp002.ipynb,experiments/mistral-7b-instruct-v0.3/prompt-cot/exp002/notebook.ipynb,notebook,538dff38c6f17b3890a81ea268d90161791ecf005038aeca2404403818e1e1c9,20014
+notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp003.ipynb,experiments/mistral-7b-instruct-v0.3/prompt-cot/exp003/notebook.ipynb,notebook,e360fa94211d3197f2372679f5e35e6d7cfcabbf5bf64ad3f9a1a827c7971b62,20014
 notebooks/phobert-base-v2/full/exp001.ipynb,experiments/phobert-base-v2/full/exp001/notebook.ipynb,notebook,7df9ec3858c758a66a84d370888332766f677f6fb0eba40f2d907c2e3f17ced7,19999
 notebooks/phobert-base-v2/full/exp002.ipynb,experiments/phobert-base-v2/full/exp002/notebook.ipynb,notebook,0bf1108ee7d7ad345bcdec34d424b107f0f2324cb39726c0371aae2a18ad1878,19999
 notebooks/phobert-base-v2/lora/exp001.ipynb,experiments/phobert-base-v2/lora/exp001/notebook.ipynb,notebook,6ba989d194517570f29905e9894c167b8d561211b7ee0d1835d2d4cc869d960d,19999
@@ -227,6 +238,11 @@ notebooks/qwen3-4b-instruct-2507/prompt-cot/exp019.ipynb,experiments/qwen3-4b-in
 notebooks/qwen3-4b-instruct-2507/prompt-cot/exp020.ipynb,experiments/qwen3-4b-instruct-2507/prompt-cot/exp020/notebook.ipynb,notebook,a384176d67d37215a1ebd1f4034f6be9f8d6720afa33e2d25e523a8d12f933ef,20012
 notebooks/qwen3-4b-instruct-2507/prompt-cot/exp021.ipynb,experiments/qwen3-4b-instruct-2507/prompt-cot/exp021/notebook.ipynb,notebook,ae49904cba8ef79677b691b5d4ba13faba501ae4cea8697ecc830d0e82bf23f4,20012
 notebooks/qwen3-4b-instruct-2507/prompt-one-turn/exp001.ipynb,experiments/qwen3-4b-instruct-2507/prompt-one-turn/exp001/notebook.ipynb,notebook,c30e9e366522f6e1961c6cca884b6d76d0ce0821a47b249c25499f610e259bf3,20017
+notebooks/qwen3-4b-thinking-2507/prompt-cot/exp001.ipynb,experiments/qwen3-4b-thinking-2507/prompt-cot/exp001/notebook.ipynb,notebook,9fa2ea4b22e7ee7475dbf93a8014f0d1c8bcaeaffbdd1d3dd23c2f3d11afbe8e,20012
+notebooks/qwen3-4b-thinking-2507/prompt-cot/exp002.ipynb,experiments/qwen3-4b-thinking-2507/prompt-cot/exp002/notebook.ipynb,notebook,0e7dd498152025b955847470b97a570e2fd6965b9b4546b14cf3c8eec05b9032,20012
+notebooks/qwen3-8b/prompt-cot/exp001.ipynb,experiments/qwen3-8b/prompt-cot/exp001/notebook.ipynb,notebook,11776bc481a2b65ea770b2c16280fa0f254a1868d81f9e3b455fa0cce6c35b92,19998
+notebooks/qwen3-8b/prompt-cot/exp002.ipynb,experiments/qwen3-8b/prompt-cot/exp002/notebook.ipynb,notebook,0b76276babb59025be4fc08b1a3f4bca4f19e96d3ef85abbd0b2cbeed0791c03,19998
+notebooks/qwen3-8b/prompt-cot/exp003.ipynb,experiments/qwen3-8b/prompt-cot/exp003/notebook.ipynb,notebook,9244624fa43f46612d64d2ac3029394d0ef3f15c5c63ed9d7513683aceb0b3c4,19998
 notebooks/vibert-base-cased/lora/exp001.ipynb,experiments/vibert-base-cased/lora/exp001/notebook.ipynb,notebook,78615754f93b1a398e52197f8c94b234558ba46c973625d895c3589b6ad47aab,20001
 notebooks/vibert-base-cased/lora/exp002.ipynb,experiments/vibert-base-cased/lora/exp002/notebook.ipynb,notebook,80cd74b0454afcdba6cde256bc1af87ac62954c69411a6290a53a63e2cb0901a,20001
 notebooks/vibert-base-cased/lora/exp003.ipynb,experiments/vibert-base-cased/lora/exp003/notebook.ipynb,notebook,5cd430bb39836d6b3c8d0925899c92fdfceba491c45f9fd3c374ac530b1ca908,20001

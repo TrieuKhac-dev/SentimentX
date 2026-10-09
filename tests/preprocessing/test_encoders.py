@@ -74,9 +74,14 @@ class TokenStatsRegistryTest(unittest.TestCase):
 
     def test_nam_model_moi_co_mat(self):
         ids = [spec["model_id"] for spec in token_stats.MODELS]
-        for name in NEW_ENCODERS + ("qwen2.5-0.5b-instruct",):
+        for name in NEW_ENCODERS + ("qwen2.5-0.5b-instruct", "qwen3-8b",
+                                    "qwen3-4b-thinking-2507", "mistral-7b-instruct-v0.3"):
             self.assertIn(name, ids)
-        self.assertEqual(len(ids), 9)          # 4 encoder cũ + 4 encoder mới + 3 model sinh
+        # 6 encoder + 6 model sinh. Đợt 11 thêm BA model sinh (hai bản Qwen3 và một họ KHÁC - Mistral).
+        # HAI model của đợt 11 (`llama-3.1-8b-instruct`, `vistral-7b-chat`) là repo GATED nên CHƯA đăng ký
+        # được: đăng ký một model không tải nổi tokenizer là làm hỏng phép đo của MỌI model khác trong
+        # cùng lần chạy - xem present_plan_batch11.md mục 7.
+        self.assertEqual(len(ids), 12)
 
     def test_moi_muc_co_du_ham_va_ten_model_khop_config(self):
         for spec in token_stats.MODELS:
