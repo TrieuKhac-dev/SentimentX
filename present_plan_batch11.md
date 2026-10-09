@@ -181,7 +181,19 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
 - [x] Đ3: ghim 10 notebook → `f1721bd` → `606c35b`, push; `ci_checks` sạch
 - [x] **CI GitHub XANH trên `606c35b`** (run `37915580140`, success) - các lượt đỏ liền trước đều do ĐÚNG
       một test thiếu torch, không có lỗi nào khác (đã đọc log của run `37914121125`)
-- [ ] Đ1 (CỔNG 1): dựng gói 022 + chạy 9 notebook trên Colab
+- [x] **Sửa KHE HỞ đã biết:** `preflight` in bộ tách từ theo FILE MODEL và `bootstrap` tải 27 MB model Java
+      theo file model, trong khi lớp thí nghiệm ĐÈ được `preprocess.segmenter` ⇒ dòng in trong notebook
+      nói một bộ còn dữ liệu chia bằng bộ khác, và lượt khai `vncorenlp` cho model khai `none` thì máy ảo
+      **thiếu** đúng thứ nó cần (lỗi chỉ hiện ra sau khi đã tải trọng số). Nay cả hai đọc cấu hình **ĐÃ HỢP
+      NHẤT** - cùng nguồn với đường huấn luyện. Thêm 1 test `preflight` + 2 test `bootstrap` (hai chiều
+      ĐÈ) + `setUp` vá `load` cho cả lớp `ModelAssetsTest` - commit `9515701`
+- [x] Ghim lại **cả 31 notebook** (Đ1 9 + Đ2 12 + Đ3 10) vào `9515701` → `a32e829`; CI GitHub XANH ở
+      `9515701` (run `37917152136`) và ở `a32e829` (run `37917258537`)
+- [x] **Bàn giao gói 022**: `handover/out/SentimentX-goi-022-a32e829-261009.zip` (69 file: 31 notebook + 31
+      README thí nghiệm + 6 file dữ liệu **v0.3.0** train/val/test + README bàn giao). `handover/README.md`
+      nay có mục "Đợt 11 - 31 notebook MỚI trong gói này (022)" với bảng 31 lượt (thứ tự chạy · câu hỏi ·
+      khoá khác cha · thời gian), và con số notebook trong gói 67 → **98**
+- [ ] Đ1 (CỔNG 1): chạy 9 notebook trên Colab
 - [ ] Đ2 (CỔNG 2): chạy 12 notebook trên Colab (ba nhóm × bốn: bộ tách từ A/B1/B2 + nhánh emoji)
 - [ ] Đ3 (CỔNG 3): chạy 10 notebook trên Colab (r = 8/32, lr = 1e-4/4e-4, 2 module thay vì 4)
 - [ ] Đ4 · Đ5 · Đ6 · Đ7 · Đ8
