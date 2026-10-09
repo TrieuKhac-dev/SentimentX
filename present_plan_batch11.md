@@ -196,7 +196,18 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
 - [ ] Đ1 (CỔNG 1): chạy 9 notebook trên Colab
 - [ ] Đ2 (CỔNG 2): chạy 12 notebook trên Colab (ba nhóm × bốn: bộ tách từ A/B1/B2 + nhánh emoji)
 - [ ] Đ3 (CỔNG 3): chạy 10 notebook trên Colab (r = 8/32, lr = 1e-4/4e-4, 2 module thay vì 4)
-- [ ] Đ4 · Đ5 · Đ6 · Đ7 · Đ8
+- [x] Đ4: mã - `loss.type: focal` (kèm `loss.gamma` BẮT BUỘC > 0), `class_weight: inverse_by_aspect` (bảng
+      `A x C`, đếm riêng từng khía cạnh), `lora.use_dora` (khoá TUỲ CHỌN), `KNOWN_KEYS` += 2 khoá, và 2 quy
+      tắc mới: `ce` + trọng số bị TỪ CHỐI (trùng `weighted_ce`) - commit `ff4fd26`. **Hai lỗi thật bắt được
+      bằng test số học:** (1) hàng nhãn có ĐÚNG `A` ô (một ô = một khía cạnh, KHÔNG phải `A x C`) nên công
+      thức chia ô bản đầu của tôi sai - nó sẽ rơi trọng số sang khía cạnh khác mà không có gì báo; (2) công
+      thức chuẩn hoá trọng số toàn cục phải giữ NGUYÊN, nếu không thì lượt `weighted_ce` đã chạy không còn
+      là mốc so sánh
+- [x] Đ4: 6 thí nghiệm (`phobert-base-v2/lora/exp021-023`, `cafebert/lora/exp017-019`) + chứng minh mỗi lượt
+      khác cha ĐÚNG MỘT khoá; ghim 6 notebook → `ff4fd26` → `f230ef0`; `ci_checks` sạch + 9 bộ test xanh
+- [x] **Bàn giao gói 023** (`handover/out/SentimentX-goi-023-f230ef0-261009.zip`, 13 file); `handover/README.md`
+      thêm mục "Đợt 11 - 6 notebook MỚI (023)" + con số notebook 98 → **104**
+- [ ] Đ5 (`full` fine-tune) · Đ6/Đ7 (LLM lớn hơn & khác họ) · Đ8 (báo cáo)
 
 
 
