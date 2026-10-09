@@ -153,6 +153,12 @@ def _torchao_check():
     is_torchao_available()
 
 
+# Gói cài thêm khi lượt chạy khai bộ tách từ KHÁC mặc định của model (`preprocess.segmenter`).
+# Bộ chính chủ (`vncorenlp`) không nằm ở đây vì nó còn cần JDK + model Java ~27 MB - có đường
+# riêng ở `model_assets()`. Thiếu hai gói này thì lượt chạy dừng ngay ở bước chia văn bản.
+SEGMENTER_PACKAGES = {"pyvi": "pyvi", "underthesea": "underthesea"}
+
+
 def install_packages(experiment, colab=None, run=None, spec=None, load=None, torchao=None,
                      log=print):
     """Cài gói mà lượt chạy cần nhưng máy ảo CHƯA có. Chỉ làm trên Colab.
@@ -169,7 +175,7 @@ def install_packages(experiment, colab=None, run=None, spec=None, load=None, tor
     load = experiments.load if load is None else load
     torchao = _torchao_check if torchao is None else torchao
     result = {"colab": colab, "needs_training": False, "missing": [], "installed": [],
-              "torchao_removed": False}
+              "torchao_removed": False, "segmenter": ""}
     if not colab:
         return result
     try:
@@ -177,9 +183,15 @@ def install_packages(experiment, colab=None, run=None, spec=None, load=None, tor
         config = merged.get("config") or {}
         result["needs_training"] = bool(config.get("enabled")) or \
             config.get("approach") == "encoder"
+        # Bộ tách từ ĐANG DÙNG của lượt chạy. Đọc từ cấu hình ĐÃ HỢP NHẤT, nên lượt nào đè
+        # `preprocess.segmenter` thì ở đây đọc đúng giá trị đè - xem docs/05_config/04_models.md.
+        result["segmenter"] = str(((config.get("preprocess") or {}).get("segmenter")) or "").strip()
     except Exception as exc:  # noqa: BLE001 - đọc config hỏng thì coi như đường prompt
         log("  (chưa biết thí nghiệm này có huấn luyện không: {})".format(exc))
     wanted = list(WANTED_PACKAGES) + (list(TRAINING_PACKAGES) if result["needs_training"] else [])
+    extra = SEGMENTER_PACKAGES.get(result["segmenter"])
+    if extra:
+        wanted.append(extra)
     result["missing"] = [name for name in wanted if spec(name) is None]
     if result["missing"]:
         log("Thiếu gói {} - đang cài...".format(", ".join(result["missing"])))

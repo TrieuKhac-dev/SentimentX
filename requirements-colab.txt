@@ -8,9 +8,11 @@
 #
 # `py-vncorenlp` nằm ở mục LoRA bên dưới: bộ tách từ chính chủ của PhoBERT là chương trình Java, gọi
 # từ Python qua gói đó (cần thêm JDK - ô bootstrap của notebook tự cài `default-jdk`).
-# `pyvi` thì KHÔNG có ở đây: nó chỉ là bộ DỰ PHÒNG khi máy chưa cài được Java, mà số liệu đo bằng bộ
-# dự phòng không so ngang được với bộ chính chủ - muốn dùng phải `pip install pyvi` và ghi rõ ra.
-# Hướng Qwen3 (prompt / CoT) không tách từ, nên không cần gói nào trong hai gói đó.
+# `pyvi` và `underthesea` KHÔNG nằm ở mục LoRA (chúng không phải mặc định của model nào): chúng chỉ
+# được cài khi một LƯỢT CHẠY khai `preprocess.segmenter` là chính tên đó - ô bootstrap đọc cấu hình
+# ĐÃ HỢP NHẤT nên biết ngay, xem `SEGMENTER_PACKAGES` trong src/workflow/bootstrap.py. Số liệu đo
+# bằng hai bộ DỰ PHÒNG này không so ngang được với bộ chính chủ; dùng thì phải ghi rõ ra.
+# Hướng Qwen3 (prompt / CoT) không tách từ, nên không cần gói nào trong ba gói đó.
 
 # --- Chạy Qwen3 bằng PROMPT (prompt một lượt / CoT) rồi chấm điểm ---
 transformers

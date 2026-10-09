@@ -240,6 +240,33 @@ class InstallPackagesTest(EnvCase):
         self.assertFalse(prompt["needs_training"])
         self.assertNotIn("peft", prompt["missing"])
 
+    def test_cai_goi_tach_tu_ma_luot_chay_khai(self):
+        """Lượt khai `preprocess.segmenter: pyvi` thì phải CÀI `pyvi`, không chỉ được nhắc tới.
+
+        Ô bootstrap đọc cấu hình ĐÃ HỢP NHẤT, nên lượt nào đè bộ tách từ thì ở đây đọc đúng giá
+        trị đè - xem `SEGMENTER_PACKAGES` và docs/05_config/04_models.md.
+        """
+        result = bootstrap.install_packages(
+            "phobert-base-v2/lora/exp012", colab=True, run=fake_run(Recorder()),
+            spec=fake_spec(missing=("pyvi",)),
+            load=lambda *parts: {"config": {"enabled": True,
+                                            "preprocess": {"segmenter": "pyvi"}}},
+            log=Recorder())
+        self.assertEqual(result["segmenter"], "pyvi")
+        self.assertIn("pyvi", result["missing"])
+        self.assertEqual(result["installed"], ["pyvi"])
+
+    def test_bo_tach_tu_mac_dinh_thi_khong_cai_goi_du_phong(self):
+        """Bộ CHÍNH CHỦ (`vncorenlp`) có đường riêng (JDK + model Java) - không cài gói dự phòng."""
+        result = bootstrap.install_packages(
+            "phobert-base-v2/lora/exp002", colab=True, run=fake_run(Recorder()),
+            spec=fake_spec(missing=("pyvi", "underthesea")),
+            load=lambda *parts: {"config": {"enabled": True,
+                                            "preprocess": {"segmenter": "vncorenlp"}}},
+            log=Recorder())
+        self.assertEqual(result["segmenter"], "vncorenlp")
+        self.assertEqual(result["missing"], [])
+
     def test_doc_config_hong_thi_coi_nhu_duong_prompt(self):
         """Đọc config hỏng KHÔNG được làm chết ô này: còn phải cài `mlflow` cho phần ghi nhận."""
         log = Recorder()
