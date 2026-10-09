@@ -1,0 +1,124 @@
+# present_plan_batch11 - Kế hoạch đợt 11: trả lời 11 câu hỏi phản biện
+
+> Đây là kế hoạch **ĐANG THỰC THI** của đợt 11, đặt ở gốc repo. Kế hoạch của đợt trước nằm ở
+> `present_plan.md` (đợt 7 → đợt 10) và **giữ nguyên, không sửa**. Tệp này ghi cả TRẠNG THÁI
+> (mục 7) để không phải mở tệp thứ hai.
+
+## 1. Vì sao có đợt này
+
+11 câu hỏi sẽ bị hỏi khi đem dự án so với công bố tham chiếu. Kiểm kê trên đĩa (09/10/2026):
+**3 câu đã trả lời được**, **8 câu còn là lỗ hổng thật**.
+
+| # | Câu hỏi | Trạng thái trước đợt |
+| --- | --- | --- |
+| 1 | LoRA so với KHÔNG LoRA | thiếu: `TRAINERS` chỉ có `lora` |
+| 2 | Tiền xử lý train khác nhau (icon / segmentation / segmenter) | thiếu: chỉ một phiên bản pipeline; chỉ ĐO token |
+| 3 | Chọn `model/best` theo F1 hay theo accuracy | thiếu: mọi lượt dùng `sentiment_f1` |
+| 4 | Train head hay không | ĐÃ CÓ: 6 cặp + 4 lượt `head.aspect_marker` |
+| 5 | Đổi tham số LoRA | thiếu: hằng số ở mọi lượt |
+| 6 | Ngoài `weighted_ce` | thiếu: chỉ `ce` / `weighted_ce` |
+| 7 | Cách train khác LoRA | thiếu: chỉ `lora` |
+| 8 | Qwen3-0.6B không bằng Qwen3-4B | ĐÃ CÓ (ba cơ chế hỏng đo được) |
+| 9 | Qwen3 lớn hơn 4B | thiếu |
+| 10 | LLM khác họ / mới hơn 4B | thiếu |
+| 11 | Cách đo để so công bằng với công bố | ĐÃ CÓ (chỉ cần LIỆT KÊ bước) |
+
+## 2. Chốt của người dùng (đã khoá, không đổi)
+
+- **Không ghim lại 67 notebook cũ.** Mỗi lượt mới = một notebook MỚI ghim commit mới.
+- Nhánh `icon` = **bỏ emoji ở `train` và `val`**; **`test` giữ nguyên từng ký tự**.
+- Nhánh `segmenter` = thử **cả `underthesea` và `pyvi`**.
+- Mục 3 ở `phobert-base-v2`: ghép với **cả** `lora/exp002` (đầu đóng băng) **và** `lora/exp005` (đầu học)
+  ⇒ bảng 2×2 (cơ chế đầu phân loại × tiêu chí chọn best).
+- Cột ở mục báo cáo M8 tên là **`Dùng được để so?`** (CÓ/KHÔNG), kèm chú thích "CÓ khi đọc được ≥ 95%".
+- `loss.type: focal` khởi đầu `gamma: 2`.
+- Mục 11 trong báo cáo chỉ **liệt kê bước/điều kiện so**, không bảng chứng minh, không bảng "không so được".
+
+## 3. Quy tắc bắt buộc (nhắc lại trước khi làm)
+
+1. **Commit**: Conventional Commits tiếng Anh, một commit = một task nhỏ, tách theo miền, không gộp.
+2. **Kiểm sau mỗi nhóm việc**: `python scripts/ci_checks.py` và `python -m unittest discover -s tests`
+   (Windows: `$env:PYTHONUTF8=1`), cả hai phải thoát mã 0.
+3. **CI xanh trước khi ghim notebook** (luật 22): merge → push → đợi CI GitHub xanh → mới `pin.py`.
+4. **Bất biến**: `configs/paths.yaml` là nguồn đường dẫn duy nhất; `configs/pipeline/*`, `configs/models/*`,
+   `configs/datasets/*/*` **bất biến khi đã dùng** (đổi thì tạo phiên bản mới); cặp prompt + ví dụ + system
+   **bất biến khi đã dùng**; `test` không bao giờ bị sửa; thiếu khoá là lỗi.
+5. **Mỗi lượt chỉ khác parent đúng MỘT khoá đo được.**
+6. **Tệp `.md` ghi không BOM.**
+7. **Cây làm việc phải sạch** trước khi `new_experiment.py` / `pin.py` chạy.
+
+## 4. Tổng quan 8 đợt
+
+| Đợt | Nội dung | Lượt | ~GPU | Mục |
+| --- | --- | --- | --- | --- |
+| Đ1 | `trainer: none` (SÀN + PROBE) ×2 model · `best_metric: accuracy_cell` ×3 · thước nhiễu head ×2 | 9 | ~2 h | 1, 3, 4 |
+| Đ2 | Tiền xử lý: segmentation ×3 · `underthesea` ×3 · `pyvi` ×3 · icon ×3 + pipeline `v0.3.0` | 12 | ~3 h | 2 |
+| Đ3 | Wave 1 tham số LoRA ×2 model | 10 | ~2,5 h | 5 |
+| Đ4 | `focal` · `inverse_by_aspect` · DoRA ×2 model | 6 | ~1,5 h | 6, 7 |
+| Đ5 | Full fine-tune ×2 model (+ partial FT tuỳ chọn ×2) | 2 (+2) | ~1,5-3 h | 1, 7 |
+| Đ6 | Qwen3-8B ×3 mức · Qwen3-4B-Thinking (DÒ + 1 lượt) | 5 | ~2-4 h | 9 |
+| Đ7 | Llama-3.1-8B · Mistral-7B · Vistral-7B ×3 mức | 9 | ~5 h | 10 |
+| Đ8 | Viết báo cáo (10 mục) | 0 | 0 | 8, 11 |
+
+## 5. Đ1 - chi tiết (đợt đang làm)
+
+Mã:
+
+| Tệp | Việc |
+| --- | --- |
+| `src/training/heads.py` (mới) | Rút phần DÙNG CHUNG từ `lora.py`: dựng lớp `MultiHeadClassifier`, `set_head_trainable`, đọc `head_config.json` |
+| `src/training/lora.py` | Import lại từ `heads.py`, **không đổi hành vi** |
+| `src/training/none.py` (mới) | `NAME="none"`; `head.trainable: false` ⇒ KHÔNG tối ưu gì (SÀN); `true` ⇒ tối ưu CHỈ đầu phân loại (LINEAR PROBE) |
+| `src/training/__init__.py` | Thêm `none` vào `TRAINERS` |
+| `tests/training/test_none.py` (mới) | `check()` rỗng; SÀN ⇒ 0 tham số học và `head.pt` không đổi; PROBE ⇒ đúng số tham số đầu phân loại |
+| `docs/04_experiments/06_lora_encoder.md` | Thêm mục "Cách huấn luyện `none`" |
+
+Thí nghiệm (9 lượt; `expNNN` là số DỰ KIẾN, `new_experiment.py` tự chọn số kế tiếp):
+
+| # | Thí nghiệm | Parent | Khoá đè |
+| --- | --- | --- | --- |
+| 1 | `phobert-base-v2/none/exp001` | `phobert-base-v2/lora/exp002` | `trainer: none`, `head.trainable: false` (SÀN) |
+| 2 | `phobert-base-v2/none/exp002` | `phobert-base-v2/none/exp001` | `head.trainable: true` (PROBE) |
+| 3 | `cafebert/none/exp001` | `cafebert/lora/exp002` | `trainer: none`, `head.trainable: false` |
+| 4 | `cafebert/none/exp002` | `cafebert/none/exp001` | `head.trainable: true` |
+| 5 | `cafebert/lora/exp007` | `cafebert/lora/exp002` | `checkpoints.best_metric: accuracy_cell` |
+| 6 | `phobert-base-v2/lora/exp008` | `phobert-base-v2/lora/exp005` | `checkpoints.best_metric: accuracy_cell` |
+| 7 | `phobert-base-v2/lora/exp009` | `phobert-base-v2/lora/exp002` | `checkpoints.best_metric: accuracy_cell` |
+| 8 | `phobert-base-v2/lora/exp010` | `phobert-base-v2/lora/exp002` | `decoding.seed: 7` (thước nhiễu, đầu đóng băng) |
+| 9 | `phobert-base-v2/lora/exp011` | `phobert-base-v2/lora/exp005` | `decoding.seed: 7` (thước nhiễu, đầu học) |
+
+Chung cho #1-#4: `enabled: true`, `roles: {train: train, val: val, eval: test}`,
+`loss: {type: weighted_ce, class_weight: inverse}`. Ở hai lượt SÀN, `train` **không dùng** - ghi rõ
+trong `README.md` của thí nghiệm để không ai tưởng là lỗi.
+
+## 6. Đ2 - Đ8 (tóm tắt; chi tiết khi tới đợt)
+
+- **Đ2**: mã `utils.remove_emoji` (dùng `EMOJI_PATTERN` đã có) + nhánh `remove_emoji` trong
+  `pipeline/normalize.py::normalize_steps` + schema `core/dataset.py` + `configs/pipeline/v0.3.0.yaml` +
+  `configs/datasets/cosmetics/v0.3.0.yaml` (`apply_to: [train, val]`) + cài bộ tách từ theo model trong
+  `workflow/bootstrap.py` + `requirements-colab.txt`. 12 lượt: `phobert-base-v2/lora/exp012-015`,
+  `visobert/lora/exp006-009`, `cafebert/lora/exp008-011` (A=none/vncorenlp, B1=underthesea, B2=pyvi, C=icon).
+- **Đ3**: không cần mã. `phobert-base-v2/lora/exp016-020`, `cafebert/lora/exp012-016`
+  (`lora.r` 8 và 32, `lr` 1e-4 và 4e-4, `lora.target_modules: [query, value]`).
+- **Đ4**: mã `focal` + `inverse_by_aspect` + `lora.use_dora` (+ `KNOWN_KEYS`).
+  `phobert-base-v2/lora/exp021-023`, `cafebert/lora/exp017-019`.
+- **Đ5**: mã `src/training/full.py` + `src/training/savers/state_dict.py`.
+  `phobert-base-v2/full/exp001`, `cafebert/full/exp001` (+ partial FT `exp002` tuỳ chọn).
+- **Đ6/Đ7**: mã `src/preprocessing/chat_like.py` + 5 module model + 5 `configs/models/*.yaml` +
+  `token_stats.MODELS`. `qwen3-8b/prompt-cot/exp001-003`, `qwen3-4b-thinking-2507/prompt-cot/exp001` (DÒ) và
+  `exp002`, `llama-3.1-8b-instruct|mistral-7b-instruct-v0.3|vistral-7b-chat/prompt-cot/exp001-003`.
+- **Đ8** (0 GPU): 10 mục trong `presentations/present_report/present_report.md` - M1 không LoRA/học chỉ
+  đầu/LoRA · M2 tiền xử lý emoji & tách từ · M3 F1 hay accuracy · M4 đóng băng hay học đầu · M5 tham số LoRA ·
+  M6 hàm mất mát · M7 cách huấn luyện · M8 model nhỏ hơn (cột `Dùng được để so?`) · M9 LLM lớn hơn & khác họ ·
+  M10 điều kiện so công bằng (8 gạch đầu dòng).
+
+## 7. Trạng thái
+
+- [x] Chốt kế hoạch, ghi ra tệp này
+- [ ] Đ1: mã `heads.py` + `none.py` + test
+- [ ] Đ1: tạo 9 thí nghiệm + ghim + commit
+- [ ] Đ1: người dùng chạy trên Colab + thu kết quả (CỔNG 1)
+- [ ] Đ2 · Đ3 (CỔNG 2) · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
+
+
+
