@@ -1,6 +1,6 @@
 package_path,sha256,size,group,source,first_package,last_package,mtime,sent_at
 .sentimentx_root,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,0,marker,,001,001,,
-README.md,4ac59b65b90b73932280fda9518824a08e3ead3fca9937b9db744ab279ee730d,48926,package_readme,handover/README.md,001,027,2026-10-09T19:47:38,2026-10-09T19:48:38
+README.md,6ee9125c79011a12c8f8e9263238f1ccebdad119da667e99dba880c34689d2b7,52189,package_readme,handover/README.md,001,029,2026-10-10T00:02:57,2026-10-10T00:09:37
 data/models/vncorenlp/VnCoreNLP-1.2.jar,9e2811cdbc2ddfc71d04be5dc36e185c88dcd1ad4d5d69e4ff2e1369dccf7793,27412703,data,data/models/vncorenlp/VnCoreNLP-1.2.jar,001,001,,
 data/models/vncorenlp/models/wordsegmenter/vi-vocab,0a47c5b55bbce163029d37730a67b9479740388695c29c106c112b815613eaa5,526544,data,data/models/vncorenlp/models/wordsegmenter/vi-vocab,001,001,,
 data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,9e62f96bd93e37a24f364238e8d8ae986fa5dad6dbc9f4eae622ab3651b7fa06,128508,data,data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,001,001,,
