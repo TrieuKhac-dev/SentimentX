@@ -251,8 +251,6 @@ def encode(module, texts, max_length, batch=64, segmenter=None):
     bằng lô rộng nhất: id 0 là token pad, mask 0 nghĩa là không chú ý tới - model không nhìn thấy gì
     khác so với không pad.
     """
-    import torch
-
     # `segmenter` chỉ được truyền khi lượt chạy THẬT SỰ khai (`_segmenter`): module nào không có
     # tham số này vẫn dùng được, và lượt không khai giữ nguyên hành vi cũ (bộ mặc định của module).
     arguments = {"max_length": max_length}
@@ -260,6 +258,12 @@ def encode(module, texts, max_length, batch=64, segmenter=None):
         arguments["segmenter"] = segmenter
     chunks = [module.build_inputs(list(texts[start:start + batch]), **arguments)
               for start in range(0, len(texts), batch)]
+    # `import torch` đặt SAU phần dựng chunk: đoạn này chỉ gọi module model, KHÔNG cần tensor. Nhờ vậy
+    # CI (không cài torch - xem requirements-ci.txt) vẫn kiểm được rằng bộ tách từ của lượt chạy đi
+    # tới `build_inputs()`; đặt import lên đầu thì phép kiểm đó chết vì THIẾU TORCH, chứ không phải vì
+    # đường truyền tham số sai - một test đỏ nói sai nguyên nhân là test hỏng, không phải bằng chứng.
+    import torch
+
     if not chunks:
         empty = torch.empty((0, 0), dtype=torch.long)
         return empty, empty
