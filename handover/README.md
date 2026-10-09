@@ -18,6 +18,12 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
+> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-027-<mã>-261009.zip`** - 48 notebook, và **cả 48 ghim vào
+> cùng một revision** (cùng một bản code, nên không thể lẫn hai bản giữa các lượt). Các gói **022/023/024/
+> 026** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế) - nếu bạn đã
+> tải chúng thì cứ dùng **027** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả
+> lời câu gì; thứ tự chạy thì xem bảng ở mục "Đợt 11 - thứ tự chạy" (gần cuối file này).
+
 > **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 115.** Con số này TĂNG theo
 > từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn
 > đúng, không phải làm gì). Muốn biết một gói **NNN** mang thêm gì thì mở
@@ -200,7 +206,7 @@ bị cắt **16.149 &#8594; 2.328** tham số. **Khoá `head.aspect_marker` đã
   gộp chỉ dùng nhãn cứng).
 
 
-### Đợt 11 - 31 notebook MỚI trong gói này (022): ba nhóm phản biện + hai lỗi thật đã sửa
+### Đợt 11 - 31 notebook: "điểm đến từ đâu" · tiền xử lý · tham số LoRA + hai lỗi thật đã sửa
 
 Ba nhóm dưới đây trả lời ba câu phản biện, **chạy theo đúng thứ tự trong bảng** (rẻ trước; nhóm PhoBERT
 đứng đầu để lộ ngay nếu máy ảo thiếu Java/VnCoreNLP). Mỗi lượt khác lượt CHA của nó **đúng MỘT khoá đo
@@ -274,7 +280,7 @@ chỉ accuracy; và nhớ **biên nhiễu của đường encoder là +-0,33 ...
 là "chưa thấy khác biệt", KHÔNG phải "không khác biệt". Nếu một lượt cho số lạ (ví dụ SÀN mà accuracy cao
 bất thường), gửi lại nguyên thư mục kết quả để nhóm dò ống dẫn trước khi đọc tiếp.
 
-### Đợt 11 - 6 notebook MỚI trong gói này (023): hàm mất mát và cách huấn luyện
+### Đợt 11 - 6 notebook: hàm mất mát (focal, trọng số theo khía cạnh) và DoRA
 
 Sáu lượt này cũng dùng hai lượt cha như bảng trên (`phobert-base-v2/lora/exp005`, `cafebert/lora/exp002`),
 và mỗi lượt đổi **đúng một** khoá đo được. Trả lời "còn cách nào khác để chữa mất cân bằng / tăng chất
@@ -295,7 +301,7 @@ so chúng với cha `weighted_ce` là so HAI biến (hàm mất mát VÀ trọng
 với cha: cùng hàm mất mát, chỉ khác chỗ đếm trọng số; (c) `trainable_params` của lượt DoRA **KHÁC** lượt
 cha (DoRA thêm tham số độ lớn) - đó là dấu vết để kiểm trước khi đọc điểm.
 
-### Đợt 11 - 3 notebook MỚI trong gói này (024): FULL FINE-TUNE (học toàn bộ model)
+### Đợt 11 - 3 notebook: FULL FINE-TUNE (học toàn bộ model)
 
 Ba lượt này trả lời câu "nếu cho model học **TẤT CẢ** tham số (encoder + đầu phân loại) thay vì chỉ sửa
 adapter thì hơn bao nhiêu" - mốc đối chứng của cả nhóm LoRA, và là mốc mà các bài báo ABSA thường công bố.
@@ -314,7 +320,7 @@ trong `metrics.json` - nhỏ hơn nghĩa là đã rơi về đóng băng một p
 fine-tune; (c) `trainer: full` **không đi** với `inference.quantization: 4bit` (4 bit đóng băng trọng số
 gốc, đó là QLoRA) - notebook sẽ báo lỗi ngay ở ô kiểm tra nếu ai đó khai như vậy.
 
-### Đợt 11 - 8 notebook MỚI trong gói này (026): LLM LỚN HƠN, KHÁC CHẾ ĐỘ, KHÁC HỌ
+### Đợt 11 - 8 notebook: LLM LỚN HƠN, KHÁC CHẾ ĐỘ, KHÁC HỌ
 
 Ba model MỚI (đều là repo MỞ, tải được không cần token). Mỗi lượt dùng **đúng cấu hình prompt/ví dụ của
 lượt cha 4B cùng mức**, khác đúng MỘT khoá: `model`.
@@ -343,6 +349,32 @@ tải khi chạy, KHÔNG phải chép gì lên Drive. Nếu muốn chạy offlin
 > Việt chuyên biệt, cùng cỡ Mistral) là repo **GATED** - máy dự án đã thử tải và bị từ chối. Cần `HF_TOKEN`
 > có quyền + bấm nhận điều khoản trên trang model; khi có thì nhóm thêm 6 notebook mà không phải sửa gì
 > trong gói cũ.
+
+### Đợt 11 - thứ tự chạy 48 notebook (xếp theo thời gian GIẢM DẦN)
+
+| Bậc | Notebook | Trả lời câu gì |
+| --- | --- | --- |
+| ~60-90 phút | `qwen3-8b/prompt-cot/exp003` · `mistral-7b-instruct-v0.3/prompt-cot/exp003` | LLM 5 ví dụ - đắt nhất, nên vào **phiên Colab mới** |
+| ~40-60 phút | `qwen3-8b/prompt-cot/exp001` · `exp002` · `mistral-7b-instruct-v0.3/prompt-cot/exp001` · `exp002` | 0 và 1 ví dụ của hai họ LLM mới |
+| ~30-45 phút | `qwen3-4b-thinking-2507/prompt-cot/exp001` (**lượt DÒ**) · `cafebert/full/exp001` | DÒ chốt trần token; full fine-tune model lớn nhất |
+| ~40-60 phút | `qwen3-4b-thinking-2507/prompt-cot/exp002` | lượt "suy nghĩ" 1 ví dụ - **phải CHẠY SAU lượt DÒ** để lấy trần đúng (xem ghi chú dưới bảng) |
+| ~20-30 phút | `phobert-base-v2/full/exp001` · `exp002` | full fine-tune, hai mức `lr` (giữ nguyên 2e-4 và hạ 2e-5) |
+| ~15-20 phút | `cafebert/lora/exp007` → `exp019` (13 lượt) · `cafebert/none/exp002` | 14 lượt CafeBERT: tiêu chí chọn best, tiền xử lý, tham số LoRA, mất mát, DoRA, linear probe |
+| ~13-16 phút | `phobert-base-v2/lora/exp008` · `exp011` → `exp023` (14 lượt) | 14 lượt PhoBERT cùng nhóm câu hỏi |
+| ~12-15 phút | `phobert-base-v2/lora/exp009` · `exp010` · `visobert/lora/exp006-009` | tiêu chí chọn `model/best` + thước nhiễu; ViSoBERT ×4 (bộ tách từ + emoji) |
+| ~10 phút | `phobert-base-v2/none/exp002` | LINEAR PROBE - encoder đóng băng, chỉ đầu phân loại học |
+| ~4 phút | `cafebert/none/exp001` | SÀN CafeBERT |
+| ~3 phút | `phobert-base-v2/none/exp001` | SÀN PhoBERT - **bước KIỂM ỐNG DẪN** (xem ghi chú dưới bảng) |
+
+**Hai ghi chú về thứ tự** - chúng KHÔNG theo thời gian mà theo phụ thuộc/nghiệp vụ:
+
+1. **Lượt DÒ phải chạy trước lượt "suy nghĩ"**: trần sinh của `qwen3-4b-thinking-2507/prompt-cot/exp002`
+   đang là giá trị **TẠM 4.096**; số đúng là `làm tròn lên (p99 × 1,5)` lấy từ số đo của `exp001`. Gửi
+   kết quả `exp001` về, nhóm cập nhật rồi ghim lại **đúng một** notebook này (không phải chạy lại `exp001`).
+2. **Về chẩn đoán, hai lượt SÀN (~3 và ~4 phút) đứng đầu bảng thứ tự RẺ trước vẫn hơn** (đúng như kế
+   hoạch đã xếp cho nhóm 1): SÀN = encoder đóng băng + đầu phân loại NGẪU NHIÊN, nên nếu SÀN **không xấu**
+   thì có gì đó sai ở ống dẫn - biết sau 3 phút thay vì sau 90 phút. Nếu bạn đi theo đúng bảng giảm dần
+   ở trên, hãy chạy **hai lượt SÀN trong cùng phiên đầu tiên** với một lượt dài.
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
 
