@@ -620,9 +620,16 @@ def early_settings(config):
     return found
 
 
-def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42, source=None,
-        labels=None, on_point=None, log=None):
-    """Huấn luyện LoRA rồi trả về số liệu của lượt huấn luyện.
+def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42,
+                source=None, labels=None, on_point=None, log=None, build=None, writer_name=None):
+    """VÒNG LẶP HUẤN LUYỆN DÙNG CHUNG cho mọi cách huấn luyện (`lora`, `none`).
+
+    Chỉ hai thứ đổi theo cách huấn luyện, và cả hai đều là THAM SỐ:
+        `build`        hàm dựng `(model, head)`; mặc định là LoRA của chính tệp này
+        `writer_name`  tên writer trong `src/training/savers/`; mặc định `adapter`
+
+    KHÔNG có tham số nào học (cách `none` + đầu phân loại đóng băng): không tạo optimizer và bỏ qua
+    vòng lặp, nhưng VẪN đo `val` và ghi `model/best` + `model/last` để bước suy luận có checkpoint đọc.
 
     `train` và `val` là dict `{"texts": [...], "labels": [[mã nhãn]], "mask": [[0/1]]}` với nhãn ĐÃ
     CHIẾU sang không gian nhãn của thí nghiệm (`src/preprocessing/loader.project_multi_head`).
@@ -655,7 +662,7 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
         raise TrainingError(
             "`checkpoints.best_metric` = '{}' không phải chỉ số mà `measure()` tính. Chọn một trong: "
             "{}.".format(metric, ", ".join(MEASURED_METRICS)))
-    writer = savers.get()
+    writer = savers.get(writer_name)
 
     random.seed(seed)
     torch.manual_seed(seed)
@@ -676,8 +683,8 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             "quả {} rồi chạy lại nếu muốn huấn luyện bài toán này.".format(
                 utils.rel(adapter), utils.rel(out_dir)))
 
-    model, head = build_model(found, device, n_aspects=len(aspects), n_codes=len(codes),
-                              adapter_dir=adapter, source=found["source"], trainable=True)
+    model, head = (build or build_model)(found, device, n_aspects=len(aspects), n_codes=len(codes),
+                                        adapter_dir=adapter, source=found["source"], trainable=True)
     if device == "cuda":
         model = model.to(device)
     trainable, total = parameter_counts(model)
@@ -706,19 +713,24 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     _Multi, Rows = build_classes()
     loader = DataLoader(Rows(ids, masks, targets, keep), batch_size=found["batch"], shuffle=True,
                         generator=torch.Generator().manual_seed(seed))
-    optimizer = torch.optim.AdamW([item for item in model.parameters() if item.requires_grad],
-                                  lr=found["lr"], weight_decay=found["weight_decay"])
-    per_epoch = max(1, math.ceil(len(loader) / found["grad_accum"]))
-    scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=0, num_training_steps=max(1, per_epoch * found["epochs"]))
+    # KHÔNG có tham số nào học (cách `none` + đầu phân loại đóng băng): KHÔNG tạo optimizer -
+    # `AdamW` với danh sách rỗng ném `optimizer got an empty parameter list` (lỗi thật đã giết một
+    # lượt chạy) - và bỏ qua vòng lặp (xem `epochs_to_run` bên dưới).
+    optimizer, scheduler = None, None
+    if trainable:
+        optimizer = torch.optim.AdamW([item for item in model.parameters() if item.requires_grad],
+                                      lr=found["lr"], weight_decay=found["weight_decay"])
+        per_epoch = max(1, math.ceil(len(loader) / found["grad_accum"]))
+        scheduler = get_linear_schedule_with_warmup(
+            optimizer, num_warmup_steps=0, num_training_steps=max(1, per_epoch * found["epochs"]))
 
     start_epoch, step, best = 0, 0, None
     if state:
         folder = store.last_dir()
-        if (folder / writer.OPTIMIZER_FILE).is_file():
+        if optimizer is not None and (folder / writer.OPTIMIZER_FILE).is_file():
             optimizer.load_state_dict(
                 torch.load(str(folder / writer.OPTIMIZER_FILE), map_location="cpu"))
-        if (folder / writer.SCHEDULER_FILE).is_file():
+        if scheduler is not None and (folder / writer.SCHEDULER_FILE).is_file():
             scheduler.load_state_dict(
                 torch.load(str(folder / writer.SCHEDULER_FILE), map_location="cpu"))
         start_epoch = int(state.get("epoch") or 0)
@@ -774,7 +786,10 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
                 "step": step, "best": best, "metrics": metrics, "source": found["source"],
                 "settings": found}
 
-    for epoch in range(start_epoch, found["epochs"]):
+    # Không có gì để học thì vòng lặp RỖNG (`range(0, 0)`), nhưng phần đo `val` + ghi checkpoint bên
+    # dưới vẫn chạy: lượt `none` cần `model/best` để bước suy luận đọc được.
+    epochs_to_run = found["epochs"] if trainable else 0
+    for epoch in range(start_epoch, epochs_to_run):
         for index, batch in enumerate(loader):
             batch = {key: value.to(device) for key, value in batch.items()}
             logits = model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
@@ -851,6 +866,17 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
         if stopped_early:
             break
 
+    if not trainable:
+        # Lượt KHÔNG huấn luyện: đo `val` MỘT lần rồi ghi `model/best` + `model/last`. Đầu phân loại
+        # vẫn là phép chiếu NGẪU NHIÊN CỐ ĐỊNH - đúng nghĩa "không học gì", và đó chính là điều lượt
+        # này muốn đo (đối chứng âm cho câu hỏi "tại sao phải huấn luyện").
+        metrics = measure(model, module, val, found, codes, device, aspects, task, labels)
+        if on_point is not None and metrics:
+            on_point(metrics, step)
+        record(0, metrics, snapshot=False)
+        store.save(store.last_dir(), writer, payload(0, metrics), checkpoint_payload())
+        history.append({"kind": "epoch", "step": step, "epoch": 0, "val": metrics})
+
     seconds = round(time.time() - started, 1)
     if policy["save_best"] and best is None:
         message = ("Không có `val` để chọn `model/best`: khai `data.roles.val` khi huấn luyện. "
@@ -866,6 +892,14 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
             "best_dir": (str(store.best_dir()) if store.best_dir().is_dir() else None)}
 
 
+def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42, source=None,
+        labels=None, on_point=None, log=None):
+    """Huấn luyện LoRA rồi trả về số liệu của lượt huấn luyện (vòng lặp dùng chung ở `fit_generic`)."""
+    return fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=seed,
+                       source=source, labels=labels, on_point=on_point, log=log,
+                       build=build_model, writer_name=savers.DEFAULT)
+
+
 def value_text(metrics, metric="accuracy_cell"):
     """Điểm val để IN RA: `chưa có val` khi lượt huấn luyện không có tập val."""
     if not metrics or metrics.get(metric) is None:
@@ -874,6 +908,11 @@ def value_text(metrics, metric="accuracy_cell"):
 
 
 def predict(config, model_id, adapter_dir, texts, source=None):
+    """Suy luận bằng LoRA. Vòng suy luận dùng chung ở `predict_generic`."""
+    return predict_generic(config, model_id, adapter_dir, texts, source=source, build=build_model)
+
+
+def predict_generic(config, model_id, adapter_dir, texts, source=None, build=None):
     """Suy luận ra MÃ NHÃN và XÁC SUẤT từng ô.
 
     Trả về `(mã theo khía cạnh, xác suất theo (khía cạnh, mã), head_config)`.
@@ -892,7 +931,8 @@ def predict(config, model_id, adapter_dir, texts, source=None):
     device = device_of()
     found["device"] = device
     found["source"] = source or found["checkpoint"]
-    model, _head = build_model(found, device, adapter_dir=adapter_dir, source=found["source"])
+    model, _head = (build or build_model)(found, device, adapter_dir=adapter_dir,
+                                         source=found["source"])
     if device == "cuda":
         model = model.to(device)
     head_config = read_head_config(adapter_dir)

@@ -624,9 +624,15 @@ class HeadTrainableTest(unittest.TestCase):
 
     @needs_torch
     def test_build_model_takes_the_flag(self):
-        """`build_model` phải NHẬN cờ này: mặc định `False` là đường SUY LUẬN, quên truyền ở `fit()`
-        thì lượt CHẠY TIẾP chết ở `optimizer got an empty parameter list`."""
-        self.assertIn("trainable=True", inspect.getsource(lora.fit))
+        """`build_model` phải NHẬN cờ này: mặc định `False` là đường SUY LUẬN, quên truyền ở vòng lặp
+        huấn luyện thì lượt CHẠY TIẾP chết ở `optimizer got an empty parameter list`.
+
+        Vòng lặp huấn luyện DÙNG CHUNG nằm ở `fit_generic` (đợt 11 tách ra để cách huấn luyện `none`
+        dùng lại), nên phép kiểm soi ĐÚNG chỗ đó, cộng một dòng chốt rằng `fit()` của LoRA đi qua
+        chính nó: ai đó nối tắt thì cờ `trainable=True` lại biến mất khỏi đường chạy thật.
+        """
+        self.assertIn("trainable=True", inspect.getsource(lora.fit_generic))
+        self.assertIn("fit_generic", inspect.getsource(lora.fit))
         self.assertIn("is_trainable=bool(trainable)", inspect.getsource(lora.build_model))
         self.assertIn("set_head_trainable", inspect.getsource(lora.build_model))
 
