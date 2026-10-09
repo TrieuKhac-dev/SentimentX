@@ -340,9 +340,12 @@ Giải nén vào `experiments/` của repo **chỉ giữ** `run.log`, `run_meta.
 - **Người chạy chỉ bấm Allow một lần cho Drive, rồi Run all.** Mount, tìm thư mục, đặt hai gốc và
   cài gói thiếu đều nằm trong ô bootstrap; đừng chuyển chúng ra thành các bước tay, vì bước tay thì
   sớm muộn cũng bị bỏ qua hoặc làm sai thứ tự.
-- **Phải có `.sentimentx_root`.** `MyDrive` và Shared drives trông giống nhau; không có file đánh dấu
-  thì notebook không tìm được thư mục nhóm và sẽ ghi kết quả vào máy ảo (mất khi hết phiên). Tên thư
-  mục thì không quan trọng - đây là điều khiến bản giao chỉ còn "copy thư mục rồi bấm Run all".
+- **Nên có `.sentimentx_root`, nhưng KHÔNG bắt buộc.** `MyDrive` và Shared drives trông giống nhau, nên
+  file đánh dấu là cách nhận ra chắc chắn nhất; nhưng thiếu nó thì notebook vẫn nhận ra thư mục nhóm qua
+  **cấu trúc gói** - `env/.env.colab`, hoặc `data/` đi kèm `experiments/`
+  (`src/workflow/runtime.py::looks_like_group_dir`), vì một số công cụ chép thư mục trên Windows bỏ qua
+  file bắt đầu bằng dấu chấm. Điều thực sự phải đúng là cấu trúc gói; tên thư mục thì không quan trọng -
+  đây là điều khiến bản giao chỉ còn "copy thư mục rồi bấm Run all".
 - **Chỉ định thư mục bằng `SENTIMENTX_DRIVE_FOLDER` hay `env/.env.colab` thì phải xong TRƯỚC ô
   bootstrap:** biến môi trường đọc lúc chạy, còn file env nằm *trong* Drive nên không thể nói Drive ở đâu.
 - **Ô bootstrap kéo code TRƯỚC khi `import src`,** và kéo đúng commit đã ghim. Test
