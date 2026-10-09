@@ -149,10 +149,29 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       `test_none` chạy được, 2 test cần torch bỏ qua đúng cách
 - [x] Đ1: push `4a1dec8` + `017d9b1`, rồi **ghim lại 9 notebook vào `017d9b1`** → `398f80f` → push.
       Trạng thái cuối: `ci_checks` 9/9 sạch + **994 test xanh** (chín nhánh)
-- [ ] Đ1: **xác nhận CI GitHub xanh trên `398f80f`** (CHỜ NGƯỜI DÙNG - máy không có `gh`)
-- [ ] Đ1: dựng gói 022 + người dùng chạy 9 notebook trên Colab (CỔNG 1)
-- [ ] Đ1: người dùng chạy trên Colab + thu kết quả (CỔNG 1)
-- [ ] Đ2 · Đ3 (CỔNG 2) · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
+- [x] Revert đúng yêu cầu: trả `README.md`, `src/workflow/checks.py`, `tests/workflow/test_checks.py` về bản
+      git; **không đụng** `presentations/` (cây chỉ còn dirty trong `presentations/present_report/`)
+- [x] Đẩy hai commit `docs(plan)` đang ở máy (`c204c5a`, `cc435ca`)
+- [x] **Báo cáo phần viết được ngay** vào `batch11_report.md` (10 mục M1-M10) - commit `b9fa990`. Tệp nằm ở
+      GỐC repo vì `presentations/present_report/` đang do bạn sửa; sẽ ghép vào đó khi bạn cho phép
+- [x] Đ2: mã - `utils.remove_emoji` + nhánh `remove_emoji` trong `normalize_steps` +
+      `configs/pipeline/v0.3.0.yaml` + `configs/datasets/cosmetics/v0.3.0.yaml`; dữ liệu đã sinh
+      `...-daebf6ba` (`eval_lock` khớp BYTE của v0.2.0: `af349bf5`, 1.623 dòng) - commit `618e811`
+- [x] Đ2: **sửa LỖI THẬT trong đường huấn luyện** - `lora.encode()` gọi `build_inputs()` mà KHÔNG truyền bộ
+      tách từ, nên `preprocess.segmenter` chỉ là khoá trang trí ở đường huấn luyện: mọi bộ tách từ sẽ ra
+      cùng một kết quả mà không có gì báo. Nay giá trị đó đi tới ĐÚNG chỗ chia văn bản; `cafebert` /
+      `visobert` / `xlm-roberta` nhận `segmenter` như `phobert` / `vibert` / `phobert-large` đã nhận;
+      bootstrap cài gói theo cấu hình ĐÃ HỢP NHẤT (`SEGMENTER_PACKAGES`) - commit `c00822d`, `3717521`
+- [x] Đ2: bắt và sửa một lỗi thật thứ hai - bản đầu `remove_emoji` dùng `\s+ -> " "` nên nuốt cả ký tự
+      XUỐNG DÒNG: **4.158** dòng `train` đổi trong khi chỉ 1.877 dòng có emoji. Nay khác nhau ĐÚNG ở
+      review có emoji (1.877 / 227 / test 0), khoá bằng test
+- [x] Đ2: 12 thí nghiệm + chứng minh mỗi lượt khác cha ĐÚNG MỘT khoá đo được (`preprocess.segmenter`, hoặc
+      `data.version` cho nhánh emoji) - commit `9645322`; ghim 12 notebook → `c0c953e` → `b739b53`, push
+- [x] Đ2: `ci_checks` sạch + **1.012 test xanh** (chín nhánh) + docs cập nhật (`618e811`...`c0c953e`)
+- [ ] Đ1: **xác nhận CI GitHub xanh trên `398f80f`** và trên `b739b53` (CHỜ NGƯỜI DÙNG - máy không có `gh`)
+- [ ] Đ1 (CỔNG 1): dựng gói 022 + chạy 9 notebook trên Colab
+- [ ] Đ2 (CỔNG 2): chạy 12 notebook trên Colab (ba nhóm × bốn: bộ tách từ A/B1/B2 + nhánh emoji)
+- [ ] Đ3 · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
 
 
 

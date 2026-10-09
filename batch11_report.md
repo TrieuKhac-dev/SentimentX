@@ -33,6 +33,15 @@ Chờ 4 lượt `none` của Đ1. Kỳ vọng đọc số: SÀN ở mức đoán
 Nhánh `icon` **bỏ emoji ở `train` và `val`; `test` giữ nguyên từng ký tự** (điều kiện để vẫn so được với công bố).
 Đọc trước: chỉ ~14% review bị chạm, và **không** review nào của `test` bị chạm - nên phép so công bố vẫn nguyên vẹn.
 
+**Bất biến đã ĐO được của nhánh icon** (so TỪNG DÒNG hai phiên bản dữ liệu v0.2.0 và v0.3.0, cùng
+`test` gốc): số dòng **không đổi** (12.268 / 1.535 / 1.623), bộ cột **không đổi**, và văn bản khác nhau ở
+**đúng 1.877 dòng `train` + 227 dòng `val`** - tức đúng bằng số review CÓ emoji, không dòng nào khác bị
+chạm; **`test` 0 dòng đổi**. Đây là phép kiểm "chỉ đổi một biến" của nhánh này, và cũng là phép kiểm bắt
+được một lỗi thật: bản đầu của `remove_emoji` dùng `\s+ -> " "` nên nuốt luôn ký tự XUỐNG DÒNG, làm
+**4.158** dòng `train` đổi (hơn gấp đôi số dòng có emoji) - đã sửa và khoá bằng test.
+Lưu ý đọc số: 1.877 và 227 là số đo trên dữ liệu ĐÃ QUA bước Clean (nên nhỏ hơn con số thô 1.931 / 233
+ở bảng trên, vốn đếm trên dữ liệu gốc).
+
 **Tách từ (thang 4 bậc mỗi model):**
 
 | Model | gốc | bậc A (bật/tắt) | bậc B1 | bậc B2 |
