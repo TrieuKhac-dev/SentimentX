@@ -66,8 +66,8 @@ Mã:
 
 | Tệp | Việc |
 | --- | --- |
-| `src/training/heads.py` (mới) | Rút phần DÙNG CHUNG từ `lora.py`: dựng lớp `MultiHeadClassifier`, `set_head_trainable`, đọc `head_config.json` |
-| `src/training/lora.py` | Import lại từ `heads.py`, **không đổi hành vi** |
+| `src/training/lora.py` | Vòng lặp huấn luyện tách thành `fit_generic(..., build=, writer_name=)`; `fit`/`predict` thành VỎ MỎNG. **KHÔNG đổi hành vi** (979 test cũ vẫn xanh) |
+| `src/training/savers/head_only.py` (mới) | Writer chỉ ghi đầu phân loại (`head.pt` + `head_config.json`), vì đường `none` không có `save_pretrained` để gọi |
 | `src/training/none.py` (mới) | `NAME="none"`; `head.trainable: false` ⇒ KHÔNG tối ưu gì (SÀN); `true` ⇒ tối ưu CHỈ đầu phân loại (LINEAR PROBE) |
 | `src/training/__init__.py` | Thêm `none` vào `TRAINERS` |
 | `tests/training/test_none.py` (mới) | `check()` rỗng; SÀN ⇒ 0 tham số học và `head.pt` không đổi; PROBE ⇒ đúng số tham số đầu phân loại |
@@ -115,7 +115,7 @@ trong `README.md` của thí nghiệm để không ai tưởng là lỗi.
 ## 7. Trạng thái
 
 - [x] Chốt kế hoạch, ghi ra tệp này
-- [ ] Đ1: mã `heads.py` + `none.py` + test
+- [x] Đ1: mã `lora.fit_generic` + `none.py` + `savers/head_only.py` + test (994 test xanh theo từng phần)
 - [ ] Đ1: tạo 9 thí nghiệm + ghim + commit
 - [ ] Đ1: người dùng chạy trên Colab + thu kết quả (CỔNG 1)
 - [ ] Đ2 · Đ3 (CỔNG 2) · Đ4 · Đ5 · Đ6 · Đ7 · Đ8
