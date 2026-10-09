@@ -99,8 +99,10 @@ def log_config(plan_data, log):
                    found["grad_accum"], found["epochs"], found["weight_decay"]))
     # Cơ chế học của đầu phân loại: ĐÓNG BĂNG hay HỌC cùng adapter. Ghi vào `[CONFIG]` vì đây là
     # khác biệt giữa hai lượt có cùng mọi con số khác - nhìn bảng điểm KHÔNG thể thấy được.
-    log.config("đầu phân loại: {}".format(
-        "HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học"))
+    # Câu này lấy từ CÁCH HUẤN LUYỆN (`training.head_state`), KHÔNG viết cứng theo `head.trainable`:
+    # lượt `none` không có adapter nào và lượt `full` học cả encoder, nên nhãn của đường LoRA là SAI ở
+    # đó - đúng lỗi đã gặp: lượt SÀN in ra nhãn nói về adapter dù nó không có adapter nào.
+    log.config("đầu phân loại: {}".format(training.head_state(found)))
     log.config("checkpoint: mỗi {} bước, giữ {} | lưu last={} best={} xoá trung gian={}".format(
         found["every_n_steps"], found["keep_last_k"], found["save_last"], found["save_best"],
         found["delete_intermediate"]))
@@ -370,7 +372,7 @@ def print_config(plan_data):
         found["lora_r"], found["lora_alpha"], ", ".join(found["target_modules"]),
         found["epochs"], found["batch"], found["grad_accum"]))
     print("Đầu phân loại: {} ({})".format(
-        "HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học",
+        training.head_state(found),
         "head.trainable: true" if found["head_trainable"] else "head.trainable: false"))
     print("Chấm điểm  : {} mẫu (n={}), chỉ số {}".format(
         plan_data["info"]["n_samples"], plan_data["limit"] or "cả split", plan_data["names"]))

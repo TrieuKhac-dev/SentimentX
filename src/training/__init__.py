@@ -13,6 +13,8 @@ HỢP ĐỒNG CỦA MỘT TRAINER
     check(config, model_id)                  thứ cần có TRƯỚC khi chạy (gọi từ preflight/CI)
     fit(...)  -> dict                        huấn luyện, trả số liệu của lượt huấn luyện
     predict(...) -> list[list[int]]          suy luận ra MÃ NHÃN, để phần chấm điểm dùng chung
+    head_state_of(found) -> str    (tuỳ chọn) câu mô tả "cái gì đang học"; thiếu thì dùng
+                                              câu của đường LoRA (xem `head_state`)
 
 `fit` phải ghi checkpoint, nhưng KHÔNG tự quyết định chính sách và chỗ lưu: chính sách + `Store` nằm ở
 `src/training/checkpoints.py`, còn CÁCH GHI trọng số ở một writer trong `src/training/savers/`
@@ -45,6 +47,26 @@ def get(name):
             "`configs/experiments/training.yaml` (khoá `trainer`).".format(
                 name, ", ".join(available())))
     return TRAINERS[name]
+
+
+def head_state(found):
+    """Nhãn nói CHÍNH XÁC cái gì đang học ở lượt này, theo CÁCH HUẤN LUYỆN đã khai.
+
+    MỘT CHỖ DUY NHẤT cho câu in ra màn hình và ghi vào `run.log`. Trước đây
+    `src/experiments/encoder_run.py` tự chọn câu theo mỗi `head.trainable`, nên hai lượt KHÔNG có
+    adapter nào (`trainer: none`) bị in bằng câu của đường LoRA: lượt SÀN hiện ra là "ĐÓNG BĂNG -
+    chỉ adapter học", còn lượt linear probe hiện ra là "HỌC cùng adapter". Người đọc `run.log`
+    tưởng có một adapter đang học, và mất luôn ý nghĩa của phép đối chứng âm - đã gặp thật khi chạy
+    smoke đợt 11.
+
+    Cách huấn luyện nào tự khai `head_state_of` thì dùng câu của nó (`none`, `full`); còn lại (kể cả
+    tên trainer lạ) dùng câu của đường LoRA.
+    """
+    found = found or {}
+    module = TRAINERS.get(str(found.get("trainer") or ""))
+    if module is not None and hasattr(module, "head_state_of"):
+        return module.head_state_of(found)
+    return "HỌC cùng adapter" if found.get("head_trainable") else "ĐÓNG BĂNG - chỉ adapter học"
 
 
 def check(config, model_id=None):

@@ -27,6 +27,7 @@ from src.evaluation import records
 from src.training import lora
 from src.training import checkpoints, encoders
 from src.training import TRAINERS
+from src import training
 
 try:
     import torch
@@ -828,5 +829,69 @@ class HeadTrainableVisibleTest(unittest.TestCase):
         """`info["training"]` là bộ thẻ đẩy lên MLflow: thiếu khoá này thì lượt đầu HỌC và lượt đầu
         ĐÓNG BĂNG mang cùng một bộ thẻ, lọc trên MLflow không tách được hai cơ chế."""
         self.assertIn('"head_trainable"', inspect.getsource(encoder_run.plan))
+
+
+class HeadStateByTrainerTest(unittest.TestCase):
+    """Nhãn "cái gì đang học" phải theo CÁCH HUẤN LUYỆN, không chỉ theo `head.trainable`.
+
+    Lỗi thật đã gặp khi chạy smoke đợt 11: lượt SÀN (`trainer: none`, `head.trainable: false`) in ra
+    "ĐÓNG BĂNG - chỉ adapter học" - trong khi nó KHÔNG có adapter nào và không tệp nào học. Người đọc
+    `run.log` tưởng có một adapter đang học, và mất luôn ý nghĩa của phép đối chứng âm. Lượt linear
+    probe (`none` + `head.trainable: true`) thì bị in là "HỌC cùng adapter" - cũng sai, vì không có
+    adapter nào để học cùng.
+    """
+
+    def test_none_at_the_floor_says_nothing_learns(self):
+        self.assertIn("KHÔNG tệp nào học",
+                      training.head_state({"trainer": "none", "head_trainable": False}))
+
+    def test_none_in_a_probe_says_only_the_head_learns(self):
+        self.assertIn("CHỈ đầu phân loại học",
+                      training.head_state({"trainer": "none", "head_trainable": True}))
+
+    def test_full_says_the_whole_model_learns(self):
+        self.assertIn("TOÀN BỘ", training.head_state({"trainer": "full", "head_trainable": True}))
+
+    def test_lora_keeps_the_adapter_wording(self):
+        self.assertEqual(training.head_state({"trainer": "lora", "head_trainable": False}),
+                         "ĐÓNG BĂNG - chỉ adapter học")
+        self.assertEqual(training.head_state({"trainer": "lora", "head_trainable": True}),
+                         "HỌC cùng adapter")
+
+    def test_an_unknown_trainer_falls_back_instead_of_crashing(self):
+        self.assertEqual(training.head_state({"trainer": "khong-co", "head_trainable": False}),
+                         "ĐÓNG BĂNG - chỉ adapter học")
+        self.assertEqual(training.head_state(None), "ĐÓNG BĂNG - chỉ adapter học")
+
+    def test_encoder_run_reads_the_single_source(self):
+        """`encoder_run` KHÔNG được tự chọn câu theo `head.trainable` nữa (hai chỗ in, một luật)."""
+        for function in (encoder_run.log_config, encoder_run.print_config):
+            source = inspect.getsource(function)
+            self.assertIn("training.head_state(found)", source)
+            self.assertNotIn("chỉ adapter học", source)
+
+    def test_the_log_line_for_a_floor_run_says_nothing_learns(self):
+        entries = []
+
+        class Recorder(object):
+            def config(self, text):
+                entries.append(text)
+
+        plan = {"config": dict(BASE_CONFIG, label_space="binary", neutral_policy="drop",
+                               not_mentioned="separate"),
+                "merged": {"overrides": []}, "model_id": "phobert-base-v2", "method": "none",
+                "exp_id": "exp001", "version_id": "ma-ds0.2.0", "split": "test", "limit": None,
+                "max_length": 256, "batch_size": 8, "device": "cuda", "seed": 42, "codes": [0, 1, 2],
+                "dataset": {"name": "cosmetics", "version": "v0.2.0"}, "roles": {"train": "train"},
+                "names": ["accuracy"], "model": "vinai/phobert-base-v2", "info": {"n_samples": 8},
+                "training": dict(lora.settings(dict(BASE_CONFIG, trainer="none",
+                                                    head={"trainable": False,
+                                                          "aspect_marker": False}),
+                                               "phobert-base-v2"),
+                                 every_n_steps=100, keep_last_k=2, save_last=True, save_best=True,
+                                 delete_intermediate=True, best_metric="sentiment_f1")}
+        encoder_run.log_config(plan, Recorder())
+        line = [text for text in entries if text.startswith("đầu phân loại")][0]
+        self.assertIn("KHÔNG tệp nào học", line)
 
 
