@@ -41,11 +41,13 @@ for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
-from src.core import utils  # noqa: E402
+from src.core import paths, utils  # noqa: E402
 from src.evaluation import fusion  # noqa: E402
 
-DEFAULT_OUT = "data/reports/fusion/thresholds.json"
-DEFAULT_APPLIED = "data/reports/fusion/thresholds_applied.json"
+# Thư mục bảng KẾT HỢP đọc từ `configs/paths.yaml` (nhóm report `fusion`) - KHÔNG viết cứng đường dẫn.
+FUSION_DIR = paths.report("fusion")
+DEFAULT_OUT = str(FUSION_DIR / "thresholds.json")
+DEFAULT_APPLIED = str(FUSION_DIR / "thresholds_applied.json")
 
 
 def parse_args(argv=None):
