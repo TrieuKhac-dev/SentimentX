@@ -237,6 +237,39 @@ Suy ra **biên nhiễu của đường encoder là +-0,33 ... +-0,67 điểm**; 
 3. **`detection` ổn định** (Δ ≤ 0,007) trong khi `acc` đổi tới 0,67 điểm ⇒ hai thước có độ nhạy khác nhau;
    kết luận về cơ chế nên dựa vào `detection` + F1 lớp âm nhiều hơn `acc`.
 
+## Cách huấn luyện `none`: KHÔNG gói adapter
+
+`training.trainer` có hai giá trị (`src/training/`): `lora` và `none`. `none` là **ĐỐI CHỨNG ÂM** của câu
+"tại sao phải huấn luyện": nó KHÔNG gói LoRA, và có hai mức chọn bằng `head.trainable` (đúng khoá của
+đường LoRA):
+
+| `head.trainable` | Lượt này làm gì | Là gì trong báo cáo |
+| --- | --- | --- |
+| `false` | KHÔNG tối ưu gì: encoder đóng băng + đầu phân loại là phép chiếu NGẪU NHIÊN CỐ ĐỊNH | **mức SÀN** - "không làm gì" |
+| `true` | encoder vẫn đóng băng, **CHỈ đầu phân loại học** | **linear probe** |
+
+Thang ba bậc vì vậy là **SÀN < học-chỉ-đầu < LoRA** (+ đầu phân loại), cả ba đọc trên cùng tập `test`.
+
+Ba điều cần biết khi đọc một lượt `none`:
+
+1. **Không có adapter**, nên checkpoint do writer `head_only` ghi (`src/training/savers/head_only.py`):
+   chỉ `head.pt` + `head_config.json` (thêm optimizer/scheduler ở `model/last`). `model/best` và
+   `model/last` vẫn có, nên bước suy luận chạy như mọi lượt khác. Tên file trùng với writer `adapter`
+   là CHỦ Ý - đó là định dạng của ĐẦU PHÂN LOẠI, nên `lora.read_head_config` đọc được checkpoint của
+   `none`.
+2. **Vòng lặp huấn luyện KHÔNG chép lại**: nó ở `lora.fit_generic`, và `none` truyền vào đúng hai thứ
+   khác nhau - hàm dựng model (`none.build_model`) và tên writer. Mức SÀN có vòng lặp **rỗng** (không
+   tạo optimizer: `AdamW` với danh sách rỗng ném `optimizer got an empty parameter list`) nhưng vẫn đo
+   `val` và ghi checkpoint.
+3. **Vẫn phải khai `lora.*`**: `settings()` dùng chung với đường LoRA, và bản ghi lượt chạy
+   (`run.log`/`run_meta.json`) đọc `lora_r`/`lora_alpha`/`target_modules`. Lượt `none` không dùng các
+   giá trị đó, nhưng chúng vẫn có trong cấu hình đã hợp nhất (`configs/experiments/training.yaml` +
+   `configs/models/<model_id>.yaml`) nên không phải khai thêm gì.
+
+Lượt `none` dùng chung mọi thứ còn lại với đường LoRA: ba vai `train`/`val`/`eval` (mức SÀN không dùng
+`train` - ghi rõ trong `README.md` của thí nghiệm), cùng hàm mất mát, cùng `checkpoints.best_metric`,
+cùng bộ chấm điểm, cùng cách ghi kết quả.
+
 ## Chạy trên Colab
 
 Mọi notebook LoRA (sáu model encoder) chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa
