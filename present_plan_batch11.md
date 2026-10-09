@@ -207,7 +207,30 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       khác cha ĐÚNG MỘT khoá; ghim 6 notebook → `ff4fd26` → `f230ef0`; `ci_checks` sạch + 9 bộ test xanh
 - [x] **Bàn giao gói 023** (`handover/out/SentimentX-goi-023-f230ef0-261009.zip`, 13 file); `handover/README.md`
       thêm mục "Đợt 11 - 6 notebook MỚI (023)" + con số notebook 98 → **104**
-- [ ] Đ5 (`full` fine-tune) · Đ6/Đ7 (LLM lớn hơn & khác họ) · Đ8 (báo cáo)
+- [x] Đ5: mã - `src/training/full.py` (mọi tham số học) + `src/training/savers/state_dict.py` (ghi CẢ model)
+      + đăng ký `TRAINERS`/`SAVERS` + `head_state_of` cho vòng lặp dùng chung - commit `0d41b00`. Hai chẩn
+      đoán mới: 4-bit bị TỪ CHỐI (đó là QLoRA, không phải full fine-tune); và **sửa một dòng IN SAI có sẵn**
+      - lượt `none` mức SÀN trước đây in nhãn mặc định của đường LoRA ("chỉ adapter học") trong khi nó
+      không có adapter nào
+- [x] Đ5: 3 thí nghiệm (`phobert-base-v2/full/exp001-002`, `cafebert/full/exp001`) - chứng minh khác cha
+      ĐÚNG `method` + `trainer` (riêng `exp002` thêm `lr`), nên phép so chỉ đổi MỘT biến: cơ chế học; ghim
+      `0d41b00` → `a130424`; `ci_checks` sạch + bộ test xanh (test mới: `tests/training/test_full.py`)
+- [x] **Bàn giao gói 024** (`handover/out/SentimentX-goi-024-a130424-261009.zip`, 7 file); README thêm mục
+      "Đợt 11 - 3 notebook MỚI (024): FULL FINE-TUNE" + con số notebook 104 → **107**
+- [ ] **Đ6/Đ7 (LLM lớn hơn & khác họ) - BỊ CHẶN ở máy này, cần môi trường Colab.** Ba điều kiện chưa có:
+      (a) **file tokenizer** của model mới trong `data/models/<tên>/` (ba model Qwen-family hiện có đều có
+      sẵn ở đó; model mới phải tải về, mà `meta-llama/Llama-3.1-8B-Instruct` là model **GATED** - cần token
+      Hugging Face có quyền); (b) **phép ĐO `run_token_stats.py`** cho từng model + prompt - dự án BẮT BUỘC
+      có số đo token/review TRƯỚC khi tạo lượt (không có thì không biết ngưỡng cắt có làm mất phần đuôi
+      prompt hay không); (c) **một lượt DÒ** chốt trần `max_new_tokens` cho nhánh suy nghĩ (bài học 0.6B).
+      Việc CÒN LẠI phải viết khi có môi trường: `src/preprocessing/chat_like.py` (module chat dùng chung
+      cho họ KHÔNG phải Qwen) + 5 `configs/models/*.yaml` + 5 dòng trong `token_stats.MODELS` + 14 notebook
+      (`qwen3-8b/prompt-cot/exp001-003`, `qwen3-4b-thinking-2507/prompt-cot/exp001-002`,
+      `llama-3.1-8b-instruct|mistral-7b-instruct-v0.3|vistral-7b-chat/prompt-cot/exp001-003`).
+      GHI CHÚ ĐÃ KIỂM: `src/preprocessing/qwen.py` **đã generic theo `model_id`** (bản 0.6B và Qwen2.5 dùng
+      chung module này), nên HAI model Qwen3 mới chỉ cần 1 file config + 1 dòng `token_stats` - không cần
+      module mới. Ba họ còn lại mới cần `chat_like.py`.
+- [ ] Đ8 (báo cáo): các mục M1/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 
 

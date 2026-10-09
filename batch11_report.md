@@ -8,6 +8,24 @@
 > cơ sở `all` thì đọc theo `all`. Số lấy từ `experiments/**/results/<hash8>/metrics.json`, KHÔNG lấy từ
 > `data/reports/**`. Mục nào còn chờ lượt chạy thì ghi **CHỜ KẾT QUẢ**.
 
+## Trạng thái đợt 11: 40 lượt mới đã tạo + ghim (Đ1-Đ5), 14 lượt LLM còn chặn (Đ6/Đ7)
+
+Mọi lượt dưới đây **đã tạo, đã ghim vào một commit có thật trên `origin/experiment`, và đã đóng gói bàn
+giao** (`handover/out/`, các gói **022 → 024**). Cột "khác cha" là khoá DUY NHẤT khác lượt cha - đã kiểm
+bằng phép so cấu hình ĐÃ HỢP NHẤT, không bằng mắt.
+
+| Nhóm | Lượt | Số | Khác cha ở đâu | Trạng thái |
+| --- | --- | --- | --- | --- |
+| **Đ1** "điểm đến từ đâu" | `phobert-base-v2/none/exp001-002`, `cafebert/none/exp001-002`, `phobert-base-v2/lora/exp008-011`, `cafebert/lora/exp007` | 9 | `trainer: none` / `head.trainable` / `checkpoints.best_metric` / `decoding.seed` | đã ghim, chờ chạy |
+| **Đ2** tiền xử lý | `phobert-base-v2/lora/exp012-015`, `visobert/lora/exp006-009`, `cafebert/lora/exp008-011` | 12 | `preprocess.segmenter` (3 bộ) hoặc `data.version: v0.3.0` | đã ghim, chờ chạy |
+| **Đ3** tham số LoRA | `phobert-base-v2/lora/exp016-020`, `cafebert/lora/exp012-016` | 10 | `lora.r` / `lr` / `lora.target_modules` | đã ghim, chờ chạy |
+| **Đ4** mất mát & cách học | `phobert-base-v2/lora/exp021-023`, `cafebert/lora/exp017-019` | 6 | `loss.type: focal` / `loss.class_weight: inverse_by_aspect` / `lora.use_dora` | đã ghim, chờ chạy |
+| **Đ5** full fine-tune | `phobert-base-v2/full/exp001-002`, `cafebert/full/exp001` | 3 | `method` + `trainer: full` (+ `lr` ở `exp002`) | đã ghim, chờ chạy |
+| **Đ6/Đ7** LLM lớn hơn & khác họ | `qwen3-8b`, `qwen3-4b-thinking-2507`, `llama-3.1-8b-instruct`, `mistral-7b-instruct-v0.3`, `vistral-7b-chat` | 14 | mỗi lượt một cấu hình hỏi (0/1/5 ví dụ) | **CHƯA TẠO** - xem chặn ở `present_plan_batch11.md` mục 7 |
+
+Bảng này là **cái để đối chiếu khi có kết quả**: mỗi nhóm ghi số vào đúng mục M của báo cáo này
+(Đ1 → M1/M3 · Đ2 → M2 · Đ3 → M5 · Đ4 → M6/M7 · Đ5 → M7 · Đ6/Đ7 → M9).
+
 ## M1. Ba bậc: KHÔNG học gì / học chỉ đầu phân loại / LoRA - **CHỜ KẾT QUẢ**
 
 | Bậc | PhoBERT-base | CafeBERT | Trả lời |
@@ -164,7 +182,13 @@ sẽ có hai dòng trông như hai thí nghiệm khác nhau.
 | `lora` (adapter peft) - cách của MỌI lượt encoder hiện có | tất cả | đã có |
 | `none` (KHÔNG adapter: SÀN + linear probe) | 4 lượt ở Đ1 | chờ |
 | `lora` + **DoRA** (`lora.use_dora: true`) | `phobert-base-v2/lora/exp023` · `cafebert/lora/exp019` | đã tạo + ghim (`f230ef0`), chờ chạy |
-| `full` (toàn bộ encoder + đầu phân loại) | `phobert-base-v2/full/exp001` · `cafebert/full/exp001` | chờ Đ5 |
+| `full` (toàn bộ encoder + đầu phân loại) | `phobert-base-v2/full/exp001` · `exp002` (lr 2e-5) · `cafebert/full/exp001` | đã tạo + ghim (`a130424`), chờ chạy |
+
+Đọc kèm hai điều của lượt `full`: (a) **`trainable_params` phải BẰNG `total_params`** - nhỏ hơn nghĩa là đã
+rơi về đóng băng một phần và lượt chạy KHÔNG còn là full fine-tune; (b) hai lượt `exp001` giữ nguyên `lr`
+2e-4 (mức của LoRA) để phép so chỉ đổi MỘT biến, còn `exp002` hạ xuống 2e-5 theo mức thông lệ - nếu
+`exp001` phân kỳ thì **đó cũng là kết quả** (nói rằng `lr` của LoRA không dùng được cho full fine-tune), và
+`exp002` là lượt trả lời câu hỏi chính.
 
 ## M8. Model NHỎ HƠN cho Qwen3-4B: Qwen3-0.6B - **ĐÃ ĐỦ** (mục RIÊNG, KHÔNG trộn vào bảng best model)
 
