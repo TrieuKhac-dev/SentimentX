@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 """Registry CÁCH GHI TRỌNG SỐ của checkpoint. Hợp đồng ở ``base.py``.
 
-    adapter   LoRA (peft): adapter + đầu phân loại cho mỗi khía cạnh
+    adapter     LoRA (peft): adapter + đầu phân loại cho mỗi khía cạnh
+    head_only   chỉ đầu phân loại (không adapter) - dùng cho cách huấn luyện `none`
 
 Thêm cách ghi mới (ví dụ full fine-tune ghi ``state_dict``): viết một module trong thư mục này rồi thêm
 MỘT dòng vào ``SAVERS``. Trainer chọn writer bằng tên (``training.checkpoint_writer``); mặc định
 ``adapter`` để cấu hình cũ chạy nguyên như trước.
 """
 
-from src.training.savers import adapter
+from src.training.savers import adapter, head_only
 
 SAVERS = {
     adapter.NAME: adapter,
+    head_only.NAME: head_only,
 }
 
 DEFAULT = adapter.NAME
