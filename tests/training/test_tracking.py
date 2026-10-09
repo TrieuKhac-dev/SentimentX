@@ -350,6 +350,114 @@ class ParamAndPrefixTest(unittest.TestCase):
 
 
 
+class DeletedExperimentTest(unittest.TestCase):
+    """Experiment bị XOÁ trên máy chủ: TỰ KHÔI PHỤC rồi nối tiếp, không mất cả phần ghi nhận.
+
+    Lỗi thật đã gặp ở MỌI lượt chạy đợt 10-11: `Cannot set a deleted experiment 'sentimentx-absa' as
+    the active experiment`. File kết quả vẫn đủ nên không ai để ý, nhưng DagsHub không có run nào -
+    nghĩa là câu "kết quả tự hiện trên DagsHub" trong `handover/README.md` khi đó là SAI.
+
+    Khoá hai nửa: nhận đúng thông báo lỗi (không đoán theo kiểu lỗi khác), và `begin()` THỬ LẠI sau
+    khi khôi phục - khôi phục mà không nối lại thì vẫn mất phần ghi nhận.
+    """
+
+    MESSAGE = ("MlflowException: Cannot set a deleted experiment 'sentimentx-absa' as the active "
+               "experiment. You can restore the experiment, or permanently delete the experiment to "
+               "create a new one.")
+
+    def test_the_real_message_is_recognised(self):
+        self.assertTrue(mlflow_tracker.is_deleted_experiment(Exception(self.MESSAGE)))
+
+    def test_another_error_is_not_this_case(self):
+        """Đoán nhầm ở đây là đi KHÔI PHỤC một experiment chẳng liên quan gì tới lỗi đang có."""
+        for other in (RuntimeError("Connection refused"), Exception("Run 'x' not found"), None):
+            with self.subTest(other=other):
+                self.assertFalse(mlflow_tracker.is_deleted_experiment(other))
+
+    @unittest.skipIf(importlib.util.find_spec("mlflow") is None, "cần thư viện mlflow")
+    def test_a_soft_deleted_experiment_is_restored(self):
+        client = mock.Mock()
+        client.get_experiment_by_name.return_value = mock.Mock(experiment_id="7")
+        with mock.patch("mlflow.MlflowClient", return_value=client), \
+                mock.patch.object(mlflow_tracker, "base") as base_module:
+            base_module.token.return_value = "t"
+            restored, note = mlflow_tracker.restore_deleted_experiment(
+                {"experiment": "sentimentx-absa"}, {"mlflow_uri": "https://example.invalid",
+                                                    "owner": "ai-do"})
+        self.assertTrue(restored, note)
+        client.restore_experiment.assert_called_once_with("7")
+        self.assertIn("KHÔI PHỤC", note)
+
+    @unittest.skipIf(importlib.util.find_spec("mlflow") is None, "cần thư viện mlflow")
+    def test_a_permanently_deleted_experiment_is_created_again(self):
+        """Xoá vĩnh viễn thì `get_experiment_by_name` trả `None` - chính thông báo lỗi gợi ý TẠO LẠI."""
+        client = mock.Mock()
+        client.get_experiment_by_name.return_value = None
+        client.create_experiment.return_value = "9"
+        with mock.patch("mlflow.MlflowClient", return_value=client), \
+                mock.patch.object(mlflow_tracker, "base") as base_module:
+            base_module.token.return_value = "t"
+            restored, note = mlflow_tracker.restore_deleted_experiment(
+                {"experiment": "sentimentx-absa"}, {"mlflow_uri": "https://example.invalid"})
+        self.assertTrue(restored, note)
+        self.assertIn("TẠO MỚI", note)
+
+    @unittest.skipIf(importlib.util.find_spec("mlflow") is None, "cần thư viện mlflow")
+    def test_a_failing_restore_is_a_note_not_a_crash(self):
+        with mock.patch("mlflow.MlflowClient", side_effect=RuntimeError("không có quyền")), \
+                mock.patch.object(mlflow_tracker, "base") as base_module:
+            base_module.token.return_value = "t"
+            restored, note = mlflow_tracker.restore_deleted_experiment(
+                {"experiment": "sentimentx-absa"}, {"mlflow_uri": "https://example.invalid"})
+        self.assertFalse(restored)
+        self.assertIn("không có quyền", note)
+
+    def test_begin_connects_again_after_a_successful_restore(self):
+        """Khôi phục xong phải THỬ LẠI `connect`: nếu không thì phiên vẫn tắt và phần ghi nhận mất."""
+        fake, calls, warnings = mock.Mock(), {"count": 0}, []
+
+        def connect(config, dagshub):
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise RuntimeError(self.MESSAGE)
+            return fake
+
+        class Recorder(object):
+            def warn(self, text):
+                warnings.append(text)
+
+            def step(self, text):
+                warnings.append(text)
+
+        with mock.patch.object(mlflow_tracker, "connect", side_effect=connect), \
+                mock.patch.object(mlflow_tracker, "check", return_value=True), \
+                mock.patch.object(mlflow_tracker, "restore_deleted_experiment",
+                                  return_value=(True, "đã KHÔI PHỤC experiment")), \
+                mock.patch.object(mlflow_tracker.run_meta, "read", return_value={}):
+            session = mlflow_tracker.begin({"experiment": "x"}, {"mlflow_uri": "u"}, "/tmp/out",
+                                           log=Recorder())
+        self.assertTrue(session.active)
+        self.assertEqual(calls["count"], 2)
+        self.assertTrue(any("ĐÃ sửa được" in text for text in warnings), warnings)
+
+    def test_begin_gives_up_with_an_explanation_when_the_restore_fails(self):
+        warnings = []
+
+        class Recorder(object):
+            def warn(self, text):
+                warnings.append(text)
+
+        with mock.patch.object(mlflow_tracker, "connect", side_effect=RuntimeError(self.MESSAGE)), \
+                mock.patch.object(mlflow_tracker, "check", return_value=True), \
+                mock.patch.object(mlflow_tracker, "restore_deleted_experiment",
+                                  return_value=(False, "không có quyền")):
+            session = mlflow_tracker.begin({"experiment": "x"}, {"mlflow_uri": "u"}, "/tmp/out",
+                                           log=Recorder())
+        self.assertFalse(session.active)
+        self.assertTrue(any("KHÔNG sửa được" in text for text in warnings), warnings)
+        self.assertTrue(any("không mở được phiên MLflow" in text for text in warnings), warnings)
+
+
 if __name__ == "__main__":
     unittest.main()
 

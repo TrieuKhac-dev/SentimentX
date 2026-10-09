@@ -98,6 +98,54 @@ def delete_runs(rows):
     return deleted, problems
 
 
+DELETED_MARK = "deleted experiment"
+
+
+def is_deleted_experiment(error):
+    """Lỗi này có phải "experiment đã bị XOÁ trên máy chủ" không.
+
+    Thông báo thật của MLflow: `Cannot set a deleted experiment 'sentimentx-absa' as the active
+    experiment. You can restore the experiment, or permanently delete the experiment to create a new
+    one.` Đã gặp thật ở MỌI lượt chạy trong đợt 10-11: file kết quả vẫn đủ, nhưng phần ghi nhận mất
+    sạch mà `run.log` chỉ có một dòng `[WARN]` dễ bị đọc lướt qua.
+    """
+    return DELETED_MARK in str(error)
+
+
+def restore_deleted_experiment(config, dagshub):
+    """Khôi phục (hoặc tạo lại) experiment đã bị xoá. Trả về `(đã_xong, ghi_chú)`.
+
+    Vì sao cần: `mlflow.set_experiment` coi experiment đã xoá là LỖI, nên mọi lượt chạy mất phần ghi
+    nhận - trong khi đây là ca DUY NHẤT tự sửa được tại chỗ. `get_experiment_by_name` trả `None` khi
+    experiment đã bị xoá VĨNH VIỄN (đúng việc mà chính thông báo lỗi của MLflow gợi ý: tạo lại), còn
+    trả bản ghi đã đánh dấu xoá thì `restore_experiment` đưa nó về.
+
+    KHÔNG ném: đây là việc phụ, và tài khoản có thể không có quyền khôi phục.
+    """
+    try:
+        import mlflow
+
+        uri = str(dagshub["mlflow_uri"])
+        mlflow.set_tracking_uri(uri)
+        token = base.token(dagshub)
+        if token:
+            # Ghi THẲNG (không `setdefault`): biến môi trường có thể đang giữ token cũ/hỏng, và
+            # `setdefault` sẽ giữ nguyên giá trị sai đó.
+            os.environ["MLFLOW_TRACKING_PASSWORD"] = token
+            os.environ.setdefault("MLFLOW_TRACKING_USERNAME", str(dagshub.get("owner") or ""))
+        name = str(config["experiment"])
+        client = mlflow.MlflowClient(tracking_uri=uri)
+        found = client.get_experiment_by_name(name)
+        if found is None:
+            return True, "experiment {!r} không còn nữa nên đã TẠO MỚI: {}".format(
+                name, client.create_experiment(name))
+        client.restore_experiment(found.experiment_id)
+        return True, "đã KHÔI PHỤC experiment đã bị xoá: {!r} ({})".format(
+            name, found.experiment_id)
+    except Exception as exc:  # noqa: BLE001 - ghi nhận không được làm chết lần chạy
+        return False, "{}: {}".format(type(exc).__name__, exc)
+
+
 class _Session(base.Session):
     NAME = NAME
 
@@ -174,8 +222,29 @@ def begin(config, dagshub, out_dir, info=None, log=None):
             log.warn("không dùng được MLflow: {}".format(exc))
         return base.Session(active=False, reason=str(exc))
 
+    mlflow = None
     try:
         mlflow = connect(config, dagshub)
+    except Exception as first:  # noqa: BLE001 - mở phiên hỏng thì chạy tiếp, không dừng
+        exc = first
+        # Experiment đã bị XOÁ trên máy chủ là ca DUY NHẤT tự sửa được tại chỗ (xem
+        # `restore_deleted_experiment`): thử sửa rồi nối tiếp, không xong mới hạ cấp như lỗi khác.
+        if is_deleted_experiment(exc):
+            restored, note = restore_deleted_experiment(config, dagshub)
+            if log is not None:
+                log.warn("MLflow: {} {}".format(
+                    "ĐÃ sửa được - " if restored else "KHÔNG sửa được - ", note or str(exc)))
+            if restored:
+                try:
+                    mlflow = connect(config, dagshub)
+                except Exception as again:  # noqa: BLE001
+                    exc, mlflow = again, None
+        if mlflow is None:
+            if log is not None:
+                log.warn("không mở được phiên MLflow: {}: {}".format(type(exc).__name__, exc))
+            return base.Session(active=False, reason=str(exc))
+
+    try:
         # MỘT PHÉP ĐO = MỘT RUN: nếu thư mục này đã có `tracking.run_id` thì NỐI vào đúng run đó
         # (phiên chạy tiếp của cùng phép đo), thay vì mở run mới mỗi phiên.
         stored = str((run_meta.read(out_dir).get("tracking") or {}).get("run_id") or "")
