@@ -362,6 +362,24 @@ class TestDeviceAndSegmenter(PreflightCase):
         self.assertIsNone(preflight.segmenter_report(TEST_MODEL, problems, notes, info))
         self.assertEqual(problems, [])
 
+    def test_bo_tach_tu_cua_LUOT_CHAY_de_duoc_file_model(self):
+        """Lớp thí nghiệm ĐÈ được `preprocess.segmenter`, nên giá trị TRUYỀN VÀO phải thắng.
+
+        Ca thật (đợt 11): lượt `phobert-base-v2` khai `segmenter: none` để đo ảnh hưởng của khâu tách
+        từ. Đọc thẳng file model thì dòng in ra vẫn nói `vncorenlp` và máy bị đòi Java + VnCoreNLP -
+        một thông báo sai như vậy làm người đọc kết luận nhầm về cả lượt chạy.
+        """
+        problems, notes, info = [], [], {}
+        # File model khai `vncorenlp` (xem test ngay trên), nhưng LƯỢT CHẠY khai `none`.
+        self.assertIsNone(preflight.segmenter_report("phobert-base-v2", problems, notes, info, "none"))
+        self.assertEqual(info["segmenter"], "none")
+        self.assertEqual(problems, [])
+        # Giá trị truyền vào cũng là giá trị bị KIỂM: tên lạ phải thành VẤN ĐỀ, và nói rõ nguồn.
+        self.assertIsNone(preflight.segmenter_report("phobert-base-v2", problems, notes, info,
+                                                     "khong-co"))
+        self.assertEqual(len(problems), 1)
+        self.assertIn("Cấu hình đã hợp nhất khai", problems[0])
+
     def test_unknown_segmenter_is_a_problem(self):
         problems, notes, info = [], [], {}
         with tempfile.TemporaryDirectory() as folder:

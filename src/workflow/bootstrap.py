@@ -231,11 +231,17 @@ def verify_checkout(url, sha, branch, dest, colab=None, log=print):
     return code
 
 
-def model_assets(experiment, colab=None, which=None, run=None, spec=None, download=None, log=print):
+def model_assets(experiment, colab=None, which=None, run=None, spec=None, download=None,
+                 load=None, log=print):
     """Tài nguyên của model mà git KHÔNG chứa (model VnCoreNLP ~27 MB), chỉ khi thí nghiệm cần.
 
     Bộ tách từ chính chủ của PhoBERT (`vncorenlp`) gọi model Java qua JNI, nên cần JDK + gói
     `py-vncorenlp`. Chỉ làm cho thí nghiệm THẬT SỰ dùng nó: Qwen3 và ViSoBERT đọc văn bản nguyên bản.
+
+    Bộ tách từ được đọc từ cấu hình ĐÃ HỢP NHẤT chứ không phải từ file model: lớp thí nghiệm ĐÈ được
+    khoá `preprocess.segmenter`, nên lượt khai `pyvi` mà vẫn tải 27 MB model Java là vô ích, còn lượt
+    khai `vncorenlp` cho một model không khai gì thì lại THIẾU đúng thứ nó cần - mà lỗi đó chỉ hiện ra
+    muộn, sau khi đã tải trọng số. Đọc config hỏng thì quay về giá trị của file model (hành vi cũ).
 
     `shutil.which` chứ không gọi thẳng `java -version`: máy chưa có Java thì lệnh đó ném
     FileNotFoundError, và ô này chết TRƯỚC khi kịp cài.
@@ -245,11 +251,19 @@ def model_assets(experiment, colab=None, which=None, run=None, spec=None, downlo
     run = subprocess.run if run is None else run
     spec = importlib.util.find_spec if spec is None else spec
     download = urllib.request.urlretrieve if download is None else download
+    load = experiments.load if load is None else load
     result = {"colab": colab, "segmenter": "", "present": [], "downloaded": []}
     if not colab:
         return result
     model_id = experiment.replace("\\", "/").split("/")[0]
     result["segmenter"] = str((model_config.preprocess(model_id) or {}).get("segmenter") or "")
+    try:
+        merged = load(*[part for part in experiment.replace("\\", "/").split("/") if part])
+        found = ((merged.get("config") or {}).get("preprocess") or {}).get("segmenter")
+        if found:
+            result["segmenter"] = str(found).strip()
+    except Exception as exc:  # noqa: BLE001 - đọc config hỏng thì dùng giá trị của file model
+        log("  (chưa đọc được bộ tách từ của lượt chạy: {})".format(exc))
     if result["segmenter"] != "vncorenlp":
         return result
     if which("javac") is None and which("java") is None:

@@ -418,18 +418,27 @@ def device_report(model_id, problems, notes, info):
     return info
 
 
-def segmenter_report(model_id, problems, notes, info):
-    """Bộ tách từ mà model cần: thiếu Java hay thiếu gói thì báo ngay, kèm lí do."""
-    preprocess = model_config.preprocess(model_id) if model_id else {}
-    name = str(preprocess.get("segmenter") or "").strip()
+def segmenter_report(model_id, problems, notes, info, segmenter=None):
+    """Bộ tách từ mà LƯỢT CHẠY cần: thiếu Java hay thiếu gói thì báo ngay, kèm lí do.
+
+    `segmenter`: giá trị ĐANG DÙNG của lượt chạy (`preprocess.segmenter` trong cấu hình ĐÃ HỢP NHẤT).
+    Phải truyền vào vì lớp thí nghiệm ĐÈ được khoá này: đọc thẳng file model thì dòng in ra nói một bộ
+    tách từ, còn dữ liệu đưa vào model lại được chia bằng bộ KHÁC - một thông báo sai như vậy làm người
+    đọc kết luận nhầm về cả lượt chạy (đã gặp thật ở đợt 11: các lượt khai `preprocess.segmenter` khác
+    bộ mặc định của model). Để `None` thì lấy giá trị khai trong file model - hành vi của mọi lượt trước.
+    """
+    if segmenter is None:
+        preprocess = model_config.preprocess(model_id) if model_id else {}
+        segmenter = preprocess.get("segmenter")
+    name = str(segmenter or "").strip()
     info["segmenter"] = name or None
     if not name or name == "none":
         return None
     module = segmenters.SEGMENTERS.get(name)
     if module is None:
         problems.append(
-            "Model config khai `preprocess.segmenter: {}` nhưng không có bộ tách từ này. Các bộ "
-            "hiện có: {}.".format(name, ", ".join(sorted(segmenters.SEGMENTERS))))
+            "Cấu hình đã hợp nhất khai `preprocess.segmenter: {}` nhưng không có bộ tách từ này. Các "
+            "bộ hiện có: {}.".format(name, ", ".join(sorted(segmenters.SEGMENTERS))))
         return None
     available, reason = module.available()
     if not available:
@@ -504,7 +513,10 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
 
     # 5. Thiết bị và cách nạp model; 6. bộ tách từ nếu model cần.
     device_report(model_id, problems, notes, info)
-    segmenter_report(model_id, problems, notes, info)
+    # Truyền bộ tách từ ĐANG DÙNG (cấu hình đã hợp nhất): lớp thí nghiệm ĐÈ được khoá này, nên đọc
+    # thẳng file model có thể in ra một bộ khác với bộ thật sự chia văn bản của lượt chạy.
+    segmenter_report(model_id, problems, notes, info,
+                     (config.get("preprocess") or {}).get("segmenter"))
 
     # 5b. Cách huấn luyện (model encoder): thiếu thư viện, thiếu `trainer`, thiếu `lora.target_modules`
     # đều biết được ngay ở đây - không phải sau khi đã tải dữ liệu và nạp model.

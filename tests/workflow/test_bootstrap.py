@@ -356,6 +356,16 @@ class ModelAssetsTest(EnvCase):
         return mock.patch.object(bootstrap.model_config, "preprocess",
                                  return_value={"segmenter": segmenter})
 
+    def setUp(self):
+        super().setUp()
+        # Mặc định cho cả lớp: `load` KHÔNG đè gì, nên bộ tách từ lấy từ file model - đúng như mọi
+        # lượt TRƯỚC đợt 11. Nhờ vậy các test cũ giữ nguyên nghĩa; hai test kiểm nhánh ĐÈ thì tự vá
+        # `load` riêng, nên chúng không phụ thuộc vào config thật của repo.
+        patcher = mock.patch.object(bootstrap.experiments, "load",
+                                    side_effect=lambda *parts: {"config": {}})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def with_data_root(self):
         holder = tempfile.TemporaryDirectory()
         patcher = mock.patch.dict(os.environ, {bootstrap.paths.ENV_DATA_ROOT: holder.name})
@@ -401,6 +411,39 @@ class ModelAssetsTest(EnvCase):
         self.assertIn("(có)", text)
         self.assertEqual(len(result["downloaded"]), 3)
         self.assertEqual(len(result["present"]), 3)
+
+    def test_luot_chay_khai_vncorenlp_thi_van_tai_model_java(self):
+        """Nhánh ĐÈ: file model khai `none` nhưng LƯỢT CHẠY khai `vncorenlp` ⇒ vẫn phải cài + tải.
+
+        Ca thật (đợt 11): `cafebert` và `visobert` khai `segmenter: none` ở file model, còn lượt ĐO
+        ảnh hưởng của khâu tách từ khai `vncorenlp` ở lớp thí nghiệm. Đọc file model thì máy ảo KHÔNG
+        được cài JDK, và lỗi chỉ hiện ra sau khi đã tải trọng số về.
+        """
+        log = Recorder()
+        commands = Recorder()
+        download = fake_download()
+        self.with_data_root()
+        with self.preprocess("none"):
+            result = bootstrap.model_assets(
+                self.EXPERIMENT, colab=True, which=lambda name: None, run=fake_run(commands),
+                spec=fake_spec(missing=("py_vncorenlp",)), download=download,
+                load=lambda *parts: {"config": {"preprocess": {"segmenter": "vncorenlp"}}},
+                log=log)
+        self.assertEqual(result["segmenter"], "vncorenlp")
+        self.assertIn("Thiếu Java cho bộ tách từ vncorenlp - đang cài default-jdk...", log.text())
+        self.assertIn("Thiếu model VnCoreNLP trong", log.text())
+        self.assertEqual(len(result["downloaded"]), 3)
+
+    def test_luot_chay_khai_pyvi_thi_khong_tai_model_java(self):
+        """Nhánh ĐÈ ngược lại: file model khai `vncorenlp` nhưng lượt chạy khai `pyvi` ⇒ ĐỪNG tải 27 MB."""
+        download = fake_download()
+        with self.preprocess("vncorenlp"):
+            result = bootstrap.model_assets(
+                self.EXPERIMENT, colab=True, download=download,
+                load=lambda *parts: {"config": {"preprocess": {"segmenter": "pyvi"}}},
+                log=Recorder())
+        self.assertEqual(result["segmenter"], "pyvi")
+        self.assertEqual(download.calls, [])
 
     def test_java_co_san_thi_dat_java_home_tu_duong_dan_cua_no(self):
         """pyjnius tìm JVM qua JAVA_HOME/JDK_HOME, không qua lệnh `java`."""
