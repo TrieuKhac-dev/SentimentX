@@ -270,9 +270,13 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
       8,03%) ⇒ phép ablation có tín hiệu, không phải lượt trùng. Số này nay ghi ở
       `docs/04_experiments/02_model_input.md` (mục 4.3, phần "Đợt 11").
 - [ ] Bảng token ĐÃ GHI của Mistral còn cột `max_length` cũ (2304 - thời điểm bảng được dựng) nên vẫn ghi
-      `% review > max_length = 100.0`: cần chạy lại `python run_token_stats.py --hash e616c1e3 --prompt
-      absa_cot_5shot_v1 --system absa_cot` (đo cả 12 model, ~30-40 phút vì phải tách từ 15k review cho các
-      encoder). **Không ảnh hưởng lượt chạy** (config đọc 3584), nhưng để bảng khớp config thì phải đo lại.
+      `% review > max_length = 100.0`. **Số ĐO trong bảng vẫn đúng** (TB/p99/max đã kiểm chéo khớp từng con số);
+      chỉ cột ngưỡng là cũ, và nó **không ảnh hưởng lượt chạy** (config đọc 3584). Để bảng khớp config thì chạy
+      `python run_token_stats.py --hash e616c1e3 --prompt absa_cot_5shot_v1 --system absa_cot` - **trên Colab
+      hoặc máy có mạng tới HF Hub**: trên máy này (09/10/2026) lượt đo đứng im ở bước nạp bộ tách từ/ tokenizer
+      của các encoder quá 25 phút dù CPU vẫn chạy, nên đã dừng; công cụ này không in tiến độ nên không biết
+      đang ở model nào. KHÔNG chạy nền kèm chuyển hướng output: `py-vncorenlp` trao đổi với tiến trình Java
+      qua stdio nên chuyển hướng là treo.
 - [ ] Đ8 (báo cáo): các mục M1/M2/M3/M5/M6/M7/M9 còn thiếu SỐ, chờ các cổng chạy
 
 
