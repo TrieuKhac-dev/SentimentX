@@ -40,6 +40,11 @@ CONFIG = {
     "enabled": True,
 }
 
+# Thông báo "chưa cài thư viện" là chuyện của MÁY, không phải của cấu hình: CI cố ý KHÔNG cài
+# `torch`/`transformers` (`requirements-ci.txt`). Hai bài kiểm dưới đây lọc đúng nhóm thông báo đó ra,
+# để chúng vừa chạy được ở CI vừa vẫn kiểm được phần CẤU HÌNH và phần hợp đồng registry.
+MISSING_LIB = "chưa cài thư viện"
+
 
 class NoneContractTest(unittest.TestCase):
     """Hợp đồng trainer: registry, các hàm bắt buộc, và `check()` nói đúng việc phải sửa."""
@@ -58,8 +63,10 @@ class NoneContractTest(unittest.TestCase):
         nên hai đường phải trả về CÙNG hình dạng dict."""
         self.assertIs(none.settings, lora.settings)
 
-    def test_ready_config_has_nothing_to_fix(self):
-        self.assertEqual(none.check(dict(CONFIG), "visobert"), [])
+    def test_ready_config_has_no_config_problem(self):
+        """Cấu hình hợp lệ thì `check()` KHÔNG được kêu lỗi cấu hình (thư viện thiếu là chuyện của máy)."""
+        found = [item for item in none.check(dict(CONFIG), "visobert") if MISSING_LIB not in item]
+        self.assertEqual(found, [])
 
     def test_disabled_training_is_reported(self):
         found = none.check(dict(CONFIG, enabled=False), "visobert")
@@ -146,7 +153,7 @@ class HeadOnlyWriterTest(unittest.TestCase):
         self.assertEqual(none.WRITER, module.NAME)
         for function in ("save", "read_metadata", "check"):
             self.assertTrue(callable(getattr(module, function, None)))
-        self.assertEqual(module.check(), [])
+        self.assertEqual([item for item in module.check() if MISSING_LIB not in item], [])
 
 
 if __name__ == "__main__":
