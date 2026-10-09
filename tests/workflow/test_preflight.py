@@ -47,6 +47,21 @@ requires_dataset = unittest.skipUnless(
     HAS_DATASET,
     "cần dataset đã xử lý trên đĩa (CI không có dữ liệu, xem docs/00_workflow/03_ci.md)")
 
+
+def _version_with_data(name, version):
+    """Config của một bản dữ liệu CỤ THỂ, nếu máy này có cả config lẫn dữ liệu đã xử lý của nó.
+
+    Trả `None` khi thiếu: test phải tự bỏ qua chứ không báo đỏ vì máy thiếu dữ liệu (luật 20). Nhờ
+    vậy nhóm test về "đọc đúng bản đã khai" chạy được trên máy cá nhân lẫn Colab, mà không viết cứng
+    tên phiên bản nào - thêm một bản dữ liệu mới thì test vẫn đúng.
+    """
+    try:
+        cfg = dataset_module.load_config(name, version)
+        version_id = versioning.compute_id(cfg)
+    except Exception:                                     # noqa: BLE001 - chỉ để bỏ qua test
+        return None
+    return cfg if versioning.processed_dir(version_id).is_dir() else None
+
 MODEL_CONFIG = (
     "model_id: {}\n"
     "checkpoint: test/checkpoint\n"
@@ -442,6 +457,91 @@ class TestStateAndRun(PreflightCase):
                 checked = preflight.check(result, ds=self.dataset, version_id=self.version_id,
                                           model_id=TEST_MODEL, out_dir=out_dir)
                 self.assertEqual(checked["problems"], [])
+
+
+@requires_dataset
+class TestVersionChoice(PreflightCase):
+    """`data.version` là bản ĐỂ ĐỌC, không phải "bản mới nhất".
+
+    Khoá lỗi 09/10/2026: 48 notebook của đợt ablation khai `data.version` (45 lượt khai v0.2.0) trong
+    khi `configs/datasets/cosmetics/` đã có v0.3.0. Preflight nạp config dataset KHÔNG kèm version,
+    tức nó tự lấy bản mới nhất, rồi báo "Thí nghiệm khai `data.version` v0.2.0 nhưng file config
+    dataset khai v0.3.0" và DỪNG người chạy - công cụ tự tạo ra cái lệch rồi đổ cho thí nghiệm.
+    Đường chạy còn nặng hơn: `experiment_run.plan()` cũng nạp bản mới nhất, nên nếu chỉ bỏ phép kiểm
+    thì lượt chạy lặng lẽ chấm trên v0.3.0 trong khi config khai v0.2.0.
+
+    Cách sửa (nên khoá bằng test): nạp THEO version ở cả ba đường (preflight, `plan`, `checks`), và
+    bản không mới nhất chỉ là một DÒNG GHI CHÚ - vì so với kết quả cũ chạy trên bản đó là việc hợp lệ,
+    còn khai một bản KHÔNG TỒN TẠI thì `dataset.load_config` đã chặn kèm danh sách bản đang có.
+    """
+
+    def older_version(self):
+        """Một bản CŨ hơn bản mới nhất, có config và dữ liệu đã xử lý trên máy này."""
+        versions = dataset_module.versions("cosmetics")
+        if len(versions) < 2:
+            return None, None, None
+        newest = versions[-1]
+        for version in reversed(versions[:-1]):
+            found = _version_with_data("cosmetics", version)
+            if found is not None:
+                return found, newest, version
+        return None, None, None
+
+    def write_config(self, version):
+        (self.exp_dir / "config.yaml").write_text(
+            BASE_CONFIG.replace("version: v0.1.0", "version: {}".format(version)),
+            encoding="utf-8")
+        return experiments.load(TEST_MODEL, TEST_METHOD, TEST_EXP)
+
+    def test_an_older_version_is_a_note_and_not_a_problem(self):
+        ds, newest, version = self.older_version()
+        if ds is None:
+            raise unittest.SkipTest("máy này chưa có bản dữ liệu cũ nào đã xử lý")
+        problems, notes, info = [], [], {}
+
+        version_id = preflight.version_report(ds, None, version, problems, notes, info)
+
+        self.assertEqual(problems, [])
+        self.assertEqual(version_id, versioning.compute_id(ds))
+        self.assertTrue(any("KHÔNG phải bản mới nhất" in note and newest in note
+                            for note in notes))
+
+    def test_the_newest_version_gets_no_such_note(self):
+        versions = dataset_module.versions("cosmetics")
+        newest = versions[-1] if versions else None
+        ds = _version_with_data("cosmetics", newest) if newest else None
+        if ds is None:
+            raise unittest.SkipTest("máy này chưa có dữ liệu đã xử lý của bản mới nhất")
+        problems, notes, info = [], [], {}
+
+        preflight.version_report(ds, None, newest, problems, notes, info)
+
+        self.assertEqual(problems, [])
+        self.assertFalse(any("KHÔNG phải bản mới nhất" in note for note in notes))
+
+    def test_a_declared_version_that_does_not_exist_lists_the_ones_that_do(self):
+        """Khai một bản không có thì phải DỪNG - và phải nói đang có bản nào để biết đường sửa."""
+        result = self.write_config("v9.9.9")
+
+        report = preflight.run(result, model_id=TEST_MODEL)
+
+        joined = "\n".join(report["problems"])
+        self.assertIn("v9.9.9", joined)
+        self.assertIn("v0.2.0", joined)
+        self.assertNotIn("Hai giá trị này phải trùng", joined)
+
+    def test_the_declared_version_is_the_one_that_gets_read(self):
+        """Cả bài kiểm lẫn mã phiên bản phải theo ĐÚNG bản đã khai, không theo bản mới nhất."""
+        ds, _newest, version = self.older_version()
+        if ds is None:
+            raise unittest.SkipTest("máy này chưa có bản dữ liệu cũ nào đã xử lý")
+        expected = versioning.compute_id(ds)
+
+        report = preflight.run(self.write_config(version), model_id=TEST_MODEL)
+
+        self.assertEqual(report["version_id"], expected)
+        self.assertFalse(any("data.version`" in item for item in report["problems"]))
+        self.assertTrue(any("dataset:" in note and expected in note for note in report["notes"]))
 
 
 class TestRawSource(unittest.TestCase):

@@ -578,7 +578,13 @@ def plan(merged, dataset_name=None, model_id=None, method=None, exp_id=None, pro
     # tay lượt chạy - hai chỗ lấy hai giá trị khác nhau là hai dấu vân tay cho cùng một lượt.
     seed = seed_of(config_data, seed)
 
-    ds = dataset.load_config(dataset_name or (config_data.get("data") or {}).get("dataset"))
+    # `data.version` là bản ĐỂ ĐỌC, không phải bản mới nhất: không truyền version thì `load_config`
+    # lấy bản mới nhất theo tên file, và một thí nghiệm khai v0.2.0 sẽ lặng lẽ chấm trên bộ dữ liệu
+    # v0.3.0. Preflight có bắt được (nó so hai giá trị), nhưng cách bắt đó là DỪNG người chạy; đường
+    # chạy phải đọc đúng bản đã khai, còn chuyện bản đó có phải bản mới nhất hay không là lựa chọn
+    # của thí nghiệm (preflight ghi chú lại khi khác bản mới nhất).
+    data_cfg = config_data.get("data") or {}
+    ds = dataset.load_config(dataset_name or data_cfg.get("dataset"), data_cfg.get("version"))
     version_id = version_id or versioning.compute_id(ds)
     # Split do config của thí nghiệm quyết định (`data.roles.eval`). Chạy TAY mà lớp dùng chung chưa
     # khai vai `eval` thì dùng `val` - tập LỰA CHỌN, không phải test; còn chạy TRONG thí nghiệm mà

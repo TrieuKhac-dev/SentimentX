@@ -419,6 +419,29 @@ class RunIdentityTest(unittest.TestCase):
         self.assertEqual(pre_fingerprint["config_sha256"], plan_data["config_sha256"])
         self.assertEqual(pre_fingerprint["sha"], plan_data["repo"]["sha"])
 
+    def test_plan_reads_the_version_the_config_declares(self):
+        """`plan()` phải đọc ĐÚNG bản `data.version` đã khai, không phải bản mới nhất.
+
+        Khoá lỗi 09/10/2026: khai v0.2.0 mà `plan()` nạp bản mới nhất (v0.3.0) thì lượt chạy chấm
+        trên bộ dữ liệu khác bản đã khai - lỗi IM LẶNG ở đường chạy, chỉ preflight bắt được, và cách
+        nó bắt là DỪNG người chạy (45/48 notebook của đợt ablation khai v0.2.0 nên dừng hết).
+        """
+        merged = experiments.load(self.MODEL, self.METHOD, self.EXP)
+        data = merged["config"].get("data") or {}
+        declared = data.get("version")
+        expected = versioning.compute_id(dataset.load_config(data["dataset"], declared))
+        if not paths.processed(expected).is_dir():
+            raise unittest.SkipTest(
+                "chưa có dữ liệu đã xử lý của bản đã khai {}: {}".format(declared, expected))
+
+        with redirect_stdout(io.StringIO()):
+            plan_data = experiment_run.plan(merged, quiet=True)
+
+        self.assertEqual(plan_data["dataset"].get("version"), declared)
+        self.assertEqual(plan_data["version_id"], expected)
+        self.assertNotEqual(plan_data["version_id"],
+                            versioning.compute_id(dataset.load_config(data["dataset"])))
+
     def test_folder_name_is_the_identity_hash(self):
         _result, _config, _prompt, _version, found = self.identity()
         self.assertEqual(found["out_dir"].name, found["hash"])

@@ -218,7 +218,7 @@ Preflight kiểm trong vài giây:
 | --------------- | ------------------------------------------------------------------------------------ |
 | Cấu hình        | `experiments.check`: khoá lạ, thiếu `data.roles`, nhiều dataset, vai trỏ vào `train`   |
 | Đường dẫn       | `experiments.requires`: file dữ liệu của từng vai, bảng mã nhãn, prompt, `requires_extra` |
-| Dữ liệu         | có dataset đã xử lý chưa, mã phiên bản tính từ config, `data.version` khớp config dataset |
+| Dữ liệu         | có dataset đã xử lý chưa, mã phiên bản tính từ config, `data.version` là bản **ĐỌC** (không nhất thiết bản mới nhất; khác bản mới nhất thì chỉ ghi chú) |
 | Tập đánh giá    | `test.csv` khớp `eval_lock` (rules.md mục 11)                                          |
 | Thiết bị        | có GPU không, `inference.quantization` khai trong model config có dùng được không      |
 | Bộ tách từ      | bộ mà model cần (ví dụ `vncorenlp` cho PhoBERT) chạy được chưa, thiếu gì              |

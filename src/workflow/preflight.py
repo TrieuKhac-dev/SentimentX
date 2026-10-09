@@ -66,8 +66,32 @@ def writable(path, label, problems, notes):
     return True
 
 
+def _newest_version(ds):
+    """Tên bản MỚI NHẤT của dataset mà `ds` thuộc về; None nếu không đọc được.
+
+    Dùng để NÓI THÊM khi thí nghiệm khai một bản không phải bản mới nhất (xem `version_report`).
+    """
+    name = (ds or {}).get("name")
+    if not name:
+        return None
+    try:
+        found = dataset_module.versions(name)
+    except Exception:                                     # noqa: BLE001 - chỉ để nói thêm
+        return None
+    return found[-1] if found else None
+
+
 def version_report(ds, version_id, want_version, problems, notes, info):
-    """Kiểm mã phiên bản dữ liệu: khớp config, và dataset đã được pipeline tạo chưa."""
+    """Kiểm mã phiên bản dữ liệu: khớp config, và dataset đã được pipeline tạo chưa.
+
+    `want_version` là `data.version` mà THÍ NGHIỆM khai - và đó là bản ĐỂ ĐỌC, không phải "bản mới
+    nhất". Giữ một bản cũ là chuyện hợp lệ: mọi phép ablation đều phải so với kết quả cũ, mà kết quả
+    cũ chấm trên đúng bản dữ liệu cũ; và phép đo ảnh hưởng của một thay đổi trong khâu xử lý (bỏ
+    emoji chẳng hạn) cần HAI phiên bản sống cạnh nhau - nếu chỉ bản mới nhất được phép thì phép đo
+    đó không viết ra được. Nên ở đây KHÔNG chặn bản cũ; chỗ phải chặn - khai một bản KHÔNG TỒN TẠI -
+    đã bị `dataset.load_config` chặn, với thông báo kèm danh sách bản đang có. Việc của hàm này là
+    nói ra đang đọc bản nào, để không ai lặng lẽ chấm trên bộ dữ liệu cũ.
+    """
     computed = _collect(problems, notes, "mã phiên bản",
                         versioning.compute_id, ds)
     info["version_id"] = version_id or computed
@@ -76,10 +100,19 @@ def version_report(ds, version_id, want_version, problems, notes, info):
             "Mã phiên bản đang dùng ({}) khác mã tính từ config ({}) - đang chấm trên bộ dữ liệu "
             "không phải bộ config nói.".format(version_id, computed))
     if want_version and ds and str(ds.get("version") or "") != str(want_version):
+        # `run()` nạp `ds` THEO `data.version`, nên tới đây hai giá trị chỉ lệch khi nơi gọi TỰ
+        # truyền vào một `ds` của bản khác - hai nguồn sự thật cho cùng một lượt chạy, phải dừng.
         problems.append(
-            "Thí nghiệm khai `data.version` {} nhưng file config dataset khai {}. Hai giá trị này "
-            "phải trùng: thí nghiệm đang đọc một phiên bản khác với bản đã khai.".format(
+            "Thí nghiệm khai `data.version` {} nhưng `ds` truyền vào là bản {}. Hai giá trị này "
+            "phải trùng: lượt chạy đang đọc một phiên bản khác với bản đã khai.".format(
                 want_version, ds.get("version")))
+    elif want_version:
+        newest = _newest_version(ds)
+        if newest and str(newest) != str(want_version):
+            notes.append(
+                "dữ liệu: đọc bản thí nghiệm khai (`data.version` {}), KHÔNG phải bản mới nhất "
+                "({}) - đúng khi so với kết quả cũ đã chạy trên bản đó; nếu không cố ý thì sửa "
+                "`data.version`.".format(want_version, newest))
     folder = paths.processed(info["version_id"] or "")
     if info["version_id"] and folder.is_dir():
         notes.append("dataset: {}".format(utils.rel(folder)))
@@ -482,8 +515,11 @@ def run(result, ds=None, version_id=None, out_dir=None, model_id=None, method=No
 
     # 2. Config dataset: kiểm luôn ở đây vì mọi phép kiểm sau đều dựa vào nó.
     if ds is None and data.get("dataset"):
+        # Nạp THEO `data.version` mà thí nghiệm khai. Không truyền version thì `load_config` lấy
+        # bản mới nhất theo tên file, và một thí nghiệm khai v0.2.0 sẽ đọc (rồi chấm trên) bộ dữ
+        # liệu v0.3.0 - đúng lỗi im lặng mà `version_report` sinh ra để bắt.
         ds = _collect(problems, notes, "config dataset",
-                      dataset_module.load_config, data["dataset"])
+                      dataset_module.load_config, data["dataset"], data.get("version"))
 
     # 2b. Dữ liệu GỐC của nguồn `raw`. Kể TRƯỚC mọi việc khác: thiếu nó là nguyên nhân gốc, còn
     # "chưa có dataset đã xử lý" và "thiếu tập đánh giá" chỉ là hệ quả của cùng một thiếu sót.

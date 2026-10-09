@@ -33,7 +33,7 @@ requires_extra: []
 | `method`         | tên phương pháp, cũng là tên thư mục cha                                                     |
 | `notes`          | một dòng mô tả thí nghiệm khác gì các thí nghiệm khác; `--notes` của `new_experiment.py` điền vào đây |
 | `data.dataset`   | **một** dataset duy nhất. Không được khai danh sách                                          |
-| `data.version`   | phiên bản dataset, trỏ tới `configs/datasets/<name>/<version>.yaml`                          |
+| `data.version`   | phiên bản dataset, trỏ tới `configs/datasets/<name>/<version>.yaml`. Đây là bản **ĐỂ ĐỌC**, không phải "bản mới nhất": khai một bản cũ (để so với kết quả cũ chạy trên đúng bản đó) là hợp lệ, `preflight` chỉ ghi chú khi nó không phải bản mới nhất; khai một bản **không tồn tại** là lỗi (thông báo kèm danh sách bản đang có) |
 | `data.roles`     | **bắt buộc khai**, không kế thừa: mỗi vai dùng split nào của chính dataset đó                |
 | `prompt`         | đường dẫn file prompt: tính từ thư mục THÍ NGHIỆM trước, rồi tới gốc repo (từ đây lên gốc là bốn cấp) |
 | `examples`       | đường dẫn file ví dụ few-shot, bắt buộc khi prompt dùng ô nhớ `{examples}`                   |
