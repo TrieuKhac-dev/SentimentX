@@ -56,6 +56,18 @@ def describe():
     return "{} | vòng lặp dùng chung ở lora.fit_generic".format(DESCRIPTION)
 
 
+def head_state_of(found):
+    """Nhãn nói CHÍNH XÁC cái gì đang học ở cách `none`.
+
+    Nhãn mặc định của đường LoRA ("ĐÓNG BĂNG - chỉ adapter học") SAI ở đây: cách `none` không có adapter
+    nào, nên mức SÀN phải được in là KHÔNG học gì - nếu không, người đọc `run.log` của lượt SÀN sẽ tưởng
+    có một adapter đang học, và mất luôn ý nghĩa của phép đối chứng âm.
+    """
+    if found.get("head_trainable"):
+        return "CHỈ đầu phân loại học - encoder đóng băng (linear probe)"
+    return "KHÔNG tệp nào học - SÀN (encoder đóng băng + đầu phân loại ngẫu nhiên)"
+
+
 def check(config, model_id=None):
     """Kiểm lượt `none` có chạy được không. Trả về danh sách việc phải sửa (rỗng là chạy được)."""
     problems = []
@@ -149,7 +161,7 @@ def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed
     """Chạy một lượt `none`: vòng lặp dùng chung, chỉ khác cách dựng model và cách ghi checkpoint."""
     return lora.fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerprint,
                             seed=seed, source=source, labels=labels, on_point=on_point, log=log,
-                            build=build_model, writer_name=WRITER)
+                            build=build_model, writer_name=WRITER, head_state_of=head_state_of)
 
 
 def predict(config, model_id, adapter_dir, texts, source=None):

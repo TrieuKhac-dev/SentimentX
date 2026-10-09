@@ -768,12 +768,17 @@ def early_settings(config):
 
 
 def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42,
-                source=None, labels=None, on_point=None, log=None, build=None, writer_name=None):
-    """VÒNG LẶP HUẤN LUYỆN DÙNG CHUNG cho mọi cách huấn luyện (`lora`, `none`).
+                source=None, labels=None, on_point=None, log=None, build=None, writer_name=None,
+                head_state_of=None):
+    """VÒNG LẶP HUẤN LUYỆN DÙNG CHUNG cho mọi cách huấn luyện (`lora`, `none`, `full`).
 
     Chỉ hai thứ đổi theo cách huấn luyện, và cả hai đều là THAM SỐ:
         `build`        hàm dựng `(model, head)`; mặc định là LoRA của chính tệp này
         `writer_name`  tên writer trong `src/training/savers/`; mặc định `adapter`
+
+    `head_state_of` (tuỳ chọn): hàm `found -> câu mô tả CÁI GÌ ĐANG HỌC`, để in ra và ghi vào `run.log`.
+    Cách huấn luyện tự cung cấp vì câu đúng khác nhau: LoRA nói về adapter, `none` nói về việc KHÔNG có
+    adapter, `full` nói về cả encoder. Không truyền thì dùng câu của đường LoRA.
 
     KHÔNG có tham số nào học (cách `none` + đầu phân loại đóng băng): không tạo optimizer và bỏ qua
     vòng lặp, nhưng VẪN đo `val` và ghi `model/best` + `model/last` để bước suy luận có checkpoint đọc.
@@ -837,7 +842,12 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
     trainable, total = parameter_counts(model)
     # In ra và ghi vào log NGAY: "đầu phân loại có học hay không" là cơ chế của lượt chạy, mà số
     # `trainable_params` đọc lại sau mới biết thì đã muộn.
-    head_state = ("HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học")
+    # Nhãn "CÁI GÌ ĐANG HỌC": cách huấn luyện tự cung cấp khi có (`head_state_of`), vì câu đúng khác nhau
+    # theo cách - LoRA nói về adapter, `none` phải nói là không có adapter nào, `full` nói về cả encoder.
+    if head_state_of is not None:
+        head_state = head_state_of(found)
+    else:
+        head_state = "HỌC cùng adapter" if found["head_trainable"] else "ĐÓNG BĂNG - chỉ adapter học"
     marker_state = ("BẬT - khía cạnh vào đầu vào" if found["head_aspect_marker"]
                     else "TẮT - 7 bộ trọng số riêng")
     print("  đầu phân loại: {} | theo khía cạnh: {} | {} tham số học / {} tổng".format(

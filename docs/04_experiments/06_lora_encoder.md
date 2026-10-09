@@ -288,6 +288,38 @@ Lượt `none` dùng chung mọi thứ còn lại với đường LoRA: ba vai `
 `train` - ghi rõ trong `README.md` của thí nghiệm), cùng hàm mất mát, cùng `checkpoints.best_metric`,
 cùng bộ chấm điểm, cùng cách ghi kết quả.
 
+## Cách huấn luyện `full`: full fine-tune
+
+`training.trainer: full` (`src/training/full.py`) cho model học **TẤT CẢ** tham số - encoder lẫn đầu phân
+loại - thay vì chỉ sửa adapter. Đây là mốc ĐỐI CHỨNG của cả nhóm LoRA, và là mốc mà các bài báo ABSA
+thường công bố, nên câu "LoRA kém hơn bao nhiêu" chỉ trả lời được bằng lượt này.
+
+| | `lora` | `none` | `full` |
+| --- | --- | --- | --- |
+| Adapter | có (`peft`) | không | không |
+| Encoder | đóng băng | đóng băng | **học** |
+| Đầu phân loại | theo `head.trainable` | theo `head.trainable` | **học** |
+| Checkpoint | adapter + `head.pt` (vài MB) | `head.pt` | **`model.pt`** = cả model + `head.pt` |
+| Writer | `adapter` | `head_only` | `state_dict` |
+
+Ba điều phải nhớ:
+
+1. **Vòng lặp huấn luyện không chép lại.** `full.fit` cũng gọi `lora.fit_generic` và chỉ truyền vào ba
+   thứ khác nhau: hàm dựng model, tên writer, và nhãn nói CHÍNH XÁC cái gì đang học (nhãn đó được in ra
+   và ghi vào `run.log`). Vì vậy hàm mất mát, chính sách checkpoint, dừng sớm, chạy tiếp đều dùng CHUNG -
+   không có đường thứ hai để lệch. Nhãn đó cũng là thứ chặn một lỗi im lặng: lượt `none` mức SÀN trước
+   đây in nhãn mặc định của đường LoRA ("chỉ adapter học") trong khi nó KHÔNG có adapter nào và không học
+   gì cả.
+2. **4-bit bị từ chối.** `inference.quantization: 4bit` đóng băng trọng số gốc ở 4 bit, nên "full fine-tune
+   4-bit" thật ra là QLoRA. Cấu hình đó bị chặn ở `full.check()` và ở `build_model()` (kèm cách sửa: dùng
+   `trainer: lora`), thay vì chạy ra một lượt mang tên sai.
+3. **`lr` 2e-4 là mức của LoRA, không phải của full fine-tune.** Full fine-tune thường cần thấp hơn khoảng
+   10 lần. Vì vậy đợt 11 chạy HAI lượt PhoBERT: một lượt giữ nguyên `lr` để phép so chỉ đổi MỘT biến (cơ
+   chế học), và một lượt hạ `lr` xuống 2e-5 theo mức thông lệ. Đọc kèm **`trainable_params` phải BẰNG
+   `total_params`** - nhỏ hơn nghĩa là đã rơi về đóng băng một phần và lượt chạy không còn là full
+   fine-tune. Chi phí đĩa lớn (cả model + optimizer, cỡ hàng GB) - xem docstring của
+   `src/training/savers/state_dict.py`.
+
 ## Chạy trên Colab
 
 Mọi notebook LoRA (sáu model encoder) chạy được trên T4 (4-bit không bắt buộc: LoRA cơ bản vẫn vừa

@@ -9,11 +9,12 @@ MỘT dòng vào ``SAVERS``. Trainer chọn writer bằng tên (``training.check
 ``adapter`` để cấu hình cũ chạy nguyên như trước.
 """
 
-from src.training.savers import adapter, head_only
+from src.training.savers import adapter, head_only, state_dict
 
 SAVERS = {
     adapter.NAME: adapter,
     head_only.NAME: head_only,
+    state_dict.NAME: state_dict,
 }
 
 DEFAULT = adapter.NAME
