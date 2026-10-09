@@ -142,7 +142,20 @@ cột số sẽ điền khi chạy xong trên Colab.
 Đọc: `weighted_ce` **cứu được lớp âm** (+8,22 điểm acc ở PhoBERT; F1 âm 0,540 → 0,876) và **đảo thứ hạng** hai
 encoder (lượt gốc ViSoBERT hơn PhoBERT 6,46 điểm; sang `weighted_ce` thì PhoBERT hơn 1,01) - **nhưng cái giá là
 phát hiện khía cạnh giảm** (PhoBERT 98,05 → 94,14 accuracy micro, cơ sở `all`). Vì thế mọi kết luận về hàm mất mát
-phải đưa **cặp chỉ số**, không chỉ một chỉ số. Chờ Đ4: `focal` (`gamma: 2`) và `class_weight: inverse_by_aspect`.
+phải đưa **cặp chỉ số**, không chỉ một chỉ số.
+
+**Hai hướng mới của đợt 11** (đã tạo + ghim ở `f230ef0`, chưa có số):
+
+| Hướng | Lượt | Trạng thái |
+| --- | --- | --- |
+| `focal` (`gamma: 2`, **không** trọng số lớp) | `phobert-base-v2/lora/exp021` · `cafebert/lora/exp017` | chờ chạy |
+| `weighted_ce` + `inverse_by_aspect` (đếm trọng số RIÊNG từng khía cạnh) | `phobert-base-v2/lora/exp022` · `cafebert/lora/exp018` | chờ chạy |
+
+Đọc kèm hai điều: (a) lượt `focal` **không** dùng trọng số lớp, nên so nó với lượt cha `weighted_ce` là so
+**hai biến** (hàm mất mát VÀ trọng số) - muốn tách hẳn thì so từng dòng `predictions.csv`; lượt
+`inverse_by_aspect` mới là lượt so **sạch** với cha (cùng hàm mất mát, chỉ khác chỗ đếm trọng số); (b) dự án
+**từ chối** cấu hình `ce` + trọng số vì nó TRÙNG `weighted_ce` - hai tên cho một phép tính thì bảng so sánh
+sẽ có hai dòng trông như hai thí nghiệm khác nhau.
 
 ## M7. Cách huấn luyện - **CHỜ KẾT QUẢ** (DoRA ở Đ4, full fine-tune ở Đ5)
 
@@ -150,7 +163,7 @@ phải đưa **cặp chỉ số**, không chỉ một chỉ số. Chờ Đ4: `fo
 | --- | --- | --- |
 | `lora` (adapter peft) - cách của MỌI lượt encoder hiện có | tất cả | đã có |
 | `none` (KHÔNG adapter: SÀN + linear probe) | 4 lượt ở Đ1 | chờ |
-| `lora` + **DoRA** (`lora.use_dora: true`) | `phobert-base-v2/lora/exp023` · `cafebert/lora/exp019` | chờ Đ4 |
+| `lora` + **DoRA** (`lora.use_dora: true`) | `phobert-base-v2/lora/exp023` · `cafebert/lora/exp019` | đã tạo + ghim (`f230ef0`), chờ chạy |
 | `full` (toàn bộ encoder + đầu phân loại) | `phobert-base-v2/full/exp001` · `cafebert/full/exp001` | chờ Đ5 |
 
 ## M8. Model NHỎ HƠN cho Qwen3-4B: Qwen3-0.6B - **ĐÃ ĐỦ** (mục RIÊNG, KHÔNG trộn vào bảng best model)
