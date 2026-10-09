@@ -92,7 +92,6 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
     ĐÓNG BĂNG HẾT rồi mới mở đầu phân loại theo `head.trainable` - đi qua ĐÚNG `set_head_trainable` của
     đường LoRA, để cơ chế "đóng băng hay học" chỉ có một định nghĩa.
     """
-    MultiHeadClassifier, _Rows = lora.build_classes()
     aspect_marker = bool((found or {}).get("head_aspect_marker", False))
     if adapter_dir is not None:
         head_config = lora.read_head_config(adapter_dir)
@@ -112,12 +111,14 @@ def build_model(found, device, n_aspects=None, n_codes=None, adapter_dir=None, s
             "Thiếu `n_aspects`/`n_codes`: số đầu và số lớp của đầu phân loại phải biết trước "
             "(suy từ bộ khía cạnh và không gian nhãn của thí nghiệm).")
 
-    # `torch`/`transformers` chỉ được import Ở ĐÂY, sau hai cổng chặn trên: chúng là thư viện NẶNG
-    # (và CI không cài `transformers`), còn hai phép kiểm kia chỉ đọc cấu hình - nên cấu hình sai phải
-    # báo TRƯỚC khi nạp model, và hai phép kiểm đó kiểm được mà không cần GPU lẫn thư viện.
+    # Hai cổng chặn trên CHỈ đọc cấu hình, nên chạy được cả khi máy chưa có thư viện nặng (CI cố ý
+    # không cài `torch`/`transformers`). Tới đây mới nạp chúng - và `lora.build_classes()` gọi
+    # `import torch` BÊN TRONG, nên nó cũng phải nằm SAU hai cổng chặn: đặt trước thì một CẤU HÌNH sai
+    # lại báo lỗi "thiếu thư viện", tức là chỉ đúng triệu chứng chứ không chỉ đúng nguyên nhân.
     import torch
     from transformers import AutoModel
 
+    MultiHeadClassifier, _Rows = lora.build_classes()
     kwargs = {}
     if device == "cuda":
         kwargs["torch_dtype"] = lora.torch_dtype(found["dtype"], device)
