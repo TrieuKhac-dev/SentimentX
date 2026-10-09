@@ -18,7 +18,7 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 98.** Con số này TĂNG theo
+> **Số notebook đang có trong gói (đo 09/10/2026, sổ `handover/ledger.csv`): 104.** Con số này TĂNG theo
 > từng gói - các gói đầu chỉ mang một phần, phần lớn lượt về sau ở lớp `kept` (bản bạn đang giữ vẫn
 > đúng, không phải làm gì). Muốn biết một gói **NNN** mang thêm gì thì mở
 > `handover/packages/NNN/manifest.csv` và đọc cột `class`. Bảng dưới liệt kê các lượt theo **thứ tự nên
@@ -273,6 +273,27 @@ chỉ accuracy; và nhớ **biên nhiễu của đường encoder là +-0,33 ...
 `decoding.seed: 7`, xem `docs/04_experiments/06_lora_encoder.md`). Chênh lệch nhỏ hơn mức đó thì kết luận
 là "chưa thấy khác biệt", KHÔNG phải "không khác biệt". Nếu một lượt cho số lạ (ví dụ SÀN mà accuracy cao
 bất thường), gửi lại nguyên thư mục kết quả để nhóm dò ống dẫn trước khi đọc tiếp.
+
+### Đợt 11 - 6 notebook MỚI trong gói này (023): hàm mất mát và cách huấn luyện
+
+Sáu lượt này cũng dùng hai lượt cha như bảng trên (`phobert-base-v2/lora/exp005`, `cafebert/lora/exp002`),
+và mỗi lượt đổi **đúng một** khoá đo được. Trả lời "còn cách nào khác để chữa mất cân bằng / tăng chất
+lượng adapter không", và trả lời ĐỘC LẬP với ba nhóm 1-3 ở trên.
+
+| # | Notebook | Trả lời câu gì | Khác cha ở đâu | T4 |
+| --- | --- | --- | --- | --- |
+| 32 | `notebooks/phobert-base-v2/lora/exp021.ipynb` | hàm mất mát **FOCAL** (gamma 2): dồn sức vào ô model còn yếu, KHÔNG dùng trọng số lớp | `loss.type: focal` + `loss.gamma: 2` | ~13-16 phút |
+| 33 | `notebooks/phobert-base-v2/lora/exp022.ipynb` | trọng số lớp đếm **RIÊNG từng khía cạnh** (`price` gần như chỉ có nhãn dương nên bị pha loãng khi đếm chung) | `loss.class_weight: inverse_by_aspect` | ~13-16 phút |
+| 34 | `notebooks/phobert-base-v2/lora/exp023.ipynb` | **DoRA**: adapter học cả ĐỘ LỚN của cập nhật, không chỉ hướng | `lora.use_dora: true` | ~13-16 phút |
+| 35 | `notebooks/cafebert/lora/exp017.ipynb` | (như #32, trên model mạnh nhất) | `loss.type: focal` + `loss.gamma: 2` | ~15-20 phút |
+| 36 | `notebooks/cafebert/lora/exp018.ipynb` | (như #33) | `loss.class_weight: inverse_by_aspect` | ~15-20 phút |
+| 37 | `notebooks/cafebert/lora/exp019.ipynb` | (như #34) | `lora.use_dora: true` | ~15-20 phút |
+
+**Ba điều cần biết khi đọc sáu lượt này:** (a) lượt `focal` và lượt `DoRA` KHÔNG dùng trọng số lớp, nên
+so chúng với cha `weighted_ce` là so HAI biến (hàm mất mát VÀ trọng số) - muốn tách hẳn thì so từng dòng
+`predictions.csv`, đừng chỉ nhìn chênh lệch điểm; (b) `inverse_by_aspect` (#33/#36) mới là lượt so SẠCH
+với cha: cùng hàm mất mát, chỉ khác chỗ đếm trọng số; (c) `trainable_params` của lượt DoRA **KHÁC** lượt
+cha (DoRA thêm tham số độ lớn) - đó là dấu vết để kiểm trước khi đọc điểm.
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
 

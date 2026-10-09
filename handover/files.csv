@@ -1,6 +1,6 @@
 package_path,source,group,sha256,size
 .sentimentx_root,,marker,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,0
-README.md,handover/README.md,package_readme,ff8f4ef503fc8061f40a005b7614cc56386d8d87db61609024e77a266b41667e,38926
+README.md,handover/README.md,package_readme,bbf4a4631586ea50bbf09871d33651431d850398e13a38ad645fc182cfd6a623,41131
 data/models/vncorenlp/VnCoreNLP-1.2.jar,data/models/vncorenlp/VnCoreNLP-1.2.jar,data,9e2811cdbc2ddfc71d04be5dc36e185c88dcd1ad4d5d69e4ff2e1369dccf7793,27412703
 data/models/vncorenlp/models/wordsegmenter/vi-vocab,data/models/vncorenlp/models/wordsegmenter/vi-vocab,data,0a47c5b55bbce163029d37730a67b9479740388695c29c106c112b815613eaa5,526544
 data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,data,9e62f96bd93e37a24f364238e8d8ae986fa5dad6dbc9f4eae622ab3651b7fa06,128508
@@ -45,6 +45,9 @@ experiments/cafebert/lora/exp013/README.md,experiments/cafebert/lora/exp013/READ
 experiments/cafebert/lora/exp014/README.md,experiments/cafebert/lora/exp014/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/cafebert/lora/exp015/README.md,experiments/cafebert/lora/exp015/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/cafebert/lora/exp016/README.md,experiments/cafebert/lora/exp016/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/cafebert/lora/exp017/README.md,experiments/cafebert/lora/exp017/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/cafebert/lora/exp018/README.md,experiments/cafebert/lora/exp018/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/cafebert/lora/exp019/README.md,experiments/cafebert/lora/exp019/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/cafebert/none/exp001/README.md,experiments/cafebert/none/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/cafebert/none/exp002/README.md,experiments/cafebert/none/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/lora/exp001/README.md,experiments/phobert-base-v2/lora/exp001/README.md,experiment_readme,7114a4236cbe61a90b2ef64ead6eea28d9d6881d6c2bfc0eaee568049aa82d7e,1995
@@ -67,6 +70,9 @@ experiments/phobert-base-v2/lora/exp017/README.md,experiments/phobert-base-v2/lo
 experiments/phobert-base-v2/lora/exp018/README.md,experiments/phobert-base-v2/lora/exp018/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/lora/exp019/README.md,experiments/phobert-base-v2/lora/exp019/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/lora/exp020/README.md,experiments/phobert-base-v2/lora/exp020/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/phobert-base-v2/lora/exp021/README.md,experiments/phobert-base-v2/lora/exp021/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/phobert-base-v2/lora/exp022/README.md,experiments/phobert-base-v2/lora/exp022/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
+experiments/phobert-base-v2/lora/exp023/README.md,experiments/phobert-base-v2/lora/exp023/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/none/exp001/README.md,experiments/phobert-base-v2/none/exp001/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-base-v2/none/exp002/README.md,experiments/phobert-base-v2/none/exp002/README.md,experiment_readme,05af6f500892aa2716fb0fe04d1f6451dbdd3d22eba95bd50d239a93ef6fbad1,3320
 experiments/phobert-large/lora/exp001/README.md,experiments/phobert-large/lora/exp001/README.md,experiment_readme,036f14b75073943c2fc034248272b63161b476b6d9384a5439ae8b5d7f81d2ae,3792
@@ -143,6 +149,9 @@ notebooks/cafebert/lora/exp013.ipynb,experiments/cafebert/lora/exp013/notebook.i
 notebooks/cafebert/lora/exp014.ipynb,experiments/cafebert/lora/exp014/notebook.ipynb,notebook,d2e2531cafa1281386ded312bc1c6f8eeb18beded90a820104351b9dd417d5eb,19992
 notebooks/cafebert/lora/exp015.ipynb,experiments/cafebert/lora/exp015/notebook.ipynb,notebook,980948c3d33e368e2da1db68258c5c92a3dd15e9117c5dd8baa7c2d5b59b3a38,19992
 notebooks/cafebert/lora/exp016.ipynb,experiments/cafebert/lora/exp016/notebook.ipynb,notebook,1c232a458eba7ce35c79ae0f2c4737024679583ececac078a74e83a2decb5aa5,19992
+notebooks/cafebert/lora/exp017.ipynb,experiments/cafebert/lora/exp017/notebook.ipynb,notebook,3d9310af449870c6232b23273086d3a3f1614b642f27f82139667a6099a22235,19992
+notebooks/cafebert/lora/exp018.ipynb,experiments/cafebert/lora/exp018/notebook.ipynb,notebook,aeec888b8e8120126ec23bbc50daec783c4441cc6e6151f2603013d56531fbb4,19992
+notebooks/cafebert/lora/exp019.ipynb,experiments/cafebert/lora/exp019/notebook.ipynb,notebook,69ac1833d553b909194c62cb868da19219ee4c7978a716dac6a3f9d487a868ba,19992
 notebooks/cafebert/none/exp001.ipynb,experiments/cafebert/none/exp001/notebook.ipynb,notebook,322b9364b58dfd51676ad01fab998ec1cb6bf4b3af16b71ac3ca608c607f68e8,19992
 notebooks/cafebert/none/exp002.ipynb,experiments/cafebert/none/exp002/notebook.ipynb,notebook,0d8c1ff0af1687e65e5537b358318f4871851b67b7007a8231df8080455b2f50,19992
 notebooks/phobert-base-v2/lora/exp001.ipynb,experiments/phobert-base-v2/lora/exp001/notebook.ipynb,notebook,6ba989d194517570f29905e9894c167b8d561211b7ee0d1835d2d4cc869d960d,19999
@@ -165,6 +174,9 @@ notebooks/phobert-base-v2/lora/exp017.ipynb,experiments/phobert-base-v2/lora/exp
 notebooks/phobert-base-v2/lora/exp018.ipynb,experiments/phobert-base-v2/lora/exp018/notebook.ipynb,notebook,58ecf6522ca2bafa40594ffc51469cd228d33dcd927e647e62f354a13db92881,19999
 notebooks/phobert-base-v2/lora/exp019.ipynb,experiments/phobert-base-v2/lora/exp019/notebook.ipynb,notebook,1335a002e843ac0531243d8ba2cab34c2b8cea83de00138ab2d90925f9fc9ebd,19999
 notebooks/phobert-base-v2/lora/exp020.ipynb,experiments/phobert-base-v2/lora/exp020/notebook.ipynb,notebook,d20392814393cd7aed33d2a00031c17a9ed3dee110bef451dba23fdf4874cc86,19999
+notebooks/phobert-base-v2/lora/exp021.ipynb,experiments/phobert-base-v2/lora/exp021/notebook.ipynb,notebook,7cbf4803a139c0f731224e8842157a7622dd432cdc741d379548d058e29031cf,19999
+notebooks/phobert-base-v2/lora/exp022.ipynb,experiments/phobert-base-v2/lora/exp022/notebook.ipynb,notebook,753466dcdd6370a2a9b72bfe9cd4594ce8738901b41643673babbafd58f3a211,19999
+notebooks/phobert-base-v2/lora/exp023.ipynb,experiments/phobert-base-v2/lora/exp023/notebook.ipynb,notebook,645174dc9ce304237acdb9af1a52bff93a7143f4d4b6c95ffb3c33a61bcf5101,19999
 notebooks/phobert-base-v2/none/exp001.ipynb,experiments/phobert-base-v2/none/exp001/notebook.ipynb,notebook,8265b3221d08048061b543d8680c105c0d6af2500c4884cb94edb4d9f88533a1,19999
 notebooks/phobert-base-v2/none/exp002.ipynb,experiments/phobert-base-v2/none/exp002/notebook.ipynb,notebook,8da9605e0fd067605a5f68aa90e1ebbefa038bc5f02ab981b780c90493a80600,19999
 notebooks/phobert-large/lora/exp001.ipynb,experiments/phobert-large/lora/exp001/notebook.ipynb,notebook,e160476e14348da7c7e7a49554c500a2c34ab70d2d1bd30c65f1efba9ff20082,19997
