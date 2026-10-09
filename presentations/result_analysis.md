@@ -8,6 +8,12 @@ Mọi số dưới đây là **cơ sở `paper`** (cách công bố đếm: ch�
 positive/negative), trên split `test` 1.623 review; riêng §3 ghi rõ là cơ sở `all`. **Luôn đọc kèm số ô**:
 bản 4-bit trả lời ít hơn 5–6% số ô so với bản fp16, nên điểm cao hơn một phần là nhờ **kiêng trả lời**.
 
+> **Cập nhật 09/10/2026:** tệp này là bản phân tích của **17 lượt** có kết quả tại thời điểm **04/10/2026**.
+> Sau đó repo đã có nhiều lượt nữa - đo trên đĩa ngày 09/10/2026 là **61 thư mục kết quả có `metrics.json`**
+> (xem Bảng B trong `docs/04_experiments/01_models.md`). Các bảng số dưới đây vẫn là **mốc so với công bố
+> của 17 lượt đó**; số của các lượt mới nằm ở `data/reports/metrics_matrix/`, sinh bằng
+> `python scripts/collect_reports.py`.
+
 17 lượt chia thành bốn nhóm:
 
 - **nhóm B - Qwen3-4B hỏi bằng prompt (9 lượt)**: 4-bit lô 8 = `exp002/003/004`; fp16 lô 4 =
