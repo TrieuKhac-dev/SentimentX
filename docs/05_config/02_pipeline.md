@@ -21,6 +21,7 @@ sẽ mang cùng một nhãn phiên bản, và kết quả cũ không còn tra đ
 | `steps.<tên>.apply_to` | PHẠM VI: các split mà bước đó được SỬA. Không khai thì bước sửa mọi split (hành vi `v0.1.0`). `v0.2.0` khai `[train, val]` cho Clean và Normalize, nên `test` giữ nguyên bản dữ liệu gốc |
 | `steps.clean.leakage.keep_priority` | thứ tự ưu tiên khi một review xuất hiện ở nhiều split: giữ ở tập đứng trước, loại khỏi các tập sau. `v0.2.0` khai `[test, val, train]`, nên `test` không bao giờ bị loại |
 | `steps.clean.leakage.remove_eval_overlap` | luật của `v0.1.0`: bỏ khỏi val/test, giữ trong train. Còn trong code để bản dữ liệu cũ tái lập được; khai CẢ HAI luật là lỗi |
+| `steps.normalize.remove_emoji` | bỏ emoji khỏi văn bản (`v0.3.0`). Bản không khai khoá này thì phép đó coi như TẮT, nên báo cáo của chúng **không đổi một dòng** nào so với trước |
 | `thresholds` | ngưỡng dùng trong các bước                                               |
 
 ## Luật
@@ -32,7 +33,8 @@ sẽ mang cùng một nhãn phiên bản, và kết quả cũ không còn tra đ
   Luật cũ của `v0.1.0` (`remove_eval_overlap`) loại ở val/test; nó vẫn chạy được để bản dữ liệu cũ tái
   lập được, nhưng không dùng cho phiên bản mới.
 - Đổi **code** xử lý thì phải tăng `version` của pipeline, vì logic nằm ở code chứ không nằm ở file này.
-- Chạy phải nói rõ phiên bản: `python run_pipeline.py --name cosmetics --version v0.2.0`.
+- Chạy phải nói rõ phiên bản: `python run_pipeline.py --name cosmetics --version v0.3.0` (bản đang
+  dùng; `v0.2.0` vẫn chạy được và cho đúng bộ dữ liệu cũ).
 
 ## Liên quan tới mã phiên bản dữ liệu
 

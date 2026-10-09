@@ -67,6 +67,13 @@ Vì sao số đo không nằm trong file phiên bản: `sha256` của `test.csv`
 chạy, mà file phiên bản thì bất biến (sửa là guard chặn). Ghi số đo cùng dữ liệu nghĩa là **bản dữ
 liệu đầu tiên đã có khoá** - không phải chờ tới phiên bản sau, và không có chỗ hở ở gốc chuỗi.
 
+Cập nhật (đợt 11, 09/10/2026): sinh thêm `cosmetics/v0.3.0` - **cùng** dữ liệu gốc và **cùng** mọi
+quy tắc của `v0.2.0`, khác ĐÚNG một phép: `steps.normalize.remove_emoji: true` (bỏ emoji ở `train` và
+`val`; `test` vẫn KHÔNG bị sửa). Vì `test` không đổi, `eval_lock` của nó **chép nguyên** `sha256` +
+`rows` của `v0.2.0`, và lần chạy chính thức đã khớp (byte `af349bf5`, 1.623 dòng). Nó là "công tắc"
+cho nhánh phản biện về emoji: cùng model, cùng siêu tham số, chỉ khác `data.version`. Số đo để đối
+chiếu: đúng **1.877** dòng `train` và **227** dòng `val` đổi, và đó đúng bằng số review CÓ emoji;
+`test` 0 dòng đổi.
 Cập nhật 01/10/2026: câu chú thích cũ trong `configs/datasets/cosmetics/v0.1.0.yaml` ("điền số đo vào
 phiên bản KẾ TIẾP") đã được thay khi tạo phiên bản `v0.2.0`: file đó ghi rõ hai giá trị phải điền
 **trước** lần chạy chính thức (chạy thử lấy số, điền, chạy lại - mã phiên bản đổi theo nội dung file,

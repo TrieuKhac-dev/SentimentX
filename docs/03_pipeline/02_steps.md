@@ -144,8 +144,8 @@ nên những dòng đã bị loại vì nhiễu không còn xuất hiện trong 
 ## 4. Step 4 - Normalize (`src/pipeline/normalize.py`)
 
 Vào: `context["splits"]` sau Clean + các khoá `steps.normalize.*`.
-Làm: **sửa hình thức văn bản** bằng bốn phép dưới đây, theo đúng thứ tự này, phép nào
-được bật thì chạy:
+Làm: **sửa hình thức văn bản** bằng các phép dưới đây, theo đúng thứ tự này, phép nào
+được bật thì chạy (bốn phép đầu là của `v0.2.0`; `remove_emoji` thêm từ `v0.3.0`):
 Ra: `context["splits"]` với cột `text` đã chuẩn hoá (chỉ cột `text` bị sửa - nhãn
 không bị chạm, xem [04_invariants.md mục 1](04_invariants.md)); các file số liệu về mức
 độ ảnh hưởng của từng phép.
@@ -157,11 +157,19 @@ không bị chạm, xem [04_invariants.md mục 1](04_invariants.md)); các file
 | `lowercase`      | chuyển mọi ký tự về chữ thường                                                                                                                                | `Son ĐẸP` -> `son đẹp`                                   |
 | `unicode`        | đưa chữ về dạng dựng sẵn NFC - tiếng Việt có hai cách mã hoá cho cùng một chữ (tổ hợp dấu vs dựng sẵn), NFC để hai chuỗi "nhìn giống nhau" thật sự giống nhau | `e` + dấu sắc (tổ hợp) -> `é` (một ký tự)                |
 | `whitespace`     | `\r\n` và `\r` -> `\n`; nhiều space/tab -> 1 space; bỏ space quanh xuống dòng; nhiều dòng trống -> 1; bỏ space ở hai đầu                                         | `"Son  đẹp\r\n\r\n\r\nHàng ok "` -> `"Son đẹp\nHàng ok"` |
+| `remove_emoji` (từ `v0.3.0`) | bỏ emoji, rồi gộp lại khoảng trắng mà việc bỏ để lại - gộp space/tab, bỏ space quanh xuống dòng, cắt hai đầu (đúng ba phép của `whitespace`, và **KHÔNG** đụng tới ký tự xuống dòng) | `đẹp ❤️ quá` -> `đẹp quá`      |
 | `repeated_chars` | rút gọn mọi dãy ký tự lặp còn `repeated_chars_max` ký tự                                                                                                      | `đẹpppppp` -> `đẹpp` (khi max = 2)                       |
 
 `repeated_chars_max` **chỉ có tác dụng khi `repeated_chars: true`**, và nó là số ký
 tự **giữ lại** (không phải số ký tự bị xoá): `max = 2` biến `đẹppppp` thành `đẹpp`,
 `max = 3` thành `đẹppp`. Đặt `1` là mạnh nhất (mọi dãy lặp còn 1 ký tự).
+
+>  `remove_emoji` (từ `v0.3.0`) **giữ nguyên** review CHỈ có emoji: bỏ hết sẽ tạo dòng rỗng,
+>  mà bước Clean (bước duy nhất loại review rỗng) đã chạy TRƯỚC bước này nên không còn ai loại nữa.
+>  Văn bản **không** có emoji đi qua phép này mà **không đổi một ký tự**, vì nó đã ở dạng chuẩn sau
+>  bước `whitespace`. Bất biến đó đo được: ở `train` của `v0.3.0` đúng **1.877** dòng đổi, và 1.877
+>  đúng bằng số review CÓ emoji - không dòng nào khác bị chạm (`test`: 0 dòng đổi, vì `test` không
+>  nằm trong `apply_to`).
 
 >  Bước này **KHÔNG bỏ dấu tiếng Việt** và **KHÔNG thay teencode**: văn bản giữ
 > nguyên như người viết. Dự án cũng không bỏ dấu ở bất kỳ chỗ nào khác - khoá so trùng
