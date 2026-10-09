@@ -23,7 +23,7 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 
 Chín model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
 PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và ba mô hình sinh dùng theo dạng
-prompt (prompt -> sinh JSON) ở hai thế hệ khác nhau. Về **bộ tách từ**, bốn encoder tách từ theo kiểu
+prompt (prompt -> sinh JSON) ở hai thế hệ khác nhau. Về **bộ tách từ**, ba encoder tách từ theo kiểu
 từ tiếng Việt (PhoBERT hai bản, ViBERT) và ba encoder dùng SentencePiece trên văn bản nguyên bản
 (ViSoBERT, CafeBERT, XLM-R) - mỗi dòng số liệu ghi rõ đã dùng bộ nào.
 Hai bản Qwen3 là **một biến thực nghiệm về QUY MÔ**: cùng tokenizer (bản 0.6B có `tokenizer.json` giống
@@ -36,7 +36,33 @@ nó tiêu hết trần `max_new_tokens` trong khối ` thinking` rồi không c�
 `preprocess.enable_thinking: false` ở cấu hình model (và nếu muốn *bật* suy nghĩ thì phải chạy một lượt
 **DÒ** trước để chốt trần token - xem `present_plan.md` mục 9.1).
 
-**Trạng thái kết quả (tới 04/10/2026, tổng 17 lượt):**
+**Trạng thái kết quả.**
+
+Mốc lịch sử **04/10/2026** ghi **17 lượt dùng được** (Bảng A bên dưới). Số **HIỆN TẠI** trên đĩa - đo
+**09/10/2026**, commit `adfb5de` nhánh `experiment` - là **61 thư mục kết quả có `metrics.json`**, trong
+đó **3 lượt** khai `read_rate.valid = false` (dưới cửa 95%, xem luật 2 của `metrics.md`). Bảng B đếm
+theo model; ô `test` dùng để so công bố, còn ô `val` là tập **LỰA CHỌN** (chốt ngưỡng/luật) nên KHÔNG
+đem so công bố.
+
+**Bảng B - số lượt có kết quả theo model (09/10/2026):**
+
+| Model (`model_id`) | Tổng | `test` | `val` |
+| --- | --- | --- | --- |
+| `qwen3-4b-instruct-2507` | 24 | 23 | 1 |
+| `phobert-base-v2` | 7 | 6 | 1 |
+| `qwen3-0.6b` | 6 | 6 | 0 |
+| `cafebert` | 6 | 4 | 2 |
+| `visobert` | 5 | 4 | 1 |
+| `vibert-base-cased` | 4 | 3 | 1 |
+| `xlm-roberta-base` | 3 | 2 | 1 |
+| `phobert-large` | 3 | 2 | 1 |
+| `qwen2.5-0.5b-instruct` | 3 | 3 | 0 |
+| **Cộng** | **61** | **53** | **8** |
+
+Nguồn đối chiếu chuẩn là bảng `attempt_registry` (`python scripts/collect_reports.py --dry-run`), không
+phải tài liệu này.
+
+**Bảng A - MỐC LỊCH SỬ 04/10/2026 (17 lượt dùng được lúc đó):**
 
 | Model | Số lượt dùng được | Điểm đáng nhớ |
 | --- | --- | --- |
