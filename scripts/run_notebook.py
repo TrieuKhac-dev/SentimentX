@@ -54,7 +54,7 @@ PIN_KEYS = ("REPO_URL", "REPO_BRANCH", "REPO_SHA", "EXP_DIR")
 # Hai gốc đường dẫn và `SENTIMENTX_ENV` do script tự đặt; lấy từ `.env` thì notebook sẽ trỏ sai chỗ.
 ROOT_KEYS = ("SENTIMENTX_DATA_ROOT", "SENTIMENTX_RESULTS_ROOT", "SENTIMENTX_ENV")
 
-LIMIT_PRELUDE = '''\
+PRELUDE_HEAD = '''\
 # --- CHẠY THỬ do scripts/run_notebook.py chèn (không có trong file notebook) ---
 import src.experiments.experiments as _sx_experiments
 
@@ -62,16 +62,40 @@ _sx_original_load = _sx_experiments.load
 
 
 def _sx_load(model_id, method, exp_id):
-    """Nạp cấu hình như thật, rồi ép `n` - chỉ trong RAM, không ghi file nào."""
+    """Nạp cấu hình như thật, rồi ép các khoá CHẠY THỬ - chỉ trong RAM, không ghi file nào."""
     result = _sx_original_load(model_id, method, exp_id)
-    result["config"]["n"] = {limit}
+{forced}
     return result
 
 
 _sx_experiments.load = _sx_load
-print("[CHẠY THỬ] đã ép n = {limit} (chỉ trong RAM; tên thư mục kết quả có 'n{limit}' nên "
-      "không lẫn với lượt chạy đủ)")
+print({message})
 '''
+
+
+def prelude(limit=None, epochs=None):
+    """Ô chèn thêm cho `--limit`/`--epochs`/`--smoke`: ép giá trị CHỈ TRONG RAM, không sửa config.
+
+    VÌ SAO CẦN `--epochs`: `--limit` chỉ ép SỐ MẪU CHẤM, KHÔNG rút ngắn phần huấn luyện - một lượt
+    `lora`/`full`/probe chạy thử vẫn phải học hết 12.268 review × 3 epoch (1-2 giờ trên GPU 6 GB),
+    đúng thứ làm "chạy thử nhanh" mất hết ý nghĩa. Đã gặp thật khi chạy smoke đợt 11.
+
+    TÊN THƯ MỤC KẾT QUẢ KHÔNG ĐÁNH DẤU LƯỢT CHẠY THỬ: nó là mã băm của danh tính lượt chạy (config +
+    dữ liệu + commit đã ghim), không mang `n8`/`e1` nào - nên lượt chạy thử và lượt chạy đủ nhìn bằng
+    mắt là giống nhau. Muốn biết chắc thì đọc `subset.limit` và `training.epochs` trong chính
+    `metrics.json` của thư mục đó.
+    """
+    forced, shown = [], []
+    if limit:
+        forced.append('    result["config"]["n"] = {}'.format(int(limit)))
+        shown.append("n = {}".format(int(limit)))
+    if epochs:
+        forced.append('    result["config"]["epochs"] = {}'.format(int(epochs)))
+        shown.append("epochs = {}".format(int(epochs)))
+    message = ("[CHẠY THỬ] đã ép {} (chỉ trong RAM, không sửa config). Đây KHÔNG phải lượt chạy đủ: "
+               "đọc `subset.limit` và `training.epochs` trong metrics.json để nhận ra.".format(
+                   " và ".join(shown)))
+    return PRELUDE_HEAD.format(forced="\n".join(forced), message=repr(message))
 
 
 class RunNotebookError(Exception):
@@ -84,6 +108,10 @@ def parse_args(argv=None):
     parser.add_argument("target", help="`<model_id>/<method>/<expNNN>` hoặc đường dẫn tới notebook.")
     parser.add_argument("--limit", type=int, default=None, metavar="N",
                         help="Ép `n = N` cho lượt chạy thử (chỉ trong RAM, không sửa config).")
+    parser.add_argument("--epochs", type=int, default=None, metavar="N",
+                        help="Ép số epoch cho lượt chạy thử (chỉ trong RAM, không sửa config).")
+    parser.add_argument("--smoke", action="store_true",
+                        help="Chạy thử NHANH: n = 8 và 1 epoch (chỉ trong RAM, không sửa config).")
     parser.add_argument("--preflight-only", dest="preflight_only", action="store_true",
                         help="Chạy tới ô kiểm trước khi chạy rồi dừng (không nạp model).")
     parser.add_argument("--model", default=None,
@@ -337,16 +365,30 @@ def main(argv=None):
             len(kernels),
             " (bỏ ô chạy thí nghiệm vì --preflight-only)" if args.preflight_only else ""))
 
+        # `--smoke` = chạy thử nhanh: n = 8 và 1 epoch, trừ khi người chạy đã nói rõ giá trị khác.
+        # Phải ép CẢ epoch: chỉ ép `n` thì phần huấn luyện vẫn học hết 3 epoch trên cả split.
+        limit = args.limit if args.limit else (8 if args.smoke else None)
+        epochs = args.epochs if args.epochs else (1 if args.smoke else None)
+        if limit or epochs:
+            print("Chạy thử   : ép {} (chỉ trong RAM, không sửa config; đọc `subset.limit` và "
+                  "`training.epochs` trong metrics.json để nhận ra lượt chạy thử)".format(
+                      ", ".join(part for part in
+                                ("n = {}".format(limit) if limit else "",
+                                 "epochs = {}".format(epochs) if epochs else "") if part)))
+
         km, kc = start_kernel(work)
         failures = 0
         interrupted = False
         finished_already = False
         try:
-            if args.limit:
-                print("\n=== Ô chèn thêm: chạy thử n = {} ===".format(args.limit))
+            if limit or epochs:
+                print("\n=== Ô chèn thêm: chạy thử {} ===".format(
+                    ", ".join(part for part in
+                              ("n = {}".format(limit) if limit else "",
+                               "epochs = {}".format(epochs) if epochs else "") if part)))
                 try:
                     prelude_errors, _text = run_cell(
-                        kc, LIMIT_PRELUDE.format(limit=args.limit), sink)
+                        kc, prelude(limit=limit, epochs=epochs), sink)
                     failures += len(prelude_errors)
                 except KeyboardInterrupt:
                     interrupted = True

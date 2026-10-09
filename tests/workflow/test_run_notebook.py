@@ -182,5 +182,47 @@ class TestStateDiff(unittest.TestCase):
         self.assertTrue(moved)
 
 
+class TestSmokePrelude(unittest.TestCase):
+    """`--limit` / `--epochs` / `--smoke`: ép giá trị CHỈ TRONG RAM, và nói ĐÚNG điều nó làm.
+
+    Hai lỗi thật gặp khi chạy smoke đợt 11:
+        1. `--limit 8` chỉ ép SỐ MẪU CHẤM, không rút ngắn phần huấn luyện - lượt probe vẫn học hết
+           12.268 review × 3 epoch (1-2 giờ trên GPU 6 GB). "Chạy thử nhanh" mà không nhanh.
+        2. Câu báo cũ nói tên thư mục kết quả có `n8` để khỏi lẫn với lượt chạy đủ: SAI. Tên thư mục
+           là mã băm của danh tính lượt chạy, nên hai lượt nhìn GIỐNG NHAU - muốn biết chắc phải đọc
+           `subset.limit` và `training.epochs` trong `metrics.json`.
+    """
+
+    def test_smoke_forces_both_the_sample_count_and_the_epochs(self):
+        text = run_notebook.prelude(limit=8, epochs=1)
+        self.assertIn('result["config"]["n"] = 8', text)
+        self.assertIn('result["config"]["epochs"] = 1', text)
+
+    def test_limit_alone_does_not_touch_the_epochs(self):
+        text = run_notebook.prelude(limit=16)
+        forced = text.split("print(")[0]
+        self.assertIn('result["config"]["n"] = 16', forced)
+        self.assertNotIn("epochs", forced)
+
+    def test_the_message_does_not_claim_the_folder_is_marked(self):
+        text = run_notebook.prelude(limit=8, epochs=1)
+        self.assertNotIn("tên thư mục kết quả có", text)
+        self.assertIn("metrics.json", text)
+        self.assertIn("CHẠY THỬ", text)
+
+    def test_the_prelude_is_valid_python(self):
+        """Ô chèn thêm chạy trong kernel thật: sai cú pháp là cả lượt chạy dừng ngay ở đó."""
+        compile(run_notebook.prelude(limit=8, epochs=1), "<chen>", "exec")
+        compile(run_notebook.prelude(epochs=2), "<chen>", "exec")
+
+    def test_the_smoke_flag_parses_and_leaves_the_explicit_values_alone(self):
+        args = run_notebook.parse_args([EXPERIMENT, "--smoke"])
+        self.assertTrue(args.smoke)
+        self.assertIsNone(args.limit)
+        self.assertIsNone(args.epochs)
+        self.assertEqual(run_notebook.parse_args([EXPERIMENT, "--limit", "4"]).limit, 4)
+        self.assertEqual(run_notebook.parse_args([EXPERIMENT, "--epochs", "1"]).epochs, 1)
+
+
 if __name__ == "__main__":
     unittest.main()
