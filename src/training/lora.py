@@ -112,6 +112,25 @@ def _flag(config, key):
     return value
 
 
+def _segmenter(config):
+    """Bộ tách từ của lượt chạy: `preprocess.segmenter` trong cấu hình đã hợp nhất.
+
+    VÌ SAO NÓ PHẢI ĐI TỚI ĐÂY: `encode()` gọi `build_inputs()` của module model, mà lời gọi đó
+    trước đây KHÔNG truyền bộ tách từ - nên khoá `preprocess.segmenter` chỉ được `preflight` và
+    `bootstrap` đọc (để BÁO và CÀI gói), còn văn bản đưa vào model lại do hằng số trong module
+    model quyết định. Hệ quả: một thí nghiệm khai `preprocess.segmenter: pyvi` vẫn chạy bằng
+    `vncorenlp` mà không có gì báo - đúng loại lỗi im lặng mà dự án cấm, và nó biến một phép ĐO
+    ảnh hưởng của việc tách từ thành kết luận rỗng (mọi bộ tách từ ra cùng điểm).
+
+    Đọc theo kiểu CHỊU ĐƯỢC THIẾU (khác `max_length`): model nào không khai thì trả `None` và
+    module model tự dùng bộ mặc định của nó - đúng hành vi của mọi lượt đã chạy.
+    """
+    value = ((config or {}).get("preprocess") or {}).get("segmenter")
+    if value is None:
+        return None
+    return str(value).strip() or None
+
+
 def settings(config, model_id):
     """Cấu hình HIỆU LỰC của một lượt huấn luyện, đã kiểm đủ khoá.
 
@@ -141,6 +160,8 @@ def settings(config, model_id):
         "head_aspect_marker": _flag(config, "head.aspect_marker"),
 
         "max_length": int(_get(config, "preprocess.max_length")),
+        # Bộ tách từ đưa vào `build_inputs()` - xem `_segmenter()` ngay trên.
+        "segmenter": _segmenter(config),
         "eval_batch": int(_get(config, "inference.batch_size")),
         "dtype": str(_get(config, "inference.dtype")).strip().lower(),
         "quantization": str(((config.get("inference") or {}).get("quantization")) or "none"),
@@ -216,7 +237,7 @@ def torch_dtype(name, device):
     return model_config.resolve_dtype(name, device)
 
 
-def encode(module, texts, max_length, batch=64):
+def encode(module, texts, max_length, batch=64, segmenter=None):
     """Mọi văn bản đã tách từ (nếu model cần), đã cắt và ĐÃ PAD CÙNG MỘT ĐỘ RỘNG.
 
     Dùng `build_inputs()` của chính module model, nên ngưỡng cắt ở đây đúng bằng ngưỡng mà
@@ -232,7 +253,12 @@ def encode(module, texts, max_length, batch=64):
     """
     import torch
 
-    chunks = [module.build_inputs(list(texts[start:start + batch]), max_length=max_length)
+    # `segmenter` chỉ được truyền khi lượt chạy THẬT SỰ khai (`_segmenter`): module nào không có
+    # tham số này vẫn dùng được, và lượt không khai giữ nguyên hành vi cũ (bộ mặc định của module).
+    arguments = {"max_length": max_length}
+    if segmenter:
+        arguments["segmenter"] = segmenter
+    chunks = [module.build_inputs(list(texts[start:start + batch]), **arguments)
               for start in range(0, len(texts), batch)]
     if not chunks:
         empty = torch.empty((0, 0), dtype=torch.long)
@@ -555,7 +581,8 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
 
     if not data or not data.get("texts"):
         return None
-    ids, masks = encode(module, data["texts"], found["max_length"])
+    ids, masks = encode(module, data["texts"], found["max_length"],
+                        segmenter=found["segmenter"])
     # `logits` ở dưới nằm trên GPU, nên hai tensor này PHẢI cùng device với nó: cross_entropy không so
     # được hai thiết bị khác nhau. Bản `measure` CŨ so trên CPU (`logits.argmax(dim=-1).cpu()`) nên
     # không cần cast; bản dùng `loss` thì cần - thiếu là RuntimeError ngay ở lần ĐO val đầu tiên, tức
@@ -699,7 +726,8 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
         log.step("đầu phân loại: {} | theo khía cạnh: {} | {} tham số học / {} tổng".format(
             head_state, marker_state, trainable, total))
 
-    ids, masks = encode(module, train["texts"], found["max_length"])
+    ids, masks = encode(module, train["texts"], found["max_length"],
+                        segmenter=found["segmenter"])
     targets = targets_from(train["labels"], codes)
     keep = torch.tensor(train["mask"], dtype=torch.float32)
     # Trọng số lớp (chống mất cân bằng) chỉ dùng khi config khai `weighted_ce` + `inverse`.
@@ -938,7 +966,7 @@ def predict_generic(config, model_id, adapter_dir, texts, source=None, build=Non
     head_config = read_head_config(adapter_dir)
     index_to_code = [int(code) for code in head_config["codes"]]
 
-    ids, masks = encode(module, texts, found["max_length"])
+    ids, masks = encode(module, texts, found["max_length"], segmenter=found["segmenter"])
     model.eval()
     answers, probabilities = [], []
     with torch.no_grad():

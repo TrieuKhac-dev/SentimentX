@@ -36,9 +36,16 @@ def encode(texts):
     return bert_like.encode(CONFIG_NAME, MODEL_NAME, texts, SEGMENTER)
 
 
-def build_inputs(texts, max_length=None):
-    """Input cho model: dict của tokenizer (đã pad + cắt theo `max_length`)."""
-    return bert_like.build_inputs(CONFIG_NAME, MODEL_NAME, texts, SEGMENTER, max_length)
+def build_inputs(texts, max_length=None, segmenter=None):
+    """Input cho model: dict của tokenizer (đã pad + cắt theo `max_length`).
+
+    `segmenter` là bộ tách từ ĐANG DÙNG của lượt chạy (`preprocess.segmenter` trong cấu hình đã
+    hợp nhất, xem `src/training/lora.py::_segmenter`). Để `None` nghĩa là giữ đúng bộ đã khai ở
+    đầu file này - đó là hành vi của mọi lượt đã chạy. Truyền tên khác chỉ để ĐO ảnh hưởng của
+    việc tách từ (cùng model, khác bộ tách từ), vì mặc định CafeBERT đọc văn bản NGUYÊN BẢN.
+    """
+    return bert_like.build_inputs(CONFIG_NAME, MODEL_NAME, texts, SEGMENTER, max_length,
+                                  segmenter)
 
 
 def info():

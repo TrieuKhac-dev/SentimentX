@@ -67,16 +67,21 @@ def encode(texts):
     return tokenizer()(list(texts), add_special_tokens=True)["input_ids"]
 
 
-def build_inputs(texts, max_length=None):
+def build_inputs(texts, max_length=None, segmenter=None):
     """Chuyển danh sách văn bản thành input cho ViSoBERT.
 
     Trả về dict của tokenizer: {"input_ids": ..., "attention_mask": ...}
 
     `max_length` để None nghĩa là dùng ngưỡng ĐANG CÓ HIỆU LỰC (`limit()`: YAML của model
     > hằng số MAX_LENGTH) - cũng đúng giá trị mà token_stats dùng để đo.
+
+    `segmenter`: bộ tách từ ĐANG DÙNG của lượt chạy (`preprocess.segmenter` trong cấu hình đã
+    hợp nhất, xem `src/training/lora.py::_segmenter`). `None` = giữ mặc định của file này
+    (`none`: đọc văn bản NGUYÊN BẢN - đúng cách ViSoBERT được tiền huấn luyện).
     """
     if max_length is None:
         max_length = limit()[0]
+    texts = bert_like.prepared(texts, SEGMENTER if segmenter is None else segmenter)
     return tokenizer()(
         list(texts),
         padding=True,

@@ -130,6 +130,35 @@ class SettingsTest(unittest.TestCase):
         self.assertEqual(found["max_length"], 64)
         self.assertIs(found["head_trainable"], False)
 
+    def test_segmenter_di_toi_build_inputs(self):
+        """`preprocess.segmenter` phải đi TỚI CHỖ chia văn bản, không chỉ để BÁO rồi bỏ qua.
+
+        Lỗi thật đã sửa: `encode()` gọi `build_inputs()` mà không truyền bộ tách từ, nên một lượt
+        khai `preprocess.segmenter: pyvi` vẫn chạy bằng bộ mặc định của module model - không có gì
+        báo, và phép ĐO ảnh hưởng của việc tách từ biến thành kết luận RỖNG (mọi bộ ra cùng điểm).
+        """
+        self.assertIsNone(lora._segmenter({}))
+        self.assertIsNone(lora._segmenter({"preprocess": {"segmenter": None}}))
+        self.assertIsNone(lora._segmenter({"preprocess": {"segmenter": "   "}}))
+        self.assertEqual(lora._segmenter({"preprocess": {"segmenter": " pyvi "}}), "pyvi")
+        config = dict(BASE_CONFIG, preprocess={"max_length": 64, "segmenter": "underthesea"})
+        self.assertEqual(lora.settings(config, "visobert")["segmenter"], "underthesea")
+
+    def test_encode_chuyen_tiep_segmenter(self):
+        """`encode()` phải CHUYỂN tiếp bộ tách từ xuống `build_inputs()` của module model."""
+        seen = {}
+
+        class FakeModule:
+            @staticmethod
+            def build_inputs(texts, max_length=None, segmenter=None):
+                seen["segmenter"] = segmenter
+                # Dừng ngay tại đây: điều đang kiểm là THAM SỐ đã tới, không phải phép mã hoá.
+                raise RuntimeError("dừng")
+
+        with self.assertRaises(RuntimeError):
+            lora.encode(FakeModule, ["a", "b"], 64, segmenter="pyvi")
+        self.assertEqual(seen["segmenter"], "pyvi")
+
     def test_check_without_enabled_says_so(self):
         self.assertTrue(lora.check({"enabled": False}, "visobert"))
 
