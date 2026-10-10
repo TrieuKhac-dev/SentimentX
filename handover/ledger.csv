@@ -1,6 +1,6 @@
 package_path,sha256,size,group,source,first_package,last_package,mtime,sent_at
 .sentimentx_root,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855,0,marker,,001,001,,
-README.md,140b24d6c29fcf7d83d01ac8c84eb5f9f18d0d0bcfe2185b54675b9169e5462c,55709,package_readme,handover/README.md,001,030,2026-10-10T10:55:49,2026-10-10T11:10:14
+README.md,8afe7e43583b81cfbba813798d5a94229bf6600010cfef0173bd2040f315d474,56198,package_readme,handover/README.md,001,031,2026-10-10T14:28:02,2026-10-10T14:29:43
 data/models/vncorenlp/VnCoreNLP-1.2.jar,9e2811cdbc2ddfc71d04be5dc36e185c88dcd1ad4d5d69e4ff2e1369dccf7793,27412703,data,data/models/vncorenlp/VnCoreNLP-1.2.jar,001,001,,
 data/models/vncorenlp/models/wordsegmenter/vi-vocab,0a47c5b55bbce163029d37730a67b9479740388695c29c106c112b815613eaa5,526544,data,data/models/vncorenlp/models/wordsegmenter/vi-vocab,001,001,,
 data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,9e62f96bd93e37a24f364238e8d8ae986fa5dad6dbc9f4eae622ab3651b7fa06,128508,data,data/models/vncorenlp/models/wordsegmenter/wordsegmenter.rdr,001,001,,
@@ -252,10 +252,10 @@ notebooks/visobert/lora/exp002.ipynb,72e4f2b94b6c67d440519055ffa4aa8f2b831df60d7
 notebooks/visobert/lora/exp003.ipynb,08d97091ac4862573dca00c5d57836a360f39ea1651e55ab6777fae172463f2a,19992,notebook,experiments/visobert/lora/exp003/notebook.ipynb,012,015,2026-10-05T11:53:24,2026-10-05T11:55:24
 notebooks/visobert/lora/exp004.ipynb,a1627fff4a01db7b1f20109b135afa0ccf1d087d2e13a0496fb513f2d17c57c0,19992,notebook,experiments/visobert/lora/exp004/notebook.ipynb,012,015,2026-10-05T11:53:26,2026-10-05T11:55:24
 notebooks/visobert/lora/exp005.ipynb,d3e96fc9298b233a5bcfe5f3595635ad6b9b0903d1ba3a6abffa8b08be9c397c,19992,notebook,experiments/visobert/lora/exp005/notebook.ipynb,015,015,2026-10-05T11:53:15,2026-10-05T11:55:24
-notebooks/visobert/lora/exp006.ipynb,fbb50af20d8eae43d5e2e94380d00700848dc975b60a098e2f7ea4aa0906c090,19989,notebook,experiments/visobert/lora/exp006/notebook.ipynb,022,030,2026-10-10T11:04:20,2026-10-10T11:10:14
-notebooks/visobert/lora/exp007.ipynb,eb48cc742d97925e3dc1b7947d3fd0d9cf984a2fe415251d9b82f49805c6bb67,19989,notebook,experiments/visobert/lora/exp007/notebook.ipynb,022,030,2026-10-10T11:04:21,2026-10-10T11:10:14
-notebooks/visobert/lora/exp008.ipynb,2f0f6d6b66424b4f9a115625f9b6261a0799c7ec594276b8dc3c451a34f83a9b,19989,notebook,experiments/visobert/lora/exp008/notebook.ipynb,022,030,2026-10-10T11:04:23,2026-10-10T11:10:14
-notebooks/visobert/lora/exp009.ipynb,defb608f79848a58d7c97fd45891279add0e86132379b4cdd6b02863e3adbb59,19989,notebook,experiments/visobert/lora/exp009/notebook.ipynb,022,030,2026-10-10T11:04:25,2026-10-10T11:10:14
+notebooks/visobert/lora/exp006.ipynb,b86e0e82b6b5bd33cedf222b8ab4ba53bf713aed9275eb1b171a009656009403,19989,notebook,experiments/visobert/lora/exp006/notebook.ipynb,022,031,2026-10-10T14:26:00,2026-10-10T14:29:43
+notebooks/visobert/lora/exp007.ipynb,4bd57a920f167f7c97c782d5399c99a46cc19c1a2c127b5faea04a1b15100b6c,19989,notebook,experiments/visobert/lora/exp007/notebook.ipynb,022,031,2026-10-10T14:26:01,2026-10-10T14:29:43
+notebooks/visobert/lora/exp008.ipynb,9235d07fe365d3475ee264e278411e0be7c6b3f3a65ac64026375ac8efd418ad,19989,notebook,experiments/visobert/lora/exp008/notebook.ipynb,022,031,2026-10-10T14:26:02,2026-10-10T14:29:43
+notebooks/visobert/lora/exp009.ipynb,2d110123010d4f98182c1ab7a4585761eb040089242c31cd171a4517b325e908,19989,notebook,experiments/visobert/lora/exp009/notebook.ipynb,022,031,2026-10-10T14:26:03,2026-10-10T14:29:43
 notebooks/xlm-roberta-base/lora/exp001.ipynb,6282b77027a5e0abb326ffd9b1166a15b48b57573684b68a90f8f496fc406cb9,20000,notebook,experiments/xlm-roberta-base/lora/exp001/notebook.ipynb,012,015,2026-10-05T11:53:22,2026-10-05T11:55:24
 notebooks/xlm-roberta-base/lora/exp002.ipynb,818e1369821e5c09f53f6112d3adfb1deb8b147e4767687d6541b41892c4fa9a,20000,notebook,experiments/xlm-roberta-base/lora/exp002/notebook.ipynb,015,015,2026-10-05T11:53:18,2026-10-05T11:55:24
 notebooks/xlm-roberta-base/lora/exp003.ipynb,9607152ba2cfdfd9fb9a3c80ec869e57a23e1dc9690c9633d2f826a4731530ef,20000,notebook,experiments/xlm-roberta-base/lora/exp003/notebook.ipynb,019,019,2026-10-07T13:33:41,2026-10-07T13:36:23
