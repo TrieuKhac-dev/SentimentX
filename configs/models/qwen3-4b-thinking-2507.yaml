@@ -11,7 +11,7 @@ model_id: qwen3-4b-thinking-2507
 checkpoint: Qwen/Qwen3-4B-Thinking-2507
 
 # Tăng số này mỗi khi sửa file.
-config_version: 1
+config_version: 2
 
 # prompt: model sinh (LLM) nhận prompt rồi trả lời. Đường chạy dùng `src/evaluation/runner.py`.
 approach: prompt
@@ -30,5 +30,14 @@ inference:
   dtype: auto
   # Giống bản 4B: T4 có 6 GB VRAM.
   quantization: 4bit
-  # Giống bản 4B (đã chạy ổn định ở mức này).
-  batch_size: 8
+  # LÔ NHỎ HƠN HẲN - SỐ HỌC, KHÔNG PHẢI CẢM TÍNH (sửa 10/10/2026 sau một lượt chạy thật đổ):
+  # lượt DÒ `prompt-cot/exp001` khai trần 8.192 token, và bản Thinking-2507 tiêu hết trần đó. KV cache
+  # của Qwen3-4B là 36 lớp × 8 đầu KV × 128 chiều × 2 (K,V) × 2 byte = 144 KB cho MỘT token của MỘT
+  # chuỗi, nên lô 8 × (2.304 ngưỡng cắt + 8.192 trần) = 83.968 vị trí ≈ **11,5 GB** KV cache - cộng
+  # trọng số và bộ nhớ đệm thì vượt 14,6 GB của T4, và `model.generate` thật đã chết bằng
+  # `torch.OutOfMemoryError` giữa đường. Lô 2 ≈ **2,9 GB**, còn thừa chỗ cho trọng số 4-bit (~2,4 GB).
+  # Vì sao KHÔNG chọn 4 (vẫn vừa, chạy nhanh gấp đôi): lượt DÒ không được chết GIỮA ĐƯỜNG - chết rồi
+  # thì mất cả phiên GPU, còn chậm thì chỉ tốn thêm giờ. Bản 0.6B giữ lô 8 vì trần sinh của nó ngắn;
+  # lô ở đây đi cùng TRẦN SINH của lượt chạy, nên hai thứ phải đọc cùng nhau (luật 23a,
+  # docs/04_experiments/metrics.md). Đổi số này là một lượt chạy KHÁC (nằm trong mã băm danh tính).
+  batch_size: 2

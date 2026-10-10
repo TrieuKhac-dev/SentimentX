@@ -18,12 +18,28 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-029-<mã>-261009.zip`** - 48 notebook, và **cả 48 ghim vào
+> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-030-<mã>-261010.zip`** - 48 notebook, và **cả 48 ghim vào
 > cùng một revision** (cùng một bản code, nên không thể lẫn hai bản giữa các lượt). Các gói **022/023/024/
-> 026/027/028** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế, **027** bị
-> **028** thay thế, **028** bị **029** thay thế) - nếu bạn đã tải chúng thì cứ dùng **029** là đủ, khỏi ghép
-> nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem bảng ở mục
-> "Đợt 11 - thứ tự chạy" (gần cuối file này).
+> 026/027/028/029** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế, **027** bị
+> **028** thay thế, **028** bị **029** thay thế, **029** bị **030** thay thế) - nếu bạn đã tải chúng thì cứ dùng
+> **030** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem
+> bảng ở mục "Đợt 11 - thứ tự chạy" (gần cuối file này).
+>
+> **Vì sao 029 bị 030 thay (10/10/2026) - HAI LỖI THẬT do bạn gặp khi chạy, không phải lỗi tài liệu:**
+> (1) ba lượt `mistral-7b-instruct-v0.3/prompt-cot/exp001..003` đổ ngay ở lô đầu tiên:
+> `ValueError: Asking to pad but the tokenizer does not have a padding token` - tokenizer của Mistral
+> **không có `pad_token`**, mà sinh theo lô thì bắt buộc phải đệm (Qwen3 có sẵn nên các lượt khác không lộ).
+> Nay mọi tokenizer đi qua một phép chuẩn hoá duy nhất (`qwen.ensure_padding`): lấy `eos_token` làm
+> `pad_token` và đặt `padding_side = left`, in một dòng `tokenizer <model>: pad_token = eos_token ...` ở
+> đầu lượt chạy. (2) lượt DÒ `qwen3-4b-thinking-2507/prompt-cot/exp001` chết **giữa đường** bằng
+> `torch.OutOfMemoryError`: lô 8 × (ngưỡng cắt 2.304 + trần 8.192) = 83.968 vị trí, mà KV cache của
+> Qwen3-4B là **144 KB mỗi token một chuỗi** ⇒ ~11,5 GB, vượt 14,56 GB của T4. Nay lô của model này là
+> **2** (~2,9 GB), và trước khi sinh đường chạy còn **ĐẾM TRƯỚC** KV cache rồi DỪNG kèm con số
+> `inference.batch_size` nên đặt (`runner.check_generation_memory`) - thay vì để bạn mất cả phiên GPU.
+> **Ba lượt Mistral đã hỏng cần chạy lại** (mỗi lượt để lại một thư mục `FAILED` - không có
+> `metrics.json`; ví dụ `results/619601ba` của `exp001`): cứ chạy lại notebook, nó vào chế độ RESUME và
+> sinh lại từ đầu (chưa có lô nào xong), hoặc xoá thư mục `FAILED` đó rồi chạy lại. Lượt DÒ `exp001` của
+> bản Thinking cũng chạy lại từ đầu.
 >
 > **Vì sao 028 bị 029 thay (09/10/2026):** bản 029 chỉ sửa **TÀI LIỆU trong chính file này** - không sửa một
 > dòng code, một config hay một notebook nào (48 notebook y nguyên, cùng revision). Hai chỗ gây **đếm sai**
@@ -381,7 +397,7 @@ lượt `phobert-base-v2/lora` **cộng** `lora/exp008` = 14.
 | --- | --- | --- |
 | ~60-90 phút | `qwen3-8b/prompt-cot/exp003` · `mistral-7b-instruct-v0.3/prompt-cot/exp003` | LLM 5 ví dụ - đắt nhất, nên vào **phiên Colab mới** |
 | ~40-60 phút | `qwen3-8b/prompt-cot/exp001` · `exp002` · `mistral-7b-instruct-v0.3/prompt-cot/exp001` · `exp002` | 0 và 1 ví dụ của hai họ LLM mới |
-| ~30-45 phút | `qwen3-4b-thinking-2507/prompt-cot/exp001` (**lượt DÒ**) · `cafebert/full/exp001` | DÒ chốt trần token; full fine-tune model lớn nhất |
+| ~2-4 giờ | `qwen3-4b-thinking-2507/prompt-cot/exp001` (**lượt DÒ**) · `cafebert/full/exp001` | DÒ chốt trần token (60 mẫu, trần 8.192 token/model - bản Thinking tiêu hết trần, nên đây là lượt DÀI NHẤT: **lô 2** vì KV cache của trần 8.192 chỉ cho phép lô nhỏ, xem ghi chú 3); full fine-tune model lớn nhất |
 | ~40-60 phút | `qwen3-4b-thinking-2507/prompt-cot/exp002` - **CHỜ NHÓM GHIM LẠI: ĐỪNG chạy ở lượt này** (xem ghi chú 1) | lượt "suy nghĩ" 1 ví dụ; trần sinh đang là giá trị **TẠM** nên phải chờ số đo của lượt DÒ |
 | ~20-30 phút | `phobert-base-v2/full/exp001` · `exp002` | full fine-tune, hai mức `lr` (giữ nguyên 2e-4 và hạ 2e-5) |
 | ~15-20 phút | `cafebert/lora/exp007` → `exp019` (13 lượt) · `cafebert/none/exp002` | 14 lượt CafeBERT: tiêu chí chọn best, tiền xử lý, tham số LoRA, mất mát, DoRA, linear probe |
@@ -391,7 +407,7 @@ lượt `phobert-base-v2/lora` **cộng** `lora/exp008` = 14.
 | ~4 phút | `cafebert/none/exp001` | SÀN CafeBERT |
 | ~3 phút | `phobert-base-v2/none/exp001` | SÀN PhoBERT - **bước KIỂM ỐNG DẪN** (xem ghi chú dưới bảng) |
 
-**Hai ghi chú về thứ tự** - chúng KHÔNG theo thời gian mà theo phụ thuộc/nghiệp vụ:
+**Ba ghi chú về thứ tự** - chúng KHÔNG theo thời gian mà theo phụ thuộc/nghiệp vụ:
 
 1. **Lượt DÒ phải chạy trước lượt "suy nghĩ"**: trần sinh của `qwen3-4b-thinking-2507/prompt-cot/exp002`
    đang là giá trị **TẠM 4.096**; số đúng là `làm tròn lên (p99 × 1,5)` lấy từ số đo của `exp001`. Gửi
@@ -403,6 +419,12 @@ lượt `phobert-base-v2/lora` **cộng** `lora/exp008` = 14.
    hoạch đã xếp cho nhóm 1): SÀN = encoder đóng băng + đầu phân loại NGẪU NHIÊN, nên nếu SÀN **không xấu**
    thì có gì đó sai ở ống dẫn - biết sau 3 phút thay vì sau 90 phút. Nếu bạn đi theo đúng bảng giảm dần
    ở trên, hãy chạy **hai lượt SÀN trong cùng phiên đầu tiên** với một lượt dài.
+3. **Lượt DÒ của bản Thinking chạy ở lô 2, nên nó DÀI (ước tính 2-4 giờ, 60 mẫu)** - đây là lượt duy
+   nhất mà lô bị hạ xuống vì trần sinh 8.192 token: KV cache của Qwen3-4B là 144 KB mỗi token một chuỗi,
+   nên lô 8 cần ~11,5 GB chỉ riêng KV cache (đã đổ thật bằng `torch.OutOfMemoryError` trên T4 14,56 GB),
+   còn lô 2 cần ~2,9 GB. Đổi lô lên là **chắc chắn** hết VRAM, nên đừng đổi; muốn ngắn hơn thì nói nhóm
+   **giảm `n` (số mẫu DÒ)** - nhóm sẽ ghim lại kèm lí do. Lượt `exp002` (trần tạm 4.096) chạy ở lô này
+   thôi là đủ.
 
 ### Năm thư mục kết quả HỎNG từ 04/10/2026 - GIỮ NGUYÊN, đừng đọc, đừng chạy lại vì chúng
 

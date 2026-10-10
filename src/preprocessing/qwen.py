@@ -203,6 +203,54 @@ def conversations(texts, aspects=None, label_map=None, prompt_name=None):
 
 
 
+def ensure_padding(found):
+    """Chuẩn hoá tokenizer cho việc chạy SINH THEO LÔ: có `pad_token` và đệm BÊN TRÁI.
+
+    LỖI THẬT ĐÃ GẶP (10/10/2026, lượt `mistral-7b-instruct-v0.3/prompt-cot/exp001`):
+    tokenizer của Mistral-7B-Instruct-v0.3 KHÔNG có `pad_token`, nên
+    `apply_chat_template(..., padding=True)` (việc bắt buộc khi sinh theo lô) ném
+
+        ValueError: Asking to pad but the tokenizer does not have a padding token.
+
+    Qwen3 có sẵn `pad_token` nên các lượt khác không lộ lỗi này - nghĩa là trước đây đường chạy
+    chỉ đúng với model "may mắn có pad_token". Lấy `eos_token` làm `pad_token` là cách chuẩn cho
+    model sinh: các vị trí đệm bị `attention_mask` loại khỏi phép tính (tokenizer tự trả về mặt
+    nạ, xem `build_inputs`) và model KHÔNG sinh tiếp từ chúng.
+
+    Vì sao phải có cả `padding_side = "left"`: đệm bên PHẢI thì vị trí cuối cùng của câu ngắn
+    nhất là một token đệm, mà `generate` đọc vị trí cuối để sinh tiếp - câu ngắn nhất sinh ra
+    rác trong khi câu dài nhất vẫn đúng, nên đây là lỗi IM LẶNG. (Cùng lí do với mục 3 ở đầu
+    `src/evaluation/runner.py`.)
+
+    KHÔNG tự thêm một token đệm mới: thêm token là đổi kích thước embedding của model
+    (`resize_token_embeddings`), làm cả hai mất khớp nhau. Model không có cả `pad_token` lẫn
+    `eos_token` là chuyện chưa từng gặp với model sinh, nên ở đây DỪNG và nói rõ.
+
+    Trả về danh sách việc ĐÃ làm để chỗ gọi in ra một dòng (rỗng nghĩa là tokenizer đã đủ).
+    """
+    done = []
+    if getattr(found, "pad_token", None) is None or getattr(found, "pad_token_id", None) is None:
+        eos = getattr(found, "eos_token", None)
+        if not eos:
+            raise ValueError(
+                "Tokenizer '{}' không có cả `pad_token` lẫn `eos_token`, mà đường chạy sinh theo "
+                "LÔ thì bắt buộc phải đệm được. Model sinh nào cũng có `eos_token`, nên hãy kiểm "
+                "lại tokenizer đang nạp có đúng model không.".format(
+                    getattr(found, "name_or_path", "?")))
+        found.pad_token = eos
+        done.append("pad_token = eos_token ({!r})".format(eos))
+    if getattr(found, "padding_side", "right") != "left":
+        found.padding_side = "left"
+        done.append("padding_side = left")
+    return done
+
+
+def _report_padding(name, done):
+    """In MỘT dòng khi phải sửa tokenizer - để lượt chạy không "tự nhiên đúng" mà không ai biết."""
+    if done:
+        print("tokenizer {}: {}".format(name, "; ".join(done)))
+
+
 def use_tokenizer(found, model_id=None):
     """Ép dùng MỘT tokenizer cụ thể cho các hàm của module này, theo TỪNG model.
 
@@ -211,13 +259,23 @@ def use_tokenizer(found, model_id=None):
     `tokenizer()` mặc định thì hai chuyện xấu xảy ra: (a) máy phải tải tokenizer từ HF dù
     model đã có sẵn trên đĩa, (b) tokenizer có thể là của BẢN KHÁC với model đang chạy -
     chat template khác nhau thì phép so sánh mất ý nghĩa mà không có gì báo lỗi.
+
+    Tokenizer của BÊN NGOÀI cũng đi qua `ensure_padding`: người nạp model không phải lúc nào
+    cũng nhớ đặt `pad_token`/`padding_side`, mà thiếu thì lô đầu tiên đổ (xem `ensure_padding`).
     """
-    _TOKENIZERS[config_name(model_id)] = found
+    name = config_name(model_id)
+    _report_padding(name, ensure_padding(found))
+    _TOKENIZERS[name] = found
     return found
 
 
 def tokenizer(model_id=None):
-    """Nạp tokenizer (kèm chat template) của model; nhớ lại theo TỪNG `model_id`."""
+    """Nạp tokenizer (kèm chat template) của model; nhớ lại theo TỪNG `model_id`.
+
+    Nạp xong thì chuẩn hoá (xem `ensure_padding`) NGAY TẠI ĐÂY - đây là cửa duy nhất đi vào
+    tokenizer, nên đường ĐO (`token_stats`) và đường DÙNG (`build_inputs`) không thể nhận hai
+    bản khác nhau.
+    """
     name = config_name(model_id)
     found = _TOKENIZERS.get(name)
     if found is None:
@@ -229,6 +287,7 @@ def tokenizer(model_id=None):
                 "    pip install transformers torch"
             ) from exc
         found = AutoTokenizer.from_pretrained(checkpoint(name))
+        _report_padding(name, ensure_padding(found))
         _TOKENIZERS[name] = found
     return found
 

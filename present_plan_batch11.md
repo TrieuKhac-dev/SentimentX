@@ -356,3 +356,31 @@ test_every_parameter_is_trainable` - `mock.patch("transformers.AutoModel")` gặ
 khi chạy CẢ bộ test nhưng PASS khi chạy riêng (`transformers` 5.17 nạp lười thuộc tính đó). Đã chứng minh
 bằng cách cất TOÀN BỘ thay đổi của đợt này rồi chạy lại: `Ran 1054 ... FAILED (errors=1)` y hệt.
 
+## 10. Cập nhật 10/10/2026 (chiều) - HAI lỗi THẬT do các lượt chạy trên Colab tìm ra, đã sửa + ghim lại
+
+Người chạy báo về từ chính các notebook của gói **029**. Hai lỗi nằm ở **CODE** (không phải config, không
+phải máy), và cả hai đều thuộc loại "chỉ hiện với MỘT SỐ model" nên đã lọt qua 48 lượt preflight, ba lượt
+smoke trên RTX 3050 và cả bộ test.
+
+| # | Lỗi (nguyên văn) | Nguyên nhân THẬT | Sửa | Test |
+| --- | --- | --- | --- | --- |
+| 1 | `ValueError: Asking to pad but the tokenizer does not have a padding token` ở `mistral-7b-instruct-v0.3/prompt-cot/exp001` (và `exp002`/`exp003`) | Tokenizer của Mistral **KHÔNG có `pad_token`**, mà sinh theo LÔ (`inference.batch_size: 4`) thì `apply_chat_template(padding=True)` bắt buộc phải đệm. Qwen3 **có sẵn** `pad_token` ⇒ các lượt khác không lộ: đường chạy trước đây chỉ đúng với model "may mắn có `pad_token`" | MỘT cửa duy nhất: `qwen.ensure_padding` (gọi trong `tokenizer()` và `use_tokenizer()`) lấy `eos_token` làm `pad_token` và đặt `padding_side = left`, in một dòng `tokenizer <model>: pad_token = eos_token ...` ở đầu lượt chạy. KHÔNG tự thêm token đệm (thêm là phải `resize_token_embeddings`) | `test_qwen.py::EnsurePaddingTest` (7 ca) |
+| 2 | `torch.OutOfMemoryError` ở `qwen3-4b-thinking-2507/prompt-cot/exp001` (lượt DÒ) | Lô 8 × (ngưỡng cắt 2.304 + trần 8.192) = 83.968 vị trí; KV cache của Qwen3-4B là **144 KB mỗi token một chuỗi** (36 lớp × 8 đầu KV × 128 chiều × 2 × 2 byte) ⇒ **~11,5 GB**, vượt 14,56 GB của T4 | (a) `inference.batch_size` của model này 8 → **2** (~2,9 GB) + `config_version` 1 → 2; (b) thêm phép **ĐẾM TRƯỚC** `runner.check_generation_memory`: ước lượng KV cache rồi DỪNG ngay trước khi sinh nếu vượt 60% VRAM, kèm con số `inference.batch_size` nên đặt; (c) `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` đặt trước lần `import torch` đầu tiên | `test_runner.py::GenerationMemoryTest` (9 ca) |
+| 3 | (không phải lỗi) lượt `qwen3-4b-thinking-2507/prompt-cot/exp002` chưa chạy | trần sinh đang là giá trị TẠM 4.096, chờ số đo của `exp001` | giữ nguyên: vẫn **CHỜ NHÓM GHIM LẠI** | - |
+
+**Kiểm OFFLINE bằng chính hàm của đường chạy** (`_scratch/verify_kv.py`): với số kiến trúc đọc từ
+`config.json` THẬT của từng model và VRAM của T4, phép đếm mới **KHÔNG chặn oan lượt nào** trong số các lượt
+đường prompt, và **CHẶN ĐÚNG** lượt DÒ ở lô CŨ 8 - tức đúng thứ đã đổ trên Colab. Số của Mistral đã đối
+chiếu: `config.json` của Mistral **không khai `head_dim`**, nên nhánh suy ra (`hidden_size` chia **số đầu
+attention** = 128) mới là nhánh được dùng thật; bản đầu của phép đếm chia cho số đầu KV (512) và làm ước
+lượng vống lên 4 lần - một test bắt được lỗi đó TRƯỚC khi ghim.
+
+**Phép kiểm mới phải CHỊU được vật giả của test**: `check_generation_memory` gọi `int(...)` trên `config`, mà
+test đưa vào một `Mock` ⇒ `TypeError`, làm đỏ `test_experiment_run.py::RunIdentityTest`. Đã sửa: chỉ nhận
+**số nguyên dương thật** (`runner._positive_int`), thiếu thông tin thì BỎ QUA phép kiểm (không đoán).
+
+**Ghim lại + gói**: 48/48 notebook ghim lại vào commit chứa hai bản sửa, `run_notebook.py --preflight-only`
+xanh **48/48**, gói **030** (thay **029**). Ba lượt Mistral và lượt DÒ đã hỏng chỉ cần chạy lại (chế độ
+RESUME, chưa có lô nào xong); lượt DÒ chạy ở lô 2 nên **dài hơn hẳn** (ước tính 2-4 giờ, đã ghi vào
+`handover/README.md` cùng ghi chú 3 về thứ tự chạy).
+

@@ -29,6 +29,8 @@ from unittest import mock
 
 from src.evaluation import runner
 
+T4_GIB = 14.56
+
 HAS_TORCH = importlib.util.find_spec("torch") is not None
 
 
@@ -195,6 +197,82 @@ class LoadAttemptsTest(unittest.TestCase):
         # Vẫn phải giữ nhiều biến thể: đó là khác biệt MÔI TRƯỜNG (accelerate có/không, transformers
         # bản mới dùng `dtype` còn bản cũ `torch_dtype`), không phải khác biệt phép đo.
         self.assertGreaterEqual(len(attempts), 2)
+
+
+class GenerationMemoryTest(unittest.TestCase):
+    """KV cache ĐẾM ĐƯỢC từ config model, nên phải đếm TRƯỚC khi sinh.
+
+    Lỗi thật (10/10/2026, `qwen3-4b-thinking-2507/prompt-cot/exp001`): trần 8.192 token × lô 8 ⇒
+    ~11,5 GB KV cache trên T4 14,56 GB; `model.generate` ném `torch.OutOfMemoryError` sau khi đã tải
+    xong model. Bốn phép kiểm ở đây khoá: công thức đếm, ngưỡng ngân sách, số đề xuất, và việc KHÔNG
+    báo động oan cho những lô đang chạy tốt.
+    """
+
+    def test_khong_co_thong_tin_thi_bo_qua_chu_khong_doan_bua(self):
+        self.assertIsNone(runner.kv_bytes_per_token(None))
+        self.assertIsNone(runner.kv_bytes_per_token(mock.Mock(spec=[])))
+        # Vật giả KHÔNG có `spec`: mọi thuộc tính là một `Mock` (không phải số). `int(Mock)` ném
+        # `TypeError` - đã xảy ra thật với test danh tính lượt chạy, nên đây là phép kiểm chống hồi quy.
+        self.assertIsNone(runner.kv_bytes_per_token(mock.Mock()))
+        # `bool` là `int` trong Python nhưng không phải số lớp/số đầu - không được nhận.
+        config = mock.Mock(spec=[])
+        config.num_hidden_layers = True
+        config.num_key_value_heads = 8
+        config.head_dim = 128
+        self.assertIsNone(runner.kv_bytes_per_token(config))
+
+    def test_dem_theo_so_dau_KV_chu_khong_phai_so_dau_attention(self):
+        """Model dùng GQA (Mistral, Qwen3) có KV cache nhỏ hơn nhiều lần con số suy từ attention."""
+        config = mock.Mock(spec=[])
+        config.num_hidden_layers = 36
+        config.num_key_value_heads = 8
+        config.num_attention_heads = 32
+        config.head_dim = 128
+        # 36 lớp × 8 đầu KV × 128 chiều × 2 (K,V) × 2 byte = 147.456 byte, KHÔNG phải 589.824.
+        self.assertEqual(runner.kv_bytes_per_token(config, 2), 147456)
+
+    def test_thieu_head_dim_thi_suy_tu_hidden_size(self):
+        config = mock.Mock(spec=[])
+        config.num_hidden_layers = 32
+        config.num_key_value_heads = 8
+        config.num_attention_heads = 32
+        config.hidden_size = 4096
+        self.assertEqual(runner.kv_bytes_per_token(config, 2), 131072)
+
+    def test_dem_ca_phan_prompt_lan_phan_sinh(self):
+        # 1.000 + 1.000 = 2.000 vị trí/chuỗi × lô 3 × 1.000 byte.
+        self.assertEqual(runner.kv_needed_bytes(1000, 3, 1000, 1000), 6000000)
+
+    def test_ngan_sach_la_60_phan_tram_va_so_de_xuat_dung(self):
+        # Tổng 10.000.000 byte ⇒ ngân sách 6.000.000; mỗi chuỗi 1.000 × 2.000 = 2.000.000 ⇒ lô 3 vừa.
+        found = runner.memory_shortage(1000, 8, 1000, 1000, 10000000)
+        self.assertEqual(found["budget"], 6000000)
+        self.assertEqual(found["needed"], 16000000)
+        self.assertEqual(found["suggested_batch"], 3)
+
+    def test_lo_dang_chay_tot_thi_khong_bao_dong_oan(self):
+        """Mistral-7B lô 4 (3.584 + 400 vị trí) đã chạy được trên T4 - phép kiểm phải im lặng."""
+        total = int(T4_GIB * 1024 ** 3)
+        self.assertIsNone(runner.memory_shortage(131072, 4, 3584, 400, total))
+
+    def test_dung_lo_da_lam_no_t4(self):
+        total = int(T4_GIB * 1024 ** 3)
+        found = runner.memory_shortage(147456, 8, 2304, 8192, total)
+        self.assertIsNotNone(found)
+        self.assertLess(found["suggested_batch"], 8)
+        self.assertGreaterEqual(found["suggested_batch"], 1)
+
+    def test_lo_2_cua_cung_luot_thi_vua(self):
+        total = int(T4_GIB * 1024 ** 3)
+        self.assertIsNone(runner.memory_shortage(147456, 2, 2304, 8192, total))
+
+    def test_thong_bao_noi_dung_so_can_sua(self):
+        total = int(T4_GIB * 1024 ** 3)
+        found = runner.memory_shortage(147456, 8, 2304, 8192, total)
+        text = runner.memory_message(found, "qwen3-4b-thinking-2507")
+        self.assertIn("inference.batch_size", text)
+        self.assertIn(str(found["suggested_batch"]), text)
+        self.assertIn("qwen3-4b-thinking-2507", text)
 
 
 if __name__ == "__main__":

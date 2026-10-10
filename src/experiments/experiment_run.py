@@ -907,6 +907,22 @@ def run(plan_data, log=None):
         run_meta.write(out_dir, record)
 
         print_config(plan_data, model_info)
+
+        # Ước lượng KV cache TRƯỚC khi sinh. Lô quá lớn thì `generate` chết GIỮA ĐƯỜNG bằng
+        # `torch.OutOfMemoryError` sau khi đã tải xong model - con số này đếm được từ config model,
+        # nên nói trước, kèm đúng tham số cần sửa. Xem `runner.check_generation_memory`.
+        shortage = runner.check_generation_memory(
+            model, plan_data["batch_size"], plan_data["max_length"],
+            plan_data["generation"]["max_new_tokens"], model_name=info["model"])
+        if shortage:
+            log.error(
+                shortage,
+                context={"model": info["model"], "batch_size": plan_data["batch_size"],
+                         "max_new_tokens": plan_data["generation"]["max_new_tokens"]},
+                requires=["`inference.batch_size` nhỏ hơn cho model này (configs/models/<model_id>.yaml)",
+                          "hoặc `decoding.max_new_tokens` nhỏ hơn cho thí nghiệm"])
+            raise RunError(shortage)
+
         print("Đang sinh...")
         log.step("bắt đầu sinh {} mẫu của split {} (batch {})".format(
             len(plan_data["texts"]), plan_data["split"], plan_data["batch_size"]))

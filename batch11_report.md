@@ -35,6 +35,19 @@ của dự án: `run_notebook.py <exp> --preflight-only` cho **48/48 notebook xa
 (`4f65864`), trong đó có đủ 8 notebook đã chặn người chạy hôm nay. Gói **029** (nối tiếp **028**) mang đúng 48 notebook đó,
 giữ nguyên cấu hình và thứ tự chạy.
 
+**Hai lỗi THẬT thứ hai và thứ ba, do CHÍNH các lượt chạy trên Colab tìm ra (10/10/2026), đã sửa và ghim lại
+(gói 030 thay 029).** (a) Ba lượt `mistral-7b-instruct-v0.3/prompt-cot/exp001..003` đổ ngay ở lô đầu tiên:
+`ValueError: Asking to pad but the tokenizer does not have a padding token` - tokenizer của Mistral **không
+có `pad_token`**, mà sinh theo lô thì bắt buộc phải đệm (Qwen3 có sẵn nên các lượt khác không lộ). Nay mọi
+tokenizer đi qua một cửa duy nhất (`qwen.ensure_padding`): lấy `eos_token` làm `pad_token` và đặt
+`padding_side = left`. (b) Lượt DÒ `qwen3-4b-thinking-2507/prompt-cot/exp001` chết GIỮA ĐƯỜNG bằng
+`torch.OutOfMemoryError`: lô 8 × (cắt 2.304 + trần 8.192) vị trí ⇒ KV cache ~11,5 GB (144 KB mỗi token một
+chuỗi) trên T4 14,56 GB. Nay lô của model đó là **2**, và trước khi sinh đường chạy **ĐẾM TRƯỚC** KV cache rồi
+DỪNG kèm con số `inference.batch_size` nên đặt - chi tiết, phép kiểm offline và đối chứng ở
+`present_plan_batch11.md` §10. **Hai lỗi này không đổi cách đọc điểm**, nhưng chúng là lý do lượt DÒ - nguồn
+số cho luật 23a của nhánh "suy nghĩ" (Đ6/Đ7, M9) - **chưa có kết quả**: nó chạy ở lô 2 nên **dài hơn hẳn**
+(ước tính 2-4 giờ).
+
 | Nhóm | Lượt | Số | Khác cha ở đâu | Trạng thái |
 | --- | --- | --- | --- | --- |
 | **Đ1** "điểm đến từ đâu" | `phobert-base-v2/none/exp001-002`, `cafebert/none/exp001-002`, `phobert-base-v2/lora/exp008-011`, `cafebert/lora/exp007` | 9 | `trainer: none` / `head.trainable` / `checkpoints.best_metric` / `decoding.seed` | đã ghim, chờ chạy |

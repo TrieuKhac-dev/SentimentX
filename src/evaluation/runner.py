@@ -34,6 +34,7 @@ Chỉ module này cần `torch`; `parse.py` và `metrics.py` là hàm thuần n�
 cần GPU (`python -m unittest discover -s tests`).
 """
 
+import os
 import time
 from pathlib import Path
 
@@ -69,8 +70,140 @@ def settings(quant="auto", max_new_tokens=None, do_sample=False, temperature=Non
     }
 
 
+# Ngân sách dành cho KV cache, tính theo TỔNG VRAM của máy. Phần còn lại phải chứa trọng số model,
+# logits và bộ nhớ đệm của CUDA; 0,6 đã rộng rãi cho trọng số 4-bit của model 7-8B (khoảng 4-5 GB).
+KV_BUDGET_FRACTION = 0.6
+
+
+def _positive_int(value):
+    """Số nguyên DƯƠNG thật: `bool` không tính, vật giả của test (không phải số) cũng không.
+
+    Vì sao phải kiểm kiểu: hàm ước lượng này nhận `config` của model, mà nơi gọi có thể đưa vào một
+    vật giả (test dùng `unittest.mock`) hoặc một config thiếu khoá. `int(Mock)` ném `TypeError` - một
+    lỗi của phép KIỂM PHỤ trở thành lỗi của lượt chạy, đúng thứ mà phép kiểm này sinh ra để tránh.
+    Thiếu thông tin thì trả `None` (bỏ qua phép kiểm), không đoán.
+    """
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
+def kv_bytes_per_token(config, itemsize=2):
+    """Số byte KV cache cho MỘT token của MỘT chuỗi. `None` khi config thiếu thông tin để tính.
+
+    Công thức: 2 (K và V) × số lớp × số đầu KV × kích thước mỗi đầu × số byte mỗi số.
+
+    Đếm theo số đầu KV (`num_key_value_heads`), KHÔNG phải số đầu attention: model dùng GQA/MQA
+    (Mistral, Llama, Qwen3 đều dùng) có KV cache nhỏ hơn hẳn con số suy từ `num_attention_heads`,
+    và đoán sai chỗ này là ước lượng sai nhiều lần.
+    """
+    layers = getattr(config, "num_hidden_layers", None)
+    heads = (getattr(config, "num_key_value_heads", None)
+             or getattr(config, "num_attention_heads", None))
+    head_dim = getattr(config, "head_dim", None)
+    if not _positive_int(head_dim):
+        # `head_dim` phải suy từ SỐ ĐẦU ATTENTION, không phải số đầu KV: `hidden_size` chia cho số
+        # đầu KV là sai (Mistral: 4.096 / 8 = 512, trong khi mỗi đầu thật là 128) - và sai ở đây thì
+        # ước lượng KV cache vống lên 4 lần, đủ để DỪNG oan một lượt chạy vừa VRAM.
+        attention = getattr(config, "num_attention_heads", None)
+        hidden = getattr(config, "hidden_size", None)
+        head_dim = (int(hidden // attention)
+                    if (_positive_int(attention) and _positive_int(hidden)) else None)
+    if not all(_positive_int(value) for value in (layers, heads, head_dim)):
+        return None
+    itemsize = int(itemsize) if _positive_int(itemsize) else 2
+    return 2 * int(layers) * int(heads) * int(head_dim) * itemsize
+
+
+def kv_needed_bytes(per_token_bytes, batch_size, max_length, max_new_tokens):
+    """Byte KV cache cho CẢ LÔ: mỗi chuỗi chiếm `max_length` (prompt) + `max_new_tokens` (sinh)."""
+    tokens = int(max_length or 0) + int(max_new_tokens or 0)
+    return int(per_token_bytes) * int(tokens) * max(1, int(batch_size))
+
+
+def memory_shortage(per_token_bytes, batch_size, max_length, max_new_tokens, total_bytes):
+    """Lượng KV cache VƯỢT ngân sách, kèm số liệu để nói rõ phải sửa gì. HÀM THUẦN, không cần GPU.
+
+    Trả `None` khi ước lượng nằm trong ngân sách; trả dict khi vượt, trong đó `suggested_batch` là
+    lô lớn nhất còn vừa - để câu thông báo nói một CON SỐ, không phải lời khuyên chung chung.
+    """
+    needed = kv_needed_bytes(per_token_bytes, batch_size, max_length, max_new_tokens)
+    budget = int(int(total_bytes) * KV_BUDGET_FRACTION)
+    if needed <= budget:
+        return None
+    tokens = int(max_length or 0) + int(max_new_tokens or 0)
+    per_sequence = int(per_token_bytes) * max(1, tokens)
+    return {
+        "needed": needed,
+        "budget": budget,
+        "total": int(total_bytes),
+        "batch": int(batch_size),
+        "tokens": tokens,
+        "per_token": int(per_token_bytes),
+        "suggested_batch": max(1, budget // per_sequence),
+    }
+
+
+def memory_message(found, model_name=None):
+    """Câu DỪNG đọc được, từ kết quả của `memory_shortage`.
+
+    Có TÊN model trong câu để người đọc biết sửa file nào; `model_name` là `model_id` trong
+    `configs/models/` (nơi gọi truyền vào), không có thì nói chung chung chứ không đoán.
+    """
+    where = ("`configs/models/{}.yaml`".format(model_name) if model_name
+             else "`configs/models/<model_id>.yaml`")
+    return (
+        "KV cache của lô này cần khoảng {needed:.1f} GB, vượt ngân sách {budget:.1f} GB "
+        "({percent:.0f}% của {total:.1f} GB VRAM):\n"
+        "  {tokens} vị trí mỗi chuỗi (ngưỡng cắt prompt + trần sinh) × lô {batch} × "
+        "{per_token:.0f} KB mỗi token một chuỗi.\n"
+        "  → Giảm `inference.batch_size` trong {where} xuống {suggested} (lô {suggested} vừa "
+        "VRAM), hoặc giảm `decoding.max_new_tokens` của thí nghiệm.\n"
+        "  → Đây là ƯỚC LƯỢNG từ config model (số lớp, số đầu KV, kích thước mỗi đầu). Đổi "
+        "`batch_size` là một lượt chạy KHÁC (nó nằm trong mã băm danh tính), nên nhớ ghim lại "
+        "notebook và ghi lí do.".format(
+            needed=found["needed"] / 1024 ** 3, budget=found["budget"] / 1024 ** 3,
+            total=found["total"] / 1024 ** 3,
+            percent=100.0 * found["budget"] / max(1, found["total"]),
+            tokens=found["tokens"], batch=found["batch"], where=where,
+            per_token=found["per_token"] / 1024, suggested=found["suggested_batch"])
+    )
+
+
+def check_generation_memory(model, batch_size, max_length, max_new_tokens, model_name=None):
+    """Ước lượng KV cache của lô sắp sinh; trả câu DỪNG (rỗng khi không có gì để nói).
+
+    VÌ SAO KIỂM TRƯỚC KHI SINH - LỖI THẬT (10/10/2026, `qwen3-4b-thinking-2507/prompt-cot/exp001`):
+    lượt DÒ khai trần 8.192 token với lô 8, nên KV cache ước tính ~12 GB trong khi T4 có 14,6 GB;
+    `model.generate` ném `torch.OutOfMemoryError` sau khi đã tải xong model và đã chạy được một
+    phần. Con số này ĐẾM ĐƯỢC từ config model TRƯỚC khi sinh, nên ở đây nói trước - cùng tinh thần
+    với `qwen._check_encoded`: lỗi phải hiện ngay tại chỗ gây ra nó, kèm việc cần sửa.
+
+    Trả "" (không phải None) khi máy KHÔNG có GPU hoặc config model thiếu thông tin: lúc đó không
+    đoán được gì, mà DỪNG oan thì tệ hơn - người dùng đang chạy model nhỏ trên máy cá nhân.
+    """
+    torch = _require("torch")
+    if not torch.cuda.is_available():
+        return ""
+    dtype = getattr(model, "dtype", None)
+    per_token = kv_bytes_per_token(getattr(model, "config", None),
+                                   getattr(dtype, "itemsize", 2) or 2)
+    if not per_token:
+        return ""
+    total = torch.cuda.get_device_properties(torch.cuda.current_device()).total_memory
+    found = memory_shortage(per_token, batch_size, max_length, max_new_tokens, total)
+    return memory_message(found, model_name) if found else ""
+
+
 def _require(name):
-    """Nạp một thư viện, báo lỗi kèm đúng lệnh cần chạy."""
+    """Nạp một thư viện, báo lỗi kèm đúng lệnh cần chạy.
+
+    Riêng `torch`: đặt `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` nếu máy chưa đặt. Bộ cấp
+    phát chia mảnh là nguyên nhân thật của nhiều lần `CUDA out of memory` khi VRAM vẫn còn trống -
+    thông báo lỗi của chính PyTorch khuyên đúng biến này. Biến phải có TRƯỚC khi torch khởi tạo
+    CUDA, nên đặt ngay trước lần `import torch` ĐẦU TIÊN của đường chạy. Dùng `setdefault` để máy
+    nào đã cấu hình riêng thì giữ nguyên.
+    """
+    if name == "torch":
+        os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
     try:
         return __import__(name)
     except ImportError as exc:
