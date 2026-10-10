@@ -18,11 +18,16 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **Đợt 11 gửi trong MỘT gói: `SentimentX-goi-030-<mã>-261010.zip`** - 48 notebook, và **cả 48 ghim vào
-> cùng một revision** (cùng một bản code, nên không thể lẫn hai bản giữa các lượt). Các gói **022/023/024/
+> **Đợt 11 gửi trong HAI gói: `SentimentX-goi-030-<mã>-261010.zip` (48 notebook, ghim `2850d03`) rồi
+> `SentimentX-goi-031-<mã>-<ngày>.zip` (CHỈ bốn notebook `visobert/lora/exp006..009`, ghim `a0a5240`).**
+> Lý do tách: bốn lượt ViSoBERT đổ ngay ở bước dựng input bằng `NameError: name 'bert_like' is not
+> defined` - `src/preprocessing/visobert.py` gọi `bert_like.prepared` mà quên `import bert_like` (bốn
+> encoder kia dùng chung `bert_like` nhưng đã import đúng). Chỉ bốn file đó đổi, nên **44 notebook còn
+> lại giữ nguyên ghim `2850d03` và KHÔNG cần tải lại**; gói 031 chỉ mang bốn notebook ViSoBERT + README
+> này. Các gói **022/023/024/
 > 026/027/028/029** là những lần gửi TRƯỚC của chính các notebook đó (gói **025** bị **026** thay thế, **027** bị
 > **028** thay thế, **028** bị **029** thay thế, **029** bị **030** thay thế) - nếu bạn đã tải chúng thì cứ dùng
-> **030** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem
+> **030 cùng 031** là đủ, khỏi ghép nhiều gói. Bốn mục "Đợt 11" bên dưới nói từng nhóm trả lời câu gì; thứ tự chạy thì xem
 > bảng ở mục "Đợt 11 - thứ tự chạy" (gần cuối file này).
 >
 > **Vì sao 029 bị 030 thay (10/10/2026) - HAI LỖI THẬT do bạn gặp khi chạy, không phải lỗi tài liệu:**

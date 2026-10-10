@@ -384,3 +384,29 @@ xanh **48/48**, gói **030** (thay **029**). Ba lượt Mistral và lượt DÒ 
 RESUME, chưa có lô nào xong); lượt DÒ chạy ở lô 2 nên **dài hơn hẳn** (ước tính 2-4 giờ, đã ghi vào
 `handover/README.md` cùng ghi chú 3 về thứ tự chạy).
 
+
+## 11. Cập nhật 10/10/2026 (tối) - LỖI THẬT THỨ BA, do bốn lượt ViSoBERT tìm ra: thiếu `import bert_like`
+
+Bốn lượt `visobert/lora/exp006..009` của gói 030 (revision `2850d03`) đổ NGAY ở bước dựng input:
+
+    NameError: name 'bert_like' is not defined      (src/preprocessing/visobert.py, build_inputs)
+
+Nguyên nhân: `visobert.py` viết tay; `build_inputs` gọi `bert_like.prepared(...)` để áp
+`preprocess.segmenter`, nhưng file **không import `bert_like`**. Bốn encoder thêm ở đợt 7
+(`phobert-large`, `vibert`, `cafebert`, `xlmroberta`) đều đi qua `bert_like` và đã import đúng, nên chỉ
+ViSoBERT lộ. Đường ĐO (`encode`) không đụng `bert_like` nên `run_token_stats.py` vẫn xanh - đúng loại
+lỗi chỉ hiện ở đường HUẤN LUYỆN (cùng họ với hai lỗi pad-token / KV-cache ở §10).
+
+Sửa - commit `a0a5240`:
+- `src/preprocessing/visobert.py`: thêm một dòng `from src.preprocessing import bert_like`.
+- `tests/preprocessing/test_encoders.py`: `VisobertBuildInputsTest` (gọi `build_inputs` với tokenizer
+  giả, khoá ĐÚNG ca này) + `EncoderModuleImportTest` (AST: module trong `src/preprocessing/` dùng
+  `bert_like.`/`segmenters.`/`model_config.` thì phải import tên đó - chặn cả HỌ lỗi, không chỉ ca này;
+  dò import bằng AST nên chịu được dạng `from ... import (a, b)`).
+
+Kiểm: `ci_checks` sạch; `unittest` **1096 test, còn đúng 1 test đỏ CÓ SẴN của môi trường**
+(`tests/training/test_full.py::test_every_parameter_is_trainable`, scipy/numpy - xem §9).
+
+Ghim lại: CHỈ bốn notebook `visobert/lora/exp006..009` -> `a0a5240` (commit `556c48d`). 44 notebook còn
+lại GIỮ NGUYÊN ghim `2850d03` vì không có gì khác đổi. Gói bàn giao: **031** (chỉ bốn notebook ViSoBERT
++ `handover/README.md`).
