@@ -17,6 +17,7 @@ cột đó giúp phân biệt hai trường hợp khi đọc lại số liệu.
 """
 
 from src.experiments import model_config
+from src.preprocessing import bert_like
 
 MODEL_NAME = "uitnlp/visobert"
 

@@ -8,10 +8,13 @@ model KHÁC - đúng loại lỗi im lặng mà test này chốt lại.
 Chạy: python -m unittest discover -s tests
 """
 
+import ast
 import unittest
 
+from src.core import paths
 from src.experiments import model_config
-from src.preprocessing import bert_like, cafebert, phobert_large, token_stats, vibert, xlmroberta
+from src.preprocessing import (bert_like, cafebert, phobert_large, token_stats, vibert, visobert,
+                               xlmroberta)
 from src.training import encoders
 
 NEW_ENCODERS = ("phobert-large", "vibert-base-cased", "cafebert", "xlm-roberta-base")
@@ -88,6 +91,62 @@ class TokenStatsRegistryTest(unittest.TestCase):
             for key in ("limit", "encode", "words", "tokenizer", "info", "model_name", "model_id"):
                 self.assertIn(key, spec, "{} thiếu khoá {}".format(spec.get("model_id"), key))
             self.assertEqual(spec["model_name"], model_config.checkpoint(spec["model_id"]))
+
+
+class EncoderModuleImportTest(unittest.TestCase):
+    """Module dùng `X.` thì phải import `X` - thiếu là NameError lúc HUẤN LUYỆN, không lộ khi ĐO.
+
+    Ca thật (batch 11, 10/10/2026): `visobert.build_inputs` gọi `bert_like.prepared` mà KHÔNG import
+    `bert_like`, nên bốn lượt `visobert/lora/exp006-009` đổ ngay ở bước dựng input với
+    `NameError: name 'bert_like' is not defined` - trong khi `encode()` (đường ĐO) vẫn chạy được, nên
+    lỗi chỉ hiện ở đường huấn luyện. Dùng AST để soi đúng phép truy cập thuộc tính, tránh nhầm với
+    chữ `bert_like.py` trong docstring.
+    """
+
+    SIBLINGS = ("bert_like", "segmenters", "model_config")
+
+    @staticmethod
+    def imported_names(tree):
+        """Tên được import ở cấp module (kể cả dạng có ngoặc) - dò bằng AST, không so chuỗi."""
+        names = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                for alias in node.names:
+                    names.add(alias.asname or alias.name)
+            elif isinstance(node, ast.Import):
+                for alias in node.names:
+                    names.add(alias.asname or alias.name.split(".")[0])
+        return names
+
+    def test_moi_module_dung_module_anh_em_deu_import(self):
+        directory = paths.root() / "src" / "preprocessing"
+        missing = []
+        for path in sorted(directory.glob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            used = {node.value.id for node in ast.walk(tree)
+                    if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name)}
+            imported = self.imported_names(tree)
+            for name in self.SIBLINGS:
+                if name in used and name not in imported:
+                    missing.append("{}: dùng {}. nhưng không import {}".format(path.name, name, name))
+        self.assertEqual(missing, [], "thiếu import sẽ thành NameError lúc chạy: {}".format(missing))
+
+
+class VisobertBuildInputsTest(unittest.TestCase):
+    """ViSoBERT phải DỰNG ĐƯỢC input khi huấn luyện - lỗi batch 11 là thiếu import `bert_like`."""
+
+    def test_build_inputs_chay_voi_tokenizer_gia(self):
+        class FakeTokenizer:
+            def __call__(self, texts, **kwargs):
+                return {"input_ids": [[1, 2]], "attention_mask": [[1, 1]]}
+
+        previous = visobert._TOKENIZER
+        visobert._TOKENIZER = FakeTokenizer()
+        try:
+            found = visobert.build_inputs(["son đẹp"], max_length=8, segmenter="none")
+        finally:
+            visobert._TOKENIZER = previous
+        self.assertIn("input_ids", found)
 
 
 if __name__ == "__main__":
