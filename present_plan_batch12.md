@@ -189,7 +189,9 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
       `present_report_v1.md`
 
 ### Đợt 1 - 8 lượt ưu tiên
-- [ ] Tạo + ghim 8 notebook: `exp020` `exp024` `exp025` `exp027` `exp028` `exp033` `exp021` `exp030`
+- [x] **TẠO XONG 11/10/2026** - 8 notebook của Đợt 1: `exp020` `exp021` `exp024` `exp025` `exp027` `exp028`
+      `exp030` `exp033` (config LoRA + README; `ci_checks` chỉ còn báo "chưa ghim `REPO_SHA`" - đúng dự kiến)
+- [ ] **GHIM** 8 notebook - cần **CI XANH** trên commit chứa chúng (luật 22) rồi mới `pin.py`
 - [ ] Người dùng chạy trên Colab; copy kết quả về; `collect_reports.py`; commit
 
 ### Đợt 2
@@ -236,6 +238,8 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 | 11/10/2026 | **LỖI (lớn)** | Ca B nhánh `full`: cả 3 lượt đoán **"không nhắc tới" cho MỌI ô** (`sentiment_f1 = 0`, `paper.cells = 0`, `all acc = 73,69 %`); hai lượt PhoBERT khác `lr` **10 lần** ra y hệt từng khía cạnh | Ghi ở mục 9.2; **ĐỔI NHÓM 12** (phải thêm `inference.dtype: float32`); **BÁO CÁO người dùng** (mục 6 việc 0.5) |
 | 11/10/2026 | Phát hiện | `cafebert/full/exp001` **không có `metrics.json`** trên đĩa (mà `run.log` nói "đã ghi") - chỉ có `run.log`, `run_meta.json`, `model/` | Kết luận về lượt này lấy từ `run.log`; ghi rõ trong Phụ lục A |
 | 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`, `present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
+| 11/10/2026 | Đợt 1 | **TẠO XONG 8 thí nghiệm** `exp020` `exp021` `exp024` `exp025` `exp027` `exp028` `exp030` `exp033` (8 commit nhỏ `feat(experiments)`); mỗi lượt khác cha ĐÚNG 1 khoá/nhóm khoá | `ci_checks` xác nhận **cấu hình hợp lệ** (chỉ báo chưa ghim `REPO_SHA`); còn phải **ghim** sau khi CI xanh |
+| 11/10/2026 | Ghi nhận | Phải **gitignore `_scratch/`** vì `worktree_dirty()` tính cả file chưa theo dõi; và `new_experiment.py` **từ chối khi cây bẩn** nên mỗi lượt tạo xong phải commit trước khi tạo lượt kế | Đã gitignore (`9e68f73`); 7 lượt sau dùng `--allow-dirty` rồi commit riêng từng lượt |
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
 
