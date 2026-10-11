@@ -6,6 +6,11 @@ __pycache__/
 # thì `scripts/pin.py` từ chối chạy vì tưởng cây bẩn.
 .agent_harnesses.json
 
+# Thư mục nháp của người làm việc (`_scratch/`): nhật ký lệnh, script dò tay, kết quả thử ngoài luồng.
+# Không phải file của dự án, và `new_experiment.py` / `pin.py` đọc `git status --porcelain` (tính cả file
+# chưa theo dõi) nên có nó trong cây là hai công cụ đó từ chối chạy với lý do "cây bẩn".
+_scratch/
+
 # Nhật ký sự cố của JVM: sinh ra khi bộ tách từ VnCoreNLP hết bộ nhớ hoặc JVM sập. Là file của MÁY
 # (mỗi lần sập một tên mới, nội dung chứa đường dẫn và dung lượng RAM của máy), không phải file dự án.
 hs_err_pid*.log
