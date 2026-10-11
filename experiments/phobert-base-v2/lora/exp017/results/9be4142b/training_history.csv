@@ -1,0 +1,1 @@
+﻿kind,epoch,step,loss,train_loss,val_loss,lr,accuracy_cell,accuracy_macro,sentiment_f1,sentiment_precision,sentiment_recall,detection_f1,cells

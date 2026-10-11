@@ -1,0 +1,80 @@
+{
+  "run": {
+    "mode": "NEW",
+    "out_dir": "9be4142b",
+    "log": "run.log",
+    "started": "2026-10-10 11:31:06",
+    "finished": "2026-10-10 11:31:29",
+    "seconds": 23.2,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "split": "test",
+      "approach": "encoder",
+      "prompt": null,
+      "prompt_sha": null,
+      "model": "vinai/phobert-base-v2",
+      "quant": "none",
+      "max_length": 256,
+      "batch_size": 16,
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1623,
+      "experiment": {
+        "model": "phobert-base-v2",
+        "method": "lora",
+        "exp_id": "exp017"
+      },
+      "repo_sha": "2850d0349267d919825b910db14732368c1e7b1e",
+      "config_sha256": "9be4142ba7712411f6442bea4db9769d418f0a32188fdfb9615c04eaeff38585",
+      "label_space": "binary",
+      "neutral_policy": "drop",
+      "not_mentioned": "separate",
+      "training": {
+        "trainer": "lora",
+        "epochs": 3,
+        "batch": 8,
+        "grad_accum": 4,
+        "lr": 0.0002,
+        "weight_decay": 0.01,
+        "lora_r": 32,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "query",
+          "key",
+          "value",
+          "dense"
+        ],
+        "quantization": "none",
+        "dtype": "auto",
+        "head_trainable": true,
+        "every_n_steps": 100,
+        "keep_last_k": 2,
+        "save_last": true,
+        "save_best": true,
+        "delete_intermediate": true,
+        "best_metric": "sentiment_f1"
+      }
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-10-10 11:31:29",
+      "level": "ERROR",
+      "message": "KeyboardInterrupt: ",
+      "type": "KeyboardInterrupt",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/experiments/encoder_run.py\", line 511, in run\n    report = trainer.fit(plan_data[\"config\"], plan_data[\"model_id\"], out_dir,\n                         train=plan_data[\"data\"][\"train\"], val=plan_data[\"data\"][\"val\"],\n    ...<3 lines>...\n                         on_point=lambda values, at: session.log_point(values, at),\n                         log=log)\n  File \"/content/SentimentX/src/training/lora.py\", line 1065, in fit\n    return fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=seed,\n                       source=source, labels=labels, on_point=on_point, log=log,\n                       build=build_model, writer_name=savers.DEFAULT)\n  File \"/content/SentimentX/src/training/lora.py\", line 838, in fit_generic\n    model, head = (build or build_model)(found, device, n_aspects=len(aspects), n_codes=len(codes),\n                  ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                                        adapter_dir=adapter, source=found[\"source\"], trainable=True)\n                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/training/lora.py\", line 466, in build_model\n    encoder = AutoModel.from_pretrained(source or found[\"source\"], **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/auto/auto_factory.py\", line 409, in from_pretrained\n    return model_class.from_pretrained(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        pretrained_model_name_or_path, *model_args, config=config, **hub_kwargs, **kwargs\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_utils.py\", line 4243, in from_pretrained\n    checkpoint_files, sharded_metadata = _get_resolved_checkpoint_files(\n                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        pretrained_model_name_or_path=pretrained_model_name_or_path,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<7 lines>...\n        tqdm_class=tqdm_class,\n        ^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_utils.py\", line 705, in _get_resolved_checkpoint_files\n    resolved_archive_file = cached_file(\n        pretrained_model_name_or_path, filename, **cached_file_kwargs\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/hub.py\", line 370, in cached_file\n    file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/hub.py\", line 537, in cached_files\n    hf_hub_download(\n    ~~~~~~~~~~~~~~~^\n        path_or_repo_id,\n        ^^^^^^^^^^^^^^^^\n    ...<10 lines>...\n        tqdm_class=tqdm_class,\n        ^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/utils/_validators.py\", line 89, in _inner_fn\n    return fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/utils/_http.py\", line 266, in _inner\n    return fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 1047, in hf_hub_download\n    return _hf_hub_download_to_cache_dir(\n        # Destination\n    ...<15 lines>...\n        dry_run=dry_run,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 1285, in _hf_hub_download_to_cache_dir\n    _download_to_tmp_and_move(\n    ~~~~~~~~~~~~~~~~~~~~~~~~~^\n        incomplete_path=Path(blob_path + \".incomplete\"),\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<8 lines>...\n        tqdm_class=tqdm_class,\n        ^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 2016, in _download_to_tmp_and_move\n    xet_get(\n    ~~~~~~~^\n        incomplete_path=tmp_path,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<4 lines>...\n        tqdm_class=tqdm_class,\n        ^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/huggingface_hub/file_download.py\", line 589, in xet_get\n    with session.new_file_download_group(\n         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        endpoint=connection_info.endpoint,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        progress_callback=progress.update_progress,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ) as group:\n    ^\nKeyboardInterrupt\n",
+      "context": {
+        "kind": "KeyboardInterrupt"
+      }
+    }
+  ],
+  "warnings": []
+}

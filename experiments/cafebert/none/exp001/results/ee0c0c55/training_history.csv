@@ -1,0 +1,2 @@
+﻿kind,epoch,step,loss,train_loss,val_loss,lr,accuracy_cell,accuracy_macro,sentiment_f1,sentiment_precision,sentiment_recall,detection_f1,cells
+epoch,0,0,,,,,20.18,20.2,0.13,0.095,0.4,0.398,10554

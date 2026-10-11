@@ -1,0 +1,84 @@
+=== lần chạy 2026-10-10 08:32:37 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=uitnlp/visobert
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1623
+[RUN] experiment.model=visobert
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp007
+[RUN] repo_sha=a0a52404fbca5047791ecd8a7cba490182cbfe6e
+[RUN] config_sha256=428031b7406e8cdee267f9cd05695b087c9fe2e555ca9d11537e228670bd15e2
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=3
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0002
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=16
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[RUN] training.head_trainable=True
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.save_last=True
+[RUN] training.save_best=True
+[RUN] training.delete_intermediate=True
+[RUN] training.best_metric=sentiment_f1
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: visobert/lora/exp007 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè enabled: False <- True
+[CONFIG] đè head.trainable: False <- True
+[CONFIG] đè loss.class_weight: none <- inverse
+[CONFIG] đè loss.type: ce <- weighted_ce
+[CONFIG] đè preprocess.segmenter: none <- underthesea
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=16 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0002 batch=8 grad_accum=4 epochs=3 weight_decay=0.01
+[CONFIG] đầu phân loại: HỌC cùng adapter
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 42
+[STEP] huấn luyện: 3 epoch, batch 8 (tích luỹ 4), 12268 mẫu train, 1535 mẫu val
+[STEP] đầu phân loại: HỌC cùng adapter | theo khía cạnh: TẮT - 7 bộ trọng số riêng | 2694933 tham số học / 100260885 tổng
+[STEP] bước 100 | loss 0.5989 | val sentiment_f1=0.4790 (10554 ô) | đã lưu model/best
+[STEP] bước 200 | loss 0.3236 | val sentiment_f1=0.5990 (10554 ô) | đã lưu model/best
+[STEP] bước 300 | loss 0.2288 | val sentiment_f1=0.6630 (10554 ô) | đã lưu model/best
+[STEP] bước 400 | loss 0.0779 | val sentiment_f1=0.7210 (10554 ô) | đã lưu model/best
+[STEP] bước 500 | loss 0.3039 | val sentiment_f1=0.7660 (10554 ô) | đã lưu model/best
+[STEP] bước 600 | loss 0.1739 | val sentiment_f1=0.7820 (10554 ô) | đã lưu model/best
+[STEP] bước 700 | loss 0.1803 | val sentiment_f1=0.7890 (10554 ô) | đã lưu model/best
+[STEP] bước 800 | loss 0.2087 | val sentiment_f1=0.8050 (10554 ô) | đã lưu model/best
+[STEP] bước 900 | loss 0.0517 | val sentiment_f1=0.8300 (10554 ô) | đã lưu model/best
+[STEP] bước 1000 | loss 0.1132 | val sentiment_f1=0.8230 (10554 ô) | chưa tốt hơn
+[STEP] bước 1100 | loss 0.1751 | val sentiment_f1=0.8320 (10554 ô) | đã lưu model/best
+[STEP] huấn luyện xong: 1150 bước trong 768.2 giây (2694933 tham số học / 100260885 tổng) | 768.2 giây
+[STEP] ghi lịch sử huấn luyện: /content/drive/MyDrive/ABSA_2026_2027/experiments/visobert/lora/exp007/results/428031b7/training_history.csv (14 điểm đo)
+[STEP] ghi biểu đồ train/val: /content/drive/MyDrive/ABSA_2026_2027/experiments/visobert/lora/exp007/results/428031b7/plots/training.html
+[STEP] suy luận bằng /content/drive/MyDrive/ABSA_2026_2027/experiments/visobert/lora/exp007/results/428031b7/model/best
+[STEP] suy luận xong 1623 mẫu; checkpoint huấn luyện với 7 khía cạnh, nhãn 0, 1, 2
+[STEP] ghi xác suất từng ô: /content/drive/MyDrive/ABSA_2026_2027/experiments/visobert/lora/exp007/results/428031b7/probabilities.csv (11361 dòng = 1623 mẫu × 7 khía cạnh)
+[STEP] tổng 1623 mẫu (1623 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 200 ô neutral theo neutral_policy=drop
+[STEP] cơ sở đo paper: 2702 ô giữ lại, loại 8459 ô không phải hai chiều, 0 ô không đọc được
+[STEP] ghi 1623 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
+[STEP] ghi nhận: 19 tham số, 345 chỉ số, 8 file
+[RUN] kết thúc sau 823.2 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
+[TRACK] ghi lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
