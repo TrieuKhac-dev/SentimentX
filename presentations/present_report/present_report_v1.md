@@ -216,17 +216,24 @@ Hai dòng MACRO ở bảng 6 là **bảng điểm chính để so công bố** c
 
 ## Phụ lục A - Trạng thái các thí nghiệm (đo trên đĩa)
 
-Tổng: **115 notebook** đã ghim; **97 lượt đã có `metrics.json`** (61 đã commit, 36 chưa commit).
+Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (tất cả đã vào git ngày 11/10/2026).
 
 | Nhóm | Số lượt | Đường dẫn |
 | --- | ---: | --- |
-| Đã có kết quả | 97 | `experiments/**/results/**/metrics.json` |
-| **Đã chạy nhưng HỎNG / chưa xong** (có checkpoint, KHÔNG có `metrics.json`) | 4 | `cafebert/full/exp001`, `cafebert/lora/exp010` (`pyvi`), `cafebert/lora/exp012` (`r=8`), `phobert-base-v2/lora/exp017` (`r=32`) |
+| Đã có kết quả | 100 | `experiments/**/results/**/metrics.json` |
+| **Chạy xong nhưng HỎNG (phân kỳ)** | 1 | `cafebert/full/exp001` (`trainer: full`, `lr 2e-4`) - `loss nan` từ bước 100, `val sentiment_f1 = 0`, `paper.cells = 0` |
 | **Chưa chạy** (notebook đã ghim, chưa có `results/`) | 8 | `mistral-7b-instruct-v0.3/prompt-cot/exp001-003`, `qwen3-8b/prompt-cot/exp001-003`, `qwen3-4b-thinking-2507/prompt-cot/exp001-002` (`exp002` đang **CHỜ nhóm ghim lại**: trần token còn là giá trị tạm 4.096) |
 | **HOÃN** | 4 | `qwen3-4b-instruct-2507/prompt-cot/exp018-021` (bốn lượt lấy mẫu seed 1/2/3 + đối chứng fp16 - "thước nhiễu đường prompt") |
 | **HỦY BỎ (không bao giờ chạy)** | 2 | `qwen3-0.6b/prompt-cot/exp006`, `exp007` (nhánh BẬT suy nghĩ; HUỶ vì lượt `exp005` đọc được 96,98 % nhưng **detection F1 chỉ 0,479**) |
 | **BỊ CHẶN (chưa tạo được notebook)** | - | `meta-llama/Llama-3.1-8B-Instruct`, `Viet-Mistral/Vistral-7B-Chat` - repo **GATED**, cần `HF_TOKEN` + nhận điều khoản |
 | **Trong backlog, chưa từng tạo** | - | ViTASA (repo không có checkpoint); tập chẩn đoán GIÁ ~200-300 review; QLoRA cho Qwen3-4B; thăng cấp luật lai thành `method: fuse`; đo lại 19 bảng token khi thêm model |
 | **Hướng đã CHẠY rồi BỎ (vẫn giữ kết quả làm bằng chứng)** | 2 | `head.aspect_marker` → `phobert-base-v2/lora/exp006`, `exp007` (kết quả tệ: 78,55 và 50,51 cơ sở `all`); hai tầng theo khía cạnh và router theo khía cạnh là **hướng phụ**, không vượt lượt đơn |
+
+> **Đính chính 11/10/2026.** Bản trước của Phụ lục này ghi **4 lượt** "đã chạy nhưng hỏng / chưa xong". Số
+> đúng là **1**: `cafebert/lora/exp010` (97,95), `cafebert/lora/exp012` (**98,14**) và
+> `phobert-base-v2/lora/exp017` (95,44) **đã chạy xong và có đủ `metrics.json`** - chúng chỉ chưa có mặt
+> trong lần đếm đầu của phiên làm việc. Trong đó `exp012` (`lora.r = 8`) **lọt top 4 toàn dự án** theo
+> Accuracy và giữ **`neg F1 macro (7)` cao nhất (91,16)**. Chỉ `cafebert/full/exp001` là hỏng thật, và hỏng
+> vì **phân kỳ** (`loss nan`), không phải bị ngắt.
 
 Tra cứu chuẩn (không dùng tài liệu này): `python scripts/collect_reports.py --dry-run` → bảng `attempt_registry`; và `Get-ChildItem experiments/**/results/**/metrics.json` để đếm lượt đã xong.
