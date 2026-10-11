@@ -1,0 +1,47 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp054
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp018
+
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác.
+notes: "luot VAL cho KET HOP (inverse_by_aspect)"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `eval: val` khi lượt này là nguyên liệu cho bước KẾT HỢP.
+  roles: {train: train, val: val, eval: val}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse_by_aspect
+
+# --- Đợt 12, NHÓM 7: LƯỢT `val` CHO BƯỚC KẾT HỢP --------------------------------
+# Khác cha (`cafebert/lora/exp018`) ĐÚNG MỘT khoá: `data.roles.eval` (`test` -> `val`).
+#
+# VÌ SAO CẦN: ngưỡng theo khía cạnh, ensemble và router theo khía cạnh **chốt luật trên `val` rồi mới áp lên
+# `test`** (`docs/04_experiments/09_fusion.md` luật 1). Hiện chỉ `cafebert/lora/exp005` và `exp006` là `val`,
+# và **không lượt nào trong số đó đang dẫn đầu** - nên mọi kết luận kết hợp đang dựa trên ứng viên yếu.
+# Nhóm 7 cấp 5 ứng viên `val` là CHÍNH các lượt dẫn đầu.
+#
+# Đây KHÔNG phải lượt dùng để so công bố (khác tập), nên KHÔNG đưa số của nó vào bảng so công bố.

@@ -1,0 +1,61 @@
+# cafebert/lora/exp052 - LƯỢT `val` cho bước KẾT HỢP: `cafebert/lora/exp013` chấm trên `val` thay vì `test`
+
+**Hỏi:** cụm lượt dẫn đầu đang **không có lượt `val` nào** (chỉ `cafebert/lora/exp005` và `exp006` là `val`,
+và chúng không dẫn đầu). Ngưỡng theo khía cạnh, ensemble và router theo khía cạnh **chốt luật trên `val` rồi
+mới áp lên `test`** (luật 1 của `docs/04_experiments/09_fusion.md`), nên thiếu ứng viên `val` thì bước kết hợp
+không đọc được tác dụng.
+
+**Khác `cafebert/lora/exp013` (cha):** đúng **MỘT khoá ĐO ĐƯỢC** - `data.roles.eval` (`test` -> `val`).
+
+**Lưu ý đọc số:** đây **KHÔNG** phải lượt để so với công bố (khác tập đánh giá) - **KHÔNG** đưa số của nó vào
+bảng so công bố; nó là **nguyên liệu** cho bước kết hợp.
+
+**Đọc kèm:** `present_plan_batch12.md` NHÓM 7 và NHÓM 9.
+
+**Áp cho:** exp013 (r 32).
+
+---
+
+# Một thí nghiệm gồm những gì
+
+```
+experiments/<model_id>/<method>/<expNNN>/
++-- config.yaml      BẮT BUỘC: phần riêng của thí nghiệm này (lớp cuối khi hợp nhất config)
++-- notebook.ipynb   notebook để chạy: mở ra và bấm Run all
++-- README.md        giải thích thí nghiệm này hỏi gì, để người đọc sau không phải đoán
++-- prompt.txt       prompt riêng (model sinh); có thể trỏ vào `configs/prompts/` thay vì để đây
++-- examples.txt     khối ví dụ few-shot, nếu prompt dùng ô nhớ {examples}
+\\-- results/         KẾT QUẢ sinh ra khi chạy - không sửa tay, không commit file nặng
+```
+
+Kết quả nằm ở `results/<hash8>/`, mỗi lần chạy một thư mục (`<hash8>` = 8 ký tự đầu của mã băm danh
+tính: cấu hình + prompt + ví dụ + dữ liệu + **commit đã ghim**; cùng phép đo trên Colab và trên máy cá
+nhân ra cùng tên):
+`run.log` (luôn có), `run_meta.json`, `metrics.json`, `metrics.csv`, `predictions/part_*.jsonl`
+(ghi dần, để chạy tiếp khi bị ngắt), `predictions.csv` khi đã xong. Xem
+`docs/00_workflow/01_flow.md` và `docs/04_experiments/05_predictions.md`.
+
+## `config.yaml` - sửa gì
+
+| Khoá             | Ghi gì                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------- |
+| `model`          | `model_id`, phải trùng tên file `configs/models/<model_id>.yaml`                              |
+| `method`         | tên phương pháp, cũng là tên thư mục cha                                                      |
+| `data.dataset`   | **một** dataset duy nhất; khai danh sách là lỗi                                               |
+| `data.version`   | phiên bản dataset, trỏ tới `configs/datasets/<name>/<version>.yaml`                           |
+| `data.roles`     | mỗi vai dùng split nào; `eval` luôn cần, `train`/`val` khi huấn luyện. Trỏ vào `train` bị chặn |
+| `prompt`         | đường dẫn file prompt: tính từ thư mục thí nghiệm trước, rồi tới gốc repo                     |
+| `examples`       | khối ví dụ few-shot, nếu prompt có ô nhớ `{examples}`                                         |
+| `requires_extra` | đường dẫn notebook phải kiểm thêm (model đã tải sẵn, tài nguyên ngoài repo...)                |
+
+## `README.md` của thí nghiệm - ghi gì
+
+Ba câu là đủ, miễn là trả lời được: thí nghiệm này **hỏi câu gì**, **khác thí nghiệm trước ở chỗ
+nào**, và **kết quả nằm ở đâu**. Không chép số liệu vào đây: số liệu nằm trong `metrics.json`,
+bản tổng hợp do `scripts/collect_reports.py` sinh.
+
+## Notebook - chạy thế nào
+
+Bấm **Run all**. Notebook tự làm phần khó: kéo ĐÚNG bản code đã ghim vào cell đầu (nên chạy trên
+Colab hay máy cá nhân đều ra cùng kết quả), kiểm trước khi chạy, rồi chạy và chấm điểm. Nếu có gì
+chưa đúng, nó **dừng và in ra danh sách việc phải sửa** thay vì chạy nửa chừng rồi hỏng.
