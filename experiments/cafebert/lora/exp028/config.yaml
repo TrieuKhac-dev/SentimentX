@@ -1,0 +1,62 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp028
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp015
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "checkpoints.every_n_steps = 50 (mac dinh 100)"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp015`) để phép so chỉ còn MỘT biến: mật độ checkpoint.
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+lr: 0.0004
+
+# BIẾN CỦA LƯỢT NÀY: mật độ checkpoint (mặc định dùng chung là 100 bước).
+checkpoints:
+  every_n_steps: 50
+
+# --- Đợt 12, NHÓM 3: NÚT SIÊU THAM SỐ CHƯA TỪNG VẶN ----------------------------
+# Khác cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `checkpoints.every_n_steps` (100 -> 50).
+#
+# VÌ SAO: việc CHỌN MỐC checkpoint ĐANG ảnh hưởng kết quả - `cafebert/lora/exp013` được chọn ở bước
+# 900, `exp015` ở bước 1150 (cùng 3 epoch, `every_n_steps: 100` => chỉ ~11 điểm đo). Với 50 bước thì có
+# ~23 điểm đo, tức `model/best` có nhiều ứng viên hơn để tìm đỉnh. Lượt này KHÔNG đổi kiến trúc, KHÔNG
+# đổi hàm mất mát, KHÔNG đổi `lr`: chỉ cho bộ chọn nhiều lựa chọn hơn.
+#
+# DẤU VẾT: `training_history.csv` phải có ~2 lần số dòng so với `exp015`; `checkpoints.keep_last_k: 2`
+# và `delete_intermediate: true` vẫn xoá ảnh chụp cũ nên KHÔNG phình đĩa.
+# Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có `n`); biên nhiễu +-0,33...+-0,67 (làm việc +-0,7).
+
