@@ -1,0 +1,59 @@
+{
+  "run": {
+    "mode": "RESUME",
+    "out_dir": "4a1f6428",
+    "log": "run.log",
+    "started": "2026-10-11 05:11:19",
+    "finished": "2026-10-11 07:19:51",
+    "seconds": 7712.1,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "split": "test",
+      "prompt": "absa_cot_5shot_v1",
+      "prompt_sha": "9b862ed0",
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "quant": "4bit",
+      "dtype": "auto",
+      "max_length": 3584,
+      "generation": {
+        "quant": "4bit",
+        "max_new_tokens": 400,
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "top_k": null,
+        "seed": null
+      },
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 911,
+      "experiment": {
+        "model": "mistral-7b-instruct-v0.3",
+        "method": "prompt-cot",
+        "exp_id": "exp003"
+      },
+      "repo_sha": "2850d0349267d919825b910db14732368c1e7b1e",
+      "config_sha256": "4a1f6428dd7fca614aac8959a221a3b8759bc68465579e5965e14aa0821c262b"
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-10-11 07:19:47",
+      "level": "ERROR",
+      "message": "KeyboardInterrupt: ",
+      "type": "KeyboardInterrupt",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/experiments/experiment_run.py\", line 929, in run\n    rows, _infos, _preds, cost = runner.run(\n                                 ~~~~~~~~~~^\n        plan_data[\"split\"], plan_data[\"texts\"], plan_data[\"golds\"], plan_data[\"aspects\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n        quiet=plan_data[\"quiet\"], store=plan_data[\"parts\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        columns=plan_data[\"columns\"], enable_thinking=plan_data.get(\"enable_thinking\"))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 352, in run\n    answers, lengths, seconds = generate(inputs, model, tokenizer, generation)\n                                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 287, in generate\n    output = model.generate(**inputs, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 2976, in generate\n    result = decoding_method(\n        self,\n    ...<5 lines>...\n        **model_kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 3204, in _sample\n    outputs = model_forward(**model_inputs, return_dict=True)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 939, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/mistral/modeling_mistral.py\", line 440, in forward\n    outputs: BaseModelOutputWithPast = self.model(\n                                       ~~~~~~~~~~^\n        input_ids=input_ids,\n        ^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        **kwargs,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 1068, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/output_capturing.py\", line 287, in wrapper\n    outputs = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/mistral/modeling_mistral.py\", line 377, in forward\n    hidden_states = decoder_layer(\n        hidden_states,\n    ...<5 lines>...\n        **kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/modeling_layers.py\", line 110, in __call__\n    return super().__call__(*args, **kwargs)\n           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/mistral/modeling_mistral.py\", line 224, in forward\n    hidden_states, _ = self.self_attn(\n                       ~~~~~~~~~~~~~~^\n        hidden_states=hidden_states,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<5 lines>...\n        **kwargs,\n        ^^^^^^^^^\n    )\n    ^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/mistral/modeling_mistral.py\", line 150, in forward\n    query_states = self.q_proj(hidden_states).view(hidden_shape).transpose(1, 2)\n                   ~~~~~~~~~~~^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/nn/modules.py\", line 637, in forward\n    return bnb.matmul_4bit(x, self.weight, bias=bias, quant_state=quant_state).to(inp_dtype)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/autograd/_functions.py\", line 472, in matmul_4bit\n    result = torch.ops.bitsandbytes.gemm_4bit.default(\n        A,\n    ...<8 lines>...\n        absmax_offset=quant_state.offset,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/torch/_ops.py\", line 865, in __call__\n    return self._op(*args, **kwargs)\n           ~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/_compile.py\", line 54, in inner\n    return disable_fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/_dynamo/eval_frame.py\", line 1263, in _fn\n    return fn(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/library.py\", line 751, in func_no_dynamo\n    return func(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py\", line 980, in _\n    return _gemm_4bit_kernel_impl(\n        A, B, shapeB, absmax, blocksize, quant_type, bias, absmax_8bit, absmax_code, absmax_offset\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py\", line 884, in _gemm_4bit_kernel_impl\n    fn(\n    ~~^\n        A.data_ptr(),\n        ^^^^^^^^^^^^^\n    ...<12 lines>...\n        stream,\n        ^^^^^^^\n    )\n    ^\nKeyboardInterrupt\n",
+      "context": {
+        "kind": "KeyboardInterrupt"
+      }
+    }
+  ],
+  "warnings": []
+}

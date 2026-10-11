@@ -1,0 +1,59 @@
+{
+  "run": {
+    "mode": "RESUME",
+    "out_dir": "f5032055",
+    "log": "run.log",
+    "started": "2026-10-10 05:41:34",
+    "finished": "2026-10-10 07:40:48",
+    "seconds": 7154.7,
+    "info": {
+      "dataset": "cosmetics",
+      "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+      "split": "test",
+      "prompt": "absa_cot_zeroshot_v1",
+      "prompt_sha": "13e79a26",
+      "model": "Qwen/Qwen3-8B",
+      "quant": "4bit",
+      "dtype": "auto",
+      "max_length": 2304,
+      "generation": {
+        "quant": "4bit",
+        "max_new_tokens": 400,
+        "do_sample": false,
+        "temperature": null,
+        "top_p": null,
+        "top_k": null,
+        "seed": null
+      },
+      "subset": {
+        "limit": 0,
+        "seed": 42
+      },
+      "n_samples": 1611,
+      "experiment": {
+        "model": "qwen3-8b",
+        "method": "prompt-cot",
+        "exp_id": "exp001"
+      },
+      "repo_sha": "4f65864c4ed9a2aa363ba31240ca841da790c62e",
+      "config_sha256": "f5032055451ee99c2330c319c73199fd14fb0676397513d2fc9bee83051ddce1"
+    },
+    "machine": {
+      "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+      "python": "3.13.15"
+    }
+  },
+  "errors": [
+    {
+      "at": "2026-10-10 07:40:48",
+      "level": "ERROR",
+      "message": "KeyboardInterrupt: ",
+      "type": "KeyboardInterrupt",
+      "traceback": "Traceback (most recent call last):\n  File \"/content/SentimentX/src/experiments/experiment_run.py\", line 874, in run\n    rows, _infos, _preds, cost = runner.run(\n                                 ~~~~~~~~~~^\n        plan_data[\"split\"], plan_data[\"texts\"], plan_data[\"golds\"], plan_data[\"aspects\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<3 lines>...\n        quiet=plan_data[\"quiet\"], store=plan_data[\"parts\"],\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        columns=plan_data[\"columns\"], enable_thinking=plan_data.get(\"enable_thinking\"))\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 219, in run\n    answers, lengths, seconds = generate(inputs, model, tokenizer, generation)\n                                ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/content/SentimentX/src/evaluation/runner.py\", line 154, in generate\n    output = model.generate(**inputs, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/utils/_contextlib.py\", line 124, in decorate_context\n    return func(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 2976, in generate\n    result = decoding_method(\n        self,\n    ...<5 lines>...\n        **model_kwargs,\n    )\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 3257, in _sample\n    this_peer_finished = stop_check(unfinished_sequences, next_tokens, input_ids.shape[1])\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/generation/utils.py\", line 386, in __call__\n    return bool(unfinished_sequences.max() == 0)\nKeyboardInterrupt\n",
+      "context": {
+        "kind": "KeyboardInterrupt"
+      }
+    }
+  ],
+  "warnings": []
+}

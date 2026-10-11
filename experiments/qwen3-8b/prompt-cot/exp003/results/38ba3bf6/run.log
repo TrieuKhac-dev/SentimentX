@@ -1,0 +1,200 @@
+=== lần chạy 2026-10-10 04:40:08 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_cot_5shot_v1
+[RUN] prompt_sha=9b862ed0
+[RUN] model=Qwen/Qwen3-8B
+[RUN] quant=4bit
+[RUN] dtype=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1623
+[RUN] experiment.model=qwen3-8b
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp003
+[RUN] repo_sha=4f65864c4ed9a2aa363ba31240ca841da790c62e
+[RUN] config_sha256=38ba3bf6dad21c154610a37cf4bc6740a996b0b3a4b68243ff76473059750e04
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: qwen3-8b/prompt-cot/exp003 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_5shot_v1 (sha 9b862ed0) | ví dụ: 1e7c1be3 | sinh: greedy
+[CONFIG] chạy: dtype=auto | max_length=2304 | max_new_tokens=400 | batch=4 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: Qwen/Qwen3-8B (quant=4bit, dtype=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 251.4 giây
+[STEP] bắt đầu sinh 1623 mẫu của split test (batch 4)
+[ERROR] KeyboardInterrupt: 
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 945.4 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FAILED
+[TRACK] đã ghi lên https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow: run d441b9e6e0c841c3a7d88e393fcccaf0 (15 tham số, 0 chỉ số, 0 điểm chuỗi, 0 file)
+=== lần chạy 2026-10-10 05:41:26 - mode=RESUME ===
+[RUN] mode=RESUME
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_cot_5shot_v1
+[RUN] prompt_sha=9b862ed0
+[RUN] model=Qwen/Qwen3-8B
+[RUN] quant=4bit
+[RUN] dtype=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1591
+[RUN] experiment.model=qwen3-8b
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp003
+[RUN] repo_sha=4f65864c4ed9a2aa363ba31240ca841da790c62e
+[RUN] config_sha256=38ba3bf6dad21c154610a37cf4bc6740a996b0b3a4b68243ff76473059750e04
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow (nối run cũ d441b9e6e0c841c3a7d88e393fcccaf0)
+[CONFIG] thí nghiệm: qwen3-8b/prompt-cot/exp003 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_5shot_v1 (sha 9b862ed0) | ví dụ: 1e7c1be3 | sinh: greedy
+[CONFIG] chạy: dtype=auto | max_length=2304 | max_new_tokens=400 | batch=4 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: Qwen/Qwen3-8B (quant=4bit, dtype=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 333.1 giây
+[STEP] bắt đầu sinh 1591 mẫu của split test (batch 4)
+[ERROR] KeyboardInterrupt: 
+[ERROR] chi tiết (kiểu lỗi, vết gọi, thứ còn thiếu): errors.json
+[RUN] kết thúc vì lỗi sau 7148.6 giây
+[STEP] run_meta.json: lần chạy thứ 2, trạng thái FAILED
+[TRACK] ghi tham số lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
+[TRACK] ghi lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
+=== lần chạy 2026-10-10 08:42:27 - mode=RESUME ===
+[RUN] mode=RESUME
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_cot_5shot_v1
+[RUN] prompt_sha=9b862ed0
+[RUN] model=Qwen/Qwen3-8B
+[RUN] quant=4bit
+[RUN] dtype=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=1227
+[RUN] experiment.model=qwen3-8b
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp003
+[RUN] repo_sha=4f65864c4ed9a2aa363ba31240ca841da790c62e
+[RUN] config_sha256=38ba3bf6dad21c154610a37cf4bc6740a996b0b3a4b68243ff76473059750e04
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow (nối run cũ d441b9e6e0c841c3a7d88e393fcccaf0)
+[CONFIG] thí nghiệm: qwen3-8b/prompt-cot/exp003 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_5shot_v1 (sha 9b862ed0) | ví dụ: 1e7c1be3 | sinh: greedy
+[CONFIG] chạy: dtype=auto | max_length=2304 | max_new_tokens=400 | batch=4 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: Qwen/Qwen3-8B (quant=4bit, dtype=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 554.7 giây
+[STEP] bắt đầu sinh 1227 mẫu của split test (batch 4)
+=== lần chạy 2026-10-11 05:00:13 - mode=RESUME ===
+[RUN] mode=RESUME
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_cot_5shot_v1
+[RUN] prompt_sha=9b862ed0
+[RUN] model=Qwen/Qwen3-8B
+[RUN] quant=4bit
+[RUN] dtype=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=411
+[RUN] experiment.model=qwen3-8b
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp003
+[RUN] repo_sha=4f65864c4ed9a2aa363ba31240ca841da790c62e
+[RUN] config_sha256=38ba3bf6dad21c154610a37cf4bc6740a996b0b3a4b68243ff76473059750e04
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow (nối run cũ d441b9e6e0c841c3a7d88e393fcccaf0)
+[CONFIG] thí nghiệm: qwen3-8b/prompt-cot/exp003 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_5shot_v1 (sha 9b862ed0) | ví dụ: 1e7c1be3 | sinh: greedy
+[CONFIG] chạy: dtype=auto | max_length=2304 | max_new_tokens=400 | batch=4 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: Qwen/Qwen3-8B (quant=4bit, dtype=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 240.2 giây
+[STEP] bắt đầu sinh 411 mẫu của split test (batch 4)
+=== lần chạy 2026-10-11 07:49:30 - mode=RESUME ===
+[RUN] mode=RESUME
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_cot_5shot_v1
+[RUN] prompt_sha=9b862ed0
+[RUN] model=Qwen/Qwen3-8B
+[RUN] quant=4bit
+[RUN] dtype=auto
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=False
+[RUN] generation.temperature=None
+[RUN] generation.top_p=None
+[RUN] generation.top_k=None
+[RUN] generation.seed=None
+[RUN] subset.limit=0
+[RUN] subset.seed=42
+[RUN] n_samples=51
+[RUN] experiment.model=qwen3-8b
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp003
+[RUN] repo_sha=4f65864c4ed9a2aa363ba31240ca841da790c62e
+[RUN] config_sha256=38ba3bf6dad21c154610a37cf4bc6740a996b0b3a4b68243ff76473059750e04
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow (nối run cũ d441b9e6e0c841c3a7d88e393fcccaf0)
+[CONFIG] thí nghiệm: qwen3-8b/prompt-cot/exp003 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] không có khoá nào bị lớp sau đè
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_5shot_v1 (sha 9b862ed0) | ví dụ: 1e7c1be3 | sinh: greedy
+[CONFIG] chạy: dtype=auto | max_length=2304 | max_new_tokens=400 | batch=4 | do_sample=False temperature=None top_p=None top_k=None seed=None
+[STEP] nạp model: Qwen/Qwen3-8B (quant=4bit, dtype=auto)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 375.1 giây
+[STEP] bắt đầu sinh 51 mẫu của split test (batch 4)
+[STEP] sinh xong 51 mẫu mới | 988.1 giây
+[STEP] tổng 1623 mẫu (51 mẫu mới), đọc được 0.12% kết quả
+[STEP] KHÔNG ĐẠT CỬA CHẤT LƯỢNG: chỉ đọc được 0.12% (dưới ngưỡng 95.0%): điểm của lượt này KHÔNG dùng được
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 200 ô neutral theo neutral_policy=drop
+[STEP] cơ sở đo paper: 0 ô giữ lại, loại 14 ô không phải hai chiều, 11147 ô không đọc được
+[STEP] ghi 1623 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
+[STEP] ghi nhận: 15 tham số, 351 chỉ số, 7 file
+[RUN] kết thúc sau 1367.9 giây
+[STEP] run_meta.json: lần chạy thứ 5, trạng thái FINISHED
+[TRACK] ghi tham số lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
+[TRACK] ghi tham số lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
+[TRACK] ghi lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
