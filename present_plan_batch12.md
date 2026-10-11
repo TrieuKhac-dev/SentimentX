@@ -238,10 +238,14 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
       (`8da35fb`) ⇒ **KHÔNG có lượt nào "thắng"** (mọi mức vượt ≤ 0,24 < 0,70). Xem **mục 10**
 
 ### Đợt 2
-- [ ] Tạo + ghim **10 notebook seed**: `exp040` `exp041` (exp021) · `exp042` `exp043` (exp027) ·
-      `exp044` `exp045` (exp015) · `exp046` `exp047` (exp028) · `exp048` (exp004) · `exp049` (exp002)
-- [ ] Tạo + ghim **5 notebook `val`**: `exp050` (từ exp015) `exp051` (exp021) `exp052` (exp013)
-      `exp053` (exp019) `exp054` (exp018)
+- [x] **TẠO XONG 11/10/2026** - 15 notebook: 10 seed (`exp040`-`exp049`) + 5 `val` (`exp050`-`exp054`).
+      Config + README cho từng lượt; `ci_checks` xác nhận **cấu hình hợp lệ**
+- [x] **GHIM XONG 11/10/2026** - cả 15 ghim vào `6347f57`; **CI XANH** ở commit ghim `8799fb3`
+- [x] **GÓI XONG 11/10/2026** - `handover/out/SentimentX-goi-033-8799fb3-261011.zip` (31 file: 15 notebook +
+      15 README + MANIFEST). Commit `chore(handover): package 033 with the fifteen stage-2 notebooks`
+- [ ] **Người dùng chạy 15 notebook trên Colab** (Đợt 2 chỉ có nghĩa khi có kết quả): giải nén gói **033**
+      lên Drive rồi bấm Run all từng notebook; copy phần nhẹ về → `collect_reports.py` → tính 4 thước đo
+- [ ] Đọc kết quả theo LUẬT ĐỒNG HẠNG: chênh lệch < 0,7 giữa các seed ⇒ **KHÔNG** kết luận lượt nào hơn
 
 ### Đợt 3
 - [ ] Tạo + ghim **5 notebook**: `exp034` (bỏ emoji) `exp035` (DoRA × lr 4e-4) `exp036`
@@ -294,6 +298,8 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 | 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ `llama-3.1-8b`** (chi phí: cùng cỡ 8B như `qwen3-8b`) và **BỎ `vistral-7b`** (GATED) | NHÓM 10 co còn **3 lượt** (ví dụ từ `train` trên Qwen3-4B); đã ghi NHÓM 10 + NHÓM 12 |
 | 11/10/2026 | Thay đổi | **NHÓM 6 đổi danh sách**: bỏ `exp012`, thêm `exp021`/`exp027`/`exp028` ⇒ **10 lượt**; **NHÓM 7** sang ID `exp050`-`exp054`; **NHÓM 8** sang `exp055`-`exp057` | Theo "cụm đồng hạng" mới |
 | 11/10/2026 | Thay đổi | **Cắt Đợt 3 từ 12 → 5 lượt**; **7 lượt vặn-số chuyển HOÃN** kèm lý do + điều kiện hồi sinh | Mục "Danh sách HOÃN" ở phần 4 |
+| 11/10/2026 | Đợt 2 | **TẠO + GHIM + ĐÓNG GÓI xong** 15 notebook (`exp040`-`exp054`) vào `6347f57`; **CI XANH** ở `8799fb3`; **gói 033** = `handover/out/SentimentX-goi-033-8799fb3-261011.zip` (31 file) | Còn lại: **người dùng chạy trên Colab** |
+| 11/10/2026 | Ghi nhận (cách làm) | Khi phải tạo nhiều config giống nhau, đã dùng 2 script dùng-một-lần trong `_scratch/` (`make_seed_configs.py`, `prepend_readme_stage2.py`) thay vì sửa tay 15 file | Script nằm ở `_scratch/` (đã gitignore); KHÔNG vào git, không ảnh hưởng CI |
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
 
