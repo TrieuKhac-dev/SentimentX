@@ -282,9 +282,9 @@ test nữa.)
 | Nhóm | Model | Số lượt | Trạng thái |
 | --- | --- | --- | --- |
 | Cùng họ, LỚN hơn | `qwen3-8b` (4-bit) | 3 (0/1/5 ví dụ) | đã tạo + ghim, chờ chạy |
-| Cùng cỡ, khác CHẾ ĐỘ | `qwen3-4b-thinking-2507` | 1 DÒ + 1 chạy (1 ví dụ) | đã tạo + ghim, chờ chạy |
+| Cùng cỡ, khác CHẾ ĐỘ | `qwen3-4b-thinking-2507` | 1 DÒ + 1 chạy (1 ví dụ) | **HỦY 11/10/2026: KHÔNG chạy** - quá chậm, kể cả lượt DÒ |
 | Khác họ | `mistral-7b-instruct-v0.3` | 3 (0/1/5 ví dụ) | đã tạo + ghim, chờ chạy |
-| Khác họ | `llama-3.1-8b-instruct` | 3 | **CHẶN: repo GATED** (cần `HF_TOKEN` + nhận điều khoản) |
+| Khác họ | `llama-3.1-8b-instruct` | 3 | **ĐÃ MỞ QUYỀN 11/10/2026** (người dùng đã được cấp quyền truy cập repo, `HF_TOKEN` đã có trong 4 tệp env) => sẽ tạo 3 notebook ở đợt 12 |
 | Tiếng Việt chuyên biệt | `vistral-7b-chat` | 3 | **CHẶN: repo GATED** (như trên) |
 
 Vì sao "khác họ" quan trọng: nếu Qwen3-4B/8B và một họ hoàn toàn khác (Mistral, chat template `[INST]`,

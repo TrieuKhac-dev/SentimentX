@@ -21,7 +21,7 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 | Qwen3-0.6B        | https://huggingface.co/Qwen/Qwen3-0.6B             | mô hình sinh nhỏ (dùng theo dạng prompt) |
 | Qwen2.5-0.5B-Instruct | https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct | mô hình sinh nhỏ KHÁC HỌ (thế hệ `qwen2`) |
 | Qwen3-8B          | https://huggingface.co/Qwen/Qwen3-8B                | mô hình sinh LỚN hơn trong cùng họ Qwen3 (đợt 11) |
-| Qwen3-4B-Thinking-2507 | https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507 | mô hình sinh cùng cỡ, KHÁC CHẾ ĐỘ: luôn suy nghĩ trước khi trả lời (đợt 11) |
+| Qwen3-4B-Thinking-2507 | https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507 | mô hình sinh cùng cỡ, KHÁC CHẾ ĐỘ: luôn suy nghĩ trước khi trả lời (đợt 11). **HỦY 11/10/2026, không chạy** - quá chậm, kể cả lượt DÒ |
 | Mistral-7B-Instruct-v0.3 | https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3 | mô hình sinh họ KHÁC (đa ngữ, chat template `[INST]`) (đợt 11) |
 
 > **Hai model của đợt 11 CHƯA vào bảng này:**
@@ -29,6 +29,10 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 > biệt, cùng cỡ với Mistral). Cả hai là repo **GATED** trên Hugging Face: máy dự án đã thử tải và bị từ
 > chối, nên chưa đo được token và chưa tạo được lượt. Cần `HF_TOKEN` có quyền + bấm nhận điều khoản trên
 > trang model - xem `present_plan_batch11.md` mục 7.
+>
+> **Một model ĐÃ vào bảng nhưng bị HỦY (11/10/2026):** `Qwen3-4B-Thinking-2507` - hai lượt
+> `prompt-cot/exp001` (DÒ) và `exp002` (chạy) **đã tạo + ghim nhưng KHÔNG chạy** vì quá chậm. Chi tiết:
+> `present_plan_batch12.md` NHÓM 12.
 
 Mười hai model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
 PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và **sáu mô hình sinh** dùng theo dạng

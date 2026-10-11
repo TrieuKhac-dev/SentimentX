@@ -371,8 +371,8 @@ lượt cha 4B cùng mức**, khác đúng MỘT khoá: `model`.
 | 41 | `notebooks/qwen3-8b/prompt-cot/exp001.ipynb` | 8B + CoT 0 ví dụ | ~40-60 phút |
 | 42 | `notebooks/qwen3-8b/prompt-cot/exp002.ipynb` | 8B + CoT 1 ví dụ | ~40-60 phút |
 | 43 | `notebooks/qwen3-8b/prompt-cot/exp003.ipynb` | 8B + CoT 5 ví dụ | ~60-90 phút |
-| 44 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp001.ipynb` | **LƯỢT DÒ**: bản "luôn suy nghĩ" tốn bao nhiêu token (60 mẫu, trần 8.192) | ~30-45 phút |
-| 45 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp002.ipynb` | cùng cỡ, KHÁC CHẾ ĐỘ: suy nghĩ trước khi trả lời, 1 ví dụ | ~40-60 phút |
+| 44 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp001.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026** (quá chậm, kể cả lượt DÒ). Giữ làm bản ghi: **LƯỢT DÒ**, bản "luôn suy nghĩ" tốn bao nhiêu token (60 mẫu, trần 8.192) | - |
+| 45 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp002.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026** (như trên). Giữ làm bản ghi: cùng cỡ, KHÁC CHẾ ĐỘ, 1 ví dụ | - |
 | 46 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp001.ipynb` | HỌ KHÁC (Mistral) + CoT 0 ví dụ | ~40-60 phút |
 | 47 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp002.ipynb` | HỌ KHÁC + CoT 1 ví dụ | ~40-60 phút |
 | 48 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp003.ipynb` | HỌ KHÁC + CoT 5 ví dụ | ~60-90 phút |
