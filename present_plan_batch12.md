@@ -193,7 +193,10 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
       `exp030` `exp033` (config LoRA + README; `ci_checks` chỉ còn báo "chưa ghim `REPO_SHA`" - đúng dự kiến)
 - [x] **GHIM XONG 11/10/2026** - 8 notebook ghim vào `2ba65ea`, đẩy lên `origin/experiment`,
       **CI XANH** trên commit ghim `4f9819d` (`ci_checks` ở máy: exit 0, Sạch). Commit `chore(experiments): pin the eight stage-1 notebooks to 2ba65ea`
-- [ ] Người dùng chạy trên Colab; copy kết quả về; `collect_reports.py`; commit
+- [x] **GÓI XONG 11/10/2026** - `handover/out/SentimentX-goi-032-686e759-261011.zip`
+      (17 file: 8 notebook + 8 README + MANIFEST; 259 file y nguyên không gửi lại). Commit `chore(handover): package 032 with the eight stage-1 notebooks`
+- [ ] Người dùng giải nén gói 032 lên Drive, chạy 8 notebook trên Colab; copy kết quả về;
+      `collect_reports.py`; commit
 
 ### Đợt 2
 - [ ] Tạo + ghim 8 notebook seed: `exp040` `exp041` `exp042` `exp043` `exp044` `exp045` `exp046` `exp047`
