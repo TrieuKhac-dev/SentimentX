@@ -191,7 +191,8 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 ### Đợt 1 - 8 lượt ưu tiên
 - [x] **TẠO XONG 11/10/2026** - 8 notebook của Đợt 1: `exp020` `exp021` `exp024` `exp025` `exp027` `exp028`
       `exp030` `exp033` (config LoRA + README; `ci_checks` chỉ còn báo "chưa ghim `REPO_SHA`" - đúng dự kiến)
-- [ ] **GHIM** 8 notebook - cần **CI XANH** trên commit chứa chúng (luật 22) rồi mới `pin.py`
+- [x] **GHIM XONG 11/10/2026** - 8 notebook ghim vào `2ba65ea`, đẩy lên `origin/experiment`,
+      **CI XANH** trên commit ghim `4f9819d` (`ci_checks` ở máy: exit 0, Sạch). Commit `chore(experiments): pin the eight stage-1 notebooks to 2ba65ea`
 - [ ] Người dùng chạy trên Colab; copy kết quả về; `collect_reports.py`; commit
 
 ### Đợt 2
@@ -240,6 +241,9 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 | 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`, `present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
 | 11/10/2026 | Đợt 1 | **TẠO XONG 8 thí nghiệm** `exp020` `exp021` `exp024` `exp025` `exp027` `exp028` `exp030` `exp033` (8 commit nhỏ `feat(experiments)`); mỗi lượt khác cha ĐÚNG 1 khoá/nhóm khoá | `ci_checks` xác nhận **cấu hình hợp lệ** (chỉ báo chưa ghim `REPO_SHA`); còn phải **ghim** sau khi CI xanh |
 | 11/10/2026 | Ghi nhận | Phải **gitignore `_scratch/`** vì `worktree_dirty()` tính cả file chưa theo dõi; và `new_experiment.py` **từ chối khi cây bẩn** nên mỗi lượt tạo xong phải commit trước khi tạo lượt kế | Đã gitignore (`9e68f73`); 7 lượt sau dùng `--allow-dirty` rồi commit riêng từng lượt |
+| 11/10/2026 | Lỗi (đã hiểu, không phải lỗi mã) | **CI đỏ ở `558ea0e` và `2ba65ea`** - nguyên nhân: `ci_checks` trả mã 1 khi có việc phải sửa, mà hai commit đó chứa notebook **chưa ghim** (`REPO_SHA = '<chua-ghim>'`) | Đây là thế "con gà - quả trứng" **đúng luồng dự án**: push (đỏ) -> ghim -> push. Sau khi ghim, **CI XANH ở `4f9819d`**. Xin ghi lại để người sau khỏi tưởng mã sai |
+| 11/10/2026 | Vướng | `pin.py` ghim xong lượt đầu thì **từ chối lượt sau** vì cây bẩn (nó chỉ cho commit ghim đổi ĐÚNG file notebook) | Ghim `exp020` bình thường, 7 lượt còn lại dùng `--allow-dirty` rồi commit ghim **một lượt** (giống đợt 11 ghim 48 notebook) |
+| 11/10/2026 | Đợt 1 | **GHIM XONG 8/8** vào `2ba65ea`; `ci_checks` **Sạch**; **CI XANH** ở `4f9819d` | Việc còn lại của Đợt 1: **người dùng chạy 8 notebook trên Colab** |
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
 
