@@ -1,0 +1,66 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp021
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp015
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "lora.r = 8 (nho hon 16), ghep voi lr 4e-4"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp015`) để phép so chỉ còn MỘT biến: `lora.r`.
+head:
+  trainable: true
+
+# Cùng công thức với cha.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Lấy NGUYÊN `lr` của cha (`exp015`).
+lr: 0.0004
+
+lora:
+  r: 8
+
+# --- Đợt 12, NHÓM 1: NỐI HAI TRỤC ĐANG DẪN ------------------------------------
+# Khác cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `lora.r` (16 -> 8).
+#
+# VÌ SAO CÓ LƯỢT NÀY: `cafebert/lora/exp012` (`lora.r = 8`, `lr` 2e-4) là lượt giữ
+# `neg F1 macro (7)` CAO NHẤT của dự án (91,16). Lượt này đặt `r = 8` lên cấu hình đang dẫn
+# Accuracy (`lr 4e-4`) để hỏi: "rank nhỏ + lr lớn" có giữ được lợi thế lớp âm mà vẫn tăng Accuracy.
+#
+# HAI ĐIỀU PHẢI GHI KHI ĐỌC:
+#   * `lora.alpha` GIỮ 32 => scaling `alpha / r` = 4 (thay vì 2 ở r = 16) - lượt này đo "đổi bậc tự do
+#     CÙNG với hệ số scaling"; muốn tách thì so với `exp023` (`r 8` + `alpha 16`, scaling = 2).
+#   * `trainable_params` phải GIẢM so với `exp015` (r 16 -> 8) - DẤU VẾT kiểm trước khi đọc điểm.
+# Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có `n`): docs/04_experiments/metrics.md và
+# presentations/present_report/present_report_v1.md. Biên nhiễu +-0,33...+-0,67 (làm việc +-0,7):
+# chênh lệch nhỏ hơn mức đó ghi ĐỒNG HẠNG, không kết luận.
+
