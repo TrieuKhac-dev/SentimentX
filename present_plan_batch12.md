@@ -138,7 +138,7 @@ Bước 1 BẮT BUỘC của phần Llama: `python _scratch/check_hf_access.py`.
 | Việc | Chi tiết |
 | --- | --- |
 | **HỦY** `qwen3-4b-thinking-2507/prompt-cot/exp001`, `exp002` | Lí do người dùng chốt: **quá chậm, kể cả lượt DÒ**. Sửa 5 file: `present_plan_batch11.md`, `batch11_report.md`, `docs/04_experiments/01_models.md`, `handover/README.md`, `configs/models/qwen3-4b-thinking-2507.yaml` |
-| `cafebert/full/exp002` ← `exp001`, đổi `lr: 2e-5` | `exp001` **phân kỳ** (`loss nan` từ bước 100, `val sentiment_f1 = 0`) vì dùng `lr` của LoRA |
+| ~~`cafebert/full/exp002` ← `exp001`, `lr: 2e-5`~~ **BỎ 11/10/2026** | Người dùng chốt **bỏ hẳn nhánh `full`**: cả 3 lượt đã chạy đều thoái hoá (mục 9.2) ⇒ không còn là mốc đối chứng. 3 lượt GIỮ làm bản ghi "đã thử và hỏng" |
 | `Viet-Mistral/Vistral-7B-Chat` | vẫn **GATED** => giữ trạng thái "CHẶN" |
 
 ### NHÓM 13 - Tập chẩn đoán GIÁ - **ĐÃ BỎ**
@@ -162,12 +162,13 @@ mọi con số `price` phải ghi kèm "n = 6, không kết luận"; dò ngưỡ
 | **1** | 1, 2, 3, 4, 5 (8 lượt ưu tiên) | `exp020` -> `exp024` -> `exp025` -> `exp027` -> `exp028` -> `exp033` -> `exp021` -> `exp030` | ~2,5 h |
 | **2** | 6 + 7 | 8 lượt seed (`exp040`-`exp047`) + 5 lượt `val` (`exp048`-`exp052`) | ~3,5 h |
 | **3** | phần còn lại của 1, 2, 3, 4, 5 | `exp022` `exp023` `exp026` `exp029` `exp031` `exp032` `exp034` `exp035` `exp036` `exp037` `exp038` `exp039` | ~3,5 h |
-| **4** | 8 + 12 (phần `full`) | sửa mã `best_metric` + `exp053` `exp054` `exp055` + `cafebert/full/exp002` | ~1 h |
+| **4** | 8 | sửa mã `best_metric` + `exp053` `exp054` `exp055` | ~45 phút |
 | **5** | 10 | Llama x3 (tạo mới) + Qwen3-8B x3 + Mistral x3 + prompt-từ-train (1-3) | ~8-12 h |
 | **6** | 9 | ensemble 5 top · dò ngưỡng 6/7 khía cạnh · biểu quyết 3 seed | 0 |
 | **7** | 14 (phần cuối) | báo cáo chốt + `collect_reports.py` + commit | 0 |
 
-**Tổng:** 37 lượt encoder + 10-12 lượt LLM; GPU ~20-25 h (rải trên Colab được). Không còn việc người.
+**Tổng:** **36** lượt encoder (đã bỏ 1 lượt nhánh `full`) + 10-12 lượt LLM; GPU ~20-25 h (rải trên Colab được).
+Không còn việc người.
 **Lưu ý thực thi:** các lượt cần **GPU** không chạy được ở máy này; phần làm được ở đây là tạo notebook +
 config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết quả do người dùng chạy trên Colab**.
 
@@ -182,8 +183,10 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 - [x] 0.3 **XONG 11/10/2026** - Chẩn đoán ca A: **KHÔNG có lỗi** - `best_metric` ĐƯỢC đọc (mục 9)
 - [x] 0.4 **XONG 11/10/2026** - Chẩn đoán ca B: **CÓ vấn đề thật** ở nhánh `full` (mục 9) -
       **cần người dùng quyết** trước khi làm NHÓM 12 phần `full`
-- [ ] 0.5 (ĐỔI so với kế hoạch) Sửa NHÓM 12: `cafebert/full/exp002` phải thử `inference.dtype: float32`
-      thay vì chỉ đổi `lr` - vì cả 3 lượt `full` đều thoái hoá như nhau (mục 9)
+- [x] 0.5 **XONG 11/10/2026** - Người dùng chốt **BỎ hẳn nhánh `full`** (cả 3 lượt thoái hoá) ⇒ NHÓM 12 bỏ
+      `cafebert/full/exp002`; tổng encoder **37 -> 36** lượt; đã ghi "không dùng được" vào
+      `docs/04_experiments/06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`,
+      `present_report_v1.md`
 
 ### Đợt 1 - 8 lượt ưu tiên
 - [ ] Tạo + ghim 8 notebook: `exp020` `exp024` `exp025` `exp027` `exp028` `exp033` `exp021` `exp030`
@@ -232,6 +235,7 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 | 11/10/2026 | Đợt 0 | Ca A `best_metric`: **KHÔNG có lỗi** - `exp002` và `exp007` chọn CÙNG checkpoint bước 800 nên điểm trùng nhau là hợp lệ | NHÓM 8 giữ nguyên (đã có cơ sở) |
 | 11/10/2026 | **LỖI (lớn)** | Ca B nhánh `full`: cả 3 lượt đoán **"không nhắc tới" cho MỌI ô** (`sentiment_f1 = 0`, `paper.cells = 0`, `all acc = 73,69 %`); hai lượt PhoBERT khác `lr` **10 lần** ra y hệt từng khía cạnh | Ghi ở mục 9.2; **ĐỔI NHÓM 12** (phải thêm `inference.dtype: float32`); **BÁO CÁO người dùng** (mục 6 việc 0.5) |
 | 11/10/2026 | Phát hiện | `cafebert/full/exp001` **không có `metrics.json`** trên đĩa (mà `run.log` nói "đã ghi") - chỉ có `run.log`, `run_meta.json`, `model/` | Kết luận về lượt này lấy từ `run.log`; ghi rõ trong Phụ lục A |
+| 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`, `present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
 
