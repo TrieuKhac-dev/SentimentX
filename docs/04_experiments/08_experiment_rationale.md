@@ -391,4 +391,4 @@ Ba lượt tiếp theo về giá nhằm cải thiện và ĐO riêng khía cạn
 Số lấy từ chính lượt chạy ghi ra: `metrics.json` (số chính), `metrics.csv` (bảng dài, có cột `basis`) và
 bảng tổng hợp `data/reports/metrics_matrix/` do `python scripts/collect_reports.py` dựng lại từ các file
 đó - không có đường tính thứ hai. Phân tích kết quả và hướng phát triển tiếp:
-`presentations/result_analysis.md`. Cây phát triển: `07_evolution.md`.
+`presentations/present_report/present_report_v1.md`. Cây phát triển: `07_evolution.md`.
