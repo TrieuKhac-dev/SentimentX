@@ -203,3 +203,17 @@ và một số ghi chú trước đó gọi khoá này là **`generation.max_new
 một khoá thứ hai. Chỉ `decoding.max_new_tokens` được `KNOWN_KEYS` nhận và có tác dụng; không khai thì trần
 là 400 (`runner.DEFAULT_MAX_NEW_TOKENS`).
 
+## Hai luật THÊM (chốt 11/10/2026, từ hai ca THẬT của đợt 12)
+
+**8. Model 8B trên T4 (4-bit) là QUÁ CHẬM để chạy một split đầy đủ.** Ca thật:
+`qwen3-8b/prompt-cot/exp001-003` + `mistral-7b-instruct-v0.3/prompt-cot/exp001-003` = **6 lượt, ~3 ngày
+Colab**, và **0 lượt dùng được** (cả 6 `read_rate.valid = false`). Trước khi giao một lượt 8B cho người
+chạy, **PHẢI** chạy một **lượt DÒ `n` nhỏ (~60 mẫu)** để đo thời gian thật, hoặc cắt bằng `n` (subset).
+Ước lượng cũ trong `handover/README.md` (kiểu "~40-60 phút") đã **SAI một bậc**: số đo thật là **~1 ngày/lượt**.
+
+**9. Model "bật suy nghĩ MẶC ĐỊNH" phải khai `preprocess.enable_thinking: false`**, nếu không nó viết hết
+trần token trong khối ` thinking` và **không bao giờ in JSON**. Ca thật: `Qwen/Qwen3-8B` chạm trần **100 %**
+(`token sinh TB` = **399,8 / 399,8 / 400,0** với trần 400) ⇒ `% đọc được` = **1,05 / 0,92 / 0,12 %**.
+Đã biết thuộc nhóm này: `Qwen/Qwen3-8B`, `meta-llama/Llama-3.1-8B-Instruct` (bản `-Instruct-2507` thì KHÔNG).
+Luật 3a (chạy lượt DÒ để chốt trần) áp cho mọi model loại này.
+
