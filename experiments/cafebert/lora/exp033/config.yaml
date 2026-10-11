@@ -1,0 +1,63 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp033
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp015
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "segmenter vncorenlp (CafeBERT mac dinh none)"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp015`) để phép so chỉ còn MỘT biến: bộ tách từ.
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+lr: 0.0004
+
+# BIẾN CỦA LƯỢT NÀY: bộ tách từ (mặc định của CafeBERT là `none` - SentencePiece trên văn bản gốc).
+preprocess:
+  segmenter: vncorenlp
+
+# --- Đợt 12, NHÓM 4: TIỀN XỬ LÝ x CẤU HÌNH ĐANG DẪN ĐẦU ------------------------
+# Khác cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `preprocess.segmenter` (`none` -> `vncorenlp`).
+#
+# VÌ SAO: `cafebert/lora/exp008` (bật `vncorenlp` trên cha `exp002`) cho 98,03 so 97,88 => **+0,15**
+# - hướng đi ĐÚNG chiều nhưng nhỏ hơn biên nhiễu nên chưa kết luận được. Lượt này đặt CÙNG thay đổi đó
+# lên cấu hình ĐANG DẪN Accuracy (`lr 4e-4`) để xem hai thứ có cộng tính không.
+# Lưu ý CafeBERT vốn KHÔNG tách từ (`segmenter: none`): đây là phép thử "thêm tách từ cho model
+# SentencePiece có lợi không", KHÔNG phải sửa một cấu hình sai.
+#
+# KHÔNG khai `requires_extra`: giống `exp008` - ô bootstrap của notebook tự cài Java + `py-vncorenlp`
+# và tự tải model VnCoreNLP khi thiếu.
+# Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có `n`); biên nhiễu +-0,33...+-0,67 (làm việc +-0,7).
+
