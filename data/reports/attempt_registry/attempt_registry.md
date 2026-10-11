@@ -109,20 +109,35 @@ graph LR
   n105["visobert/lora/exp009:f784f0b6"]
   n106["visobert/lora/exp008:418c15d6"]
   n107["visobert/lora/exp007:428031b7"]
-  n108["phobert-base-v2/lora/exp013:354d4577"]
-  n109["phobert-base-v2/lora/exp014:3c843f8c"]
-  n110["phobert-base-v2/lora/exp015:611af219"]
-  n111["phobert-base-v2/lora/exp016:a79a4018"]
-  n112["phobert-base-v2/lora/exp018:cf826a43"]
-  n113["phobert-base-v2/lora/exp019:b330ac39"]
-  n114["phobert-base-v2/lora/exp020:4bb386b8"]
-  n115["phobert-base-v2/lora/exp023:034fe8e1"]
-  n116["phobert-base-v2/lora/exp021:df66fb42"]
-  n117["phobert-base-v2/lora/exp022:ddca71d7"]
-  n118["cafebert/lora/exp012:688c32bc"]
-  n119["phobert-base-v2/lora/exp017:9be4142b"]
-  n120["cafebert/lora/exp010:cb2a0164"]
-  n121["cafebert/full/exp001:2a1c06a8"]
+  n108["qwen3-8b/prompt-cot/exp002:fd1b541e"]
+  n109["qwen3-8b/prompt-cot/exp001:f5032055"]
+  n110["phobert-base-v2/lora/exp013:354d4577"]
+  n111["phobert-base-v2/lora/exp014:3c843f8c"]
+  n112["phobert-base-v2/lora/exp015:611af219"]
+  n113["phobert-base-v2/lora/exp016:a79a4018"]
+  n114["phobert-base-v2/lora/exp018:cf826a43"]
+  n115["phobert-base-v2/lora/exp019:b330ac39"]
+  n116["phobert-base-v2/lora/exp020:4bb386b8"]
+  n117["phobert-base-v2/lora/exp023:034fe8e1"]
+  n118["phobert-base-v2/lora/exp021:df66fb42"]
+  n119["phobert-base-v2/lora/exp022:ddca71d7"]
+  n120["cafebert/lora/exp012:688c32bc"]
+  n121["phobert-base-v2/lora/exp017:9be4142b"]
+  n122["cafebert/lora/exp010:cb2a0164"]
+  n123["mistral-7b-instruct-v0.3/prompt-cot/exp001:667336e2"]
+  n124["mistral-7b-instruct-v0.3/prompt-cot/exp002:9c8d8391"]
+  n125["cafebert/full/exp001:2a1c06a8"]
+  n126["qwen3-8b/prompt-cot/exp003:38ba3bf6"]
+  n127["cafebert/lora/exp020:2c63348a"]
+  n128["commit 2ba65eac1478"]
+  n129["cafebert/lora/exp021:4653ddfc"]
+  n130["cafebert/lora/exp024:1f009653"]
+  n131["cafebert/lora/exp025:9d276e42"]
+  n132["cafebert/lora/exp027:43e40f61"]
+  n133["cafebert/lora/exp028:d17056e5"]
+  n134["cafebert/lora/exp030:1ce21c75"]
+  n135["cafebert/lora/exp033:5e2847fc"]
+  n136["mistral-7b-instruct-v0.3/prompt-cot/exp003:4a1f6428"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -215,8 +230,8 @@ graph LR
   n105 -->|FINISHED| n104
   n106 -->|FINISHED| n104
   n107 -->|FINISHED| n104
-  n108 -->|FINISHED| n98
-  n109 -->|FINISHED| n98
+  n108 -->|FINISHED| n80
+  n109 -->|FINISHED| n80
   n110 -->|FINISHED| n98
   n111 -->|FINISHED| n98
   n112 -->|FINISHED| n98
@@ -225,8 +240,22 @@ graph LR
   n115 -->|FINISHED| n98
   n116 -->|FINISHED| n98
   n117 -->|FINISHED| n98
-  n118 -->|FINISHED| n80
+  n118 -->|FINISHED| n98
   n119 -->|FINISHED| n98
   n120 -->|FINISHED| n80
-  n121 -->|RUNNING| n80
+  n121 -->|FINISHED| n98
+  n122 -->|FINISHED| n80
+  n123 -->|FINISHED| n98
+  n124 -->|FINISHED| n98
+  n125 -->|RUNNING| n80
+  n126 -->|FINISHED| n80
+  n127 -->|FINISHED| n128
+  n129 -->|FINISHED| n128
+  n130 -->|FINISHED| n128
+  n131 -->|FINISHED| n128
+  n132 -->|FINISHED| n128
+  n133 -->|FINISHED| n128
+  n134 -->|FINISHED| n128
+  n135 -->|FINISHED| n128
+  n136 -->|FINISHED| n98
 ```

@@ -91,19 +91,33 @@ graph LR
   n87["visobert/lora/exp009:f784f0b6"]
   n88["visobert/lora/exp008:418c15d6"]
   n89["visobert/lora/exp007:428031b7"]
-  n90["phobert-base-v2/lora/exp013:354d4577"]
-  n91["phobert-base-v2/lora/exp014:3c843f8c"]
-  n92["phobert-base-v2/lora/exp015:611af219"]
-  n93["phobert-base-v2/lora/exp016:a79a4018"]
-  n94["phobert-base-v2/lora/exp018:cf826a43"]
-  n95["phobert-base-v2/lora/exp019:b330ac39"]
-  n96["phobert-base-v2/lora/exp020:4bb386b8"]
-  n97["phobert-base-v2/lora/exp023:034fe8e1"]
-  n98["phobert-base-v2/lora/exp021:df66fb42"]
-  n99["phobert-base-v2/lora/exp022:ddca71d7"]
-  n100["cafebert/lora/exp012:688c32bc"]
-  n101["phobert-base-v2/lora/exp017:9be4142b"]
-  n102["cafebert/lora/exp010:cb2a0164"]
+  n90["qwen3-8b/prompt-cot/exp002:fd1b541e"]
+  n91["qwen3-8b/prompt-cot/exp001:f5032055"]
+  n92["phobert-base-v2/lora/exp013:354d4577"]
+  n93["phobert-base-v2/lora/exp014:3c843f8c"]
+  n94["phobert-base-v2/lora/exp015:611af219"]
+  n95["phobert-base-v2/lora/exp016:a79a4018"]
+  n96["phobert-base-v2/lora/exp018:cf826a43"]
+  n97["phobert-base-v2/lora/exp019:b330ac39"]
+  n98["phobert-base-v2/lora/exp020:4bb386b8"]
+  n99["phobert-base-v2/lora/exp023:034fe8e1"]
+  n100["phobert-base-v2/lora/exp021:df66fb42"]
+  n101["phobert-base-v2/lora/exp022:ddca71d7"]
+  n102["cafebert/lora/exp012:688c32bc"]
+  n103["phobert-base-v2/lora/exp017:9be4142b"]
+  n104["cafebert/lora/exp010:cb2a0164"]
+  n105["mistral-7b-instruct-v0.3/prompt-cot/exp001:667336e2"]
+  n106["mistral-7b-instruct-v0.3/prompt-cot/exp002:9c8d8391"]
+  n107["qwen3-8b/prompt-cot/exp003:38ba3bf6"]
+  n108["cafebert/lora/exp020:2c63348a"]
+  n109["cafebert/lora/exp021:4653ddfc"]
+  n110["cafebert/lora/exp024:1f009653"]
+  n111["cafebert/lora/exp025:9d276e42"]
+  n112["cafebert/lora/exp027:43e40f61"]
+  n113["cafebert/lora/exp028:d17056e5"]
+  n114["cafebert/lora/exp030:1ce21c75"]
+  n115["cafebert/lora/exp033:5e2847fc"]
+  n116["mistral-7b-instruct-v0.3/prompt-cot/exp003:4a1f6428"]
   n1 -->|NEW| n2
   n3 -->|NEW| n2
   n4 -->|NEW| n2
@@ -191,11 +205,11 @@ graph LR
   n87 -->|NEW| n67
   n88 -->|NEW| n2
   n89 -->|NEW| n2
-  n90 -->|NEW| n2
-  n91 -->|NEW| n2
-  n92 -->|NEW| n67
+  n90 -->|RESUME| n2
+  n91 -->|RESUME| n2
+  n92 -->|NEW| n2
   n93 -->|NEW| n2
-  n94 -->|NEW| n2
+  n94 -->|NEW| n67
   n95 -->|NEW| n2
   n96 -->|NEW| n2
   n97 -->|NEW| n2
@@ -204,4 +218,18 @@ graph LR
   n100 -->|NEW| n2
   n101 -->|NEW| n2
   n102 -->|NEW| n2
+  n103 -->|NEW| n2
+  n104 -->|NEW| n2
+  n105 -->|RESUME| n2
+  n106 -->|RESUME| n2
+  n107 -->|RESUME| n2
+  n108 -->|NEW| n2
+  n109 -->|NEW| n2
+  n110 -->|NEW| n2
+  n111 -->|NEW| n2
+  n112 -->|NEW| n2
+  n113 -->|NEW| n2
+  n114 -->|NEW| n2
+  n115 -->|NEW| n2
+  n116 -->|RESUME| n2
 ```
