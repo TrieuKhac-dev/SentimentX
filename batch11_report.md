@@ -277,15 +277,15 @@ test nữa.)
 4. **Luật đọc số quan trọng nhất của cả báo cáo nằm ở mục này**: điểm của model nhỏ **không so được** khi số ô tụt -
    phải đọc kèm **số ô** (luật 1 của `metrics.md`).
 
-## M9. LLM LỚN HƠN & KHÁC HỌ - **CHỜ KẾT QUẢ** (Đ6/Đ7, 14 lượt)
+## M9. LLM LỚN HƠN & KHÁC HỌ - **ĐÓNG 11/10/2026: 0/6 lượt dùng được** (Đ6/Đ7)
 
 | Nhóm | Model | Số lượt | Trạng thái |
 | --- | --- | --- | --- |
-| Cùng họ, LỚN hơn | `qwen3-8b` (4-bit) | 3 (0/1/5 ví dụ) | đã tạo + ghim, chờ chạy |
+| Cùng họ, LỚN hơn | `qwen3-8b` (4-bit) | 3 (0/1/5 ví dụ) | **HỦY sau khi chạy 11/10/2026**: đọc được **1,05 / 0,92 / 0,12 %** (`token sinh TB` **399,8/400** ⇒ chạm trần 100 %); ~1 ngày/lượt ⇒ **3 ngày cho 0 kết quả dùng được** |
 | Cùng cỡ, khác CHẾ ĐỘ | `qwen3-4b-thinking-2507` | 1 DÒ + 1 chạy (1 ví dụ) | **HỦY 11/10/2026: KHÔNG chạy** - quá chậm, kể cả lượt DÒ |
-| Khác họ | `mistral-7b-instruct-v0.3` | 3 (0/1/5 ví dụ) | đã tạo + ghim, chờ chạy |
-| Khác họ | `llama-3.1-8b-instruct` | 3 | **ĐÃ MỞ QUYỀN 11/10/2026** (người dùng đã được cấp quyền truy cập repo, `HF_TOKEN` đã có trong 4 tệp env) => sẽ tạo 3 notebook ở đợt 12 |
-| Tiếng Việt chuyên biệt | `vistral-7b-chat` | 3 | **CHẶN: repo GATED** (như trên) |
+| Khác họ | `mistral-7b-instruct-v0.3` | 3 (0/1/5 ví dụ) | **HỦY sau khi chạy 11/10/2026**: đọc được **60,4 / 72,2 / 63,5 %** (~32 % trả lời không có JSON); `read_rate.valid = false` |
+| Khác họ | `llama-3.1-8b-instruct` | 3 | **BỎ 11/10/2026 vì CHI PHÍ** - quyền truy cập đã có, nhưng **cùng cỡ 8B** ⇒ dự kiến 3 ngày cho 3 lượt |
+| Tiếng Việt chuyên biệt | `vistral-7b-chat` | 3 | **BỎ** (repo GATED + cùng nhóm chi phí) |
 
 Vì sao "khác họ" quan trọng: nếu Qwen3-4B/8B và một họ hoàn toàn khác (Mistral, chat template `[INST]`,
 tokenizer Llama-BPE) đều cho CÙNG kết luận về mức ví dụ và cách hỏi, thì kết luận không còn là chuyện riêng

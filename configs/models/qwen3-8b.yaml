@@ -7,6 +7,14 @@
 # (khác đúng một biến: số tham số). Tokenizer CÙNG HỌ Qwen3 (vocab 151.669) nên ngưỡng cắt
 # 2304 giữ nguyên - đã kiểm bằng phép ĐO token của prompt 5 ví dụ.
 # Cần 4-bit vì T4 chỉ có 6 GB VRAM: trọng số fp16 của bản 8B là ~16 GB.
+#
+# TRẠNG THÁI 11/10/2026: **HỦY** - ba lượt đã chạy (`prompt-cot/exp001-003`) **KHÔNG dùng được**: đọc được
+# **1,05 % / 0,92 % / 0,12 %** vì `token sinh TB` = **399,8 / 399,8 / 400,0** với trần 400 ⇒ **CHẠM TRẦN
+# 100 %** (`Qwen/Qwen3-8B` **bật suy nghĩ mặc định**, viết hết trần trong ` thinking` rồi không in JSON).
+# Người dùng chốt HỦY vì **chi phí**: 3 ngày Colab cho 6 lượt (cả `qwen3-8b` lẫn `mistral-7b`) thu về 0 kết
+# quả dùng được. File này GIỮ làm bản ghi; muốn làm lại thì (a) chạy một lượt DÒ `n` nhỏ (~60 mẫu) để biết
+# chi phí thật, và (b) **khai `enable_thinking: false`** như đã làm cho bản 0.6B. Xem `present_plan_batch12.md`
+# NHÓM 10 và NHÓM 12.
 
 model_id: qwen3-8b
 checkpoint: Qwen/Qwen3-8B

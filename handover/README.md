@@ -368,14 +368,14 @@ lượt cha 4B cùng mức**, khác đúng MỘT khoá: `model`.
 
 | # | Notebook | Trả lời câu gì | T4 |
 | --- | --- | --- | --- |
-| 41 | `notebooks/qwen3-8b/prompt-cot/exp001.ipynb` | 8B + CoT 0 ví dụ | ~40-60 phút |
-| 42 | `notebooks/qwen3-8b/prompt-cot/exp002.ipynb` | 8B + CoT 1 ví dụ | ~40-60 phút |
-| 43 | `notebooks/qwen3-8b/prompt-cot/exp003.ipynb` | 8B + CoT 5 ví dụ | ~60-90 phút |
+| 41 | `notebooks/qwen3-8b/prompt-cot/exp001.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026**: đã chạy, đọc được **1,05 %** (`token sinh TB` 399,8/400 ⇒ chạm trần 100 %) | đã chạy xong (~1 ngày/lượt) |
+| 42 | `notebooks/qwen3-8b/prompt-cot/exp002.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026**: đã chạy, đọc được **0,92 %** | đã chạy xong (~1 ngày/lượt) |
+| 43 | `notebooks/qwen3-8b/prompt-cot/exp003.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026**: đã chạy, đọc được **0,12 %** | đã chạy xong (~1 ngày/lượt) |
 | 44 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp001.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026** (quá chậm, kể cả lượt DÒ). Giữ làm bản ghi: **LƯỢT DÒ**, bản "luôn suy nghĩ" tốn bao nhiêu token (60 mẫu, trần 8.192) | - |
 | 45 | `notebooks/qwen3-4b-thinking-2507/prompt-cot/exp002.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026** (như trên). Giữ làm bản ghi: cùng cỡ, KHÁC CHẾ ĐỘ, 1 ví dụ | - |
-| 46 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp001.ipynb` | HỌ KHÁC (Mistral) + CoT 0 ví dụ | ~40-60 phút |
-| 47 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp002.ipynb` | HỌ KHÁC + CoT 1 ví dụ | ~40-60 phút |
-| 48 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp003.ipynb` | HỌ KHÁC + CoT 5 ví dụ | ~60-90 phút |
+| 46 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp001.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026**: đã chạy, đọc được **60,4 %** (~32 % trả lời không có JSON) | đã chạy xong (~1 ngày/lượt) |
+| 47 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp002.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026**: đã chạy, đọc được **72,2 %** | đã chạy xong (~1 ngày/lượt) |
+| 48 | `notebooks/mistral-7b-instruct-v0.3/prompt-cot/exp003.ipynb` | **ĐỪNG CHẠY - HỦY 11/10/2026**: đã chạy, đọc được **63,5 %** | đã chạy xong (~1 ngày/lượt) |
 
 **CHẠY #44 TRƯỚC #45** (thứ tự có lý do): #45 là lượt mang tên "suy nghĩ", và trần sinh của nó phải lấy từ
 số ĐO của #44. Trong config của #45, `decoding.max_new_tokens` đang là **giá trị tạm 4.096**; sau khi #44

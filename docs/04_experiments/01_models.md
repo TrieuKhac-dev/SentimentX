@@ -33,6 +33,14 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 > **Một model ĐÃ vào bảng nhưng bị HỦY (11/10/2026):** `Qwen3-4B-Thinking-2507` - hai lượt
 > `prompt-cot/exp001` (DÒ) và `exp002` (chạy) **đã tạo + ghim nhưng KHÔNG chạy** vì quá chậm. Chi tiết:
 > `present_plan_batch12.md` NHÓM 12.
+>
+> **Ba model bị HỦY/BỎ vì CHI PHÍ (11/10/2026):** `Qwen3-8B` và `Mistral-7B-Instruct-v0.3` **đã chạy 3 lượt
+> mỗi model** nhưng **KHÔNG dùng được** - `Qwen3-8B` **chạm trần 100 %** (`token sinh TB` 399,8/400) nên chỉ
+> đọc được **0,12-1,05 %**; `Mistral` đọc được **60-72 %** (~32 % trả lời không có JSON). Tổng chi phí:
+> **3 ngày Colab cho 6 lượt, thu về 0 kết quả dùng được** ⇒ **HỦY**. `meta-llama/Llama-3.1-8B-Instruct`
+> **BỎ TRƯỚC KHI TẠO** (quyền truy cập đã có, nhưng **cùng cỡ 8B** nên cùng chi phí);
+> `Viet-Mistral/Vistral-7B-Chat` **BỎ** (repo GATED + cùng nhóm chi phí). Chi tiết:
+> `present_plan_batch12.md` NHÓM 10 + NHÓM 12, và mục 10 (kết quả Đợt 1).
 
 Mười hai model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
 PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và **sáu mô hình sinh** dùng theo dạng

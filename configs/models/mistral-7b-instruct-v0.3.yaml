@@ -11,6 +11,13 @@
 # **100% review bị cắt** - mà với prompt dạng chat, phần bị cắt chính là YÊU CẦU ĐỊNH DẠNG
 # ĐẦU RA ở cuối, nên lượt chạy sẽ hỏng theo kiểu khó thấy (model trả lời văn xuôi).
 # 3584 = làm tròn lên của mẫu DÀI NHẤT đo được (3.522) theo mốc 512.
+#
+# TRẠNG THÁI 11/10/2026: **HỦY** - ba lượt đã chạy (`prompt-cot/exp001-003`) **KHÔNG dùng được**: đọc được
+# **60,4 % / 72,2 % / 63,5 %** (`read_rate.valid = false`), tức ~32 % review bị model trả lời **không có khối
+# JSON** (viết văn xuôi) dù KHÔNG chạm trần (`token sinh TB` 244-309 < 400). Người dùng chốt HỦY vì **chi
+# phí**: 3 ngày Colab cho 6 lượt (cả `mistral-7b` lẫn `qwen3-8b`) thu về 0 kết quả dùng được.
+# File này GIỮ làm bản ghi; muốn làm lại thì (a) nới `decoding.max_new_tokens` cho phần đuôi, (b) siết câu
+# yêu cầu định dạng đầu ra, và (c) chạy một lượt DÒ `n` nhỏ trước. Xem `present_plan_batch12.md` NHÓM 10.
 
 model_id: mistral-7b-instruct-v0.3
 checkpoint: mistralai/Mistral-7B-Instruct-v0.3
