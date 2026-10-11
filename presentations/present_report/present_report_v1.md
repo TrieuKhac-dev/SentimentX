@@ -235,5 +235,12 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > trong lần đếm đầu của phiên làm việc. Trong đó `exp012` (`lora.r = 8`) **lọt top 4 toàn dự án** theo
 > Accuracy và giữ **`neg F1 macro (7)` cao nhất (91,16)**. Chỉ `cafebert/full/exp001` là hỏng thật, và hỏng
 > vì **phân kỳ** (`loss nan`), không phải bị ngắt.
+>
+> **Bổ sung 11/10/2026 (chẩn đoán đợt 12):** cả **ba** lượt nhánh `full` (`cafebert/full/exp001`,
+> `phobert-base-v2/full/exp001`, `phobert-base-v2/full/exp002`) đều **thoái hoá**: dự đoán "không nhắc tới" cho
+> **MỌI ô** ⇒ `sentiment_f1 = 0`, `paper.cells = 0` - hai lượt PhoBERT khác `lr` **10 lần** mà ra giống y hệt
+> nhau. Vì vậy **mốc đối chứng "full fine-tune" trong tài liệu chưa dùng được.** Chi tiết:
+> `present_plan_batch12.md` mục 9.2. `cafebert/full/exp001` còn **không có `metrics.json`** trên đĩa, nên kết
+> luận về nó lấy từ `run.log`.
 
 Tra cứu chuẩn (không dùng tài liệu này): `python scripts/collect_reports.py --dry-run` → bảng `attempt_registry`; và `Get-ChildItem experiments/**/results/**/metrics.json` để đếm lượt đã xong.

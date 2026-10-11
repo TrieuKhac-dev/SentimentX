@@ -174,11 +174,16 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 ## 6. Sổ trạng thái (đánh dấu khi làm xong)
 
 ### Đợt 0 - 0 GPU
-- [ ] 0.1 Sửa Phụ lục A của `present_report_v1.md`: 3 lượt (`cafebert/lora/exp010`, `exp012`,
-      `phobert-base-v2/lora/exp017`) nay **ĐÃ XONG**; chỉ `cafebert/full/exp001` hỏng, và hỏng vì **phân kỳ**
-- [ ] 0.2 Ghi trạng thái **HỦY** cho `qwen3-4b-thinking-2507/prompt-cot/exp001-002` ở 5 file (NHÓM 12)
-- [ ] 0.3 Chẩn đoán ca A: `checkpoints.best_metric` có thực sự được đọc không
-- [ ] 0.4 Chẩn đoán ca B: nhánh `full` (`src/training/full.py`, `savers/state_dict.py`) có lỗi mã không
+- [x] 0.1 **XONG 11/10/2026** - Sửa Phụ lục A của `present_report_v1.md`: 3 lượt (`cafebert/lora/exp010`,
+      `exp012`, `phobert-base-v2/lora/exp017`) nay **ĐÃ XONG**; chỉ `cafebert/full/exp001` hỏng.
+      Commit `83a1376`
+- [x] 0.2 **XONG 11/10/2026** - Ghi trạng thái **HỦY** cho `qwen3-4b-thinking-2507/prompt-cot/exp001-002`
+      ở 5 file; tiện thể cập nhật luôn Llama = **đã mở quyền**. Commit `126657d`
+- [x] 0.3 **XONG 11/10/2026** - Chẩn đoán ca A: **KHÔNG có lỗi** - `best_metric` ĐƯỢC đọc (mục 9)
+- [x] 0.4 **XONG 11/10/2026** - Chẩn đoán ca B: **CÓ vấn đề thật** ở nhánh `full` (mục 9) -
+      **cần người dùng quyết** trước khi làm NHÓM 12 phần `full`
+- [ ] 0.5 (ĐỔI so với kế hoạch) Sửa NHÓM 12: `cafebert/full/exp002` phải thử `inference.dtype: float32`
+      thay vì chỉ đổi `lr` - vì cả 3 lượt `full` đều thoái hoá như nhau (mục 9)
 
 ### Đợt 1 - 8 lượt ưu tiên
 - [ ] Tạo + ghim 8 notebook: `exp020` `exp024` `exp025` `exp027` `exp028` `exp033` `exp021` `exp030`
@@ -224,6 +229,9 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 | 11/10/2026 | Vướng | `_scratch/` chưa được gitignore nên `new_experiment.py` / `pin.py` coi cây là **bẩn** (hàm `worktree_dirty` tính cả file chưa theo dõi) | Đã thêm `_scratch/` vào `.gitignore` (commit `9e68f73`); `ci_checks` vẫn sạch |
 | 11/10/2026 | Ghi nhận | Đã bỏ ý định nâng `preprocess.max_length` của encoder | Số đo: `% review bị cắt ở 256` = **0,00 %** cho mọi encoder => nút vô dụng |
 | 11/10/2026 | Ghi nhận | Các lượt cần GPU **không chạy được ở máy này** | Phần làm ở đây: tạo notebook + config + README + `--preflight-only` + `pin.py` + đóng gói |
+| 11/10/2026 | Đợt 0 | Ca A `best_metric`: **KHÔNG có lỗi** - `exp002` và `exp007` chọn CÙNG checkpoint bước 800 nên điểm trùng nhau là hợp lệ | NHÓM 8 giữ nguyên (đã có cơ sở) |
+| 11/10/2026 | **LỖI (lớn)** | Ca B nhánh `full`: cả 3 lượt đoán **"không nhắc tới" cho MỌI ô** (`sentiment_f1 = 0`, `paper.cells = 0`, `all acc = 73,69 %`); hai lượt PhoBERT khác `lr` **10 lần** ra y hệt từng khía cạnh | Ghi ở mục 9.2; **ĐỔI NHÓM 12** (phải thêm `inference.dtype: float32`); **BÁO CÁO người dùng** (mục 6 việc 0.5) |
+| 11/10/2026 | Phát hiện | `cafebert/full/exp001` **không có `metrics.json`** trên đĩa (mà `run.log` nói "đã ghi") - chỉ có `run.log`, `run_meta.json`, `model/` | Kết luận về lượt này lấy từ `run.log`; ghi rõ trong Phụ lục A |
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
 
@@ -245,4 +253,41 @@ once per process` của numpy/scipy) - **không** do các thay đổi ở mục 
 
 ## 9. Cập nhật 11/10/2026 - kết quả Đợt 0
 
-Điền sau khi làm Đợt 0 (xem mục 6 và mục 7).
+### 9.1 Ca A (`checkpoints.best_metric`) - **KHÔNG CÓ LỖI**, khoá có tác dụng
+
+| Lượt | `model/best` | `best.step` | `best.metric` | `sentiment_f1` | `accuracy_cell` | `paper acc macro` |
+| --- | --- | ---: | --- | ---: | ---: | ---: |
+| `cafebert/lora/exp002` | `93448395` | **800** | `sentiment_f1` | 0,916 | 97,85 | 97,88 |
+| `cafebert/lora/exp007` | `be5d198b` | **800** | `accuracy_cell` | 0,916 | 97,85 | 97,88 |
+
+Hai lượt **chọn đúng CÙNG một checkpoint (bước 800)** vì đường `val` đạt đỉnh ở cùng bước cho cả hai
+chỉ số ⇒ điểm test trùng nhau là **hợp lệ**, không phải bug. Bằng chứng khoá ĐƯỢC đọc: `best.metric` ghi
+giá trị khác nhau (`sentiment_f1` vs `accuracy_cell`) theo đúng config.
+**Hệ quả:** NHÓM 8 (chọn `model/best` theo F1 lớp âm) **có cơ sở** - nếu chỉ số khác thì có thể chọn
+checkpoint KHÁC (như `exp015` chọn bước 1150 còn `exp013` chọn bước 900).
+
+### 9.2 Ca B (nhánh `full`) - **CÓ VẤN ĐỀ THẬT**, cả 3 lượt đều thoái hoá
+
+Ma trận nhầm của `phobert-base-v2/full/exp002` (`lr 2e-5`) - **mọi khía cạnh**:
+
+| nhãn đúng \ nhãn đoán | `""` (không nhắc) | positive | negative |
+| --- | ---: | ---: | ---: |
+| `""` | đúng | 0 | 0 |
+| positive | **tất cả** | 0 | 0 |
+| negative | **tất cả** | 0 | 0 |
+
+⇒ Model dự đoán **"không nhắc tới" cho MỌI ô**: `sentiment_f1 = 0`, `detection_f1 = 0`,
+`paper.cells = 0`, `all acc = 73,69 %` (= đúng tỉ lệ ô "không nhắc tới" của `val`, 10.554 ô).
+`cafebert/full/exp001` cho cùng dạng (`run.log`: "cơ sở đo paper: **0 ô giữ lại**").
+
+**Hai lượt PhoBERT khác `lr` 10 lần (`2e-4` vs `2e-5`) mà ra Y HỆT từng khía cạnh**
+(85,03 / 72,48 / 81,33 / 79,84 / 57,00 / 68,19 / 81,99) ⇒ **không phải lỗi tối ưu, mà là hệ thống**.
+`loss = nan` ở `exp001` (lr 2e-4). Giả thuyết mạnh nhất: **full fine-tune chạy ở fp16** (`inference.dtype: auto`
+chọn fp16 trên T4 vì Turing không có bf16) **không có GradScaler** ⇒ encoder tràn số ⇒ `pooled` thành
+nan/inf ⇒ `argmax` của nan trả về chỉ số 0 = "không nhắc tới" cho mọi ô.
+
+**HỆ QUẢ PHẢI SỬA TRONG KẾ HOẠCH:**
+1. **NHÓM 12 đổi**: `cafebert/full/exp002` phải khai **`inference.dtype: float32`** (không chỉ đổi `lr`).
+2. Mốc đối chứng "full fine-tune" của tài liệu (`docs/04_experiments/06_lora_encoder.md`) **hiện không dùng
+   được** - nó dựa trên 3 lượt đều thoái hoá.
+3. Người dùng cần quyết: có điều tra tiếp nguyên nhân gốc không, hay chỉ chạy lại với `float32` để có mốc.
