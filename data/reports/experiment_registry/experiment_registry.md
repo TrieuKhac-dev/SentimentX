@@ -64,6 +64,46 @@ graph LR
   n60["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
   n61["cafebert/lora/exp006:ba564752"]
   n62["phobert-base-v2/lora/exp007:3e52a2a3"]
+  n63["phobert-base-v2/full/exp001:896017a6"]
+  n64["cafebert/lora/exp007:be5d198b"]
+  n65["cafebert/lora/exp009:8139ebb5"]
+  n66["cafebert/lora/exp011:c5224186"]
+  n67["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
+  n68["cafebert/lora/exp014:b8f33980"]
+  n69["cafebert/lora/exp015:eb2b6cfa"]
+  n70["cafebert/lora/exp013:bb5a16ba"]
+  n71["cafebert/lora/exp008:bb1f4def"]
+  n72["cafebert/none/exp002:fd8971e0"]
+  n73["cafebert/lora/exp016:4cba4ba7"]
+  n74["cafebert/lora/exp017:5ebc6a84"]
+  n75["cafebert/lora/exp018:416a1325"]
+  n76["phobert-base-v2/none/exp001:91fc1ff0"]
+  n77["cafebert/none/exp001:ee0c0c55"]
+  n78["phobert-base-v2/none/exp002:5f0ccd74"]
+  n79["cafebert/lora/exp019:850333b8"]
+  n80["phobert-base-v2/full/exp002:6b4d075b"]
+  n81["phobert-base-v2/lora/exp008:4155a02d"]
+  n82["phobert-base-v2/lora/exp009:34eadc41"]
+  n83["phobert-base-v2/lora/exp010:76d15212"]
+  n84["phobert-base-v2/lora/exp011:609b3936"]
+  n85["phobert-base-v2/lora/exp012:5f7bafcd"]
+  n86["visobert/lora/exp006:e6589d12"]
+  n87["visobert/lora/exp009:f784f0b6"]
+  n88["visobert/lora/exp008:418c15d6"]
+  n89["visobert/lora/exp007:428031b7"]
+  n90["phobert-base-v2/lora/exp013:354d4577"]
+  n91["phobert-base-v2/lora/exp014:3c843f8c"]
+  n92["phobert-base-v2/lora/exp015:611af219"]
+  n93["phobert-base-v2/lora/exp016:a79a4018"]
+  n94["phobert-base-v2/lora/exp018:cf826a43"]
+  n95["phobert-base-v2/lora/exp019:b330ac39"]
+  n96["phobert-base-v2/lora/exp020:4bb386b8"]
+  n97["phobert-base-v2/lora/exp023:034fe8e1"]
+  n98["phobert-base-v2/lora/exp021:df66fb42"]
+  n99["phobert-base-v2/lora/exp022:ddca71d7"]
+  n100["cafebert/lora/exp012:688c32bc"]
+  n101["phobert-base-v2/lora/exp017:9be4142b"]
+  n102["cafebert/lora/exp010:cb2a0164"]
   n1 -->|NEW| n2
   n3 -->|NEW| n2
   n4 -->|NEW| n2
@@ -125,4 +165,43 @@ graph LR
   n60 -->|NEW| n2
   n61 -->|NEW| n2
   n62 -->|NEW| n2
+  n63 -->|NEW| n2
+  n64 -->|NEW| n2
+  n65 -->|NEW| n2
+  n66 -->|NEW| n67
+  n68 -->|NEW| n2
+  n69 -->|NEW| n2
+  n70 -->|NEW| n2
+  n71 -->|NEW| n2
+  n72 -->|NEW| n2
+  n73 -->|NEW| n2
+  n74 -->|NEW| n2
+  n75 -->|NEW| n2
+  n76 -->|NEW| n2
+  n77 -->|NEW| n2
+  n78 -->|NEW| n2
+  n79 -->|NEW| n2
+  n80 -->|NEW| n2
+  n81 -->|NEW| n2
+  n82 -->|NEW| n2
+  n83 -->|NEW| n2
+  n84 -->|NEW| n2
+  n85 -->|NEW| n2
+  n86 -->|NEW| n2
+  n87 -->|NEW| n67
+  n88 -->|NEW| n2
+  n89 -->|NEW| n2
+  n90 -->|NEW| n2
+  n91 -->|NEW| n2
+  n92 -->|NEW| n67
+  n93 -->|NEW| n2
+  n94 -->|NEW| n2
+  n95 -->|NEW| n2
+  n96 -->|NEW| n2
+  n97 -->|NEW| n2
+  n98 -->|NEW| n2
+  n99 -->|NEW| n2
+  n100 -->|NEW| n2
+  n101 -->|NEW| n2
+  n102 -->|NEW| n2
 ```

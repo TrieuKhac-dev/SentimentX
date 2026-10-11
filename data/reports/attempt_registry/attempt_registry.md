@@ -80,6 +80,49 @@ graph LR
   n76["commit 9746d0cdcff7"]
   n77["phobert-base-v2/lora/exp007:3e52a2a3"]
   n78["commit c82c20d8d1c3"]
+  n79["phobert-base-v2/full/exp001:896017a6"]
+  n80["commit 4f65864c4ed9"]
+  n81["cafebert/lora/exp007:be5d198b"]
+  n82["cafebert/lora/exp009:8139ebb5"]
+  n83["cafebert/lora/exp011:c5224186"]
+  n84["cafebert/lora/exp014:b8f33980"]
+  n85["cafebert/lora/exp015:eb2b6cfa"]
+  n86["cafebert/lora/exp013:bb5a16ba"]
+  n87["cafebert/lora/exp008:bb1f4def"]
+  n88["cafebert/none/exp002:fd8971e0"]
+  n89["cafebert/lora/exp016:4cba4ba7"]
+  n90["cafebert/lora/exp017:5ebc6a84"]
+  n91["cafebert/lora/exp018:416a1325"]
+  n92["phobert-base-v2/none/exp001:91fc1ff0"]
+  n93["cafebert/none/exp001:ee0c0c55"]
+  n94["phobert-base-v2/none/exp002:5f0ccd74"]
+  n95["cafebert/lora/exp019:850333b8"]
+  n96["phobert-base-v2/full/exp002:6b4d075b"]
+  n97["phobert-base-v2/lora/exp008:4155a02d"]
+  n98["commit 2850d0349267"]
+  n99["phobert-base-v2/lora/exp009:34eadc41"]
+  n100["phobert-base-v2/lora/exp010:76d15212"]
+  n101["phobert-base-v2/lora/exp011:609b3936"]
+  n102["phobert-base-v2/lora/exp012:5f7bafcd"]
+  n103["visobert/lora/exp006:e6589d12"]
+  n104["commit a0a52404fbca"]
+  n105["visobert/lora/exp009:f784f0b6"]
+  n106["visobert/lora/exp008:418c15d6"]
+  n107["visobert/lora/exp007:428031b7"]
+  n108["phobert-base-v2/lora/exp013:354d4577"]
+  n109["phobert-base-v2/lora/exp014:3c843f8c"]
+  n110["phobert-base-v2/lora/exp015:611af219"]
+  n111["phobert-base-v2/lora/exp016:a79a4018"]
+  n112["phobert-base-v2/lora/exp018:cf826a43"]
+  n113["phobert-base-v2/lora/exp019:b330ac39"]
+  n114["phobert-base-v2/lora/exp020:4bb386b8"]
+  n115["phobert-base-v2/lora/exp023:034fe8e1"]
+  n116["phobert-base-v2/lora/exp021:df66fb42"]
+  n117["phobert-base-v2/lora/exp022:ddca71d7"]
+  n118["cafebert/lora/exp012:688c32bc"]
+  n119["phobert-base-v2/lora/exp017:9be4142b"]
+  n120["cafebert/lora/exp010:cb2a0164"]
+  n121["cafebert/full/exp001:2a1c06a8"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -146,4 +189,44 @@ graph LR
   n74 -->|FINISHED| n66
   n75 -->|FINISHED| n76
   n77 -->|FINISHED| n78
+  n79 -->|FINISHED| n80
+  n81 -->|FINISHED| n80
+  n82 -->|FINISHED| n80
+  n83 -->|FINISHED| n80
+  n84 -->|FINISHED| n80
+  n85 -->|FINISHED| n80
+  n86 -->|FINISHED| n80
+  n87 -->|FINISHED| n80
+  n88 -->|FINISHED| n80
+  n89 -->|FINISHED| n80
+  n90 -->|FINISHED| n80
+  n91 -->|FINISHED| n80
+  n92 -->|FINISHED| n80
+  n93 -->|FINISHED| n80
+  n94 -->|FINISHED| n80
+  n95 -->|FINISHED| n80
+  n96 -->|FINISHED| n80
+  n97 -->|FINISHED| n98
+  n99 -->|FINISHED| n98
+  n100 -->|FINISHED| n98
+  n101 -->|FINISHED| n98
+  n102 -->|FINISHED| n98
+  n103 -->|FINISHED| n104
+  n105 -->|FINISHED| n104
+  n106 -->|FINISHED| n104
+  n107 -->|FINISHED| n104
+  n108 -->|FINISHED| n98
+  n109 -->|FINISHED| n98
+  n110 -->|FINISHED| n98
+  n111 -->|FINISHED| n98
+  n112 -->|FINISHED| n98
+  n113 -->|FINISHED| n98
+  n114 -->|FINISHED| n98
+  n115 -->|FINISHED| n98
+  n116 -->|FINISHED| n98
+  n117 -->|FINISHED| n98
+  n118 -->|FINISHED| n80
+  n119 -->|FINISHED| n98
+  n120 -->|FINISHED| n80
+  n121 -->|RUNNING| n80
 ```

@@ -67,6 +67,47 @@ graph LR
   n63["qwen3-4b-instruct-2507/prompt-aspect/exp003:5cab7e03"]
   n64["cafebert/lora/exp006:ba564752"]
   n65["phobert-base-v2/lora/exp007:3e52a2a3"]
+  n66["phobert-base-v2/full/exp001:896017a6"]
+  n67["cafebert/lora/exp007:be5d198b"]
+  n68["cafebert/lora/exp009:8139ebb5"]
+  n69["cafebert/lora/exp014:b8f33980"]
+  n70["cafebert/lora/exp015:eb2b6cfa"]
+  n71["cafebert/lora/exp013:bb5a16ba"]
+  n72["cafebert/lora/exp008:bb1f4def"]
+  n73["cafebert/none/exp002:fd8971e0"]
+  n74["cafebert/lora/exp016:4cba4ba7"]
+  n75["cafebert/lora/exp017:5ebc6a84"]
+  n76["cafebert/lora/exp018:416a1325"]
+  n77["phobert-base-v2/none/exp001:91fc1ff0"]
+  n78["cafebert/none/exp001:ee0c0c55"]
+  n79["phobert-base-v2/none/exp002:5f0ccd74"]
+  n80["cafebert/lora/exp019:850333b8"]
+  n81["phobert-base-v2/full/exp002:6b4d075b"]
+  n82["phobert-base-v2/lora/exp008:4155a02d"]
+  n83["phobert-base-v2/lora/exp009:34eadc41"]
+  n84["phobert-base-v2/lora/exp010:76d15212"]
+  n85["phobert-base-v2/lora/exp011:609b3936"]
+  n86["phobert-base-v2/lora/exp012:5f7bafcd"]
+  n87["visobert/lora/exp006:e6589d12"]
+  n88["visobert/lora/exp008:418c15d6"]
+  n89["visobert/lora/exp007:428031b7"]
+  n90["phobert-base-v2/lora/exp013:354d4577"]
+  n91["phobert-base-v2/lora/exp014:3c843f8c"]
+  n92["phobert-base-v2/lora/exp016:a79a4018"]
+  n93["phobert-base-v2/lora/exp018:cf826a43"]
+  n94["phobert-base-v2/lora/exp019:b330ac39"]
+  n95["phobert-base-v2/lora/exp020:4bb386b8"]
+  n96["phobert-base-v2/lora/exp023:034fe8e1"]
+  n97["phobert-base-v2/lora/exp021:df66fb42"]
+  n98["phobert-base-v2/lora/exp022:ddca71d7"]
+  n99["cafebert/lora/exp012:688c32bc"]
+  n100["phobert-base-v2/lora/exp017:9be4142b"]
+  n101["cafebert/lora/exp010:cb2a0164"]
+  n102["<nguồn v0.3.0>"]
+  n103["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
+  n104["cafebert/lora/exp011:c5224186"]
+  n105["visobert/lora/exp009:f784f0b6"]
+  n106["phobert-base-v2/lora/exp015:611af219"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -130,4 +171,44 @@ graph LR
   n4 --> n63
   n4 --> n64
   n4 --> n65
+  n4 --> n66
+  n4 --> n67
+  n4 --> n68
+  n4 --> n69
+  n4 --> n70
+  n4 --> n71
+  n4 --> n72
+  n4 --> n73
+  n4 --> n74
+  n4 --> n75
+  n4 --> n76
+  n4 --> n77
+  n4 --> n78
+  n4 --> n79
+  n4 --> n80
+  n4 --> n81
+  n4 --> n82
+  n4 --> n83
+  n4 --> n84
+  n4 --> n85
+  n4 --> n86
+  n4 --> n87
+  n4 --> n88
+  n4 --> n89
+  n4 --> n90
+  n4 --> n91
+  n4 --> n92
+  n4 --> n93
+  n4 --> n94
+  n4 --> n95
+  n4 --> n96
+  n4 --> n97
+  n4 --> n98
+  n4 --> n99
+  n4 --> n100
+  n4 --> n101
+  n102 -->|15426 dòng| n103
+  n103 --> n104
+  n103 --> n105
+  n103 --> n106
 ```
