@@ -1,0 +1,57 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp040
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp021
+
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác.
+notes: "seed 7 - thuoc nhieu cho dinh MOI exp021"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `eval: val` khi lượt này là nguyên liệu cho bước KẾT HỢP.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+lr: 0.0004
+
+lora:
+  r: 8
+
+
+# BIẾN CỦA LƯỢT NÀY: hạt giống HUẤN LUYỆN (mặc định 42).
+decoding:
+  seed: 7
+
+# --- Đợt 12, NHÓM 6: ĐO ĐỘ VỮNG ------------------------------------------------
+# Khác cha (`cafebert/lora/exp021`) ĐÚNG MỘT khoá: `decoding.seed` (mặc định 42 -> 7). Ở ĐƯỜNG ENCODER khoá này là
+# **hạt giống HUẤN LUYỆN** (khởi tạo đầu phân loại, dropout, xáo trộn dữ liệu) - xem dòng "NGOẠI LỆ Ở
+# ĐƯỜNG ENCODER" trong `configs/experiments/evaluation.yaml`.
+#
+# VÌ SAO CẦN: các lượt dẫn đầu chỉ hơn nhau **0,06 diem**, mà biên nhiễu đường encoder đã đo là
+# **+-0,33...+-0,67**. Ba lần rút thăm cho cùng một cấu hình mới biến "cụm đồng hạng" thành kết luận;
+# không có nó thì KHÔNG được nói lượt nào hơn lượt nào.
+#
+# Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có `n`); chênh lệch < 0,7 ghi ĐỒNG HẠNG.
