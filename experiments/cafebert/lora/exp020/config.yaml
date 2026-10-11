@@ -1,0 +1,69 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp020
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp015
+
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác.
+notes: "Noi hai truc dang dan: lr 4e-4 (cua exp015) x lora.r 32 (cua exp013)"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `val` để chọn `model/best`.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp015`) để phép so chỉ còn MỘT biến: `lora.r`.
+# `head.trainable: true` = đầu phân loại HỌC cùng adapter, dùng CHUNG `lr` với LoRA.
+# Dấu vết kiểm trong `metrics.json`: `trainable_params` phải LỚN HƠN lượt đóng băng đúng bằng
+# số tham số của đầu phân loại = 7 khía cạnh × (1.024 ẩn × 3 mã + 3) = 21.525.
+head:
+  trainable: true
+
+# Cùng công thức với cha: `weighted_ce` + `class_weight: inverse` - hướng DUY NHẤT đã chứng minh
+# có tác dụng với lớp âm (PhoBERT 88,40 → 96,62). Giữ nguyên để phép so chỉ còn MỘT biến.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Không có `requires_extra`: CafeBERT đọc nguyên bản (`segmenter: none`).
+
+# Lấy NGUYÊN `lr` của cha (`exp015` - lượt đang giữ kỷ lục Accuracy macro = 98,35).
+lr: 0.0004
+
+lora:
+  r: 32
+
+# --- Đợt 12, NHÓM 1: NỐI HAI TRỤC ĐANG DẪN ------------------------------------
+# Khác cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `lora.r` (16 -> 32). Mọi thứ khác y hệt `exp015` (cùng `lr` 4e-4,
+# cùng seed mặc định 42, cùng hàm mất mát, cùng cơ chế đầu phân loại, cùng 3 epoch).
+#
+# VÌ SAO CÓ LƯỢT NÀY: hai thứ ĐANG dẫn đầu thuộc hai trục KHÁC NHAU và CHƯA GẶP NHAU -
+#   * `cafebert/lora/exp015` dẫn nhờ `lr 4e-4` (nhưng `lora.r` vẫn 16);
+#   * `cafebert/lora/exp013` dẫn nhờ `lora.r 32` (nhưng `lr` vẫn 2e-4).
+# Đây là điểm giao ĐẦU TIÊN; câu hỏi: "hai trục có CỘNG TÍNH không".
+#
+# HAI ĐIỀU PHẢI GHI KHI ĐỌC:
+#   * `lora.alpha` GIỮ 32, nên tỉ lệ scaling `alpha / r` đổi từ 2 xuống 1 - lượt này đo "đổi bậc tự do
+#     CÙNG với hệ số scaling", KHÔNG tách riêng hai thứ (muốn tách thì xem `exp022`, `exp023`).
+#   * `trainable_params` phải TĂNG so với `exp015` (r 16 -> 32) - đó là DẤU VẾT kiểm trước khi đọc điểm.
+# Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có trọng số `n`), không chỉ accuracy: xem
+# docs/04_experiments/metrics.md và presentations/present_report/present_report_v1.md.
+# Biên nhiễu của encoder đã đo là +-0,33...+-0,67 điểm (làm việc +-0,7): chênh lệch nhỏ hơn mức đó
+# KHÔNG kết luận được - ghi ĐỒNG HẠNG.
