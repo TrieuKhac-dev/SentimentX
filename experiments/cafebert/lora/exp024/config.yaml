@@ -1,0 +1,61 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp024
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp002
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "focal gamma 2 + class_weight inverse (hai co che chua tung di cung)"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp002`): đầu phân loại HỌC cùng adapter.
+head:
+  trainable: true
+
+# BIẾN CỦA LƯỢT NÀY: `focal` ĐI KÈM TRỌNG SỐ LỚP - hai cơ chế CHƯA TỪNG chạy cùng nhau.
+loss:
+  type: focal
+  gamma: 2
+  class_weight: inverse
+
+# KHÔNG khai `lr`: lấy mặc định dùng chung (2e-4), đúng bằng cha `exp002`.
+
+# --- Đợt 12, NHÓM 2: `focal` CÓ TRỌNG SỐ LỚP -----------------------------------
+# Khác cha ĐÚNG MỘT NHÓM KHOÁ - nhóm đó PHẢI đi cùng nhau mới thành "focal CÓ trọng số":
+# `loss.type: focal` + `loss.gamma: 2` + `loss.class_weight: inverse`.
+# (Khai `focal` mà thiếu `gamma` thì mã BÁO LỖI; khai `ce` + trọng số bị TỪ CHỐI vì trùng `weighted_ce`.)
+#
+# VÌ SAO: `cafebert/lora/exp017` (`focal gamma 2`, `class_weight: none`) là lượt DUY NHẤT có
+# `all acc` cao nhất dự án (98,21) và `detection_f1` trên `val` cao nhất (0,972) - nhưng `neg F1 (7)`
+# chỉ 79,80. `weighted_ce + inverse` là hướng DUY NHẤT đã chứng minh cứu được lớp âm. Lượt này ghép
+# hai cơ chế đang mạnh ở HAI THƯỚC ĐO KHÁC NHAU.
+#
+# LƯU Ý ĐỌC SỐ: `focal` đổi phân bố dự đoán nên PHẢI đọc kèm `paper.cells` và `% đọc được`; `price` âm
+# chỉ có 6 ô nên mọi số `price` phải ghi kèm "n = 6, không kết luận". Biên nhiễu +-0,33...+-0,67.
+
