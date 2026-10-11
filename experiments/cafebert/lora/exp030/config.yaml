@@ -1,0 +1,60 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp030
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp015
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "lora.dropout = 0.0 (mac dinh 0.05)"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp015`) để phép so chỉ còn MỘT biến: `lora.dropout`.
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+lr: 0.0004
+
+# BIẾN CỦA LƯỢT NÀY: `lora.dropout` (mặc định dùng chung là 0.05).
+lora:
+  dropout: 0.0
+
+# --- Đợt 12, NHÓM 3: NÚT SIÊU THAM SỐ CHƯA TỪNG VẶN ----------------------------
+# Khác cha ĐÚNG MỘT khoá ĐO ĐƯỢC: `lora.dropout` (0.05 -> 0.0).
+#
+# VÌ SAO: `lora.dropout` = 0.05 ở CẢ 30 lượt encoder đã chạy - chưa từng bị vặn. Bỏ dropout là phép
+# thử rẻ nhất cho câu "model đang bị regularize quá hay chưa đủ": nếu TẮT dropout mà điểm TĂNG thì
+# 0.05 đang cản việc học (nhất là lớp âm hiếm); nếu điểm GIẢM thì 0.05 đang có ích.
+# Đi kèm `exp031` (`dropout: 0.1`) để có cả hai chiều.
+#
+# Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có `n`); biên nhiễu +-0,33...+-0,67 (làm việc +-0,7).
+
