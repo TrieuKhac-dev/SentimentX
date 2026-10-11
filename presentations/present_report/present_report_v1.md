@@ -242,5 +242,8 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > nhau. Vì vậy **mốc đối chứng "full fine-tune" trong tài liệu chưa dùng được.** Chi tiết:
 > `present_plan_batch12.md` mục 9.2. `cafebert/full/exp001` còn **không có `metrics.json`** trên đĩa, nên kết
 > luận về nó lấy từ `run.log`.
+>
+> **Chốt 11/10/2026 (người dùng):** nhánh `full` **BỊ BỎ khỏi kế hoạch** - không dùng làm mốc đối chứng nữa.
+> Ba lượt giữ lại chỉ để đọc như "đã thử và hỏng".
 
 Tra cứu chuẩn (không dùng tài liệu này): `python scripts/collect_reports.py --dry-run` → bảng `attempt_registry`; và `Get-ChildItem experiments/**/results/**/metrics.json` để đếm lượt đã xong.

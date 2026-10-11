@@ -54,7 +54,7 @@ số cho luật 23a của nhánh "suy nghĩ" (Đ6/Đ7, M9) - **chưa có kết q
 | **Đ2** tiền xử lý | `phobert-base-v2/lora/exp012-015`, `visobert/lora/exp006-009`, `cafebert/lora/exp008-011` | 12 | `preprocess.segmenter` (3 bộ) hoặc `data.version: v0.3.0` | đã ghim, chờ chạy |
 | **Đ3** tham số LoRA | `phobert-base-v2/lora/exp016-020`, `cafebert/lora/exp012-016` | 10 | `lora.r` / `lr` / `lora.target_modules` | đã ghim, chờ chạy |
 | **Đ4** mất mát & cách học | `phobert-base-v2/lora/exp021-023`, `cafebert/lora/exp017-019` | 6 | `loss.type: focal` / `loss.class_weight: inverse_by_aspect` / `lora.use_dora` | đã ghim, chờ chạy |
-| **Đ5** full fine-tune | `phobert-base-v2/full/exp001-002`, `cafebert/full/exp001` | 3 | `method` + `trainer: full` (+ `lr` ở `exp002`) | đã ghim, chờ chạy |
+| **Đ5** full fine-tune | `phobert-base-v2/full/exp001-002`, `cafebert/full/exp001` | 3 | `method` + `trainer: full` (+ `lr` ở `exp002`) | **KHÔNG DÙNG ĐƯỢC (11/10/2026): cả 3 lượt thoái hoá** - đoán "không nhắc tới" cho mọi ô |
 | **Đ6/Đ7** LLM lớn hơn & khác họ | `qwen3-8b` (0/1/5 ví dụ) · `qwen3-4b-thinking-2507` (DÒ + 1 lượt) · `mistral-7b-instruct-v0.3` (0/1/5 ví dụ) | 8 | `model` (+ các khoá thuộc LỚP MODEL: checkpoint, batch, ngưỡng cắt đo được) | đã ghim, chờ chạy |
 | **Đ6/Đ7** phần CHẶN | `llama-3.1-8b-instruct` · `vistral-7b-chat` | 6 | - | **CHƯA TẠO: repo GATED**, cần `HF_TOKEN` |
 

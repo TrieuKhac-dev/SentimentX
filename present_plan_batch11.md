@@ -55,7 +55,7 @@
 | Đ2 | Tiền xử lý: segmentation ×3 · `underthesea` ×3 · `pyvi` ×3 · icon ×3 + pipeline `v0.3.0` | 12 | 12 | ~3 h | 2 |
 | Đ3 | Wave 1 tham số LoRA ×2 model | 10 | 10 | ~2,5 h | 5 |
 | Đ4 | `focal` · `inverse_by_aspect` · DoRA ×2 model | 6 | 6 | ~1,5 h | 6, 7 |
-| Đ5 | Full fine-tune ×2 model (+ partial FT tuỳ chọn ×2) | 2 (+2 tuỳ chọn) | **3** | ~1,5-3 h | 1, 7 |
+| Đ5 | Full fine-tune ×2 model (+ partial FT tuỳ chọn ×2) - **KHÔNG DÙNG ĐƯỢC (11/10/2026): cả 3 lượt thoái hoá** | 2 (+2 tuỳ chọn) | **3** | ~1,5-3 h (đã tiêu) | 1, 7 |
 | Đ6 | Qwen3-8B ×3 mức · ~~Qwen3-4B-Thinking (DÒ + 1 lượt)~~ **HỦY 11/10/2026** | 5 | 5 (nhưng **2 lượt Thinking KHÔNG chạy**) | ~2 h (chỉ còn 8B) | 9 |
 | Đ7 | Llama-3.1-8B · Mistral-7B · Vistral-7B ×3 mức | 9 | **3** (6 lượt Llama/Vistral CHƯA TẠO: repo GATED) | ~5 h | 10 |
 | Đ8 | Viết báo cáo (10 mục) | 0 | 0 (báo cáo; xem §7) | 0 | 8, 11 |

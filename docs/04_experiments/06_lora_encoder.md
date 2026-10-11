@@ -290,6 +290,18 @@ cùng bộ chấm điểm, cùng cách ghi kết quả.
 
 ## Cách huấn luyện `full`: full fine-tune
 
+> **KHÔNG DÙNG ĐƯỢC (chốt 11/10/2026).** Cả **ba** lượt `full` đã chạy đều **thoái hoá**: model đoán
+> "không nhắc tới" cho **MỌI ô** ⇒ `sentiment_f1 = 0`, `detection_f1 = 0`, `paper.cells = 0`,
+> `all acc = 73,69 %` (đúng bằng tỉ lệ ô "không nhắc tới"). Bằng chứng mạnh nhất: `phobert-base-v2/full/exp001`
+> và `exp002` khác `lr` **10 lần** (`2e-4` vs `2e-5`) mà ra **y hệt từng khía cạnh** ⇒ không phải chuyện tối ưu
+> mà là hệ thống. ⇒ **`full` KHÔNG còn là mốc đối chứng của nhóm LoRA**, và **bị bỏ khỏi kế hoạch đợt 12**
+> (`present_plan_batch12.md`, NHÓM 12). Ba lượt đã chạy GIỮ lại làm bản ghi, chỉ đọc như "đã thử và hỏng".
+> Muốn làm lại thì phải sửa gốc trước (nghi vấn: full fine-tune chạy ở **fp16** - `inference.dtype: auto` chọn
+> fp16 trên T4 vì Turing không có bf16 - mà không có `GradScaler`; thử `inference.dtype: float32`).
+>
+> Phần dưới đây giữ nguyên để giải thích THIẾT KẾ của `full` (đúng như đã viết), nhưng đừng đọc nó như một
+> đường chạy đang dùng được.
+
 `training.trainer: full` (`src/training/full.py`) cho model học **TẤT CẢ** tham số - encoder lẫn đầu phân
 loại - thay vì chỉ sửa adapter. Đây là mốc ĐỐI CHỨNG của cả nhóm LoRA, và là mốc mà các bài báo ABSA
 thường công bố, nên câu "LoRA kém hơn bao nhiêu" chỉ trả lời được bằng lượt này.
