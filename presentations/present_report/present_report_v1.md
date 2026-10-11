@@ -245,5 +245,17 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 >
 > **Chốt 11/10/2026 (người dùng):** nhánh `full` **BỊ BỎ khỏi kế hoạch** - không dùng làm mốc đối chứng nữa.
 > Ba lượt giữ lại chỉ để đọc như "đã thử và hỏng".
+>
+> **Cập nhật 11/10/2026 - kết quả 8 lượt của đợt 12 (NHÓM 1-5) đã về.** `cafebert/lora/exp020/021/024/025/027/028/030/033`
+> chạy xong, `% đọc được` = 100 % ở mọi lượt. **Không lượt nào vượt "top" quá 0,24 điểm** (biên nhiễu ±0,7)
+> ⇒ **tất cả ĐỒNG HẠNG**, nên các bảng chính của báo cáo này **KHÔNG đổi**. Kỷ lục mới cần ghi:
+> **Accuracy macro 98,41 %** và **pos F1 98,99 %** (`exp021`), **neg F1 micro 95,36 %** (`exp021`),
+> **neg F1 (5 n lớn) 94,84 %** (`exp028`). Hai **kết quả ÂM**: `focal` + trọng số lớp **thất bại**
+> (`exp024` 97,75 · `exp025` 97,71, kém CẢ HAI cha) và `segmenter: vncorenlp` trên `lr 4e-4` **không tái lập**
+> (`exp033` 98,00 so cha 98,35). Chi tiết: `present_plan_batch12.md` mục 10.
+>
+> **Sáu lượt model sinh bị HỦY (11/10/2026):** `qwen3-8b` (đọc được 0,12-1,05 %) và `mistral-7b`
+> (đọc được 60-72 %) - **3 ngày Colab cho 0 kết quả dùng được**; `llama-3.1-8b` và `vistral-7b` **bỏ trước khi
+> tạo** (chi phí / GATED). ⇒ Báo cáo này **không có cột nào** cho bốn model đó.
 
 Tra cứu chuẩn (không dùng tài liệu này): `python scripts/collect_reports.py --dry-run` → bảng `attempt_registry`; và `Get-ChildItem experiments/**/results/**/metrics.json` để đếm lượt đã xong.

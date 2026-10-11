@@ -392,3 +392,39 @@ Số lấy từ chính lượt chạy ghi ra: `metrics.json` (số chính), `met
 bảng tổng hợp `data/reports/metrics_matrix/` do `python scripts/collect_reports.py` dựng lại từ các file
 đó - không có đường tính thứ hai. Phân tích kết quả và hướng phát triển tiếp:
 `presentations/present_report/present_report_v1.md`. Cây phát triển: `07_evolution.md`.
+
+## 9. Đợt 12 (11/10/2026) - tám lượt biến đổi, và KẾT LUẬN: các trục siêu tham số ĐÃ BÃO HOÀ
+
+Tám lượt `cafebert/lora/exp020/021/024/025/027/028/030/033`, mỗi lượt khác cha ĐÚNG MỘT khoá (riêng
+`exp024`/`exp025` là một nhóm khoá phải đi cùng nhau). Cơ sở `paper`, `test`, `% đọc được` = 100 %:
+
+| Lượt | Biến | Acc macro | pos F1 | neg F1 (7) | neg F1 (5 n lớn) | neg micro |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `exp021` | `lora.r 8` × `lr 4e-4` | **98,41** | **98,99** | 88,61 | 94,64 | **95,36** |
+| `exp027` | `epochs 6` | 98,37 | 98,94 | **88,87** | 94,06 | 95,04 |
+| `exp020` | `lora.r 32` × `lr 4e-4` | 98,34 | 98,94 | 85,61 | 94,26 | 95,07 |
+| `exp028` | `every_n_steps 50` | 98,31 | 98,90 | 81,27 | **94,84** | 94,76 |
+| `exp030` | `dropout 0.0` | 98,25 | 98,86 | 81,11 | 94,62 | 94,64 |
+| `exp033` | `segmenter vncorenlp` | 98,00 | 98,69 | 80,26 | 93,42 | 93,69 |
+| `exp024` | `focal gamma 2` + **trọng số** (trên `exp002`) | 97,75 | 98,54 | 82,74 | 92,98 | 93,78 |
+| `exp025` | như trên (trên `exp015`) | 97,71 | 98,53 | 79,20 | 92,70 | 92,75 |
+
+**Mức vượt lớn nhất so với đỉnh trước đó là 0,24 điểm** (biên nhiễu ±0,33…±0,67) ⇒ **mọi lượt ĐỒNG HẠNG**.
+"Top" hiện là một **cụm 6 lượt trải trong 0,10 điểm** (98,31-98,41).
+
+**Hai kết quả ÂM có giá trị (ghi lại để không ai thử lại):**
+
+1. **`focal` không ghép được với trọng số lớp.** `exp024`/`exp025` (focal γ2 + `class_weight: inverse`) =
+   **97,75 / 97,71**, tức **kém CẢ HAI cha** (`exp002` 97,88 và `exp015` 98,35). Lợi thế của `focal` (lượt
+   `exp017`: `all acc` 98,21 và `detection_f1` 0,972 trên `val`) **biến mất** khi thêm trọng số lớp ⇒ hai cơ
+   chế **KHÔNG cộng tính**, và hướng `focal` nói chung bị đóng.
+2. **`segmenter: vncorenlp` không tái lập.** `exp008` (vncorenlp trên cha `exp002`) cho **+0,15**, nhưng
+   `exp033` (cùng thay đổi, trên `lr 4e-4`) = **98,00** so cha 98,35 = **−0,35** ⇒ trục tiền xử lý vừa yếu
+   vừa **không ổn định** theo cấu hình.
+
+**Một kết luận về CƠ CHẾ:** `lr 4e-4` × `lora.r 32` (`exp020` = 98,34) ≈ cha (`exp015` = 98,35) ⇒ **hai trục
+đang dẫn KHÔNG cộng tính**; "nhiều tham số hơn" không còn là đòn bẩy.
+
+**Hệ quả cho kế hoạch:** trọng tâm chuyển từ "vặn siêu tham số" sang (a) **đo độ vững bằng seed** và
+(b) **kết hợp** (ensemble / ngưỡng theo khía cạnh), vì giá trị còn lại nằm ở việc ghép các điểm mạnh KHÁC
+NHAU của cụm đồng hạng. Chi tiết: `present_plan_batch12.md` NHÓM 6/7/9 và mục 10.
