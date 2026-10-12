@@ -1,9 +1,3 @@
-# Prompt CoT, biến thể "ví dụ lấy từ DỮ LIỆU" - bản KHÔNG có ví dụ (0 ví dụ).
-#
-# KHÁC `absa_cot_trainfshot_v1.txt` ĐÚNG MỘT ĐIỀU: bỏ khối "Ví dụ:{examples}". Vì sao phải là file
-# riêng chứ không dùng chung: prompt có ô nhớ `{examples}` thì BẮT BUỘC khai khoá `examples`
-# (`src/experiments/prompts.py`), nên lượt 0 ví dụ cần một file không có ô nhớ đó.
-# Nhờ vậy phép so 0/1/5 ví dụ chỉ còn MỘT biến: số ví dụ.
 [SYSTEM]
 {system_prompt}
 

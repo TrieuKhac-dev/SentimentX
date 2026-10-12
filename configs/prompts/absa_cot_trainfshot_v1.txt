@@ -1,11 +1,3 @@
-# Prompt CoT, biến thể "ví dụ lấy từ DỮ LIỆU" (đợt 12, NHÓM 10).
-#
-# KHÁC `absa_cot_1shot_v1.txt` ĐÚNG MỘT ĐIỀU: đi kèm file ví dụ LẤY TỪ SPLIT `train`
-# (`configs/prompts/examples/absa_cot_trainfshot_*`), thay vì ví dụ do người viết tay.
-# Câu chữ thì GIỮ Y HỆT để phép so 0/1/5 ví dụ chỉ còn MỘT biến.
-#
-# BẮT BUỘC trước khi dùng: `python scripts/check_examples.py --examples <file ví dụ> --require-train`
-# phải ra "KHÔNG RÒ RỈ" (ví dụ nằm trong prompt nghĩa là model đã nhìn thấy nó).
 [SYSTEM]
 {system_prompt}
 
