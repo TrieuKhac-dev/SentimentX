@@ -35,17 +35,26 @@ Mỗi lượt mới phải **giữ hoặc tăng F1** và **tăng Accuracy** so v
 Lý do đổi: đợt 2 đo được biên nhiễu thật **sd = 0,11-0,16**, nên số của MỘT lượt là lượt-may-nhất, không phải
 năng lực của cấu hình (xem mục 11).
 
-| Thước đo | Công bố (đỉnh) | **v0 (`lr 2e-4`, TB 4 lượt)** | **Họ `lr 4e-4` (TB 11 lượt)** |
+| Thước đo | Công bố (đỉnh) | **v0 (`lr 2e-4`, TB 3 lượt ĐỘC LẬP)** | **Họ `lr 4e-4` (TB 12 lượt)** |
 | --- | ---: | ---: | ---: |
-| Accuracy macro (`paper`) | 97,70 | 98,06 | **98,29** |
+| Accuracy macro (`paper`) | 97,70 | 98,08 | **98,28** |
 | pos F1 macro | 98,49 | ~98,6 | ~98,90 |
-| `neg F1 (5 khía cạnh n lớn)` | 88,23 | 93,60 | **94,41** |
+| `neg F1 (5 khía cạnh n lớn)` | 88,23 | 93,65 | **94,38** |
+
+**SỬA 12/10/2026 (sau khi `exp042`/`exp049` về - xem mục 11).** Bảng trên trước đây ghi `v0 = 98,06` (đếm 4 lượt)
+và `họ lr 4e-4 = 98,29` (11 lượt). Sai ở chỗ: `exp049` chạy lại cho **98,11 - trùng KHÍT `exp048` từng khía cạnh**
+(cùng hạt giống huấn luyện 13) ⇒ nó là **BẢN SAO, không phải lượt thứ tư** ⇒ v0 chỉ có **3 lượt độc lập**
+(97,88 · 98,26 · 98,11 = hạt giống 42/7/13). Và `exp042` (98,24) đã lấp đủ nhóm `epochs 6` ⇒ họ `lr 4e-4` là
+**12 lượt**. Mức hơn đọc bằng **Welch**: **0,21 (Acc) · 0,30 (`neg F1`)** - KHÔNG đạt p < 0,05 (mục 11).
 
 **Ngưỡng phát hiện (thay cho ±0,7 khi so 1-1):** một cấu hình mới chỉ được gọi là **"tăng"** khi hơn **> 0,25 ở
 CẢ Accuracy macro VÀ một chỉ số F1 lớp âm có `n`**, với **n >= 3 lượt**. Số của MỘT lượt chỉ để tham khảo.
 
 **Dư địa còn lại (đã định lượng 11/10/2026):** lớp âm còn **~22 ô sai / 467 (4,7 %)**, rải ở các khía cạnh `n`
-LỚN ⇒ đây là loại lỗi mà **KẾT HỢP (Đợt 6)** sửa được, không phải vặn nút.
+LỚN. **Cập nhật 12/10/2026:** đường KẾT HỢP nay đã chứng minh là **cạn** (Đợt 6, mục 12: 9 bàn đạp, không cái nào
+vượt > 0,25), và đường VẶN NÚT cũng cạn (mục 11). Sau ràng buộc mới của người dùng (**không thêm dữ liệu, không
+đổi định nghĩa bài toán**), chỉ còn **HAI khe** mở cho lớp âm: **(a) không gian PROMPT của LLM** (0/1/5 ví dụ từ
+`train` + lấy mẫu - chính là giao thức công bố) và **(b) tiêu chí CHỌN CHECKPOINT** (`best_metric` = F1 lớp âm).
 
 ## 4. Các nhóm thử nghiệm
 
@@ -106,9 +115,34 @@ từng cho +0,15 trên cha `exp002` **KHÔNG tái lập**. Trục tiền xử l�
 
 ### NHÓM 6 - Đo độ vững (seed) - **13 lượt** - **10 ĐÃ CHẠY** + **3 MỚI (Đợt 2b)**
 
-**KẾT QUẢ 11/10/2026 (10 lượt đã chạy).** Bảng `training_history.csv` phát hiện `exp049` **bị ngắt ở tầng
-huấn luyện rồi chạy tiếp** (bắt đầu ở bước 400/epoch 2, không phải 100/epoch 1) ⇒ **loại khỏi nhóm seed** và
-giữ làm bản ghi (luật 11). `exp042` chạy xong trên Colab nhưng **thiếu file nhẹ ở máy**.
+**KẾT QUẢ 11/10/2026 (10 lượt đã chạy) + CẬP NHẬT 12/10/2026 (2 lượt về sau cùng).**
+Bảng `training_history.csv` đã phát hiện `exp049` **bị ngắt ở tầng huấn luyện rồi chạy tiếp** (bắt đầu ở
+bước 400/epoch 2) ⇒ lượt đó không phải một lần rút thăm sạch (luật 11). Người dùng đã **xoá thư mục kết quả và
+chạy lại HOÀN TOÀN** cả `exp042` và `exp049`; nay cả hai là lượt SẠCH:
+
+- **`exp042` = 98,24** (`paper` macro; `training_history.csv` **29 dòng, đủ 6 epoch**; đọc 100 %) ⇒ nhóm
+  `epochs 6` đủ **3 lượt**: 98,37 · **98,24** · 98,14 → **TB 98,25, sd 0,12** ⇒ xác nhận lại "4 cấu hình đồng hạng".
+- **`exp049` = 98,11 - TRÙNG KHÍT `exp048`** (2.739 ô; `colour` 0,909 · `packing` 0,900 · `price` 0,000 ·
+  `shipping` 0,974 · `smell` 0,909 · `stayingpower` 0,973 · `texture` 0,936). Nguyên nhân đã kiểm trong mã/tài
+  liệu: trên **đường encoder**, khoá `decoding.seed` **CHÍNH LÀ HẠT GIỐNG HUẤN LUYỆN** (khởi tạo đầu phân loại,
+  dropout, xới trộn dữ liệu) ⇒ `exp048` (←`exp004`, seed 13) và `exp049` (←`exp002`, seed 13) là **MỘT lần rút
+  thăm**, không phải hai. **Luật 12** đã thêm vào `metrics.md` để chặn lỗi đếm này.
+
+⇒ **v0 thực chất chỉ có 3 lượt ĐỘC LẬP**: seed 42 = 97,88 (`exp002`) · seed 7 = 98,26 (`exp004`) · seed 13 =
+98,11 (`exp048` = `exp049`) → **TB 98,08, sd 0,19**. Con số cũ ghi trong kế hoạch (98,06) đếm lượt bị ngắt; con số
+98,09 sẽ là đếm bản sao - cả hai đều sai cách đếm.
+
+**Vì sao nhóm này BẮT BUỘC (không đổi):** `exp004` (đỉnh báo cáo CŨ) chỉ kém đỉnh mới **0,09** ⇒ nằm trong nhiễu.
+Không có nhóm này thì KHÔNG được viết "đã vượt v0", chỉ được viết "cùng dải nhiễu".
+
+**SÁU lượt MỚI của Đợt 8 (12/10/2026)** - mở rộng v0 từ 3 lên **9 lượt độc lập**, vì mức hơn "+0,20 Acc" hiện có
+**p = 0,21 (Welch)** - chưa đạt p < 0,05 (mục 11):
+
+| Lượt | Cha | Đổi 1 khoá | Ghi chú |
+| --- | --- | --- | --- |
+| `exp058` … `exp063` | `cafebert/lora/exp002` | `decoding.seed`: **1, 2, 3, 4, 5, 6** | 6 hạt giống MỚI THẬT (khác 42/7/13 đã có) |
+
+**Ba lượt DỰ TRỮ (chỉ dùng ở Đợt 9 nếu `p` vẫn > 0,05):** `exp064` … `exp066` = cùng cha, `decoding.seed` **7, 8, 9**.
 | Cấu hình | Vì sao vào nhóm | seed chạy thêm | Lượt |
 | --- | --- | --- | --- |
 | `exp021` | **đỉnh MỚI** (98,41) - giữ 3 kỷ lục | 7, 13 | `exp040`, `exp041` |
@@ -118,14 +152,10 @@ giữ làm bản ghi (luật 11). `exp042` chạy xong trên Colab nhưng **thi�
 | `exp004` (v0) | đỉnh của báo cáo CŨ (`present_report_v0.md`) | 13 | `exp048` |
 | `exp002` (v0) | cha gốc của cả họ CafeBERT | 13 | `exp049` |
 
-**Ba lượt MỚI của Đợt 2b (11/10/2026)** - thêm lần rút thăm cho phía v0 (đang chỉ có 3 lượt SẠCH sau khi loại
-`exp049`), vì phép so "họ `lr 4e-4` > v0" hiện ở **p ~ 0,06**: tăng `n` của nhóm YẾU là cách rẻ nhất để hạ p.
-
-| Lượt | Cha | Đổi 1 khoá | Ghi chú |
-| --- | --- | --- | --- |
-| `exp058` | `cafebert/lora/exp002` | `decoding.seed: 1` | |
-| `exp059` | `cafebert/lora/exp002` | `decoding.seed: 2` | |
-| `exp060` | `cafebert/lora/exp002` | `decoding.seed: 3` | |
+**Ba lượt MỚI của Đợt 2b (11/10/2026) - ĐÃ THAY BẰNG 6 LƯỢT ở bảng trên (12/10/2026).** Lý do đổi: mức hơn
+"họ `lr 4e-4` > v0" đọc lại bằng **Welch** cho **p = 0,21**, chứ không phải `p ~ 0,06` như bản ghi cũ (bản cũ đếm
+`exp049` thành lượt thứ tư). Ba lượt (seed 1/2/3) chỉ đưa df lên ~6 ⇒ p ~ 0,05 (sát ngưỡng); **6 lượt** đưa df lên
+~12 ⇒ **p ~ 0,015**. Số `exp058`/`exp059`/`exp060` nay thuộc 6 lượt mới (seed 1/2/3 nằm trong dãy 1-6).
 
 **BỎ `exp012` khỏi nhóm seed (đổi 11/10/2026):** kỷ lục duy nhất của nó nằm ở thước đo **NHIỄU**
 (`neg F1 (7)`, đến từ **6 ô** `price`), và `exp021` đã **vượt nó trên MỌI thước đo có `n`**.
@@ -150,10 +180,23 @@ lượt đều có `probabilities.csv` ở máy ⇒ **Đợt 6 chạy được n
 Vì sao: ngưỡng theo khía cạnh / ensemble / router chỉ đọc được tác dụng khi có >= 5 ứng viên `val`; hiện chỉ
 `cafebert/lora/exp005` và `exp006` là `val`, và KHÔNG phải lượt nào đang dẫn đầu.
 
-### NHÓM 8 - Đổi chỉ số chọn `model/best` sang lớp âm - 1 sửa mã + 3 lượt
-Sửa `src/training/lora.py` + `KNOWN_KEYS` (`src/experiments/experiments.py`) + test => thêm một lựa chọn
-`checkpoints.best_metric` tính F1 lớp âm. Lượt áp: `exp055` ← `exp015`, `exp056` ← `exp021`, `exp057` ← `exp013`.
-**Điều kiện:** chỉ làm SAU khi NHÓM 11 kết luận `best_metric` hiện tại có tác dụng hay không.
+### NHÓM 8 - Đổi chỉ số chọn `model/best` sang lớp âm - 1 sửa mã + 3 lượt - **HỒI SINH 12/10/2026 (thành 8D)**
+
+Sửa `src/training/lora.py` + test ⇒ thêm một lựa chọn `checkpoints.best_metric` tính **F1 lớp âm**.
+(`KNOWN_KEYS` đã có sẵn khoá `checkpoints.best_metric`, nên **chỉ sửa `lora.py` + test**; đo được `measure()` hiện
+chỉ tính `accuracy_cell`, `accuracy_macro`, `sentiment_f1`, `sentiment_precision`, `sentiment_recall`,
+`detection_f1` - **KHÔNG có F1 lớp âm**.)
+
+**Lượt áp (chốt 12/10/2026): `exp055` · `exp056` · `exp057` = cha `cafebert/lora/exp021`, khác cha ĐÚNG 1 khoá
+`checkpoints.best_metric: negative_f1`, seed 42/7/13.** (Bản 11/10/2026 ghi 3 cha khác nhau `exp015`/`exp021`/
+`exp013`; đổi thành **3 seed của CÙNG một cha** để phép so chỉ còn MỘT biến, đúng quy ước của cả kế hoạch.)
+
+**VÌ SAO HỒI SINH (12/10/2026):** đây là lượt **DUY NHẤT trong 15 lượt HOÃN nhắm TRỰC TIẾP lớp âm mà KHÔNG phá
+tính so sánh** (không thêm dữ liệu, không đổi bài toán, không đổi khung chấm - chỉ đổi **lượt checkpoint được lưu
+là `model/best`**). Lý do HOÃN cũ vẫn có giá trị một phần (`every_n_steps 50` ≈ `100`; `epochs 6` ≈ `3` ⇒ **mật độ**
+checkpoint không phải nút thắt), nhưng lý do đó **chưa hề kiểm TIÊU CHÍ CHỌN khác đi**. Kỳ vọng: **thấp-trung bình**.
+
+**Điều kiện tiên quyết:** NHÓM 11 đã kết luận `best_metric` hiện tại **có tác dụng** (ca A, mục 9.1) ⇒ đủ điều kiện.
 
 ### NHÓM 9 - Tầng PHƯƠNG PHÁP (0 GPU, dùng script có sẵn) - 3 việc - 🎯 **ĐANG LÀM (Đợt 6)**
 | Việc | Lệnh | Cần trước |
@@ -163,14 +206,15 @@ Sửa `src/training/lora.py` + `KNOWN_KEYS` (`src/experiments/experiments.py`) +
 | Biểu quyết 3 seed (trung bình xác suất) | `scripts/vote.py` | NHÓM 6 |
 | ~~Gộp hai tầng (`fuse_aspect.py`)~~ | - | **ĐÃ BỎ** cùng mọi kế hoạch liên quan tới `price` |
 
-### NHÓM 10 - Nhánh model SINH (prompt) - **co lại còn 3 lượt** (chốt 11/10/2026)
+### NHÓM 10 - Nhánh model SINH (prompt) - **6 lượt** (3 few-shot + 3 lấy mẫu; chốt 12/10/2026)
 
 | Lượt | Trạng thái 11/10/2026 |
 | --- | --- |
 | ~~`llama-3.1-8b-instruct/prompt-cot/exp001-003`~~ | **BỎ vì CHI PHÍ** (cùng cỡ 8B ⇒ dự kiến như `qwen3-8b`: **3 ngày Colab cho 3 lượt**). Quyền truy cập đã có nên **không còn là rào cản** - rào cản bây giờ là **chi phí** |
 | ~~`qwen3-8b/prompt-cot/exp001-003`~~ | **HỦY sau khi chạy**: đọc được **1,05 % / 0,92 % / 0,12 %**; `token sinh TB` = **399,8 / 399,8 / 400,0** với trần 400 ⇒ **CHẠM TRẦN 100 %** vì `Qwen/Qwen3-8B` **bật suy nghĩ mặc định** |
 | ~~`mistral-7b-instruct-v0.3/prompt-cot/exp001-003`~~ | **HỦY sau khi chạy**: đọc được **60,4 % / 72,2 % / 63,5 %** (~32 % trả lời **không có khối JSON**) |
-| `qwen3-4b-instruct-2507/prompt-cot/exp022` (0 ví dụ) · `exp023` (1 ví dụ) · `exp024` (5 ví dụ) | **CÒN LẠI** - ví dụ few-shot **lấy từ `train`**, trên model **4B** (chạy ~1,5-4 h/lượt) |
+| `qwen3-4b-instruct-2507/prompt-cot/exp022` (0 ví dụ) · `exp023` (1 ví dụ) · `exp024` (5 ví dụ) | **CÒN LẠI** - ví dụ few-shot **lấy từ `train`**, trên model **4B** (chạy ~2,3-2,8 h/lượt; đây là **đường tới hạn** của Đợt 8) |
+| `qwen3-4b-instruct-2507/prompt-cot/exp025` · `exp026` · `exp027` | **MỚI 12/10/2026** - cùng cặp prompt như `exp023`, `decoding.mode: sample` với `decoding.seed` 1/2/3 ⇒ **3 mẫu THẬT SỰ khác nhau** (khác 3 "seed" encoder trước đây là 3 MODEL khác nhau) để chạy **biểu quyết tự-đồng-thuận** bằng `scripts/vote.py` (**0 GPU**) |
 
 **Vì sao giữ phần lấy ví dụ từ `train`:** `qwen3-4b/prompt-cot/exp009` đang giữ **`neg F1 (5 n lớn)` = 94,70**
 (#2 toàn dự án, chỉ sau `exp015` 0,08), mà **toàn bộ ví dụ hiện nay do người viết tay**, chưa lấy từ dữ liệu.
@@ -178,8 +222,13 @@ Sửa `src/training/lora.py` + `KNOWN_KEYS` (`src/experiments/experiments.py`) +
 **Cách làm (bám sát luật 21 - cặp prompt + ví dụ BẤT BIẾN khi đã dùng):** tạo **cặp MỚI**, KHÔNG sửa file cũ:
 `configs/prompts/absa_cot_trainfshot_v1.txt` +
 `configs/prompts/examples/absa_cot_trainfshot_{0,1,5}shot_v1.txt`; mỗi ví dụ ghi rõ **`train, dòng N`**.
-Trước khi chạy **PHẢI** chạy `python run_check_examples.py --hash e616c1e3 --prompt absa_cot_trainfshot_1shot_v1`
-(và bản 5shot) và phải ra **"không rò rỉ"**; đỏ thì **đổi dòng khác trong `train`**, KHÔNG sửa ngưỡng.
+
+**SỬA 12/10/2026 - công cụ kiểm rò rỉ CHƯA TỒN TẠI.** Bản kế hoạch cũ ghi
+`python run_check_examples.py --hash ... --prompt ...`; tôi đã kiểm `scripts/` (**chỉ có `ci_checks.py`**) và
+`src/workflow/checks.py` (**chỉ kiểm file prompt/ví dụ CÓ TỒN TẠI**, không kiểm rò rỉ) ⇒ **việc W5 là TẠO công cụ**
+`scripts/check_examples.py`: đọc file ví dụ, tách các review ví dụ, đối chiếu với split `test` (không được trùng) và
+với `train` (phải CÓ mặt); kèm test. Trước khi chạy `exp023`/`exp024` **PHẢI** ra **"không rò rỉ"**; đỏ thì **đổi
+dòng khác trong `train`**, KHÔNG sửa ngưỡng.
 
 ### NHÓM 11 - CHẨN ĐOÁN trước khi tin 2 kết luận (0 GPU)
 | Ca | Bằng chứng | Nghi vấn |
@@ -211,7 +260,31 @@ mọi con số `price` phải ghi kèm "n = 6, không kết luận"; dò ngưỡ
 | Cập nhật 12 -> 13 model (thêm Llama) | `docs/04_experiments/01_models.md` |
 | Nếu lượt mới vượt top => viết `present_report_v2.md`; `collect_reports.py` + commit phần nhẹ | `presentations/`, `data/reports/**` |
 
-### Danh sách HOÃN (15 lượt) - **kèm LÝ DO và ĐIỀU KIỆN HỒI SINH** (bổ sung 11/10/2026 sau Đợt 2)
+### NHÓM 15 - Đổi ĐỊNH NGHĨA BÀI TOÁN - **ĐÃ ĐỀ XUẤT rồi RÚT (12/10/2026), KHÔNG CHẠY**
+
+**Đề xuất (bản nháp 12/10/2026):** đổi `neutral_policy` (`drop` → `as_negative`) và/hoặc `not_mentioned`
+(`separate` → `as_class`) cho 6 lượt, vì tôi đo được **129/129 lượt đã chạy đều dùng ĐÚNG MỘT định nghĩa bài toán**
+`(binary, drop, separate)` ⇒ đây là trục "chưa từng thử".
+
+**NGƯỜI DÙNG BÁC ĐÚNG, và đây là bằng chứng đã kiểm trong mã:**
+
+| Khoá | Tác động THẬT | Kết luận |
+| --- | --- | --- |
+| `neutral_policy` | `src/labels/binary.py::project` gọi `base.apply_neutral_policy(...)` (**đổi NHÃN**) và `experiment_run.py` L674 `labels.filter_label_map(label_map, label_space, neutral_policy)` (**đổi bảng nhãn HUẤN LUYỆN**) | **Đổi TẬP/BÀI TOÁN** ⇒ không so được với 97,70 / 88,23 (công bố **BỎ** ô neutral) |
+| `not_mentioned` | `experiment_run.py` L674 **KHÔNG** dùng khoá này để lọc nhãn ⇒ **nhãn huấn luyện KHÔNG đổi**; chỉ `src/evaluation/scorers/base.py` L249-250 `if separate_not_mentioned: codes = [c for c in codes if c != NOT_MENTIONED]` + `scorers/prf.py` L10 (mã "không nhắc" thành **LỚP** thay vì thước `aspect_detection`) | **Đổi CÂY THƯỚC**, không phải thí nghiệm: cùng model, cùng dự đoán, khác số ⇒ tệ hơn cả đổi tập |
+
+**Sai lầm của người lập kế hoạch:** lấy "chưa từng thử" làm "đáng thử". Sự thật là hai khoá này chưa từng thử **vì
+chúng phá tính so sánh** - không phải vì bị bỏ sót. ⇒ Xoá hẳn NHÓM 15. Không có lượt nào của nhóm này được tạo.
+
+**Luật bảo vệ mới (luật 14, đã thêm vào `metrics.md`):** bảng số CHÍNH chỉ nhận lượt giữ nguyên
+**`(label_space: binary, neutral_policy: drop, not_mentioned: separate)`** và cùng phiên bản dữ liệu như công bố;
+lượt khác bài toán chỉ được nằm ở **phụ lục** kèm dòng "khác bài toán".
+
+**Hệ quả:** sau hai ràng buộc của người dùng (**không thêm dữ liệu** + **không đổi định nghĩa bài toán**), "trục mới"
+chỉ còn **HAI khe**: **(a) không gian PROMPT của LLM** (NHÓM 10 - 0/1/5 ví dụ từ `train` + lấy mẫu; đây chính là
+giao thức của công bố) và **(b) tiêu chí CHỌN CHECKPOINT** (NHÓM 8 - `best_metric` = F1 lớp âm).
+
+### Danh sách HOÃN (**12 lượt** - cập nhật 12/10/2026) - **kèm LÝ DO và ĐIỀU KIỆN HỒI SINH**
 
 Nghĩa của `HOÃN` (theo `check_present_plan.md` §17 dùng chữ này): **chưa chạy BÂY GIỜ, KHÔNG xoá khỏi kế
 hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>`.
@@ -234,7 +307,7 @@ hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>
 | `exp035` | DoRA × `lr 4e-4` | DoRA (`exp019` **97,99**) nằm **trong dải nhiễu** của họ `lr 4e-4` (98,25-98,31) | có bằng chứng `n >= 3` rằng DoRA hơn |
 | `exp036` | `inverse_by_aspect` × `lr 4e-4` | `exp018` **97,93** - cũng trong dải nhiễu | như trên |
 | `exp037` `exp038` | `head.trainable: false` | cặp cũ (`exp001` 97,67 vs `exp002` 97,88) lệch **0,21 < 1 sd** | như trên |
-| `exp055` `exp056` `exp057` | `checkpoints.best_metric` tính F1 lớp âm (+ 1 sửa mã) | Đợt 2 cho thấy **chọn checkpoint KHÔNG phải nút thắt**: `every_n_steps 50` ≈ `100` (98,28 vs 98,30) và `epochs 6` ≈ `3` (98,25 vs 98,30) | có bằng chứng checkpoint đang bị chọn lệch (ví dụ khoảng cách lớn giữa `model/best` và `model/last`) |
+| ~~`exp055` `exp056` `exp057`~~ | `checkpoints.best_metric` tính F1 lớp âm (+ 1 sửa mã) | **ĐÃ HỒI SINH 12/10/2026 (thành 8D)** - đây là lượt duy nhất trong 15 lượt HOÃN nhắm TRỰC TIẾP lớp âm mà KHÔNG phá tính so sánh. Lý do HOÃN cũ (`every_n_steps 50` ≈ `100`; `epochs 6` ≈ `3`) chỉ nói **mật độ** checkpoint không phải nút thắt, **chưa hề kiểm TIÊU CHÍ CHỌN** | đã hồi sinh; xem NHÓM 8 |
 
 ## 5. Các đợt (thứ tự chạy)
 
@@ -243,18 +316,21 @@ hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>
 | **0** | 11 + 12 (phần hủy) + 14 (Phụ lục A) | Sửa Phụ lục A · ghi trạng thái HỦY · chẩn đoán 2 nghi lỗi | 0 | ✅ **XONG** |
 | **1** | 1, 2, 3, 4, 5 | 8 lượt ưu tiên: `exp020` `exp021` `exp024` `exp025` `exp027` `exp028` `exp030` `exp033` | ~2,5 h | ✅ **XONG** - *không lượt nào thắng* |
 | **2** | 6 + 7 | **10 lượt seed** (`exp040`-`exp049`) + **5 lượt `val`** (`exp050`-`exp054`) | ~3,5 h | ✅ **XONG** (14/15 có `metrics.json`) |
-| **2b** | 6 | **3 lượt v0 + seed 1/2/3**: `exp058` `exp059` `exp060` | ~3 h | ⬜ **MỚI** |
+| ~~2b~~ | 6 | ~~3 lượt v0 seed 1/2/3~~ | – | ❌ **HẤP THỤ VÀO ĐỢT 8** (12/10/2026: người dùng chạy được 15 lượt song song) |
 | ~~3~~ | 4 + 5 | ~~`exp034` `exp035` `exp036` `exp037` `exp038`~~ | – | ⏸ **HOÃN cả 5** |
-| ~~4~~ | 8 | ~~sửa mã `best_metric` + `exp055` `exp056` `exp057`~~ | – | ⏸ **HOÃN** |
-| **5** | 10 | **3 lượt ví dụ lấy từ `train`** (`qwen3-4b-instruct-2507/prompt-cot/exp022`-`exp024`), sau khi tạo cặp prompt mới + kiểm rò rỉ | ~8-9 h | ⬜ giữ |
-| **6** | 9 | ensemble 5 top · dò ngưỡng 6/7 khía cạnh · biểu quyết 3 seed | **0** | 🎯 **ĐANG LÀM** |
-| **7** | 14 | báo cáo chốt (+ `present_report_v2.md` nếu Đợt 6 hơn > 0,25 ở CẢ 2 trục) | **0** | sau Đợt 6 |
+| ~~4~~ | 8 | ~~sửa mã `best_metric` + `exp055` `exp056` `exp057`~~ | – | ⬆ **HỒI SINH → 8D** |
+| ~~5~~ | 10 | ~~3 lượt ví dụ lấy từ `train`~~ | – | ❌ **HẤP THỤ VÀO ĐỢT 8** (thành 8B + 8C: 6 lượt) |
+| **6** | 9 | ensemble · dò ngưỡng 6/7 khía cạnh · biểu quyết 3 seed | **0** | ✅ **XONG 12/10/2026 - CẢ BA ÂM/RỖNG** (mục 12) |
+| **8** | 6 + 10 + 8 | **15 LƯỢT CHẠY SONG SONG**: 6 v0 (seed 1-6) + 3 LLM few-shot (0/1/5 ví dụ) + 3 LLM lấy mẫu + 3 `best_metric` | 15 slot, **~3 h** (đường tới hạn = LLM 2,8 h) | ⬜ **TIẾP THEO** |
+| **9** | 6 + 10 + 8 + 9 | tuỳ kết quả Đợt 8: nhân bản biến thể THẮNG (≤ 6 lượt) + biểu quyết mẫu LLM (0 GPU) + luật lai (0 GPU) | ≤ 15 slot | ⬜ sau Đợt 8 |
+| **7** | 14 | báo cáo chốt (+ `present_report_v2.md` nếu Đợt 8/9 hơn > 0,25 ở CẢ 2 trục) | **0** | sau Đợt 8 (hoặc 9) |
 
-**Tổng:** **128 lượt đã chạy có `metrics.json`**; còn phải chạy **6 lượt** (3 encoder Đợt 2b + 3 prompt Đợt 5);
-**15 lượt HOÃN** (7 vặn-số + 5 Đợt 3 + 3 Đợt 4). Đã HỦY/BỎ: `qwen3-4b-thinking` ×2, `qwen3-8b` ×3, `mistral-7b` ×3,
-`llama-3.1-8b`, `vistral-7b`, nhánh `full` (1 lượt + 3 đã chạy), và tập chẩn đoán giá.
-**Lưu ý thực thi:** các lượt cần **GPU** không chạy được ở máy này; phần làm được ở đây là tạo notebook +
-config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết quả do người dùng chạy trên Colab**.
+**Tổng (12/10/2026):** **129 lượt đã chạy có `metrics.json`**; còn phải chạy **15 lượt Đợt 8** (+ tối đa 15 lượt
+Đợt 9 tuỳ kết quả); **12 lượt HOÃN** (7 vặn-số + 5 Đợt 3). Đã HỦY/BỎ: `qwen3-4b-thinking` ×2, `qwen3-8b` ×3,
+`mistral-7b` ×3, `llama-3.1-8b`, `vistral-7b`, nhánh `full` (1 lượt + 3 đã chạy), tập chẩn đoán giá, và **NHÓM 15**
+(đổi định nghĩa bài toán - rút 12/10/2026, mục 4).
+**Lưu ý thực thi (không đổi):** các lượt cần **GPU** không chạy được ở máy này; phần làm được ở đây là tạo notebook +
+config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết quả do người dùng chạy trên Colab**.
 
 ## 6. Sổ trạng thái (đánh dấu khi làm xong)
 
@@ -289,14 +365,38 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
 - [x] **GÓI XONG 11/10/2026** - `handover/out/SentimentX-goi-033-8799fb3-261011.zip` (31 file: 15 notebook +
       15 README + MANIFEST). Commit `chore(handover): package 033 with the fifteen stage-2 notebooks`
 - [x] **KẾT QUẢ ĐÃ VỀ 11/10/2026** - 14/15 lượt chạy xong; đã vào git (`7efb530`), `collect_reports.py`
-      (`3f0cf82`) ⇒ **đo được biên nhiễu sd = 0,11-0,16**; **họ `lr 4e-4` ĐỒNG HẠNG**; hơn v0 **+0,22 Acc /
-      +0,81 neg F1** (p ≈ 0,06/0,10). Xem **mục 11**
-- [x] Hai lượt bất thường đã xử lý: `exp042` chạy xong nhưng **thiếu file nhẹ ở máy** (cần copy từ Drive);
-      `exp049` **bị ngắt ở tầng huấn luyện** ⇒ loại khỏi nhóm seed (luật 11)
+      (`3f0cf82`) ⇒ **đo được biên nhiễu sd = 0,11-0,16**; **họ `lr 4e-4` ĐỒNG HẠNG**. Xem **mục 11**
+- [x] **CHỐT LẠI 12/10/2026** - người dùng đã **xoá thư mục kết quả và chạy lại HOÀN TOÀN** `exp042` và `exp049`;
+      cả hai nay là lượt SẠCH. Phát hiện: **`exp049` ≡ `exp048` từng ô** (cùng hạt giống huấn luyện 13) ⇒ v0 chỉ
+      có **3 lượt ĐỘC LẬP** (TB 98,08) và mức hơn so v0 đọc lại bằng Welch là **p = 0,21 (Acc) / 0,30 (`neg F1`)**
+      - KHÔNG phải 0,06/0,10 như bản ghi cũ. File nhẹ của hai lượt **chưa vào git** ⇒ việc **W1**
 
-### Đợt 2b - 3 lượt v0 + seed 1/2/3 (mới 11/10/2026)
-- [ ] Tạo + ghim 3 notebook: `exp058` `exp059` `exp060` (cha `exp002`, khác cha đúng 1 khoá `decoding.seed`)
-- [ ] Đóng gói chung với Đợt 5 thành **gói 034**
+### Đợt 8 - 15 lượt SONG SONG (mới 12/10/2026; THAY cho Đợt 2b + Đợt 5) - nhóm 6 + 10 + 8
+
+**Việc 0 GPU phải xong TRƯỚC khi đóng gói:**
+
+| # | Việc | File chạm tới |
+| --- | --- | --- |
+| **W1** | Commit file nhẹ `exp042`/`exp049` + `collect_reports.py` + dựng lại 5 bảng gộp | `experiments/cafebert/lora/exp04{2,9}/results/**`, `data/reports/**` |
+| **W2** | **Luật 12** (đường encoder: cùng `decoding.seed` = cùng hạt giống ⇒ MỘT lần rút thăm) · **Luật 13** (cấm lấy `neg F1 macro (7)` làm kỷ lục - `price` 5-6 ô + `packing` 9-10 ô chi phối) · **Luật 14** (bảng chính chỉ nhận cùng bài toán + cùng phiên bản dữ liệu) | `docs/04_experiments/metrics.md` |
+| **W3** | Sửa số: v0 = 98,08 (n=3) · Welch 0,21/0,30 · thêm `exp042`/`exp049`; bỏ câu "p ≈ 0,06/0,10" | mục 11 · `08_experiment_rationale.md` · `present_report_v1.md` |
+| **W4** | Bảng xếp hạng **`neg F1 (5 n lớn)` cho MỌI lượt `test`** | `data/reports/**` |
+| **W5** | **TẠO công cụ** kiểm rò rỉ ví dụ few-shot + test | `scripts/check_examples.py`, `tests/workflow/**` |
+| **W6** | Sửa nhỏ: `checkpoints.best_metric` nhận **F1 lớp âm** + test | `src/training/lora.py`, `tests/training/**` |
+| **W7** | Viết cặp prompt + ví dụ MỚI (0/1/5 ví dụ) từ `train` | `configs/prompts/absa_cot_trainfshot_v1.txt` + `configs/prompts/examples/absa_cot_trainfshot_*` |
+| **W8** | Tạo 15 config + README (`new_experiment.py`) → `--dry-run` → ghim (`pin.py`) → **gói 034** (`build_package.py`), `ci_checks` XANH | `experiments/**`, `handover/packages/034` |
+
+- [ ] Thứ tự: **W1 → W2 → W3 → W4** (0 GPU) → **W5 → W7 → W6** (có mã mới, cần test) → **W8** (đóng gói)
+- [ ] **15 lượt**: 8A `exp058`-`exp063` · 8B `exp022`-`exp024` · 8C `exp025`-`exp027` · 8D `exp055`-`exp057`
+
+### Đợt 9 - làn 2, chỉ mở khi Đợt 8 có tín hiệu (mới 12/10/2026)
+
+| Nếu Đợt 8 cho | Đợt 9 làm |
+| --- | --- |
+| LLM hơn >= 0,25 ở `neg F1 (5 n lớn)` | 6 lượt LLM (biến thể 5-ví-dụ khác + 3 lượt lấy mẫu nữa) rồi **biểu quyết 5 mẫu**; nếu vẫn hơn thì bật lại **luật lai encoder+LLM** (`scripts/fuse.py`, **0 GPU**) |
+| 8D thắng >= 0,25 | nhân bản `best_metric: negative_f1` sang 2 cấu hình còn lại (`r 16`, `every_n_steps 50`) × 3 seed |
+| p(v0) vẫn > 0,05 | thêm 3 lượt v0 DỰ TRỮ (`exp064`-`exp066`, seed 7/8/9) |
+| Cả ba hoà/thua | **không tiêu GPU nữa**, đi thẳng Đợt 7 và ghi rõ trần |
 
 ### Đợt 3 - ĐÃ CHUYỂN HOÃN (11/10/2026)
 - [x] **5 lượt chuyển HOÃN** (`exp034` `exp035` `exp036` `exp037` `exp038`) vì Đợt 2 chứng minh **các trục
@@ -308,21 +408,27 @@ config + README, chạy `--preflight-only`, ghim (`pin.py`) và đóng gói; **k
       nút thắt** (`every_n_steps 50` ≈ `100`; `epochs 6` ≈ `3`) - lý do + điều kiện hồi sinh ở mục 4
 - [x] **BỎ** `cafebert/full/exp002` (nhánh `full` đã bị bỏ hẳn - mục 9.2)
 
-### Đợt 5
+### Đợt 5 - **ĐÃ HẤP THỤ VÀO ĐỢT 8** (12/10/2026)
 - [x] **BỎ phần Llama 11/10/2026** (chi phí: cùng cỡ 8B như `qwen3-8b` = 3 ngày/3 lượt)
-- [ ] Tạo **cặp prompt + ví dụ MỚI** lấy từ `train` (0/1/5 ví dụ) - xem NHÓM 10
-- [ ] Chạy `run_check_examples.py` cho cả 1shot và 5shot - phải ra **"không rò rỉ"**
-- [ ] Tạo + ghim 3 notebook `qwen3-4b-instruct-2507/prompt-cot/exp022-024`
+- [x] **Chuyển sang 8B + 8C** (6 lượt) vì người dùng chạy được 15 lượt song song: 3 lượt few-shot
+      (`exp022`-`exp024`) + 3 lượt lấy mẫu (`exp025`-`exp027`)
+- [x] Sửa lại điều kiện kiểm rò rỉ: công cụ `run_check_examples.py` **KHÔNG tồn tại** trong repo ⇒ việc **W5** là
+      **tạo** `scripts/check_examples.py`; xem NHÓM 10
 
-### Đợt 6 - 0 GPU - 🎯 ĐANG LÀM
-- [ ] **6.1** Ensemble 5 lượt dẫn đầu (`scripts/ensemble.py`, chốt trọng số trên `val` rồi áp lên `test`)
-- [ ] **6.2** Dò ngưỡng theo khía cạnh (6/7 khía cạnh; `price` loại vì `val` có 0 ô âm) - `scripts/fit_thresholds.py`
-- [ ] **6.3** Biểu quyết 3 seed - `scripts/vote.py` trên `exp021`/`exp040`/`exp041` và `exp028`/`exp046`/`exp047`
-- [ ] Luật đọc: bản gộp **chỉ có nghĩa khi đứng cạnh số của TỪNG thành viên trên cùng tập**; phải hơn
-      **> 0,25 ở CẢ Acc và neg F1 (5 n lớn)** mới gọi là tiến bộ
+### Đợt 6 - 0 GPU - ✅ **XONG 12/10/2026: CẢ BA VIỆC ÂM/RỖNG** (chi tiết ở mục 12)
+- [x] **6.1** Ensemble 5 lượt dẫn đầu - tổng quát thành **6 model KHÁC NHAU** (như tài liệu 09_fusion.md chỉ ra:
+      chốt trọng số trên `val`, áp lên `test`) ⇒ **97,87 / 0,795 < `exp013` 98,33 / 0,889** = THUA
+- [x] **6.1b** Ensemble 5 lượt `cafebert` (trọng số đều) ⇒ **98,26 / 0,856** ≈ TB họ `lr 4e-4` (98,28) = không lợi
+- [x] **6.2** Dò ngưỡng theo khía cạnh (6/7; `price` để nguyên) ⇒ **RỖNG**: lưới quét cho thấy F1 âm **tăng đơn
+      điệu VỀ điểm gốc** (`colour` 0,788 ở ngưỡng 0,05 → 0,877 khi không ngưỡng) ⇒ mọi ngưỡng đều LÀM HỎNG
+- [x] **6.3** Biểu quyết 3 seed (`exp021`/`exp040`/`exp041`) ⇒ acc 98,41 (ngang `exp021`) nhưng `neg F1 (7)`
+      **0,809** < 0,886 (thấp hơn cả `exp040` 0,813); 11.361 ô đủ phiếu, chỉ **8 ô hoà**
+- [x] **Luật đọc đã áp đúng:** cả ba đều so với TỪNG thành viên trên cùng tập; **không việc nào vượt > 0,25 ở cả
+      Acc và `neg F1`** ⇒ không sinh ra kết quả để báo cáo, bằng chứng giữ trong `data/reports/fusion/**`
 
-### Đợt 7 - 0 GPU
-- [ ] Báo cáo chốt (+ `present_report_v2.md` nếu có lượt vượt top) + `collect_reports.py` + commit
+### Đợt 7 - 0 GPU - báo cáo chốt
+- [ ] Báo cáo chốt (+ `present_report_v2.md` nếu có lượt vượt > 0,25 ở CẢ 2 trục) + `collect_reports.py` + commit
+- [ ] **Chạy SAU Đợt 8** (và sau Đợt 9 nếu Đợt 9 được mở)
 
 ## 7. Nhật ký thay đổi và lỗi
 
@@ -474,44 +580,68 @@ Luật 3 của `metrics.md` (chạm trần = lượt bị cắt) **đã bắt đ
 
 14/15 lượt có `metrics.json` (`exp042` chạy xong trên Colab nhưng thiếu file nhẹ ở máy). Gom theo CẤU HÌNH:
 
-| Cấu hình (cha + các seed) | Acc macro từng lượt | **TB** | sd | **neg F1 (5 n lớn) TB** |
-| --- | --- | ---: | ---: | ---: |
-| `lr4e-4, r8` (`exp021` 42 · `exp040` 7 · `exp041` 13) | 98,41 · 98,38 · 98,13 | **98,31** | 0,15 | 94,59 |
-| `lr4e-4, r16` (`exp015` 42 · `exp044` 7 · `exp045` 13) | 98,35 · 98,17 · 98,37 | **98,30** | 0,11 | 94,33 |
-| `lr4e-4, every_n_steps 50` (`exp028` · `exp046` · `exp047`) | 98,31 · 98,16 · 98,37 | **98,28** | 0,11 | 94,49 |
-| `lr4e-4, epochs 6` (`exp027` 42 · `exp043` 13 · `exp042` thiếu) | 98,37 · 98,14 | **98,25** | 0,16 | 94,15 |
-| **`lr 2e-4` = v0** (`exp002` 42 · `exp004` 7 · `exp048` 13 · `exp049` 13) | 97,88 · 98,26 · 98,11 · 98,00 | **98,06** | 0,16 | **93,60** |
+**CẬP NHẬT 12/10/2026** - 15/15 lượt đã có `metrics.json` (`exp042` và `exp049` đã được người dùng xoá kết quả cũ và
+chạy lại hoàn toàn). Số dưới đây CHẤM LẠI bằng engine của dự án (`accuracy_paper.macro` và `neg F1 (5 n lớn)` =
+trung bình F1 lớp âm của 5 khía cạnh `n` lớn: `colour` 54 · `shipping` 172 · `smell` 48 · `stayingpower` 95 ·
+`texture` 83).
 
-### Bốn kết luận
+| Cấu hình (cha + các seed) | Acc macro từng lượt | **TB** | sd | **neg F1 (5 n lớn) TB** | sd |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `lr4e-4, r8` (`exp021` 42 · `exp040` 7 · `exp041` 13) | 98,41 · 98,38 · 98,13 | **98,31** | 0,15 | 94,59 | 0,30 |
+| `lr4e-4, r16` (`exp015` 42 · `exp044` 7 · `exp045` 13) | 98,35 · 98,17 · 98,37 | **98,30** | 0,11 | 94,33 | 0,61 |
+| `lr4e-4, every_n_steps 50` (`exp028` 42 · `exp046` 7 · `exp047` 13) | 98,31 · 98,16 · 98,37 | **98,28** | 0,11 | 94,49 | 0,40 |
+| `lr4e-4, epochs 6` (`exp027` 42 · **`exp042` 7** · `exp043` 13) | 98,37 · **98,24** · 98,14 | **98,25** | 0,12 | 94,11 | 0,12 |
+| **họ `lr 4e-4` gộp (12 lượt)** | — | **98,28** | 0,11 | **94,38** | 0,39 |
+| **`lr 2e-4` = v0 (3 lượt ĐỘC LẬP)** | 97,88 · 98,26 · 98,11 | **98,08** | 0,19 | **93,65** | 0,91 |
 
-1. **BỐN cấu hình trong họ `lr 4e-4` ĐỒNG HẠNG TUYỆT ĐỐI** (TB 98,25-98,31, sd 0,11-0,16 ⇒ chênh giữa các TB
-   ≤ 0,06 chỉ bằng 1/3 sd). ⇒ **`r 8` vs `r 16`, `epochs 3` vs `6`, `every_n_steps 100` vs `50`: KHÔNG có
-   khác biệt đo được.** `exp021` (98,41) **không còn là "đỉnh" riêng**.
-2. **Họ `lr 4e-4` hơn cấu hình v0 (`lr 2e-4`)**: **+0,22 Acc** (98,29 vs 98,06) và **+0,81 `neg F1 (5 n lớn)`**
-   (94,41 vs 93,60); **đúng chiều ở MỌI lượt**. Ước lượng ý nghĩa: Acc **t ≈ 2,6 (p ≈ 0,06)**; neg F1
-   **t ≈ 2,1 (p ≈ 0,10)** ⇒ **gợi ý mạnh, CHƯA đạt p < 0,05**. Cách rẻ nhất để hạ p: thêm lượt cho nhóm YẾU
-   (v0) ⇒ **Đợt 2b**.
-3. **Mọi "kỷ lục" cũ đều là LƯỢT MAY NHẤT của nó**: `exp021` 98,41 (TB 98,31); đỉnh báo cáo cũ `exp004`
-   98,26 (TB họ v0 98,06). ⇒ **dùng 1 lượt làm kỷ lục đã nói quá 0,10-0,20 điểm**.
-4. **Dư địa còn lại nằm ở lớp ÂM, rải ở khía cạnh `n` LỚN**: `exp021` còn **~22 ô sai / 467 ô âm (4,7 %)**,
-   phân bố `colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 ·
-   `packing` 1,0. ⇒ đây là **loại lỗi mà KẾT HỢP (Đợt 6) sửa được**, không phải vặn nút.
+`neg F1 (5 n lớn)` **từng lượt** - `r8`: 94,640 · 94,860 · 94,260 · `r16`: 94,780 · 93,640 · 94,560 ·
+`step50`: 94,840 · 94,060 · 94,560 · `epochs6`: 94,060 · 94,020 · 94,240 · `v0`: **92,620** · 94,320 · 94,020.
 
-### Hai bất thường (đã xử lý)
+### Bốn kết luận (số đã sửa 12/10/2026)
 
-- **`exp042`**: `run.log` ghi kết thúc 4.050,1 giây + "đã ghi `metrics.json`" + FINISHED, nhưng thư mục ở máy
-  chỉ có `model/`, `run.log`, `run_meta.json` ⇒ **file nhẹ chưa copy từ Drive về**. → cần copy (hoặc chạy lại).
-- **`exp048` vs `exp049`** (cùng cấu hình + cùng `decoding.seed: 13` nhưng 98,11 vs 98,00; best step 900 vs
-  766): `training_history.csv` của `exp049` **chỉ 10 dòng và bắt đầu ở bước 400 / epoch 2** ⇒ lượt đó **bị
-  ngắt ở tầng HUẤN LUYỆN rồi chạy tiếp** ⇒ **loại khỏi nhóm seed** (giữ làm bản ghi). Xem **luật 11**.
+1. **BỐN cấu hình trong họ `lr 4e-4` ĐỒNG HẠNG** (TB 98,25-98,31, sd 0,11-0,15 ⇒ chênh giữa các TB ≤ 0,06 chỉ bằng
+   1/3-1/2 sd; nhóm `epochs 6` nay **đủ 3 lượt** nhờ `exp042` = 98,24). ⇒ **`r 8` vs `r 16`, `epochs 3` vs `6`,
+   `every_n_steps 100` vs `50`: KHÔNG có khác biệt đo được.** `exp021` (98,41) **không phải "đỉnh" riêng**.
+2. **Họ `lr 4e-4` hơn v0**: **+0,20 Acc** (98,283 vs 98,083) và **+0,72 `neg F1 (5 n lớn)`** (94,377 vs 93,653).
+   **Đo lại bằng 2 kiểm định (2 phía, `scipy`), với n ĐÚNG của v0 = 3 lượt độc lập:**
 
-### Hệ quả cho kế hoạch
+   | Trục | Chênh | **Welch** t (df) → p | Gộp phương sai t (df) → p |
+   | --- | ---: | --- | --- |
+   | Accuracy macro | +0,20 | 1,74 (2,3) → **p = 0,206** | 2,50 (13) → p = 0,027 |
+   | `neg F1 (5 n lớn)` | +0,72 | 1,35 (2,2) → **p = 0,300** | 2,23 (13) → p = 0,044 |
 
-- Bàn đo đổi sang **TRUNG BÌNH nhiều lượt** (mục 3); ngưỡng phát hiện **> 0,25 với n >= 3**.
-- **Đợt 3 + Đợt 4 CHUYỂN HOÃN** (11 + 3 lượt): vặn nút không còn tạo ra khác biệt đo được.
-- **Thêm Đợt 2b** (3 lượt v0 + seed 1/2/3) để chốt phép so với v0.
-- **Đợt 6 (KẾT HỢP) thành con đường CHÍNH** cho mục tiêu "tăng cả Acc và F1", vì dư địa nằm ở ô âm `n` lớn
-  và 5 lượt `val` dẫn đầu đã có sẵn `probabilities.csv` ở máy.
+   ⇒ **Kết luận phụ thuộc hoàn toàn vào giả định phương sai.** Welch (đúng hơn khi `n` và sd lệch nhau - v0 sd 0,19
+   gấp đôi họ kia 0,107) cho **p ≈ 0,21 / 0,30 ⇒ CHƯA đạt p < 0,05**. Bản ghi cũ ("t ≈ 2,6, p ≈ 0,06") vừa đếm
+   `exp049` thành lượt thứ tư vừa dùng kiểm định gộp phương sai. ⇒ **Đợt 8/8A (6 lượt v0 nữa) là cách duy nhất để
+   chốt**: v0 lên 9 lượt độc lập ⇒ Welch df ≈ 12 ⇒ p ≈ 0,015.
+3. **Không lấy số của MỘT lượt làm kết luận** (luật 10): `exp021` 98,41 nhưng TB của chính nó **98,31**; đỉnh báo cáo
+   CŨ `exp004` 98,26 nhưng TB họ v0 **98,08**.
+4. **Thước đo `neg F1 macro (7)` là THƯỚC ĐO NHIỄU - cấm dùng làm kỷ lục (luật 13 mới):** trong CÙNG cấu hình `r8`,
+   3 seed cho `neg F1 (7)` = **0,886 · 0,813 · 0,796** nhưng `neg F1 (5 n lớn)` = **94,640 · 94,860 · 94,260**
+   (chênh 0,006). Nguyên nhân: `price` (5-6 ô) cho F1 **0,571 · 0,000 · 0,000** và `packing` (9-10 ô) 0,900 · 0,947 ·
+   0,857 ⇒ 1-2 ô đảo chiều làm `neg F1 (7)` nhảy 0,09. ⇒ "kỷ lục `neg F1 (7)` = 0,886 của `exp021`" là **artefact của
+   4/7 ô giá**; trên thước đo có `n`, **`exp040` (94,860) mới là lượt tốt nhất** của nhóm `r8`.
+5. **Dư địa còn lại nằm ở lớp ÂM, rải ở khía cạnh `n` LỚN**: `exp021` còn **~22 ô sai / 467 ô âm (4,7 %)**
+   (`colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0).
+   **Cập nhật 12/10/2026:** đường KẾT HỢP đã chứng minh CẠN (Đợt 6, mục 12: 9 bàn đạp, không cái nào > 0,25) ⇒ hai khe
+   còn lại là **prompt/few-shot của LLM** (NHÓM 10) và **tiêu chí chọn checkpoint** (NHÓM 8).
+
+### Hai bất thường (đã xử lý xong 12/10/2026)
+
+- **`exp042`**: 11/10 chạy xong trên Colab nhưng thiếu file nhẹ ở máy. **12/10: người dùng xoá kết quả và chạy lại
+  hoàn toàn** ⇒ **98,24**, `training_history.csv` 29 dòng đủ 6 epoch, đọc 100 %, lượt SẠCH.
+- **`exp048` vs `exp049`**: 11/10 lệch 98,11 vs 98,00 vì `exp049` bị ngắt ở tầng huấn luyện (luật 11). **12/10: chạy
+  lại hoàn toàn ⇒ 98,11 - TRÙNG KHÍT `exp048` TỪNG Ô** (`colour` 0,909 · `packing` 0,900 · `price` 0,000 ·
+  `shipping` 0,974 · `smell` 0,909 · `stayingpower` 0,973 · `texture` 0,936; cùng 2.739 ô). Nguyên nhân: trên **đường
+  encoder**, `decoding.seed` **CHÍNH LÀ HẠT GIỐNG HUẤN LUYỆN** ⇒ `exp048` (←`exp004`, seed 13) và `exp049` (←`exp002`,
+  seed 13) là **MỘT lần rút thăm**. ⇒ **Luật 12** (mới) + v0 chỉ có **3 lượt độc lập**.
+
+### Hệ quả cho kế hoạch (đã cập nhật trong file này)
+
+- Bàn đo giữ **TRUNG BÌNH nhiều lượt** (mục 3); ngưỡng phát hiện **> 0,25 với n >= 3**.
+- **Đợt 3 + Đợt 4**: Đợt 3 vẫn HOÃN (5 lượt); **Đợt 4 HỒI SINH thành 8D** (3 lượt + 1 sửa mã).
+- **Đợt 2b (3 lượt) → 8A (6 lượt)** vì p thật là 0,21 chứ không phải 0,06.
+- **Đợt 6 (KẾT HỢP) đã chạy và CẠN** (mục 12) ⇒ toàn bộ trọng tâm chuyển sang **Đợt 8**.
 
 ## 12. Đợt 6 - BA VIỆC KẾT HỢP (12/10/2026): **CẢ BA ĐỀU KHÔNG CẢI THIỆN**
 
@@ -570,3 +700,36 @@ Muốn vượt trần này phải đổi **loại** (thêm dữ liệu / đổi 
 ⇒ **9 bàn đạp, KHÔNG bàn đạp nào vượt > 0,25 trên CẢ HAI trục** so với lượt mạnh nhất
 (`cafebert/lora/exp013` 98,33 / 0,889). Gần nhất là **luật lai encoder + LLM** (hơn 0,009 F1 âm, kém 0,31 Acc;
 lại dùng encoder `phobert-base-v2` yếu, không phải `cafebert`) - vẫn xa ngưỡng 0,25.
+
+## 13. CHỐT KẾ HOẠCH 12/10/2026 - Đợt 8 (15 slot) · 3 luật mới · RÚT NHÓM 15
+
+Người dùng chốt: **chạy được 15 thử nghiệm CÙNG LÚC trên Colab** · **tuyệt đối không thêm dữ liệu** · bám kế hoạch.
+Ba hệ quả đã ghi vào file này:
+
+1. **Gộp Đợt 2b + Đợt 5 thành Đợt 8 (15 lượt / 1 làn)** - mục 5 và mục 6.
+2. **RÚT NHÓM 15** (đổi định nghĩa bài toán) vì phá tính so sánh với công bố - mục 4 NHÓM 15.
+3. **Hồi sinh Đợt 4 thành 8D** (`best_metric` = F1 lớp âm) - mục 4 NHÓM 8.
+
+### 15 lượt của Đợt 8 (mỗi lượt khác cha ĐÚNG 1 khoá · cùng bài toán `(binary, drop, separate)` · cùng dữ liệu)
+
+| Nhóm | Lượt | Cha | Khoá đổi | Seed | ~Giờ | Trả lời câu gì |
+| --- | --- | --- | --- | --- | ---: | --- |
+| **8A** | `cafebert/lora/exp058`–`exp063` | `exp002` (v0) | `decoding.seed` = 1,2,3,4,5,6 | 1-6 | 1,1 | v0 3→9 lượt độc lập ⇒ Welch **df ≈ 12, p ≈ 0,015** cho "+0,20 Acc" |
+| **8B** | `qwen3-4b-instruct-2507/prompt-cot/exp022`–`exp024` | `exp009` | cặp prompt + `examples` từ `train` (0 / 1 / 5 ví dụ) | – | **2,8** | LLM có phá thế hoà lớp âm (94,70 vs 94,64 = **0,0006**) không |
+| **8C** | `qwen3-4b-instruct-2507/prompt-cot/exp025`–`exp027` | `exp009` | `decoding.mode: sample` + `decoding.seed` = 1,2,3 | 1,2,3 | 2,8 | 3 MẪU THẬT SỰ khác nhau ⇒ nguyên liệu **biểu quyết tự-đồng-thuận** (0 GPU) |
+| **8D** | `cafebert/lora/exp055`–`exp057` | `exp021` (đỉnh) | `checkpoints.best_metric: negative_f1` (+1 sửa mã) | 42,7,13 | 1,1 | Tiêu chí chọn checkpoint có cứu lớp âm không (khe duy nhất còn lại ở phía encoder) |
+
+### Luật đọc số (giữ nguyên, đã áp cho Đợt 8 - chốt TRƯỚC khi thấy `test`)
+
+- Ngưỡng phát hiện **> 0,25 ở CẢ HAI trục** (Accuracy macro **và** `neg F1 (5 n lớn)`) so với lượt mạnh nhất cùng
+  bộ; **n >= 3 lượt**; phương sai lệch ⇒ báo cáo **Welch**; dưới ngưỡng thì ghi "cùng dải nhiễu".
+- **Luật 12** (mới): đường encoder - cùng `decoding.seed` = cùng hạt giống huấn luyện ⇒ HAI lượt là MỘT lần rút thăm.
+- **Luật 13** (mới): cấm lấy `neg F1 macro (7)` làm kỷ lục (`price` 5-6 ô + `packing` 9-10 ô chi phối) - đọc
+  `neg F1 (5 n lớn)` hoặc chỉ số theo `n`.
+- **Luật 14** (mới): bảng số CHÍNH chỉ nhận lượt cùng bài toán `(binary, drop, separate)` + cùng phiên bản dữ liệu.
+
+### Việc 0 GPU (W1-W8) - thứ tự làm
+
+`W1` commit `exp042`/`exp049` + `collect_reports` → `W2` 3 luật → `W3` sửa số 3 tài liệu → `W4` bảng xếp hạng
+`neg F1 (5 n lớn)` toàn bộ lượt `test` → `W5` **tạo** `scripts/check_examples.py` (kiểm rò rỉ) → `W7` cặp prompt +
+ví dụ mới từ `train` → `W6` `best_metric: negative_f1` → `W8` tạo 15 config + ghim + **gói 034** + `ci_checks` XANH.
