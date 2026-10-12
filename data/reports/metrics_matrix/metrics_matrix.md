@@ -119,8 +119,22 @@ graph LR
   n115["exp028"]
   n116["exp030"]
   n117["exp033"]
-  n118["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
-  n119["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
+  n118["exp044"]
+  n119["exp045"]
+  n120["exp046"]
+  n121["exp047"]
+  n122["exp048"]
+  n123["exp050"]
+  n124["exp051"]
+  n125["exp053"]
+  n126["exp052"]
+  n127["exp054"]
+  n128["exp049"]
+  n129["exp040"]
+  n130["exp041"]
+  n131["exp043"]
+  n132["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
+  n133["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
   n1 -->|so với| n2
   n1 -->|so với| n3
   n1 -->|so với| n4
@@ -235,118 +249,146 @@ graph LR
   n1 -->|so với| n115
   n1 -->|so với| n116
   n1 -->|so với| n117
-  n33 -->|chấm trên| n118
-  n26 -->|chấm trên| n118
-  n2 -->|chấm trên| n118
-  n10 -->|chấm trên| n118
-  n3 -->|chấm trên| n118
-  n11 -->|chấm trên| n118
-  n34 -->|chấm trên| n118
-  n35 -->|chấm trên| n118
-  n27 -->|chấm trên| n118
-  n36 -->|chấm trên| n118
-  n37 -->|chấm trên| n118
-  n4 -->|chấm trên| n118
-  n12 -->|chấm trên| n118
-  n13 -->|chấm trên| n118
-  n14 -->|chấm trên| n118
-  n15 -->|chấm trên| n118
-  n28 -->|chấm trên| n118
-  n16 -->|chấm trên| n118
-  n38 -->|chấm trên| n118
-  n17 -->|chấm trên| n118
-  n29 -->|chấm trên| n118
-  n18 -->|chấm trên| n118
-  n5 -->|chấm trên| n118
-  n19 -->|chấm trên| n118
-  n20 -->|chấm trên| n118
-  n21 -->|chấm trên| n118
-  n6 -->|chấm trên| n118
-  n30 -->|chấm trên| n118
-  n39 -->|chấm trên| n118
-  n40 -->|chấm trên| n118
-  n41 -->|chấm trên| n118
-  n42 -->|chấm trên| n118
-  n43 -->|chấm trên| n118
-  n44 -->|chấm trên| n118
-  n45 -->|chấm trên| n118
-  n46 -->|chấm trên| n118
-  n47 -->|chấm trên| n118
-  n48 -->|chấm trên| n118
-  n49 -->|chấm trên| n118
-  n50 -->|chấm trên| n118
-  n51 -->|chấm trên| n118
-  n52 -->|chấm trên| n118
-  n53 -->|chấm trên| n118
-  n22 -->|chấm trên| n118
-  n54 -->|chấm trên| n118
-  n55 -->|chấm trên| n118
-  n56 -->|chấm trên| n118
-  n57 -->|chấm trên| n118
-  n58 -->|chấm trên| n118
-  n59 -->|chấm trên| n118
-  n60 -->|chấm trên| n118
-  n61 -->|chấm trên| n118
-  n62 -->|chấm trên| n118
-  n63 -->|chấm trên| n118
-  n64 -->|chấm trên| n118
-  n65 -->|chấm trên| n118
-  n66 -->|chấm trên| n118
-  n67 -->|chấm trên| n118
-  n68 -->|chấm trên| n118
-  n69 -->|chấm trên| n118
-  n70 -->|chấm trên| n118
-  n71 -->|chấm trên| n118
-  n72 -->|chấm trên| n118
-  n73 -->|chấm trên| n118
-  n74 -->|chấm trên| n119
-  n75 -->|chấm trên| n118
-  n76 -->|chấm trên| n118
-  n77 -->|chấm trên| n118
-  n78 -->|chấm trên| n118
-  n79 -->|chấm trên| n118
-  n80 -->|chấm trên| n118
-  n81 -->|chấm trên| n118
-  n82 -->|chấm trên| n118
-  n83 -->|chấm trên| n118
-  n84 -->|chấm trên| n118
-  n85 -->|chấm trên| n118
-  n86 -->|chấm trên| n118
-  n87 -->|chấm trên| n118
-  n88 -->|chấm trên| n118
-  n89 -->|chấm trên| n118
-  n90 -->|chấm trên| n118
-  n91 -->|chấm trên| n118
-  n92 -->|chấm trên| n118
-  n93 -->|chấm trên| n118
-  n94 -->|chấm trên| n119
-  n95 -->|chấm trên| n118
-  n96 -->|chấm trên| n118
-  n23 -->|chấm trên| n118
-  n7 -->|chấm trên| n118
-  n97 -->|chấm trên| n118
-  n98 -->|chấm trên| n118
-  n99 -->|chấm trên| n119
-  n100 -->|chấm trên| n118
-  n101 -->|chấm trên| n118
-  n102 -->|chấm trên| n118
-  n103 -->|chấm trên| n118
-  n104 -->|chấm trên| n118
-  n105 -->|chấm trên| n118
-  n106 -->|chấm trên| n118
-  n107 -->|chấm trên| n118
-  n108 -->|chấm trên| n118
-  n109 -->|chấm trên| n118
-  n8 -->|chấm trên| n118
-  n24 -->|chấm trên| n118
-  n31 -->|chấm trên| n118
-  n110 -->|chấm trên| n118
-  n111 -->|chấm trên| n118
-  n112 -->|chấm trên| n118
-  n113 -->|chấm trên| n118
-  n114 -->|chấm trên| n118
-  n115 -->|chấm trên| n118
-  n116 -->|chấm trên| n118
-  n117 -->|chấm trên| n118
-  n32 -->|chấm trên| n118
+  n1 -->|so với| n118
+  n1 -->|so với| n119
+  n1 -->|so với| n120
+  n1 -->|so với| n121
+  n1 -->|so với| n122
+  n1 -->|so với| n123
+  n1 -->|so với| n124
+  n1 -->|so với| n125
+  n1 -->|so với| n126
+  n1 -->|so với| n127
+  n1 -->|so với| n128
+  n1 -->|so với| n129
+  n1 -->|so với| n130
+  n1 -->|so với| n131
+  n33 -->|chấm trên| n132
+  n26 -->|chấm trên| n132
+  n2 -->|chấm trên| n132
+  n10 -->|chấm trên| n132
+  n3 -->|chấm trên| n132
+  n11 -->|chấm trên| n132
+  n34 -->|chấm trên| n132
+  n35 -->|chấm trên| n132
+  n27 -->|chấm trên| n132
+  n36 -->|chấm trên| n132
+  n37 -->|chấm trên| n132
+  n4 -->|chấm trên| n132
+  n12 -->|chấm trên| n132
+  n13 -->|chấm trên| n132
+  n14 -->|chấm trên| n132
+  n15 -->|chấm trên| n132
+  n28 -->|chấm trên| n132
+  n16 -->|chấm trên| n132
+  n38 -->|chấm trên| n132
+  n17 -->|chấm trên| n132
+  n29 -->|chấm trên| n132
+  n18 -->|chấm trên| n132
+  n5 -->|chấm trên| n132
+  n19 -->|chấm trên| n132
+  n20 -->|chấm trên| n132
+  n21 -->|chấm trên| n132
+  n6 -->|chấm trên| n132
+  n30 -->|chấm trên| n132
+  n39 -->|chấm trên| n132
+  n40 -->|chấm trên| n132
+  n41 -->|chấm trên| n132
+  n42 -->|chấm trên| n132
+  n43 -->|chấm trên| n132
+  n44 -->|chấm trên| n132
+  n45 -->|chấm trên| n132
+  n46 -->|chấm trên| n132
+  n47 -->|chấm trên| n132
+  n48 -->|chấm trên| n132
+  n49 -->|chấm trên| n132
+  n50 -->|chấm trên| n132
+  n51 -->|chấm trên| n132
+  n52 -->|chấm trên| n132
+  n53 -->|chấm trên| n132
+  n22 -->|chấm trên| n132
+  n54 -->|chấm trên| n132
+  n55 -->|chấm trên| n132
+  n56 -->|chấm trên| n132
+  n57 -->|chấm trên| n132
+  n58 -->|chấm trên| n132
+  n59 -->|chấm trên| n132
+  n60 -->|chấm trên| n132
+  n61 -->|chấm trên| n132
+  n62 -->|chấm trên| n132
+  n63 -->|chấm trên| n132
+  n64 -->|chấm trên| n132
+  n65 -->|chấm trên| n132
+  n66 -->|chấm trên| n132
+  n67 -->|chấm trên| n132
+  n68 -->|chấm trên| n132
+  n69 -->|chấm trên| n132
+  n70 -->|chấm trên| n132
+  n71 -->|chấm trên| n132
+  n72 -->|chấm trên| n132
+  n73 -->|chấm trên| n132
+  n74 -->|chấm trên| n133
+  n75 -->|chấm trên| n132
+  n76 -->|chấm trên| n132
+  n77 -->|chấm trên| n132
+  n78 -->|chấm trên| n132
+  n79 -->|chấm trên| n132
+  n80 -->|chấm trên| n132
+  n81 -->|chấm trên| n132
+  n82 -->|chấm trên| n132
+  n83 -->|chấm trên| n132
+  n84 -->|chấm trên| n132
+  n85 -->|chấm trên| n132
+  n86 -->|chấm trên| n132
+  n87 -->|chấm trên| n132
+  n88 -->|chấm trên| n132
+  n89 -->|chấm trên| n132
+  n90 -->|chấm trên| n132
+  n91 -->|chấm trên| n132
+  n92 -->|chấm trên| n132
+  n93 -->|chấm trên| n132
+  n94 -->|chấm trên| n133
+  n95 -->|chấm trên| n132
+  n96 -->|chấm trên| n132
+  n23 -->|chấm trên| n132
+  n7 -->|chấm trên| n132
+  n97 -->|chấm trên| n132
+  n98 -->|chấm trên| n132
+  n99 -->|chấm trên| n133
+  n100 -->|chấm trên| n132
+  n101 -->|chấm trên| n132
+  n102 -->|chấm trên| n132
+  n103 -->|chấm trên| n132
+  n104 -->|chấm trên| n132
+  n105 -->|chấm trên| n132
+  n106 -->|chấm trên| n132
+  n107 -->|chấm trên| n132
+  n108 -->|chấm trên| n132
+  n109 -->|chấm trên| n132
+  n8 -->|chấm trên| n132
+  n24 -->|chấm trên| n132
+  n31 -->|chấm trên| n132
+  n110 -->|chấm trên| n132
+  n111 -->|chấm trên| n132
+  n112 -->|chấm trên| n132
+  n113 -->|chấm trên| n132
+  n114 -->|chấm trên| n132
+  n115 -->|chấm trên| n132
+  n116 -->|chấm trên| n132
+  n117 -->|chấm trên| n132
+  n32 -->|chấm trên| n132
+  n118 -->|chấm trên| n132
+  n119 -->|chấm trên| n132
+  n120 -->|chấm trên| n132
+  n121 -->|chấm trên| n132
+  n122 -->|chấm trên| n132
+  n123 -->|chấm trên| n132
+  n124 -->|chấm trên| n132
+  n125 -->|chấm trên| n132
+  n126 -->|chấm trên| n132
+  n127 -->|chấm trên| n132
+  n128 -->|chấm trên| n132
+  n129 -->|chấm trên| n132
+  n130 -->|chấm trên| n132
+  n131 -->|chấm trên| n132
 ```

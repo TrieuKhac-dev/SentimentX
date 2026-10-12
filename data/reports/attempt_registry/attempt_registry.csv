@@ -119,3 +119,18 @@ cafebert/lora/exp028:d17056e5,FINISHED,NEW,2026-10-11 10:45:16,703.0,cafebert,lo
 cafebert/lora/exp030:1ce21c75,FINISHED,NEW,2026-10-11 10:45:24,566.9,cafebert,lora,exp030,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,1ce21c7506f7,2ba65eac1478,
 cafebert/lora/exp033:5e2847fc,FINISHED,NEW,2026-10-11 10:45:37,1437.5,cafebert,lora,exp033,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,5e2847fc6e7d,2ba65eac1478,
 mistral-7b-instruct-v0.3/prompt-cot/exp003:4a1f6428,FINISHED,RESUME,2026-10-11 10:55:42,1416.5,mistral-7b-instruct-v0.3,prompt-cot,exp003,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,4a1f6428dd7f,2850d0349267,KeyboardInterrupt: 
+cafebert/lora/exp044:311e79fa,FINISHED,NEW,2026-10-11 15:29:47,1963.4,cafebert,lora,exp044,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,311e79fa340b,6347f57e7ae6,
+cafebert/lora/exp045:880624f8,FINISHED,NEW,2026-10-11 15:29:57,1814.0,cafebert,lora,exp045,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,880624f8325b,6347f57e7ae6,
+cafebert/lora/exp046:05e29d98,FINISHED,NEW,2026-10-11 15:30:01,2055.9,cafebert,lora,exp046,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,05e29d98f0fe,6347f57e7ae6,
+cafebert/lora/exp047:dd2a2ecd,FINISHED,NEW,2026-10-11 15:30:13,2162.5,cafebert,lora,exp047,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,dd2a2ecd7b40,6347f57e7ae6,
+cafebert/lora/exp048:d27389b7,FINISHED,NEW,2026-10-11 15:30:17,1820.8,cafebert,lora,exp048,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,d27389b7428d,6347f57e7ae6,
+cafebert/lora/exp050:3e94e69c,FINISHED,NEW,2026-10-11 15:57:50,1814.8,cafebert,lora,exp050,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,3e94e69cb58e,6347f57e7ae6,
+cafebert/lora/exp051:745a2440,FINISHED,NEW,2026-10-11 16:03:52,1963.7,cafebert,lora,exp051,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,745a2440e8b6,6347f57e7ae6,
+cafebert/lora/exp053:9acf79d9,FINISHED,NEW,2026-10-11 16:04:08,5683.5,cafebert,lora,exp053,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,9acf79d985a1,6347f57e7ae6,
+cafebert/lora/exp052:81d71ed1,FINISHED,NEW,2026-10-11 16:04:09,1886.4,cafebert,lora,exp052,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,81d71ed1424c,6347f57e7ae6,
+cafebert/lora/exp054:862348ac,FINISHED,NEW,2026-10-11 16:04:18,2041.3,cafebert,lora,exp054,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,862348ac1653,6347f57e7ae6,
+cafebert/lora/exp049:c51a9327,FINISHED,NEW,2026-10-11 16:04:44,1233.3,cafebert,lora,exp049,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,c51a9327137e,6347f57e7ae6,
+cafebert/lora/exp040:49a248c4,FINISHED,NEW,2026-10-11 16:11:34,1825.9,cafebert,lora,exp040,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,49a248c46d6e,6347f57e7ae6,
+cafebert/lora/exp041:73e9f9aa,FINISHED,NEW,2026-10-11 16:12:28,1791.0,cafebert,lora,exp041,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,73e9f9aadf8f,6347f57e7ae6,
+cafebert/lora/exp042:5a6882ac,RUNNING,-,2026-10-11 16:16:15,,cafebert,lora,exp042,,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,5a6882ac1d57,6347f57e7ae6,
+cafebert/lora/exp043:2f85368a,FINISHED,NEW,2026-10-11 16:16:28,3703.4,cafebert,lora,exp043,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,2f85368a73d3,6347f57e7ae6,FileNotFoundError: [Errno 2] No such file or directory: '/content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp043/results/2f85368a/model/last/head.pt'
