@@ -551,9 +551,15 @@ def vote(runs):
     if not runs:
         raise FusionError("Không có lượt nào để bỏ phiếu.")
     frame = runs[0]
-    lookup = [{sid: dict(pred) for sid, pred in zip(run["sample_ids"], run["preds"])}
+    # Ô KHÔNG đọc được thì `preds[i]` là `None` (xem `records.to_arrays`). Bảng tra của lượt đó BỎ
+    # hẳn sample ấy - ô như vậy KHÔNG có phiếu từ lượt đó. Trước 12/10/2026 chỗ này gọi thẳng
+    # `dict(pred)` nên SẬP khi gặp ô không đọc được; lượt encoder đọc được 100 % nên lỗi ẩn, tới
+    # lượt LLM (đọc được 99,94 %) mới lộ ra.
+    lookup = [{sid: dict(pred) for sid, pred in zip(run["sample_ids"], run["preds"]) if pred}
               for run in runs]
-    preds = [dict(pred) for pred in frame["preds"]]
+    # Bản bỏ phiếu khởi đầu BẰNG nhãn của lượt đầu. Ô lượt đầu không đọc được giữ `None` (bộ chấm
+    # tính là SAI - xem docs/04_experiments/metrics.md) và chỉ được điền khi lượt khác đọc được ô đó.
+    preds = [dict(pred) if pred else None for pred in frame["preds"]]
     counts = {"ô đủ phiếu": 0, "ô hoà": 0, "ô không lượt nào đọc được": 0}
     for position, sample_id in enumerate(frame["sample_ids"]):
         for aspect in frame["aspects"]:
@@ -580,6 +586,11 @@ def vote(runs):
                         break
             else:
                 chosen = winners[0]
+            if preds[position] is None:
+                # Lượt ĐẦU TIÊN không đọc được sample này, nhưng lượt khác đọc được: dựng lại hàng
+                # bằng `None` cho MỌI khía cạnh rồi mới điền ô có phiếu - điền `None` thành 0 là
+                # trộn "không đọc được" với "không nhắc tới", hai chuyện khác nhau.
+                preds[position] = {name: None for name in frame["aspects"]}
             preds[position][aspect] = chosen
             counts["ô đủ phiếu"] += 1
     counts["số lượt bỏ phiếu"] = len(runs)

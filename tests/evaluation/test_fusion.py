@@ -215,6 +215,42 @@ class VoteTest(unittest.TestCase):
         self.assertEqual(counts["ô không lượt nào đọc được"], 12)
         self.assertIsNone(preds[0]["colour"])
 
+    def test_ca_review_khong_doc_duoc_o_mot_luot_thi_luot_do_khong_co_phieu(self):
+        """`preds[i]` = None (KHÔNG đọc được cả review) - khác hẳn `{aspect: None}`.
+
+        Lỗi thật 12/10/2026: `fusion.vote` gọi thẳng `dict(None)` ở đây nên SẬP khi lượt bỏ phiếu có
+        review không đọc được. Lượt encoder đọc được 100 % nên lỗi ẩn; lượt LLM (99,94 %) mới lộ.
+        Luật: review đó KHÔNG có phiếu từ lượt ấy, các lượt còn lại vẫn bỏ phiếu bình thường.
+        """
+        first = self._run([{"colour": 1, "smell": 1, "price": 1}] * 3 + [None], "seed1")
+        second = self._run([{"colour": 1, "smell": 1, "price": 1}] * 4, "seed2")
+        third = self._run([{"colour": 1, "smell": 1, "price": 1}] * 4, "seed3")
+        preds, counts = fusion.vote([first, second, third])
+        self.assertEqual(preds[3]["colour"], 1)
+        self.assertEqual(counts["số lượt bỏ phiếu"], 3)
+        self.assertEqual(counts["ô không lượt nào đọc được"], 0)
+
+    def test_luot_dau_khong_doc_duoc_ma_luot_sau_doc_duoc_thi_dien_nhan_bo_phieu(self):
+        """Lượt ĐẦU không đọc được review mà lượt khác đọc được: điền nhãn bỏ phiếu vào ĐÚNG ô đó.
+
+        Ô KHÔNG có phiếu phải giữ `None` - điền 0 vào là trộn "không đọc được" với "không nhắc tới",
+        và bộ chấm sẽ tính ô đó là đoán đúng thay vì tính là sai.
+        """
+        first = self._run([None] * 4, "seed1")
+        second = self._run([{"colour": 2}] * 4, "seed2")
+        preds, counts = fusion.vote([first, second])
+        self.assertEqual(preds[0]["colour"], 2)
+        self.assertIsNone(preds[0]["smell"])
+        self.assertIsNone(preds[0]["price"])
+        self.assertEqual(counts["ô đủ phiếu"], 4)
+
+    def test_khong_luot_nao_doc_duoc_review_thi_giu_None_va_dem_rieng(self):
+        blank = self._run([None] * 4, "seed1")
+        other = self._run([None] * 4, "seed2")
+        preds, counts = fusion.vote([blank, other])
+        self.assertIsNone(preds[0])
+        self.assertEqual(counts["ô không lượt nào đọc được"], 12)
+
 
 class InputsTest(unittest.TestCase):
     def setUp(self):
