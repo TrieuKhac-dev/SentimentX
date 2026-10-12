@@ -1,0 +1,49 @@
+=== lần chạy 2026-10-12 07:57:32 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] prompt=absa_cot_trainfshot_v1
+[RUN] prompt_sha=9b862ed0
+[RUN] model=Qwen/Qwen3-4B-Instruct-2507
+[RUN] quant=4bit
+[RUN] dtype=float16
+[RUN] max_length=2304
+[RUN] generation.quant=4bit
+[RUN] generation.max_new_tokens=400
+[RUN] generation.do_sample=True
+[RUN] generation.temperature=0.7
+[RUN] generation.top_p=0.8
+[RUN] generation.top_k=20
+[RUN] generation.seed=1
+[RUN] subset.limit=0
+[RUN] subset.seed=1
+[RUN] n_samples=1623
+[RUN] experiment.model=qwen3-4b-instruct-2507
+[RUN] experiment.method=prompt-cot
+[RUN] experiment.exp_id=exp025
+[RUN] repo_sha=5ec65f3d8861eea6b14a8f5868005c405989829a
+[RUN] config_sha256=ad4136a1c805860a0a886d71860f5be99409aa97326375dfbda08a05ee622451
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: qwen3-4b-instruct-2507/prompt-cot/exp025 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè decoding.mode: greedy <- sample
+[CONFIG] đè decoding.seed: None <- 1
+[CONFIG] đè inference.batch_size: 8 <- 4
+[CONFIG] đè inference.dtype: auto <- float16
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate
+[CONFIG] prompt: absa_cot_trainfshot_v1 (sha 9b862ed0) | ví dụ: b8064f91 | sinh: lấy mẫu
+[CONFIG] chạy: dtype=float16 | max_length=2304 | max_new_tokens=400 | batch=4 | do_sample=True temperature=0.7 top_p=0.8 top_k=20 seed=1
+[STEP] nạp model: Qwen/Qwen3-4B-Instruct-2507 (quant=4bit, dtype=float16)
+[STEP] đã nạp model: 4-bit nf4 (tính bằng float16), 4-bit + device_map=auto (float16) | 147.9 giây
+[STEP] bắt đầu sinh 1623 mẫu của split test (batch 4)
+[STEP] sinh xong 1623 mẫu mới | 9972.3 giây
+[STEP] tổng 1623 mẫu (1623 mẫu mới), đọc được 99.94% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 200 ô neutral theo neutral_policy=drop
+[STEP] cơ sở đo paper: 2478 ô giữ lại, loại 8658 ô không phải hai chiều, 25 ô không đọc được
+[STEP] ghi 1623 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
+[STEP] ghi nhận: 15 tham số, 349 chỉ số, 7 file
+[RUN] kết thúc sau 10133.0 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
+[TRACK] ghi lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả

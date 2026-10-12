@@ -1,0 +1,819 @@
+{
+  "dataset": "cosmetics",
+  "version_id": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
+  "split": "test",
+  "prompt": "absa_cot_trainfshot_v1",
+  "prompt_sha": "9b862ed0",
+  "model": "Qwen/Qwen3-4B-Instruct-2507",
+  "quant": "4bit",
+  "dtype": "float16",
+  "max_length": 2304,
+  "generation": {
+    "quant": "4bit",
+    "max_new_tokens": 400,
+    "do_sample": false,
+    "temperature": null,
+    "top_p": null,
+    "top_k": null,
+    "seed": null
+  },
+  "subset": {
+    "limit": 0,
+    "seed": 42,
+    "how": "random.Random(seed).sample trên split, giữ chỉ số dòng gốc"
+  },
+  "n_samples": 971,
+  "experiment": {
+    "model": "qwen3-4b-instruct-2507",
+    "method": "prompt-cot",
+    "exp_id": "exp024"
+  },
+  "repo_sha": "5ec65f3d8861eea6b14a8f5868005c405989829a",
+  "config_sha256": "5f6161b612bb05a60a55450843a1cad4f67f9e49b37afe83674b5e77995266a0",
+  "prompt_examples": {
+    "file": "configs/prompts/examples/absa_cot_trainfshot_5shot_v1.txt",
+    "value": "../../../../configs/prompts/examples/absa_cot_trainfshot_5shot_v1.txt",
+    "sha": "52a5bbd1",
+    "examples": 5,
+    "note": "--- NGUỒN VÍ DỤ (chú thích của dự án - KHÔNG được gửi cho model) ---\nNguồn: LẤY TỪ DỮ LIỆU, split `train`, các dòng 23, 24, 59, 103, 112 (đánh số từ 0, đúng dòng\ncủa train.csv). Ví dụ 3 (dòng 59) CHÍNH LÀ ví dụ duy nhất của bản 1 ví dụ, nên 1 ⊂ 5.\nKiểm chứng trước khi dùng:\n  python scripts/check_examples.py --examples configs/prompts/examples/absa_cot_trainfshot_5shot_v1.txt --require-train\n  -> phải ra \"KẾT LUẬN: KHÔNG RÒ RỈ.\"\nCâu chữ prompt (`absa_cot_trainfshot_v1.txt`) GIỐNG Y HỆT bản 1 ví dụ. Năm ví dụ này cố ý phủ\ncả bốn mã: mã 2 (ba ví dụ), mã 1, mã 3 (trung tính) và mã 0 (không nhắc tới).\nChú thích chỉ được nằm ở khối NÀY: dấu # xuất hiện sau dòng ví dụ đầu tiên sẽ bị gửi cho model.\n--- HẾT CHÚ THÍCH ---",
+    "missing": false
+  },
+  "model_info": {
+    "model": "Qwen/Qwen3-4B-Instruct-2507",
+    "quant": "4-bit nf4 (tính bằng float16)",
+    "cách nạp": "4-bit + device_map=auto (float16)",
+    "thiết bị": "cuda:0",
+    "dtype": "float16",
+    "gpu": "Tesla T4",
+    "vram_gb": 2.49
+  },
+  "read_rate": {
+    "tổng": 1623,
+    "đọc được": 1622,
+    "% đọc được": 99.94,
+    "có khối suy luận": 1623,
+    "có <think>": 0,
+    "thiếu khía cạnh": 4,
+    "lí do lỗi": {
+      "không thấy khối kết quả": 1
+    },
+    "ngưỡng": 95.0,
+    "valid": true,
+    "reason": null
+  },
+  "cost": {
+    "split": "test",
+    "số mẫu": 971,
+    "token sinh": 211880,
+    "token sinh TB": 218.2,
+    "giây": 7984.5,
+    "token sinh/giây": 26.5,
+    "lô": 4
+  },
+  "scores_order": [
+    "accuracy",
+    "aspect_detection",
+    "prf",
+    "aggregate",
+    "confusion"
+  ],
+  "resume": {
+    "mode": "RESUME",
+    "reason": "chạy tiếp từ 652 mẫu đã xong của lần chạy trước",
+    "reused": 652,
+    "new": 971
+  },
+  "label_space": "binary",
+  "neutral_policy": "drop",
+  "not_mentioned": "separate",
+  "separate_not_mentioned": true,
+  "codes": [
+    0,
+    1,
+    2
+  ],
+  "dropped_neutral": 200,
+  "dropped_neutral_by_aspect": {
+    "stayingpower": 40,
+    "texture": 64,
+    "smell": 16,
+    "price": 1,
+    "colour": 51,
+    "shipping": 26,
+    "packing": 2
+  },
+  "n_reviews": 1623,
+  "aspects": [
+    "stayingpower",
+    "texture",
+    "smell",
+    "price",
+    "colour",
+    "shipping",
+    "packing"
+  ],
+  "scores": {
+    "accuracy": {
+      "macro": 92.97,
+      "micro": 93.0,
+      "when_mentioned_macro": 88.78,
+      "when_mentioned_micro": 90.03,
+      "correct": 10380,
+      "cells": 11161,
+      "by_aspect": {
+        "stayingpower": 91.03,
+        "texture": 91.79,
+        "smell": 98.07,
+        "price": 96.67,
+        "colour": 86.2,
+        "shipping": 96.87,
+        "packing": 90.19
+      },
+      "when_mentioned_by_aspect": {
+        "stayingpower": 71.31,
+        "texture": 86.71,
+        "smell": 91.33,
+        "price": 87.77,
+        "colour": 94.08,
+        "shipping": 92.32,
+        "packing": 97.95
+      },
+      "cells_by_aspect": {
+        "stayingpower": 1583,
+        "texture": 1559,
+        "smell": 1607,
+        "price": 1622,
+        "colour": 1572,
+        "shipping": 1597,
+        "packing": 1621
+      },
+      "correct_by_aspect": {
+        "stayingpower": 1441,
+        "texture": 1431,
+        "smell": 1576,
+        "price": 1568,
+        "colour": 1355,
+        "shipping": 1547,
+        "packing": 1462
+      }
+    },
+    "aspect_detection": {
+      "macro": {
+        "accuracy": 93.739,
+        "precision": 0.848,
+        "recall": 0.919,
+        "f1": 0.877
+      },
+      "micro": {
+        "tp": 2571,
+        "fp": 498,
+        "fn": 198,
+        "tn": 7894,
+        "cells": 11161,
+        "precision": 0.838,
+        "recall": 0.928,
+        "f1": 0.881,
+        "accuracy": 93.76
+      },
+      "support": {
+        "mentioned": 2769,
+        "not_mentioned": 8392
+      },
+      "by_aspect": {
+        "stayingpower": {
+          "accuracy": 92.42,
+          "precision": 0.722,
+          "recall": 0.802,
+          "f1": 0.76,
+          "tp": 190,
+          "fp": 73,
+          "fn": 47,
+          "tn": 1273,
+          "cells": 1583
+        },
+        "texture": {
+          "accuracy": 92.75,
+          "precision": 0.845,
+          "recall": 0.902,
+          "f1": 0.873,
+          "tp": 387,
+          "fp": 71,
+          "fn": 42,
+          "tn": 1059,
+          "cells": 1559
+        },
+        "smell": {
+          "accuracy": 98.57,
+          "precision": 0.986,
+          "recall": 0.937,
+          "f1": 0.961,
+          "tp": 281,
+          "fp": 4,
+          "fn": 19,
+          "tn": 1303,
+          "cells": 1607
+        },
+        "price": {
+          "accuracy": 97.04,
+          "precision": 0.954,
+          "recall": 0.896,
+          "f1": 0.924,
+          "tp": 293,
+          "fp": 14,
+          "fn": 34,
+          "tn": 1281,
+          "cells": 1622
+        },
+        "colour": {
+          "accuracy": 87.4,
+          "precision": 0.787,
+          "recall": 0.969,
+          "f1": 0.869,
+          "tp": 655,
+          "fp": 177,
+          "fn": 21,
+          "tn": 719,
+          "cells": 1572
+        },
+        "shipping": {
+          "accuracy": 97.24,
+          "precision": 0.979,
+          "recall": 0.933,
+          "f1": 0.956,
+          "tp": 474,
+          "fp": 10,
+          "fn": 34,
+          "tn": 1079,
+          "cells": 1597
+        },
+        "packing": {
+          "accuracy": 90.75,
+          "precision": 0.661,
+          "recall": 0.997,
+          "f1": 0.795,
+          "tp": 291,
+          "fp": 149,
+          "fn": 1,
+          "tn": 1180,
+          "cells": 1621
+        }
+      }
+    },
+    "prf": {
+      "macro": {
+        "precision": 0.738,
+        "recall": 0.865,
+        "f1": 0.775
+      },
+      "micro": {
+        "precision": 0.812,
+        "recall": 0.9,
+        "f1": 0.854,
+        "support": 2769
+      },
+      "sentiments": [
+        "positive",
+        "negative"
+      ],
+      "by_aspect": {
+        "stayingpower": {
+          "positive": {
+            "precision": 0.82,
+            "recall": 0.645,
+            "f1": 0.722,
+            "support": 141
+          },
+          "negative": {
+            "precision": 0.513,
+            "recall": 0.812,
+            "f1": 0.629,
+            "support": 96
+          }
+        },
+        "texture": {
+          "positive": {
+            "precision": 0.88,
+            "recall": 0.85,
+            "f1": 0.865,
+            "support": 346
+          },
+          "negative": {
+            "precision": 0.629,
+            "recall": 0.94,
+            "f1": 0.754,
+            "support": 83
+          }
+        },
+        "smell": {
+          "positive": {
+            "precision": 0.987,
+            "recall": 0.905,
+            "f1": 0.944,
+            "support": 252
+          },
+          "negative": {
+            "precision": 0.852,
+            "recall": 0.958,
+            "f1": 0.902,
+            "support": 48
+          }
+        },
+        "price": {
+          "positive": {
+            "precision": 0.959,
+            "recall": 0.885,
+            "f1": 0.921,
+            "support": 321
+          },
+          "negative": {
+            "precision": 0.273,
+            "recall": 0.5,
+            "f1": 0.353,
+            "support": 6
+          }
+        },
+        "colour": {
+          "positive": {
+            "precision": 0.764,
+            "recall": 0.95,
+            "f1": 0.847,
+            "support": 622
+          },
+          "negative": {
+            "precision": 0.776,
+            "recall": 0.833,
+            "f1": 0.804,
+            "support": 54
+          }
+        },
+        "shipping": {
+          "positive": {
+            "precision": 0.971,
+            "recall": 0.91,
+            "f1": 0.94,
+            "support": 334
+          },
+          "negative": {
+            "precision": 0.965,
+            "recall": 0.948,
+            "f1": 0.957,
+            "support": 174
+          }
+        },
+        "packing": {
+          "positive": {
+            "precision": 0.69,
+            "recall": 0.979,
+            "f1": 0.809,
+            "support": 282
+          },
+          "negative": {
+            "precision": 0.25,
+            "recall": 1.0,
+            "f1": 0.4,
+            "support": 10
+          }
+        }
+      }
+    },
+    "aggregate": {
+      "accuracy_macro": 92.97,
+      "accuracy_micro": 93.0,
+      "when_mentioned_macro": 88.78,
+      "detection": {
+        "macro": {
+          "precision": 0.848,
+          "recall": 0.919,
+          "f1": 0.877,
+          "accuracy": 93.739
+        },
+        "micro": {
+          "tp": 2571,
+          "fp": 498,
+          "fn": 198,
+          "tn": 7894,
+          "cells": 11161,
+          "precision": 0.838,
+          "recall": 0.928,
+          "f1": 0.881,
+          "accuracy": 93.76
+        }
+      },
+      "sentiment": {
+        "macro": {
+          "precision": 0.738,
+          "recall": 0.865,
+          "f1": 0.775
+        },
+        "micro": {
+          "precision": 0.812,
+          "recall": 0.9,
+          "f1": 0.854,
+          "support": 2769
+        }
+      },
+      "exact_match": {
+        "reviews": 1623,
+        "correct": 1011,
+        "percent": 62.29
+      },
+      "reviews": 1623,
+      "aspects": 7,
+      "cells": 11161
+    },
+    "confusion": {
+      "aspects": [
+        "stayingpower",
+        "texture",
+        "smell",
+        "price",
+        "colour",
+        "shipping",
+        "packing"
+      ],
+      "labels": [
+        "",
+        "positive",
+        "negative",
+        "không đọc được"
+      ],
+      "cells": 11161,
+      "dropped_neutral": 200
+    }
+  },
+  "tables": {
+    "confusion": {
+      "by_aspect": {
+        "stayingpower": {
+          "": {
+            "": 1272,
+            "negative": 57,
+            "positive": 16,
+            "không đọc được": 1
+          },
+          "positive": {
+            "": 33,
+            "positive": 91,
+            "negative": 17
+          },
+          "negative": {
+            "negative": 78,
+            "": 14,
+            "positive": 4
+          }
+        },
+        "texture": {
+          "": {
+            "": 1059,
+            "negative": 33,
+            "positive": 38
+          },
+          "positive": {
+            "positive": 294,
+            "negative": 13,
+            "": 39
+          },
+          "negative": {
+            "negative": 78,
+            "positive": 2,
+            "": 2,
+            "không đọc được": 1
+          }
+        },
+        "smell": {
+          "": {
+            "": 1302,
+            "positive": 2,
+            "negative": 2,
+            "không đọc được": 1
+          },
+          "positive": {
+            "negative": 6,
+            "positive": 228,
+            "": 18
+          },
+          "negative": {
+            "negative": 46,
+            "positive": 1,
+            "": 1
+          }
+        },
+        "price": {
+          "": {
+            "": 1281,
+            "positive": 12,
+            "negative": 2
+          },
+          "positive": {
+            "positive": 284,
+            "negative": 6,
+            "": 30,
+            "không đọc được": 1
+          },
+          "negative": {
+            "negative": 3,
+            "": 3
+          }
+        },
+        "colour": {
+          "": {
+            "positive": 176,
+            "": 719,
+            "negative": 1
+          },
+          "positive": {
+            "positive": 591,
+            "": 18,
+            "negative": 12,
+            "không đọc được": 1
+          },
+          "negative": {
+            "negative": 45,
+            "positive": 7,
+            "": 2
+          }
+        },
+        "shipping": {
+          "": {
+            "": 1078,
+            "positive": 8,
+            "negative": 2,
+            "không đọc được": 1
+          },
+          "positive": {
+            "positive": 304,
+            "": 26,
+            "negative": 4
+          },
+          "negative": {
+            "negative": 165,
+            "": 8,
+            "positive": 1
+          }
+        },
+        "packing": {
+          "positive": {
+            "positive": 276,
+            "negative": 5,
+            "": 1
+          },
+          "": {
+            "": 1176,
+            "positive": 124,
+            "negative": 25,
+            "không đọc được": 4
+          },
+          "negative": {
+            "negative": 10
+          }
+        }
+      }
+    }
+  },
+  "scores_order_paper": [
+    "accuracy",
+    "prf",
+    "aggregate"
+  ],
+  "scores_paper": {
+    "accuracy": {
+      "macro": 96.41,
+      "micro": 96.97,
+      "when_mentioned_macro": 96.41,
+      "when_mentioned_micro": 96.97,
+      "correct": 2493,
+      "cells": 2571,
+      "by_aspect": {
+        "stayingpower": 88.95,
+        "texture": 96.12,
+        "smell": 97.51,
+        "price": 97.95,
+        "colour": 97.1,
+        "shipping": 98.95,
+        "packing": 98.28
+      },
+      "when_mentioned_by_aspect": {
+        "stayingpower": 88.95,
+        "texture": 96.12,
+        "smell": 97.51,
+        "price": 97.95,
+        "colour": 97.1,
+        "shipping": 98.95,
+        "packing": 98.28
+      },
+      "cells_by_aspect": {
+        "stayingpower": 190,
+        "texture": 387,
+        "smell": 281,
+        "price": 293,
+        "colour": 655,
+        "shipping": 474,
+        "packing": 291
+      },
+      "correct_by_aspect": {
+        "stayingpower": 169,
+        "texture": 372,
+        "smell": 274,
+        "price": 287,
+        "colour": 636,
+        "shipping": 469,
+        "packing": 286
+      }
+    },
+    "prf": {
+      "macro": {
+        "precision": 0.876,
+        "recall": 0.962,
+        "f1": 0.903
+      },
+      "micro": {
+        "precision": 0.97,
+        "recall": 0.97,
+        "f1": 0.97,
+        "support": 2571
+      },
+      "sentiments": [
+        "positive",
+        "negative"
+      ],
+      "by_aspect": {
+        "stayingpower": {
+          "positive": {
+            "precision": 0.958,
+            "recall": 0.843,
+            "f1": 0.897,
+            "support": 108
+          },
+          "negative": {
+            "precision": 0.821,
+            "recall": 0.951,
+            "f1": 0.881,
+            "support": 82
+          }
+        },
+        "texture": {
+          "positive": {
+            "precision": 0.993,
+            "recall": 0.958,
+            "f1": 0.975,
+            "support": 307
+          },
+          "negative": {
+            "precision": 0.857,
+            "recall": 0.975,
+            "f1": 0.912,
+            "support": 80
+          }
+        },
+        "smell": {
+          "positive": {
+            "precision": 0.996,
+            "recall": 0.974,
+            "f1": 0.985,
+            "support": 234
+          },
+          "negative": {
+            "precision": 0.885,
+            "recall": 0.979,
+            "f1": 0.929,
+            "support": 47
+          }
+        },
+        "price": {
+          "positive": {
+            "precision": 1.0,
+            "recall": 0.979,
+            "f1": 0.99,
+            "support": 290
+          },
+          "negative": {
+            "precision": 0.333,
+            "recall": 1.0,
+            "f1": 0.5,
+            "support": 3
+          }
+        },
+        "colour": {
+          "positive": {
+            "precision": 0.988,
+            "recall": 0.98,
+            "f1": 0.984,
+            "support": 603
+          },
+          "negative": {
+            "precision": 0.789,
+            "recall": 0.865,
+            "f1": 0.826,
+            "support": 52
+          }
+        },
+        "shipping": {
+          "positive": {
+            "precision": 0.997,
+            "recall": 0.987,
+            "f1": 0.992,
+            "support": 308
+          },
+          "negative": {
+            "precision": 0.976,
+            "recall": 0.994,
+            "f1": 0.985,
+            "support": 166
+          }
+        },
+        "packing": {
+          "positive": {
+            "precision": 1.0,
+            "recall": 0.982,
+            "f1": 0.991,
+            "support": 281
+          },
+          "negative": {
+            "precision": 0.667,
+            "recall": 1.0,
+            "f1": 0.8,
+            "support": 10
+          }
+        }
+      }
+    },
+    "aggregate": {
+      "accuracy_macro": 96.41,
+      "accuracy_micro": 96.97,
+      "when_mentioned_macro": 96.41,
+      "detection": {
+        "macro": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "accuracy": 100.0
+        },
+        "micro": {
+          "tp": 2571,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "cells": 2571,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "accuracy": 100.0
+        }
+      },
+      "sentiment": {
+        "macro": {
+          "precision": 0.876,
+          "recall": 0.962,
+          "f1": 0.903
+        },
+        "micro": {
+          "precision": 0.97,
+          "recall": 0.97,
+          "f1": 0.97,
+          "support": 2571
+        }
+      },
+      "exact_match": {
+        "reviews": 1623,
+        "correct": 1548,
+        "percent": 95.38
+      },
+      "reviews": 1623,
+      "aspects": 7,
+      "cells": 2571
+    }
+  },
+  "tables_paper": {},
+  "paper": {
+    "variant": "paper",
+    "label_filter": [
+      "positive",
+      "negative"
+    ],
+    "codes": [
+      1,
+      2
+    ],
+    "cells": 2571,
+    "dropped_not_two_sided": 8580,
+    "dropped_not_two_sided_by_aspect": {
+      "stayingpower": 1392,
+      "texture": 1171,
+      "smell": 1325,
+      "price": 1328,
+      "colour": 916,
+      "shipping": 1122,
+      "packing": 1326
+    },
+    "dropped_unreadable": 10,
+    "dropped_unreadable_by_aspect": {
+      "stayingpower": 1,
+      "texture": 1,
+      "smell": 1,
+      "price": 1,
+      "colour": 1,
+      "shipping": 1,
+      "packing": 4
+    }
+  }
+}
