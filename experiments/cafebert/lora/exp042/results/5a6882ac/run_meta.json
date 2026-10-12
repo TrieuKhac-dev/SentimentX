@@ -5,9 +5,9 @@
     "hash": "5a6882ac",
     "log": "run.log",
     "errors": "errors.json",
-    "status": "RUNNING",
-    "started": "2026-10-11 16:16:15",
-    "finished": null,
+    "status": "FINISHED",
+    "started": "2026-10-11 18:31:14",
+    "finished": "2026-10-11 19:37:57",
     "note": null,
     "approach": "encoder",
     "split": "test",
@@ -226,15 +226,24 @@
   "env": {
     "kind": "colab",
     "python": "3.13.15",
-    "system": "Linux-6.6.122+-x86_64-with-glibc2.39"
+    "system": "Linux-6.6.122+-x86_64-with-glibc2.39",
+    "device": "cuda",
+    "gpu": "Tesla T4",
+    "vram_gb": 14.6,
+    "quantization": "none",
+    "dtype": "float16",
+    "libs": {
+      "torch": "2.11.0+cu130",
+      "transformers": "5.18.0"
+    }
   },
   "attempts": [
     {
       "n": 1,
-      "started": "2026-10-11 16:16:15",
-      "finished": null,
-      "seconds": null,
-      "status": "RUNNING",
+      "started": "2026-10-11 18:31:14",
+      "finished": "2026-10-11 19:37:57",
+      "seconds": 4003.0,
+      "status": "FINISHED",
       "sha": "6347f57e7ae6fbe65cb2488d369990ed64e73331",
       "config_sha256": "5a6882ac1d5785bdba3922c7117d8574ff98ef318e796002f8d948ac06d1a508",
       "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
@@ -304,6 +313,6 @@
     }
   ],
   "tracking": {
-    "run_id": "b6d13a6c3ee74fd4bd4e777c9f6f8569"
+    "run_id": "a7a87beaecf54103a1c44ef628d74c2f"
   }
 }
