@@ -1,46 +1,46 @@
 {
-  "lượt": "experiments\\phobert-base-v2\\lora\\exp004\\results\\14923c13",
+  "lượt": "experiments\\cafebert\\lora\\exp013\\results\\bb5a16ba",
   "split": "test",
-  "nguồn_luật": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+  "nguồn_luật": "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1",
   "nguồn_split": "val",
   "ngưỡng_dùng": {
     "colour": 0.95,
     "packing": 0.95,
     "shipping": 0.95,
-    "smell": 0.3,
+    "smell": 0.95,
     "stayingpower": 0.95,
-    "texture": 0.45
+    "texture": 0.95
   },
   "khía_cạnh_để_nguyên": [
     "price"
   ],
   "khía_cạnh_có_ngưỡng_không_có_ở_lượt_này": [],
-  "số_ô_trước": 2736,
-  "số_ô_sau": 2736,
+  "số_ô_trước": 2743,
+  "số_ô_sau": 2743,
   "accuracy_all_trước": {
-    "macro": 93.28,
-    "micro": 93.34,
-    "when_mentioned_macro": 95.32,
-    "when_mentioned_micro": 95.59,
-    "correct": 10418,
+    "macro": 97.76,
+    "micro": 97.77,
+    "when_mentioned_macro": 97.43,
+    "when_mentioned_micro": 97.4,
+    "correct": 10912,
     "cells": 11161,
     "by_aspect": {
-      "colour": 92.3,
+      "colour": 96.63,
       "packing": 97.53,
-      "price": 98.4,
-      "shipping": 97.06,
-      "smell": 97.14,
-      "stayingpower": 85.72,
-      "texture": 84.8
+      "price": 98.64,
+      "shipping": 98.43,
+      "smell": 98.51,
+      "stayingpower": 98.55,
+      "texture": 96.02
     },
     "when_mentioned_by_aspect": {
-      "colour": 95.41,
-      "packing": 97.6,
-      "price": 96.94,
+      "colour": 97.19,
+      "packing": 98.97,
+      "price": 97.86,
       "shipping": 97.44,
-      "smell": 94.0,
-      "stayingpower": 90.72,
-      "texture": 95.1
+      "smell": 95.67,
+      "stayingpower": 97.47,
+      "texture": 97.44
     },
     "cells_by_aspect": {
       "colour": 1572,
@@ -52,39 +52,39 @@
       "texture": 1559
     },
     "correct_by_aspect": {
-      "colour": 1451,
+      "colour": 1519,
       "packing": 1581,
-      "price": 1596,
-      "shipping": 1550,
-      "smell": 1561,
-      "stayingpower": 1357,
-      "texture": 1322
+      "price": 1600,
+      "shipping": 1572,
+      "smell": 1583,
+      "stayingpower": 1560,
+      "texture": 1497
     }
   },
   "accuracy_all_sau": {
-    "macro": 92.99,
-    "micro": 93.06,
-    "when_mentioned_macro": 95.17,
-    "when_mentioned_micro": 95.49,
-    "correct": 10386,
+    "macro": 97.76,
+    "micro": 97.77,
+    "when_mentioned_macro": 97.43,
+    "when_mentioned_micro": 97.4,
+    "correct": 10912,
     "cells": 11161,
     "by_aspect": {
-      "colour": 92.3,
+      "colour": 96.63,
       "packing": 97.53,
-      "price": 98.4,
-      "shipping": 97.06,
-      "smell": 95.15,
-      "stayingpower": 85.72,
-      "texture": 84.8
+      "price": 98.64,
+      "shipping": 98.43,
+      "smell": 98.51,
+      "stayingpower": 98.55,
+      "texture": 96.02
     },
     "when_mentioned_by_aspect": {
-      "colour": 95.41,
-      "packing": 97.6,
-      "price": 96.94,
+      "colour": 97.19,
+      "packing": 98.97,
+      "price": 97.86,
       "shipping": 97.44,
-      "smell": 93.0,
-      "stayingpower": 90.72,
-      "texture": 95.1
+      "smell": 95.67,
+      "stayingpower": 97.47,
+      "texture": 97.44
     },
     "cells_by_aspect": {
       "colour": 1572,
@@ -96,151 +96,151 @@
       "texture": 1559
     },
     "correct_by_aspect": {
-      "colour": 1451,
+      "colour": 1519,
       "packing": 1581,
-      "price": 1596,
-      "shipping": 1550,
-      "smell": 1529,
-      "stayingpower": 1357,
-      "texture": 1322
+      "price": 1600,
+      "shipping": 1572,
+      "smell": 1583,
+      "stayingpower": 1560,
+      "texture": 1497
     }
   },
   "accuracy_paper_trước": {
-    "macro": 96.62,
-    "micro": 96.75,
-    "when_mentioned_macro": 96.62,
-    "when_mentioned_micro": 96.75,
-    "correct": 2647,
-    "cells": 2736,
+    "macro": 98.33,
+    "micro": 98.32,
+    "when_mentioned_macro": 98.33,
+    "when_mentioned_micro": 98.32,
+    "correct": 2697,
+    "cells": 2743,
     "by_aspect": {
-      "colour": 96.41,
-      "packing": 99.65,
-      "price": 98.14,
-      "shipping": 98.02,
-      "smell": 95.92,
-      "stayingpower": 92.67,
-      "texture": 95.55
+      "colour": 98.35,
+      "packing": 99.66,
+      "price": 99.07,
+      "shipping": 98.41,
+      "smell": 96.63,
+      "stayingpower": 98.3,
+      "texture": 97.89
     },
     "when_mentioned_by_aspect": {
-      "colour": 96.41,
-      "packing": 99.65,
-      "price": 98.14,
-      "shipping": 98.02,
-      "smell": 95.92,
-      "stayingpower": 92.67,
-      "texture": 95.55
+      "colour": 98.35,
+      "packing": 99.66,
+      "price": 99.07,
+      "shipping": 98.41,
+      "smell": 96.63,
+      "stayingpower": 98.3,
+      "texture": 97.89
     },
     "cells_by_aspect": {
-      "colour": 669,
-      "packing": 286,
+      "colour": 668,
+      "packing": 290,
       "price": 323,
-      "shipping": 505,
-      "smell": 294,
-      "stayingpower": 232,
+      "shipping": 503,
+      "smell": 297,
+      "stayingpower": 235,
       "texture": 427
     },
     "correct_by_aspect": {
-      "colour": 645,
-      "packing": 285,
-      "price": 317,
+      "colour": 657,
+      "packing": 289,
+      "price": 320,
       "shipping": 495,
-      "smell": 282,
-      "stayingpower": 215,
-      "texture": 408
+      "smell": 287,
+      "stayingpower": 231,
+      "texture": 418
     }
   },
   "accuracy_paper_sau": {
-    "macro": 96.48,
-    "micro": 96.64,
-    "when_mentioned_macro": 96.48,
-    "when_mentioned_micro": 96.64,
-    "correct": 2644,
-    "cells": 2736,
+    "macro": 98.33,
+    "micro": 98.32,
+    "when_mentioned_macro": 98.33,
+    "when_mentioned_micro": 98.32,
+    "correct": 2697,
+    "cells": 2743,
     "by_aspect": {
-      "colour": 96.41,
-      "packing": 99.65,
-      "price": 98.14,
-      "shipping": 98.02,
-      "smell": 94.9,
-      "stayingpower": 92.67,
-      "texture": 95.55
+      "colour": 98.35,
+      "packing": 99.66,
+      "price": 99.07,
+      "shipping": 98.41,
+      "smell": 96.63,
+      "stayingpower": 98.3,
+      "texture": 97.89
     },
     "when_mentioned_by_aspect": {
-      "colour": 96.41,
-      "packing": 99.65,
-      "price": 98.14,
-      "shipping": 98.02,
-      "smell": 94.9,
-      "stayingpower": 92.67,
-      "texture": 95.55
+      "colour": 98.35,
+      "packing": 99.66,
+      "price": 99.07,
+      "shipping": 98.41,
+      "smell": 96.63,
+      "stayingpower": 98.3,
+      "texture": 97.89
     },
     "cells_by_aspect": {
-      "colour": 669,
-      "packing": 286,
+      "colour": 668,
+      "packing": 290,
       "price": 323,
-      "shipping": 505,
-      "smell": 294,
-      "stayingpower": 232,
+      "shipping": 503,
+      "smell": 297,
+      "stayingpower": 235,
       "texture": 427
     },
     "correct_by_aspect": {
-      "colour": 645,
-      "packing": 285,
-      "price": 317,
+      "colour": 657,
+      "packing": 289,
+      "price": 320,
       "shipping": 495,
-      "smell": 279,
-      "stayingpower": 215,
-      "texture": 408
+      "smell": 287,
+      "stayingpower": 231,
+      "texture": 418
     }
   },
   "f1_âm_từng_khía_cạnh_trước": {
-    "colour": 0.812,
-    "packing": 0.952,
-    "price": 0.0,
-    "shipping": 0.971,
-    "smell": 0.887,
-    "stayingpower": 0.915,
-    "texture": 0.893
+    "colour": 0.904,
+    "packing": 0.947,
+    "price": 0.571,
+    "shipping": 0.977,
+    "smell": 0.9,
+    "stayingpower": 0.979,
+    "texture": 0.947
   },
   "f1_âm_từng_khía_cạnh_sau": {
-    "colour": 0.812,
-    "packing": 0.952,
-    "price": 0.0,
-    "shipping": 0.971,
-    "smell": 0.862,
-    "stayingpower": 0.915,
-    "texture": 0.893
+    "colour": 0.904,
+    "packing": 0.947,
+    "price": 0.571,
+    "shipping": 0.977,
+    "smell": 0.9,
+    "stayingpower": 0.979,
+    "texture": 0.947
   },
   "chênh_f1_âm_từng_khía_cạnh": {
     "colour": 0.0,
     "packing": 0.0,
     "price": 0.0,
     "shipping": 0.0,
-    "smell": -0.025,
+    "smell": 0.0,
     "stayingpower": 0.0,
     "texture": 0.0
   },
   "f1_âm_macro_trước": {
-    "macro_trên_khía_cạnh_có_ô_âm": 0.775714,
-    "macro_trên_khía_cạnh_đang_dương": 0.905,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.889286,
+    "macro_trên_khía_cạnh_đang_dương": 0.889286,
     "số_khía_cạnh_có_ô_âm": 7
   },
   "f1_âm_macro_sau": {
-    "macro_trên_khía_cạnh_có_ô_âm": 0.772143,
-    "macro_trên_khía_cạnh_đang_dương": 0.900833,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.889286,
+    "macro_trên_khía_cạnh_đang_dương": 0.889286,
     "số_khía_cạnh_có_ô_âm": 7
   },
   "chênh_f1_âm_macro": {
-    "macro_trên_khía_cạnh_có_ô_âm": -0.003571,
-    "macro_trên_khía_cạnh_đang_dương": -0.004167,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.0,
+    "macro_trên_khía_cạnh_đang_dương": 0.0,
     "số_khía_cạnh_có_ô_âm": 0.0
   },
   "macro_trên_mọi_khía_cạnh": {
-    "trước": 0.775714,
-    "sau": 0.772143,
+    "trước": 0.889286,
+    "sau": 0.889286,
     "cách_đọc": "khía cạnh không có ô âm (price) tính là 0,0 ⇒ số này bị kéo xuống; đóng góp của price là 0,0 ở CẢ hai bên nên không làm lệch chênh lệch"
   },
   "ghi_chú_đọc_số": "ngưỡng chốt trên 'val'; lượt này là 'test'. Khía cạnh để nguyên: price (val không có ô âm nào của khía cạnh này: không có gì để dò). Số ô luôn đọc kèm (luật 1 của metrics.md).",
-  "at": "2026-10-05T17:06:14",
+  "at": "2026-10-12T11:44:20",
   "tệp_ngưỡng": "data\\reports\\fusion\\thresholds.json"
 }

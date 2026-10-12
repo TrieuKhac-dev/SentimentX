@@ -7,14 +7,38 @@
       "split": "val"
     },
     {
+      "model": "phobert-large",
+      "lượt": "experiments\\phobert-large\\lora\\exp003\\results\\5b192ca8",
+      "split": "val"
+    },
+    {
       "model": "visobert",
       "lượt": "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa",
+      "split": "val"
+    },
+    {
+      "model": "vibert-base-cased",
+      "lượt": "experiments\\vibert-base-cased\\lora\\exp004\\results\\97cae249",
+      "split": "val"
+    },
+    {
+      "model": "xlm-roberta-base",
+      "lượt": "experiments\\xlm-roberta-base\\lora\\exp003\\results\\777fafbf",
+      "split": "val"
+    },
+    {
+      "model": "cafebert",
+      "lượt": "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1",
       "split": "val"
     }
   ],
   "trọng_số": {
-    "phobert-base-v2": 0.536864,
-    "visobert": 0.463136
+    "phobert-base-v2": 0.180274,
+    "phobert-large": 0.175737,
+    "visobert": 0.155517,
+    "vibert-base-cased": 0.140536,
+    "xlm-roberta-base": 0.160956,
+    "cafebert": 0.186981
   },
-  "at": "2026-10-05T17:06:28"
+  "at": "2026-10-12T11:40:33"
 }

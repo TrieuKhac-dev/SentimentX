@@ -512,3 +512,43 @@ Luật 3 của `metrics.md` (chạm trần = lượt bị cắt) **đã bắt đ
 - **Thêm Đợt 2b** (3 lượt v0 + seed 1/2/3) để chốt phép so với v0.
 - **Đợt 6 (KẾT HỢP) thành con đường CHÍNH** cho mục tiêu "tăng cả Acc và F1", vì dư địa nằm ở ô âm `n` lớn
   và 5 lượt `val` dẫn đầu đã có sẵn `probabilities.csv` ở máy.
+
+## 12. Đợt 6 - BA VIỆC KẾT HỢP (12/10/2026): **CẢ BA ĐỀU KHÔNG CẢI THIỆN**
+
+Đợt 6 là con đường CHÍNH còn lại (0 GPU; 5 lượt `val` dẫn đầu đã có `probabilities.csv` ở máy). Đã chạy đủ 3
+việc: trọng số và ngưỡng **chốt trên `val`**, số báo cáo là số khi **áp lên `test`** (đúng luật 1 của `metrics.md`).
+Mọi số dưới đây do CHÍNH công cụ chấm; "mạnh nhất" = lượt tốt nhất trong bộ đem đi gộp.
+
+| Việc | Bằng chứng | Acc (`paper` macro) | neg F1 macro (7 khía cạnh) | So với mạnh nhất | Kết |
+| --- | --- | ---: | ---: | --- | --- |
+| 6.1 ensemble **6 model KHÁC NHAU** | `fusion/ensemble.json` · `ensemble_val.json` · `weights_val.json` | **97,87** | **0,795** | `exp013` 98,33 / 0,889 ⇒ **−0,46 / −0,094** | **THUA** |
+| 6.1b ensemble **5 lượt cafebert** (trọng số đều) | `fusion/ensemble_cluster.json` | **98,26** | **0,856** | `exp013` 98,33 / 0,889 ⇒ −0,07 / −0,033 | **THUA nhẹ** |
+| 6.2 **ngưỡng theo khía cạnh** (6/7 khía cạnh; `price` để nguyên) | `fusion/thresholds.json` · `thresholds_applied.json` | 98,33 → **98,33** | 0,889 → **0,889** | 0,000 / 0,000 | **RỖNG** |
+| 6.3 **biểu quyết 3 seed** | `fusion/vote.json` | **98,41** | **0,809** | `exp021` 98,41 / 0,886 ⇒ 0,00 / **−0,077** | **NGANG acc, THUA F1** |
+
+### Vì sao (phần đáng ghi lại)
+
+- **Ensemble thắng TRUNG BÌNH thành viên nhưng thua THÀNH VIÊN MẠNH NHẤT.** 6 model: TB thành viên trên `test`
+  ~96,89 → bản gộp **97,87** (**+0,98**), nhưng vẫn kém `cafebert/exp013` (**98,33**). Trọng số chốt trên `val`
+  (cafebert 0,187 · phobert-base 0,180 · phobert-large 0,176 · xlm-roberta 0,161 · visobert 0,156 · vibert 0,141)
+  **không đủ** để vô hiệu hoá các encoder yếu (`vibert` 94,84 · `visobert` 96,53) ⇒ **kết hợp chỉ có lợi khi các
+  thành viên ĐỒNG HẠNG**; ở đây chúng lệch nhau tới 3,5 điểm.
+- **Các lượt mạnh là 5 BIẾN THỂ CỦA CÙNG MỘT ENCODER** nên gộp chúng **không khử được lỗi**: bản gộp 5 lượt
+  **98,26** ≈ TB họ `lr4e-4` **98,29** (lệch 0,03 < sd 0,11-0,16) - cả 5 mắc CÙNG lỗi.
+- **Ngưỡng theo khía cạnh là bàn đạp RỖNG, và đây là bằng chứng quét:** lưới 0,05-0,95 cho `colour` trên `val`
+  được 0,788 → 0,810 → 0,806 → 0,833 → 0,847 → 0,862 → … → **0,877** (không ngưỡng) ⇒ F1 âm **tăng đơn điệu về
+  điểm gốc**, tức MỌI ngưỡng đều LÀM HỎNG ⇒ ngưỡng tốt nhất = 0,95 = "không làm gì". Xác suất lớp âm **đã xếp
+  hạng đúng**: các ô âm thật đứng đầu, hạ ngưỡng chỉ thêm ô dương bị đoán âm.
+- **Biểu quyết 3 seed không sửa được ô âm**: nâng Acc lên đỉnh (98,41 = ngang `exp021`) nhưng neg F1 **0,809**,
+  thấp hơn cả `exp040` (0,813) và `exp021` (0,886); 11.361 ô đủ phiếu nhưng chỉ **8 ô hoà** ⇒ không có gì để phân
+  xử, và 3 lượt **mắc cùng lỗi** nên bỏ phiếu không tạo thông tin mới.
+
+### Kết luận Đợt 6 + hệ quả
+
+**Không việc nào vượt > 0,25 trên CẢ HAI trục so với từng thành viên** ⇒ theo luật đã chốt ở mục 8, Đợt 6
+**không sinh ra kết quả để báo cáo** (không có `present_report_v2.md`). Bằng chứng được GIỮ trong
+`data/reports/fusion/` (kèm `inputs/` để tái lập từ repo, không cần Drive).
+
+⇒ Cùng với việc các trục siêu tham số đã bão hoà (mục 11), **bàn đạp "kết hợp" nay cũng đã cạn**: dự án đang ở
+trần của cấu hình hiện tại **~98,29 Acc / ~94,41 neg F1 (`n` lớn)**, vượt công bố **+0,59 Acc / +6,18 F1 âm**.
+Muốn vượt trần này phải đổi **loại** (thêm dữ liệu / đổi loại lỗi), không phải đổi **núm**.

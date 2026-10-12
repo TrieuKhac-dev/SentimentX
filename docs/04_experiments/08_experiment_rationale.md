@@ -473,3 +473,56 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
 
 **Hệ quả:** các trục vặn nút chuyển sang **HOÃN** (11 lượt: 5 của Đợt 3 + 3 của Đợt 4 + 3 đã hoãn trước),
 thêm **Đợt 2b** (3 lượt v0), và **Đợt 6 (kết hợp)** trở thành con đường chính cho mục tiêu "tăng cả Acc và F1".
+
+## 11. Đợt 6 (12/10/2026) - BA VIỆC KẾT HỢP: cả ba đều KHÔNG cải thiện
+
+Đợt 6 chạy trên một luật duy nhất: mọi thứ **chốt trên `val`** rồi mới **áp lên `test`** (luật 1 của `metrics.md`),
+nên không có đường "xem `test` rồi chọn". Cả ba việc đều **0 GPU** (công cụ chỉ đọc `probabilities.csv` đã có ở
+máy). Lệnh tái lập (đường dẫn đầy đủ ở `present_plan_batch12.md` mục 12):
+
+```bash
+# 6.1 CHỐT trọng số trên val (6 model KHÁC NHAU) rồi ÁP lên test
+python scripts/ensemble.py --run <val: phobert-base-v2 phobert-large visobert vibert xlm-roberta cafebert> \
+    --weights val --out data/reports/fusion/ensemble_val.json \
+    --write-weights data/reports/fusion/weights_val.json
+python scripts/ensemble.py --run <test: 6 model tương ứng> \
+    --weights-file data/reports/fusion/weights_val.json --out data/reports/fusion/ensemble.json
+
+# 6.2 DÒ ngưỡng trên val (cafebert r32) rồi ÁP lên test (cafebert r32)
+python scripts/fit_thresholds.py --run experiments/cafebert/lora/exp052/results/81d71ed1 \
+    --thresholds data/reports/fusion/thresholds.json
+python scripts/fit_thresholds.py --apply-to experiments/cafebert/lora/exp013/results/bb5a16ba \
+    --thresholds data/reports/fusion/thresholds.json
+
+# 6.3 BIỂU QUYẾT 3 seed (7, 13, 42 - truyền theo thứ tự TĂNG DẦN)
+python scripts/vote.py --run .../exp040/... --run .../exp041/... --run .../exp021/... \
+    --out data/reports/fusion/vote.json
+```
+
+| Việc | Acc (`paper` macro) | neg F1 macro (7 khía cạnh) | Lượt mạnh nhất trong bộ | Kết |
+| --- | ---: | ---: | --- | --- |
+| 6.1 ensemble 6 model KHÁC NHAU | 97,87 | 0,795 | `exp013` 98,33 / 0,889 | **THUA** (−0,46 / −0,094) |
+| 6.1b ensemble 5 lượt cafebert (trọng số đều) | 98,26 | 0,856 | `exp013` 98,33 / 0,889 | **THUA nhẹ** (−0,07 / −0,033) |
+| 6.2 ngưỡng theo khía cạnh (6/7) | 98,33 | 0,889 | `exp013` 98,33 / 0,889 | **RỖNG** (0 / 0) |
+| 6.3 biểu quyết 3 seed | 98,41 | 0,809 | `exp021` 98,41 / 0,886 | **NGANG acc, THUA F1** (−0,077) |
+
+**Bốn điều đáng ghi vào lịch sử dự án:**
+
+1. **Ensemble có lợi so với TRUNG BÌNH thành viên, KHÔNG có lợi so với thành viên MẠNH NHẤT.** Bộ 6 model khác
+   nhau là bộ "đúng sách" (khác kiến trúc) nhưng chất lượng lệch nhau (94,84 % - 98,33 %); trọng số chốt trên `val`
+   (0,141-0,187) **không đủ** vô hiệu hoá thành viên yếu, nên bản gộp **97,87** vẫn kém `exp013` **98,33**.
+   ⇒ Kết luận dùng được: **ensemble là công cụ tăng ĐỘ ỔN ĐỊNH, không phải công cụ vượt trần** khi đã có một thành
+   viên trội.
+2. **Gộp 5 BIẾN THỂ của CÙNG một encoder là bàn đạp rỗng: 98,26** so với TB họ `lr4e-4` **98,29** (lệch 0,03, dưới
+   sd 0,11-0,16). Muốn ensemble khử lỗi thì các thành viên phải mắc lỗi **KHÁC NHAU** - 5 lượt này mắc cùng lỗi.
+3. **Ngưỡng theo khía cạnh KHÔNG có chỗ để cải thiện, và lưới quét chứng minh điều đó:** F1 âm của `colour` trên
+   `val` **tăng đơn điệu** từ 0,788 (ngưỡng 0,05) về **0,877** (ngưỡng 0,95 = không đổi) ⇒ xác suất lớp âm **đã
+   được xếp hạng đúng** (ô âm thật nằm ở đầu danh sách), hạ ngưỡng chỉ thêm ô dương bị đoán âm. Đây là bằng chứng
+   ĐẦU TIÊN trong dự án rằng **nút "ngưỡng" của lớp âm không còn dư địa** - khác giả định ban đầu ở mục 1.
+4. **Biểu quyết chỉ có ích khi các lượt mắc lỗi KHÁC NHAU:** 3 seed cùng cấu hình cho **8 ô hoà / 11.361 ô
+   (0,07 %)** và neg F1 **0,809**, thấp hơn cả lượt tốt thứ hai của bộ (`exp040` 0,813).
+
+**Nghĩa là:** cả ba bàn đạp của bước kết hợp đều cạn trên dữ liệu hiện có ⇒ dự án đang ở **trần ~98,29 Acc /
+~94,41 neg F1 (`n` lớn)** của cấu hình `cafebert + LoRA`, và **không nên** đốt thêm lượt chạy vào vặn núm hay gộp.
+Muốn vượt trần phải đổi **loại** thông tin (dữ liệu huấn luyện thêm, hoặc tín hiệu mới như cụm `khía cạnh + ngữ
+cảnh`), không phải đổi **núm**.

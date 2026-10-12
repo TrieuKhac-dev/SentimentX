@@ -2,29 +2,29 @@
   "lượt": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
   "split": "val",
   "accuracy_all": {
-    "macro": 95.83,
-    "micro": 95.87,
-    "when_mentioned_macro": 94.79,
-    "when_mentioned_micro": 95.17,
-    "correct": 10118,
+    "macro": 96.94,
+    "micro": 96.97,
+    "when_mentioned_macro": 96.05,
+    "when_mentioned_micro": 96.44,
+    "correct": 10234,
     "cells": 10554,
     "by_aspect": {
-      "colour": 94.67,
-      "packing": 98.17,
-      "price": 98.76,
-      "shipping": 96.53,
-      "smell": 99.01,
-      "stayingpower": 95.08,
-      "texture": 88.6
+      "colour": 96.02,
+      "packing": 98.57,
+      "price": 99.09,
+      "shipping": 97.26,
+      "smell": 99.21,
+      "stayingpower": 96.41,
+      "texture": 92.04
     },
     "when_mentioned_by_aspect": {
-      "colour": 95.14,
-      "packing": 96.38,
-      "price": 98.74,
-      "shipping": 97.23,
-      "smell": 96.89,
-      "stayingpower": 87.01,
-      "texture": 92.13
+      "colour": 96.86,
+      "packing": 97.7,
+      "price": 99.06,
+      "shipping": 97.97,
+      "smell": 97.23,
+      "stayingpower": 89.61,
+      "texture": 93.91
     },
     "cells_by_aspect": {
       "colour": 1482,
@@ -36,83 +36,91 @@
       "texture": 1482
     },
     "correct_by_aspect": {
-      "colour": 1403,
-      "packing": 1506,
-      "price": 1512,
-      "shipping": 1447,
-      "smell": 1507,
-      "stayingpower": 1430,
-      "texture": 1313
+      "colour": 1423,
+      "packing": 1512,
+      "price": 1517,
+      "shipping": 1458,
+      "smell": 1510,
+      "stayingpower": 1450,
+      "texture": 1364
     }
   },
   "accuracy_paper": {
-    "macro": 95.99,
-    "micro": 96.39,
-    "when_mentioned_macro": 95.99,
-    "when_mentioned_micro": 96.39,
-    "correct": 2643,
-    "cells": 2742,
+    "macro": 96.9,
+    "micro": 97.31,
+    "when_mentioned_macro": 96.9,
+    "when_mentioned_micro": 97.31,
+    "correct": 2678,
+    "cells": 2752,
     "by_aspect": {
-      "colour": 96.24,
-      "packing": 97.99,
+      "colour": 97.84,
+      "packing": 99.0,
       "price": 100.0,
-      "shipping": 98.32,
-      "smell": 97.56,
-      "stayingpower": 87.77,
-      "texture": 94.04
+      "shipping": 98.88,
+      "smell": 97.57,
+      "stayingpower": 90.39,
+      "texture": 94.63
     },
     "when_mentioned_by_aspect": {
-      "colour": 96.24,
-      "packing": 97.99,
+      "colour": 97.84,
+      "packing": 99.0,
       "price": 100.0,
-      "shipping": 98.32,
-      "smell": 97.56,
-      "stayingpower": 87.77,
-      "texture": 94.04
+      "shipping": 98.88,
+      "smell": 97.57,
+      "stayingpower": 90.39,
+      "texture": 94.63
     },
     "cells_by_aspect": {
-      "colour": 692,
-      "packing": 299,
-      "price": 314,
-      "shipping": 535,
-      "smell": 287,
+      "colour": 693,
+      "packing": 300,
+      "price": 315,
+      "shipping": 536,
+      "smell": 288,
       "stayingpower": 229,
-      "texture": 386
+      "texture": 391
     },
     "correct_by_aspect": {
-      "colour": 666,
-      "packing": 293,
-      "price": 314,
-      "shipping": 526,
-      "smell": 280,
-      "stayingpower": 201,
-      "texture": 363
+      "colour": 678,
+      "packing": 297,
+      "price": 315,
+      "shipping": 530,
+      "smell": 281,
+      "stayingpower": 207,
+      "texture": 370
     }
   },
-  "cells_paper": 2742,
+  "cells_paper": 2752,
   "f1_âm_từng_khía_cạnh": {
-    "colour": 0.794,
-    "packing": 0.625,
+    "colour": 0.87,
+    "packing": 0.769,
     "price": null,
-    "shipping": 0.976,
-    "smell": 0.935,
-    "stayingpower": 0.86,
-    "texture": 0.864
+    "shipping": 0.984,
+    "smell": 0.936,
+    "stayingpower": 0.887,
+    "texture": 0.876
   },
   "f1_âm_macro": {
-    "macro_trên_khía_cạnh_có_ô_âm": 0.842333,
-    "macro_trên_khía_cạnh_đang_dương": 0.842333,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.887,
+    "macro_trên_khía_cạnh_đang_dương": 0.887,
     "số_khía_cạnh_có_ô_âm": 6
   },
-  "at": "2026-10-05T17:06:28",
+  "at": "2026-10-12T11:40:33",
   "cách": "trung bình xác suất rồi argmax theo từng khía cạnh",
   "trọng số": {
-    "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c": 0.536864,
-    "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa": 0.463136
+    "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c": 0.180274,
+    "experiments\\phobert-large\\lora\\exp003\\results\\5b192ca8": 0.175737,
+    "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa": 0.155517,
+    "experiments\\vibert-base-cased\\lora\\exp004\\results\\97cae249": 0.140536,
+    "experiments\\xlm-roberta-base\\lora\\exp003\\results\\777fafbf": 0.160956,
+    "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1": 0.186981
   },
   "nguồn": [
     "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
-    "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa"
+    "experiments\\phobert-large\\lora\\exp003\\results\\5b192ca8",
+    "experiments\\visobert\\lora\\exp003\\results\\8b4aeafa",
+    "experiments\\vibert-base-cased\\lora\\exp004\\results\\97cae249",
+    "experiments\\xlm-roberta-base\\lora\\exp003\\results\\777fafbf",
+    "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1"
   ],
   "ghi_chú": "mọi lượt phải chấm CÙNG split; số ô đọc kèm theo luật 1 của metrics.md"
 }

@@ -1,5 +1,5 @@
 {
-  "nguồn": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+  "nguồn": "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1",
   "split": "val",
   "mã_âm": 2,
   "lưới": [
@@ -27,207 +27,207 @@
   "khía_cạnh": {
     "colour": {
       "ngưỡng": 0.95,
-      "f1_âm_gốc": 0.816,
-      "f1_âm_sau": 0.816,
+      "f1_âm_gốc": 0.877,
+      "f1_âm_sau": 0.877,
       "lí do": null,
       "sweep": [
         {
           "ngưỡng": 0.05,
-          "f1_âm": 0.171,
-          "cells": 2762
+          "f1_âm": 0.788,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.1,
-          "f1_âm": 0.345,
-          "cells": 2762
+          "f1_âm": 0.81,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.15,
-          "f1_âm": 0.533,
-          "cells": 2761
+          "f1_âm": 0.806,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.2,
-          "f1_âm": 0.68,
-          "cells": 2760
+          "f1_âm": 0.833,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.25,
-          "f1_âm": 0.727,
-          "cells": 2756
+          "f1_âm": 0.847,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.3,
-          "f1_âm": 0.765,
-          "cells": 2755
+          "f1_âm": 0.847,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.35,
-          "f1_âm": 0.8,
-          "cells": 2755
+          "f1_âm": 0.862,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.4,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.862,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.45,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.862,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
-          "f1_âm": 0.816,
-          "cells": 2755
+          "f1_âm": 0.877,
+          "cells": 2751
         }
       ]
     },
     "packing": {
       "ngưỡng": 0.95,
-      "f1_âm_gốc": 0.923,
-      "f1_âm_sau": 0.923,
+      "f1_âm_gốc": 0.857,
+      "f1_âm_sau": 0.857,
       "lí do": null,
       "sweep": [
         {
           "ngưỡng": 0.05,
-          "f1_âm": 0.039,
-          "cells": 2758
+          "f1_âm": 0.667,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.1,
-          "f1_âm": 0.088,
-          "cells": 2758
+          "f1_âm": 0.8,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.15,
-          "f1_âm": 0.16,
-          "cells": 2758
+          "f1_âm": 0.8,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.2,
-          "f1_âm": 0.245,
-          "cells": 2757
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.25,
-          "f1_âm": 0.462,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.3,
-          "f1_âm": 0.571,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.35,
-          "f1_âm": 0.75,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.4,
-          "f1_âm": 0.8,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.45,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
-          "f1_âm": 0.923,
-          "cells": 2755
+          "f1_âm": 0.857,
+          "cells": 2751
         }
       ]
     },
@@ -240,509 +240,509 @@
         {
           "ngưỡng": 0.05,
           "f1_âm": null,
-          "cells": 2758
+          "cells": 2751
         },
         {
           "ngưỡng": 0.1,
           "f1_âm": null,
-          "cells": 2758
+          "cells": 2751
         },
         {
           "ngưỡng": 0.15,
           "f1_âm": null,
-          "cells": 2756
+          "cells": 2751
         },
         {
           "ngưỡng": 0.2,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.25,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.3,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.35,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.4,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.45,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
           "f1_âm": null,
-          "cells": 2755
+          "cells": 2751
         }
       ]
     },
     "shipping": {
       "ngưỡng": 0.95,
-      "f1_âm_gốc": 0.981,
-      "f1_âm_sau": 0.981,
+      "f1_âm_gốc": 0.989,
+      "f1_âm_sau": 0.989,
       "lí do": null,
       "sweep": [
         {
           "ngưỡng": 0.05,
-          "f1_âm": 0.58,
-          "cells": 2760
+          "f1_âm": 0.961,
+          "cells": 2754
         },
         {
           "ngưỡng": 0.1,
-          "f1_âm": 0.845,
-          "cells": 2760
+          "f1_âm": 0.981,
+          "cells": 2753
         },
         {
           "ngưỡng": 0.15,
-          "f1_âm": 0.932,
-          "cells": 2759
+          "f1_âm": 0.984,
+          "cells": 2753
         },
         {
           "ngưỡng": 0.2,
-          "f1_âm": 0.966,
-          "cells": 2758
+          "f1_âm": 0.987,
+          "cells": 2753
         },
         {
           "ngưỡng": 0.25,
-          "f1_âm": 0.976,
-          "cells": 2758
+          "f1_âm": 0.987,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.3,
-          "f1_âm": 0.978,
-          "cells": 2755
+          "f1_âm": 0.987,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.35,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.987,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.4,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.45,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
-          "f1_âm": 0.981,
-          "cells": 2755
+          "f1_âm": 0.989,
+          "cells": 2751
         }
       ]
     },
     "smell": {
-      "ngưỡng": 0.3,
-      "f1_âm_gốc": 0.925,
-      "f1_âm_sau": 0.927,
+      "ngưỡng": 0.95,
+      "f1_âm_gốc": 0.962,
+      "f1_âm_sau": 0.962,
       "lí do": null,
       "sweep": [
         {
           "ngưỡng": 0.05,
-          "f1_âm": 0.315,
-          "cells": 2756
+          "f1_âm": 0.909,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.1,
-          "f1_âm": 0.475,
-          "cells": 2756
+          "f1_âm": 0.926,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.15,
-          "f1_âm": 0.685,
-          "cells": 2755
+          "f1_âm": 0.943,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.2,
-          "f1_âm": 0.829,
-          "cells": 2755
+          "f1_âm": 0.943,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.25,
-          "f1_âm": 0.872,
-          "cells": 2755
+          "f1_âm": 0.943,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.3,
-          "f1_âm": 0.927,
-          "cells": 2755
+          "f1_âm": 0.943,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.35,
-          "f1_âm": 0.926,
-          "cells": 2755
+          "f1_âm": 0.943,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.4,
-          "f1_âm": 0.926,
-          "cells": 2755
+          "f1_âm": 0.952,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.45,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.952,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
-          "f1_âm": 0.925,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2751
         }
       ]
     },
     "stayingpower": {
       "ngưỡng": 0.95,
-      "f1_âm_gốc": 0.891,
-      "f1_âm_sau": 0.891,
+      "f1_âm_gốc": 0.978,
+      "f1_âm_sau": 0.978,
       "lí do": null,
       "sweep": [
         {
           "ngưỡng": 0.05,
-          "f1_âm": 0.561,
-          "cells": 2757
+          "f1_âm": 0.921,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.1,
-          "f1_âm": 0.561,
-          "cells": 2757
+          "f1_âm": 0.936,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.15,
-          "f1_âm": 0.574,
-          "cells": 2756
+          "f1_âm": 0.946,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.2,
-          "f1_âm": 0.672,
-          "cells": 2755
+          "f1_âm": 0.957,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.25,
-          "f1_âm": 0.751,
-          "cells": 2755
+          "f1_âm": 0.962,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.3,
-          "f1_âm": 0.843,
-          "cells": 2755
+          "f1_âm": 0.967,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.35,
-          "f1_âm": 0.869,
-          "cells": 2755
+          "f1_âm": 0.967,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.4,
-          "f1_âm": 0.882,
-          "cells": 2755
+          "f1_âm": 0.967,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.45,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.967,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
-          "f1_âm": 0.891,
-          "cells": 2755
+          "f1_âm": 0.978,
+          "cells": 2751
         }
       ]
     },
     "texture": {
-      "ngưỡng": 0.45,
-      "f1_âm_gốc": 0.867,
-      "f1_âm_sau": 0.874,
+      "ngưỡng": 0.95,
+      "f1_âm_gốc": 0.941,
+      "f1_âm_sau": 0.941,
       "lí do": null,
       "sweep": [
         {
           "ngưỡng": 0.05,
-          "f1_âm": 0.332,
-          "cells": 2756
+          "f1_âm": 0.856,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.1,
-          "f1_âm": 0.503,
-          "cells": 2756
+          "f1_âm": 0.865,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.15,
-          "f1_âm": 0.658,
-          "cells": 2756
+          "f1_âm": 0.88,
+          "cells": 2752
         },
         {
           "ngưỡng": 0.2,
-          "f1_âm": 0.752,
-          "cells": 2756
+          "f1_âm": 0.899,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.25,
-          "f1_âm": 0.817,
-          "cells": 2756
+          "f1_âm": 0.921,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.3,
-          "f1_âm": 0.843,
-          "cells": 2756
+          "f1_âm": 0.933,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.35,
-          "f1_âm": 0.86,
-          "cells": 2756
+          "f1_âm": 0.925,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.4,
-          "f1_âm": 0.869,
-          "cells": 2755
+          "f1_âm": 0.937,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.45,
-          "f1_âm": 0.874,
-          "cells": 2755
+          "f1_âm": 0.936,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.5,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.55,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.6,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.65,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.7,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.75,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.8,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.85,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.9,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         },
         {
           "ngưỡng": 0.95,
-          "f1_âm": 0.867,
-          "cells": 2755
+          "f1_âm": 0.941,
+          "cells": 2751
         }
       ]
     }
@@ -751,51 +751,51 @@
     "colour": 0.95,
     "packing": 0.95,
     "shipping": 0.95,
-    "smell": 0.3,
+    "smell": 0.95,
     "stayingpower": 0.95,
-    "texture": 0.45
+    "texture": 0.95
   },
-  "cells_gốc": 2755,
-  "cells_sau": 2755,
+  "cells_gốc": 2751,
+  "cells_sau": 2751,
   "f1_âm_macro_gốc": {
-    "macro_trên_khía_cạnh_có_ô_âm": 0.9005,
-    "macro_trên_khía_cạnh_đang_dương": 0.9005,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.934,
+    "macro_trên_khía_cạnh_đang_dương": 0.934,
     "số_khía_cạnh_có_ô_âm": 6
   },
   "f1_âm_macro_sau": {
-    "macro_trên_khía_cạnh_có_ô_âm": 0.902,
-    "macro_trên_khía_cạnh_đang_dương": 0.902,
+    "macro_trên_khía_cạnh_có_ô_âm": 0.934,
+    "macro_trên_khía_cạnh_đang_dương": 0.934,
     "số_khía_cạnh_có_ô_âm": 6
   },
   "ghi_chú": "ngưỡng chốt trên val; áp lên tập KHÁC (test) mới là số báo cáo",
-  "at": "2026-10-05T17:06:03",
+  "at": "2026-10-12T11:41:49",
   "số_trên_val_gốc": {
-    "lượt": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+    "lượt": "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1",
     "split": "val",
     "accuracy_all": {
-      "macro": 93.08,
-      "micro": 93.14,
-      "when_mentioned_macro": 96.05,
-      "when_mentioned_micro": 96.25,
-      "correct": 9830,
+      "macro": 97.65,
+      "micro": 97.66,
+      "when_mentioned_macro": 97.87,
+      "when_mentioned_micro": 97.73,
+      "correct": 10307,
       "cells": 10554,
       "by_aspect": {
-        "colour": 91.57,
-        "packing": 98.17,
+        "colour": 96.42,
+        "packing": 97.85,
         "price": 98.82,
-        "shipping": 97.06,
-        "smell": 98.09,
-        "stayingpower": 85.51,
-        "texture": 82.32
+        "shipping": 97.6,
+        "smell": 99.34,
+        "stayingpower": 97.67,
+        "texture": 95.82
       },
       "when_mentioned_by_aspect": {
-        "colour": 95.71,
+        "colour": 97.0,
         "packing": 98.68,
-        "price": 99.06,
-        "shipping": 97.78,
-        "smell": 96.89,
-        "stayingpower": 90.04,
-        "texture": 94.16
+        "price": 98.74,
+        "shipping": 98.34,
+        "smell": 98.27,
+        "stayingpower": 97.84,
+        "texture": 96.19
       },
       "cells_by_aspect": {
         "colour": 1482,
@@ -807,102 +807,102 @@
         "texture": 1482
       },
       "correct_by_aspect": {
-        "colour": 1357,
-        "packing": 1506,
+        "colour": 1429,
+        "packing": 1501,
         "price": 1513,
-        "shipping": 1455,
-        "smell": 1493,
-        "stayingpower": 1286,
-        "texture": 1220
+        "shipping": 1463,
+        "smell": 1512,
+        "stayingpower": 1469,
+        "texture": 1420
       }
     },
     "accuracy_paper": {
-      "macro": 96.78,
-      "micro": 97.02,
-      "when_mentioned_macro": 96.78,
-      "when_mentioned_micro": 97.02,
-      "correct": 2673,
-      "cells": 2755,
+      "macro": 98.73,
+      "micro": 98.66,
+      "when_mentioned_macro": 98.73,
+      "when_mentioned_micro": 98.66,
+      "correct": 2714,
+      "cells": 2751,
       "by_aspect": {
-        "colour": 96.68,
-        "packing": 99.67,
+        "colour": 97.98,
+        "packing": 99.34,
         "price": 100.0,
-        "shipping": 98.69,
-        "smell": 97.22,
-        "stayingpower": 90.83,
-        "texture": 94.4
+        "shipping": 99.25,
+        "smell": 98.61,
+        "stayingpower": 98.26,
+        "texture": 97.68
       },
       "when_mentioned_by_aspect": {
-        "colour": 96.68,
-        "packing": 99.67,
+        "colour": 97.98,
+        "packing": 99.34,
         "price": 100.0,
-        "shipping": 98.69,
-        "smell": 97.22,
-        "stayingpower": 90.83,
-        "texture": 94.4
+        "shipping": 99.25,
+        "smell": 98.61,
+        "stayingpower": 98.26,
+        "texture": 97.68
       },
       "cells_by_aspect": {
         "colour": 693,
-        "packing": 301,
-        "price": 315,
+        "packing": 302,
+        "price": 314,
         "shipping": 536,
         "smell": 288,
-        "stayingpower": 229,
-        "texture": 393
+        "stayingpower": 230,
+        "texture": 388
       },
       "correct_by_aspect": {
-        "colour": 670,
+        "colour": 679,
         "packing": 300,
-        "price": 315,
-        "shipping": 529,
-        "smell": 280,
-        "stayingpower": 208,
-        "texture": 371
+        "price": 314,
+        "shipping": 532,
+        "smell": 284,
+        "stayingpower": 226,
+        "texture": 379
       }
     },
-    "cells_paper": 2755,
+    "cells_paper": 2751,
     "f1_âm_từng_khía_cạnh": {
-      "colour": 0.816,
-      "packing": 0.923,
+      "colour": 0.877,
+      "packing": 0.857,
       "price": null,
-      "shipping": 0.981,
-      "smell": 0.925,
-      "stayingpower": 0.891,
-      "texture": 0.867
+      "shipping": 0.989,
+      "smell": 0.962,
+      "stayingpower": 0.978,
+      "texture": 0.941
     },
     "f1_âm_macro": {
-      "macro_trên_khía_cạnh_có_ô_âm": 0.9005,
-      "macro_trên_khía_cạnh_đang_dương": 0.9005,
+      "macro_trên_khía_cạnh_có_ô_âm": 0.934,
+      "macro_trên_khía_cạnh_đang_dương": 0.934,
       "số_khía_cạnh_có_ô_âm": 6
     }
   },
   "số_trên_val_sau_khi_áp_ngưỡng": {
-    "lượt": "experiments\\phobert-base-v2\\lora\\exp003\\results\\c0033f3c",
+    "lượt": "experiments\\cafebert\\lora\\exp052\\results\\81d71ed1",
     "split": "val",
     "accuracy_all": {
-      "macro": 92.85,
-      "micro": 92.91,
-      "when_mentioned_macro": 96.08,
-      "when_mentioned_micro": 96.29,
-      "correct": 9806,
+      "macro": 97.65,
+      "micro": 97.66,
+      "when_mentioned_macro": 97.87,
+      "when_mentioned_micro": 97.73,
+      "correct": 10307,
       "cells": 10554,
       "by_aspect": {
-        "colour": 91.57,
-        "packing": 98.17,
+        "colour": 96.42,
+        "packing": 97.85,
         "price": 98.82,
-        "shipping": 97.06,
-        "smell": 96.45,
-        "stayingpower": 85.51,
-        "texture": 82.39
+        "shipping": 97.6,
+        "smell": 99.34,
+        "stayingpower": 97.67,
+        "texture": 95.82
       },
       "when_mentioned_by_aspect": {
-        "colour": 95.71,
+        "colour": 97.0,
         "packing": 98.68,
-        "price": 99.06,
-        "shipping": 97.78,
-        "smell": 96.89,
-        "stayingpower": 90.04,
-        "texture": 94.42
+        "price": 98.74,
+        "shipping": 98.34,
+        "smell": 98.27,
+        "stayingpower": 97.84,
+        "texture": 96.19
       },
       "cells_by_aspect": {
         "colour": 1482,
@@ -914,72 +914,72 @@
         "texture": 1482
       },
       "correct_by_aspect": {
-        "colour": 1357,
-        "packing": 1506,
+        "colour": 1429,
+        "packing": 1501,
         "price": 1513,
-        "shipping": 1455,
-        "smell": 1468,
-        "stayingpower": 1286,
-        "texture": 1221
+        "shipping": 1463,
+        "smell": 1512,
+        "stayingpower": 1469,
+        "texture": 1420
       }
     },
     "accuracy_paper": {
-      "macro": 96.82,
-      "micro": 97.06,
-      "when_mentioned_macro": 96.82,
-      "when_mentioned_micro": 97.06,
-      "correct": 2674,
-      "cells": 2755,
+      "macro": 98.73,
+      "micro": 98.66,
+      "when_mentioned_macro": 98.73,
+      "when_mentioned_micro": 98.66,
+      "correct": 2714,
+      "cells": 2751,
       "by_aspect": {
-        "colour": 96.68,
-        "packing": 99.67,
+        "colour": 97.98,
+        "packing": 99.34,
         "price": 100.0,
-        "shipping": 98.69,
-        "smell": 97.22,
-        "stayingpower": 90.83,
-        "texture": 94.66
+        "shipping": 99.25,
+        "smell": 98.61,
+        "stayingpower": 98.26,
+        "texture": 97.68
       },
       "when_mentioned_by_aspect": {
-        "colour": 96.68,
-        "packing": 99.67,
+        "colour": 97.98,
+        "packing": 99.34,
         "price": 100.0,
-        "shipping": 98.69,
-        "smell": 97.22,
-        "stayingpower": 90.83,
-        "texture": 94.66
+        "shipping": 99.25,
+        "smell": 98.61,
+        "stayingpower": 98.26,
+        "texture": 97.68
       },
       "cells_by_aspect": {
         "colour": 693,
-        "packing": 301,
-        "price": 315,
+        "packing": 302,
+        "price": 314,
         "shipping": 536,
         "smell": 288,
-        "stayingpower": 229,
-        "texture": 393
+        "stayingpower": 230,
+        "texture": 388
       },
       "correct_by_aspect": {
-        "colour": 670,
+        "colour": 679,
         "packing": 300,
-        "price": 315,
-        "shipping": 529,
-        "smell": 280,
-        "stayingpower": 208,
-        "texture": 372
+        "price": 314,
+        "shipping": 532,
+        "smell": 284,
+        "stayingpower": 226,
+        "texture": 379
       }
     },
-    "cells_paper": 2755,
+    "cells_paper": 2751,
     "f1_âm_từng_khía_cạnh": {
-      "colour": 0.816,
-      "packing": 0.923,
+      "colour": 0.877,
+      "packing": 0.857,
       "price": null,
-      "shipping": 0.981,
-      "smell": 0.927,
-      "stayingpower": 0.891,
-      "texture": 0.874
+      "shipping": 0.989,
+      "smell": 0.962,
+      "stayingpower": 0.978,
+      "texture": 0.941
     },
     "f1_âm_macro": {
-      "macro_trên_khía_cạnh_có_ô_âm": 0.902,
-      "macro_trên_khía_cạnh_đang_dương": 0.902,
+      "macro_trên_khía_cạnh_có_ô_âm": 0.934,
+      "macro_trên_khía_cạnh_đang_dương": 0.934,
       "số_khía_cạnh_có_ô_âm": 6
     }
   },
