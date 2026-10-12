@@ -35,17 +35,24 @@ Mỗi lượt mới phải **giữ hoặc tăng F1** và **tăng Accuracy** so v
 Lý do đổi: đợt 2 đo được biên nhiễu thật **sd = 0,11-0,16**, nên số của MỘT lượt là lượt-may-nhất, không phải
 năng lực của cấu hình (xem mục 11).
 
-| Thước đo | Công bố (đỉnh) | **v0 (`lr 2e-4`, TB 3 lượt ĐỘC LẬP)** | **Họ `lr 4e-4` (TB 12 lượt)** |
-| --- | ---: | ---: | ---: |
-| Accuracy macro (`paper`) | 97,70 | 98,08 | **98,28** |
-| pos F1 macro | 98,49 | ~98,6 | ~98,90 |
-| `neg F1 (5 khía cạnh n lớn)` | 88,23 | 93,65 | **94,38** |
+| Thước đo | Công bố (đỉnh) | **v0 (`lr 2e-4`, TB 9 lượt ĐỘC LẬP)** | **Họ `lr 4e-4` (TB 12 lượt)** | Welch (họ − v0) |
+| --- | ---: | ---: | ---: | --- |
+| Accuracy macro (`paper`) | 97,70 | 98,09 (sd 0,14) | **98,28** (sd 0,11) | **p = 0,0035** ✅ |
+| pos F1 macro | 98,49 | ~98,6 | ~98,90 | (theo lượt) |
+| `neg F1 (5 khía cạnh n lớn)` | 88,23 | 93,60 (sd 0,64) | **94,38** (sd 0,39) | **p = 0,0070** ✅ |
+
+**CẬP NHẬT CUỐI 12/10/2026 (tối, sau Đợt 8/8A).** Bảng trên đã đổi `n` của v0 từ **3 → 9 lượt độc lập** (6 hạt
+giống 1-6 về trong Đợt 8), và **mức hơn của họ `lr 4e-4` nay ĐẠT p < 0,05 ở CẢ HAI trục**:
+**t = 3,47 → p = 0,0035 (Acc)** · **t = 3,23 → p = 0,0070 (`neg F1`)**. Đối chứng: v0 cũ (3) vs v0 mới (6) -
+cùng cấu hình - cho p = 0,93/0,90 ⇒ hai nhóm là một tổng thể, 6 lượt mới **không lệch hệ thống**.
+Báo cáo chốt: `presentations/present_report/present_report_v2.md`.
 
 **SỬA 12/10/2026 (sau khi `exp042`/`exp049` về - xem mục 11).** Bảng trên trước đây ghi `v0 = 98,06` (đếm 4 lượt)
 và `họ lr 4e-4 = 98,29` (11 lượt). Sai ở chỗ: `exp049` chạy lại cho **98,11 - trùng KHÍT `exp048` từng khía cạnh**
-(cùng hạt giống huấn luyện 13) ⇒ nó là **BẢN SAO, không phải lượt thứ tư** ⇒ v0 chỉ có **3 lượt độc lập**
+(cùng hạt giống huấn luyện 13) ⇒ nó là **BẢN SAO, không phải lượt thứ tư** ⇒ v0 lúc đó chỉ có **3 lượt độc lập**
 (97,88 · 98,26 · 98,11 = hạt giống 42/7/13). Và `exp042` (98,24) đã lấp đủ nhóm `epochs 6` ⇒ họ `lr 4e-4` là
-**12 lượt**. Mức hơn đọc bằng **Welch**: **0,21 (Acc) · 0,30 (`neg F1`)** - KHÔNG đạt p < 0,05 (mục 11).
+**12 lượt**. Ở `n = 3` đó, mức hơn đọc bằng Welch là **0,21 (Acc) · 0,30 (`neg F1`)** - **chưa** đạt p < 0,05;
+chính vì thế mới cần 6 hạt giống v0 của **8A**, và tới 12/10 tối thì câu hỏi đã chốt (khối trên).
 
 **Ngưỡng phát hiện (thay cho ±0,7 khi so 1-1):** một cấu hình mới chỉ được gọi là **"tăng"** khi hơn **> 0,25 ở
 CẢ Accuracy macro VÀ một chỉ số F1 lớp âm có `n`**, với **n >= 3 lượt**. Số của MỘT lượt chỉ để tham khảo.
@@ -53,8 +60,15 @@ CẢ Accuracy macro VÀ một chỉ số F1 lớp âm có `n`**, với **n >= 3 
 **Dư địa còn lại (đã định lượng 11/10/2026):** lớp âm còn **~22 ô sai / 467 (4,7 %)**, rải ở các khía cạnh `n`
 LỚN. **Cập nhật 12/10/2026:** đường KẾT HỢP nay đã chứng minh là **cạn** (Đợt 6, mục 12: 9 bàn đạp, không cái nào
 vượt > 0,25), và đường VẶN NÚT cũng cạn (mục 11). Sau ràng buộc mới của người dùng (**không thêm dữ liệu, không
-đổi định nghĩa bài toán**), chỉ còn **HAI khe** mở cho lớp âm: **(a) không gian PROMPT của LLM** (0/1/5 ví dụ từ
-`train` + lấy mẫu - chính là giao thức công bố) và **(b) tiêu chí CHỌN CHECKPOINT** (`best_metric` = F1 lớp âm).
+đổi định nghĩa bài toán**), hai khe cuối là **(a) không gian PROMPT của LLM** (0/1/5 ví dụ từ `train` + lấy mẫu -
+chính là giao thức công bố) và **(b) tiêu chí CHỌN CHECKPOINT** (`best_metric` = F1 lớp âm).
+
+**ĐÓNG HAI KHE ĐÓ - 12/10/2026 (tối, kết quả Đợt 8):** cả hai đều **ÂM** và đã có bằng chứng -
+(a) few-shot LLM: 0 ví dụ (97,62/0,9300) > 1 ví dụ (96,83/0,9062) > 5 ví dụ (96,41/0,9066), tất cả DƯỚI mốc LLM
+sẵn có `exp009` (97,77/0,9470); (b) `best_metric: negative_f1`: **−0,17 Acc / −0,51 `neg F1`** khi ghép cặp theo
+hạt giống. Thêm bỏ phiếu 3 mẫu LLM (RỖNG) ⇒ **16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý nghĩa**.
+Ba lý do DUY NHẤT còn được phép mở lại kế hoạch: **thêm dữ liệu · đổi định nghĩa bài toán · model khác** -
+chi tiết và chi phí ở `presentations/present_report/present_report_v2.md` mục 5.
 
 ## 4. Các nhóm thử nghiệm
 
@@ -379,6 +393,8 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
       cả hai nay là lượt SẠCH. Phát hiện: **`exp049` ≡ `exp048` từng ô** (cùng hạt giống huấn luyện 13) ⇒ v0 chỉ
       có **3 lượt ĐỘC LẬP** (TB 98,08) và mức hơn so v0 đọc lại bằng Welch là **p = 0,21 (Acc) / 0,30 (`neg F1`)**
       - KHÔNG phải 0,06/0,10 như bản ghi cũ. File nhẹ của hai lượt **chưa vào git** ⇒ việc **W1**
+      → **CẬP NHẬT 12/10 tối:** `exp042`/`exp049` đã vào git (`006544c`); 6 hạt giống v0 của **8A** đưa v0 lên
+      **9 lượt độc lập** ⇒ Welch **p = 0,0035 (Acc) / 0,0070 (`neg F1`)** ⇒ **ĐÃ ĐẠT p < 0,05** (mục 14.A)
 
 ### Đợt 8 - 15 lượt SONG SONG (mới 12/10/2026; THAY cho Đợt 2b + Đợt 5) - nhóm 6 + 10 + 8
 
@@ -808,7 +824,7 @@ Số dưới đây **chấm lại bằng engine của dự án**, cột `acc mac
 | v0 cũ - 3 lượt ĐỘC LẬP (seed 42 · 7 · 13) | 98,083 (sd 0,191) | 0,9365 (sd 0,0091) |
 | v0 MỚI - 6 lượt (seed 1-6) | 98,095 (sd 0,125) | 0,9358 (sd 0,0056) |
 | **v0 gộp - 9 lượt độc lập** | **98,091** (sd 0,138) | **0,9360** (sd 0,0064) |
-| **họ `lr 4e-4` - 12 lượt** (`exp015`/`exp021`/`exp027`/`exp028`/`exp040`-`exp047`) | **98,283** (sd 0,107) | **0,9440** (sd 0,0040) |
+| **họ `lr 4e-4` - 12 lượt** (`exp015`/`exp021`/`exp027`/`exp028`/`exp040`-`exp047`) | **98,283** (sd 0,107) | **0,9438** (sd 0,0039) |
 | **Welch (2 phía)** | t = 3,47 → **p = 0,0035** | t = 3,23 → **p = 0,0070** |
 
 - Sáu hạt giống mới đều nằm TRONG dải cũ `[97,88 … 98,26]` ⇒ **không lượt nào bất thường**.

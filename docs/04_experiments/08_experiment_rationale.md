@@ -449,18 +449,22 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
 | `lr4e-4, epochs 6` (`exp027` 42 · **`exp042` 7** · `exp043` 13) | 98,37 · **98,24** · 98,14 | **98,25** | 0,12 | 94,11 | 0,12 |
 | **họ `lr 4e-4` gộp (12 lượt)** | — | **98,28** | 0,11 | **94,38** | 0,39 |
 | **`lr 2e-4` = v0 (3 lượt ĐỘC LẬP)** | 97,88 · 98,26 · 98,11 | **98,08** | 0,19 | **93,65** | 0,91 |
+| **v0 - 9 lượt ĐỘC LẬP** (3 trên + 6 hạt giống 1-6 của Đợt 8/8A) | 98,28 · 98,05 · 98,14 · 97,95 · 97,98 · 98,17 | **98,09** | 0,14 | **93,60** | 0,64 |
 
 ### Bốn kết luận
 
 1. **Bốn cấu hình họ `lr 4e-4` ĐỒNG HẠNG TUYỆT ĐỐI** (TB 98,25-98,31, sd 0,11-0,16; chênh giữa các TB <= 0,06
    chỉ bằng 1/3 sd). ⇒ `r 8` vs `r 16`, `epochs 3` vs `6`, `every_n_steps 100` vs `50`: **không có khác biệt đo
    được**. Đây là bằng chứng định lượng cho kết luận "các trục siêu tham số đã bão hoà" ở mục 9.
-2. **Họ `lr 4e-4` hơn họ v0 (`lr 2e-4`)**: **+0,20 Acc** (98,283 vs 98,083) và **+0,72 `neg F1 (5 n lớn)`**
-   (94,377 vs 93,653). Nhưng ý nghĩa thống kê **phụ thuộc giả định phương sai**: Welch **p = 0,21 (Acc)** và
-   **p = 0,30 (`neg F1`)**; còn kiểm định gộp phương sai cho **p = 0,027 / 0,044**. Bản ghi 11/10 ("t ~ 2,6,
-   p ~ 0,06") vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp ⇒ **phải sửa**. Welch đúng hơn ở đây
-   (v0 sd 0,19 gấp đôi họ kia 0,107 mà `n` v0 chỉ 3) ⇒ **kết luận: gợi ý mạnh nhưng CHƯA đạt p < 0,05**.
-   Cách duy nhất để chốt: **Đợt 8/8A** (6 hạt giống v0 nữa ⇒ 9 lượt độc lập ⇒ Welch df ≈ 12, p ≈ 0,015).
+2. **Họ `lr 4e-4` hơn họ v0 (`lr 2e-4`)**: **+0,19 Acc** (98,283 vs 98,091) và **+0,77 `neg F1 (5 n lớn)`**
+   (94,377 vs 93,602). **CẬP NHẬT 12/10/2026 (tối) - Đợt 8/8A đã chốt câu hỏi này:** 6 hạt giống v0 mới đưa họ v0
+   lên **9 lượt ĐỘC LẬP**, và mức hơn nay **ĐẠT p < 0,05 ở CẢ HAI trục**: Welch **t = 3,47 → p = 0,0035 (Acc)**
+   và **t = 3,23 → p = 0,0070 (`neg F1`)**. Trước Đợt 8 (v0 chỉ 3 lượt) hai số đó là **p = 0,21 / 0,30** - và bản
+   ghi 11/10 ("t ~ 2,6, p ~ 0,06") thì vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp phương sai nên
+   cũng phải sửa. Kế hoạch dự đoán `p ≈ 0,015` khi lên 9 lượt; **thực đo tốt hơn (0,0035 / 0,0070)**.
+   **Đối chứng chứng minh 6 lượt mới không lệch hệ thống:** so "v0 cũ (3) vs v0 mới (6)" - CÙNG cấu hình - cho
+   **p = 0,93 (Acc) / 0,90 (`neg F1`)**, tức hai nhóm là MỘT tổng thể. Chi tiết + bảng đầy đủ:
+   `presentations/present_report/present_report_v2.md` mục 2 và `present_plan_batch12.md` mục 14.A.
 3. **Mọi "kỷ lục" của một lượt là lượt MAY NHẤT**: `exp021` 98,41 (TB 98,31); `exp004` 98,26 (TB họ v0 **98,08**).
    ⇒ Từ đây đọc theo **TB >= 3 lượt** (luật 10 của `metrics.md`).
 4. **`neg F1 macro (7 khía cạnh)` là thước đo NHIỄU** (luật 13 mới): trong CÙNG cấu hình `r 8`, 3 hạt giống cho
@@ -472,7 +476,11 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
    (`colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0).
    **Cập nhật 12/10/2026:** đường KẾT HỢP đã chứng minh **CẠN** (Đợt 6, mục 12 của `present_plan_batch12.md`: 9 bàn
    đạp, không cái nào vượt > 0,25 trên cả hai trục) ⇒ hai khe còn lại là **prompt/few-shot của LLM** và **tiêu chí
-   chọn checkpoint**.
+   chọn checkpoint**. **Cập nhật 12/10/2026 (tối) - HAI KHE ĐÓ NAY ĐÃ ĐÓNG BẰNG BẰNG CHỨNG ÂM:** few-shot LLM lấy
+   ví dụ từ `train` (tám-B) cho **0 ví dụ > 1 ví dụ > 5 ví dụ** và cả ba đều DƯỚI mốc LLM sẵn có (`exp009` 0,9470);
+   tiêu chí chọn checkpoint theo lớp âm (tám-D) **thua −0,17 Acc / −0,51 `neg F1`** khi ghép cặp theo hạt giống;
+   bỏ phiếu 3 mẫu LLM (tám-C) cũng RỖNG. ⇒ **đã chạm trần**: 16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý
+   nghĩa. Báo cáo chốt: `presentations/present_report/present_report_v2.md`.
 
 ### Hai bất thường (đã xử lý XONG 12/10/2026)
 

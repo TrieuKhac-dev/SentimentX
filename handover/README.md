@@ -125,6 +125,13 @@ notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riê
 Gói **034** mang **15** notebook MỚI (chưa từng nằm trong gói nào), chia **4 nhóm**. Chạy được **cả 15
 cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính, không giẫm lên nhau).
 
+> ✅ **KẾT QUẢ ĐÃ VỀ (12/10/2026 tối) - 15/15 lượt `FINISHED`, không sai sót.** **8A ĐẠT mục tiêu**: v0 lên
+> **9 lượt độc lập** ⇒ mức hơn của họ `lr 4e-4` **đạt p < 0,05 ở CẢ HAI trục** (Welch **p = 0,0035 Acc /
+> 0,0070 `neg F1`**). **8B + 8C + 8D đều ÂM**: few-shot LLM lấy ví dụ từ `train` càng nhiều càng tệ (97,62 →
+> 96,83 → 96,41 Acc), bỏ phiếu 3 mẫu LLM cho `neg F1` 0,8039 (dưới mọi mẫu), `best_metric: negative_f1`
+> **−0,17 Acc / −0,51 `neg F1`**. ⇒ **16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý nghĩa.**
+> Báo cáo chốt: `presentations/present_report/present_report_v2.md`; nhật ký: `present_plan_batch12.md` mục 14.
+
 | Nhóm | Notebook | Trả lời câu gì | Ước tính mỗi lượt |
 | --- | --- | --- | --- |
 | **8A** (6) | `notebooks/cafebert/lora/exp058` … `exp063` | Hạt giống MỚI 1–6 cho họ **v0** (`lr 2e-4`): nhóm này mới có **3 lượt độc lập** nên mức hơn của họ `lr 4e-4` (+0,20 Acc) chưa đạt p < 0,05 (**Welch p = 0,21**). Sáu lượt này đưa `n` lên 9 ⇒ p ≈ 0,015 | ~31 phút |

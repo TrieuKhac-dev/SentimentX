@@ -1,5 +1,10 @@
 # present_report_v1 - Đối chiếu dự án với công bố tham chiếu (thêm model MỚI và bốn thước đo F1 có trọng số `n`)
 
+> ⚠️ **BẢN CŨ - ĐÃ CÓ BẢN THAY THẾ: `present_report_v2.md` (12/10/2026).** Số trong file này được viết khi họ v0
+> mới có **3 lượt độc lập**, nên phần *ý nghĩa thống kê* (Welch `p = 0,21 / 0,30` ⇒ "gợi ý mạnh, CHƯA đủ") **không
+> còn là kết luận mới nhất**: bản v2 có v0 **9 lượt độc lập** và mức hơn **đạt `p = 0,0035 / 0,0070`**. Bản v2 còn
+> ghi ba kết quả ÂM của Đợt 8 (few-shot LLM · bỏ phiếu mẫu · chọn checkpoint). Giữ file này làm DẤU VẾT.
+
 > Đọc file này khi: trình bày kết quả dự án so với công bố tham chiếu, hoặc chọn model để báo cáo.
 > Liên quan: `present_report_v0.md` (bản cũ, chỉ có model CŨ), `docs/04_experiments/metrics.md`,
 > `docs/04_experiments/reference_publication.md`, `data/reference_publication/`.
