@@ -16,7 +16,8 @@ suất từng ô, chỉ đường encoder có), chọn lại nhãn, rồi chấm
 | `weights_val.json` | `scripts/ensemble.py --write-weights` | trọng số đã chốt trên `val`, khoá theo **TÊN MODEL** (nhờ đó ráp được `.../exp003` với `.../exp004`) |
 | `ensemble.json` | `scripts/ensemble.py` | số của bản gộp trung bình xác suất + trọng số từng lượt |
 | `fuse.json` | `scripts/fuse.py --apply` | số của bản LAI khi áp luật đã chốt |
-| `vote.json` | `scripts/vote.py` | số của bản bỏ phiếu + số của TỪNG mẫu + thống kê phiếu |
+| `vote.json` | `scripts/vote.py` | số của bản bỏ phiếu + số của TỪNG mẫu + thống kê phiếu (lần chạy Đợt 6: 3 **hạt giống encoder** `exp021`/`exp040`/`exp041`) |
+| `vote_llm_1shot.json` | `scripts/vote.py --out …/vote_llm_1shot.json` | bỏ phiếu 3 **mẫu LLM** `1 ví dụ` (Đợt 8: `exp025` seed 1 · `exp026` seed 2 · `exp027` seed 3); cùng định dạng `vote.json`. Vì sao tên riêng: **không đè** bằng chứng Đợt 6 - hai lần bỏ phiếu khác hẳn nhau về nguồn |
 | `aspect_router_<tiêu chí>.json` | `scripts/ensemble_aspect.py --fit --criterion <tiêu chí>` | **LUẬT ROUTER đang dùng** (lần chạy BA, 07/10/2026: 6 ứng viên, trong đó `cafebert` là lượt **đầu HỌC** `exp006` trên `val`): mỗi khía cạnh lấy lượt nào, kèm tiêu chí, thứ tự hoà, và `điểm` của MỌI ứng viên (cả hai tiêu chí + số ô) |
 | `aspect_router_<tiêu chí>_6model.json` | như trên | **LUẬT của lần chạy THỨ HAI** (6 ứng viên, đầu phân loại đóng băng) - giữ làm dấu vết |
 | `aspect_router_<tiêu chí>_2model.json` | như trên | **LUẬT của lần chạy ĐẦU** (2 ứng viên, 06/10/2026) - giữ làm dấu vết |

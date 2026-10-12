@@ -1,0 +1,444 @@
+{
+  "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp025\\results\\ad4136a1",
+  "split": "test",
+  "accuracy_all": {
+    "macro": 93.99,
+    "micro": 94.01,
+    "when_mentioned_macro": 85.89,
+    "when_mentioned_micro": 87.04,
+    "correct": 10492,
+    "cells": 11161,
+    "by_aspect": {
+      "colour": 91.28,
+      "packing": 91.86,
+      "price": 96.67,
+      "shipping": 96.43,
+      "smell": 97.14,
+      "stayingpower": 92.36,
+      "texture": 92.17
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 89.35,
+      "packing": 96.92,
+      "price": 85.63,
+      "shipping": 91.73,
+      "smell": 86.0,
+      "stayingpower": 68.35,
+      "texture": 83.22
+    },
+    "cells_by_aspect": {
+      "colour": 1572,
+      "packing": 1621,
+      "price": 1622,
+      "shipping": 1597,
+      "smell": 1607,
+      "stayingpower": 1583,
+      "texture": 1559
+    },
+    "correct_by_aspect": {
+      "colour": 1435,
+      "packing": 1489,
+      "price": 1568,
+      "shipping": 1540,
+      "smell": 1561,
+      "stayingpower": 1462,
+      "texture": 1437
+    }
+  },
+  "accuracy_paper": {
+    "macro": 96.67,
+    "micro": 96.98,
+    "when_mentioned_macro": 96.67,
+    "when_mentioned_micro": 96.98,
+    "correct": 2410,
+    "cells": 2485,
+    "by_aspect": {
+      "colour": 97.11,
+      "packing": 98.61,
+      "price": 98.59,
+      "shipping": 97.9,
+      "smell": 95.91,
+      "stayingpower": 92.57,
+      "texture": 95.97
+    },
+    "when_mentioned_by_aspect": {
+      "colour": 97.11,
+      "packing": 98.61,
+      "price": 98.59,
+      "shipping": 97.9,
+      "smell": 95.91,
+      "stayingpower": 92.57,
+      "texture": 95.97
+    },
+    "cells_by_aspect": {
+      "colour": 622,
+      "packing": 287,
+      "price": 284,
+      "shipping": 476,
+      "smell": 269,
+      "stayingpower": 175,
+      "texture": 372
+    },
+    "correct_by_aspect": {
+      "colour": 604,
+      "packing": 283,
+      "price": 280,
+      "shipping": 466,
+      "smell": 258,
+      "stayingpower": 162,
+      "texture": 357
+    }
+  },
+  "cells_paper": 2485,
+  "f1_âm_từng_khía_cạnh": {
+    "colour": 0.82,
+    "packing": 0.818,
+    "price": 0.333,
+    "shipping": 0.967,
+    "smell": 0.879,
+    "stayingpower": 0.912,
+    "texture": 0.898
+  },
+  "f1_âm_macro": {
+    "macro_trên_khía_cạnh_có_ô_âm": 0.803857,
+    "macro_trên_khía_cạnh_đang_dương": 0.803857,
+    "số_khía_cạnh_có_ô_âm": 7
+  },
+  "at": "2026-10-12T22:31:25",
+  "cách": "bỏ phiếu từng ô; hoà -> nhãn của lượt đầu tiên (seed nhỏ nhất)",
+  "thống kê phiếu": {
+    "ô đủ phiếu": 11356,
+    "ô hoà": 8,
+    "ô không lượt nào đọc được": 5,
+    "số lượt bỏ phiếu": 3
+  },
+  "nguồn": [
+    "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp025\\results\\ad4136a1",
+    "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp026\\results\\0842e93d",
+    "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp027\\results\\af67f011"
+  ],
+  "số của từng mẫu": [
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp025\\results\\ad4136a1",
+      "split": "test",
+      "accuracy_all": {
+        "macro": 93.84,
+        "micro": 93.86,
+        "when_mentioned_macro": 85.62,
+        "when_mentioned_micro": 86.78,
+        "correct": 10476,
+        "cells": 11161,
+        "by_aspect": {
+          "colour": 91.41,
+          "packing": 91.86,
+          "price": 96.61,
+          "shipping": 96.31,
+          "smell": 97.01,
+          "stayingpower": 91.54,
+          "texture": 92.17
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 89.05,
+          "packing": 96.92,
+          "price": 85.32,
+          "shipping": 91.73,
+          "smell": 85.67,
+          "stayingpower": 67.93,
+          "texture": 82.75
+        },
+        "cells_by_aspect": {
+          "colour": 1572,
+          "packing": 1621,
+          "price": 1622,
+          "shipping": 1597,
+          "smell": 1607,
+          "stayingpower": 1583,
+          "texture": 1559
+        },
+        "correct_by_aspect": {
+          "colour": 1437,
+          "packing": 1489,
+          "price": 1567,
+          "shipping": 1538,
+          "smell": 1559,
+          "stayingpower": 1449,
+          "texture": 1437
+        }
+      },
+      "accuracy_paper": {
+        "macro": 96.64,
+        "micro": 96.97,
+        "when_mentioned_macro": 96.64,
+        "when_mentioned_micro": 96.97,
+        "correct": 2403,
+        "cells": 2478,
+        "by_aspect": {
+          "colour": 97.25,
+          "packing": 98.61,
+          "price": 97.89,
+          "shipping": 97.9,
+          "smell": 95.54,
+          "stayingpower": 93.06,
+          "texture": 96.21
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 97.25,
+          "packing": 98.61,
+          "price": 97.89,
+          "shipping": 97.9,
+          "smell": 95.54,
+          "stayingpower": 93.06,
+          "texture": 96.21
+        },
+        "cells_by_aspect": {
+          "colour": 619,
+          "packing": 287,
+          "price": 285,
+          "shipping": 476,
+          "smell": 269,
+          "stayingpower": 173,
+          "texture": 369
+        },
+        "correct_by_aspect": {
+          "colour": 602,
+          "packing": 283,
+          "price": 279,
+          "shipping": 466,
+          "smell": 257,
+          "stayingpower": 161,
+          "texture": 355
+        }
+      },
+      "cells_paper": 2478,
+      "f1_âm_từng_khía_cạnh": {
+        "colour": 0.828,
+        "packing": 0.818,
+        "price": 0.5,
+        "shipping": 0.967,
+        "smell": 0.87,
+        "stayingpower": 0.918,
+        "texture": 0.9
+      },
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.828714,
+        "macro_trên_khía_cạnh_đang_dương": 0.828714,
+        "số_khía_cạnh_có_ô_âm": 7
+      }
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp026\\results\\0842e93d",
+      "split": "test",
+      "accuracy_all": {
+        "macro": 93.77,
+        "micro": 93.78,
+        "when_mentioned_macro": 85.27,
+        "when_mentioned_micro": 86.6,
+        "correct": 10467,
+        "cells": 11161,
+        "by_aspect": {
+          "colour": 91.6,
+          "packing": 91.55,
+          "price": 96.42,
+          "shipping": 96.18,
+          "smell": 96.89,
+          "stayingpower": 91.22,
+          "texture": 92.5
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 89.79,
+          "packing": 96.92,
+          "price": 84.4,
+          "shipping": 91.34,
+          "smell": 85.0,
+          "stayingpower": 66.67,
+          "texture": 82.75
+        },
+        "cells_by_aspect": {
+          "colour": 1572,
+          "packing": 1621,
+          "price": 1622,
+          "shipping": 1597,
+          "smell": 1607,
+          "stayingpower": 1583,
+          "texture": 1559
+        },
+        "correct_by_aspect": {
+          "colour": 1440,
+          "packing": 1484,
+          "price": 1564,
+          "shipping": 1536,
+          "smell": 1557,
+          "stayingpower": 1444,
+          "texture": 1442
+        }
+      },
+      "accuracy_paper": {
+        "macro": 96.85,
+        "micro": 97.2,
+        "when_mentioned_macro": 96.85,
+        "when_mentioned_micro": 97.2,
+        "correct": 2398,
+        "cells": 2467,
+        "by_aspect": {
+          "colour": 97.43,
+          "packing": 98.26,
+          "price": 98.22,
+          "shipping": 97.68,
+          "smell": 96.96,
+          "stayingpower": 92.4,
+          "texture": 96.99
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 97.43,
+          "packing": 98.26,
+          "price": 98.22,
+          "shipping": 97.68,
+          "smell": 96.96,
+          "stayingpower": 92.4,
+          "texture": 96.99
+        },
+        "cells_by_aspect": {
+          "colour": 623,
+          "packing": 288,
+          "price": 281,
+          "shipping": 475,
+          "smell": 263,
+          "stayingpower": 171,
+          "texture": 366
+        },
+        "correct_by_aspect": {
+          "colour": 607,
+          "packing": 283,
+          "price": 276,
+          "shipping": 464,
+          "smell": 255,
+          "stayingpower": 158,
+          "texture": 355
+        }
+      },
+      "cells_paper": 2467,
+      "f1_âm_từng_khía_cạnh": {
+        "colour": 0.843,
+        "packing": 0.783,
+        "price": 0.286,
+        "shipping": 0.964,
+        "smell": 0.911,
+        "stayingpower": 0.91,
+        "texture": 0.922
+      },
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.802714,
+        "macro_trên_khía_cạnh_đang_dương": 0.802714,
+        "số_khía_cạnh_có_ô_âm": 7
+      }
+    },
+    {
+      "lượt": "experiments\\qwen3-4b-instruct-2507\\prompt-cot\\exp027\\results\\af67f011",
+      "split": "test",
+      "accuracy_all": {
+        "macro": 93.77,
+        "micro": 93.79,
+        "when_mentioned_macro": 85.7,
+        "when_mentioned_micro": 86.85,
+        "correct": 10468,
+        "cells": 11161,
+        "by_aspect": {
+          "colour": 90.9,
+          "packing": 91.86,
+          "price": 96.49,
+          "shipping": 96.31,
+          "smell": 97.01,
+          "stayingpower": 91.6,
+          "texture": 92.24
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 89.2,
+          "packing": 96.92,
+          "price": 85.02,
+          "shipping": 91.54,
+          "smell": 85.0,
+          "stayingpower": 68.78,
+          "texture": 83.45
+        },
+        "cells_by_aspect": {
+          "colour": 1572,
+          "packing": 1621,
+          "price": 1622,
+          "shipping": 1597,
+          "smell": 1607,
+          "stayingpower": 1583,
+          "texture": 1559
+        },
+        "correct_by_aspect": {
+          "colour": 1429,
+          "packing": 1489,
+          "price": 1565,
+          "shipping": 1538,
+          "smell": 1559,
+          "stayingpower": 1450,
+          "texture": 1438
+        }
+      },
+      "accuracy_paper": {
+        "macro": 96.68,
+        "micro": 96.9,
+        "when_mentioned_macro": 96.68,
+        "when_mentioned_micro": 96.9,
+        "correct": 2405,
+        "cells": 2482,
+        "by_aspect": {
+          "colour": 97.1,
+          "packing": 98.26,
+          "price": 98.93,
+          "shipping": 97.48,
+          "smell": 95.86,
+          "stayingpower": 93.68,
+          "texture": 95.47
+        },
+        "when_mentioned_by_aspect": {
+          "colour": 97.1,
+          "packing": 98.26,
+          "price": 98.93,
+          "shipping": 97.48,
+          "smell": 95.86,
+          "stayingpower": 93.68,
+          "texture": 95.47
+        },
+        "cells_by_aspect": {
+          "colour": 621,
+          "packing": 288,
+          "price": 281,
+          "shipping": 477,
+          "smell": 266,
+          "stayingpower": 174,
+          "texture": 375
+        },
+        "correct_by_aspect": {
+          "colour": 603,
+          "packing": 283,
+          "price": 278,
+          "shipping": 465,
+          "smell": 255,
+          "stayingpower": 163,
+          "texture": 358
+        }
+      },
+      "cells_paper": 2482,
+      "f1_âm_từng_khía_cạnh": {
+        "colour": 0.812,
+        "packing": 0.783,
+        "price": 0.4,
+        "shipping": 0.961,
+        "smell": 0.879,
+        "stayingpower": 0.926,
+        "texture": 0.883
+      },
+      "f1_âm_macro": {
+        "macro_trên_khía_cạnh_có_ô_âm": 0.806286,
+        "macro_trên_khía_cạnh_đang_dương": 0.806286,
+        "số_khía_cạnh_có_ô_âm": 7
+      }
+    }
+  ],
+  "ghi_chú": "ba mẫu cho đợt này; so từng mẫu với bản bỏ phiếu để biết bỏ phiếu có ích không, và đọc kèm số ô + số ô hoà"
+}

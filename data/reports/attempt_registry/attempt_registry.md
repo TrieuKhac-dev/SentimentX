@@ -154,6 +154,22 @@ graph LR
   n150["cafebert/lora/exp043:2f85368a"]
   n151["cafebert/lora/exp042:5a6882ac"]
   n152["cafebert/lora/exp049:c51a9327"]
+  n153["cafebert/lora/exp055:52297bc2"]
+  n154["commit 5ec65f3d8861"]
+  n155["cafebert/lora/exp057:36ee5314"]
+  n156["cafebert/lora/exp058:a11f564b"]
+  n157["cafebert/lora/exp056:bf042ab8"]
+  n158["cafebert/lora/exp059:3961e38f"]
+  n159["cafebert/lora/exp060:df801bfa"]
+  n160["cafebert/lora/exp061:0b542ad0"]
+  n161["cafebert/lora/exp062:6df2a531"]
+  n162["cafebert/lora/exp063:a60e9302"]
+  n163["qwen3-4b-instruct-2507/prompt-cot/exp022:1e71c49e"]
+  n164["qwen3-4b-instruct-2507/prompt-cot/exp023:29ed4226"]
+  n165["qwen3-4b-instruct-2507/prompt-cot/exp025:ad4136a1"]
+  n166["qwen3-4b-instruct-2507/prompt-cot/exp026:0842e93d"]
+  n167["qwen3-4b-instruct-2507/prompt-cot/exp024:5f6161b6"]
+  n168["qwen3-4b-instruct-2507/prompt-cot/exp027:af67f011"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -289,4 +305,19 @@ graph LR
   n150 -->|FINISHED| n138
   n151 -->|FINISHED| n138
   n152 -->|FINISHED| n138
+  n153 -->|FINISHED| n154
+  n155 -->|FINISHED| n154
+  n156 -->|FINISHED| n154
+  n157 -->|FINISHED| n154
+  n158 -->|FINISHED| n154
+  n159 -->|FINISHED| n154
+  n160 -->|FINISHED| n154
+  n161 -->|FINISHED| n154
+  n162 -->|FINISHED| n154
+  n163 -->|FINISHED| n154
+  n164 -->|FINISHED| n154
+  n165 -->|FINISHED| n154
+  n166 -->|FINISHED| n154
+  n167 -->|FINISHED| n154
+  n168 -->|FINISHED| n154
 ```

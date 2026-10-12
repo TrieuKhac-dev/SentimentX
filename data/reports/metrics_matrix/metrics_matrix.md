@@ -10,132 +10,147 @@ graph LR
   n6["qwen2.5-0.5b-instruct exp001"]
   n7["qwen3-8b exp001"]
   n8["mistral-7b-instruct-v0.3 exp001"]
-  n9["<công bố COT+1-shot>"]
-  n10["qwen3-4b-instruct-2507 exp003"]
-  n11["qwen3-4b-instruct-2507 exp006"]
-  n12["qwen3-4b-instruct-2507 exp009"]
-  n13["qwen3-4b-instruct-2507 exp011"]
-  n14["qwen3-4b-instruct-2507 exp012"]
-  n15["qwen3-4b-instruct-2507 exp013"]
-  n16["qwen3-4b-instruct-2507 exp017"]
-  n17["qwen3-0.6b exp004"]
-  n18["qwen3-0.6b exp002"]
-  n19["qwen3-4b-instruct-2507 exp014"]
-  n20["qwen3-4b-instruct-2507 exp015"]
-  n21["qwen2.5-0.5b-instruct exp002"]
-  n22["qwen3-0.6b exp005"]
-  n23["qwen3-8b exp002"]
-  n24["mistral-7b-instruct-v0.3 exp002"]
-  n25["<công bố COT+5-shot>"]
-  n26["qwen3-4b-instruct-2507 exp007"]
-  n27["qwen3-4b-instruct-2507 exp004"]
-  n28["qwen3-4b-instruct-2507 exp010"]
-  n29["qwen3-0.6b exp003"]
-  n30["qwen2.5-0.5b-instruct exp003"]
-  n31["qwen3-8b exp003"]
-  n32["mistral-7b-instruct-v0.3 exp003"]
-  n33["qwen3-4b-instruct-2507 exp001"]
-  n34["phobert-base-v2 exp001"]
-  n35["visobert exp001"]
-  n36["phobert-base-v2 exp002"]
-  n37["visobert exp002"]
-  n38["qwen3-4b-instruct-2507 exp016"]
-  n39["phobert-base-v2 exp003"]
-  n40["visobert exp003"]
-  n41["visobert exp005"]
-  n42["phobert-base-v2 exp005"]
-  n43["visobert exp004"]
-  n44["phobert-base-v2 exp004"]
-  n45["vibert-base-cased exp001"]
-  n46["vibert-base-cased exp002"]
-  n47["cafebert exp001"]
-  n48["xlm-roberta-base exp002"]
-  n49["xlm-roberta-base exp001"]
-  n50["phobert-large exp002"]
-  n51["phobert-large exp001"]
-  n52["cafebert exp002"]
-  n53["qwen3-0.6b exp001 #2"]
-  n54["cafebert exp003"]
-  n55["vibert-base-cased exp003"]
-  n56["cafebert exp004"]
-  n57["xlm-roberta-base exp003"]
-  n58["vibert-base-cased exp004"]
-  n59["phobert-large exp003"]
-  n60["cafebert exp005"]
-  n61["qwen3-4b-instruct-2507 exp004 #2"]
-  n62["phobert-base-v2 exp006"]
-  n63["qwen3-4b-instruct-2507 exp005 #2"]
-  n64["qwen3-4b-instruct-2507 exp002 #2"]
-  n65["qwen3-4b-instruct-2507 exp007 #2"]
-  n66["qwen3-4b-instruct-2507 exp006 #2"]
-  n67["qwen3-4b-instruct-2507 exp001 #2"]
-  n68["qwen3-4b-instruct-2507 exp003 #2"]
-  n69["cafebert exp006"]
-  n70["phobert-base-v2 exp007"]
-  n71["phobert-base-v2 exp001 #2"]
-  n72["cafebert exp007"]
-  n73["cafebert exp009"]
-  n74["cafebert exp011"]
-  n75["cafebert exp014"]
-  n76["cafebert exp015"]
-  n77["cafebert exp013"]
-  n78["cafebert exp008"]
-  n79["cafebert exp002 #2"]
-  n80["cafebert exp016"]
-  n81["cafebert exp017"]
-  n82["cafebert exp018"]
-  n83["phobert-base-v2 exp001 #3"]
-  n84["cafebert exp001 #2"]
-  n85["phobert-base-v2 exp002 #2"]
-  n86["cafebert exp019"]
-  n87["phobert-base-v2 exp002 #3"]
-  n88["phobert-base-v2 exp008"]
-  n89["phobert-base-v2 exp009"]
-  n90["phobert-base-v2 exp010"]
-  n91["phobert-base-v2 exp011"]
-  n92["phobert-base-v2 exp012"]
-  n93["visobert exp006"]
-  n94["visobert exp009"]
-  n95["visobert exp008"]
-  n96["visobert exp007"]
-  n97["phobert-base-v2 exp013"]
-  n98["phobert-base-v2 exp014"]
-  n99["phobert-base-v2 exp015"]
-  n100["phobert-base-v2 exp016"]
-  n101["phobert-base-v2 exp018"]
-  n102["phobert-base-v2 exp019"]
-  n103["phobert-base-v2 exp020"]
-  n104["exp023"]
-  n105["phobert-base-v2 exp021"]
-  n106["exp022"]
-  n107["cafebert exp012"]
-  n108["phobert-base-v2 exp017"]
-  n109["cafebert exp010"]
-  n110["cafebert exp020"]
-  n111["cafebert exp021"]
-  n112["exp024"]
-  n113["exp025"]
-  n114["exp027"]
-  n115["exp028"]
-  n116["exp030"]
-  n117["exp033"]
-  n118["exp044"]
-  n119["exp045"]
-  n120["exp046"]
-  n121["exp047"]
-  n122["exp048"]
-  n123["exp050"]
-  n124["exp051"]
-  n125["exp053"]
-  n126["exp052"]
-  n127["exp054"]
-  n128["exp040"]
-  n129["exp041"]
-  n130["exp043"]
-  n131["exp042"]
-  n132["exp049"]
-  n133["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
-  n134["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
+  n9["qwen3-4b-instruct-2507 exp022"]
+  n10["<công bố COT+1-shot>"]
+  n11["qwen3-4b-instruct-2507 exp003"]
+  n12["qwen3-4b-instruct-2507 exp006"]
+  n13["qwen3-4b-instruct-2507 exp009"]
+  n14["qwen3-4b-instruct-2507 exp011"]
+  n15["qwen3-4b-instruct-2507 exp012"]
+  n16["qwen3-4b-instruct-2507 exp013"]
+  n17["qwen3-4b-instruct-2507 exp017"]
+  n18["qwen3-0.6b exp004"]
+  n19["qwen3-0.6b exp002"]
+  n20["qwen3-4b-instruct-2507 exp014"]
+  n21["qwen3-4b-instruct-2507 exp015"]
+  n22["qwen2.5-0.5b-instruct exp002"]
+  n23["qwen3-0.6b exp005"]
+  n24["qwen3-8b exp002"]
+  n25["mistral-7b-instruct-v0.3 exp002"]
+  n26["qwen3-4b-instruct-2507 exp023"]
+  n27["qwen3-4b-instruct-2507 exp025"]
+  n28["exp026"]
+  n29["qwen3-4b-instruct-2507 exp027"]
+  n30["<công bố COT+5-shot>"]
+  n31["qwen3-4b-instruct-2507 exp007"]
+  n32["qwen3-4b-instruct-2507 exp004"]
+  n33["qwen3-4b-instruct-2507 exp010"]
+  n34["qwen3-0.6b exp003"]
+  n35["qwen2.5-0.5b-instruct exp003"]
+  n36["qwen3-8b exp003"]
+  n37["mistral-7b-instruct-v0.3 exp003"]
+  n38["qwen3-4b-instruct-2507 exp024"]
+  n39["qwen3-4b-instruct-2507 exp001"]
+  n40["phobert-base-v2 exp001"]
+  n41["visobert exp001"]
+  n42["phobert-base-v2 exp002"]
+  n43["visobert exp002"]
+  n44["qwen3-4b-instruct-2507 exp016"]
+  n45["phobert-base-v2 exp003"]
+  n46["visobert exp003"]
+  n47["visobert exp005"]
+  n48["phobert-base-v2 exp005"]
+  n49["visobert exp004"]
+  n50["phobert-base-v2 exp004"]
+  n51["vibert-base-cased exp001"]
+  n52["vibert-base-cased exp002"]
+  n53["cafebert exp001"]
+  n54["xlm-roberta-base exp002"]
+  n55["xlm-roberta-base exp001"]
+  n56["phobert-large exp002"]
+  n57["phobert-large exp001"]
+  n58["cafebert exp002"]
+  n59["qwen3-0.6b exp001 #2"]
+  n60["cafebert exp003"]
+  n61["vibert-base-cased exp003"]
+  n62["cafebert exp004"]
+  n63["xlm-roberta-base exp003"]
+  n64["vibert-base-cased exp004"]
+  n65["phobert-large exp003"]
+  n66["cafebert exp005"]
+  n67["qwen3-4b-instruct-2507 exp004 #2"]
+  n68["phobert-base-v2 exp006"]
+  n69["qwen3-4b-instruct-2507 exp005 #2"]
+  n70["qwen3-4b-instruct-2507 exp002 #2"]
+  n71["qwen3-4b-instruct-2507 exp007 #2"]
+  n72["qwen3-4b-instruct-2507 exp006 #2"]
+  n73["qwen3-4b-instruct-2507 exp001 #2"]
+  n74["qwen3-4b-instruct-2507 exp003 #2"]
+  n75["cafebert exp006"]
+  n76["phobert-base-v2 exp007"]
+  n77["phobert-base-v2 exp001 #2"]
+  n78["cafebert exp007"]
+  n79["cafebert exp009"]
+  n80["cafebert exp011"]
+  n81["cafebert exp014"]
+  n82["cafebert exp015"]
+  n83["cafebert exp013"]
+  n84["cafebert exp008"]
+  n85["cafebert exp002 #2"]
+  n86["cafebert exp016"]
+  n87["cafebert exp017"]
+  n88["cafebert exp018"]
+  n89["phobert-base-v2 exp001 #3"]
+  n90["cafebert exp001 #2"]
+  n91["phobert-base-v2 exp002 #2"]
+  n92["cafebert exp019"]
+  n93["phobert-base-v2 exp002 #3"]
+  n94["phobert-base-v2 exp008"]
+  n95["phobert-base-v2 exp009"]
+  n96["phobert-base-v2 exp010"]
+  n97["phobert-base-v2 exp011"]
+  n98["phobert-base-v2 exp012"]
+  n99["visobert exp006"]
+  n100["visobert exp009"]
+  n101["visobert exp008"]
+  n102["visobert exp007"]
+  n103["phobert-base-v2 exp013"]
+  n104["phobert-base-v2 exp014"]
+  n105["phobert-base-v2 exp015"]
+  n106["phobert-base-v2 exp016"]
+  n107["phobert-base-v2 exp018"]
+  n108["phobert-base-v2 exp019"]
+  n109["phobert-base-v2 exp020"]
+  n110["phobert-base-v2 exp023"]
+  n111["phobert-base-v2 exp021"]
+  n112["phobert-base-v2 exp022"]
+  n113["cafebert exp012"]
+  n114["phobert-base-v2 exp017"]
+  n115["cafebert exp010"]
+  n116["cafebert exp020"]
+  n117["cafebert exp021"]
+  n118["cafebert exp024"]
+  n119["cafebert exp025"]
+  n120["cafebert exp027"]
+  n121["exp028"]
+  n122["exp030"]
+  n123["exp033"]
+  n124["exp044"]
+  n125["exp045"]
+  n126["exp046"]
+  n127["exp047"]
+  n128["exp048"]
+  n129["exp050"]
+  n130["exp051"]
+  n131["exp053"]
+  n132["exp052"]
+  n133["exp054"]
+  n134["exp040"]
+  n135["exp041"]
+  n136["exp043"]
+  n137["exp042"]
+  n138["exp049"]
+  n139["exp055"]
+  n140["exp057"]
+  n141["exp058"]
+  n142["exp056"]
+  n143["exp059"]
+  n144["exp060"]
+  n145["exp061"]
+  n146["exp062"]
+  n147["exp063"]
+  n148["cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3"]
+  n149["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
   n1 -->|so với| n2
   n1 -->|so với| n3
   n1 -->|so với| n4
@@ -143,34 +158,34 @@ graph LR
   n1 -->|so với| n6
   n1 -->|so với| n7
   n1 -->|so với| n8
-  n9 -->|so với| n10
-  n9 -->|so với| n11
-  n9 -->|so với| n12
-  n9 -->|so với| n13
-  n9 -->|so với| n14
-  n9 -->|so với| n15
-  n9 -->|so với| n16
-  n9 -->|so với| n17
-  n9 -->|so với| n18
-  n9 -->|so với| n19
-  n9 -->|so với| n20
-  n9 -->|so với| n21
-  n9 -->|so với| n22
-  n9 -->|so với| n23
-  n9 -->|so với| n24
-  n25 -->|so với| n26
-  n25 -->|so với| n27
-  n25 -->|so với| n28
-  n25 -->|so với| n29
-  n25 -->|so với| n30
-  n25 -->|so với| n31
-  n25 -->|so với| n32
-  n1 -->|so với| n33
-  n1 -->|so với| n34
-  n1 -->|so với| n35
-  n1 -->|so với| n36
-  n1 -->|so với| n37
-  n1 -->|so với| n38
+  n1 -->|so với| n9
+  n10 -->|so với| n11
+  n10 -->|so với| n12
+  n10 -->|so với| n13
+  n10 -->|so với| n14
+  n10 -->|so với| n15
+  n10 -->|so với| n16
+  n10 -->|so với| n17
+  n10 -->|so với| n18
+  n10 -->|so với| n19
+  n10 -->|so với| n20
+  n10 -->|so với| n21
+  n10 -->|so với| n22
+  n10 -->|so với| n23
+  n10 -->|so với| n24
+  n10 -->|so với| n25
+  n10 -->|so với| n26
+  n10 -->|so với| n27
+  n10 -->|so với| n28
+  n10 -->|so với| n29
+  n30 -->|so với| n31
+  n30 -->|so với| n32
+  n30 -->|so với| n33
+  n30 -->|so với| n34
+  n30 -->|so với| n35
+  n30 -->|so với| n36
+  n30 -->|so với| n37
+  n30 -->|so với| n38
   n1 -->|so với| n39
   n1 -->|so với| n40
   n1 -->|so với| n41
@@ -265,133 +280,163 @@ graph LR
   n1 -->|so với| n130
   n1 -->|so với| n131
   n1 -->|so với| n132
-  n33 -->|chấm trên| n133
-  n26 -->|chấm trên| n133
-  n2 -->|chấm trên| n133
-  n10 -->|chấm trên| n133
-  n3 -->|chấm trên| n133
-  n11 -->|chấm trên| n133
-  n34 -->|chấm trên| n133
-  n35 -->|chấm trên| n133
-  n27 -->|chấm trên| n133
-  n36 -->|chấm trên| n133
-  n37 -->|chấm trên| n133
-  n4 -->|chấm trên| n133
-  n12 -->|chấm trên| n133
-  n13 -->|chấm trên| n133
-  n14 -->|chấm trên| n133
-  n15 -->|chấm trên| n133
-  n28 -->|chấm trên| n133
-  n16 -->|chấm trên| n133
-  n38 -->|chấm trên| n133
-  n17 -->|chấm trên| n133
-  n29 -->|chấm trên| n133
-  n18 -->|chấm trên| n133
-  n5 -->|chấm trên| n133
-  n19 -->|chấm trên| n133
-  n20 -->|chấm trên| n133
-  n21 -->|chấm trên| n133
-  n6 -->|chấm trên| n133
-  n30 -->|chấm trên| n133
-  n39 -->|chấm trên| n133
-  n40 -->|chấm trên| n133
-  n41 -->|chấm trên| n133
-  n42 -->|chấm trên| n133
-  n43 -->|chấm trên| n133
-  n44 -->|chấm trên| n133
-  n45 -->|chấm trên| n133
-  n46 -->|chấm trên| n133
-  n47 -->|chấm trên| n133
-  n48 -->|chấm trên| n133
-  n49 -->|chấm trên| n133
-  n50 -->|chấm trên| n133
-  n51 -->|chấm trên| n133
-  n52 -->|chấm trên| n133
-  n53 -->|chấm trên| n133
-  n22 -->|chấm trên| n133
-  n54 -->|chấm trên| n133
-  n55 -->|chấm trên| n133
-  n56 -->|chấm trên| n133
-  n57 -->|chấm trên| n133
-  n58 -->|chấm trên| n133
-  n59 -->|chấm trên| n133
-  n60 -->|chấm trên| n133
-  n61 -->|chấm trên| n133
-  n62 -->|chấm trên| n133
-  n63 -->|chấm trên| n133
-  n64 -->|chấm trên| n133
-  n65 -->|chấm trên| n133
-  n66 -->|chấm trên| n133
-  n67 -->|chấm trên| n133
-  n68 -->|chấm trên| n133
-  n69 -->|chấm trên| n133
-  n70 -->|chấm trên| n133
-  n71 -->|chấm trên| n133
-  n72 -->|chấm trên| n133
-  n73 -->|chấm trên| n133
-  n74 -->|chấm trên| n134
-  n75 -->|chấm trên| n133
-  n76 -->|chấm trên| n133
-  n77 -->|chấm trên| n133
-  n78 -->|chấm trên| n133
-  n79 -->|chấm trên| n133
-  n80 -->|chấm trên| n133
-  n81 -->|chấm trên| n133
-  n82 -->|chấm trên| n133
-  n83 -->|chấm trên| n133
-  n84 -->|chấm trên| n133
-  n85 -->|chấm trên| n133
-  n86 -->|chấm trên| n133
-  n87 -->|chấm trên| n133
-  n88 -->|chấm trên| n133
-  n89 -->|chấm trên| n133
-  n90 -->|chấm trên| n133
-  n91 -->|chấm trên| n133
-  n92 -->|chấm trên| n133
-  n93 -->|chấm trên| n133
-  n94 -->|chấm trên| n134
-  n95 -->|chấm trên| n133
-  n96 -->|chấm trên| n133
-  n23 -->|chấm trên| n133
-  n7 -->|chấm trên| n133
-  n97 -->|chấm trên| n133
-  n98 -->|chấm trên| n133
-  n99 -->|chấm trên| n134
-  n100 -->|chấm trên| n133
-  n101 -->|chấm trên| n133
-  n102 -->|chấm trên| n133
-  n103 -->|chấm trên| n133
-  n104 -->|chấm trên| n133
-  n105 -->|chấm trên| n133
-  n106 -->|chấm trên| n133
-  n107 -->|chấm trên| n133
-  n108 -->|chấm trên| n133
-  n109 -->|chấm trên| n133
-  n8 -->|chấm trên| n133
-  n24 -->|chấm trên| n133
-  n31 -->|chấm trên| n133
-  n110 -->|chấm trên| n133
-  n111 -->|chấm trên| n133
-  n112 -->|chấm trên| n133
-  n113 -->|chấm trên| n133
-  n114 -->|chấm trên| n133
-  n115 -->|chấm trên| n133
-  n116 -->|chấm trên| n133
-  n117 -->|chấm trên| n133
-  n32 -->|chấm trên| n133
-  n118 -->|chấm trên| n133
-  n119 -->|chấm trên| n133
-  n120 -->|chấm trên| n133
-  n121 -->|chấm trên| n133
-  n122 -->|chấm trên| n133
-  n123 -->|chấm trên| n133
-  n124 -->|chấm trên| n133
-  n125 -->|chấm trên| n133
-  n126 -->|chấm trên| n133
-  n127 -->|chấm trên| n133
-  n128 -->|chấm trên| n133
-  n129 -->|chấm trên| n133
-  n130 -->|chấm trên| n133
-  n131 -->|chấm trên| n133
-  n132 -->|chấm trên| n133
+  n1 -->|so với| n133
+  n1 -->|so với| n134
+  n1 -->|so với| n135
+  n1 -->|so với| n136
+  n1 -->|so với| n137
+  n1 -->|so với| n138
+  n1 -->|so với| n139
+  n1 -->|so với| n140
+  n1 -->|so với| n141
+  n1 -->|so với| n142
+  n1 -->|so với| n143
+  n1 -->|so với| n144
+  n1 -->|so với| n145
+  n1 -->|so với| n146
+  n1 -->|so với| n147
+  n39 -->|chấm trên| n148
+  n31 -->|chấm trên| n148
+  n2 -->|chấm trên| n148
+  n11 -->|chấm trên| n148
+  n3 -->|chấm trên| n148
+  n12 -->|chấm trên| n148
+  n40 -->|chấm trên| n148
+  n41 -->|chấm trên| n148
+  n32 -->|chấm trên| n148
+  n42 -->|chấm trên| n148
+  n43 -->|chấm trên| n148
+  n4 -->|chấm trên| n148
+  n13 -->|chấm trên| n148
+  n14 -->|chấm trên| n148
+  n15 -->|chấm trên| n148
+  n16 -->|chấm trên| n148
+  n33 -->|chấm trên| n148
+  n17 -->|chấm trên| n148
+  n44 -->|chấm trên| n148
+  n18 -->|chấm trên| n148
+  n34 -->|chấm trên| n148
+  n19 -->|chấm trên| n148
+  n5 -->|chấm trên| n148
+  n20 -->|chấm trên| n148
+  n21 -->|chấm trên| n148
+  n22 -->|chấm trên| n148
+  n6 -->|chấm trên| n148
+  n35 -->|chấm trên| n148
+  n45 -->|chấm trên| n148
+  n46 -->|chấm trên| n148
+  n47 -->|chấm trên| n148
+  n48 -->|chấm trên| n148
+  n49 -->|chấm trên| n148
+  n50 -->|chấm trên| n148
+  n51 -->|chấm trên| n148
+  n52 -->|chấm trên| n148
+  n53 -->|chấm trên| n148
+  n54 -->|chấm trên| n148
+  n55 -->|chấm trên| n148
+  n56 -->|chấm trên| n148
+  n57 -->|chấm trên| n148
+  n58 -->|chấm trên| n148
+  n59 -->|chấm trên| n148
+  n23 -->|chấm trên| n148
+  n60 -->|chấm trên| n148
+  n61 -->|chấm trên| n148
+  n62 -->|chấm trên| n148
+  n63 -->|chấm trên| n148
+  n64 -->|chấm trên| n148
+  n65 -->|chấm trên| n148
+  n66 -->|chấm trên| n148
+  n67 -->|chấm trên| n148
+  n68 -->|chấm trên| n148
+  n69 -->|chấm trên| n148
+  n70 -->|chấm trên| n148
+  n71 -->|chấm trên| n148
+  n72 -->|chấm trên| n148
+  n73 -->|chấm trên| n148
+  n74 -->|chấm trên| n148
+  n75 -->|chấm trên| n148
+  n76 -->|chấm trên| n148
+  n77 -->|chấm trên| n148
+  n78 -->|chấm trên| n148
+  n79 -->|chấm trên| n148
+  n80 -->|chấm trên| n149
+  n81 -->|chấm trên| n148
+  n82 -->|chấm trên| n148
+  n83 -->|chấm trên| n148
+  n84 -->|chấm trên| n148
+  n85 -->|chấm trên| n148
+  n86 -->|chấm trên| n148
+  n87 -->|chấm trên| n148
+  n88 -->|chấm trên| n148
+  n89 -->|chấm trên| n148
+  n90 -->|chấm trên| n148
+  n91 -->|chấm trên| n148
+  n92 -->|chấm trên| n148
+  n93 -->|chấm trên| n148
+  n94 -->|chấm trên| n148
+  n95 -->|chấm trên| n148
+  n96 -->|chấm trên| n148
+  n97 -->|chấm trên| n148
+  n98 -->|chấm trên| n148
+  n99 -->|chấm trên| n148
+  n100 -->|chấm trên| n149
+  n101 -->|chấm trên| n148
+  n102 -->|chấm trên| n148
+  n24 -->|chấm trên| n148
+  n7 -->|chấm trên| n148
+  n103 -->|chấm trên| n148
+  n104 -->|chấm trên| n148
+  n105 -->|chấm trên| n149
+  n106 -->|chấm trên| n148
+  n107 -->|chấm trên| n148
+  n108 -->|chấm trên| n148
+  n109 -->|chấm trên| n148
+  n110 -->|chấm trên| n148
+  n111 -->|chấm trên| n148
+  n112 -->|chấm trên| n148
+  n113 -->|chấm trên| n148
+  n114 -->|chấm trên| n148
+  n115 -->|chấm trên| n148
+  n8 -->|chấm trên| n148
+  n25 -->|chấm trên| n148
+  n36 -->|chấm trên| n148
+  n116 -->|chấm trên| n148
+  n117 -->|chấm trên| n148
+  n118 -->|chấm trên| n148
+  n119 -->|chấm trên| n148
+  n120 -->|chấm trên| n148
+  n121 -->|chấm trên| n148
+  n122 -->|chấm trên| n148
+  n123 -->|chấm trên| n148
+  n37 -->|chấm trên| n148
+  n124 -->|chấm trên| n148
+  n125 -->|chấm trên| n148
+  n126 -->|chấm trên| n148
+  n127 -->|chấm trên| n148
+  n128 -->|chấm trên| n148
+  n129 -->|chấm trên| n148
+  n130 -->|chấm trên| n148
+  n131 -->|chấm trên| n148
+  n132 -->|chấm trên| n148
+  n133 -->|chấm trên| n148
+  n134 -->|chấm trên| n148
+  n135 -->|chấm trên| n148
+  n136 -->|chấm trên| n148
+  n137 -->|chấm trên| n148
+  n138 -->|chấm trên| n148
+  n139 -->|chấm trên| n148
+  n140 -->|chấm trên| n148
+  n141 -->|chấm trên| n148
+  n142 -->|chấm trên| n148
+  n143 -->|chấm trên| n148
+  n144 -->|chấm trên| n148
+  n145 -->|chấm trên| n148
+  n146 -->|chấm trên| n148
+  n147 -->|chấm trên| n148
+  n9 -->|chấm trên| n148
+  n26 -->|chấm trên| n148
+  n27 -->|chấm trên| n148
+  n28 -->|chấm trên| n148
+  n38 -->|chấm trên| n148
+  n29 -->|chấm trên| n148
 ```
