@@ -406,17 +406,23 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
       **KHÔNG RÒ RỈ**. `show_prompt` xác nhận phép so 0/1/5 ví dụ chỉ có **MỘT biến** (cùng prompt, cùng
       system, cùng không gian nhãn). `ci_checks` **XANH** ở commit ghim `5ec65f3`.
       Gói: `handover/out/SentimentX-goi-034-ee24449-261012.zip` (31 file: 15 notebook + 15 README + MANIFEST).
-- [ ] **CHỜ NGƯỜI DÙNG CHẠY** 15 notebook trên Colab (1 làn song song; đường tới hạn ≈ 2,8 h = lượt LLM).
-      Sau khi có kết quả: chấm lại bằng engine, điền **mục 14** rồi mới quyết **Đợt 9** hay **Đợt 7**.
+- [x] **✅ NGƯỜI DÙNG ĐÃ CHẠY XONG (12/10/2026 tối): 15/15 lượt `FINISHED`.** File nhẹ đã commit
+      (`4b601c8`: 99 file), bảng chuẩn dựng lại, **mục 14** đã điền. Kết quả: **8A ĐẠT** (v0 lên 9 lượt độc
+      lập ⇒ Welch **p = 0,0035 Acc / 0,0070 `neg F1`**), **8B/8C/8D đều ÂM**. ⇒ **Đợt 9 KHÔNG mở**; đi **Đợt 7**.
+      Cửa kiểm gói + 2 ca `RESUME` + 1 lỗi công cụ đã sửa: xem **mục 14**.
 
-### Đợt 9 - làn 2, chỉ mở khi Đợt 8 có tín hiệu (mới 12/10/2026)
+### Đợt 9 - làn 2, chỉ mở khi Đợt 8 có tín hiệu (mới 12/10/2026) - ❌ **ĐÃ ĐÓNG 12/10/2026 (tối)**
 
-| Nếu Đợt 8 cho | Đợt 9 làm |
-| --- | --- |
-| LLM hơn >= 0,25 ở `neg F1 (5 n lớn)` | 6 lượt LLM (biến thể 5-ví-dụ khác + 3 lượt lấy mẫu nữa) rồi **biểu quyết 5 mẫu**; nếu vẫn hơn thì bật lại **luật lai encoder+LLM** (`scripts/fuse.py`, **0 GPU**) |
-| 8D thắng >= 0,25 | nhân bản `best_metric: negative_f1` sang 2 cấu hình còn lại (`r 16`, `every_n_steps 50`) × 3 seed |
-| p(v0) vẫn > 0,05 | thêm 3 lượt v0 DỰ TRỮ (`exp064`-`exp066`, seed 7/8/9) |
-| Cả ba hoà/thua | **không tiêu GPU nữa**, đi thẳng Đợt 7 và ghi rõ trần |
+Bảng điều kiện dưới đây là bảng CHỐT TRƯỚC khi thấy `test` của Đợt 8; đối chiếu thực tế ở **mục 14.C**:
+cả ba hàng "có tín hiệu" đều KHÔNG thoả (LLM thua, 8D thua, `p` đã < 0,05) ⇒ không tiêu thêm GPU.
+Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi thẳng Đợt 7**.
+
+| Nếu Đợt 8 cho | Đợt 9 làm | Thực tế |
+| --- | --- | --- |
+| LLM hơn >= 0,25 ở `neg F1 (5 n lớn)` | 6 lượt LLM (biến thể 5-ví-dụ khác + 3 lượt lấy mẫu nữa) rồi **biểu quyết 5 mẫu**; nếu vẫn hơn thì bật lại **luật lai encoder+LLM** (`scripts/fuse.py`, **0 GPU**) | ❌ LLM **thua** (−0,017 ở lượt tốt nhất) |
+| 8D thắng >= 0,25 | nhân bản `best_metric: negative_f1` sang 2 cấu hình còn lại (`r 16`, `every_n_steps 50`) × 3 seed | ❌ 8D **thua** (−0,17 Acc / −0,51 `neg F1`) |
+| p(v0) vẫn > 0,05 | thêm 3 lượt v0 DỰ TRỮ (`exp064`-`exp066`, seed 7/8/9) | ❌ p = **0,0035 / 0,0070** ⇒ không cần |
+| Cả ba hoà/thua | **không tiêu GPU nữa**, đi thẳng Đợt 7 và ghi rõ trần | ✅ **ĐANG ĐI** |
 
 ### Đợt 3 - ĐÃ CHUYỂN HOÃN (11/10/2026)
 - [x] **5 lượt chuyển HOÃN** (`exp034` `exp035` `exp036` `exp037` `exp038`) vì Đợt 2 chứng minh **các trục
@@ -446,9 +452,13 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 - [x] **Luật đọc đã áp đúng:** cả ba đều so với TỪNG thành viên trên cùng tập; **không việc nào vượt > 0,25 ở cả
       Acc và `neg F1`** ⇒ không sinh ra kết quả để báo cáo, bằng chứng giữ trong `data/reports/fusion/**`
 
-### Đợt 7 - 0 GPU - báo cáo chốt
-- [ ] Báo cáo chốt (+ `present_report_v2.md` nếu có lượt vượt > 0,25 ở CẢ 2 trục) + `collect_reports.py` + commit
-- [ ] **Chạy SAU Đợt 8** (và sau Đợt 9 nếu Đợt 9 được mở)
+### Đợt 7 - 0 GPU - báo cáo chốt - ✅ **ĐANG LÀM (mở 12/10/2026 tối)**
+- [x] File nhẹ 15 lượt vào git (`4b601c8`) + **bảng chuẩn dựng lại** (`acc_paper_macro` mới) + **mục 14** đã điền
+- [x] Bằng chứng 0 GPU cho 8C: `data/reports/fusion/vote_llm_1shot.json` (+ `inputs/…__nhan_tung_o.csv`)
+- [ ] **`present_report_v2.md`**: số chính đổi thành **98,283 / 94,40 vs v0 98,091 / 93,60 (Welch p = 0,0035 /
+      0,0070)**; thêm ba kết quả ÂM (few-shot LLM · bỏ phiếu mẫu · chọn checkpoint); ghi rõ **trần** đã chạm
+- [ ] Sửa `docs/04_experiments/08_experiment_rationale.md` (bảng họ + Welch) và `present_report_v1.md` (trỏ v2)
+- [ ] `ci_checks` + unittest toàn bộ → commit → push → **gói 035** (nếu cần gửi lại bảng chuẩn)
 
 ## 7. Nhật ký thay đổi và lỗi
 
@@ -487,8 +497,12 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 | 12/10/2026 | Sửa số (số cũ lạc quan) | Mức hơn của họ `lr4e-4` so v0 đọc lại bằng **Welch: p = 0,21 (Acc) / 0,30 (`neg F1`)** - bản ghi cũ "t ≈ 2,6, p ≈ 0,06" vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp phương sai | Sửa mục 3, mục 11, `08_experiment_rationale.md`, `present_report_v1.md` (`5d7aefb`) |
 | 12/10/2026 | Ràng buộc mới (người dùng chốt) | **Chạy được 15 thử nghiệm CÙNG LÚC** · **tuyệt đối KHÔNG thêm dữ liệu** | Gộp Đợt 2b + Đợt 5 thành **Đợt 8 (15 slot)**; xoá mọi ý dùng dữ liệu (distillation, hard-negative mining) |
 | 12/10/2026 | **RÚT NHÓM 15** (đề xuất rồi bỏ) | Đề xuất đổi `neutral_policy`/`not_mentioned` cho 6 lượt; kiểm mã cho thấy `neutral_policy` **đổi NHÃN + bảng nhãn huấn luyện** còn `not_mentioned` chỉ **đổi khung chấm** ⇒ cả hai phá tính so sánh với công bố | Xoá NHÓM 15; thêm **luật 14** để chặn tái diễn (mục 4) |
-| 12/10/2026 | **Đợt 8: TẠO + GHIM + ĐÓNG GÓI xong** | 15 config/notebook (`exp055`-`exp057`, `exp058`-`exp063`, `exp022`-`exp027`); cửa kiểm rò rỉ **1-shot 1/1 · 5-shot 5/5** đều "KHÔNG RÒ RỈ"; `show_prompt` xác nhận biến duy nhất = **số ví dụ**; `ci_checks` XANH ở commit ghim | Gói **034** = `handover/out/SentimentX-goi-034-b438241-261012.zip` (31 file); commit `dce35af` → `b438241` → `52b2659` |
+| 12/10/2026 | **Đợt 8: TẠO + GHIM + ĐÓNG GÓI xong** | 15 config/notebook (`exp055`-`exp057`, `exp058`-`exp063`, `exp022`-`exp027`); cửa kiểm rò rỉ **1-shot 1/1 · 5-shot 5/5** đều "KHÔNG RÒ RỈ"; `show_prompt` xác nhận biến duy nhất = **số ví dụ**; `ci_checks` XANH ở commit ghim | Gói **034** = `handover/out/SentimentX-goi-034-ee24449-261012.zip` (31 file; bản đầu `b438241` bị thay sau khi **sửa tên prompt 0-ví-dụ** `…_0shot_…` → `…_zeroshot_…` cho đúng tập ĐÓNG của `test_prompts.py`); commit `dce35af` → `5ec65f3` → `ee24449` → `a5ce2f0` |
 | 12/10/2026 | Ghi nhận (cách làm) | Lại dùng script dùng-một-lần trong `_scratch/` (`make_d8_configs.py`, `leak_control.py`, `stats_grp.py`) để tạo 15 config và chạy đối chứng | Có **lỗi thật đã sửa**: prompt KHÔNG được có khối `#` ở đầu (chỉ file VÍ DỤ mới có) - `show_prompt` bắt được ngay |
+| 12/10/2026 | **Đợt 8 (KẾT QUẢ)** | 15/15 lượt về đủ: mỗi thư mục ĐÚNG 1 lượt, `FINISHED`, ghim `5ec65f3`, không `errors.json`; `training_history.csv` 14 dòng (bước 100→1150) ⇒ không lượt nào bị ngắt; LLM đọc 99,94-100 %, token sinh 218-223/400. **8A ĐẠT: v0 lên 9 lượt độc lập ⇒ Welch p = 0,0035 (Acc) / 0,0070 (`neg F1`)**; **8B/8C/8D đều ÂM** (LLM few-shot 97,62→96,83→96,41 · bỏ phiếu `neg F1` 0,8039 · `best_metric` −0,17/−0,51) | Điền **mục 14**; **Đợt 9 ĐÓNG**; đi **Đợt 7** |
+| 12/10/2026 | Phát hiện (cửa kiểm gói) | 2 lượt LLM bị Colab **ngắt ở tầng ĐÁNH GIÁ** rồi chạy tiếp (`exp024` tái dùng 652 ô, `exp027` 1.336 ô; lượt đầu `INTERRUPTED`) - khác hẳn ngắt tầng HUẤN LUYỆN của luật 11 | Thêm **luật 15** vào `metrics.md`: dùng được nếu `FINISHED` + `read_rate.valid` + số trong dải anh em, và **phải khai số ô tái dùng** |
+| 12/10/2026 | **LỖI CÔNG CỤ (thật, đã sửa)** | `fusion.vote` gọi `dict(pred)` nên **SẬP** (`TypeError: 'NoneType' object is not iterable`) khi một lượt có review KHÔNG đọc được (`preds[i] = None`). Lượt encoder của Đợt 6 đọc được 100 % nên lỗi **ẩn**; lượt LLM (99,94 %) mới lộ | Sửa `src/evaluation/fusion.py` (bỏ sample không đọc được khỏi bảng tra; hàng của lượt đầu giữ `None`, chỉ điền ô CÓ phiếu) + **3 test** mới trong `tests/evaluation/test_fusion.py`; chạy lại `vote.py` thành công |
+| 12/10/2026 | Cải thiện bảng chuẩn | Số tiêu đề "Acc macro (paper)" trước đây chỉ nằm trong văn xuôi ⇒ thêm cột **`acc_paper_macro`** (`scores_paper.accuracy.macro`) vào `experiment_registry` + 3 test; ghi vào bảng "Nguồn số duy nhất" của `metrics.md` | `src/reporting/reports.py`, `tests/reporting/test_reports.py`; `collect_reports.py` dựng lại (144 dòng) |
 
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
@@ -762,22 +776,83 @@ Ba hệ quả đã ghi vào file này:
 `neg F1 (5 n lớn)` toàn bộ lượt `test` → `W5` **tạo** `scripts/check_examples.py` (kiểm rò rỉ) → `W7` cặp prompt +
 ví dụ mới từ `train` → `W6` `best_metric: negative_f1` → `W8` tạo 15 config + ghim + **gói 034** + `ci_checks` XANH.
 
-## 14. Kết quả Đợt 8 (CHỜ - điền khi 15 lượt về)
+## 14. Kết quả Đợt 8 (12/10/2026) - **8A ĐẠT · ba nhóm còn lại ÂM**
 
-Số phải **chấm lại bằng engine của dự án**, không viết tay. Hai cột cần đọc:
-`accuracy macro (paper)` và **`neg_f1_big5`** (lấy từ
-`data/reports/experiment_registry/experiment_registry.csv`), kèm `cells` và `% đọc được`.
+**Cửa kiểm gói 034 (15/15 lượt về đủ, KHÔNG sai sót nghiêm trọng):** mỗi thư mục kết quả có ĐÚNG **một**
+lượt; 15/15 `FINISHED`, **không** lượt nào có `errors.json`, tất cả ghim đúng `5ec65f3`; bộ **file nhẹ** khớp
+quy ước cũ (7 file mỗi lượt encoder, 6 file mỗi lượt LLM - LLM không có `probabilities.csv` /
+`training_history.csv`, đúng như `exp016`/`exp017`); `training_history.csv` của 12 lượt encoder có **14 dòng,
+bước 100 → 1150** ⇒ **không lượt nào bị ngắt tầng huấn luyện** (luật 11); 6 lượt LLM đọc được
+**99,94-100 %** và token sinh TB **218-223 / trần 400** ⇒ **không chạm trần** (luật 3).
+Hai lượt **bị Colab ngắt ở tầng ĐÁNH GIÁ rồi chạy tiếp** (`exp024` tái dùng 652 ô, `exp027` 1.336 ô) - cả hai
+`FINISHED`, `read_rate` hợp lệ và số nằm trong dải anh em ⇒ dùng được, nhưng phải ghi số ô tái dùng
+(**luật 15** mới ở `metrics.md`).
 
-| Nhóm | Lượt | acc macro | `neg_f1_big5` | Đối chứng để so | Kết |
+Số dưới đây **chấm lại bằng engine của dự án**, cột `acc macro (paper)` = `scores_paper.accuracy.macro`
+(nay có cột riêng **`acc_paper_macro`** trong bảng chuẩn) và `neg_f1_big5` lấy từ
+`data/reports/experiment_registry/experiment_registry.csv`.
+
+| Nhóm | Lượt | acc macro (`paper`) | `neg_f1_big5` | Đối chứng để so | Kết |
 | --- | --- | ---: | ---: | --- | --- |
-| **8A** | `exp058`…`exp063` (v0 × seed 1–6) | | | v0 hiện có: 97,88 (seed 42) · 98,26 (7) · 98,11 (13) | |
-| **8B** | `exp022` (0 ví dụ) | | | `qwen3-4b-instruct-2507/prompt-cot/exp009` (1 ví dụ viết tay, BIG5 0,9470) | |
-| **8B** | `exp023` (1 ví dụ) · `exp024` (5 ví dụ) | | | như trên | |
-| **8C** | `exp025` · `exp026` · `exp027` (3 mẫu) | | | bản BỎ PHIẾU so với TỪNG mẫu | |
-| **8D** | `exp055` · `exp056` · `exp057` | | | **ghép cặp theo hạt giống**: `exp021` (42) · `exp040` (7) · `exp041` (13) | |
+| **8A** | `exp058`…`exp063` (v0 × seed 1-6) | 98,28 · 98,05 · 98,14 · 97,95 · 97,98 · 98,17 (TB **98,095**) | TB **0,9358** | v0 cũ: 97,88 (seed 42) · 98,26 (7) · 98,11 (13) | ✅ **ĐẠT** (xem D) |
+| **8B** | `exp022` (0 ví dụ) | 97,62 | 0,9300 | `…/prompt-cot/exp009` (1 ví dụ viết tay, BIG5 0,9470) | ❌ **THUA** |
+| **8B** | `exp023` (1 ví dụ) · `exp024` (5 ví dụ) | 96,83 · 96,41 | 0,9062 · 0,9066 | như trên | ❌ **THUA** (càng nhiều ví dụ càng tệ) |
+| **8C** | `exp025` · `exp026` · `exp027` (3 mẫu) | 96,64 · 96,85 · 96,68 | 0,8966 · 0,9100 · 0,8922 | bản BỎ PHIẾU: 96,67 / **0,8039** | ❌ **RỖNG** |
+| **8D** | `exp055` · `exp056` · `exp057` | 98,12 · 98,10 · 98,18 | 0,9406 · 0,9372 · 0,9444 | **ghép cặp hạt giống**: `exp021` (42) 98,41/0,9464 · `exp040` (7) 98,38/0,9486 · `exp041` (13) 98,13/0,9426 | ❌ **THUA** (−0,17 Acc · −0,51 neg F1) |
 
-**Việc phải làm khi số về:** (1) `git add` file nhẹ của 15 lượt rồi chạy `collect_reports.py`; (2) điền bảng
-trên bằng số CHẤM LẠI; (3) đối chiếu ngưỡng **> 0,25 ở CẢ HAI trục** (phương sai lệch ⇒ **Welch**); (4) nếu
-8C xong thì chạy `scripts/vote.py` trên 3 mẫu (**0 GPU**), và nếu LLM thắng rõ thì bật lại **luật lai
-encoder + LLM** (`scripts/fuse.py`, 0 GPU); (5) quyết **Đợt 9** (nhân bản cái thắng) hay **Đợt 7** (báo cáo
-chốt) theo bảng điều kiện ở mục 6.
+
+### A. Họ v0 nay có **9 lượt độc lập** - mức hơn `lr 4e-4` **đạt p < 0,05**
+
+| Họ (cùng `(binary, drop, separate)`, cùng dữ liệu `v0.2.0`) | Acc macro (`paper`) | `neg_f1_big5` |
+| --- | ---: | ---: |
+| v0 cũ - 3 lượt ĐỘC LẬP (seed 42 · 7 · 13) | 98,083 (sd 0,191) | 0,9365 (sd 0,0091) |
+| v0 MỚI - 6 lượt (seed 1-6) | 98,095 (sd 0,125) | 0,9358 (sd 0,0056) |
+| **v0 gộp - 9 lượt độc lập** | **98,091** (sd 0,138) | **0,9360** (sd 0,0064) |
+| **họ `lr 4e-4` - 12 lượt** (`exp015`/`exp021`/`exp027`/`exp028`/`exp040`-`exp047`) | **98,283** (sd 0,107) | **0,9440** (sd 0,0040) |
+| **Welch (2 phía)** | t = 3,47 → **p = 0,0035** | t = 3,23 → **p = 0,0070** |
+
+- Sáu hạt giống mới đều nằm TRONG dải cũ `[97,88 … 98,26]` ⇒ **không lượt nào bất thường**.
+- **Đối chứng vô tư:** v0 cũ (3) vs v0 mới (6) - CÙNG cấu hình - cho **p = 0,93 / 0,90** ⇒ không khác nhau,
+  đúng như phải thế ⇒ 6 hạt giống mới **không lệch hệ thống**.
+- Kế hoạch dự đoán `p ≈ 0,015`; thực đo **0,0035 / 0,0070** ⇒ mục tiêu "hạ p xuống dưới 0,05" **ĐẠT ở cả
+  hai trục** (trước Đợt 8 là 0,21 / 0,30).
+
+### B. Ba nhóm còn lại - kết quả ÂM (giá trị nằm ở chỗ khoá lại đường đã thử)
+
+- **8B (few-shot từ `train`):** trong CÙNG một cặp prompt mới, **0 ví dụ > 1 ví dụ > 5 ví dụ** (97,62 →
+  96,83 → 96,41 Acc; 0,9300 → 0,9062 → 0,9066 `neg F1`). Cả ba đều DƯỚI mốc LLM sẵn có `exp009`
+  (97,77 / 0,9470) và dưới họ encoder ⇒ **thế hoà lớp âm KHÔNG có thật**; NHÓM 10 đóng.
+  *Đọc kèm cảnh báo mẫu số:* LLM chỉ có **2.387-2.571 ô** `paper` so với **2.734-2.740 ô** của encoder
+  (ô model trả lời "không nhắc tới" bị loại khỏi mẫu số - `metrics.md`), tức cách đếm đã **thiên vị nhẹ
+  cho LLM** mà LLM vẫn thua.
+- **8C (3 mẫu tự-đồng-thuận):** ba mẫu rất giống nhau (đồng thuận từng cặp **98,05-98,27 %**, cả ba khớp
+  **97,28 %**); **bản bỏ phiếu đạt 96,67 Acc nhưng `neg F1` tụt còn 0,8039** - dưới CẢ mẫu thấp nhất
+  (0,8922) và dưới trung bình 3 mẫu (0,8126) ⇒ **bỏ phiếu không giúp**, đúng như Đợt 6 đo trên đường
+  encoder. Bằng chứng chính thức: `data/reports/fusion/vote_llm_1shot.json` (+ `inputs/vote_llm_1shot__nhan_tung_o.csv`);
+  8 ô hoà / 11.361 ô.
+- **8D (`best_metric: negative_f1`):** ghép cặp theo hạt giống ⇒ **thua ở 2/3 lượt trên CẢ HAI trục**
+  (`exp055` −0,29/−0,0058 · `exp056` −0,28/−0,0114; `exp057` +0,05/+0,0018), TB **−0,17 Acc / −0,51 neg F1**
+  ⇒ **chọn checkpoint theo lớp âm không phải nút thắt**; điều kiện hồi sinh của Đợt 4 nay ĐÓNG.
+
+### C. Quyết định (theo đúng bảng điều kiện ở mục 6)
+
+| Hàng điều kiện | Thực tế Đợt 8 | Kết |
+| --- | --- | --- |
+| "LLM hơn ≥ 0,25 ở `neg F1`" → mở 6 lượt LLM + biểu quyết 5 mẫu | LLM **thua** (−0,017 ở lượt tốt nhất) | ❌ KHÔNG mở |
+| "8D thắng ≥ 0,25" → nhân bản sang `r 16` / `every_n_steps 50` | 8D **thua** (−0,17 / −0,51) | ❌ KHÔNG mở |
+| "p(v0) vẫn > 0,05" → thêm 3 lượt v0 dự trữ (`exp064`-`exp066`) | p = **0,0035 / 0,0070** | ❌ KHÔNG cần |
+| "Cả ba hoà/thua" → **không tiêu GPU nữa, đi thẳng Đợt 7** | đúng | ✅ **ĐI ĐỢT 7** |
+
+**Việc 0 GPU đã làm ngay khi số về (12/10/2026):**
+1. `git add` **file nhẹ** 15 lượt (99 file: 9 lượt encoder × 7 + 6 lượt LLM × 6; phần nặng do `.gitignore`
+   chặn) → commit `4b601c8`;
+2. thêm cột **`acc_paper_macro`** vào bảng chuẩn (`src/reporting/reports.py` + 3 test) để số "Acc macro
+   (paper)" có MỘT nguồn duy nhất, không viết tay trong văn xuôi;
+3. chạy lại `collect_reports.py` (bảng chuẩn 144 dòng, 15 lượt mới vào);
+4. chạy `scripts/vote.py` trên 3 mẫu LLM - **và phát hiện + sửa một LỖI THẬT của công cụ**: `fusion.vote`
+   gọi `dict(None)` nên **SẬP** khi một lượt có review không đọc được (`preds[i] = None`). Lượt encoder
+   đọc được 100 % nên lỗi ẩn từ Đợt 6; lượt LLM (99,94 %) mới lộ. Đã sửa + khoá bằng **3 test** mới
+   (`tests/evaluation/test_fusion.py`), kèm **luật 15** vào `metrics.md`.
+5. **Đợt 9 KHÔNG mở**; ba nhóm 8B/8C/8D và NHÓM 10 ghi vào "đã thử và ÂM" - không mở lại khi chưa có
+   lý do MỚI (thêm dữ liệu / đổi định nghĩa bài toán / model khác là ba lý do duy nhất còn lại).
+
