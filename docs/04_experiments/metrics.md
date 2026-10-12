@@ -231,3 +231,34 @@ khoá `resume` trong `metrics.json`: khoá đó nói về tầng **SUY LUẬN** 
 **huấn luyện** chỉ lộ ra qua `training_history.csv`. ⇒ Lượt như vậy **giữ làm bản ghi** nhưng **loại khỏi nhóm
 seed** (hoặc chạy lại sạch nếu cần một lần rút thăm hợp lệ).
 
+> **Cập nhật 12/10/2026:** `cafebert/lora/exp049` (và `exp042`) đã được người dùng **xoá kết quả cũ và chạy lại
+> HOÀN TOÀN**; lượt sạch của `exp049` = **98,11** và **TRÙNG KHÍT `exp048` từng khía cạnh** ⇒ đây chính là bằng
+> chứng cho **luật 12** dưới đây, và là lý do v0 chỉ còn **3 lượt độc lập**.
+
+## Ba luật THÊM (chốt 12/10/2026, từ chính hai ca của đợt 12 + một ràng buộc so sánh)
+
+**12. `decoding.seed` trên ĐƯỜNG ENCODER chính là HẠT GIỐNG HUẤN LUYỆN, nên hai lượt cùng khoá này là MỘT lần rút
+thăm - kể cả khi chúng có CHA khác nhau.** Ca thật: `cafebert/lora/exp048` (←`exp004`) và `exp049` (←`exp002`) chỉ
+khác `exp_id`/`parent`/`notes`, cùng `decoding.seed: 13` ⇒ kết quả **trùng khít từng ô** (`colour` 0,909 ·
+`packing` 0,900 · `price` 0,000 · `shipping` 0,974 · `smell` 0,909 · `stayingpower` 0,973 · `texture` 0,936) và
+trên cơ sở `all` cũng trùng (`accuracy_micro` 97,93 · `f1_macro` 0,859). Hệ quả: **`exp049` KHÔNG phải lượt thứ tư
+của họ v0** - họ v0 chỉ có **3 lượt độc lập** (hạt giống 42/7/13), nên `n` của mọi phép so phải đếm theo HẠT GIỐNG
+chứ không theo số thư mục. Muốn thêm một lần rút thăm cho họ encoder thì phải đổi `decoding.seed` sang một giá trị
+CHƯA DÙNG.
+
+**13. `neg F1 macro (7 khía cạnh)` là THƯỚC ĐO NHIỄU - không được dùng làm "kỷ lục".** Vì nó lấy trung bình đều 7
+khía cạnh, hai khía cạnh tí hon chi phối toàn bộ: `price` (5-6 ô `test`) và `packing` (9-10 ô). Ca thật (CÙNG một
+cấu hình `lr4e-4, r8`, chỉ khác hạt giống): `neg F1 (7)` = **0,886 · 0,813 · 0,796** (chênh 0,09) trong khi
+`neg F1 (5 n lớn)` = **94,640 · 94,860 · 94,260** (chênh 0,006) - riêng `price` cho F1 **0,571 · 0,000 · 0,000**
+(1-2 ô đảo chiều). ⇒ Khi nói về lớp âm PHẢI đọc **`neg F1 (5 khía cạnh n lớn)`** (hoặc chỉ số theo `n`/micro), và
+phải ghi kèm số ô của khía cạnh nào dưới 10.
+
+**14. Bảng số CHÍNH chỉ nhận lượt giữ nguyên BÀI TOÁN và PHIÊN BẢN DỮ LIỆU của công bố:**
+`label_space: binary` · `neutral_policy: drop` · `not_mentioned: separate` · cùng `version_id` (hiện `v0.2.0`).
+Lý do (đã kiểm trong mã): `neutral_policy` đổi **NHÃN** (và cả bảng nhãn huấn luyện - `experiment_run.py` L674
+`filter_label_map(label_map, label_space, neutral_policy)`) ⇒ đổi **tập/bài toán**; còn `not_mentioned` **không** đổi
+nhãn huấn luyện mà chỉ đổi **khung chấm** (`scorers/base.py` L249-250 bỏ mã "không nhắc" khỏi khung hai chiều;
+`scorers/prf.py` coi nó là một LỚP) ⇒ cùng model, cùng dự đoán, **hai con số khác nhau**. Cả hai trường hợp đều là
+lỗi im lặng nếu đem so với bảng của công bố. Lượt khác bài toán (nếu có) chỉ được nằm ở **phụ lục**, ghi rõ "khác
+bài toán", và muốn so thì phải **chấm lại trên khung công bố** rồi ghi kèm CẢ HAI số.
+

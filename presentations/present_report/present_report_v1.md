@@ -202,28 +202,39 @@ Hai dòng MACRO ở bảng 6 là **bảng điểm chính để so công bố** c
 > biên nhiễu **đã đo thật: sd = 0,11–0,16** (trước đó chỉ là ước lượng ±0,33…±0,67 từ 2 lượt). Xem
 > `present_plan_batch12.md` mục 11.
 
-1. **Vượt công bố ở Accuracy macro - và giờ có `n` để nói:** họ `lr 4e-4` = **98,29 (n = 11 lượt)** so với công bố
-   **97,70** = **+0,59**; `neg F1 (5 n lớn)` = **94,41** so với **88,23** = **+6,18**.
+1. **Vượt công bố ở Accuracy macro - và giờ có `n` để nói:** họ `lr 4e-4` = **98,28 (n = 12 lượt)** so với công bố
+   **97,70** = **+0,58**; `neg F1 (5 n lớn)` = **94,38** so với **88,23** = **+6,15**. Mức vượt này **không phụ thuộc
+   lượt nào**: MỌI lượt của cả hai họ đều trên 97,70 (12 lượt `lr 4e-4` min 98,13; 3 lượt v0 độc lập min 97,88).
 2. **Mục tiêu "giữ F1 & tăng Acc" so với bản CŨ: ĐÃ XẢY RA nhưng CHƯA đủ mạnh về thống kê.** Họ `lr 4e-4` hơn họ
-   v0 (`lr 2e-4`, chính là "top cũ" của `present_report_v0.md`) **+0,22 Acc** và **+0,81 `neg F1 (5 n lớn)`**,
-   **đúng chiều ở MỌI lượt** (11 lượt `lr4e-4` đều ≥ 98,13; 4 lượt v0 đều ≤ 98,26), nhưng **p ≈ 0,06 (Acc)** và
-   **p ≈ 0,10 (neg F1)** ⇒ chưa dưới 0,05. Cách rẻ nhất để hạ p là thêm lượt cho phía **v0** (Đợt 2b).
+   v0 (`lr 2e-4`, chính là "top cũ" của `present_report_v0.md`) **+0,20 Acc** (98,283 vs 98,083) và **+0,72
+   `neg F1 (5 n lớn)`** (94,377 vs 93,653). Ý nghĩa thống kê **phụ thuộc giả định phương sai**: Welch **p = 0,21 /
+   0,30**; kiểm định gộp phương sai **p = 0,027 / 0,044** — Welch đúng hơn ở đây (v0 sd 0,19 gấp đôi họ kia 0,107 mà
+   `n` v0 chỉ **3 lượt ĐỘC LẬP**, vì `exp049` là **bản sao khít** của `exp048`: cùng hạt giống huấn luyện 13, luật 12)
+   ⇒ **gợi ý mạnh, CHƯA đạt p < 0,05**. (Bản ghi 11/10 ghi "p ≈ 0,06/0,10" là sai: nó đếm `exp049` thành lượt thứ tư và
+   dùng kiểm định gộp.) Cách duy nhất để chốt: **6 hạt giống v0 nữa (Đợt 8/8A)** ⇒ 9 lượt độc lập ⇒ Welch df ≈ 12,
+   p ≈ 0,015.
 3. **BÊN TRONG họ `lr 4e-4`, mọi biến thể ĐỒNG HẠNG:** `r 8` 98,31 · `r 16` 98,30 · `every_n_steps 50` 98,28 ·
-   `epochs 6` 98,25 (sd 0,11–0,16) ⇒ **`r`, `epochs`, mật độ checkpoint KHÔNG tạo ra khác biệt đo được**; vặn
+   `epochs 6` 98,25 (sd 0,11–0,15) ⇒ **`r`, `epochs`, mật độ checkpoint KHÔNG tạo ra khác biệt đo được**; vặn
    nút đã cạn.
 4. **"Kỷ lục" cũ chỉ là LƯỢT MAY NHẤT của nó:** `exp021` 98,41 nhưng TB của chính nó là **98,31**; đỉnh báo cáo cũ
-   `exp004` 98,26 nhưng TB của họ v0 là **98,06**. ⇒ Không lấy số của MỘT lượt làm kết luận (luật 10).
+   `exp004` 98,26 nhưng TB của họ v0 là **98,08**. ⇒ Không lấy số của MỘT lượt làm kết luận (luật 10). Thêm: các
+   "kỷ lục `neg F1 (7)`" (vd `exp021` 0,886) là **artefact của 4/7 ô `price`** — phải đọc `neg F1 (5 n lớn)` (luật 13),
+   và trên thước đo đó **`exp040` (94,860)** mới là lượt tốt nhất của nhóm `r 8`.
 5. **Chưa vượt ở 5/7 khía cạnh**: `price`, `texture`, `stayingpower`, `packing`, `shipping` mà công bố đạt 100 % thì
    dự án vẫn dưới. Đây là đánh đổi có chủ đích, không phải lỗi.
 6. **Dư địa còn lại nằm ở LỚP ÂM, rải ở khía cạnh `n` lớn**: lượt dẫn đầu còn **≈ 22 ô âm sai / 467 (4,7 %)** —
    `colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0.
-   ⇒ **KẾT HỢP (Đợt 6: ensemble / ngưỡng theo khía cạnh / biểu quyết 3 seed) là con đường còn lại** cho mục tiêu
-   "tăng CẢ Acc lẫn F1".
-7. **Trạng thái hợp lệ:** các lượt Đợt 1 và Đợt 2 **đã vào git** (`96e20c1`, `7efb530`) và `scripts/collect_reports.py`
-   **đã chạy** (`8da35fb`, `3f0cf82`) ⇒ theo luật 3–4 của `docs/00_workflow/02_rules.md` đây **là kết quả dùng được**.
-8. **Việc phải làm để chốt:** (a) **Đợt 2b** - thêm 3 lượt v0 (seed 1/2/3) để hạ p xuống dưới 0,05; (b) **Đợt 6**
-   - chạy 3 việc kết hợp (0 GPU); (c) `exp042` **copy file nhẹ từ Drive về**; (d) `exp049` **đã loại khỏi nhóm
-   seed** vì bị ngắt ở tầng huấn luyện (luật 11).
+   **Cập nhật 12/10/2026:** đường KẾT HỢP đã chứng minh **CẠN** — Đợt 6 chạy 3 việc và cả 3 đều âm/rỗng (ensemble 6
+   model 97,87 · ensemble 5 lượt cafebert 98,26 · ngưỡng theo khía cạnh **rỗng** · biểu quyết 3 seed 98,41 nhưng
+   `neg F1 (7)` 0,809); cộng 5 bàn đạp kết hợp đã thử trước đó = **9 bàn đạp, không cái nào vượt > 0,25 ở cả hai trục**
+   ⇒ hai khe còn lại là **prompt/few-shot của LLM** (trục lớp âm duy nhất đang hoà với encoder) và **tiêu chí chọn
+   checkpoint** (`best_metric` = F1 lớp âm).
+7. **Trạng thái hợp lệ:** các lượt Đợt 1, Đợt 2 và hai lượt chạy lại (`exp042`, `exp049`) **đã vào git** (`96e20c1`,
+   `7efb530`, `006544c`) và `scripts/collect_reports.py` **đã chạy lại** (`03269bf`) ⇒ theo luật 3–4 của
+   `docs/00_workflow/02_rules.md` đây **là kết quả dùng được**.
+8. **Việc phải làm để chốt:** (a) **Đợt 8/8A** - 6 hạt giống v0 mới (1–6) để hạ p xuống dưới 0,05; (b) **Đợt 8/8B-8C**
+   - 6 lượt LLM (0/1/5 ví dụ + 3 lượt lấy mẫu cho biểu quyết); (c) **Đợt 8/8D** - 3 lượt `best_metric` = F1 lớp âm;
+   (d) các luật mới 12–14 đã ghi vào `metrics.md`.
 
 ## 9. Nguồn số
 
@@ -264,6 +275,13 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > **Chốt 11/10/2026 (người dùng):** nhánh `full` **BỊ BỎ khỏi kế hoạch** - không dùng làm mốc đối chứng nữa.
 > Ba lượt giữ lại chỉ để đọc như "đã thử và hỏng".
 >
+> **Bổ sung 12/10/2026 (hai lượt còn lại đã về).** `exp042` = **98,24** (nhóm `epochs 6` nay đủ 3 lượt ⇒ TB 98,25) và
+> `exp049` = **98,11 - TRÙNG KHÍT `exp048` từng khía cạnh** (cùng hạt giống huấn luyện 13) ⇒ **họ v0 chỉ có 3 lượt
+> ĐỘC LẬP** (TB 98,08) và mức hơn của họ `lr 4e-4` đọc lại bằng **Welch là p = 0,21 / 0,30** (không phải 0,06/0,10).
+> Cả hai lượt đã vào git (`006544c`), bảng gộp dựng lại (`03269bf`). Luật mới: **12** (cùng `decoding.seed` trên đường
+> encoder = MỘT lần rút thăm) · **13** (`neg F1 (7)` là thước đo nhiễu - đọc `neg F1 (5 n lớn)`) · **14** (bảng chính
+> chỉ nhận cùng bài toán + cùng phiên bản dữ liệu). Chi tiết: `present_plan_batch12.md` mục 11 và mục 13.
+
 > **Cập nhật 11/10/2026 - kết quả 8 lượt đợt 1 (NHÓM 1-5) ĐÃ VỀ và 15 lượt Đợt 2 (NHÓM 6-7) cũng ĐÃ VỀ.**
 > Đợt 1: `exp020/021/024/025/027/028/030/033` chạy xong, `% đọc được` = 100 % ở mọi lượt; **không lượt nào vượt
 > quá 0,24 điểm** ⇒ ĐỒNG HẠNG. Hai **kết quả ÂM**: `focal` + trọng số lớp **thất bại** (`exp024` 97,75 ·

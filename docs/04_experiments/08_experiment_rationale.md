@@ -435,44 +435,65 @@ Mục đích của nhóm seed: đợt 1 kết luận "mọi biến thể **đồ
 chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed 13** cho hai lượt của họ cũ (v0), để biết
 **chênh lệch nào còn nằm trong nhiễu**.
 
-| Cấu hình (cha + các seed) | Acc macro từng lượt | **TB** | sd | `neg F1 (5 n lớn)` TB |
-| --- | --- | ---: | ---: | ---: |
-| `lr4e-4, r8` (`exp021` 42 · `exp040` 7 · `exp041` 13) | 98,41 · 98,38 · 98,13 | **98,31** | 0,15 | 94,59 |
-| `lr4e-4, r16` (`exp015` 42 · `exp044` 7 · `exp045` 13) | 98,35 · 98,17 · 98,37 | **98,30** | 0,11 | 94,33 |
-| `lr4e-4, every_n_steps 50` (`exp028` · `exp046` · `exp047`) | 98,31 · 98,16 · 98,37 | **98,28** | 0,11 | 94,49 |
-| `lr4e-4, epochs 6` (`exp027` 42 · `exp043` 13 · `exp042` thiếu) | 98,37 · 98,14 | **98,25** | 0,16 | 94,15 |
-| **`lr 2e-4` = v0** (`exp002` · `exp004` · `exp048` · `exp049`) | 97,88 · 98,26 · 98,11 · 98,00 | **98,06** | 0,16 | 93,60 |
+> **CẬP NHẬT 12/10/2026.** Người dùng đã **xoá thư mục kết quả và chạy lại HOÀN TOÀN** `exp042` và `exp049` (cả hai
+> bị bất thường ngày 11/10). Nay nhóm `epochs 6` **đủ 3 lượt**, và `exp049` (98,11) **trùng khít `exp048` từng khía
+> cạnh** ⇒ họ v0 chỉ có **3 lượt ĐỘC LẬP** (**luật 12** của `metrics.md`). Số dưới đây được **chấm lại** bằng engine
+> của dự án; `neg F1 (5 n lớn)` = TB F1 lớp âm của `colour` (54 ô) · `shipping` (172) · `smell` (48) ·
+> `stayingpower` (95) · `texture` (83).
+
+| Cấu hình (cha + các seed) | Acc macro từng lượt | **TB** | sd | `neg F1 (5 n lớn)` TB | sd |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `lr4e-4, r8` (`exp021` 42 · `exp040` 7 · `exp041` 13) | 98,41 · 98,38 · 98,13 | **98,31** | 0,15 | 94,59 | 0,30 |
+| `lr4e-4, r16` (`exp015` 42 · `exp044` 7 · `exp045` 13) | 98,35 · 98,17 · 98,37 | **98,30** | 0,11 | 94,33 | 0,61 |
+| `lr4e-4, every_n_steps 50` (`exp028` 42 · `exp046` 7 · `exp047` 13) | 98,31 · 98,16 · 98,37 | **98,28** | 0,11 | 94,49 | 0,40 |
+| `lr4e-4, epochs 6` (`exp027` 42 · **`exp042` 7** · `exp043` 13) | 98,37 · **98,24** · 98,14 | **98,25** | 0,12 | 94,11 | 0,12 |
+| **họ `lr 4e-4` gộp (12 lượt)** | — | **98,28** | 0,11 | **94,38** | 0,39 |
+| **`lr 2e-4` = v0 (3 lượt ĐỘC LẬP)** | 97,88 · 98,26 · 98,11 | **98,08** | 0,19 | **93,65** | 0,91 |
 
 ### Bốn kết luận
 
 1. **Bốn cấu hình họ `lr 4e-4` ĐỒNG HẠNG TUYỆT ĐỐI** (TB 98,25-98,31, sd 0,11-0,16; chênh giữa các TB <= 0,06
    chỉ bằng 1/3 sd). ⇒ `r 8` vs `r 16`, `epochs 3` vs `6`, `every_n_steps 100` vs `50`: **không có khác biệt đo
    được**. Đây là bằng chứng định lượng cho kết luận "các trục siêu tham số đã bão hoà" ở mục 9.
-2. **Họ `lr 4e-4` hơn họ v0 (`lr 2e-4`)**: **+0,22 Acc** (98,29 vs 98,06) và **+0,81 `neg F1 (5 n lớn)`**
-   (94,41 vs 93,60); **đúng chiều ở MỌI lượt**. Ước lượng ý nghĩa: t ~ 2,6 (p ~ 0,06) và t ~ 2,1 (p ~ 0,10) ⇒
-   **gợi ý mạnh, chưa đạt p < 0,05**. Cách rẻ nhất để hạ p: thêm lượt cho phía YẾU (v0) - Đợt 2b.
-3. **Mọi "kỷ lục" của một lượt là lượt MAY NHẤT**: `exp021` 98,41 (TB 98,31); `exp004` 98,26 (TB họ v0 98,06).
+2. **Họ `lr 4e-4` hơn họ v0 (`lr 2e-4`)**: **+0,20 Acc** (98,283 vs 98,083) và **+0,72 `neg F1 (5 n lớn)`**
+   (94,377 vs 93,653). Nhưng ý nghĩa thống kê **phụ thuộc giả định phương sai**: Welch **p = 0,21 (Acc)** và
+   **p = 0,30 (`neg F1`)**; còn kiểm định gộp phương sai cho **p = 0,027 / 0,044**. Bản ghi 11/10 ("t ~ 2,6,
+   p ~ 0,06") vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp ⇒ **phải sửa**. Welch đúng hơn ở đây
+   (v0 sd 0,19 gấp đôi họ kia 0,107 mà `n` v0 chỉ 3) ⇒ **kết luận: gợi ý mạnh nhưng CHƯA đạt p < 0,05**.
+   Cách duy nhất để chốt: **Đợt 8/8A** (6 hạt giống v0 nữa ⇒ 9 lượt độc lập ⇒ Welch df ≈ 12, p ≈ 0,015).
+3. **Mọi "kỷ lục" của một lượt là lượt MAY NHẤT**: `exp021` 98,41 (TB 98,31); `exp004` 98,26 (TB họ v0 **98,08**).
    ⇒ Từ đây đọc theo **TB >= 3 lượt** (luật 10 của `metrics.md`).
-4. **Dư địa còn lại ở LỚP ÂM, rải ở khía cạnh `n` LỚN**: lượt dẫn đầu còn **~22 ô âm sai / 467 (4,7 %)**
-   (`colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0)
-   ⇒ loại lỗi mà **KẾT HỢP** sửa được, không phải vặn nút.
+4. **`neg F1 macro (7 khía cạnh)` là thước đo NHIỄU** (luật 13 mới): trong CÙNG cấu hình `r 8`, 3 hạt giống cho
+   `neg F1 (7)` = **0,886 · 0,813 · 0,796** (chênh 0,09) nhưng `neg F1 (5 n lớn)` = 94,640 · 94,860 · 94,260 (chênh
+   0,006); riêng `price` (5-6 ô) cho F1 **0,571 · 0,000 · 0,000** (1-2 ô đảo chiều). ⇒ "kỷ lục `neg F1 (7)` = 0,886
+   của `exp021`" là artefact của **4/7 ô giá**; trên thước đo có `n`, **`exp040` (94,860)** mới là lượt tốt nhất
+   của nhóm `r 8`.
+5. **Dư địa còn lại ở LỚP ÂM, rải ở khía cạnh `n` LỚN**: lượt dẫn đầu còn **~22 ô âm sai / 467 (4,7 %)**
+   (`colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0).
+   **Cập nhật 12/10/2026:** đường KẾT HỢP đã chứng minh **CẠN** (Đợt 6, mục 12 của `present_plan_batch12.md`: 9 bàn
+   đạp, không cái nào vượt > 0,25 trên cả hai trục) ⇒ hai khe còn lại là **prompt/few-shot của LLM** và **tiêu chí
+   chọn checkpoint**.
 
-### Hai bất thường (đã ghi thành luật 11 của `metrics.md`)
+### Hai bất thường (đã xử lý XONG 12/10/2026)
 
-- **`exp042`** (epochs 6, seed 7) chạy **xong trên Colab** (`run.log`: 4.050,1 giây, "đã ghi `metrics.json`",
-  FINISHED) nhưng **file nhẹ chưa được copy về máy** ⇒ không tính vào TB của cấu hình đó.
-- **`exp048` vs `exp049`** (cùng cấu hình, cùng `decoding.seed: 13`) ra **98,11 vs 98,00** (best step 900 vs 766).
-  Nguyên nhân: `training_history.csv` của `exp049` **chỉ 10 dòng, bắt đầu ở bước 400 / epoch 2** ⇒ lượt đó **bị
-  ngắt ở tầng HUẤN LUYỆN rồi chạy tiếp**. Cả hai đều ghi `resume.mode: NEW` (khoá đó thuộc tầng SUY LUẬN), nên
-  **chỉ `training_history.csv` lộ ra** sự khác biệt. ⇒ Lượt bị ngắt **không phải một lần rút thăm sạch**.
+- **`exp042`** (epochs 6, seed 7): 11/10 chạy **xong trên Colab** (`run.log`: 4.050,1 giây, "đã ghi `metrics.json`",
+  FINISHED) nhưng **file nhẹ chưa được copy về máy** ⇒ không tính vào TB của cấu hình đó. **12/10: người dùng xoá kết
+  quả cũ và chạy lại hoàn toàn ⇒ 98,24** (`training_history.csv` 29 dòng, đủ 6 epoch, đọc 100 %) ⇒ nay đã tính.
+- **`exp048` vs `exp049`** (cùng cấu hình, cùng `decoding.seed: 13`): 11/10 ra **98,11 vs 98,00** (best step 900 vs
+  766) vì `training_history.csv` của `exp049` **chỉ 10 dòng, bắt đầu ở bước 400 / epoch 2** ⇒ lượt đó **bị ngắt ở
+  tầng HUẤN LUYỆN rồi chạy tiếp** (cả hai đều ghi `resume.mode: NEW` - khoá đó thuộc tầng SUY LUẬN - nên **chỉ
+  `training_history.csv` lộ ra** sự khác biệt; luật 11). **12/10: chạy lại hoàn toàn ⇒ 98,11 - TRÙNG KHÍT `exp048`
+  TỪNG Ô** ⇒ hai lượt chỉ khác `exp_id`/`parent`/`notes` mà `decoding.seed` giống nhau, và trên đường encoder khoá
+  này **CHÍNH LÀ hạt giống huấn luyện** ⇒ **MỘT lần rút thăm**, không phải hai (**luật 12** mới).
 
 ### Năm lượt `val` (NHÓM 7) - nguyên liệu cho bước kết hợp
 
 `exp052` (r 32) **98,73** · `exp053` (DoRA) 98,62 · `exp051` (đỉnh mới) 98,47 · `exp050` (đỉnh cũ) 98,44 ·
 `exp054` (`inverse_by_aspect`) 98,31 - số trên `val` (1.535 review), **không so được với `test`**.
 
-**Hệ quả:** các trục vặn nút chuyển sang **HOÃN** (11 lượt: 5 của Đợt 3 + 3 của Đợt 4 + 3 đã hoãn trước),
-thêm **Đợt 2b** (3 lượt v0), và **Đợt 6 (kết hợp)** trở thành con đường chính cho mục tiêu "tăng cả Acc và F1".
+**Hệ quả (cập nhật 12/10/2026):** các trục vặn nút vẫn **HOÃN** (7 lượt vặn-số + 5 lượt Đợt 3); **Đợt 4 HỒI SINH**
+(`best_metric` = F1 lớp âm, `exp055`-`exp057`); **Đợt 2b (3 lượt) nay là 8A (6 lượt)**; và **Đợt 6 (kết hợp) đã chạy
+xong và CẠN** (mục 11 dưới đây) ⇒ trọng tâm chuyển sang **Đợt 8** (15 lượt song song).
 
 ## 11. Đợt 6 (12/10/2026) - BA VIỆC KẾT HỢP: cả ba đều KHÔNG cải thiện
 
