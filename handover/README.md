@@ -18,7 +18,7 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **GÓI MỚI NHẤT: `SentimentX-goi-034-<mã>-261012.zip` (15 notebook, ghim `dce35af`) - Đợt 12, chạy
+> **GÓI MỚI NHẤT: `SentimentX-goi-034-<mã>-261012.zip` (15 notebook, ghim `5ec65f3`) - Đợt 12, chạy
 > MỘT LƯỢT SONG SONG; xem mục "Đợt 12 (12/10/2026)" ngay dưới.** Gói này chỉ mang 15 notebook + README
 > này; mọi thứ bạn đang có thì giữ nguyên (không tải lại dữ liệu). Hai lần gửi TRƯỚC của cùng đợt:
 > **`goi-032`** (8 notebook, đợt 1) và **`goi-033`** (15 notebook: 10 seed + 5 `val`, đợt 2) - nếu bạn đã
