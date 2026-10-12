@@ -95,7 +95,9 @@ def write_run(root, tag, experiment=None, status="FINISHED", prompt="absa_cot_v1
         # Cơ sở `paper` + PRF TỪNG khía cạnh: nguồn của hai cột `neg_f1_big5` / `neg_f1_macro7`
         # (`reports.negative_f1_of_aspects`). `packing` cố ý KHÔNG có `support` để khoá quy ước
         # "khía cạnh không có ô âm thì BỎ, không tính là 0" - cùng quy ước với `fusion.negative_f1`.
-        "scores_paper": {"prf": {"by_aspect": {
+        # `accuracy.macro` (cơ sở `paper`) là nguồn của cột `acc_paper_macro` - SỐ TIÊU ĐỀ khi so
+        # công bố; nó KHÁC `accuracy_micro` ở trên (cơ sở `all`) vì mẫu số khác nhau.
+        "scores_paper": {"accuracy": {"macro": 74.5}, "prf": {"by_aspect": {
             "colour": {"negative": {"f1": 0.9, "support": 54}},
             "shipping": {"negative": {"f1": 0.95, "support": 172}},
             "smell": {"negative": {"f1": 0.85, "support": 48}},
@@ -594,6 +596,41 @@ class TestNegativeF1Columns(unittest.TestCase):
         row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
         for column in reports.REGISTRY_COLUMNS:
             self.assertIn(column, row)
+
+
+class TestPaperAccuracyColumn(unittest.TestCase):
+    """Cột `acc_paper_macro`: Acc macro trên CƠ SỞ `paper` - số để so với công bố.
+
+    Vì sao phải có cột riêng chứ không dùng `accuracy_micro`: hai cơ sở đo có MẪU SỐ khác nhau
+    (`paper` loại ô mà nhãn đoán là "không nhắc tới"/`neutral`, xem docs/04_experiments/metrics.md),
+    nên một lượt chạy có HAI số Accuracy khác nhau. Trước 12/10/2026 số `paper` chỉ nằm trong văn xuôi
+    (`present_report_v1.md`) - viết tay lại từng lượt là chỗ sinh sai; nay nó nằm trong bảng chuẩn.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-accpaper-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def test_the_column_reads_the_paper_basis_not_the_all_basis(self):
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        # `scores_paper.accuracy.macro` của mẫu, KHÔNG phải `scores.aggregate.accuracy_micro`.
+        self.assertEqual(row["acc_paper_macro"], 74.5)
+        self.assertEqual(row["accuracy_micro"], 71.43)
+
+    def test_a_run_without_paper_scores_gets_an_empty_column_not_a_crash(self):
+        directory = write_run(self.root, "a1")
+        metrics = json.loads((directory / "metrics.json").read_text(encoding="utf-8"))
+        del metrics["scores_paper"]
+        utils.write_json(metrics, directory / "metrics.json")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        self.assertIsNone(row["acc_paper_macro"])
+
+    def test_the_column_is_in_the_registry_table(self):
+        self.assertIn("acc_paper_macro", reports.REGISTRY_COLUMNS)
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        self.assertIn("acc_paper_macro", row)
 
 
 class TestDatasetRegistry(unittest.TestCase):

@@ -155,6 +155,7 @@ Bảng dưới là HỢP ĐỒNG giữa ba nơi: lượt chạy ghi số, `scrip
 | --- | --- | --- |
 | Đo của dự án trên `test` (cơ sở `all`) | `metrics.json::scores` + `metrics.csv` (basis=`all`) | HTML lượt chạy, MLflow (không tiền tố) |
 | Để SO VỚI CÔNG BỐ (cơ sở `paper`) | `metrics.json::scores_paper` + `metrics.csv` (basis=`paper`) | `metrics_matrix` (cột `reference`), MLflow (tiền tố `paper.`), `mispredictions_paper.csv` |
+| **Số TIÊU ĐỀ của một lượt**: `acc_paper_macro` = Acc macro cơ sở `paper` · `neg_f1_big5` = TB F1 lớp âm 5 khía cạnh `n` lớn (`colour` · `shipping` · `smell` · `stayingpower` · `texture`) | `experiment_registry.csv` - tính từ `scores_paper` của lượt | báo cáo, `present_report_*.md`, phép so theo NHÓM (TB nhiều lượt) |
 | Số đo THÊM (đo lại) | `metrics_rescored.json` / `metrics_rescored.csv` | `metrics_matrix` (họ cột `(rescored)`) |
 | Chọn `model/best`, dừng sớm, vẽ curve (`val`) | `training_history.csv` + khối `training` của `metrics.json` | người đọc, MLflow (chuỗi theo bước); KHÔNG vào `metrics_matrix` |
 
@@ -261,4 +262,23 @@ nhãn huấn luyện mà chỉ đổi **khung chấm** (`scorers/base.py` L249-2
 `scorers/prf.py` coi nó là một LỚP) ⇒ cùng model, cùng dự đoán, **hai con số khác nhau**. Cả hai trường hợp đều là
 lỗi im lặng nếu đem so với bảng của công bố. Lượt khác bài toán (nếu có) chỉ được nằm ở **phụ lục**, ghi rõ "khác
 bài toán", và muốn so thì phải **chấm lại trên khung công bố** rồi ghi kèm CẢ HAI số.
+
+## Luật 15 (chốt 12/10/2026 tối, từ 2 lượt LLM của Đợt 8)
+
+**15. Lượt bị ngắt ở tầng ĐÁNH GIÁ rồi chạy tiếp (đường prompt/LLM) KHÁC lượt bị ngắt ở tầng HUẤN LUYỆN
+(luật 11): nó vẫn dùng được, nhưng phải khai số ô tái dùng.** Cơ chế: công cụ ghi `predictions/part_*.jsonl`
+theo lô, nên lần chạy sau **tái dùng** phần đã tính và chỉ sinh phần còn thiếu - `metrics.json` ghi
+`resume.mode = RESUME`, `reused`, `new` (ca thật: `exp024` tái dùng 652 ô, `exp027` 1.336 ô; cả hai có 2
+`attempt`, lượt đầu `INTERRUPTED`).
+Ba điều kiện để lượt như vậy được vào bảng số: (a) `status = FINISHED`; (b) `read_rate.valid = true`; (c)
+số nằm trong **dải của các lượt anh em** cùng cấu hình. Đủ ba thì dùng, và **ghi số ô tái dùng** khi báo cáo
+(với 3 mẫu LLM ở đây: `exp024` 5-ví-dụ và `exp027` seed 3 đều nằm giữa hai lượt chạy sạch về mọi chỉ số).
+KHÁC hẳn luật 11: ngắt ở tầng HUẤN LUYỆN làm `model/best` chọn trên lịch sử thiếu ⇒ lượt đó **bỏ**, không
+phải khai báo.
+
+**15b (cùng ca, ghi cho người đọc mã):** `fusion.vote` đã **sửa 12/10/2026** - nó gọi `dict(pred)` nên **sập**
+khi một lượt có review KHÔNG đọc được (`preds[i]` là `None`, xem `records.to_arrays`). Lượt encoder đọc
+được 100 % nên lỗi ẩn từ Đợt 6, tới lượt LLM (đọc được 99,94 %) mới lộ. Luật bỏ phiếu không đổi: ô không đọc
+được ở một lượt thì **lượt đó không có phiếu**, và ô không lượt nào đọc được thì giữ `None` - **không được
+điền 0**, vì "không đọc được" (tính là SAI) khác "không nhắc tới" (có thể đúng).
 

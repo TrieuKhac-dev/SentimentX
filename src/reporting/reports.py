@@ -343,6 +343,7 @@ REGISTRY_COLUMNS = ("run", "status", "started", "seconds", "model", "method", "e
                     "config_sha256", "repo_sha", "valid", "comparable", "invalid_reason", "mode",
                     "read_percent", "tokens_per_second",
                     "accuracy_micro", "f1_macro", "exact_match_percent",
+                    "acc_paper_macro",
                     "neg_f1_big5", "neg_f1_macro7", "out_dir")
 
 # Năm khía cạnh có NHIỀU Ô ÂM NHẤT trên `test` (đo 12/10/2026: `colour` 54 · `shipping` 172 · `smell` 48 ·
@@ -438,6 +439,11 @@ def experiment_rows(runs):
             "accuracy_micro": _dig(metrics, "scores", "aggregate", "accuracy_micro"),
             "f1_macro": _dig(metrics, "scores", "prf", "macro", "f1"),
             "exact_match_percent": _dig(metrics, "scores", "aggregate", "exact_match", "percent"),
+            # Acc macro trên cơ sở `paper` - SỐ TIÊU ĐỀ khi so với công bố (xem
+            # docs/04_experiments/metrics.md). Cột `accuracy_micro` ở trên là cơ sở `all`: hai số KHÁC
+            # nhau (mẫu số khác nhau), nên mỗi cơ sở phải có cột riêng - dán số `all` vào ô `paper`
+            # là so sai mà không ai thấy. Cùng lý do với hai cột `neg_f1_*` ngay dưới.
+            "acc_paper_macro": _dig(metrics, "scores_paper", "accuracy", "macro"),
             # Hai thước đo lớp âm, đọc trên cơ sở `paper` (xem NEG_BIG_ASPECTS ở trên và luật 13).
             "neg_f1_big5": negative_f1_of_aspects(metrics),
             "neg_f1_macro7": negative_f1_of_aspects(metrics, aspects=None),
