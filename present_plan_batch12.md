@@ -468,13 +468,18 @@ Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi t
 - [x] **Luật đọc đã áp đúng:** cả ba đều so với TỪNG thành viên trên cùng tập; **không việc nào vượt > 0,25 ở cả
       Acc và `neg F1`** ⇒ không sinh ra kết quả để báo cáo, bằng chứng giữ trong `data/reports/fusion/**`
 
-### Đợt 7 - 0 GPU - báo cáo chốt - ✅ **ĐANG LÀM (mở 12/10/2026 tối)**
-- [x] File nhẹ 15 lượt vào git (`4b601c8`) + **bảng chuẩn dựng lại** (`acc_paper_macro` mới) + **mục 14** đã điền
-- [x] Bằng chứng 0 GPU cho 8C: `data/reports/fusion/vote_llm_1shot.json` (+ `inputs/…__nhan_tung_o.csv`)
-- [ ] **`present_report_v2.md`**: số chính đổi thành **98,283 / 94,40 vs v0 98,091 / 93,60 (Welch p = 0,0035 /
-      0,0070)**; thêm ba kết quả ÂM (few-shot LLM · bỏ phiếu mẫu · chọn checkpoint); ghi rõ **trần** đã chạm
-- [ ] Sửa `docs/04_experiments/08_experiment_rationale.md` (bảng họ + Welch) và `present_report_v1.md` (trỏ v2)
-- [ ] `ci_checks` + unittest toàn bộ → commit → push → **gói 035** (nếu cần gửi lại bảng chuẩn)
+### Đợt 7 - 0 GPU - báo cáo chốt - ✅ **XONG 12/10/2026 (tối)**
+- [x] File nhẹ 15 lượt vào git (`4b601c8`) + **bảng chuẩn dựng lại** (`4051004` thêm cột `acc_paper_macro`;
+      `b783431` dựng lại 144 dòng) + **mục 14** đã điền (`802306a`)
+- [x] Bằng chứng 0 GPU cho 8C: `data/reports/fusion/vote_llm_1shot.json` (+ `inputs/…__nhan_tung_o.csv`);
+      đường bỏ phiếu có **lỗi thật đã sửa** (`36736b0`, +3 test)
+- [x] **`present_report_v2.md`** (`75f4de7`): số chính **98,283 / 94,38 vs v0 98,091 / 93,60 (Welch p = 0,0035 /
+      0,0070)**; ba kết quả ÂM; **16 bàn đạp** đã thử; ba lý do còn được phép mở lại
+- [x] Sửa `docs/04_experiments/08_experiment_rationale.md` (bảng họ + Welch + hai khe đã đóng) và
+      `present_report_v1.md` (trỏ v2); `handover/README.md` ghi kết quả
+- [x] `ci_checks` **XANH** + `unittest` **1120 test** (1 lỗi môi trường có sẵn, 0 FAIL) → commit → **đã push**
+- [ ] **Gói 035: KHÔNG dựng** - không còn notebook nào cần chạy trên Colab (Đợt 9 đã đóng), và mọi kết quả đã
+      nằm trong git. Chỉ dựng khi cần gửi lại bảng chuẩn: `python scripts/build_package.py`
 
 ## 7. Nhật ký thay đổi và lỗi
 
