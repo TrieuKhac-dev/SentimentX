@@ -1,0 +1,21 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án - KHÔNG được gửi cho model) ---
+# Nguồn: LẤY TỪ DỮ LIỆU, split `train`, dòng 59 (đánh số từ 0, đúng dòng của train.csv).
+# Kiểm chứng trước khi dùng:
+#   python scripts/check_examples.py --examples configs/prompts/examples/absa_cot_trainfshot_1shot_v1.txt --require-train
+#   -> phải ra "KẾT LUẬN: KHÔNG RÒ RỈ."
+# Giữ ĐÚNG MỘT ví dụ. Câu chữ prompt (`absa_cot_trainfshot_v1.txt`) GIỐNG Y HỆT bản 5 ví dụ, nên
+# phép so 0/1/5 ví dụ chỉ còn MỘT biến. Ví dụ này cũng nằm trong bản 5 ví dụ (1 ⊂ 5).
+# Chú thích chỉ được nằm ở khối NÀY: dấu # xuất hiện sau dòng ví dụ đầu tiên sẽ bị gửi cho model.
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Được mỗi màu đỏ đất còn rượu vang thì y như hàng cũ để lâu ngày, mùi kinh vl. Đã v còn đánh ko ra màu, nhìn vào chất son thì bột bột thấy ghê"
+SUY LUẬN:
+- colour: "còn rượu vang thì y như hàng cũ để lâu ngày" | chê màu không lên, trông như hàng cũ | mã 2
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+- texture: "nhìn vào chất son thì bột bột thấy ghê" | chê chất son bột, không mịn | mã 2
+- smell: "mùi kinh vl" | chê mùi khó chịu | mã 2
+- packing: "không nhắc tới" | review không nói về đóng gói | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 2, "stayingpower": 0, "texture": 2, "smell": 2, "packing": 0, "price": 0, "shipping": 0}

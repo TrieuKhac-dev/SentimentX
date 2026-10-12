@@ -1,0 +1,74 @@
+# --- NGUỒN VÍ DỤ (chú thích của dự án - KHÔNG được gửi cho model) ---
+# Nguồn: LẤY TỪ DỮ LIỆU, split `train`, các dòng 23, 24, 59, 103, 112 (đánh số từ 0, đúng dòng
+# của train.csv). Ví dụ 3 (dòng 59) CHÍNH LÀ ví dụ duy nhất của bản 1 ví dụ, nên 1 ⊂ 5.
+# Kiểm chứng trước khi dùng:
+#   python scripts/check_examples.py --examples configs/prompts/examples/absa_cot_trainfshot_5shot_v1.txt --require-train
+#   -> phải ra "KẾT LUẬN: KHÔNG RÒ RỈ."
+# Câu chữ prompt (`absa_cot_trainfshot_v1.txt`) GIỐNG Y HỆT bản 1 ví dụ. Năm ví dụ này cố ý phủ
+# cả bốn mã: mã 2 (ba ví dụ), mã 1, mã 3 (trung tính) và mã 0 (không nhắc tới).
+# Chú thích chỉ được nằm ở khối NÀY: dấu # xuất hiện sau dòng ví dụ đầu tiên sẽ bị gửi cho model.
+# --- HẾT CHÚ THÍCH ---
+--- Ví dụ 1 ---
+Review: "Màu lên khá ok, son mịn không lì, mùi hơi hắc nhưng kh sao nhaaaa"
+SUY LUẬN:
+- colour: "Màu lên khá ok" | khen màu lên ổn | mã 1
+- stayingpower: "không lì" | chê độ bền màu kém | mã 2
+- texture: "son mịn" | khen chất son mịn | mã 1
+- smell: "mùi hơi hắc" | chê mùi hắc | mã 2
+- packing: "không nhắc tới" | review không nói về đóng gói | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 1, "stayingpower": 2, "texture": 1, "smell": 2, "packing": 0, "price": 0, "shipping": 0}
+
+--- Ví dụ 2 ---
+Review: "Xinh xểu Chất son mềm mịn, lên màu chuẩn Mỗi tội giao hàng lâu ơi là lâu"
+SUY LUẬN:
+- colour: "lên màu chuẩn" | khen màu lên chuẩn | mã 1
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+- texture: "Chất son mềm mịn" | khen chất son mềm mịn | mã 1
+- smell: "không nhắc tới" | review không nói về mùi | mã 0
+- packing: "không nhắc tới" | review không nói về đóng gói | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "Mỗi tội giao hàng lâu ơi là lâu" | chê giao hàng lâu | mã 2
+KẾT QUẢ:
+{"colour": 1, "stayingpower": 0, "texture": 1, "smell": 0, "packing": 0, "price": 0, "shipping": 2}
+
+--- Ví dụ 3 ---
+Review: "Được mỗi màu đỏ đất còn rượu vang thì y như hàng cũ để lâu ngày, mùi kinh vl. Đã v còn đánh ko ra màu, nhìn vào chất son thì bột bột thấy ghê"
+SUY LUẬN:
+- colour: "còn rượu vang thì y như hàng cũ để lâu ngày" | chê màu không lên, trông như hàng cũ | mã 2
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+- texture: "nhìn vào chất son thì bột bột thấy ghê" | chê chất son bột, không mịn | mã 2
+- smell: "mùi kinh vl" | chê mùi khó chịu | mã 2
+- packing: "không nhắc tới" | review không nói về đóng gói | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 2, "stayingpower": 0, "texture": 2, "smell": 2, "packing": 0, "price": 0, "shipping": 0}
+
+--- Ví dụ 4 ---
+Review: "Công dụng: màu son tây Kết cấu: son không lì nhiều Độ bền màu: nhanh trôi Màu son đẹp, nhưng ăn uống rất dễ trôiiiiiiiiiiiiiiiiiiii"
+SUY LUẬN:
+- colour: "Màu son đẹp" | khen màu son đẹp | mã 1
+- stayingpower: "Độ bền màu: nhanh trôi" | chê nhanh trôi màu | mã 2
+- texture: "Kết cấu: son không lì nhiều" | kết cấu bình thường, không khen không chê | mã 3
+- smell: "không nhắc tới" | review không nói về mùi | mã 0
+- packing: "không nhắc tới" | review không nói về đóng gói | mã 0
+- price: "không nhắc tới" | review không nói về giá | mã 0
+- shipping: "không nhắc tới" | review không nói về vận chuyển | mã 0
+KẾT QUẢ:
+{"colour": 1, "stayingpower": 2, "texture": 3, "smell": 0, "packing": 0, "price": 0, "shipping": 0}
+
+--- Ví dụ 5 ---
+Review: "Màu đẹp. Vì dịch nên shop giao hàng hơi lâu. Vừa giá tiền."
+SUY LUẬN:
+- colour: "Màu đẹp" | khen màu đẹp | mã 1
+- stayingpower: "không nhắc tới" | review không nói về độ bền màu | mã 0
+- texture: "không nhắc tới" | review không nói về chất son | mã 0
+- smell: "không nhắc tới" | review không nói về mùi | mã 0
+- packing: "không nhắc tới" | review không nói về đóng gói | mã 0
+- price: "Vừa giá tiền" | khen giá hợp lý | mã 1
+- shipping: "Vì dịch nên shop giao hàng hơi lâu" | chê giao hàng lâu | mã 2
+KẾT QUẢ:
+{"colour": 1, "stayingpower": 0, "texture": 0, "smell": 0, "packing": 0, "price": 1, "shipping": 2}
