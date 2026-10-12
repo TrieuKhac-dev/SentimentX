@@ -682,6 +682,36 @@ def parameter_counts(model):
     return trainable, total
 
 
+def negative_code(labels):
+    """Mã nhãn của lớp ÂM trong không gian nhãn của thí nghiệm (tra TÊN, không suy từ thứ tự mã).
+
+    Không suy từ thứ tự: `{1: positive, 2: negative, 3: neutral, 0: ''}` chỉ là thứ tự HIỆN TẠI và đổi
+    theo `label_space`. Trả `None` khi bảng nhãn không có lớp `negative` (không phải không gian này) -
+    cùng cách `fusion.negative_code` tra tên.
+    """
+    found = [int(code) for code, name in (labels or {}).items()
+             if str(name).strip().lower() == "negative"]
+    return found[0] if found else None
+
+
+def negative_f1_of(samples, labels):
+    """F1 của lớp ÂM GỘP mọi khía cạnh - chỉ số để chọn `model/best` theo lớp âm.
+
+    Vì sao GỘP chứ không lấy trung bình theo khía cạnh: `price` chỉ có ~5 ô âm trên `test`, nên trung
+    bình 7 khía cạnh bị 1-2 ô chi phối (luật 13 của `docs/04_experiments/metrics.md`). Chọn checkpoint
+    cần chỉ số ỔN ĐỊNH; còn số báo cáo theo từng khía cạnh vẫn do `scores_paper` của `metrics.json` lo.
+
+    Trả `None` khi bảng nhãn không có lớp `negative`, hoặc khi engine không trả được ô nào của lớp đó.
+    """
+    code = negative_code(labels)
+    if code is None:
+        return None
+    totals = ((samples.per_sentiment() or {}).get("totals") or {}).get(code) or {}
+    if not totals:
+        return None
+    return round(float(totals.get("f1") or 0.0), 6)
+
+
 def measure(model, module, data, found, codes, device, aspects, task, labels):
     """Đo `val` bằng ĐÚNG engine chấm điểm của lượt chạy (`src/evaluation/scorers`).
 
@@ -740,6 +770,9 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
         "sentiment_precision": round(sentiment["precision"], 6),
         "sentiment_recall": round(sentiment["recall"], 6),
         "detection_f1": round(detection["f1"], 6),
+        # F1 lớp âm GỘP mọi khía cạnh: lựa chọn cho `checkpoints.best_metric` khi muốn `model/best`
+        # tối ưu cho lớp âm (xem `negative_f1_of`).
+        "negative_f1": negative_f1_of(samples, labels),
         "cells": accuracy["cells"],
         "correct": accuracy["correct"],
     }
@@ -748,8 +781,10 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
 
 
 # Chỉ số mà `measure()` có thể tính - `checkpoints.best_metric` phải nằm trong đây.
+# `negative_f1` là F1 lớp âm GỘP mọi khía cạnh (xem `negative_f1_of`): chọn checkpoint tối ưu cho lớp
+# âm, thay vì `sentiment_f1` (trung bình 3 lớp) vốn bị lớp trội chi phối.
 MEASURED_METRICS = ("accuracy_cell", "accuracy_macro", "sentiment_f1", "sentiment_precision",
-                    "sentiment_recall", "detection_f1", "loss")
+                    "sentiment_recall", "detection_f1", "negative_f1", "loss")
 
 
 def early_settings(config):
@@ -923,6 +958,16 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
         nonlocal best
         improved = False
         value = (metrics or {}).get(metric)
+        if metrics and value is None:
+            # Lỗi IM LẶNG bị chặn ở đây: khối dưới chỉ ghi `model/best` khi `value is not None`, nên một
+            # chỉ số đo không ra sẽ làm cả lượt chạy KHÔNG có `model/best` mà không ai thấy. Đã gặp kiểu
+            # này một lần (cùng nhóm với luật 11 của docs/04_experiments/metrics.md) nên dừng ngay.
+            raise TrainingError(
+                "`checkpoints.best_metric` = '{}' nhưng lần đo này KHÔNG có chỉ số đó (đo được: {}). "
+                "Chọn một trong: {}.".format(
+                    metric,
+                    ", ".join(sorted(name for name in metrics if metrics[name] is not None)) or "(không có)",
+                    ", ".join(MEASURED_METRICS)))
         if value is not None:
             improved = best is None or value > float(best.get(metric) or -1)
             if improved:

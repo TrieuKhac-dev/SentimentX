@@ -53,6 +53,9 @@ checkpoints:
   # Chỉ số để chọn `model/best` (và để dừng sớm): phải là một khoá trong kết quả `measure()` của
   # đường encoder. `sentiment_f1` = macro-F1 sắc thái - ổn định với dữ liệu MẤT CÂN BẰNG, khác
   # `accuracy_cell` (bị lớp trội chi phối). Xem docs/04_experiments/06_lora_encoder.md.
+  # Thêm 12/10/2026: `negative_f1` = F1 lớp ÂM **gộp mọi khía cạnh** (xem `lora.negative_f1_of`) -
+  # dùng khi muốn `model/best` tối ưu cho RIÊNG lớp âm, lớp duy nhất còn yếu ở mọi lượt. Đo không ra
+  # chỉ số đã khai thì lượt chạy DỪNG NGAY, không chạy tiếp rồi mất `model/best` trong im lặng.
   best_metric: sentiment_f1
 
 # Hàm mất mát. `ce` = cross-entropy thường. `weighted_ce` = nhân TRỌNG SỐ LỚP (chống mất cân bằng:

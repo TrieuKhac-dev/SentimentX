@@ -542,6 +542,16 @@ class EarlyStopSettingsTest(unittest.TestCase):
                          {"enabled": True, "patience": 3, "min_delta": 0.01})
 
 
+class _FakeSamples:
+    """`Samples` giả: chỉ cần `per_sentiment()` để kiểm cách ĐỌC số, không cần torch."""
+
+    def __init__(self, per_sentiment):
+        self._per_sentiment = per_sentiment
+
+    def per_sentiment(self):
+        return self._per_sentiment
+
+
 class BestMetricTest(unittest.TestCase):
     """D-2: `checkpoints.best_metric` là chuỗi, và phải nằm trong bộ chỉ số `measure()` tính."""
 
@@ -550,6 +560,29 @@ class BestMetricTest(unittest.TestCase):
 
     def test_default_metric_is_in_the_measured_set(self):
         self.assertIn(checkpoints.settings(BASE_CONFIG)["best_metric"], lora.MEASURED_METRICS)
+
+    def test_negative_f1_is_selectable(self):
+        """12/10/2026: `negative_f1` là lựa chọn hợp lệ cho `model/best` (tối ưu riêng lớp âm)."""
+        self.assertIn("negative_f1", lora.MEASURED_METRICS)
+        config = {"checkpoints": dict(BASE_CONFIG["checkpoints"], best_metric="negative_f1")}
+        self.assertEqual(checkpoints.settings(config)["best_metric"], "negative_f1")
+
+    def test_negative_code_tra_TEN_chu_khong_tra_thu_tu(self):
+        """Mã lớp âm đổi theo không gian nhãn, nên phải tra theo tên - không suy từ số 2."""
+        self.assertEqual(lora.negative_code({0: "", 1: "positive", 2: "negative", 3: "neutral"}), 2)
+        self.assertEqual(lora.negative_code({0: "none", 1: "positive", 2: "neutral", 3: "negative"}), 3)
+        self.assertIsNone(lora.negative_code({0: "", 1: "positive", 2: "neutral"}))
+
+    def test_negative_f1_lay_o_GOP_cua_lop_am(self):
+        """Gộp mọi khía cạnh (ổn định), KHÔNG lấy trung bình 7 khía cạnh (bị `price` ~5 ô chi phối)."""
+        samples = _FakeSamples({"totals": {2: {"f1": 0.8367, "support": 467}},
+                                "macro": {"f1": 0.42}})
+        value = lora.negative_f1_of(samples, {1: "positive", 2: "negative"})
+        self.assertEqual(value, 0.8367)
+
+    def test_negative_f1_la_None_khi_bang_nhan_khong_co_lop_am(self):
+        samples = _FakeSamples({"totals": {2: {"f1": 0.5, "support": 10}}})
+        self.assertIsNone(lora.negative_f1_of(samples, {0: "", 1: "positive", 3: "neutral"}))
 
 
 class LossSettingsTest(unittest.TestCase):
