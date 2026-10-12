@@ -92,6 +92,18 @@ def write_run(root, tag, experiment=None, status="FINISHED", prompt="absa_cot_v1
                                  "exact_match": {"percent": 0.0}},
                    "prf": {"macro": {"f1": 0.667}},
                    "aspect_detection": {"micro": {"accuracy": 89.29}}},
+        # Cơ sở `paper` + PRF TỪNG khía cạnh: nguồn của hai cột `neg_f1_big5` / `neg_f1_macro7`
+        # (`reports.negative_f1_of_aspects`). `packing` cố ý KHÔNG có `support` để khoá quy ước
+        # "khía cạnh không có ô âm thì BỎ, không tính là 0" - cùng quy ước với `fusion.negative_f1`.
+        "scores_paper": {"prf": {"by_aspect": {
+            "colour": {"negative": {"f1": 0.9, "support": 54}},
+            "shipping": {"negative": {"f1": 0.95, "support": 172}},
+            "smell": {"negative": {"f1": 0.85, "support": 48}},
+            "stayingpower": {"negative": {"f1": 0.99, "support": 95}},
+            "texture": {"negative": {"f1": 0.8, "support": 83}},
+            "price": {"negative": {"f1": 0.5, "support": 5}},
+            "packing": {"negative": {"f1": 0.7}},
+        }}},
     }, directory / "metrics.json")
     return directory
 
@@ -538,6 +550,50 @@ class TestRunValidity(unittest.TestCase):
     def test_the_three_columns_are_in_the_registry_table(self):
         for column in ("valid", "comparable", "invalid_reason"):
             self.assertIn(column, reports.REGISTRY_COLUMNS)
+
+
+class TestNegativeF1Columns(unittest.TestCase):
+    """Hai cột `neg_f1_big5` / `neg_f1_macro7`: thước đo lớp âm có `n`, thay cho `neg F1 macro (7)`.
+
+    Vì sao khoá ở đây: `neg F1 macro (7)` lấy trung bình đều 7 khía cạnh nên `price` (5-6 ô) và `packing`
+    (9-10 ô) chi phối - đo được trên dữ liệu thật, 1-2 ô đảo chiều làm số nhảy 0,09 (luật 13 của
+    `docs/04_experiments/metrics.md`). Hai cột này phải nằm trong BẢNG CHUẨN để có một nguồn số duy nhất,
+    và `neg_f1_big5` phải lấy ĐÚNG 5 khía cạnh `n` lớn chứ không phải mọi khía cạnh.
+    """
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sentimentx-negf1-"))
+        self.addCleanup(shutil.rmtree, str(self.root), ignore_errors=True)
+
+    def test_big5_is_the_mean_of_exactly_the_five_large_aspects(self):
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        # colour 0.9 · shipping 0.95 · smell 0.85 · stayingpower 0.99 · texture 0.8 -> 4.49 / 5
+        self.assertEqual(row["neg_f1_big5"], 0.898)
+
+    def test_macro7_keeps_every_aspect_with_negative_cells_and_skips_the_rest(self):
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        # 6 khía cạnh có `support` (bỏ `packing`): (0.9 + 0.95 + 0.85 + 0.99 + 0.8 + 0.5) / 6
+        self.assertEqual(row["neg_f1_macro7"], 0.8317)
+
+    def test_a_run_without_paper_scores_gets_empty_columns_not_a_crash(self):
+        directory = write_run(self.root, "a1")
+        metrics = json.loads((directory / "metrics.json").read_text(encoding="utf-8"))
+        del metrics["scores_paper"]
+        utils.write_json(metrics, directory / "metrics.json")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        self.assertIsNone(row["neg_f1_big5"])
+        self.assertIsNone(row["neg_f1_macro7"])
+
+    def test_the_two_columns_are_in_the_registry_table(self):
+        for column in ("neg_f1_big5", "neg_f1_macro7"):
+            self.assertIn(column, reports.REGISTRY_COLUMNS)
+        # Chiều ngược lại cũng phải đúng: không cột nào bị quên khỏi dòng dữ liệu.
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        for column in reports.REGISTRY_COLUMNS:
+            self.assertIn(column, row)
 
 
 class TestDatasetRegistry(unittest.TestCase):

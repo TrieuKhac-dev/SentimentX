@@ -342,7 +342,32 @@ REGISTRY_COLUMNS = ("run", "status", "started", "seconds", "model", "method", "e
                     "quant", "max_length", "max_new_tokens", "dataset", "version_id",
                     "config_sha256", "repo_sha", "valid", "comparable", "invalid_reason", "mode",
                     "read_percent", "tokens_per_second",
-                    "accuracy_micro", "f1_macro", "exact_match_percent", "out_dir")
+                    "accuracy_micro", "f1_macro", "exact_match_percent",
+                    "neg_f1_big5", "neg_f1_macro7", "out_dir")
+
+# Năm khía cạnh có NHIỀU Ô ÂM NHẤT trên `test` (đo 12/10/2026: `colour` 54 · `shipping` 172 · `smell` 48 ·
+# `stayingpower` 95 · `texture` 83). Vì sao cần một thước riêng ngoài `neg F1 macro (7)`: hai khía cạnh tí
+# hon chi phối số 7-macro - `price` (5-6 ô) và `packing` (9-10 ô) - nên 1-2 ô đảo chiều làm số nhảy 0,09
+# (luật 13 của `docs/04_experiments/metrics.md`). Hai cột `neg_f1_*` là nguồn số DUY NHẤT cho thước đo đó,
+# nên chúng nằm trong bảng chuẩn chứ không viết tay trong văn xuôi.
+NEG_BIG_ASPECTS = ("colour", "shipping", "smell", "stayingpower", "texture")
+
+
+def negative_f1_of_aspects(metrics, aspects=NEG_BIG_ASPECTS):
+    """TB F1 lớp âm trên cơ sở `paper` của một nhóm khía cạnh; `None` khi không khía cạnh nào có ô âm.
+
+    `aspects=None` nghĩa là MỌI khía cạnh có mặt trong `by_aspect` (dùng cho cột `neg_f1_macro7`).
+    Khía cạnh KHÔNG có ô âm (`support` rỗng) bị BỎ chứ không tính là 0 - cùng quy ước với
+    `fusion.negative_f1`: "F1 = 0 vì không có gì để bắt" là chuyện của thước đo, không phải của model.
+    """
+    by_aspect = _dig(metrics, "scores_paper", "prf", "by_aspect") or {}
+    names = sorted(by_aspect) if aspects is None else list(aspects)
+    found = []
+    for name in names:
+        item = ((by_aspect.get(name) or {}).get("negative") or {})
+        if item.get("support"):
+            found.append(float(item.get("f1") or 0.0))
+    return round(sum(found) / len(found), 4) if found else None
 
 
 def experiment_rows(runs):
@@ -413,6 +438,9 @@ def experiment_rows(runs):
             "accuracy_micro": _dig(metrics, "scores", "aggregate", "accuracy_micro"),
             "f1_macro": _dig(metrics, "scores", "prf", "macro", "f1"),
             "exact_match_percent": _dig(metrics, "scores", "aggregate", "exact_match", "percent"),
+            # Hai thước đo lớp âm, đọc trên cơ sở `paper` (xem NEG_BIG_ASPECTS ở trên và luật 13).
+            "neg_f1_big5": negative_f1_of_aspects(metrics),
+            "neg_f1_macro7": negative_f1_of_aspects(metrics, aspects=None),
             "out_dir": utils.rel(run["dir"]),
         })
     return rows
