@@ -428,3 +428,48 @@ Tám lượt `cafebert/lora/exp020/021/024/025/027/028/030/033`, mỗi lượt k
 **Hệ quả cho kế hoạch:** trọng tâm chuyển từ "vặn siêu tham số" sang (a) **đo độ vững bằng seed** và
 (b) **kết hợp** (ensemble / ngưỡng theo khía cạnh), vì giá trị còn lại nằm ở việc ghép các điểm mạnh KHÁC
 NHAU của cụm đồng hạng. Chi tiết: `present_plan_batch12.md` NHÓM 6/7/9 và mục 10.
+
+## 10. Đợt 2 (11/10/2026) - MƯỜI LƯỢT SEED + NĂM LƯỢT `val`: đo được BIÊN NHIỄU
+
+Mục đích của nhóm seed: đợt 1 kết luận "mọi biến thể **đồng hạng**" chỉ dựa trên **một lượt mỗi cấu hình**. Đợt 2
+chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed 13** cho hai lượt của họ cũ (v0), để biết
+**chênh lệch nào còn nằm trong nhiễu**.
+
+| Cấu hình (cha + các seed) | Acc macro từng lượt | **TB** | sd | `neg F1 (5 n lớn)` TB |
+| --- | --- | ---: | ---: | ---: |
+| `lr4e-4, r8` (`exp021` 42 · `exp040` 7 · `exp041` 13) | 98,41 · 98,38 · 98,13 | **98,31** | 0,15 | 94,59 |
+| `lr4e-4, r16` (`exp015` 42 · `exp044` 7 · `exp045` 13) | 98,35 · 98,17 · 98,37 | **98,30** | 0,11 | 94,33 |
+| `lr4e-4, every_n_steps 50` (`exp028` · `exp046` · `exp047`) | 98,31 · 98,16 · 98,37 | **98,28** | 0,11 | 94,49 |
+| `lr4e-4, epochs 6` (`exp027` 42 · `exp043` 13 · `exp042` thiếu) | 98,37 · 98,14 | **98,25** | 0,16 | 94,15 |
+| **`lr 2e-4` = v0** (`exp002` · `exp004` · `exp048` · `exp049`) | 97,88 · 98,26 · 98,11 · 98,00 | **98,06** | 0,16 | 93,60 |
+
+### Bốn kết luận
+
+1. **Bốn cấu hình họ `lr 4e-4` ĐỒNG HẠNG TUYỆT ĐỐI** (TB 98,25-98,31, sd 0,11-0,16; chênh giữa các TB <= 0,06
+   chỉ bằng 1/3 sd). ⇒ `r 8` vs `r 16`, `epochs 3` vs `6`, `every_n_steps 100` vs `50`: **không có khác biệt đo
+   được**. Đây là bằng chứng định lượng cho kết luận "các trục siêu tham số đã bão hoà" ở mục 9.
+2. **Họ `lr 4e-4` hơn họ v0 (`lr 2e-4`)**: **+0,22 Acc** (98,29 vs 98,06) và **+0,81 `neg F1 (5 n lớn)`**
+   (94,41 vs 93,60); **đúng chiều ở MỌI lượt**. Ước lượng ý nghĩa: t ~ 2,6 (p ~ 0,06) và t ~ 2,1 (p ~ 0,10) ⇒
+   **gợi ý mạnh, chưa đạt p < 0,05**. Cách rẻ nhất để hạ p: thêm lượt cho phía YẾU (v0) - Đợt 2b.
+3. **Mọi "kỷ lục" của một lượt là lượt MAY NHẤT**: `exp021` 98,41 (TB 98,31); `exp004` 98,26 (TB họ v0 98,06).
+   ⇒ Từ đây đọc theo **TB >= 3 lượt** (luật 10 của `metrics.md`).
+4. **Dư địa còn lại ở LỚP ÂM, rải ở khía cạnh `n` LỚN**: lượt dẫn đầu còn **~22 ô âm sai / 467 (4,7 %)**
+   (`colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0)
+   ⇒ loại lỗi mà **KẾT HỢP** sửa được, không phải vặn nút.
+
+### Hai bất thường (đã ghi thành luật 11 của `metrics.md`)
+
+- **`exp042`** (epochs 6, seed 7) chạy **xong trên Colab** (`run.log`: 4.050,1 giây, "đã ghi `metrics.json`",
+  FINISHED) nhưng **file nhẹ chưa được copy về máy** ⇒ không tính vào TB của cấu hình đó.
+- **`exp048` vs `exp049`** (cùng cấu hình, cùng `decoding.seed: 13`) ra **98,11 vs 98,00** (best step 900 vs 766).
+  Nguyên nhân: `training_history.csv` của `exp049` **chỉ 10 dòng, bắt đầu ở bước 400 / epoch 2** ⇒ lượt đó **bị
+  ngắt ở tầng HUẤN LUYỆN rồi chạy tiếp**. Cả hai đều ghi `resume.mode: NEW` (khoá đó thuộc tầng SUY LUẬN), nên
+  **chỉ `training_history.csv` lộ ra** sự khác biệt. ⇒ Lượt bị ngắt **không phải một lần rút thăm sạch**.
+
+### Năm lượt `val` (NHÓM 7) - nguyên liệu cho bước kết hợp
+
+`exp052` (r 32) **98,73** · `exp053` (DoRA) 98,62 · `exp051` (đỉnh mới) 98,47 · `exp050` (đỉnh cũ) 98,44 ·
+`exp054` (`inverse_by_aspect`) 98,31 - số trên `val` (1.535 review), **không so được với `test`**.
+
+**Hệ quả:** các trục vặn nút chuyển sang **HOÃN** (11 lượt: 5 của Đợt 3 + 3 của Đợt 4 + 3 đã hoãn trước),
+thêm **Đợt 2b** (3 lượt v0), và **Đợt 6 (kết hợp)** trở thành con đường chính cho mục tiêu "tăng cả Acc và F1".

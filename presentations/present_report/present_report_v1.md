@@ -198,14 +198,32 @@ Hai dòng MACRO ở bảng 6 là **bảng điểm chính để so công bố** c
 
 ## 8. Kết luận
 
-1. **Dự án vượt công bố ở Accuracy macro** (97,70) ở **mọi** lượt CafeBERT, kể cả lượt CŨ: `exp002` +0,18 · `exp004` +0,56 · `exp013` +0,63 · `exp015` +0,65.
-2. **Mục tiêu của đợt thí nghiệm MỚI đã đạt.** Bản CŨ (báo cáo v0) đạt lợi thế bằng đánh đổi (F1 lớp âm tăng mạnh, một phần Accuracy ở các khía cạnh công bố 100 % bị mất). Bản MỚI **giữ F1 tăng VÀ tăng Accuracy**: `exp015` cùng lúc đạt **Accuracy macro 98,35** (đỉnh) và **neg F1 macro (5 n lớn) 94,78** (đỉnh) và **pos F1 98,93** (đỉnh ngang `exp013`) ⇒ **vượt công bố ở cả Accuracy lẫn F1**.
-3. **Top model CŨ = `cafebert/lora/exp004`** (98,26 %; khoảng nhiễu của cặp `exp002`-`exp004` là 97,88 … 98,26).
-4. **Top model MỚI = `cafebert/lora/exp015`** (98,35 %; `lr 4e-4`). Về **F1 lớp âm**, `exp013` (`lora.r = 32`) cao nhất ở `macro (7)` (88,93) và `micro (theo n)` (95,12), nhưng khoản hơn ở `macro (7)` đến từ `price` `n = 5`.
-5. **Chưa vượt ở 5/7 khía cạnh**: `price`, `texture`, `stayingpower`, `packing`, `shipping` mà công bố đạt 100 % thì dự án vẫn dưới. Đây là đánh đổi có chủ đích, không phải lỗi.
-6. **Mức vượt so với bản CŨ nằm trong nhiễu.** `exp015` − `exp004` = +0,09 Accuracy · +0,46 F1 `n` lớn · +0,40 F1 micro, đều **dưới biên nhiễu ±0,7**. Mức vượt so CÔNG BỐ (+0,65 Accuracy, +6,55 F1 `n` lớn) thì **vượt biên nhiễu** nên đọc được.
-7. **Trạng thái hợp lệ:** các lượt MỚI hiện **chưa được commit** vào `git` (đang `??`), nên theo luật 3-4 của `docs/00_workflow/02_rules.md` **chưa phải kết quả "dùng được"** cho tới khi commit đã ghim nằm trên nhánh `experiment` và đã chạy `scripts/collect_reports.py`.
-8. **Đề xuất để chốt kết luận:** chạy thêm 2-3 seed cho hai cấu hình `lr 4e-4` và `lora.r = 32` (như đã làm cho `exp004`) để tách khỏi nhiễu, rồi mới đưa `exp015`/`exp013` lên làm đỉnh chính thức.
+> **Cập nhật 11/10/2026 (sau Đợt 2 - 15 lượt seed + `val`).** Mọi số dưới đây đọc theo **TRUNG BÌNH nhiều lượt**;
+> biên nhiễu **đã đo thật: sd = 0,11–0,16** (trước đó chỉ là ước lượng ±0,33…±0,67 từ 2 lượt). Xem
+> `present_plan_batch12.md` mục 11.
+
+1. **Vượt công bố ở Accuracy macro - và giờ có `n` để nói:** họ `lr 4e-4` = **98,29 (n = 11 lượt)** so với công bố
+   **97,70** = **+0,59**; `neg F1 (5 n lớn)` = **94,41** so với **88,23** = **+6,18**.
+2. **Mục tiêu "giữ F1 & tăng Acc" so với bản CŨ: ĐÃ XẢY RA nhưng CHƯA đủ mạnh về thống kê.** Họ `lr 4e-4` hơn họ
+   v0 (`lr 2e-4`, chính là "top cũ" của `present_report_v0.md`) **+0,22 Acc** và **+0,81 `neg F1 (5 n lớn)`**,
+   **đúng chiều ở MỌI lượt** (11 lượt `lr4e-4` đều ≥ 98,13; 4 lượt v0 đều ≤ 98,26), nhưng **p ≈ 0,06 (Acc)** và
+   **p ≈ 0,10 (neg F1)** ⇒ chưa dưới 0,05. Cách rẻ nhất để hạ p là thêm lượt cho phía **v0** (Đợt 2b).
+3. **BÊN TRONG họ `lr 4e-4`, mọi biến thể ĐỒNG HẠNG:** `r 8` 98,31 · `r 16` 98,30 · `every_n_steps 50` 98,28 ·
+   `epochs 6` 98,25 (sd 0,11–0,16) ⇒ **`r`, `epochs`, mật độ checkpoint KHÔNG tạo ra khác biệt đo được**; vặn
+   nút đã cạn.
+4. **"Kỷ lục" cũ chỉ là LƯỢT MAY NHẤT của nó:** `exp021` 98,41 nhưng TB của chính nó là **98,31**; đỉnh báo cáo cũ
+   `exp004` 98,26 nhưng TB của họ v0 là **98,06**. ⇒ Không lấy số của MỘT lượt làm kết luận (luật 10).
+5. **Chưa vượt ở 5/7 khía cạnh**: `price`, `texture`, `stayingpower`, `packing`, `shipping` mà công bố đạt 100 % thì
+   dự án vẫn dưới. Đây là đánh đổi có chủ đích, không phải lỗi.
+6. **Dư địa còn lại nằm ở LỚP ÂM, rải ở khía cạnh `n` lớn**: lượt dẫn đầu còn **≈ 22 ô âm sai / 467 (4,7 %)** —
+   `colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0.
+   ⇒ **KẾT HỢP (Đợt 6: ensemble / ngưỡng theo khía cạnh / biểu quyết 3 seed) là con đường còn lại** cho mục tiêu
+   "tăng CẢ Acc lẫn F1".
+7. **Trạng thái hợp lệ:** các lượt Đợt 1 và Đợt 2 **đã vào git** (`96e20c1`, `7efb530`) và `scripts/collect_reports.py`
+   **đã chạy** (`8da35fb`, `3f0cf82`) ⇒ theo luật 3–4 của `docs/00_workflow/02_rules.md` đây **là kết quả dùng được**.
+8. **Việc phải làm để chốt:** (a) **Đợt 2b** - thêm 3 lượt v0 (seed 1/2/3) để hạ p xuống dưới 0,05; (b) **Đợt 6**
+   - chạy 3 việc kết hợp (0 GPU); (c) `exp042` **copy file nhẹ từ Drive về**; (d) `exp049` **đã loại khỏi nhóm
+   seed** vì bị ngắt ở tầng huấn luyện (luật 11).
 
 ## 9. Nguồn số
 
@@ -246,13 +264,14 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > **Chốt 11/10/2026 (người dùng):** nhánh `full` **BỊ BỎ khỏi kế hoạch** - không dùng làm mốc đối chứng nữa.
 > Ba lượt giữ lại chỉ để đọc như "đã thử và hỏng".
 >
-> **Cập nhật 11/10/2026 - kết quả 8 lượt của đợt 12 (NHÓM 1-5) đã về.** `cafebert/lora/exp020/021/024/025/027/028/030/033`
-> chạy xong, `% đọc được` = 100 % ở mọi lượt. **Không lượt nào vượt "top" quá 0,24 điểm** (biên nhiễu ±0,7)
-> ⇒ **tất cả ĐỒNG HẠNG**, nên các bảng chính của báo cáo này **KHÔNG đổi**. Kỷ lục mới cần ghi:
-> **Accuracy macro 98,41 %** và **pos F1 98,99 %** (`exp021`), **neg F1 micro 95,36 %** (`exp021`),
-> **neg F1 (5 n lớn) 94,84 %** (`exp028`). Hai **kết quả ÂM**: `focal` + trọng số lớp **thất bại**
-> (`exp024` 97,75 · `exp025` 97,71, kém CẢ HAI cha) và `segmenter: vncorenlp` trên `lr 4e-4` **không tái lập**
-> (`exp033` 98,00 so cha 98,35). Chi tiết: `present_plan_batch12.md` mục 10.
+> **Cập nhật 11/10/2026 - kết quả 8 lượt đợt 1 (NHÓM 1-5) ĐÃ VỀ và 15 lượt Đợt 2 (NHÓM 6-7) cũng ĐÃ VỀ.**
+> Đợt 1: `exp020/021/024/025/027/028/030/033` chạy xong, `% đọc được` = 100 % ở mọi lượt; **không lượt nào vượt
+> quá 0,24 điểm** ⇒ ĐỒNG HẠNG. Hai **kết quả ÂM**: `focal` + trọng số lớp **thất bại** (`exp024` 97,75 ·
+> `exp025` 97,71, kém CẢ HAI cha) và `segmenter: vncorenlp` trên `lr 4e-4` **không tái lập** (`exp033` 98,00 so
+> cha 98,35). Đợt 2 (10 lượt seed + 5 lượt `val`) đã **đo được biên nhiễu thật: sd = 0,11–0,16** ⇒ **bốn biến
+> thể trong họ `lr 4e-4` ĐỒNG HẠNG** (TB 98,25–98,31) và **mọi số của MỘT lượt đều là lượt-may-nhất** (các bảng
+> Bảng 3-6 ở trên vẫn đúng như số của từng lượt, nhưng **kết luận phải đọc theo TRUNG BÌNH** - xem mục 8).
+> Chi tiết: `present_plan_batch12.md` **mục 10** (Đợt 1) và **mục 11** (Đợt 2).
 >
 > **Sáu lượt model sinh bị HỦY (11/10/2026):** `qwen3-8b` (đọc được 0,12-1,05 %) và `mistral-7b`
 > (đọc được 60-72 %) - **3 ngày Colab cho 0 kết quả dùng được**; `llama-3.1-8b` và `vistral-7b` **bỏ trước khi
