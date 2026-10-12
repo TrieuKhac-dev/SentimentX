@@ -219,9 +219,18 @@ checkpoint không phải nút thắt), nhưng lý do đó **chưa hề kiểm TI
 **Vì sao giữ phần lấy ví dụ từ `train`:** `qwen3-4b/prompt-cot/exp009` đang giữ **`neg F1 (5 n lớn)` = 94,70**
 (#2 toàn dự án, chỉ sau `exp015` 0,08), mà **toàn bộ ví dụ hiện nay do người viết tay**, chưa lấy từ dữ liệu.
 
-**Cách làm (bám sát luật 21 - cặp prompt + ví dụ BẤT BIẾN khi đã dùng):** tạo **cặp MỚI**, KHÔNG sửa file cũ:
-`configs/prompts/absa_cot_trainfshot_v1.txt` +
-`configs/prompts/examples/absa_cot_trainfshot_{0,1,5}shot_v1.txt`; mỗi ví dụ ghi rõ **`train, dòng N`**.
+**Cách làm (bám sát luật 21 - cặp prompt + ví dụ BẤT BIẾN khi đã dùng) - ĐÃ LÀM 12/10/2026:** tạo **cặp MỚI**,
+KHÔNG sửa file cũ:
+- `configs/prompts/absa_cot_trainfshot_v1.txt` (có `{examples}`) - dùng cho lượt **1 ví dụ** và **5 ví dụ**;
+- `configs/prompts/absa_cot_trainfshot_zeroshot_v1.txt` - **CÙNG câu chữ, chỉ bỏ khối "Ví dụ:"** (prompt có ô nhớ
+  `{examples}` thì BẮT BUỘC khai `examples`, nên lượt 0 ví dụ cần file riêng; đặt tên `zeroshot` theo đúng quy ước
+  đã có của dự án, `absa_cot_zeroshot_v1.txt`);
+- `configs/prompts/examples/absa_cot_trainfshot_1shot_v1.txt` (1 ví dụ: **train dòng 59**) và
+  `..._5shot_v1.txt` (5 ví dụ: **train dòng 23 · 24 · 59 · 103 · 112**) - ví dụ **1 ví dụ ⊂ 5 ví dụ**, phủ cả
+  bốn mã 0/1/2/3.
+Chú thích ghi nguồn **chỉ được nằm ở khối `#` ĐẦU file** (hàm `_split_examples_note` chỉ cắt khối đó; dấu `#`
+sau dòng ví dụ đầu tiên sẽ bị gửi cho model). File **prompt** thì KHÔNG được có khối `#` nào - đã vấp lỗi này và
+`show_prompt` bắt ngay.
 
 **SỬA 12/10/2026 - công cụ kiểm rò rỉ CHƯA TỒN TẠI.** Bản kế hoạch cũ ghi
 `python run_check_examples.py --hash ... --prompt ...`; tôi đã kiểm `scripts/` (**chỉ có `ci_checks.py`**) và
@@ -321,7 +330,7 @@ hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>
 | ~~4~~ | 8 | ~~sửa mã `best_metric` + `exp055` `exp056` `exp057`~~ | – | ⬆ **HỒI SINH → 8D** |
 | ~~5~~ | 10 | ~~3 lượt ví dụ lấy từ `train`~~ | – | ❌ **HẤP THỤ VÀO ĐỢT 8** (thành 8B + 8C: 6 lượt) |
 | **6** | 9 | ensemble · dò ngưỡng 6/7 khía cạnh · biểu quyết 3 seed | **0** | ✅ **XONG 12/10/2026 - CẢ BA ÂM/RỖNG** (mục 12) |
-| **8** | 6 + 10 + 8 | **15 LƯỢT CHẠY SONG SONG**: 6 v0 (seed 1-6) + 3 LLM few-shot (0/1/5 ví dụ) + 3 LLM lấy mẫu + 3 `best_metric` | 15 slot, **~3 h** (đường tới hạn = LLM 2,8 h) | ⬜ **TIẾP THEO** |
+| **8** | 6 + 10 + 8 | **15 LƯỢT CHẠY SONG SONG**: 6 v0 (seed 1-6) + 3 LLM few-shot (0/1/5 ví dụ) + 3 LLM lấy mẫu + 3 `best_metric` | 15 slot, **~3 h** (đường tới hạn = LLM 2,8 h) | 🟡 **ĐÃ GỬI 12/10/2026** - gói **034**, ghim `b438241`; chờ người dùng chạy |
 | **9** | 6 + 10 + 8 + 9 | tuỳ kết quả Đợt 8: nhân bản biến thể THẮNG (≤ 6 lượt) + biểu quyết mẫu LLM (0 GPU) + luật lai (0 GPU) | ≤ 15 slot | ⬜ sau Đợt 8 |
 | **7** | 14 | báo cáo chốt (+ `present_report_v2.md` nếu Đợt 8/9 hơn > 0,25 ở CẢ 2 trục) | **0** | sau Đợt 8 (hoặc 9) |
 
@@ -386,8 +395,19 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 | **W7** | Viết cặp prompt + ví dụ MỚI (0/1/5 ví dụ) từ `train` | `configs/prompts/absa_cot_trainfshot_v1.txt` + `configs/prompts/examples/absa_cot_trainfshot_*` |
 | **W8** | Tạo 15 config + README (`new_experiment.py`) → `--dry-run` → ghim (`pin.py`) → **gói 034** (`build_package.py`), `ci_checks` XANH | `experiments/**`, `handover/packages/034` |
 
-- [ ] Thứ tự: **W1 → W2 → W3 → W4** (0 GPU) → **W5 → W7 → W6** (có mã mới, cần test) → **W8** (đóng gói)
-- [ ] **15 lượt**: 8A `exp058`-`exp063` · 8B `exp022`-`exp024` · 8C `exp025`-`exp027` · 8D `exp055`-`exp057`
+- [x] **XONG TOÀN BỘ 12/10/2026** - thứ tự đã làm đúng kế hoạch: **W1** (`006544c` commit file nhẹ
+      `exp042`/`exp049` + `03269bf` dựng lại bảng) → **W2+W3** (`5d7aefb`: luật 12-14 + sửa số 3 tài liệu) →
+      **W4** (`fd48659`: thêm 2 cột `neg_f1_big5`/`neg_f1_macro7` vào bảng chuẩn, +4 test) → **W5** (`99de73a`:
+      công cụ kiểm rò rỉ + 10 test + đối chứng âm trên dữ liệu thật) → **W7** (`d232442` cặp prompt/ví dụ mới)
+      → **W6** (`830efbd`: `best_metric: negative_f1` + bộ chặn lỗi im lặng) → **W8** (`dce35af` tạo 15 config,
+      `b438241` ghim, `52b2659` gói **034**)
+- [x] **15 lượt đã TẠO + GHIM + ĐÓNG GÓI**: 8A `exp058`-`exp063` · 8B `exp022`-`exp024` · 8C `exp025`-`exp027` ·
+      8D `exp055`-`exp057`. Cửa kiểm rò rỉ: **1-shot 1/1** và **5-shot 5/5** ví dụ *có trong `train`* và
+      **KHÔNG RÒ RỈ**. `show_prompt` xác nhận phép so 0/1/5 ví dụ chỉ có **MỘT biến** (cùng prompt, cùng
+      system, cùng không gian nhãn). `ci_checks` **XANH** ở commit ghim `b438241`.
+      Gói: `handover/out/SentimentX-goi-034-b438241-261012.zip` (31 file: 15 notebook + 15 README + MANIFEST).
+- [ ] **CHỜ NGƯỜI DÙNG CHẠY** 15 notebook trên Colab (1 làn song song; đường tới hạn ≈ 2,8 h = lượt LLM).
+      Sau khi có kết quả: chấm lại bằng engine, điền **mục 14** rồi mới quyết **Đợt 9** hay **Đợt 7**.
 
 ### Đợt 9 - làn 2, chỉ mở khi Đợt 8 có tín hiệu (mới 12/10/2026)
 
@@ -462,6 +482,14 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 | 11/10/2026 | **Bất thường** | `exp042` **thiếu file nhẹ ở máy** (đã chạy xong trên Drive); `exp049` **bị ngắt ở tầng HUẤN LUYỆN** (`training_history.csv` bắt đầu ở bước 400/epoch 2) ⇒ cùng cấu hình + cùng seed với `exp048` mà ra 98,00 vs 98,11 | `exp049` **loại khỏi nhóm seed**; `exp042` cần copy từ Drive; **luật 11** đã thêm vào `metrics.md` |
 | 11/10/2026 | Thay đổi (người dùng chốt) | **Đợt 3 + Đợt 4 → HOÃN** (11 lượt: 5 vặn-nút + 3 `best_metric` + 3 cũ đã hoãn); **thêm Đợt 2b** (3 lượt v0 seed 1/2/3); **Đợt 6 làm NGAY** | Đã cập nhật mục 3, 4, 5, 6; danh sách HOÃN nay **15 lượt** |
 | 11/10/2026 | Ghi nhận | 5 lượt `val` (NHÓM 7) chạy xong và **`probabilities.csv` có sẵn ở máy** | ⇒ **Đợt 6 (0 GPU) chạy được ngay**, không phải chờ |
+| 12/10/2026 | **Đợt 6 (kết quả)** | Cả 3 việc kết hợp **ÂM/RỖNG**: ensemble 6 model 97,87/0,795; ensemble 5 lượt cafebert 98,26/0,856; ngưỡng theo khía cạnh **rỗng** (lưới quét tăng đơn điệu về điểm gốc); biểu quyết 3 seed acc 98,41 nhưng `neg F1 (7)` 0,809 | Ghi **mục 12**; cộng 5 bàn đạp cũ = **9 bàn đạp, không cái nào vượt > 0,25** ⇒ đường KẾT HỢP cạn |
+| 12/10/2026 | Ghi nhận (2 lượt về sau) | Người dùng **xoá kết quả cũ + chạy lại hoàn toàn** `exp042` (98,24) và `exp049` (98,11) | Phát hiện **`exp049` ≡ `exp048` TỪNG Ô** ⇒ v0 chỉ có **3 lượt độc lập**; thêm **luật 12** |
+| 12/10/2026 | Sửa số (số cũ lạc quan) | Mức hơn của họ `lr4e-4` so v0 đọc lại bằng **Welch: p = 0,21 (Acc) / 0,30 (`neg F1`)** - bản ghi cũ "t ≈ 2,6, p ≈ 0,06" vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp phương sai | Sửa mục 3, mục 11, `08_experiment_rationale.md`, `present_report_v1.md` (`5d7aefb`) |
+| 12/10/2026 | Ràng buộc mới (người dùng chốt) | **Chạy được 15 thử nghiệm CÙNG LÚC** · **tuyệt đối KHÔNG thêm dữ liệu** | Gộp Đợt 2b + Đợt 5 thành **Đợt 8 (15 slot)**; xoá mọi ý dùng dữ liệu (distillation, hard-negative mining) |
+| 12/10/2026 | **RÚT NHÓM 15** (đề xuất rồi bỏ) | Đề xuất đổi `neutral_policy`/`not_mentioned` cho 6 lượt; kiểm mã cho thấy `neutral_policy` **đổi NHÃN + bảng nhãn huấn luyện** còn `not_mentioned` chỉ **đổi khung chấm** ⇒ cả hai phá tính so sánh với công bố | Xoá NHÓM 15; thêm **luật 14** để chặn tái diễn (mục 4) |
+| 12/10/2026 | **Đợt 8: TẠO + GHIM + ĐÓNG GÓI xong** | 15 config/notebook (`exp055`-`exp057`, `exp058`-`exp063`, `exp022`-`exp027`); cửa kiểm rò rỉ **1-shot 1/1 · 5-shot 5/5** đều "KHÔNG RÒ RỈ"; `show_prompt` xác nhận biến duy nhất = **số ví dụ**; `ci_checks` XANH ở commit ghim | Gói **034** = `handover/out/SentimentX-goi-034-b438241-261012.zip` (31 file); commit `dce35af` → `b438241` → `52b2659` |
+| 12/10/2026 | Ghi nhận (cách làm) | Lại dùng script dùng-một-lần trong `_scratch/` (`make_d8_configs.py`, `leak_control.py`, `stats_grp.py`) để tạo 15 config và chạy đối chứng | Có **lỗi thật đã sửa**: prompt KHÔNG được có khối `#` ở đầu (chỉ file VÍ DỤ mới có) - `show_prompt` bắt được ngay |
+
 
 ## 8. Đã xong TRƯỚC khi mở sổ này (11/10/2026)
 
@@ -733,3 +761,23 @@ Ba hệ quả đã ghi vào file này:
 `W1` commit `exp042`/`exp049` + `collect_reports` → `W2` 3 luật → `W3` sửa số 3 tài liệu → `W4` bảng xếp hạng
 `neg F1 (5 n lớn)` toàn bộ lượt `test` → `W5` **tạo** `scripts/check_examples.py` (kiểm rò rỉ) → `W7` cặp prompt +
 ví dụ mới từ `train` → `W6` `best_metric: negative_f1` → `W8` tạo 15 config + ghim + **gói 034** + `ci_checks` XANH.
+
+## 14. Kết quả Đợt 8 (CHỜ - điền khi 15 lượt về)
+
+Số phải **chấm lại bằng engine của dự án**, không viết tay. Hai cột cần đọc:
+`accuracy macro (paper)` và **`neg_f1_big5`** (lấy từ
+`data/reports/experiment_registry/experiment_registry.csv`), kèm `cells` và `% đọc được`.
+
+| Nhóm | Lượt | acc macro | `neg_f1_big5` | Đối chứng để so | Kết |
+| --- | --- | ---: | ---: | --- | --- |
+| **8A** | `exp058`…`exp063` (v0 × seed 1–6) | | | v0 hiện có: 97,88 (seed 42) · 98,26 (7) · 98,11 (13) | |
+| **8B** | `exp022` (0 ví dụ) | | | `qwen3-4b-instruct-2507/prompt-cot/exp009` (1 ví dụ viết tay, BIG5 0,9470) | |
+| **8B** | `exp023` (1 ví dụ) · `exp024` (5 ví dụ) | | | như trên | |
+| **8C** | `exp025` · `exp026` · `exp027` (3 mẫu) | | | bản BỎ PHIẾU so với TỪNG mẫu | |
+| **8D** | `exp055` · `exp056` · `exp057` | | | **ghép cặp theo hạt giống**: `exp021` (42) · `exp040` (7) · `exp041` (13) | |
+
+**Việc phải làm khi số về:** (1) `git add` file nhẹ của 15 lượt rồi chạy `collect_reports.py`; (2) điền bảng
+trên bằng số CHẤM LẠI; (3) đối chiếu ngưỡng **> 0,25 ở CẢ HAI trục** (phương sai lệch ⇒ **Welch**); (4) nếu
+8C xong thì chạy `scripts/vote.py` trên 3 mẫu (**0 GPU**), và nếu LLM thắng rõ thì bật lại **luật lai
+encoder + LLM** (`scripts/fuse.py`, 0 GPU); (5) quyết **Đợt 9** (nhân bản cái thắng) hay **Đợt 7** (báo cáo
+chốt) theo bảng điều kiện ở mục 6.

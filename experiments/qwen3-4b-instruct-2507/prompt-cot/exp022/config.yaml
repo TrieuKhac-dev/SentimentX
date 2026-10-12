@@ -32,7 +32,7 @@ data:
 # vì `<model>/<method>/<expNNN>` nằm trong `experiments/`):
 #   prompt.txt                                  file nằm ngay trong thư mục này
 #   ../../../../configs/prompts/absa_cot_v1.txt  file trong thư viện prompt dùng chung
-prompt: ../../../../configs/prompts/absa_cot_trainfshot_0shot_v1.txt
+prompt: ../../../../configs/prompts/absa_cot_trainfshot_zeroshot_v1.txt
 system_prompt: ../../../../configs/prompts/system/absa_cot.txt
 
 # `n: null` (từ lớp evaluation) nghĩa là chấm cả split test, đúng tập của công bố.
@@ -47,7 +47,7 @@ inference:
 # Vi sao luot nay: CoT 0 vi du, cap prompt MOI (vi du lay tu `train`)
 #
 # Cap prompt MOI: `absa_cot_trainfshot_v1.txt` (co {examples}) va ban 0 vi du
-# `absa_cot_trainfshot_0shot_v1.txt` (bo dung khoi vi du). Cau chu hai ban giong nhau nen phep so
+# `absa_cot_trainfshot_zeroshot_v1.txt` (bo dung khoi vi du). Cau chu hai ban giong nhau nen phep so
 # 0/1/5 vi du chi con MOT bien: SO VI DU.
 # BAT BUOC da qua cua kiem ro ri truoc khi tao:
 #   python scripts/check_examples.py --examples <file vi du> --require-train  ->  KHONG RO RI
