@@ -127,15 +127,16 @@ graph LR
   n123["cafebert/lora/exp053:9acf79d9"]
   n124["cafebert/lora/exp052:81d71ed1"]
   n125["cafebert/lora/exp054:862348ac"]
-  n126["cafebert/lora/exp049:c51a9327"]
-  n127["cafebert/lora/exp040:49a248c4"]
-  n128["cafebert/lora/exp041:73e9f9aa"]
-  n129["cafebert/lora/exp043:2f85368a"]
-  n130["<nguồn v0.3.0>"]
-  n131["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
-  n132["cafebert/lora/exp011:c5224186"]
-  n133["visobert/lora/exp009:f784f0b6"]
-  n134["phobert-base-v2/lora/exp015:611af219"]
+  n126["cafebert/lora/exp040:49a248c4"]
+  n127["cafebert/lora/exp041:73e9f9aa"]
+  n128["cafebert/lora/exp043:2f85368a"]
+  n129["cafebert/lora/exp042:5a6882ac"]
+  n130["cafebert/lora/exp049:c51a9327"]
+  n131["<nguồn v0.3.0>"]
+  n132["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
+  n133["cafebert/lora/exp011:c5224186"]
+  n134["visobert/lora/exp009:f784f0b6"]
+  n135["phobert-base-v2/lora/exp015:611af219"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -263,8 +264,9 @@ graph LR
   n4 --> n127
   n4 --> n128
   n4 --> n129
-  n130 -->|15426 dòng| n131
-  n131 --> n132
-  n131 --> n133
-  n131 --> n134
+  n4 --> n130
+  n131 -->|15426 dòng| n132
+  n132 --> n133
+  n132 --> n134
+  n132 --> n135
 ```

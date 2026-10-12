@@ -149,11 +149,11 @@ graph LR
   n145["cafebert/lora/exp053:9acf79d9"]
   n146["cafebert/lora/exp052:81d71ed1"]
   n147["cafebert/lora/exp054:862348ac"]
-  n148["cafebert/lora/exp049:c51a9327"]
-  n149["cafebert/lora/exp040:49a248c4"]
-  n150["cafebert/lora/exp041:73e9f9aa"]
+  n148["cafebert/lora/exp040:49a248c4"]
+  n149["cafebert/lora/exp041:73e9f9aa"]
+  n150["cafebert/lora/exp043:2f85368a"]
   n151["cafebert/lora/exp042:5a6882ac"]
-  n152["cafebert/lora/exp043:2f85368a"]
+  n152["cafebert/lora/exp049:c51a9327"]
   n1 -->|FINISHED| n2
   n3 -->|FINISHED| n2
   n4 -->|FINISHED| n2
@@ -287,6 +287,6 @@ graph LR
   n148 -->|FINISHED| n138
   n149 -->|FINISHED| n138
   n150 -->|FINISHED| n138
-  n151 -->|RUNNING| n138
+  n151 -->|FINISHED| n138
   n152 -->|FINISHED| n138
 ```

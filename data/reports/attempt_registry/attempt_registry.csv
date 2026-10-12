@@ -129,8 +129,8 @@ cafebert/lora/exp051:745a2440,FINISHED,NEW,2026-10-11 16:03:52,1963.7,cafebert,l
 cafebert/lora/exp053:9acf79d9,FINISHED,NEW,2026-10-11 16:04:08,5683.5,cafebert,lora,exp053,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,9acf79d985a1,6347f57e7ae6,
 cafebert/lora/exp052:81d71ed1,FINISHED,NEW,2026-10-11 16:04:09,1886.4,cafebert,lora,exp052,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,81d71ed1424c,6347f57e7ae6,
 cafebert/lora/exp054:862348ac,FINISHED,NEW,2026-10-11 16:04:18,2041.3,cafebert,lora,exp054,val,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,862348ac1653,6347f57e7ae6,
-cafebert/lora/exp049:c51a9327,FINISHED,NEW,2026-10-11 16:04:44,1233.3,cafebert,lora,exp049,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,c51a9327137e,6347f57e7ae6,
 cafebert/lora/exp040:49a248c4,FINISHED,NEW,2026-10-11 16:11:34,1825.9,cafebert,lora,exp040,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,49a248c46d6e,6347f57e7ae6,
 cafebert/lora/exp041:73e9f9aa,FINISHED,NEW,2026-10-11 16:12:28,1791.0,cafebert,lora,exp041,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,73e9f9aadf8f,6347f57e7ae6,
-cafebert/lora/exp042:5a6882ac,RUNNING,-,2026-10-11 16:16:15,,cafebert,lora,exp042,,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,5a6882ac1d57,6347f57e7ae6,
 cafebert/lora/exp043:2f85368a,FINISHED,NEW,2026-10-11 16:16:28,3703.4,cafebert,lora,exp043,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,2f85368a73d3,6347f57e7ae6,FileNotFoundError: [Errno 2] No such file or directory: '/content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp043/results/2f85368a/model/last/head.pt'
+cafebert/lora/exp042:5a6882ac,FINISHED,NEW,2026-10-11 18:31:14,3935.9,cafebert,lora,exp042,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,5a6882ac1d57,6347f57e7ae6,
+cafebert/lora/exp049:c51a9327,FINISHED,NEW,2026-10-11 18:31:23,1803.3,cafebert,lora,exp049,test,cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3,c51a9327137e,6347f57e7ae6,
