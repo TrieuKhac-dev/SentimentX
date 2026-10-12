@@ -54,6 +54,8 @@ CHẠY (8 hex **đầu** của `config_sha256`), nên cờ `--hash` KHÔNG nhậ
 | Kiểm ví dụ few-shot (rò rỉ) | `python run_check_examples.py --hash e616c1e3` |
 | Kiểm MỘT prompt, hoặc đổi ngưỡng cụm trùng | `python run_check_examples.py --hash e616c1e3 --prompt absa_cot_5shot_v1 --max-overlap 8` |
 | Đo THÊM chỉ số của một lượt chạy từ `predictions.csv` (không chạy model, không ghi đè) | `python scripts/rescore.py --dir experiments/<model>/<method>/<expNNN>/results/<hash8>` (`--reason "..."`, `--no-confusion`) |
+| Kiểm ví dụ few-shot KHÔNG RÒ RỈ từ `val`/`test` (không chạy model) | `python scripts/check_examples.py --examples configs/prompts/examples/<tên>.txt` (thêm `--require-train` khi ví dụ lấy từ dữ liệu; `--version <mã>` để chốt phiên bản dữ liệu - mặc định lấy phiên bản của LƯỢT CHẠY MỚI NHẤT trên đĩa). Mã thoát `1` = có rò rỉ/thiếu trong `train` |
+
 | Vẽ báo cáo mở được KHÔNG cần mạng | thêm `--plotlyjs local` (mặc định) hoặc `--plotlyjs cdn` khi muốn dùng CDN |
 | Không tự mở trình duyệt | thêm `--no-open` (nay là mặc định; cờ giữ cho câu lệnh cũ) |
 | Sinh 5 bảng tổng hợp | `python scripts/collect_reports.py` (`--exclude <nhãn|hash8>` để bỏ lượt khỏi BẢNG SỐ - lượt bị loại VẪN nằm trong `attempt_registry`; lặp lại để loại nhiều lượt. **Lưu ý:** đây là cờ để dựng bảng so KHÔNG có một lượt nào đó; lượt HỎNG thì nên **xoá thư mục kết quả** chứ không phải loại khỏi bảng - cách xử lý sáu thư mục hỏng ngày 04/10/2026 ở `present_plan.md` mục 2.1) |
