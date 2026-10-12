@@ -330,7 +330,7 @@ hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>
 | ~~4~~ | 8 | ~~sửa mã `best_metric` + `exp055` `exp056` `exp057`~~ | – | ⬆ **HỒI SINH → 8D** |
 | ~~5~~ | 10 | ~~3 lượt ví dụ lấy từ `train`~~ | – | ❌ **HẤP THỤ VÀO ĐỢT 8** (thành 8B + 8C: 6 lượt) |
 | **6** | 9 | ensemble · dò ngưỡng 6/7 khía cạnh · biểu quyết 3 seed | **0** | ✅ **XONG 12/10/2026 - CẢ BA ÂM/RỖNG** (mục 12) |
-| **8** | 6 + 10 + 8 | **15 LƯỢT CHẠY SONG SONG**: 6 v0 (seed 1-6) + 3 LLM few-shot (0/1/5 ví dụ) + 3 LLM lấy mẫu + 3 `best_metric` | 15 slot, **~3 h** (đường tới hạn = LLM 2,8 h) | 🟡 **ĐÃ GỬI 12/10/2026** - gói **034**, ghim `b438241`; chờ người dùng chạy |
+| **8** | 6 + 10 + 8 | **15 LƯỢT CHẠY SONG SONG**: 6 v0 (seed 1-6) + 3 LLM few-shot (0/1/5 ví dụ) + 3 LLM lấy mẫu + 3 `best_metric` | 15 slot, **~3 h** (đường tới hạn = LLM 2,8 h) | 🟡 **ĐÃ GỬI 12/10/2026** - gói **034** (`...-ee24449-261012.zip`), ghim `5ec65f3`; chờ người dùng chạy |
 | **9** | 6 + 10 + 8 + 9 | tuỳ kết quả Đợt 8: nhân bản biến thể THẮNG (≤ 6 lượt) + biểu quyết mẫu LLM (0 GPU) + luật lai (0 GPU) | ≤ 15 slot | ⬜ sau Đợt 8 |
 | **7** | 14 | báo cáo chốt (+ `present_report_v2.md` nếu Đợt 8/9 hơn > 0,25 ở CẢ 2 trục) | **0** | sau Đợt 8 (hoặc 9) |
 
@@ -400,12 +400,12 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
       **W4** (`fd48659`: thêm 2 cột `neg_f1_big5`/`neg_f1_macro7` vào bảng chuẩn, +4 test) → **W5** (`99de73a`:
       công cụ kiểm rò rỉ + 10 test + đối chứng âm trên dữ liệu thật) → **W7** (`d232442` cặp prompt/ví dụ mới)
       → **W6** (`830efbd`: `best_metric: negative_f1` + bộ chặn lỗi im lặng) → **W8** (`dce35af` tạo 15 config,
-      `b438241` ghim, `52b2659` gói **034**)
+      `5ec65f3` sửa tên prompt 0-ví-dụ, `ee24449` ghim lại, `a5ce2f0` gói **034**)
 - [x] **15 lượt đã TẠO + GHIM + ĐÓNG GÓI**: 8A `exp058`-`exp063` · 8B `exp022`-`exp024` · 8C `exp025`-`exp027` ·
       8D `exp055`-`exp057`. Cửa kiểm rò rỉ: **1-shot 1/1** và **5-shot 5/5** ví dụ *có trong `train`* và
       **KHÔNG RÒ RỈ**. `show_prompt` xác nhận phép so 0/1/5 ví dụ chỉ có **MỘT biến** (cùng prompt, cùng
-      system, cùng không gian nhãn). `ci_checks` **XANH** ở commit ghim `b438241`.
-      Gói: `handover/out/SentimentX-goi-034-b438241-261012.zip` (31 file: 15 notebook + 15 README + MANIFEST).
+      system, cùng không gian nhãn). `ci_checks` **XANH** ở commit ghim `5ec65f3`.
+      Gói: `handover/out/SentimentX-goi-034-ee24449-261012.zip` (31 file: 15 notebook + 15 README + MANIFEST).
 - [ ] **CHỜ NGƯỜI DÙNG CHẠY** 15 notebook trên Colab (1 làn song song; đường tới hạn ≈ 2,8 h = lượt LLM).
       Sau khi có kết quả: chấm lại bằng engine, điền **mục 14** rồi mới quyết **Đợt 9** hay **Đợt 7**.
 
