@@ -552,3 +552,21 @@ Mọi số dưới đây do CHÍNH công cụ chấm; "mạnh nhất" = lượt 
 ⇒ Cùng với việc các trục siêu tham số đã bão hoà (mục 11), **bàn đạp "kết hợp" nay cũng đã cạn**: dự án đang ở
 trần của cấu hình hiện tại **~98,29 Acc / ~94,41 neg F1 (`n` lớn)**, vượt công bố **+0,59 Acc / +6,18 F1 âm**.
 Muốn vượt trần này phải đổi **loại** (thêm dữ liệu / đổi loại lỗi), không phải đổi **núm**.
+
+### Toàn cảnh 9 bàn đạp kết hợp đã thử (để khỏi thử lại)
+
+| Bàn đạp | Tệp | Acc (`paper` macro) | neg F1 macro (7) | So `exp013` (98,33 / 0,889) |
+| --- | --- | ---: | ---: | --- |
+| ensemble 6 model khác nhau (Đợt 6) | `fusion/ensemble.json` | 97,87 | 0,795 | thua cả hai |
+| ensemble 5 lượt cafebert (Đợt 6) | `fusion/ensemble_cluster.json` | 98,26 | 0,856 | thua cả hai |
+| ngưỡng theo khía cạnh (Đợt 6) | `fusion/thresholds_applied.json` | 98,33 | 0,889 | **bằng** (rỗng) |
+| biểu quyết 3 seed (Đợt 6) | `fusion/vote.json` | **98,41** | 0,809 | acc +0,08 · F1 −0,077 |
+| router theo khía cạnh (07/10) | `fusion/router_aspect_accuracy.json` | 97,93 | 0,855 | thua cả hai |
+| router theo khía cạnh, 2 model (07/10) | `fusion/router_aspect_accuracy_2model.json` | 96,02 | 0,754 | thua cả hai |
+| router theo khía cạnh, 6 model (07/10) | `fusion/router_aspect_accuracy_6model.json` | 97,72 | 0,795 | thua cả hai |
+| gộp HAI TẦNG theo khía cạnh (07/10) | `fusion/fuse_aspect_test.json` | 95,87 | 0,816 | thua cả hai |
+| **luật lai encoder + LLM (05/10)** | `fusion/fuse.json` | 98,02 | **0,898** | acc −0,31 · F1 **+0,009** |
+
+⇒ **9 bàn đạp, KHÔNG bàn đạp nào vượt > 0,25 trên CẢ HAI trục** so với lượt mạnh nhất
+(`cafebert/lora/exp013` 98,33 / 0,889). Gần nhất là **luật lai encoder + LLM** (hơn 0,009 F1 âm, kém 0,31 Acc;
+lại dùng encoder `phobert-base-v2` yếu, không phải `cafebert`) - vẫn xa ngưỡng 0,25.
