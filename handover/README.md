@@ -18,6 +18,13 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
+> **GÓI MỚI NHẤT: `SentimentX-goi-034-<mã>-261012.zip` (15 notebook, ghim `dce35af`) - Đợt 12, chạy
+> MỘT LƯỢT SONG SONG; xem mục "Đợt 12 (12/10/2026)" ngay dưới.** Gói này chỉ mang 15 notebook + README
+> này; mọi thứ bạn đang có thì giữ nguyên (không tải lại dữ liệu). Hai lần gửi TRƯỚC của cùng đợt:
+> **`goi-032`** (8 notebook, đợt 1) và **`goi-033`** (15 notebook: 10 seed + 5 `val`, đợt 2) - nếu bạn đã
+> chạy chúng thì **không cần tải lại**, kết quả đã nằm trong repo.
+>
+
 > **Đợt 11 gửi trong HAI gói: `SentimentX-goi-030-<mã>-261010.zip` (48 notebook, ghim `2850d03`) rồi
 > `SentimentX-goi-031-<mã>-<ngày>.zip` (CHỈ bốn notebook `visobert/lora/exp006..009`, ghim `a0a5240`).**
 > Lý do tách: bốn lượt ViSoBERT đổ ngay ở bước dựng input bằng `NameError: name 'bert_like' is not
@@ -112,6 +119,33 @@ notebook đều chạy được cùng lúc vì mỗi lượt có thư mục riê
 | --- | --- |
 | `notebooks/phobert-base-v2/lora/exp004.ipynb`, `notebooks/visobert/lora/exp004.ipynb` | **ĐÃ CHẠY XONG 05/10/2026** (hai lượt `test` để đo tác dụng của NGƯỠNG; thời lượng thật 771,8 và 703,8 giây). **ĐỪNG chạy lại**: nguyên nhân gốc sai và cũng làm ra thư mục kết quả thứ hai trùng số |
 | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp018.ipynb`, `exp019.ipynb`, `exp020.ipynb`, `exp021.ipynb` | **CHƯA chạy, chưa cần chạy**: bốn lượt **lấy mẫu** (đo dao động + đầu vào biểu quyết). Ngưỡng, ensemble và luật lai đã chốt xong trên `val` nên chúng chỉ cần cho bước BIỂU QUYẾT và thước nhiễu - chạy sau |
+
+### Đợt 12 (12/10/2026) - 15 notebook trong gói này (034): chạy MỘT LƯỢT SONG SONG
+
+Gói **034** mang **15** notebook MỚI (chưa từng nằm trong gói nào), chia **4 nhóm**. Chạy được **cả 15
+cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính, không giẫm lên nhau).
+
+| Nhóm | Notebook | Trả lời câu gì | Ước tính mỗi lượt |
+| --- | --- | --- | --- |
+| **8A** (6) | `notebooks/cafebert/lora/exp058` … `exp063` | Hạt giống MỚI 1–6 cho họ **v0** (`lr 2e-4`): nhóm này mới có **3 lượt độc lập** nên mức hơn của họ `lr 4e-4` (+0,20 Acc) chưa đạt p < 0,05 (**Welch p = 0,21**). Sáu lượt này đưa `n` lên 9 ⇒ p ≈ 0,015 | ~31 phút |
+| **8B** (3) | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp022` (0 ví dụ) · `exp023` (1 ví dụ) · `exp024` (5 ví dụ) | **Ví dụ few-shot LẤY TỪ `train`** — bộ ví dụ mới đã qua cửa kiểm rò rỉ (`scripts/check_examples.py`). Câu hỏi: có phá được **thế hoà** ở lớp âm không (LLM 94,70 vs encoder 94,64 — hơn đúng **0,0006**) | ~2,3–2,8 giờ |
+| **8C** (3) | `notebooks/qwen3-4b-instruct-2507/prompt-cot/exp025` · `exp026` · `exp027` | **3 MẪU** của cùng một prompt (1 ví dụ, `decoding.mode: sample`, seed 1/2/3) ⇒ nguyên liệu cho **biểu quyết tự-đồng-thuận**. Khác lần trước: 3 "seed" cũ của đường encoder là 3 **model** khác nhau nên bỏ phiếu vô nghĩa (đo được: 8 ô hoà / 11.361) | ~2,3–2,8 giờ |
+| **8D** (3) | `notebooks/cafebert/lora/exp055` · `exp056` · `exp057` | `checkpoints.best_metric: negative_f1` — chọn checkpoint theo **F1 lớp âm** thay vì F1 sắc thái, trên đúng cấu hình dẫn đầu, **ghép cặp theo hạt giống** với `exp021`/`exp040`/`exp041` (42/7/13) | ~31 phút |
+
+**Luật đọc số (đã chốt TRƯỚC khi chạy - đừng đổi sau khi thấy `test`):**
+
+- Một cấu hình chỉ được gọi là **hơn** khi hơn **> 0,25** ở **CẢ HAI** trục: `Accuracy macro` **và**
+  `neg F1 (5 khía cạnh n lớn)` (5 khía cạnh `n` lớn: `colour` 54 · `shipping` 172 · `smell` 48 ·
+  `stayingpower` 95 · `texture` 83), so với **từng lượt** trong nhóm đối chứng.
+- `n >= 3`; phương sai lệch nhau thì báo cáo **Welch** (đừng dùng kiểm định gộp phương sai).
+- Đọc `num.neg_f1_big5` trong `data/reports/experiment_registry/experiment_registry.csv` (cột chuẩn của
+  dự án) - **đừng** dùng `neg F1 macro (7 khía cạnh)`: nó bị `price` (5–6 ô) chi phối, chỉ 1–2 ô đảo
+  chiều là số nhảy 0,09 (luật 13 của `docs/04_experiments/metrics.md`).
+- 8B/8C: đọc kèm **`% đọc được`** (cửa 95 %) và **số ô** như mọi lượt LLM.
+
+**Bốn nhóm này KHÔNG đổi bài toán và KHÔNG thêm dữ liệu** (đúng hai ràng buộc bạn chốt): cùng
+`(label_space: binary, neutral_policy: drop, not_mentioned: separate)`, cùng phiên bản dữ liệu `v0.2.0`.
+
 
 ### Đợt 8 - 4 notebook MỚI trong gói này (016): thứ tự chạy
 
