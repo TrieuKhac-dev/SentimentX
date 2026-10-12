@@ -217,3 +217,17 @@ trần token trong khối ` thinking` và **không bao giờ in JSON**. Ca thậ
 Đã biết thuộc nhóm này: `Qwen/Qwen3-8B`, `meta-llama/Llama-3.1-8B-Instruct` (bản `-Instruct-2507` thì KHÔNG).
 Luật 3a (chạy lượt DÒ để chốt trần) áp cho mọi model loại này.
 
+**10. Số của một lượt encoder phải là TRUNG BÌNH của >= 3 hạt giống.** Biên nhiễu thật đã đo ở đợt 12 (10 lượt
+seed): **sd = 0,11-0,16 điểm**, có cấu hình **spread tới 0,28**. Hệ quả đo được: `cafebert/lora/exp021` báo
+**98,41** nhưng TB của chính nó (3 lượt) là **98,31**; đỉnh báo cáo cũ `exp004` báo **98,26** nhưng TB của họ
+đó là **98,06**. ⇒ **KHÔNG lấy 1 lượt làm "kỷ lục"**, và mọi phép so cấp cấu hình phải có **n >= 3**.
+Ngưỡng phát hiện đi kèm: hơn **> 0,25** ở **CẢ** Accuracy macro **VÀ** một chỉ số F1 lớp âm có `n`.
+
+**11. Lượt bị NGẮT ở tầng HUẤN LUYỆN rồi chạy tiếp KHÔNG phải một lần rút thăm sạch.** Dấu vết để nhận:
+**`training_history.csv` không bắt đầu ở bước 100 / epoch 1** (lượt sạch luôn có điểm đo từ bước 100). Ca thật:
+`cafebert/lora/exp049` (cùng cấu hình, cùng `decoding.seed: 13` với `exp048`) chỉ có 10 dòng và bắt đầu ở
+**bước 400 / epoch 2** ⇒ `best.step = 766` thay vì 900, và điểm **98,00 thay vì 98,11**. Lưu ý ĐỪNG đọc nhầm
+khoá `resume` trong `metrics.json`: khoá đó nói về tầng **SUY LUẬN** (cả hai lượt đều `NEW`), còn resume ở tầng
+**huấn luyện** chỉ lộ ra qua `training_history.csv`. ⇒ Lượt như vậy **giữ làm bản ghi** nhưng **loại khỏi nhóm
+seed** (hoặc chạy lại sạch nếu cần một lần rút thăm hợp lệ).
+
