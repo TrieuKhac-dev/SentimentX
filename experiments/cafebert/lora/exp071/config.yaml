@@ -1,0 +1,75 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp071
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp070
+
+# `model` phải trùng tên file configs/models/<model_id>.yaml; `method` cũng là tên thư mục cha.
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác. `scripts/new_experiment.py --notes "..."`
+# điền vào đây; để `null` cũng hợp lệ khi chưa muốn mô tả.
+notes: "B3 | seed 7 | B3: nhu B1 nhung giu every_n_steps 50 cua cha (patience 24 vi do ~2 lan/epoch) - nen giu ky luc neg F1 big5 | epochs 15 + early_stop | Cach A: doi epochs doi luon lich lr tuyen tinh nen khong tach duoc"
+
+data:
+  # MỘT dataset duy nhất. Khai danh sách là lỗi: hai bộ dữ liệu khác nhau thì không so được.
+  dataset: cosmetics
+  # Phiên bản dữ liệu ĐANG DÙNG (xem configs/datasets/cosmetics/). Cập nhật khi dự án chuyển sang bản
+  # dữ liệu MỚI: để nguyên bản cũ ở đây là mỗi thí nghiệm tạo mới lại lặng lẽ chấm trên bộ dữ liệu CŨ -
+  # đã xảy ra thật ngày 04/10/2026 (khuôn mẫu còn ghi v0.1.0, trong khi dự án đang ở v0.2.0).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval` luôn cần (để biết chấm trên tập nào). Trỏ `eval` vào `train` bị chặn vì rò rỉ dữ liệu.
+  # Khai `train` và `val` khi enabled: true.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+enabled: true
+
+# Giữ ĐÚNG cơ chế của cha (`exp015`) để phép so chỉ còn MỘT biến: mật độ checkpoint.
+head:
+  trainable: true
+
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+lr: 0.0004
+
+# BIẾN CỦA LƯỢT NÀY: mật độ checkpoint (mặc định dùng chung là 100 bước).
+checkpoints:
+  every_n_steps: 50
+# BIEN CUA LUOT NAY: so epoch (mac dinh 3 -> 15) VA dung som.
+# `patience` dem LAN DO chu khong dem epoch: every_n_steps 100 => ~3,84 lan/epoch nen patience 24
+# ~ 3 epoch. `min_delta` 0,002 la muc tang toi thieu de tinh la "cai thien" (13/10/2026 moi dung THAT).
+epochs: 15
+early_stop:
+  enabled: true
+  patience: 24
+  min_delta: 0.002
+# BIEN CUA LUOT NAY: hat gieng HUAN LUYEN (`decoding.seed`; mac dinh 42 -> 7). Tren DUONG ENCODER
+# khoa nay CHINH LA HAT GIONG HUAN LUYEN (khoi tao dau phan loai, dropout, xoi tron du lieu), nen day la
+# mot lan RUT THAM DOC LAP - dung luat 12 cua docs/04_experiments/metrics.md.
+decoding:
+  seed: 7
+
+# --- DOT 13.1: B3: nhu B1 nhung giu every_n_steps 50 cua cha (patience 24 vi do ~2 lan/epoch) - nen giu ky luc neg F1 big5 ---
+# B3: nhu B1 nhung giu every_n_steps 50 cua cha (patience 24 vi do ~2 lan/epoch) - nen giu ky luc neg F1 big5
+#
+# VI SAO CO DOT NAY: 7/9 luot encoder dang duoi cong bo o cac o `n` lon, va duong cong train/val cho
+# thay chung con o TREN NGUONG (chua hoi tu) - `val_loss` van giam khi het 3 epoch. Day la truc CHUA
+# TUNG thu: 16 ban dap truoc do deu am.
+#
+# CACH DOC (chot TRUOC khi chay):
+#   * so voi HO `lr 4e-4` da co 12 luot: `Accuracy macro` VA `neg F1 macro (5 khia canh n lon)`;
+#   * < 0,7 diem => DONG HANG (bien nhieu 1 luot); ket luan can Welch voi n = 3 seed;
+#   * da khai O DAU: so epoch THUC CHAY va co dung som nam trong `metrics.json::cost`
+#     (`epoch da chay`, `dung som`) tu 13/10/2026 - `training.epochs` trong cung tep la so DA KHAI.

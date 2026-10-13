@@ -1,0 +1,78 @@
+# Config RIÊNG của một thí nghiệm. Đây là lớp CUỐI khi hợp nhất, nên nó đè được mọi lớp trước
+# (model, repo, task, evaluation, training, tracking). Xem docs/05_config/06_experiment.md.
+#
+# Chỉ khai những gì KHÁC mặc định dùng chung. Khai lại một giá trị y hệt mặc định là che mất
+# nguồn sự thật: người đọc sau không biết sửa file nào mới đúng.
+
+exp_id: exp065
+
+# Thí nghiệm này làm lại từ thí nghiệm nào (đường dẫn đầy đủ `<model>/<method>/<expNNN>`),
+# null nếu là bản gốc. Dùng khi cần đối chiếu với một lần chạy trước.
+parent: cafebert/lora/exp064
+
+model: cafebert
+method: lora
+
+# Mô tả ngắn thí nghiệm này khác gì các thí nghiệm khác.
+notes: "B1 | seed 7 | B1: epochs 15 + dung som tren nen DANG DAN (lr 4e-4, r16) - tra loi 'underfit co that khong' | epochs 15 + early_stop | Cach A: doi epochs doi luon lich lr tuyen tinh nen khong tach duoc"
+
+data:
+  dataset: cosmetics
+  # v0.2.0 là phiên bản dữ liệu ĐANG DÙNG (bản v0.1.0 là bản cũ, giữ làm dấu vết).
+  version: v0.2.0
+
+  # Bắt buộc khai, KHÔNG kế thừa: mỗi vai dùng split nào của chính dataset đó.
+  # `eval: test` để số SO ĐƯỢC với công bố; `val` để chọn `model/best`.
+  roles: {train: train, val: val, eval: test}
+
+# Không có `prompt`: model encoder học từ dữ liệu gán nhãn, không nhận prompt.
+# Bật huấn luyện (lớp dùng chung để `enabled: false`).
+enabled: true
+
+# ĐÚNG MỘT BIẾN so với `exp001`: CƠ CHẾ HỌC của đầu phân loại.
+# `head.trainable: true` = đầu phân loại HỌC cùng adapter, dùng CHUNG `lr` với LoRA (cố ý không có
+# `lr` riêng: một biến mỗi thí nghiệm). Ở mặc định `false`, `peft` đóng băng mọi tham số không phải
+# adapter nên đầu phân loại chỉ là một phép chiếu NGẪU NHIÊN CỐ ĐỊNH: `head.pt` của bốn lượt LoRA đã
+# chạy giống nhau TỪNG BYTE - đó là SỐ ĐO, không phải suy đoán (src/training/lora.py).
+# Dấu vết để kiểm trong `metrics.json`: `trainable_params` phải LỚN HƠN lượt đóng băng đúng bằng số
+# tham số của đầu phân loại = 7 khía cạnh × (1.024 ẩn × 3 mã + 3) = 21.525. (CafeBERT rộng 1.024 ẩn, KHÔNG
+# phải 768: đo được 7.132.181 - 7.110.656 = 21.525.)
+head:
+  trainable: true
+
+# Cùng công thức với `exp001`: `weighted_ce` + `class_weight: inverse` - hướng DUY NHẤT đã chứng minh
+# có tác dụng với lớp âm (PhoBERT 88,40 → 96,62). Giữ nguyên để phép so chỉ còn MỘT biến; đọc kết quả
+# theo CẶP chỉ số (F1 lớp âm VÀ phát hiện khía cạnh), KHÔNG chỉ accuracy.
+loss:
+  type: weighted_ce
+  class_weight: inverse
+
+# Không có `requires_extra`: CafeBERT đọc nguyên bản (`segmenter: none`).
+
+lr: 0.0004
+# BIEN CUA LUOT NAY: so epoch (mac dinh 3 -> 15) VA dung som.
+# `patience` dem LAN DO chu khong dem epoch: every_n_steps 100 => ~3,84 lan/epoch nen patience 12
+# ~ 3 epoch. `min_delta` 0,002 la muc tang toi thieu de tinh la "cai thien" (13/10/2026 moi dung THAT).
+epochs: 15
+early_stop:
+  enabled: true
+  patience: 12
+  min_delta: 0.002
+# BIEN CUA LUOT NAY: hat gieng HUAN LUYEN (`decoding.seed`; mac dinh 42 -> 7). Tren DUONG ENCODER
+# khoa nay CHINH LA HAT GIONG HUAN LUYEN (khoi tao dau phan loai, dropout, xoi tron du lieu), nen day la
+# mot lan RUT THAM DOC LAP - dung luat 12 cua docs/04_experiments/metrics.md.
+decoding:
+  seed: 7
+
+# --- DOT 13.1: B1: epochs 15 + dung som tren nen DANG DAN (lr 4e-4, r16) - tra loi 'underfit co that khong' ---
+# B1: epochs 15 + dung som tren nen DANG DAN (lr 4e-4, r16) - tra loi 'underfit co that khong'
+#
+# VI SAO CO DOT NAY: 7/9 luot encoder dang duoi cong bo o cac o `n` lon, va duong cong train/val cho
+# thay chung con o TREN NGUONG (chua hoi tu) - `val_loss` van giam khi het 3 epoch. Day la truc CHUA
+# TUNG thu: 16 ban dap truoc do deu am.
+#
+# CACH DOC (chot TRUOC khi chay):
+#   * so voi HO `lr 4e-4` da co 12 luot: `Accuracy macro` VA `neg F1 macro (5 khia canh n lon)`;
+#   * < 0,7 diem => DONG HANG (bien nhieu 1 luot); ket luan can Welch voi n = 3 seed;
+#   * da khai O DAU: so epoch THUC CHAY va co dung som nam trong `metrics.json::cost`
+#     (`epoch da chay`, `dung som`) tu 13/10/2026 - `training.epochs` trong cung tep la so DA KHAI.
