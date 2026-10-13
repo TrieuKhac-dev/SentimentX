@@ -154,7 +154,47 @@ cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm
 `(label_space: binary, neutral_policy: drop, not_mentioned: separate)`, cùng phiên bản dữ liệu `v0.2.0`.
 
 
-### Đợt 8 - 4 notebook MỚI trong gói này (016): thứ tự chạy
+### Đợt 13.1 (13/10/2026) - 15 notebook MỚI: chạy MỘT LƯỢT SONG SONG
+
+Gói **035** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp064` … `exp078`), tất cả ghim commit
+**`8f4eb49`**. Chạy được **cả 15 cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính).
+
+**Câu hỏi của đợt:** 7/9 lượt encoder đang dưới công bố ở các ô `n` lớn, và đường cong train/val cho thấy
+chúng còn ở TRÊN ngưỡng (`val_loss` vẫn giảm khi hết 3 epoch). ⇒ **`epochs 15` + dừng sớm** - trục CHƯA
+TỪNG thử (16 bàn đạp trước đều âm). Đây là điểm chung của cả 15 lượt.
+
+| Nhóm | Notebook | Cha | Biến của nhóm | Vì sao |
+| --- | --- | --- | --- | --- |
+| **B1** (3) | `exp064` · `exp065` · `exp066` | `exp015` (lr 4e-4, r16) | `epochs 15` + `early_stop {enabled, patience 12, min_delta 0,002}`, seed **42 · 7 · 13** | nền ĐANG DẪN về `Accuracy`; trả lời "underfit có thật không" |
+| **B2** (3) | `exp067` · `exp068` · `exp069` | `exp021` (lr 4e-4, **r8**) | như B1 | nhánh dẫn đầu thứ hai (giữ `lora.r: 8`) |
+| **B3** (3) | `exp070` · `exp071` · `exp072` | `exp028` (r16, `every_n_steps 50`) | như B1 nhưng `patience 24` (đo ~2 lần/epoch) | nền đang giữ kỷ lục `neg F1` 5 khía cạnh `n` lớn (94,84) |
+| **B4** (3) | `exp073` · `exp074` · `exp075` | **`exp064`** (B1 seed 42) | + `checkpoints.best_metric: neg_f1_big5` | chọn mốc theo ĐÚNG 5 khía cạnh `n` lớn; chỉ số MỚI của Đợt 13.0 |
+| **B5** (3) | `exp076` · `exp077` · `exp078` | **`exp064`** (B1 seed 42) | + `loss.class_weight: inverse_by_aspect` | hồi sinh `exp036` (đang hoãn) trên nền lr 4e-4, nhắm `texture` |
+
+**Dấu vết phải thấy trong mỗi lượt (kiểm trước khi đọc điểm):**
+`training.epochs = 15`, `early_stop.enabled = true`; cuối lượt `metrics.json::cost` có
+`epoch đã chạy` và `dừng sớm` (Đợt 13.0 mới ghi - nếu hai khoá này VẮNG thì bản code chạy là bản cũ).
+Với B3: `training_history.csv` phải có ~2 lần số dòng so với B1. Mỗi lượt ước **~1,5-2,5 h** (15 epoch;
+dừng sớm thì ngắn hơn), nên **cả 15 chạy song song ≈ 2,5-3 h**.
+
+**Luật đọc số (chốt TRƯỚC khi chạy - đừng đổi sau khi thấy `test`):**
+
+- So với **họ `lr 4e-4` đã có 12 lượt** (mean `Accuracy macro` = **98,283**), trên **HAI** trục:
+  `Accuracy macro` **và** `neg F1 (5 khía cạnh n lớn)`.
+- Chênh **< 0,7 điểm** ⇒ ghi **ĐỒNG HẠNG** (biên nhiễu 1 lượt); kết luận "hơn" cần **Welch** với `n = 3`
+  seed của CÙNG một nhánh (đừng so 1 seed với 1 seed).
+- Đọc `num.neg_f1_big5` trong `data/reports/experiment_registry/experiment_registry.csv`; **đừng** dùng
+  `neg F1 macro (7 khía cạnh)` - nó bị `price` (5–6 ô) chi phối (luật 13 của `docs/04_experiments/metrics.md`).
+- **Khai rõ khi báo cáo (Cách A đã chốt):** đổi `epochs` đổi luôn `num_training_steps` của **lịch lr
+  tuyến tính** (`per_epoch × epochs`), nên lượt này KHÔNG tách riêng được "nhiều epoch" với "lịch lr dài
+  hơn". Đây là confound đã biết, không phải sơ suất.
+- `patience` đếm **LẦN ĐO**, không đếm epoch: `every_n_steps 100` ⇒ ~3,84 lần/epoch (B1/B2/B4/B5,
+  `patience 12` ≈ 3 epoch); `every_n_steps 50` ⇒ ~7,7 lần/epoch (B3, `patience 24` ≈ 3 epoch).
+
+**Kế hoạch đọc kết quả:** nhánh nào ĐẠT ⇒ chạy thêm 6 seed (n = 9) rồi báo cáo Welch; KHÔNG nhánh nào đạt
+⇒ **đóng trục `epochs`** với bằng chứng `n = 3`. Chi tiết: `present_plan_batch13.md` (mục C và H).
+
+
 
 Gói **016** mang thêm **bốn** notebook (chúng chưa từng nằm trong gói nào trước đây). Thứ tự dưới đây xếp
 theo **rẻ và mở đường trước**:

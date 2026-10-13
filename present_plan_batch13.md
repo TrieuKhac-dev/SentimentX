@@ -176,6 +176,37 @@ ghim `REPO_SHA` rồi mới gửi gói · `collect_reports.py` sau khi có kết
 đã sửa rồi chạy lại: bản gốc **1120 test cũng lỗi đúng bài đó** (lỗi phụ thuộc thứ tự chạy; chạy riêng bài đó thì OK).
 `python scripts/ci_checks.py` → "Không có việc nào phải sửa."
 
-### 13.1 — chưa chạy
+### 13.1 — ĐÃ TẠO + GHIM (13/10/2026), chờ chạy trên Colab
+
+15 lượt = **5 nhánh × 3 seed**, `cafebert/lora/exp064` … `exp078`, ghim commit **`8f4eb49`**:
+
+| Nhóm | Lượt (seed 42 · 7 · 13) | Cha | Biến của nhóm |
+|---|---|---|---|
+| **B1** | `exp064` · `exp065` · `exp066` | `exp015` (lr 4e-4, r16) | `epochs 15` + `early_stop {enabled, patience 12, min_delta 0,002}` |
+| **B2** | `exp067` · `exp068` · `exp069` | `exp021` (lr 4e-4, r8) | như B1 |
+| **B3** | `exp070` · `exp071` · `exp072` | `exp028` (r16, `every_n_steps 50`) | như B1, `patience 24` (đo ~2 lần/epoch) |
+| **B4** | `exp073` · `exp074` · `exp075` | **`exp064`** (B1 seed 42) | + `checkpoints.best_metric: neg_f1_big5` |
+| **B5** | `exp076` · `exp077` · `exp078` | **`exp064`** (B1 seed 42) | + `loss.class_weight: inverse_by_aspect` |
+
+**Bằng chứng "khác cha ĐÚNG một khoá/nhóm khoá"** — lấy bằng chính bộ nạp config của dự án
+(`_scratch/check_d13.py` in ra `d:\TrieuKhac\Documents\SentimentX\_scratch\d13_check.txt`):
+
+| Lượt | Số khoá khác cha | Khoá khác |
+|---|---|---|
+| `exp064` `exp067` `exp070` | 4 (MỘT nhóm) | `epochs` 3→15 · `early_stop.enabled` · `.patience` · `.min_delta` |
+| các lượt seed 7/13 (10 lượt) | 1 | `decoding.seed` (`null` → 7 / 13) |
+| `exp073` (B4 seed 42) | 1 | `checkpoints.best_metric` `sentiment_f1` → `neg_f1_big5` |
+| `exp076` (B5 seed 42) | 1 | `loss.class_weight` `inverse` → `inverse_by_aspect` |
+
+Mọi lượt giữ: `data.version v0.2.0` · `roles {train,val,test}` · `head.trainable true` · `lr 0.0004` ·
+`max_length 256` · `batch 8 × grad_accum 4`; B3 giữ `every_n_steps 50`, các nhánh khác 100.
+
+Đã làm: tạo config + notebook bằng `scripts/new_experiment.py` (`_scratch/make_d13.py`, có tự-kiểm YAML)
+→ commit `8f4eb49` → **push** → `scripts/pin.py` cả 15 (`REPO_SHA` = `8f4eb49714eee261c60458cb6425fc872d94e97c`)
+→ `ci_checks.py` SẠCH (9/9 mục) → gói bàn giao **035**.
+
+**Bước tiếp (người dùng):** chạy 15 notebook song song trên Colab (~2,5-3 h) → trả kết quả về → chấm
+`collect_reports.py` → đọc theo luật ở mục C (Đợt 13.1) và `handover/README.md`.
+
 
 
