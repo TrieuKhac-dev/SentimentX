@@ -32,6 +32,17 @@ Các mục dưới đây là QUYẾT ĐỊNH đã chốt; việc CHƯA làm nằ
   F1 - không có định nghĩa metric thứ hai.
 - `early_stop.enabled: true` thì dừng khi chỉ số val không tăng quá `min_delta` trong `patience` lần đo
   liên tiếp. CHỈ đường huấn luyện encoder; model prompt không train nên không đụng tới.
+- **13/10/2026, hai lỗ hổng của chính cơ chế này đã đóng** (Đợt 13.0):
+  (a) `early_stop.min_delta` **chưa từng được dùng** - code chỉ so `value > mốc cũ`, nên `val` nhiễu cỡ
+  0,02-0,07 làm một lần nhích 0,0001 cũng reset con đếm `stale` và `enabled: true` **không bao giờ dừng**;
+  nay phép so nằm ở `lora.is_improved` và dùng cho CẢ `model/best` lẫn con đếm dừng sớm.
+  (b) số epoch THỰC CHẠY và cờ dừng sớm chỉ nằm trong câu `run.log`; nay ghi vào `metrics.json::cost`
+  (`epoch đã chạy`, `dừng sớm`) - `training.epochs` trong cùng tệp là số ĐÃ KHAI, không phải số đã chạy.
+  Thêm `checkpoints.best_metric: neg_f1_big5` = TB F1 lớp âm trên **5 khía cạnh `n` lớn** (`lora.neg_f1_big5_of`):
+  chọn mốc theo ĐÚNG nhóm khía cạnh còn yếu, thay vì `sentiment_f1`/`negative_f1` vốn bị `price`/`packing` chi phối.
+  Thêm một điều dễ hiểu nhầm (đo 13/10/2026): `early_stop.patience` đếm **LẦN ĐO**, không đếm epoch -
+  `checkpoints.every_n_steps: 100` cho ~3,8 lần đo/epoch trên bộ này, nên `patience: 12` ≈ 3 epoch.
+
 
 ### Hai mục đích, HAI cơ sở đo (đừng lẫn)
 

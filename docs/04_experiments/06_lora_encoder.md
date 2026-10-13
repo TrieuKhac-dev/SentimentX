@@ -183,10 +183,18 @@ ngay sau mỗi lần lưu.
   - **Cảnh báo đo được**: `val` có **0 ô** `price` âm (train 15, test 6) nên **không thể dò ngưỡng cho
     `price`** trên `val`; xem `08_experiment_rationale.md` §7.
 - **`val` đo bằng ĐÚNG engine của `test`** (`src/evaluation/scorers`), nên `val` có đủ
-  `sentiment_precision/recall/f1`, `detection_f1`, `accuracy_cell`, `loss` - không có định nghĩa metric
-  thứ hai. Nhờ vậy đổi hàm chấm điểm là đổi cho cả `val` lẫn `test`.
+  `sentiment_precision/recall/f1`, `detection_f1`, `accuracy_cell`, `negative_f1`, `neg_f1_big5`,
+  `loss` - không có định nghĩa metric thứ hai. Nhờ vậy đổi hàm chấm điểm là đổi cho cả `val` lẫn `test`.
+  **13/10/2026** thêm `neg_f1_big5` = TB F1 lớp âm trên **5 khía cạnh `n` lớn** (`colour`, `shipping`,
+  `smell`, `stayingpower`, `texture`; xem `lora.neg_f1_big5_of`): thước này không bị `price` (~5-6 ô âm)
+  và `packing` (~9-10 ô) chi phối như `sentiment_f1` (trung bình 14 cặp) và `negative_f1` (gộp 7 khía
+  cạnh) - luật 13 của `docs/04_experiments/metrics.md`.
 - **Dừng sớm** (`early_stop.enabled: true`): khi chỉ số best không tăng quá `min_delta` trong `patience`
-  lần đo liên tiếp thì dừng, ghi `dừng sớm ...` vào `run.log`.
+  lần đo liên tiếp thì dừng, ghi `dừng sớm ...` vào `run.log`. Từ **13/10/2026** `min_delta` được DÙNG
+  THẬT (`lora.is_improved`): bản trước chỉ so `value > mốc cũ`, nên với `val` nhiễu cỡ 0,02-0,07 thì một
+  lần nhích 0,0001 cũng reset con đếm và `enabled: true` **không bao giờ dừng**. Số epoch THỰC CHẠY và cờ
+  dừng sớm ghi vào `metrics.json::cost` (`epoch đã chạy`, `dừng sớm`), không chỉ nằm trong `run.log`.
+
 - **Lịch sử huấn luyện** ghi ra `training_history.csv` (một điểm đo mỗi dòng: `kind=step` hoặc
   `kind=epoch`, kèm loss train/val và P/R/F1), và biểu đồ cho người đọc ghi ra `plots/training.html`
   (plotly + jinja2). Tắt biểu đồ bằng `save.plots: false`. Vẽ biểu đồ là **best-effort**: thiếu

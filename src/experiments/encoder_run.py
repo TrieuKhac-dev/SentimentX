@@ -559,6 +559,14 @@ def run(plan_data, log=None):
             utils.rel(prob_path), len(plan_data["texts"]) * len(plan_data["aspects"]),
             len(plan_data["texts"]), len(plan_data["aspects"])))
         cost = {"giây": report["seconds"], "token sinh TB": None, "token sinh/giây": None,
-                "huấn luyện giây": report["seconds"], "số bước": report["steps"]}
+                "huấn luyện giây": report["seconds"], "số bước": report["steps"],
+                # Số epoch THỰC CHẠY + cờ dừng sớm: `training.epochs` trong cùng tệp là số ĐÃ KHAI, nên
+                # thiếu hai khoá này thì bản ghi không cho biết lượt chạy đi bao nhiêu vòng (13/10/2026).
+                "epoch đã chạy": report.get("epochs_run"), "dừng sớm": report.get("stopped_early")}
+        if report.get("stopped_early"):
+            log.step("dừng sớm ở epoch {} (đã khai {}) - dừng vì chỉ số chọn `model/best` không tăng "
+                     "quá `min_delta` trong `patience` lần đo liên tiếp".format(
+                         report.get("epochs_run"), report.get("epochs")))
         return experiment_run.finish(plan_data, rows, cost, device_info(report),
                                      plan_data["info"], session, log)
+

@@ -542,6 +542,27 @@ class EarlyStopSettingsTest(unittest.TestCase):
                          {"enabled": True, "patience": 3, "min_delta": 0.01})
 
 
+class EarlyStopImprovementTest(unittest.TestCase):
+    """13/10/2026: `min_delta` phải DÙNG THẬT, không chỉ nằm trong câu log.
+
+    Bản trước chỉ so `value > mốc cũ`; mỗi lần đo `val` đã nhiễu cỡ 0,02-0,07 nên một lần nhích
+    0,0001 cũng reset con đếm `stale`, và `early_stop.enabled: true` KHÔNG BAO GIỜ dừng.
+    """
+
+    def test_chua_co_moc_thi_luon_la_cai_thien(self):
+        self.assertTrue(lora.is_improved(0.1, None, 0.002))
+
+    def test_nhich_nho_hon_min_delta_KHONG_tinh_la_cai_thien(self):
+        self.assertFalse(lora.is_improved(0.5001, 0.5, 0.002))
+
+    def test_vuot_min_delta_thi_tinh_la_cai_thien(self):
+        self.assertTrue(lora.is_improved(0.61, 0.4, 0.2))
+
+    def test_khong_tang_thi_khong_cai_thien(self):
+        """`min_delta: 0.0` giữ nguyên hành vi cũ: hoà điểm KHÔNG phải là cải thiện."""
+        self.assertFalse(lora.is_improved(0.5, 0.5, 0.0))
+
+
 class _FakeSamples:
     """`Samples` giả: chỉ cần `per_sentiment()` để kiểm cách ĐỌC số, không cần torch."""
 
@@ -583,6 +604,48 @@ class BestMetricTest(unittest.TestCase):
     def test_negative_f1_la_None_khi_bang_nhan_khong_co_lop_am(self):
         samples = _FakeSamples({"totals": {2: {"f1": 0.5, "support": 10}}})
         self.assertIsNone(lora.negative_f1_of(samples, {0: "", 1: "positive", 3: "neutral"}))
+
+    def test_neg_f1_big5_is_selectable(self):
+        """13/10/2026: `neg_f1_big5` là lựa chọn hợp lệ cho `model/best` (tối ưu 5 khía cạnh `n` lớn)."""
+        self.assertIn("neg_f1_big5", lora.MEASURED_METRICS)
+        config = {"checkpoints": dict(BASE_CONFIG["checkpoints"], best_metric="neg_f1_big5")}
+        self.assertEqual(checkpoints.settings(config)["best_metric"], "neg_f1_big5")
+
+    def test_neg_f1_big5_chi_lay_5_khia_canh_n_lon(self):
+        """BỎ khía cạnh không có ô âm chứ không tính 0, và KHÔNG lấy `price`/`packing`.
+
+        `price` cố tình đặt F1 rất thấp: nó phải KHÔNG xuất hiện trong kết quả, nếu lọt vào thì số
+        chọn `model/best` lại bị đúng cái khía cạnh ~5 ô chi phối (luật 13).
+        """
+        samples = _FakeSamples({"by_aspect": {
+            "colour": {2: {"f1": 0.9, "support": 54}},
+            "texture": {2: {"f1": 0.8, "support": 83}},
+            "price": {2: {"f1": 0.0, "support": 5}},
+            "packing": {2: {"f1": 0.1, "support": 9}},
+            # `smell` KHÔNG có ô âm trong tập này -> bị bỏ, không tính là 0
+            "smell": {2: {"f1": 0.0, "support": 0}},
+        }})
+        self.assertEqual(lora.neg_f1_big5_of(samples, {1: "positive", 2: "negative"}), 0.85)
+
+    def test_neg_f1_big5_la_None_khi_khong_khia_canh_nao_co_o_am(self):
+        samples = _FakeSamples({"by_aspect": {"colour": {2: {"f1": 0.0, "support": 0}}}})
+        self.assertIsNone(lora.neg_f1_big5_of(samples, {1: "positive", 2: "negative"}))
+
+    def test_neg_f1_big5_la_None_khi_bang_nhan_khong_co_lop_am(self):
+        samples = _FakeSamples({"by_aspect": {"colour": {2: {"f1": 0.9, "support": 54}}}})
+        self.assertIsNone(lora.neg_f1_big5_of(samples, {0: "", 1: "positive", 3: "neutral"}))
+
+    def test_big_aspects_trung_voi_bang_tong_hop(self):
+        """Hai nơi khai CÙNG một nhóm khía cạnh, nên phải canh lệch bằng test.
+
+        `lora.BIG_ASPECTS` dùng để chọn `model/best` trên `val`; `reports.NEG_BIG_ASPECTS` dùng để
+        tính cột `neg_f1_big5` của bảng tổng hợp. Lệch nhau là số chọn mốc và số báo cáo nói về hai
+        nhóm khác nhau mà không ai thấy.
+        """
+        from src.reporting import reports
+
+        self.assertEqual(lora.BIG_ASPECTS, reports.NEG_BIG_ASPECTS)
+
 
 
 class LossSettingsTest(unittest.TestCase):

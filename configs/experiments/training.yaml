@@ -56,7 +56,12 @@ checkpoints:
   # Thêm 12/10/2026: `negative_f1` = F1 lớp ÂM **gộp mọi khía cạnh** (xem `lora.negative_f1_of`) -
   # dùng khi muốn `model/best` tối ưu cho RIÊNG lớp âm, lớp duy nhất còn yếu ở mọi lượt. Đo không ra
   # chỉ số đã khai thì lượt chạy DỪNG NGAY, không chạy tiếp rồi mất `model/best` trong im lặng.
+  # Thêm 13/10/2026: `neg_f1_big5` = TB F1 lớp âm trên **5 khía cạnh `n` LỚN** (xem
+  # `lora.neg_f1_big5_of`). Dùng khi muốn `model/best` tối ưu cho ĐÚNG nhóm khía cạnh còn yếu: cả
+  # `sentiment_f1` (trung bình 14 cặp) lẫn `negative_f1` (gộp 7 khía cạnh) đều bị `price` (~5-6 ô âm)
+  # và `packing` (~9-10 ô) chi phối - luật 13 của docs/04_experiments/metrics.md.
   best_metric: sentiment_f1
+
 
 # Hàm mất mát. `ce` = cross-entropy thường. `weighted_ce` = nhân TRỌNG SỐ LỚP (chống mất cân bằng:
 # lớp hiếm được đẩy trọng số lên). Xem docs/04_experiments/06_lora_encoder.md.
@@ -70,6 +75,12 @@ loss:
 # `metric` dùng chính `checkpoints.best_metric` (một chỗ khai, không lặp).
 early_stop:
   enabled: false
-  # Số lần đo val liên tiếp không tăng quá `min_delta` thì dừng.
+  # Số lần đo val liên tiếp không tăng quá `min_delta` thì dừng. Đếm LẦN ĐO chứ không đếm epoch:
+  # `checkpoints.every_n_steps: 100` cho ~3,8 lần đo/epoch trên bộ này, nên `patience: 12` ≈ 3 epoch.
   patience: 5
+  # Mức tăng TỐI THIỂU để tính là "cải thiện" - dùng THẬT cho cả `model/best` lẫn con đếm dừng sớm
+  # (`lora.is_improved`), từ 13/10/2026. Trước đó code chỉ so `value > mốc cũ`, nên với val nhiễu cỡ
+  # 0,02-0,07 thì một lần nhích 0,0001 cũng reset con đếm và `enabled: true` KHÔNG BAO GIỜ dừng.
+  # Đặt 0.0 là giữ nguyên hành vi cũ (mọi nhích nhỏ nhất đều tính).
   min_delta: 0.0
+

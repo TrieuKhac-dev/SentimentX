@@ -62,3 +62,9 @@ nbformat
 # lí do vào run.log.
 mlflow
 
+# --- Tìm siêu tham số bằng Optuna (Đợt 13; chạy ở MÁY CÁ NHÂN, không chạy trên Colab) ---
+# KHÔNG nằm trong requirements-ci.txt: chỉ script HPO dùng, và `src/` import nó BÊN TRONG hàm nên CI
+# không cần cài (xem docs/00_workflow/03_ci.md).
+optuna
+
+

@@ -712,6 +712,37 @@ def negative_f1_of(samples, labels):
     return round(float(totals.get("f1") or 0.0), 6)
 
 
+# NĂM khía cạnh có NHIỀU Ô ÂM NHẤT trên `test` (`colour` 54 · `shipping` 172 · `smell` 48 ·
+# `stayingpower` 95 · `texture` 83 - đo 12/10/2026). Trùng `reports.NEG_BIG_ASPECTS`; có test canh
+# lệch (`tests/training/test_training.py`), vì hai bên phải nói về CÙNG một nhóm khía cạnh.
+BIG_ASPECTS = ("colour", "shipping", "smell", "stayingpower", "texture")
+
+
+def neg_f1_big5_of(samples, labels, aspects=BIG_ASPECTS):
+    """TB F1 lớp ÂM trên 5 khía cạnh `n` LỚN - chỉ số để chọn `model/best` theo ĐÚNG đích.
+
+    Vì sao cần thước thứ ba ngoài `sentiment_f1` và `negative_f1`: `sentiment_f1` là trung bình trên
+    cả 14 cặp (khía cạnh, sắc thái), còn `negative_f1` GỘP cả 7 khía cạnh - CẢ HAI đều bị hai khía
+    cạnh tí hon chi phối (`price` ~5-6 ô âm, `packing` ~9-10 ô), nên 1-2 ô đảo chiều làm số nhảy cỡ
+    0,09 (luật 13 của docs/04_experiments/metrics.md). Thước này chỉ lấy 5 khía cạnh `n` lớn.
+
+    Cùng định nghĩa với cột `neg_f1_big5` của bảng tổng hợp (`reports.negative_f1_of_aspects`): lấy
+    TRUNG BÌNH F1 của những khía cạnh CÓ ô âm, khía cạnh không có ô âm bị BỎ chứ không tính là 0 -
+    "F1 = 0 vì không có gì để bắt" là chuyện của thước đo, không phải của model. Trả `None` khi bảng
+    nhãn không có lớp `negative`, hoặc khi không khía cạnh nào trong nhóm có ô âm.
+    """
+    code = negative_code(labels)
+    if code is None:
+        return None
+    by_aspect = (samples.per_sentiment() or {}).get("by_aspect") or {}
+    found = []
+    for name in aspects:
+        item = (by_aspect.get(name) or {}).get(code) or {}
+        if item.get("support"):
+            found.append(float(item.get("f1") or 0.0))
+    return round(sum(found) / len(found), 6) if found else None
+
+
 def measure(model, module, data, found, codes, device, aspects, task, labels):
     """Đo `val` bằng ĐÚNG engine chấm điểm của lượt chạy (`src/evaluation/scorers`).
 
@@ -773,6 +804,9 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
         # F1 lớp âm GỘP mọi khía cạnh: lựa chọn cho `checkpoints.best_metric` khi muốn `model/best`
         # tối ưu cho lớp âm (xem `negative_f1_of`).
         "negative_f1": negative_f1_of(samples, labels),
+        # TB F1 lớp âm trên 5 khía cạnh `n` lớn: lựa chọn cho `checkpoints.best_metric` khi muốn
+        # `model/best` tối ưu cho ĐÚNG nhóm khía cạnh còn yếu (xem `neg_f1_big5_of`).
+        "neg_f1_big5": neg_f1_big5_of(samples, labels),
         "cells": accuracy["cells"],
         "correct": accuracy["correct"],
     }
@@ -783,8 +817,11 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
 # Chỉ số mà `measure()` có thể tính - `checkpoints.best_metric` phải nằm trong đây.
 # `negative_f1` là F1 lớp âm GỘP mọi khía cạnh (xem `negative_f1_of`): chọn checkpoint tối ưu cho lớp
 # âm, thay vì `sentiment_f1` (trung bình 3 lớp) vốn bị lớp trội chi phối.
+# Thêm 13/10/2026: `neg_f1_big5` = TB F1 lớp âm trên 5 khía cạnh `n` LỚN (xem `neg_f1_big5_of`) -
+# thước thứ ba, không bị `price`/`packing` chi phối như hai thước trên.
 MEASURED_METRICS = ("accuracy_cell", "accuracy_macro", "sentiment_f1", "sentiment_precision",
-                    "sentiment_recall", "detection_f1", "negative_f1", "loss")
+                    "sentiment_recall", "detection_f1", "negative_f1", "neg_f1_big5", "loss")
+
 
 
 def early_settings(config):
@@ -800,6 +837,21 @@ def early_settings(config):
             "`early_stop.patience` phải >= 1 (đang là {}). Khai ở configs/experiments/training.yaml."
             .format(found["patience"]))
     return found
+
+
+def is_improved(value, previous, min_delta):
+    """`value` có TỐT HƠN mốc cũ `previous` một khoảng `min_delta` hay không (`previous=None` = chưa có mốc).
+
+    VÌ SAO PHẢI LÀ MỘT HÀM RIÊNG: `early_stop.min_delta` đã khai trong config từ đầu nhưng bản trước
+    CHỈ so `value > previous`, nên `min_delta` chỉ xuất hiện trong CÂU LOG mà không ai dùng. Hệ quả
+    đo được: mỗi lần đo `val` đã nhiễu cỡ 0,02-0,07 (`docs/04_experiments/metrics.md`), nên một lần
+    nhích 0,0001 cũng tính là "tốt hơn", `stale` bị reset liên tục và `early_stop` KHÔNG BAO GIỜ chạy
+    dù `enabled: true`. Tách ra hàm để test được đúng phép so, thay vì chỉ test được qua cả vòng lặp.
+    """
+    if previous is None:
+        return True
+    return float(value) > float(previous) + float(min_delta)
+
 
 
 def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42,
@@ -947,6 +999,10 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
     pending = 0
     epoch_loss_sum, epoch_weight = 0.0, 0.0
     stale, stopped_early = 0, False
+    # Số epoch đã chạy XONG (kể cả phần chạy tiếp của lượt trước). Cần con số này vì dừng sớm làm nó
+    # nhỏ hơn `settings.epochs` mà `metrics.json` chỉ có `epochs` ĐÃ KHAI: đọc lại bản ghi không biết
+    # lượt chạy thật sự đi bao nhiêu vòng, và "dừng sớm" chỉ nằm trong câu log.
+    epochs_run = start_epoch
     patience, min_delta = early["patience"], early["min_delta"]
 
     def record(epoch_done, metrics, snapshot):
@@ -954,6 +1010,10 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
 
         Metric do config quyết định (không hardcode): mặc định `sentiment_f1` (macro-F1 sắc thái) vì
         `accuracy_cell` bị lớp trội chi phối khi dữ liệu mất cân bằng.
+
+        "TỐT HƠN" là `is_improved`: phải vượt mốc cũ một khoảng `early_stop.min_delta` (mặc định 0,0
+        nên giữ nguyên hành vi cũ). Cùng phép so này dùng cho cả `model/best` lẫn con đếm `stale` của
+        dừng sớm - hai chỗ KHÔNG được hiểu "cải thiện" theo hai cách khác nhau.
         """
         nonlocal best
         improved = False
@@ -969,7 +1029,8 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
                     ", ".join(sorted(name for name in metrics if metrics[name] is not None)) or "(không có)",
                     ", ".join(MEASURED_METRICS)))
         if value is not None:
-            improved = best is None or value > float(best.get(metric) or -1)
+            improved = is_improved(value, None if best is None else best.get(metric), min_delta)
+
             if improved:
                 best = {"epoch": epoch_done, "step": step, "metric": metric, **metrics}
                 if policy["save_best"]:
@@ -1075,6 +1136,7 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
             print("  " + note)
             if log is not None:
                 log.step(note)
+        epochs_run = epoch + 1
         if stopped_early:
             break
 
@@ -1098,10 +1160,14 @@ def fit_generic(config, model_id, out_dir, train, val, aspects, codes, fingerpri
             log.warn(message)
     return {"device": device, "dtype": found["dtype_used"], "quantization": found["quantization"],
             "steps": step, "epochs": found["epochs"], "seconds": seconds,
+            # Số epoch THỰC CHẠY và cờ dừng sớm: `epochs` ở trên là số ĐÃ KHAI trong config, nên hai
+            # khoá này mới là thứ cho biết lượt chạy đi bao nhiêu vòng và vì sao dừng (13/10/2026).
+            "epochs_run": epochs_run, "stopped_early": stopped_early,
             "trainable_params": trainable, "total_params": total, "best": best,
             "history": history, "settings": found, "head_config": head_config,
             "last_dir": str(store.last_dir()),
             "best_dir": (str(store.best_dir()) if store.best_dir().is_dir() else None)}
+
 
 
 def fit(config, model_id, out_dir, train, val, aspects, codes, fingerprint, seed=42, source=None,

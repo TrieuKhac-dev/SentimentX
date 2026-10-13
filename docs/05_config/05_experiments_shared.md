@@ -56,10 +56,11 @@ Pipeline giữ nguyên bốn trạng thái.
 | `checkpoints.save_last`                                       | lưu `model/last` đủ để chạy tiếp                                                        |
 | `checkpoints.save_best`                                       | lưu `model/best` theo chỉ số trên `val`                                                 |
 | `checkpoints.delete_intermediate`                             | xoá ngay các `checkpoint-*` trung gian sau mỗi lần lưu, để tiết kiệm Drive              |
-| `checkpoints.best_metric`                                     | chỉ số để chọn `model/best` và để dừng sớm; phải là một khoá trong kết quả đo val của trainer (`accuracy_cell`, `sentiment_f1`, `sentiment_precision`, `sentiment_recall`, `detection_f1`, `loss`, ...). Mặc định dự án dùng `sentiment_f1` (macro-F1 sắc thái) vì dữ liệu MẤT CÂN BẰNG |
+| `checkpoints.best_metric`                                     | chỉ số để chọn `model/best` và để dừng sớm; phải là một khoá trong kết quả đo val của trainer (`accuracy_cell`, `accuracy_macro`, `sentiment_f1`, `sentiment_precision`, `sentiment_recall`, `detection_f1`, `negative_f1`, `neg_f1_big5`, `loss`). Mặc định dự án dùng `sentiment_f1` (macro-F1 sắc thái) vì dữ liệu MẤT CÂN BẰNG. **13/10/2026** thêm `neg_f1_big5` = TB F1 lớp âm trên **5 khía cạnh `n` lớn** - dùng khi muốn `model/best` tối ưu cho ĐÚNG nhóm khía cạnh còn yếu (`sentiment_f1` trung bình 14 cặp và `negative_f1` gộp 7 khía cạnh đều bị `price`/`packing` chi phối) |
 | `early_stop.enabled`                                          | `true` thì dừng sớm khi chỉ số `checkpoints.best_metric` không còn cải thiện. CHỈ đường huấn luyện encoder |
-| `early_stop.patience`                                         | số lần đo val LIÊN TIẾP không cải thiện thì dừng (>= 1)                                  |
-| `early_stop.min_delta`                                        | mức cải thiện tối thiểu để tính là "có cải thiện"                                        |
+| `early_stop.patience`                                         | số lần ĐO val LIÊN TIẾP không cải thiện thì dừng (>= 1). Đếm **lần đo**, không đếm epoch: `checkpoints.every_n_steps: 100` cho ~3,8 lần đo/epoch trên bộ này, nên `patience: 12` ≈ 3 epoch |
+| `early_stop.min_delta`                                        | mức cải thiện tối thiểu để tính là "có cải thiện" - dùng cho CẢ `model/best` lẫn con đếm dừng sớm (`lora.is_improved`, 13/10/2026). `0.0` = mọi nhích nhỏ nhất đều tính (hành vi cũ) |
+
 | `loss.type`                                                   | `ce` (cross-entropy) hoặc `weighted_ce` (nhân trọng số lớp). Đổi giá trị này đổi `config_sha256` nên ra THƯ MỤC KẾT QUẢ MỚI |
 | `loss.class_weight`                                           | `none` hoặc `inverse`; `inverse` = trọng số nghịch đảo tần suất (chuẩn hoá trung bình 1) tính trên ô ĐƯỢC TÍNH của tập train. `weighted_ce` bắt buộc đi kèm `inverse` |
 
