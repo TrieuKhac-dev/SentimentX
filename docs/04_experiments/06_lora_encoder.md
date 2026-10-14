@@ -223,6 +223,30 @@ ngay sau mỗi lần lưu.
   (`loss.type`), không thêm khoá mới.
 - Đổi loss/hàm huấn luyện đổi `config_sha256` nên ra thư mục kết quả MỚI.
 
+### Đo thật thước CHỌN MỐC (Đợt 13.1, 15 lượt, mốc 14/10/2026)
+
+Người dùng chốt đích: tăng `Accuracy macro` **và** `neg F1 (5 khía cạnh `n` lớn)` mà không mất cái nào.
+Đợt 13.1 chạy 5 nhánh × 3 seed (`exp064`–`exp078`), mỗi nhánh khác nhánh cha ĐÚNG một khoá/nhóm khoá.
+Số trên `test`, cơ sở `paper`, so với họ 12 lượt `lr 4e-4` (**98,283** · **94,377**):
+
+| Nhánh | `Accuracy macro` (Δ) | `neg F1 (5n)` (Δ) | Welch p (Acc / F1) | Kết luận |
+|---|---:|---:|---|---|
+| **`checkpoints.best_metric: neg_f1_big5`** | **98,523** (+0,240) | **95,160** (+0,783) | **9,5e-06 / 0,0086** | ✅ GIỮ - bàn đạp thứ 17 |
+| `epochs 15` + dừng sớm (đối chứng) | 98,170 (−0,113) | 93,867 (−0,510) | 0,251 / 0,217 | ⛔ ĐÓNG trục `epochs` |
+| `every_n_steps 50` + `patience 24` | 97,907 (−0,377) | 93,180 (−1,197) | 0,368 / 0,371 | ⛔ đóng |
+| `loss.class_weight: inverse_by_aspect` | 97,713 (−0,570) | 92,147 (−2,230) | 0,140 / 0,106 | ⛔ đóng vĩnh viễn |
+| `lora.r 8` + `epochs 15` | 97,830 (−0,453) | 92,920 (−1,457) | 0,0058 / 0,0041 | ❌ âm có ý nghĩa |
+
+Hai điều rút ra, phải nhớ khi đọc số của đường encoder:
+
+- **Số epoch KHÔNG còn là trục đáng thử:** dừng sớm tự kích hoạt ở mọi lượt (epoch thực chạy 4–15; nhánh
+  đối chứng dừng ở epoch 6), `val` đạt đỉnh ở **epoch 3–6** (`exp074`: epoch 4) ⇒ 15 epoch không bao giờ
+  hơn 3 epoch. Bộ này bão hoà sau ~2.400 ô; đừng mở lại trục này mà không có bằng chứng mới.
+- **Thước chọn mốc là một NÚM P/R:** lớp âm trên 5 khía cạnh `n` lớn đổi **P +4,0…+5,6** nhưng
+  **R −2,4…−2,7** (lớp dương thì R **tăng** +0,7…+1,0). Vì vậy kết luận "tăng F1" phải khai kèm P và R
+  (luật 16 của `docs/04_experiments/metrics.md`), và muốn kéo Recall âm lên thì phải thêm một thước thiên
+  Recall (`neg_recall_big5`, Đợt 13.2 - xem `docs/06_plan/P9_batch13.md`).
+
 ### Kết quả hai hàm mất mát (số đo thật, bốn lượt LoRA)
 
 | Lượt | Model | acc TB khía cạnh | F1 sắc thái macro | F1 âm `colour` | F1 âm `packing` | F1 âm `stayingpower` | phát hiện khía cạnh (F1 macro) | số ô |
