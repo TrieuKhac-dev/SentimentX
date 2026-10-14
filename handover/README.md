@@ -159,6 +159,15 @@ cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm
 Gói **035** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp064` … `exp078`), tất cả ghim commit
 **`8f4eb49`**. Chạy được **cả 15 cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính).
 
+> ✅ **KẾT QUẢ ĐÃ VỀ (14/10/2026): 15/15 lượt `FINISHED`.** Nhánh **B4** (`checkpoints.best_metric:
+> neg_f1_big5`) là **bàn đạp thứ 17** - thắng ở CẢ HAI trục: **98,523** (+0,240) và **95,160** (+0,783) so
+> với họ 12 lượt (98,283 · 94,377); Welch `p = 9,5e-06 / 0,0086`; cả 3 lượt đều vượt trần của họ.
+> Trục `epochs` **đã đóng** (dừng sớm tự kích hoạt ở epoch 4–6; 15 epoch không hơn 3 epoch).
+> Bảng đầy đủ theo nhánh + số từng khía cạnh P/R/F: **`docs/06_plan/P9_batch13.md` mục 2.2**.
+>
+> **Gói TIẾP THEO = 036 (Đợt 13.2, 15 notebook `exp079`…`exp093`)** - việc còn lại, cách tạo/ghim/đóng gói và
+> luật đọc số đã chốt trước: **`docs/06_plan/P9_batch13.md`**.
+
 **Câu hỏi của đợt:** 7/9 lượt encoder đang dưới công bố ở các ô `n` lớn, và đường cong train/val cho thấy
 chúng còn ở TRÊN ngưỡng (`val_loss` vẫn giảm khi hết 3 epoch). ⇒ **`epochs 15` + dừng sớm** - trục CHƯA
 TỪNG thử (16 bàn đạp trước đều âm). Đây là điểm chung của cả 15 lượt.

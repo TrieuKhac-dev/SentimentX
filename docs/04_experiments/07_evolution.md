@@ -42,6 +42,35 @@ Các mục dưới đây là QUYẾT ĐỊNH đã chốt; việc CHƯA làm nằ
   chọn mốc theo ĐÚNG nhóm khía cạnh còn yếu, thay vì `sentiment_f1`/`negative_f1` vốn bị `price`/`packing` chi phối.
   Thêm một điều dễ hiểu nhầm (đo 13/10/2026): `early_stop.patience` đếm **LẦN ĐO**, không đếm epoch -
   `checkpoints.every_n_steps: 100` cho ~3,8 lần đo/epoch trên bộ này, nên `patience: 12` ≈ 3 epoch.
+- **14/10/2026, ĐÃ ĐO (Đợt 13.1, 15 lượt `exp064`–`exp078`, 5 nhánh × 3 seed `42 · 7 · 13`):**
+  **giả thuyết "underfit, cần nhiều epoch" SAI** và **thước chọn mốc là bàn đạp THẬT**. Số trên `test`,
+  cơ sở `paper`, so với họ 12 lượt `lr 4e-4` (**98,283** · **94,377**):
+
+  | Nhánh (khác cha ĐÚNG một khoá/nhóm khoá) | Acc macro | Δ | `neg F1 (5n)` | Δ | Welch p |
+  |---|---:|---:|---:|---:|---|
+  | **`best_metric: neg_f1_big5`** | **98,523** | **+0,240** | **95,160** | **+0,783** | **9,5e-06 / 0,0086** |
+  | `epochs 15` + early stop (đối chứng) | 98,170 | −0,113 | 93,867 | −0,510 | 0,251 / 0,217 |
+  | `every_n_steps 50` + `patience 24` | 97,907 | −0,377 | 93,180 | −1,197 | 0,368 / 0,371 |
+  | `class_weight: inverse_by_aspect` | 97,713 | −0,570 | 92,147 | −2,230 | 0,140 / 0,106 |
+  | `lora.r 8` + `epochs 15` | 97,830 | −0,453 | 92,920 | −1,457 | 0,0058 / 0,0041 |
+
+  - **Đóng trục `epochs`:** dừng sớm tự kích hoạt ở MỌI lượt (epoch thực chạy 4–15; B1 dừng ở epoch 6,
+    B5 ở epoch 4), val đạt đỉnh ở epoch 3–6 (`exp064`: `sentiment_f1` đỉnh epoch 3, `accuracy_macro` epoch 5;
+    `exp074`: epoch 4) ⇒ 15 epoch **không bao giờ** hơn 3 epoch. Vì vậy ràng buộc "lịch lr tuyến tính dài
+    hơn theo số epoch" cũng không cần gỡ: cả hai cách đọc đều cho "không hơn".
+  - **Mở bàn đạp thứ 17 = thước CHỌN MỐC:** chỉ đổi `checkpoints.best_metric` mà **cả 3 lượt vượt TRẦN**
+    của họ 12 lượt ở **cả hai** trục (hoán vị `1/C(15,3) ≈ 0,0022`); ghép cặp cùng seed (chỉ khác khoá đó)
+    **+0,353 Acc / +1,293 F1**, `ttest_rel` p = 0,0459 / 0,0649; sd của nhánh này chỉ **0,025 / 0,251**
+    (họ: 0,107 / 0,387) - cấu hình ỔN ĐỊNH NHẤT từng đo.
+  - **Thước chọn mốc là một NÚM P/R (đo được, không phải suy đoán):** lớp âm trên 5 khía cạnh `n` lớn đổi
+    **P +4,0…+5,6** nhưng **R −2,4…−2,7** (lớp dương thì R **tăng** +0,7…+1,0). ⇒ `sentiment_f1` cho cấu
+    hình thiên Recall, `neg_f1_big5` cho cấu hình thiên Precision. Hệ quả cho Bảng ĐÍCH: `texture` âm P
+    92,8 → **96,7** (khoảng cách với công bố −4,8 → −3,3) nhưng **Đích #2 (Recall âm `smell`/`shipping`)
+    XA THÊM** ⇒ muốn kéo Recall phải thêm một thước thiên Recall (`neg_recall_big5`, Đợt 13.2).
+  - **Phải khai:** mốc được chọn TRÊN `val` bằng chính thước `neg_f1_big5` ⇒ phần thắng ở `neg F1` có yếu tố
+    "được chọn"; kết luận phải dựa trên n = 9 + ghép cặp (Đợt 13.2), không phải trên 3 lượt này.
+  - Chi tiết thi hành phần còn lại của đợt: `docs/06_plan/P9_batch13.md`; nhật ký: `present_plan_batch13.md`.
+
 
 
 ### Hai mục đích, HAI cơ sở đo (đừng lẫn)
@@ -285,3 +314,43 @@ SÁU BƯỚC KẾT HỢP (không chạy model; đọc lại các lượt đã c�
 | **Biểu quyết 3 mẫu** | **CHƯA chạy** - cần `exp018`/`exp019`/`exp020` (đợt 8) | chưa có gì để đọc |
 | **Router theo khía cạnh** (mới, `scripts/ensemble_aspect.py`) - chốt trên `val` BA lần: **2** ứng viên (06/10) → **6** ứng viên đầu đóng băng (07/10) → **6** ứng viên có MỘT lượt đầu HỌC (`cafebert/lora/exp006` val &#8596; `exp002` test, 07/10) | lần BA trên `test`: router **97,86** (`accuracy`) và 97,56 (`f1_âm`, F1 âm macro **0,857**); lượt đơn tốt nhất **97,89**; trần chọn-theo-khía-cạnh **97,8871** | **Router KHÔNG vượt lượt đơn tốt nhất (−0,03) và trần trên `test` nay ~0,00**: thứ nâng điểm là **ỨNG VIÊN** (97,63 → 97,89), KHÔNG phải việc định tuyến; ⚠️ con số "+0,51" ghi 06/10 là ƯỚC LƯỢNG, đã đính chính theo số đo (**+0,03 … +0,04**) |
 | **Gộp HAI TẦNG** (mới, `scripts/fuse_aspect.py`) - luật ĐÃ CHỐT trước khi chạy (`fusion.TWO_TIER_LAW`) + bảy lượt một-khía-cạnh `prompt-aspect/exp001..007`, đo trên BA khung | khung `phobert-base-v2/lora/exp004`: 93,15 · 95,87 · F1 âm **0,8159** (từ 0,7757) · `price` 0,357; khung `cafebert/lora/exp001`: 97,38 · 96,42 · 0,8124 · 0,320; khung **MẠNH NHẤT** `cafebert/lora/exp002`: 97,56 · 96,33 · **0,8064** (từ 0,8473, **giảm**) · 0,261 | **GIỮ làm hướng phụ**: lần ĐẦU TIÊN `price` âm khác 0 ở CẢ BA khung, nhưng F1 âm macro **chỉ tăng khi khung YẾU** và accuracy luôn giảm ⇒ KHÔNG thay bảng chính |
+
+---
+
+## Đợt 13 - số epoch + dừng sớm, và thước CHỌN MỐC (mốc 13-14/10/2026)
+
+Cây của đợt (mỗi nhánh 3 seed `42 · 7 · 13`; nền chung: `lr 4e-4` · `r 16` (trừ B2 `r 8`) ·
+`max_length 256` · `batch 8 × grad_accum 4` · `epochs 15` · `early_stop {true, patience 12, min_delta 0,002}`
+· dữ liệu `v0.2.0` · ghim `8f4eb49`):
+
+```
+exp064-066  <- exp015   epochs 15 + dừng sớm (đối chứng B1)
+    Kết quả: 98,17 · 93,87 (Δ −0,113 / −0,510; p = 0,251 / 0,217); epoch thực chạy 6
+    Kết luận: BỎ - "underfit" KHÔNG đúng ở nền lr 4e-4; ĐÓNG trục `epochs`
+
+exp067-069  <- exp021   như B1 nhưng giữ `lora.r: 8` (B2)
+    Kết quả: 97,83 · 92,92 (Δ −0,453 / −1,457; p = 0,0058 / 0,0041); epoch 5-6
+    Kết luận: BỎ - ÂM CÓ Ý NGHĨA THỐNG KÊ ở cả hai trục (thêm bằng chứng cho luật 13)
+
+exp070-072  <- exp028   như B1 + `every_n_steps 50` + `patience 24` (B3)
+    Kết quả: 97,91 · 93,18 (Δ −0,377 / −1,197; p = 0,368 / 0,371); epoch thực 4-15
+    Kết luận: BỎ - đo dày hơn không tạo khác biệt (lượt seed 13 một mình dương là MAY, n=3 lộ ra)
+
+exp073-075  <- exp064   + `checkpoints.best_metric: neg_f1_big5` (B4)
+    Kết quả: 98,52 · 95,16 (Δ +0,240 / +0,783; p = 9,5e-06 / 0,0086)
+    Kết luận: GIỮ - bàn đạp thứ 17; 3/3 lượt trên TRẦN họ 12 lượt ở cả hai trục; ghép cặp +0,353 / +1,293
+
+exp076-078  <- exp064   + `loss.class_weight: inverse_by_aspect` (B5)
+    Kết quả: 97,71 · 92,15 (Δ −0,570 / −2,230; p = 0,140 / 0,106); epoch 4-6
+    Kết luận: BỎ VĨNH VIỄN - nhánh tệ nhất bảng; xác nhận kết luận của `exp036` trên nền 4e-4
+
+ĐỢT 13.2: exp079-084 (B4 × seed 1-6) · exp085-090 (B1 × seed 1-6) · exp091-093 (best_metric: neg_recall_big5 × seed 1-3)
+    Mục đích: đưa nhánh thắng lên n = 9 + 9 cặp ghép (chốt bàn đạp 17) và mở mũi Recall cho Đích #2
+    Thi hành: docs/06_plan/P9_batch13.md
+```
+
+Ba hệ quả đã chốt cho các đợt sau: (1) **`epochs` và `every_n_steps`/`patience` không còn là trục đáng thử** -
+2.400 ô đủ để bão hoà và bộ này đạt đỉnh ở epoch 3-6; (2) **thước chọn mốc là siêu tham số hạng nhất**, phải
+đưa vào không gian tìm kiếm của Optuna (13.3) cùng `every_n_steps`; (3) **muốn đổi Precision/Recall thì đổi
+thước chọn mốc**, đây là cách rẻ nhất để đánh Bảng ĐÍCH mà không đụng vào kiến trúc.
+

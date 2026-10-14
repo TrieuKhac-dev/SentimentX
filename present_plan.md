@@ -1,8 +1,10 @@
-# present_plan — Kế hoạch đang chạy: đợt 7 → đợt 10
+# present_plan — Kế hoạch đợt 7 → đợt 10 (ĐÃ XONG; MỐC LỊCH SỬ)
 
-> Đây là kế hoạch **ĐANG THỰC THI**, đặt ở gốc repo. Tệp đi kèm `check_present_plan.md` có **cùng mục,
-> cùng mục nhỏ**, chỉ ghi trạng thái (đã làm gì) để đọc lại nhanh; mỗi lần làm xong một mục nhỏ thì
-> đánh dấu vào tệp đó.
+> ⚠️ **KHÔNG phải kế hoạch đang chạy (cập nhật 14/10/2026).** Kế hoạch đang chạy là
+> `present_plan_batch13.md` (nhật ký đợt 13) + **`docs/06_plan/P9_batch13.md`** (hướng dẫn thi hành
+> 13.2 → 13.6); mục lục mọi giai đoạn ở `docs/06_plan/README.md`. Tệp này giữ làm dấu vết của đợt 7–10:
+> khi đó đây là kế hoạch **ĐANG THỰC THI**, tệp đi kèm `check_present_plan.md` có **cùng mục, cùng mục
+> nhỏ**, chỉ ghi trạng thái (đã làm gì) để đọc lại nhanh.
 >
 > Kế hoạch của đợt trước đã được hợp nhất vào `docs/06_plan/P8_measurement_mlflow.md`. Cặp tệp này sẽ
 > được hợp nhất vào `docs/06_plan/P9_batch7.md` khi kết thúc đợt (đây là **đề xuất**, chờ người dùng

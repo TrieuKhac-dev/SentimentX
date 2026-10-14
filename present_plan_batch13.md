@@ -3,6 +3,9 @@
 > File này GIỮ KẾ HOẠCH của đợt 13 (chốt 13/10/2026). Nhật ký chạy ghi DẦN vào đây.
 > Liên quan: `present_plan_batch12.md` (đợt 8–12), `presentations/present_report/present_report_v3.md`
 > (bảng số đang dùng), `docs/04_experiments/07_evolution.md`, `docs/04_experiments/04_backlog.md` §9.1.
+>
+> **HƯỚNG DẪN THI HÀNH phần còn lại (13.2 → 13.6): `docs/06_plan/P9_batch13.md`** — đọc file đó trước khi làm
+> tiếp: nó có đặc tả code, lệnh tạo lượt/ghim/đóng gói, luật đọc số đã chốt trước và khung 13.3 → 13.6.
 
 ## A. Mục tiêu (định lượng) và BẢNG ĐÍCH
 
@@ -188,8 +191,8 @@ ghim `REPO_SHA` rồi mới gửi gói · `collect_reports.py` sau khi có kết
 | **B4** | `exp073` · `exp074` · `exp075` | **`exp064`** (B1 seed 42) | + `checkpoints.best_metric: neg_f1_big5` |
 | **B5** | `exp076` · `exp077` · `exp078` | **`exp064`** (B1 seed 42) | + `loss.class_weight: inverse_by_aspect` |
 
-**Bằng chứng "khác cha ĐÚNG một khoá/nhóm khoá"** — lấy bằng chính bộ nạp config của dự án
-(`_scratch/check_d13.py` in ra `d:\TrieuKhac\Documents\SentimentX\_scratch\d13_check.txt`):
+**Bằng chứng "khác cha ĐÚNG một khoá/nhóm khoá"** — đo bằng chính bộ nạp config của dự án (script dò tay
+dùng-một-lần, đã dọn khỏi `_scratch/`):
 
 | Lượt | Số khoá khác cha | Khoá khác |
 |---|---|---|
@@ -205,8 +208,46 @@ Mọi lượt giữ: `data.version v0.2.0` · `roles {train,val,test}` · `head.
 → commit `8f4eb49` → **push** → `scripts/pin.py` cả 15 (`REPO_SHA` = `8f4eb49714eee261c60458cb6425fc872d94e97c`)
 → `ci_checks.py` SẠCH (9/9 mục) → gói bàn giao **035**.
 
-**Bước tiếp (người dùng):** chạy 15 notebook song song trên Colab (~2,5-3 h) → trả kết quả về → chấm
-`collect_reports.py` → đọc theo luật ở mục C (Đợt 13.1) và `handover/README.md`.
+### 13.1 — KẾT QUẢ ĐÃ VỀ (14/10/2026): 15/15 lượt
+
+15/15 lượt `FINISHED` (2 lượt phải chạy lại vì copy thiếu file: `exp070`, `exp073`; 1 lượt bị copy sai cấp
+thư mục `exp073` đã sửa tay). Tất cả `repo_sha 8f4eb49`, dữ liệu `v0.2.0`, `resume.mode NEW`.
+Ghi vào bảng chuẩn bằng `collect_reports.py` → commit **`e9f3d3b`**.
+
+| Nhánh | n | `Accuracy macro` | Δ vs họ 98,283 | `neg F1 (5n)` | Δ vs họ 94,377 | Welch p (Acc / F1) | Kết luận |
+|---|---:|---:|---:|---:|---:|---|---|
+| **B4** `best_metric: neg_f1_big5` | 3 | **98,523** | **+0,240** | **95,160** | **+0,783** | **9,5e-06 / 0,0086** | ✅ **ĐẠT — bàn đạp thứ 17** |
+| B1 `epochs 15` + ES | 3 | 98,170 | −0,113 | 93,867 | −0,510 | 0,251 / 0,217 | ⛔ **ĐÓNG trục `epochs`** |
+| B3 `every_n_steps 50` + patience 24 | 3 | 97,907 | −0,377 | 93,180 | −1,197 | 0,368 / 0,371 | ⛔ đóng |
+| B5 `class_weight: inverse_by_aspect` | 3 | 97,713 | −0,570 | 92,147 | −2,230 | 0,140 / 0,106 | ⛔ **đóng VĨNH VIỄN** |
+| B2 `lora.r 8` + `epochs 15` | 3 | 97,830 | −0,453 | 92,920 | −1,457 | 0,0058 / 0,0041 | ❌ âm có ý nghĩa |
+
+**Ba kết luận lớn (đầy đủ ở `docs/06_plan/P9_batch13.md` mục 2.2):**
+
+1. **Giả thuyết "underfit" SAI** — val đạt đỉnh ở epoch 3–6, dừng sớm tự kích hoạt ở cả 15 lượt, 15 epoch
+   không bao giờ hơn 3 epoch ⇒ **đóng trục `epochs`** (và confound "lịch lr dài hơn" cũng không cần gỡ nữa).
+2. **Bàn đạp thứ 17 = thước CHỌN MỐC** (`checkpoints.best_metric: neg_f1_big5`): cả 3 lượt vượt **trần**
+   của họ 12 lượt ở **cả hai** trục (hoán vị `1/C(15,3) ≈ 0,0022`); ghép cặp cùng seed **+0,353 Acc /
+   +1,293 F1** (`ttest_rel` p = 0,0459 / 0,0649); sd của B4 chỉ **0,025 / 0,251** (họ: 0,107 / 0,387).
+3. **Thước chọn mốc là một NÚM P/R**: lớp âm `colour`/`smell`/`texture` **P +4…+5,6** nhưng **R −2,4…−2,7**;
+   lớp dương thì **R tăng** +0,7…+1,0. ⇒ Đích #1 (`texture` P: 92,8 → **96,7**) tiến bộ thật, nhưng
+   **Đích #2 (Recall âm) xa thêm** ⇒ đó là lý do phải thêm chỉ số `neg_recall_big5` (Đợt 13.2).
+
+**Khai trung thực:** B4 đạt ngưỡng ở `neg F1` (+0,783 > 0,7 và p = 0,0086) nhưng **KHÔNG đạt ngưỡng 0,7 ở
+`Accuracy`** (+0,240, dù p = 9,5e-06); và B4 tối ưu trực tiếp trên `val` bằng chính thước `neg_f1_big5` ⇒
+phải xác nhận bằng n = 9 + ghép cặp (Đợt 13.2), không nới ngưỡng sau khi thấy số.
+
+### 13.2 — ĐÃ CHỐT (14/10/2026, người dùng quyết "vừa A vừa B") = **15 lượt**
+
+| Lượt | Nhánh | Cha | Khác cha ĐÚNG | Vì sao |
+|---|---|---|---|---|
+| `exp079`–`exp084` | **B4** × seed **1…6** | `exp074` | `decoding.seed` | nâng nhánh thắng lên **n = 9** |
+| `exp085`–`exp090` | **B1** × seed **1…6** | `exp064` | `decoding.seed` | **9 cặp ghép cùng seed** (tách đúng tác dụng `best_metric`) |
+| `exp091`–`exp093` | **R** (`best_metric: neg_recall_big5`) × seed **1,2,3** | `exp074` | `decoding.seed` + `checkpoints.best_metric` | đánh **Đích #2** (Recall âm) |
+
+**Việc còn lại của đợt 13 (Bước 2 → 13.6) đã được viết thành file bàn giao riêng, đọc file đó trước khi làm:
+`docs/06_plan/P9_batch13.md`** — có đặc tả code `neg_recall_big5`, lệnh tạo lượt/ghim/đóng gói, luật đọc số
+13.2 (chốt trước khi chạy), quy ước số liệu và khung 13.3 → 13.6.
 
 
 

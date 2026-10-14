@@ -282,3 +282,34 @@ khi một lượt có review KHÔNG đọc được (`preds[i]` là `None`, xem 
 được ở một lượt thì **lượt đó không có phiếu**, và ô không lượt nào đọc được thì giữ `None` - **không được
 điền 0**, vì "không đọc được" (tính là SAI) khác "không nhắc tới" (có thể đúng).
 
+
+## Luật 16 (chốt 14/10/2026, từ 15 lượt của Đợt 13.1)
+
+**16. Thước CHỌN MỐC (`checkpoints.best_metric`) là một SIÊU THAM SỐ đo được, và nó điều khiển thế cân
+bằng Precision↔Recall của lớp âm.** Vì vậy mọi kết luận "tăng F1" phải khai kèm **P và R**, không được
+khoe F1 mà giấu việc Recall tụt.
+
+Số đo (Đợt 13.1, `test`, cơ sở `paper`, lớp ÂM trên 5 khía cạnh `n` lớn, họ 12 lượt `lr 4e-4` → nhánh
+chọn mốc bằng `neg_f1_big5`, n = 3):
+
+| Khía cạnh | P | R | F1 |
+|---|---:|---:|---:|
+| `colour` | 85,8 → **91,4** | 95,2 → 92,5 | 90,2 → **91,9** |
+| `smell` | 86,7 → **90,9** | 96,9 → 94,5 | 91,5 → **92,5** |
+| `texture` | 92,8 → **96,7** | 96,8 → 94,3 | 94,7 → **95,5** |
+| `stayingpower` | 97,1 → **98,6** | 98,3 → 97,9 | 97,7 → **98,2** |
+| `shipping` | 97,2 → 97,3 | 98,2 → 98,0 | 97,7 → 97,7 |
+
+Lớp dương cùng lượt: **R tăng** +0,7…+1,0 ở 4/5 khía cạnh, P phẳng (−0,2…−0,5).
+
+Ba hệ quả bắt buộc:
+
+- **Muốn đổi P/R thì đổi thước chọn mốc**, không cần đụng kiến trúc/dữ liệu. Đây là cách rẻ nhất để đánh
+  vào ô còn yếu (Bảng ĐÍCH của đợt 13): cần Recall thì phải có một thước thiên Recall.
+- **Chọn mốc xong thì số trên `test` có yếu tố "được chọn"**: mốc tối ưu trên `val` bằng chính thước đó ⇒
+  không được tự khen trên đúng thước mà nó tối ưu, và kết luận phải dựa trên **nhiều seed + ghép cặp**, không
+  phải một lượt (luật 10).
+- **Hai cơ sở đo của hai tầng KHÁC nhau** (xem "Hai cơ sở đo" ở trên): `val` - chọn mốc, dừng sớm - ở cơ sở
+  `all`; cột chuẩn của bảng số ở cơ sở `paper`. Cùng một lượt, `neg F1 (5n)` lệch nhau ~1-3 điểm giữa hai
+  cơ sở, nên **không được** lấy số `val` đi so với cột `paper`, phải nói rõ cơ sở mỗi khi trích.
+

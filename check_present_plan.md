@@ -1,4 +1,7 @@
-# check_present_plan — Trạng thái thực thi (đối chiếu với `present_plan.md`)
+# check_present_plan — Trạng thái thực thi đợt 7 → 10 (ĐÃ XONG; MỐC LỊCH SỬ)
+
+> ⚠️ **KHÔNG phải tệp trạng thái đang chạy (cập nhật 14/10/2026).** Trạng thái đang chạy: xem
+> `present_plan_batch13.md` (nhật ký đợt 13) và `docs/06_plan/P9_batch13.md` (hướng dẫn 13.2 → 13.6).
 
 > Cách dùng: mỗi mục nhỏ trong `present_plan.md` có **một dòng** ở đây. Trạng thái dùng các nhãn:
 > `CHƯA LÀM` · `ĐANG LÀM` · `XONG <ngày>` · `CHỜ NGƯỜI DÙNG` · `BỎ QUA <lí do>`.
