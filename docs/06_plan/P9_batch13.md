@@ -337,7 +337,8 @@ min_delta 0.002}` · `every_n_steps 100` · `answer_from logits` (mặc định)
 | 13/10/2026 | `present_report_v3.md` (báo cáo đang dùng) | `991af8c` |
 | 13/10/2026 | 15 lượt 13.1: tạo · ghim · gói 035 | `8f4eb49` · `20db080` · `49f4342` · `dfe3e67` |
 | 14/10/2026 | **Kết quả 15/15 lượt** + dựng lại bảng tổng hợp (`collect_reports.py`) | `e9f3d3b` |
-| 14/10/2026 | Kết luận 13.1 (3 trục đóng, bàn đạp thứ 17, núm P/R) + file bàn giao này | commit của lượt sửa tài liệu |
+| 14/10/2026 | Kết luận 13.1 (3 trục đóng, bàn đạp thứ 17, núm P/R) + file bàn giao này | `83db858` |
+| 14/10/2026 | Dọn file nháp của đợt (xoá log/script dùng-một-lần ở `_scratch/`; còn 4 script tiện dụng) | `83db858` |
 | *còn lại* | Bước 2 → Bước 4, rồi 13.3 → 13.6 | xem §3 |
 
 
