@@ -147,11 +147,26 @@ graph LR
   n143["qwen3-4b-instruct-2507/prompt-cot/exp026:0842e93d"]
   n144["qwen3-4b-instruct-2507/prompt-cot/exp024:5f6161b6"]
   n145["qwen3-4b-instruct-2507/prompt-cot/exp027:af67f011"]
-  n146["<nguồn v0.3.0>"]
-  n147["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
-  n148["cafebert/lora/exp011:c5224186"]
-  n149["visobert/lora/exp009:f784f0b6"]
-  n150["phobert-base-v2/lora/exp015:611af219"]
+  n146["cafebert/lora/exp065:559f86e3"]
+  n147["cafebert/lora/exp067:9e82c5b6"]
+  n148["cafebert/lora/exp064:ec7541ce"]
+  n149["cafebert/lora/exp068:7d892425"]
+  n150["cafebert/lora/exp069:10823094"]
+  n151["cafebert/lora/exp074:a7c01ccd"]
+  n152["cafebert/lora/exp078:133f5b91"]
+  n153["cafebert/lora/exp077:eb1c05d2"]
+  n154["cafebert/lora/exp075:ef3ba439"]
+  n155["cafebert/lora/exp076:be1e9e73"]
+  n156["cafebert/lora/exp072:218fa9ee"]
+  n157["cafebert/lora/exp066:37832542"]
+  n158["cafebert/lora/exp070:91fbab35"]
+  n159["cafebert/lora/exp073:227bfb70"]
+  n160["cafebert/lora/exp071:2e77495d"]
+  n161["<nguồn v0.3.0>"]
+  n162["cosmetics-ds0.3.0-pl0.3.0-srccosmetics@0.1.0-daebf6ba"]
+  n163["cafebert/lora/exp011:c5224186"]
+  n164["visobert/lora/exp009:f784f0b6"]
+  n165["phobert-base-v2/lora/exp015:611af219"]
   n1 -->|15344 dòng| n2
   n3 -->|15426 dòng| n4
   n4 --> n5
@@ -295,8 +310,23 @@ graph LR
   n4 --> n143
   n4 --> n144
   n4 --> n145
-  n146 -->|15426 dòng| n147
-  n147 --> n148
-  n147 --> n149
-  n147 --> n150
+  n4 --> n146
+  n4 --> n147
+  n4 --> n148
+  n4 --> n149
+  n4 --> n150
+  n4 --> n151
+  n4 --> n152
+  n4 --> n153
+  n4 --> n154
+  n4 --> n155
+  n4 --> n156
+  n4 --> n157
+  n4 --> n158
+  n4 --> n159
+  n4 --> n160
+  n161 -->|15426 dòng| n162
+  n162 --> n163
+  n162 --> n164
+  n162 --> n165
 ```

@@ -148,6 +148,21 @@ graph LR
   n144["qwen3-4b-instruct-2507/prompt-cot/exp026:0842e93d"]
   n145["qwen3-4b-instruct-2507/prompt-cot/exp024:5f6161b6"]
   n146["qwen3-4b-instruct-2507/prompt-cot/exp027:af67f011"]
+  n147["cafebert/lora/exp065:559f86e3"]
+  n148["cafebert/lora/exp067:9e82c5b6"]
+  n149["cafebert/lora/exp064:ec7541ce"]
+  n150["cafebert/lora/exp068:7d892425"]
+  n151["cafebert/lora/exp069:10823094"]
+  n152["cafebert/lora/exp074:a7c01ccd"]
+  n153["cafebert/lora/exp078:133f5b91"]
+  n154["cafebert/lora/exp077:eb1c05d2"]
+  n155["cafebert/lora/exp075:ef3ba439"]
+  n156["cafebert/lora/exp076:be1e9e73"]
+  n157["cafebert/lora/exp072:218fa9ee"]
+  n158["cafebert/lora/exp066:37832542"]
+  n159["cafebert/lora/exp070:91fbab35"]
+  n160["cafebert/lora/exp073:227bfb70"]
+  n161["cafebert/lora/exp071:2e77495d"]
   n1 -->|NEW| n2
   n3 -->|NEW| n2
   n4 -->|NEW| n2
@@ -292,4 +307,19 @@ graph LR
   n144 -->|NEW| n2
   n145 -->|RESUME| n2
   n146 -->|RESUME| n2
+  n147 -->|NEW| n2
+  n148 -->|NEW| n2
+  n149 -->|NEW| n2
+  n150 -->|NEW| n2
+  n151 -->|NEW| n2
+  n152 -->|NEW| n2
+  n153 -->|NEW| n2
+  n154 -->|NEW| n2
+  n155 -->|NEW| n2
+  n156 -->|NEW| n2
+  n157 -->|NEW| n2
+  n158 -->|NEW| n2
+  n159 -->|NEW| n2
+  n160 -->|NEW| n2
+  n161 -->|NEW| n2
 ```

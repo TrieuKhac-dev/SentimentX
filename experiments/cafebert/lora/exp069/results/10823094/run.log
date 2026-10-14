@@ -1,0 +1,102 @@
+=== lần chạy 2026-10-13 16:20:56 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=uitnlp/CafeBERT
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=13
+[RUN] n_samples=1623
+[RUN] experiment.model=cafebert
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp069
+[RUN] repo_sha=8f4eb49714eee261c60458cb6425fc872d94e97c
+[RUN] config_sha256=10823094a2467a460cdf886c9b2ce89950410713ed04b0a805fec4b376623760
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=15
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0004
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=8
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[RUN] training.head_trainable=True
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.save_last=True
+[RUN] training.save_best=True
+[RUN] training.delete_intermediate=True
+[RUN] training.best_metric=sentiment_f1
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: cafebert/lora/exp069 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè decoding.seed: None <- 13
+[CONFIG] đè early_stop.enabled: False <- True
+[CONFIG] đè early_stop.min_delta: 0.0 <- 0.002
+[CONFIG] đè early_stop.patience: 5 <- 12
+[CONFIG] đè enabled: False <- True
+[CONFIG] đè epochs: 3 <- 15
+[CONFIG] đè head.trainable: False <- True
+[CONFIG] đè lora.r: 16 <- 8
+[CONFIG] đè loss.class_weight: none <- inverse
+[CONFIG] đè loss.type: ce <- weighted_ce
+[CONFIG] đè lr: 0.0002 <- 0.0004
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=8 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0004 batch=8 grad_accum=4 epochs=15 weight_decay=0.01
+[CONFIG] đầu phân loại: HỌC cùng adapter
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 13
+[STEP] huấn luyện: 15 epoch, batch 8 (tích luỹ 4), 12268 mẫu train, 1535 mẫu val
+[STEP] đầu phân loại: HỌC cùng adapter | theo khía cạnh: TẮT - 7 bộ trọng số riêng | 3576853 tham số học / 563467285 tổng
+[STEP] bước 100 | loss 0.5851 | val sentiment_f1=0.6170 (10554 ô) | đã lưu model/best
+[STEP] bước 200 | loss 0.1387 | val sentiment_f1=0.7990 (10554 ô) | đã lưu model/best
+[STEP] bước 300 | loss 0.0139 | val sentiment_f1=0.8670 (10554 ô) | đã lưu model/best
+[STEP] bước 400 | loss 0.0081 | val sentiment_f1=0.8940 (10554 ô) | chưa tốt hơn
+[STEP] bước 500 | loss 0.0777 | val sentiment_f1=0.8410 (10554 ô) | chưa tốt hơn
+[STEP] bước 600 | loss 0.0372 | val sentiment_f1=0.8860 (10554 ô) | chưa tốt hơn
+[STEP] bước 700 | loss 0.3276 | val sentiment_f1=0.9120 (10554 ô) | đã lưu model/best
+[STEP] bước 800 | loss 0.4926 | val sentiment_f1=0.9010 (10554 ô) | chưa tốt hơn
+[STEP] bước 900 | loss 0.1270 | val sentiment_f1=0.8460 (10554 ô) | chưa tốt hơn
+[STEP] bước 1000 | loss 0.2257 | val sentiment_f1=0.8500 (10554 ô) | chưa tốt hơn
+[STEP] bước 1100 | loss 1.0129 | val sentiment_f1=0.9340 (10554 ô) | đã lưu model/best
+[STEP] bước 1200 | loss 0.0086 | val sentiment_f1=0.9110 (10554 ô) | chưa tốt hơn
+[STEP] bước 1300 | loss 0.0601 | val sentiment_f1=0.9240 (10554 ô) | chưa tốt hơn
+[STEP] bước 1400 | loss 0.1993 | val sentiment_f1=0.8460 (10554 ô) | chưa tốt hơn
+[STEP] bước 1500 | loss 0.0591 | val sentiment_f1=0.8440 (10554 ô) | chưa tốt hơn
+[STEP] bước 1600 | loss 0.0439 | val sentiment_f1=0.8480 (10554 ô) | chưa tốt hơn
+[STEP] bước 1700 | loss 0.0202 | val sentiment_f1=0.8540 (10554 ô) | chưa tốt hơn
+[STEP] bước 1800 | loss 0.1361 | val sentiment_f1=0.8330 (10554 ô) | chưa tốt hơn
+[STEP] bước 1900 | loss 0.0396 | val sentiment_f1=0.8580 (10554 ô) | chưa tốt hơn
+[STEP] bước 2000 | loss 0.0095 | val sentiment_f1=0.9130 (10554 ô) | chưa tốt hơn
+[STEP] dừng sớm: 'sentiment_f1' không tăng quá 0.002 trong 12 lần đo liên tiếp (bước 2000)
+[STEP] dừng sớm sau epoch 6: 'sentiment_f1' không tăng quá 0.002 trong 12 lần đo liên tiếp
+[STEP] huấn luyện xong: 2000 bước trong 3092.3 giây (3576853 tham số học / 563467285 tổng) | 3092.3 giây
+[STEP] ghi lịch sử huấn luyện: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp069/results/10823094/training_history.csv (26 điểm đo)
+[STEP] ghi biểu đồ train/val: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp069/results/10823094/plots/training.html
+[STEP] suy luận bằng /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp069/results/10823094/model/best
+[STEP] suy luận xong 1623 mẫu; checkpoint huấn luyện với 7 khía cạnh, nhãn 0, 1, 2
+[STEP] ghi xác suất từng ô: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp069/results/10823094/probabilities.csv (11361 dòng = 1623 mẫu × 7 khía cạnh)
+[STEP] dừng sớm ở epoch 6 (đã khai 15) - dừng vì chỉ số chọn `model/best` không tăng quá `min_delta` trong `patience` lần đo liên tiếp
+[STEP] tổng 1623 mẫu (1623 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 200 ô neutral theo neutral_policy=drop
+[STEP] cơ sở đo paper: 2748 ô giữ lại, loại 8413 ô không phải hai chiều, 0 ô không đọc được
+[STEP] ghi 1623 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
+[STEP] ghi nhận: 19 tham số, 347 chỉ số, 8 file
+[RUN] kết thúc sau 3156.1 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
+[TRACK] ghi lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
