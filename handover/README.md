@@ -18,11 +18,11 @@ Hết. Notebook tự làm phần còn lại.
 
 ## Notebook trong gói
 
-> **GÓI MỚI NHẤT: `SentimentX-goi-034-<mã>-261012.zip` (15 notebook, ghim `5ec65f3`) - Đợt 12, chạy
-> MỘT LƯỢT SONG SONG; xem mục "Đợt 12 (12/10/2026)" ngay dưới.** Gói này chỉ mang 15 notebook + README
-> này; mọi thứ bạn đang có thì giữ nguyên (không tải lại dữ liệu). Hai lần gửi TRƯỚC của cùng đợt:
-> **`goi-032`** (8 notebook, đợt 1) và **`goi-033`** (15 notebook: 10 seed + 5 `val`, đợt 2) - nếu bạn đã
-> chạy chúng thì **không cần tải lại**, kết quả đã nằm trong repo.
+> **GÓI MỚI NHẤT: gói `036` (15 notebook `notebooks/cafebert/lora/exp079` … `exp093`, ghim `22910c0`) -
+> Đợt 13.2, chạy MỘT LƯỢT SONG SONG; xem mục "Đợt 13.2 (15/10/2026)" ngay dưới.** Gói này chỉ mang 15
+> notebook MỚI + README này; mọi thứ bạn đang có thì giữ nguyên (không tải lại dữ liệu). Hai lần gửi
+> TRƯỚC: gói **`035`** (15 notebook Đợt 13.1, ghim `8f4eb49` - **kết quả đã về đủ**) và gói **`034`**
+> (15 notebook Đợt 12) - nếu bạn đã chạy chúng thì **không cần tải lại**, kết quả đã nằm trong repo.
 >
 
 > **Đợt 11 gửi trong HAI gói: `SentimentX-goi-030-<mã>-261010.zip` (48 notebook, ghim `2850d03`) rồi
@@ -202,6 +202,53 @@ dừng sớm thì ngắn hơn), nên **cả 15 chạy song song ≈ 2,5-3 h**.
 
 **Kế hoạch đọc kết quả:** nhánh nào ĐẠT ⇒ chạy thêm 6 seed (n = 9) rồi báo cáo Welch; KHÔNG nhánh nào đạt
 ⇒ **đóng trục `epochs`** với bằng chứng `n = 3`. Chi tiết: `present_plan_batch13.md` (mục C và H).
+
+
+### Đợt 13.2 (15/10/2026) - 15 notebook MỚI: chạy MỘT LƯỢT SONG SONG
+
+Gói **036** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp079` … `exp093`), tất cả ghim commit
+**`22910c0`**. Chạy được **cả 15 cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính).
+
+**Câu hỏi của đợt:** Đợt 13.1 (15/15 lượt `FINISHED`) cho thấy **bàn đạp thắng nằm ở thước CHỌN MỐC**, không
+phải ở số epoch: `checkpoints.best_metric: neg_f1_big5` hơn họ 12 lượt ở CẢ HAI trục (98,523 / 95,160) nhưng
+chỉ có **n = 3**; và chọn mốc theo F1 làm model nghiêng Precision nên **Recall lớp âm tụt**. Đợt 13.2 vì thế
+làm HAI việc: (a) nâng n = 3 lên **n = 9** + **9 cặp ghép cùng seed** để chốt lại bàn đạp thứ 17; (b) chạy
+nhánh **R** dùng thước CHỌN MỐC thiên Recall (`neg_recall_big5`) để đánh **Đích #2** (Recall âm).
+
+| Nhóm | Notebook | Cha | Biến của nhóm | Vì sao |
+| --- | --- | --- | --- | --- |
+| **B4** (6) | `exp079` · `exp080` · `exp081` · `exp082` · `exp083` · `exp084` | `exp074` (B4 seed 7) | `decoding.seed`, seed **1 … 6** | nâng nhánh ĐANG DẪN từ n = 3 lên **n = 9** |
+| **B1** (6) | `exp085` · `exp086` · `exp087` · `exp088` · `exp089` · `exp090` | `exp064` (B1 seed 42) | `decoding.seed`, seed **1 … 6** | **nhánh đối chứng ghép cặp**: cùng seed ⇒ tách đúng tác dụng của khoá `best_metric` |
+| **R** (3) | `exp091` · `exp092` · `exp093` | `exp074` (B4) | `decoding.seed` + `checkpoints.best_metric`, seed **1 · 2 · 3** | thước thiên RECALL (`neg_recall_big5`) - đánh **Đích #2** (Recall âm) |
+
+Ba nhánh giữ NGUYÊN bài toán + dữ liệu: `data.version v0.2.0` · `roles {train, val, test}` · `head.trainable true` ·
+`lr 0.0004` · `max_length 256` · `batch 8 × grad_accum 4` · `epochs 15` · `early_stop {enabled, patience 12, min_delta 0.002}` ·
+`every_n_steps 100` · `checkpoints.save_best true`.
+
+**Dấu vết phải thấy trong mỗi lượt (kiểm TRƯỚC khi đọc điểm):**
+`training.epochs = 15`, `early_stop.enabled = true`; cuối lượt `metrics.json::cost` có **`epoch đã chạy`** và
+**`dừng sớm`** (Đợt 13.0 mới ghi - nếu hai khoá này VẮNG thì bản code chạy là bản CŨ ⇒ **DỪNG**, báo lại để
+ghim đúng sha). Nhóm **R** phải có `checkpoints.best_metric = neg_recall_big5`. Mỗi lượt ước **~1,5-2,5 h**
+(dừng sớm thì ngắn hơn), nên **cả 15 chạy song song ≈ 2,5-3 h**.
+
+**Trả kết quả về:** copy **15 thư mục** `experiments/cafebert/lora/exp0NN/results/<hash8>/` vào repo,
+**ĐÚNG cấp `results/<hash8>/`** (Đợt 13.1 đã có một lượt bị copy sai cấp và phải sửa tay), và **chỉ cần**
+`metrics.json`, `metrics.csv`, `training_history.csv`, `mispredictions*.csv`, `run.log`, `run_meta.json`
+(bỏ `model/`, `plots/`, `predictions/` - nặng vô ích).
+
+**Luật đọc số (đã chốt TRƯỚC khi chạy - KHÔNG nới ngưỡng sau khi thấy số):**
+
+| Nhánh | n | Cách đọc | Kết luận nếu… |
+| --- | ---: | --- | --- |
+| **B4** | 9 | Welch 2 phía vs họ 12 **+** `ttest_rel` ghép cặp với B1 cùng seed (n = 9) | *Đạt* = Δ ≥ 0 cả hai trục, ≥ 1 cái > 0. *Có ý nghĩa* = vượt **> 0,7 pp** **VÀ** `p < 0,05` |
+| **B1** | 9 | Chỉ là nhánh đối chứng ghép cặp (không cần kết luận riêng) | - |
+| **R** | 3 | Đo **TB Recall lớp âm 5 khía cạnh, cơ sở `paper`** (cột `neg_recall_big5`) | *Đạt* = Recall **≥ +0,7** so với B4 **mà** `Accuracy` không giảm > 0,2 **và** `neg F1` không giảm > 0,7 |
+
+- **Trục so sánh:** `Accuracy macro` (cột `acc_paper_macro`) **và** `neg F1 (5 khía cạnh `n` lớn)` (cột
+  `neg_f1_big5`), cả hai đọc ở **cơ sở `paper`**, so với **họ 12 lượt `lr 4e-4`** (98,283 · 94,377).
+- **Bắt buộc khai Δ từng khía cạnh `n` lớn ở cả P / R / F1** cho mọi nhánh (đã là luật của Đợt 13).
+- Chi tiết thi hành và luật đầy đủ: `docs/06_plan/P9_batch13.md` §5 và §6.3.
+
 
 
 
