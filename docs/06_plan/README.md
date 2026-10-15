@@ -24,7 +24,7 @@
 | P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | T1 (dataset v0.2.0 `...-e616c1e3`) và T2 (EDA + report) xong. T3 nay gồm **20 thí nghiệm**: 4 lượt LoRA encoder (PhoBERT và ViSoBERT, mỗi model một lượt `ce` + một lượt `weighted_ce`) + 13 lượt prompt Qwen3-4B (`prompt-cot/exp002..013` và `prompt-one-turn/exp001`) + 3 lượt Qwen3-0.6B, chấm trên `test`. **17 lượt đã có kết quả** (tới 04/10/2026): mức 4-bit lô 4 hơn công bố +0,07 (1 ví dụ) và +0,45 (5 ví dụ), đỉnh `exp009` 97,77; sửa **câu chữ prompt** không cứu được lớp âm nhưng sửa **hàm mất mát** (`weighted_ce`) thì có. Ba lượt Qwen3-0.6B hỏng HAI kiểu (nạp nhầm trọng số 4B; bật suy nghĩ ăn hết trần token) nên cả 6 thư mục kết quả đã xoá 04/10/2026 - **đã tạo lại và ghim ba lượt 0.6B trong gói 012 (04/10/2026), chờ chạy**. Còn T5 (vòng bàn giao) - chi tiết `P7_rerun.md` mục 2 và §8, `present_plan.md` (đợt 7-9) |
 | P8    | Đợt "đo lường + MLflow" (rescore đo THÊM, early stop, curve train/val, loss, MLflow `run_id`)      | `P8_measurement_mlflow.md` | xong (trừ A-6 để cuối) |
 | P8b   | Đợt 7 → đợt 10 (chạy nốt 23 + 10 + 3 notebook, chốt luật trên `val`, bốn bước kết hợp)            | `P8_batch7.md`         | đang chạy: **05/10/2026** sửa hai lỗi thật (thứ tự tham số của `write_csv`, `is_trainable` khi chạy tiếp), thêm cơ chế **`head.trainable`**, tạo **6 lượt ablation đầu phân loại** ⇒ đã tạo + ghim **33 notebook** (23 đợt 7 + 6 ablation + 4 đợt 8) và đóng **gói 012 + 013 + 014 + 015 + 016**; đã **nhận đủ 23/23 kết quả đợt 7** + **2 lượt nữa** (lượt chạy lại `cafebert/lora/exp002` và lượt `qwen3-0.6b/prompt-one-turn/exp001` đọc được **99,94%**), chốt **trần 1985** cho nhánh suy nghĩ, chốt **ba bước kết hợp trên `val`**, tạo thêm **4 notebook đợt 8** (0.6B bật suy nghĩ + một lượt) ⇒ đợt 8 = **10 notebook**, **gói 016 đã gửi**; **đợt 10** (ba hướng mới: thước nhiễu encoder + đầu phân loại theo khía cạnh + hai tầng theo khía cạnh) đã ghi vào `present_plan.md` mục 14 |
-| P9    | Đợt 11 → 13 (thước đo trên `n` lớn · chọn mốc · số epoch + early stop) | `P9_batch13.md`        | đang chạy: 13.0 + 13.1 XONG (bàn đạp thứ 17 = `checkpoints.best_metric: neg_f1_big5`, n = 3, **+0,240 Acc / +0,783 F1**); còn **Bước 2 → 13.6** (mục 3–8 của file: thêm `neg_recall_big5`, tạo 15 lượt `exp079`–`exp093`, chạy Colab, rồi Optuna/LLM/v0.3.0) |
+| P9    | Đợt 11 → 13 (thước đo trên `n` lớn · chọn mốc · số epoch + early stop) | `P9_batch13.md`        | đang chạy: **13.0 + 13.1 XONG**; **13.2 XONG (15/10/2026) - KẾT LUẬN ÂM**: khi nâng lên n = 9 thì **"bàn đạp thứ 17" BỊ RÚT LẠI** (`neg_f1_big5` chỉ còn **+0,084 Acc / +0,114 F1**; Welch p = 0,463 / 0,801) và **thước thiên Recall `neg_recall_big5` bị ĐÓNG** (Recall chỉ về đúng mức họ 12 mà trả giá `Accuracy` −0,716 / `neg F1` −2,390). Chỉ còn **Bước 6: 13.3 → 13.6** - khung **đã sửa theo kết quả âm**: 13.3 rút `best_metric`/`epochs`/`every_n_steps` khỏi không gian Optuna; 13.6 giữ nền B4 |
 | -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
 
 > **Tệp kế hoạch còn ở GỐC repo** (chưa hợp nhất, đã biết): `present_plan.md` + `check_present_plan.md` là cặp
@@ -37,10 +37,10 @@
 Bảng trên là **nguồn duy nhất** nói đang ở bước nào: sửa mục 2 của file con thì sửa luôn dòng tương
 ứng ở đây, để không lặp lại việc tài liệu nói một đằng, việc đã làm một nẻo.
 
-> **Số lượng HIỆN TẠI** (đo **14/10/2026**, commit `e9f3d3b` nhánh `experiment`): repo có **168 notebook đã
-> ghim** (`experiments/**/notebook.ipynb`) và **159 thư mục kết quả có `metrics.json`** trên đĩa;
-> `experiment_registry.csv` = **159 dòng** (trong đó `cafebert/lora` = 66, gồm 15 lượt đợt 13.1
-> `exp064`–`exp078`), `attempt_registry.csv` = **165 dòng**. Con số **"17 lượt"** ở hàng P7 và
+> **Số lượng HIỆN TẠI** (đo **15/10/2026**, bảng dựng lại ở commit `8d5e00d` nhánh `experiment`): repo có **183
+> notebook đã ghim** (`experiments/**/notebook.ipynb`) và **174 thư mục kết quả có `metrics.json`** trên đĩa;
+> `experiment_registry.csv` = **174 dòng** (trong đó `cafebert/lora` = **81**, gồm 15 lượt đợt 13.1
+> `exp064`–`exp078` + 15 lượt đợt 13.2 `exp079`–`exp093`), `attempt_registry.csv` = **180 dòng**. Con số **"17 lượt"** ở hàng P7 và
 > **"33 notebook"** ở hàng P8b là **MỐC LỊCH SỬ** ở ngày ghi, KHÔNG phải số hiện tại. Nguồn đối
 > chiếu chuẩn là `python scripts/collect_reports.py --dry-run` (bảng `attempt_registry`).
 

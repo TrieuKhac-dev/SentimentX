@@ -108,9 +108,10 @@ Từng lượt (test, `paper`; `Accuracy macro` / `neg F1 (5n)` / **epoch thực
    ⇒ trung bình **+0,353 Acc / +1,293 F1**, 3/3 dương ở cả hai trục, `ttest_rel`
    **p = 0,0459 (Acc) / 0,0649 (F1)**.
 
-**Bàn đạp thứ 17.** 16 bàn đạp trước đều âm (xem `present_plan_batch13.md` mục A). Đây là bàn đạp **đầu
-tiên** đạt công thức "Δ ≥ 0 ở cả hai trục, ít nhất một cái > 0" trên 3 seed độc lập. Cơ chế: **đổi thước
-CHỌN MỐC** (`checkpoints.best_metric`) chứ không đổi kiến trúc, dữ liệu hay siêu tham số huấn luyện.
+**⚠️ "Bàn đạp thứ 17" - ỨNG VIÊN, ĐÃ BỊ ĐỢT 13.2 BÁC BỎ (xem §2.3).** Ở **n = 3**, đây là nhánh **đầu tiên**
+đạt công thức "Δ ≥ 0 ở cả hai trục, ít nhất một cái > 0". Cơ chế: **đổi thước CHỌN MỐC**
+(`checkpoints.best_metric`) chứ không đổi kiến trúc, dữ liệu hay siêu tham số huấn luyện. Nhưng n = 3 là
+**quá ít**: khi lên n = 9, hiệu ứng co còn **+0,084 / +0,114** (`p = 0,463 / 0,801`) ⇒ **đọc là ĐỒNG HẠNG**.
 
 **Núm P/R đã lộ ra (số phải trích khi viết báo cáo).** Lớp ÂM trên 5 khía cạnh `n` lớn,
 họ 12 → B1 → **B4** (cơ sở `paper`, %):
@@ -138,15 +139,64 @@ nghiêng về Precision. **Đây chính là lý do Bước 2 tồn tại.**
   B4 đạt ở `neg F1` (+0,783, p = 0,0086) nhưng **KHÔNG đạt ngưỡng 0,7 ở `Accuracy`** (+0,240) dù
   `p = 9,5e-06`. Ghi đúng cả hai vế, **không nới ngưỡng sau khi thấy số**.
 
+### 2.3 Đợt 13.2 - ĐÃ ĐO (15/10/2026): **KẾT LUẬN ÂM**
+
+15 lượt `exp079`–`exp093`, ghim `22910c0`: tất cả `FINISHED`, `n_samples 1623`, `resume.mode NEW`,
+`data.build …-e616c1e3`, `repo_sha 22910c0…`, `cost` có `epoch đã chạy` + `dừng sớm`. Số trên `test`,
+cơ sở `paper`, so với họ 12 lượt `lr 4e-4` (**98,283** · **94,377**):
+
+| Nhánh | n | `Accuracy macro` (sd) | Δ | `neg F1 (5n)` (sd) | Δ | Welch p (Acc / F1) | Đọc |
+|---|---:|---:|---:|---:|---:|---|---|
+| **B4** `best_metric: neg_f1_big5` | 9 | 98,367 (0,313) | **+0,084** | 94,491 (1,278) | **+0,114** | 0,463 / 0,801 | **ĐỒNG HẠNG** - ứng viên bàn đạp 17 **BỊ RÚT LẠI** |
+| B1 `sentiment_f1` (đối chứng) | 9 | 98,167 (0,328) | −0,116 | 94,016 (1,213) | −0,361 | 0,330 / 0,411 | nhánh đối chứng ghép cặp |
+| **R** `best_metric: neg_recall_big5` | 3 | 97,567 (0,316) | −0,716 | 91,987 (1,480) | −2,390 | 0,055 / 0,105 | **ĐÓNG trục** |
+
+**Ghép cặp cùng seed B4 − B1 (n = 9):** Acc **+0,200** `p = 0,122`; `neg F1` **+0,476** `p = 0,391`;
+**6/9 cặp dương**. Hiệu ứng **co lại** so với n = 3 (+0,240 / +0,783) và `sd` **nở ra** (0,025 → 0,313 Acc).
+
+**Bằng chứng mạnh nhất:** `exp090` là lượt **B1** - thước CHỌN MỐC **CŨ** `sentiment_f1` - vẫn đạt
+**98,60 / 95,76**. ⇒ Các đỉnh mới là do **hạt giống**, KHÔNG do núm chọn mốc.
+
+**Nhánh R không đạt ("bán Precision quá đắt"):** Recall âm 5 khía cạnh chỉ về **đúng mức họ 12 đã có**
+(97,060 vs 97,068) mà trả giá `Accuracy` −0,716 và `neg F1` −2,390. Số từng khía cạnh (cơ sở `paper`, %),
+lớp ÂM, thứ tự **P / R / F1**:
+
+| Khía cạnh | Họ 12 | B1 (n=9) | **B4 (n=9)** | R (n=3) |
+|---|---|---|---|---|
+| `colour` | 85,8 / 95,2 / 90,2 | 84,1 / 94,8 / 89,1 | **88,7 / 91,9 / 90,1** | 72,7 / 96,9 / 83,0 |
+| `shipping` | 97,2 / 98,2 / 97,7 | 96,9 / 98,3 / 97,6 | 97,3 / 98,4 / 97,8 | 94,4 / 98,6 / 96,5 |
+| `smell` | 86,7 / 96,9 / 91,5 | 87,1 / 95,8 / 91,2 | **88,5 / 94,9 / 91,5** | 88,2 / 95,8 / 91,8 |
+| `stayingpower` | 97,1 / 98,3 / 97,7 | 97,9 / 97,3 / 97,6 | **98,3 / 97,1 / 97,7** | 95,6 / 97,5 / 96,5 |
+| `texture` | 92,8 / 96,8 / 94,7 | 93,7 / 95,6 / 94,6 | **96,0 / 94,8 / 95,3** | 88,4 / 96,4 / 92,2 |
+
+⇒ **Đích #1** (`texture` âm P) vẫn tiến bộ ở ĐÚNG một ô (92,8 → **96,0**) nhưng **không kéo được macro**;
+**Đích #2** (Recall âm) **ĐI LÙI** ở B4 (97,068 → 95,400).
+
+**Hai điều PHẢI KHAI (không phải lỗi):**
+- `exp082` (B4 seed 4) và `exp088` (B1 seed 4) **trùng số** do chọn trúng **cùng mốc**; `config_sha256` KHÁC
+  nhau và thời gian huấn luyện khác (4.229,6 s vs 4.268,1 s) ⇒ **hai lượt thật**, không phải copy nhầm.
+- n = 9 của B4 **trộn hai `repo_sha`** (`8f4eb49` ×3 + `22910c0` ×6); `git diff` `src/training/lora.py` giữa
+  hai sha là **thuần THÊM MỚI** (một hàm + một khoá `measure()` + một phần tử `MEASURED_METRICS`), **không
+  chạm phép tính huấn luyện**.
+
+**Kỷ lục LƯỢT ĐƠN mới** (luật 10: KHÔNG phải kết luận về cấu hình): `exp080` **98,65** (Acc cao nhất đường
+encoder trên `test`) · `exp079` **95,86** (`neg F1 5n` cao nhất).
+
+**Hệ quả:** sau 13.2 có **SÁU trục đã đóng** - `epochs` · `every_n_steps`/`patience` · `lora.r 8` ·
+`class_weight: inverse_by_aspect` (13.1) · **thước CHỌN MỐC `neg_f1_big5`** · **thước thiên Recall
+`neg_recall_big5`** (13.2). Không gian tìm kiếm của 13.3 vì thế **RÚT** `best_metric` + `epochs` +
+`every_n_steps` (xem §8).
+
+
 ## 3. Việc còn lại - bảng tổng
 
-| Bước | Việc | GPU | Thời gian | Commit đề nghị |
+| Bước | Việc | GPU | Trạng thái | Commit / kết quả |
 |---|---|---|---|---|
-| **2** | Thêm chỉ số `neg_recall_big5` (đo được + cột bảng chuẩn) + test + tài liệu | không | ~1–2 h | `feat(training): ...` + `docs(...)` |
-| **3** | Tạo 15 lượt Đợt 13.2 (`exp079`…`exp093`), ghim, đóng gói 036 | không | ~1–2 h | `experiment(stage-13.2): ...` · `chore(experiments): pin ...` · `chore(handover): package 036 ...` |
-| **4** | Chạy 15 notebook trên Colab (song song) rồi trả kết quả về | **có** (15 phiên) | ~2,5–3 h | `experiment(stage-13.2): record ...` |
-| 5 | Đọc số theo luật ở §6, viết kết quả vào báo cáo + nhật ký | không | ~2 h | `docs(report): ...` |
-| 6 | 13.3 → 13.6 (khung ở §8) | tuỳ | 1–2 ngày | - |
+| **2** | Thêm chỉ số `neg_recall_big5` (đo được + cột bảng chuẩn) + test + tài liệu | không | ✅ **XONG** | `8e7fe11` · `b7dcff7` · `945eb78` |
+| **3** | Tạo 15 lượt Đợt 13.2 (`exp079`…`exp093`), ghim, đóng gói 036 | không | ✅ **XONG** | `22910c0` · `e34d508` · `7e0c42e` · `77752db` |
+| **4** | Chạy 15 notebook trên Colab (song song) rồi trả kết quả về | **có** (15 phiên) | ✅ **XONG** - 15/15 `FINISHED` | - |
+| **5** | Ghi kết quả + **kết luận ÂM** vào báo cáo, bảng chuẩn và nhật ký | không | ✅ **XONG** | `8d5e00d` + commit tài liệu |
+| **6** | 13.3 → 13.6 (khung ở §8 - **đã sửa theo kết quả 13.2**) | tuỳ | ⏳ **chờ người dùng duyệt** | - |
 
 ## 4. Bước 2 - Thêm chỉ số `neg_recall_big5` (0 GPU)
 
@@ -294,8 +344,12 @@ min_delta 0.002}` · `every_n_steps 100` · `answer_from logits` (mặc định)
 - Nhánh **R** là ý MỚI, chưa từng chạy: rủi ro đã biết là **Precision sụp** khi chọn mốc theo Recall
   (đúng vì thế mới cần hàng so sánh ghép cặp cùng seed 1, 2, 3 với B4/B1). Nếu R đạt ⇒ **đợt sau mới** lên
   n = 9 cho R; nếu không đạt ⇒ **đóng** và đi tiếp 13.3, ghi rõ là kết quả ÂM.
-- Nếu B4 ở n = 9 **xác nhận** ⇒ đây là kết luận chính của đợt 13 để đưa vào báo cáo: *bàn đạp thắng nằm ở
-  thước CHỌN MỐC, không phải ở số epoch*.
+- ~~Nếu B4 ở n = 9 **xác nhận** ⇒ đây là kết luận chính của đợt 13 ...~~ **ĐÃ ĐỌC SỐ (15/10/2026): B4
+  KHÔNG xác nhận ở n = 9** - **+0,084 / +0,114**, `p = 0,463 / 0,801`; ghép cặp cùng seed **+0,200 / +0,476**,
+  `p = 0,122 / 0,391` (6/9 cặp dương). ⇒ Kết luận chính của đợt 13 là **ÂM**: *thước CHỌN MỐC chỉ là **núm
+  chỉnh P↔R**, KHÔNG phải bàn đạp thắng*; kết quả n = 3 của 13.1 là **may mắn rút thăm**. Nhánh **R** cũng
+  **KHÔNG đạt** (Recall chỉ về đúng mức họ 12 mà trả giá Acc −0,716 / F1 −2,390) ⇒ **ĐÓNG trục** thước thiên
+  Recall. Số đầy đủ theo nhánh + từng khía cạnh: **§2.3**.
 
 ### 6.4 Mục cần viết vào `handover/README.md` cho gói 036
 
@@ -319,14 +373,14 @@ min_delta 0.002}` · `every_n_steps 100` · `answer_from logits` (mặc định)
 - **Ngưỡng nhiễu 1 lượt:** ±0,7 pp. Phương sai hai họ lệch nhau ⇒ báo **Welch**, không dùng kiểm định gộp
   phương sai. Đơn vị: **điểm phần trăm (pp)** - viết `98,52`, không viết `0,9852`.
 
-## 8. Sau 13.2 - khung 13.3 → 13.6 (chi tiết ở `present_plan_batch13.md` mục C)
+## 8. Sau 13.2 - khung 13.3 → 13.6 (chi tiết ở `present_plan_batch13.md` mục C) - **ĐÃ SỬA theo kết quả ÂM của 13.2**
 
 | Đợt | Việc | GPU | Ghi chú đã cập nhật theo số của 13.1 |
 |---|---|---|---|
-| **13.3** | **Optuna NSGA-II** trên MÁY CÁ NHÂN, 2 mục tiêu `(accuracy_macro, neg_f1_big5)` trên `val` | 0 | Không gian **đã thêm**: `epochs {3…8}` (vì val đỉnh ở epoch 3–6) · `every_n_steps {50, 100}` · `best_metric {sentiment_f1, neg_f1_big5, neg_recall_big5}`. Trial rẻ hơn ~1,5–2 lần. `n` nhỏ 500 mẫu `val`, `batch 4 × grad_accum 8` cho VRAM 6 GB. Chỉ chọn trên `val`, KHÔNG chạm `test` |
-| **13.4** | 3 điểm trên Pareto front × 3 seed, chạy **full 1.623** `test`, so bằng Welch | 9 | Chỉ tin kết luận từ đây (chọn-best-of-N trên `val` bị thiên lệch LÊN) |
+| **13.3** | **Optuna NSGA-II** trên MÁY CÁ NHÂN, 2 mục tiêu `(accuracy_macro, neg_f1_big5)` trên `val` | 0 | **ĐÃ SỬA theo kết quả 13.2:** không gian **RÚT** `epochs` · `every_n_steps` · `best_metric` (cả ba vừa bị chứng minh là không đáng thử / không có tác dụng có ý nghĩa) và GIỮ CỐ ĐỊNH `checkpoints.best_metric: sentiment_f1`. Còn tìm: `lr` log-uniform `1e-4…1e-3` · `lora.r {4,8,16,32,64}` · `alpha {8,16,32,64,128}` · `lora_dropout {0, 0.05, 0.1, 0.2}` · `weight_decay {0, 0.01, 0.05, 0.1}` · `loss.class_weight {inverse, none, inverse_by_aspect}` · `use_dora {false,true}` · `head.trainable {true,false}` · `max_length {192,256,320,384}`. `n` nhỏ 500 mẫu `val`, `batch 4 × grad_accum 8` cho VRAM 6 GB; dừng khi 30 trial liên tiếp không cải thiện > 0,1 pp. Chỉ chọn trên `val`, KHÔNG chạm `test` |
+| **13.4** | 3 điểm trên Pareto front × 3 seed, chạy **full 1.623** `test`, so bằng Welch | 9 | Chỉ tin kết luận từ đây (chọn-best-of-N trên `val` bị thiên lệch LÊN). **Bài học 13.2:** n = 3 KHÔNG đủ tin ⇒ thiết kế sẵn bước nâng nhánh thắng lên **n = 9** |
 | **13.5** | LLM: DÒ lô suy luận `batch 4 / 2 / 1` trên **200 review cố định** (3 lượt) | 3 (+1–2 nếu đạt) | Ngưỡng mở full: lệch **> 0,5 pp** HOẶC **> 2 % ô**. Dưới ngưỡng ⇒ đóng trục batch |
-| **13.6** | `exp034`: dữ liệu `v0.3.0` × 3 seed, nền = **cấu hình B4** (nay là cấu hình tốt nhất đã xác nhận) | 3 | `test` y đúc v0.2.0 nên số so được; `exp034` vào **BẢNG CHÍNH** kèm chú thích cố định: *"train/val khác phiên bản dữ liệu (v0.3.0 bỏ emoji); `test` y đúc v0.2.0"* (người dùng đã chốt) |
+| **13.6** | `exp034`: dữ liệu `v0.3.0` × 3 seed, nền = **cấu hình B4** (người dùng đã chốt) | 3 | B4 là **lựa chọn danh nghĩa tốt nhất** (+0,084 / +0,114; `texture` P +3,2) - **KHÔNG phải "đã xác nhận"** (xem §2.3). Giữ nó để 13.6 tách đúng **một** biến. `test` y đúc v0.2.0 nên số so được; `exp034` vào **BẢNG CHÍNH** kèm chú thích cố định: *"train/val khác phiên bản dữ liệu (v0.3.0 bỏ emoji); `test` y đúc v0.2.0"* (người dùng đã chốt) |
 
 ## 9. Nhật ký bàn giao
 
@@ -339,7 +393,11 @@ min_delta 0.002}` · `every_n_steps 100` · `answer_from logits` (mặc định)
 | 14/10/2026 | **Kết quả 15/15 lượt** + dựng lại bảng tổng hợp (`collect_reports.py`) | `e9f3d3b` |
 | 14/10/2026 | Kết luận 13.1 (3 trục đóng, bàn đạp thứ 17, núm P/R) + file bàn giao này | `83db858` |
 | 14/10/2026 | Dọn file nháp của đợt (xoá log/script dùng-một-lần ở `_scratch/`; còn 4 script tiện dụng) | `83db858` |
-| *còn lại* | Bước 2 → Bước 4, rồi 13.3 → 13.6 | xem §3 |
+| 15/10/2026 | Bước 2: chỉ số `neg_recall_big5` (hàm + cột bảng chuẩn + 7 test + 4 tài liệu) | `8e7fe11` · `b7dcff7` · `945eb78` |
+| 15/10/2026 | Bước 3: tạo 15 lượt 13.2 · ghim `22910c0` · gói 036 · mục "Đợt 13.2" trong `handover/README.md` | `22910c0` · `e34d508` · `7e0c42e` · `77752db` |
+| 15/10/2026 | Bước 4: nhận đủ **15/15** kết quả (`FINISHED`, `n = 1623`, `NEW`, `repo_sha 22910c0`) | - |
+| 15/10/2026 | Bước 5: ghi kết quả + **KẾT LUẬN ÂM**; **rút lại "bàn đạp thứ 17"**; sửa không gian 13.3 (§8) | `8d5e00d` · *(commit tài liệu)* |
+| *còn lại* | **Bước 6**: 13.3 → 13.6 (§8 - **chờ người dùng duyệt**) | xem §3 |
 
 
 

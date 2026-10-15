@@ -48,6 +48,13 @@ và `shipping` (−1,2).** Công bố có **R = 100,00 ở CẢ 5 khía cạnh `
 `f1_âm_gốc == f1_âm_sau` ⇒ **rỗng**) · ensemble/biểu quyết/router/gộp-hai-tầng (âm/rỗng) ·
 `segmenter: vncorenlp` (không tái lập).
 
+**Bổ sung 15/10/2026 (sau Đợt 13.2 - xem mục H):** thêm vào danh sách đã CẠN:
+**`epochs 15` + `early_stop`** và **`every_n_steps 50` + `patience 24`** (đóng ở 13.1) ·
+**`best_metric: neg_f1_big5`** (n = 9: chỉ +0,084 / +0,114, `p = 0,463 / 0,801` ⇒ KHÔNG xác nhận) ·
+**`best_metric: neg_recall_big5`** (nhánh R: Recall chỉ về đúng mức họ 12 mà trả giá `Accuracy` −0,716 và
+`neg F1` −2,390 ⇒ ĐÓNG). ⇒ **Không còn "núm chọn mốc" hay "số epoch" nào để vặn**; phải tìm ở không gian
+khác: `lr` · `r` · `alpha` · `max_length` · hàm mất mát · kiến trúc đầu phân loại.
+
 ## B. Đợt 13.0 — Việc NỀN (không tốn GPU)
 
 1. **`early_stop.min_delta` phải dùng THẬT.** Code hiện chỉ so `value > best` (`src/training/lora.py`
@@ -245,9 +252,15 @@ phải xác nhận bằng n = 9 + ghép cặp (Đợt 13.2), không nới ngư�
 | `exp085`–`exp090` | **B1** × seed **1…6** | `exp064` | `decoding.seed` | **9 cặp ghép cùng seed** (tách đúng tác dụng `best_metric`) |
 | `exp091`–`exp093` | **R** (`best_metric: neg_recall_big5`) × seed **1,2,3** | `exp074` | `decoding.seed` + `checkpoints.best_metric` | đánh **Đích #2** (Recall âm) |
 
-**Việc còn lại của đợt 13 (Bước 2 → 13.6) đã được viết thành file bàn giao riêng, đọc file đó trước khi làm:
-`docs/06_plan/P9_batch13.md`** — có đặc tả code `neg_recall_big5`, lệnh tạo lượt/ghim/đóng gói, luật đọc số
-13.2 (chốt trước khi chạy), quy ước số liệu và khung 13.3 → 13.6.
+**KẾT QUẢ 13.2 (15/10/2026) - KẾT LUẬN ÂM.** 15/15 lượt `FINISHED` (ghim `22910c0`), số trên `test`, cơ sở
+`paper`, so với họ 12 lượt (**98,283** · **94,377**): **B4 (n = 9)** = **98,367 / 94,491** ⇒ **+0,084 / +0,114**
+(Welch `p = 0,463 / 0,801`; ghép cặp cùng seed với B1 `+0,200 / +0,476`, `p = 0,122 / 0,391`) ⇒ **"bàn đạp thứ
+17" BỊ RÚT LẠI**; **B1 (n = 9)** = 98,167 / 94,016; **R (n = 3)** = 97,567 / 91,987 ⇒ **ĐÓNG trục thước thiên
+Recall**. Bằng chứng mạnh nhất: `exp090` là lượt **B1** (thước CHỌN MỐC CŨ) vẫn đạt **98,60 / 95,76** ⇒ đỉnh mới
+do hạt giống. **Hệ quả:** 13.3 rút `best_metric` + `epochs` + `every_n_steps` khỏi không gian tìm kiếm; 13.6 giữ
+nền **B4**. Số đầy đủ: `docs/06_plan/P9_batch13.md` §2.3; nhật ký chi tiết: mục H ngay dưới.
+
+**Việc còn lại của đợt 13 (Bước 6): 13.3 → 13.6** - khung đã sửa ở `docs/06_plan/P9_batch13.md` §8.
 
 
 
