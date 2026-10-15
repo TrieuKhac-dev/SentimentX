@@ -304,12 +304,28 @@ Lớp dương cùng lượt: **R tăng** +0,7…+1,0 ở 4/5 khía cạnh, P ph�
 
 Ba hệ quả bắt buộc:
 
-- **Muốn đổi P/R thì đổi thước chọn mốc**, không cần đụng kiến trúc/dữ liệu. Đây là cách rẻ nhất để đánh
-  vào ô còn yếu (Bảng ĐÍCH của đợt 13): cần Recall thì phải có một thước thiên Recall.
+- **Muốn đổi P/R thì đổi thước chọn mốc**, không cần đụng kiến trúc/dữ liệu: cần Recall thì phải có một
+  thước thiên Recall. **NHƯNG (đo 15/10/2026, Đợt 13.2):** đây là **núm CHỈNH P↔R**, **KHÔNG** phải núm nâng
+  `Accuracy`/`F1` - xem khối cuối của luật này.
 - **Chọn mốc xong thì số trên `test` có yếu tố "được chọn"**: mốc tối ưu trên `val` bằng chính thước đó ⇒
   không được tự khen trên đúng thước mà nó tối ưu, và kết luận phải dựa trên **nhiều seed + ghép cặp**, không
   phải một lượt (luật 10).
 - **Hai cơ sở đo của hai tầng KHÁC nhau** (xem "Hai cơ sở đo" ở trên): `val` - chọn mốc, dừng sớm - ở cơ sở
   `all`; cột chuẩn của bảng số ở cơ sở `paper`. Cùng một lượt, `neg F1 (5n)` lệch nhau ~1-3 điểm giữa hai
   cơ sở, nên **không được** lấy số `val` đi so với cột `paper`, phải nói rõ cơ sở mỗi khi trích.
+
+**15/10/2026 - HỆ QUẢ ÂM, đo được ở Đợt 13.2** (15 lượt `exp079`–`exp093`: nâng nhánh chọn mốc lên **n = 9**,
+thêm 6 seed cho nhánh đối chứng, và thử một thước thiên Recall). Số trên `test`, cơ sở `paper`, so với họ 12
+lượt `lr 4e-4` (**98,283** · **94,377**):
+
+- `best_metric: neg_f1_big5` ở **n = 9**: **98,367 / 94,491** ⇒ **+0,084 / +0,114** (Welch `p = 0,463 / 0,801`).
+  Ghép cặp **cùng seed** với nhánh đối chứng (`sentiment_f1`, n = 9): **+0,200 / +0,476**, `p = 0,122 / 0,391`.
+  So với **n = 3** của Đợt 13.1 (**+0,240 / +0,783**) thì hiệu ứng **co lại và mất ý nghĩa** khi tăng `n`
+  ⇒ kết quả n = 3 là **may mắn rút thăm**. Bằng chứng mạnh nhất: một lượt **đối chứng** dùng thước CHỌN MỐC CŨ
+  (`exp090`, `sentiment_f1`) vẫn đạt **98,60 / 95,76** ⇒ các đỉnh mới do **hạt giống**, không do núm.
+- Thước thiên Recall (`neg_recall_big5`, n = 3): Recall lớp âm 5 khía cạnh **97,060** ≈ đúng mức họ 12 lượt
+  (**97,068**) nhưng `Accuracy` **−0,716** và `neg F1` **−2,390**; `colour` Precision sụp 85,8 → **72,7**.
+
+⇒ **Luật 16 giữ nguyên phần "điều khiển được P↔R", nhưng KHÔNG được dùng để hứa hẹn "tăng F1"**: muốn nâng
+`Accuracy`/`F1` thì phải đi đường khác (kiến trúc, dữ liệu, hàm mất mát), không phải thước chọn mốc.
 

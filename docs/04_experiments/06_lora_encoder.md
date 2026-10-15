@@ -235,7 +235,7 @@ Số trên `test`, cơ sở `paper`, so với họ 12 lượt `lr 4e-4` (**98,28
 
 | Nhánh | `Accuracy macro` (Δ) | `neg F1 (5n)` (Δ) | Welch p (Acc / F1) | Kết luận |
 |---|---:|---:|---|---|
-| **`checkpoints.best_metric: neg_f1_big5`** | **98,523** (+0,240) | **95,160** (+0,783) | **9,5e-06 / 0,0086** | ✅ GIỮ - bàn đạp thứ 17 |
+| **`checkpoints.best_metric: neg_f1_big5`** | **98,523** (+0,240) | **95,160** (+0,783) | **9,5e-06 / 0,0086** | ⚠️ n = 3: ứng viên "bàn đạp thứ 17" - **Đợt 13.2 KHÔNG xác nhận ở n = 9** (xem khối dưới) |
 | `epochs 15` + dừng sớm (đối chứng) | 98,170 (−0,113) | 93,867 (−0,510) | 0,251 / 0,217 | ⛔ ĐÓNG trục `epochs` |
 | `every_n_steps 50` + `patience 24` | 97,907 (−0,377) | 93,180 (−1,197) | 0,368 / 0,371 | ⛔ đóng |
 | `loss.class_weight: inverse_by_aspect` | 97,713 (−0,570) | 92,147 (−2,230) | 0,140 / 0,106 | ⛔ đóng vĩnh viễn |
@@ -248,8 +248,29 @@ Hai điều rút ra, phải nhớ khi đọc số của đường encoder:
   hơn 3 epoch. Bộ này bão hoà sau ~2.400 ô; đừng mở lại trục này mà không có bằng chứng mới.
 - **Thước chọn mốc là một NÚM P/R:** lớp âm trên 5 khía cạnh `n` lớn đổi **P +4,0…+5,6** nhưng
   **R −2,4…−2,7** (lớp dương thì R **tăng** +0,7…+1,0). Vì vậy kết luận "tăng F1" phải khai kèm P và R
-  (luật 16 của `docs/04_experiments/metrics.md`), và muốn kéo Recall âm lên thì phải thêm một thước thiên
-  Recall (`neg_recall_big5`, Đợt 13.2 - xem `docs/06_plan/P9_batch13.md`).
+  (luật 16 của `docs/04_experiments/metrics.md`). **Nó là núm CHỈNH P↔R, không phải núm nâng Accuracy/F1** -
+  bằng chứng ở khối 13.2 ngay dưới.
+
+### Đợt 13.2 đã đo n = 9 (mốc 15/10/2026) - KẾT QUẢ ÂM
+
+15 lượt `exp079`–`exp093`: thêm **6 seed** cho nhánh `neg_f1_big5` (n = 3 → **9**), **6 seed** cho nhánh đối
+chứng `sentiment_f1`, và **3 lượt** thử thước thiên Recall. Số trên `test`, cơ sở `paper`, so với họ 12 lượt
+`lr 4e-4` (**98,283** · **94,377**):
+
+| Nhánh | n | `Accuracy macro` (Δ) | `neg F1 (5n)` (Δ) | Welch p (Acc / F1) | Kết luận |
+|---|---:|---:|---:|---|---|
+| **B4 `best_metric: neg_f1_big5`** | 9 | 98,367 (**+0,084**) | 94,491 (**+0,114**) | 0,463 / 0,801 | ⛔ **KHÔNG xác nhận** - ĐỒNG HẠNG với họ 12 |
+| B1 `sentiment_f1` (đối chứng) | 9 | 98,167 (−0,116) | 94,016 (−0,361) | 0,330 / 0,411 | nhánh đối chứng ghép cặp |
+| **R `best_metric: neg_recall_big5`** | 3 | 97,567 (−0,716) | 91,987 (−2,390) | 0,055 / 0,105 | ⛔ **ĐÓNG trục** - bán Precision quá đắt |
+
+- Ghép cặp **cùng seed** B4 vs B1 (n = 9): **+0,200 Acc / +0,476 F1**, `p = 0,122 / 0,391` (6/9 cặp dương) ⇒
+  cũng không đạt ngưỡng. Hiệu ứng **co lại** so với n = 3 (+0,240 / +0,783, `p = 9,5e-06 / 0,0086`)
+  ⇒ kết quả n = 3 của Đợt 13.1 là **may mắn rút thăm**, không phải bàn đạp.
+- **Bằng chứng mạnh nhất:** `exp090` là lượt **B1** (thước CHỌN MỐC **CŨ** `sentiment_f1`) vẫn đạt
+  **98,60 / 95,76** ⇒ các đỉnh mới là do **hạt giống**, không do núm chọn mốc.
+- Nhánh R đưa Recall âm về **đúng mức họ 12 đã có** (97,060 vs 97,068) nhưng `colour` Precision sụp
+  85,8 → **72,7**; `texture` Precision 92,8 → 88,4. Đổi lại: **không có gì**.
+- Chi tiết từng lượt + P/R/F từng khía cạnh: `docs/06_plan/P9_batch13.md` mục 2.3.
 
 ### Kết quả hai hàm mất mát (số đo thật, bốn lượt LoRA)
 
