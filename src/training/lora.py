@@ -743,6 +743,34 @@ def neg_f1_big5_of(samples, labels, aspects=BIG_ASPECTS):
     return round(sum(found) / len(found), 6) if found else None
 
 
+def neg_recall_big5_of(samples, labels, aspects=BIG_ASPECTS):
+    """TB Recall lớp ÂM trên 5 khía cạnh `n` LỚN - thước thiên RECALL để chọn `model/best`.
+
+    Vì sao cần: số của Đợt 13.1 cho thấy thước CHỌN MỐC điều khiển thế cân bằng Precision↔Recall
+    (luật 16 của docs/04_experiments/metrics.md). `neg_f1_big5` tối ưu F1 nên model nghiêng về
+    Precision và Recall lớp âm của `smell`/`shipping`/`texture` tụt (Đích #2 của đợt 13). Đây là
+    thước duy nhất hiện có để chọn mốc theo Recall.
+
+    Cùng quy ước với `neg_f1_big5_of` và cột `neg_recall_big5` của bảng tổng hợp
+    (`reports.negative_recall_of_aspects`): lấy TRUNG BÌNH Recall của những khía cạnh CÓ ô âm,
+    khía cạnh không có ô âm bị BỎ chứ không tính là 0. Trả `None` khi bảng nhãn không có lớp
+    `negative`, hoặc khi không khía cạnh nào trong nhóm có ô âm.
+
+    KHÔNG được trả `None` khi lớp âm CÓ ô: `checkpoints.best_metric` trỏ tới chỉ số này mà lần đo
+    đầu không có số thì lượt chạy DỪNG NGAY (chốt an toàn trong `checkpoints`, xem P9 §4.1).
+    """
+    code = negative_code(labels)
+    if code is None:
+        return None
+    by_aspect = (samples.per_sentiment() or {}).get("by_aspect") or {}
+    found = []
+    for name in aspects:
+        item = (by_aspect.get(name) or {}).get(code) or {}
+        if item.get("support"):
+            found.append(float(item.get("recall") or 0.0))
+    return round(sum(found) / len(found), 6) if found else None
+
+
 def measure(model, module, data, found, codes, device, aspects, task, labels):
     """Đo `val` bằng ĐÚNG engine chấm điểm của lượt chạy (`src/evaluation/scorers`).
 
@@ -807,6 +835,9 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
         # TB F1 lớp âm trên 5 khía cạnh `n` lớn: lựa chọn cho `checkpoints.best_metric` khi muốn
         # `model/best` tối ưu cho ĐÚNG nhóm khía cạnh còn yếu (xem `neg_f1_big5_of`).
         "neg_f1_big5": neg_f1_big5_of(samples, labels),
+        # TB Recall lớp âm trên 5 khía cạnh `n` lớn: thước thiên RECALL để chọn `model/best` khi
+        # muốn đánh Đích #2 (Recall âm) - xem `neg_recall_big5_of`.
+        "neg_recall_big5": neg_recall_big5_of(samples, labels),
         "cells": accuracy["cells"],
         "correct": accuracy["correct"],
     }
@@ -819,8 +850,11 @@ def measure(model, module, data, found, codes, device, aspects, task, labels):
 # âm, thay vì `sentiment_f1` (trung bình 3 lớp) vốn bị lớp trội chi phối.
 # Thêm 13/10/2026: `neg_f1_big5` = TB F1 lớp âm trên 5 khía cạnh `n` LỚN (xem `neg_f1_big5_of`) -
 # thước thứ ba, không bị `price`/`packing` chi phối như hai thước trên.
+# Thêm 15/10/2026: `neg_recall_big5` = TB RECALL lớp âm trên 5 khía cạnh `n` LỚN (xem
+# `neg_recall_big5_of`) - thước thiên Recall, dùng khi muốn đánh Đích #2 (Recall âm).
 MEASURED_METRICS = ("accuracy_cell", "accuracy_macro", "sentiment_f1", "sentiment_precision",
-                    "sentiment_recall", "detection_f1", "negative_f1", "neg_f1_big5", "loss")
+                    "sentiment_recall", "detection_f1", "negative_f1", "neg_f1_big5",
+                    "neg_recall_big5", "loss")
 
 
 

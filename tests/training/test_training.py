@@ -635,6 +635,50 @@ class BestMetricTest(unittest.TestCase):
         samples = _FakeSamples({"by_aspect": {"colour": {2: {"f1": 0.9, "support": 54}}}})
         self.assertIsNone(lora.neg_f1_big5_of(samples, {0: "", 1: "positive", 3: "neutral"}))
 
+    def test_neg_recall_big5_is_selectable(self):
+        """15/10/2026: `neg_recall_big5` là lựa chọn hợp lệ cho `model/best` (thước thiên Recall)."""
+        self.assertIn("neg_recall_big5", lora.MEASURED_METRICS)
+        config = {"checkpoints": dict(BASE_CONFIG["checkpoints"], best_metric="neg_recall_big5")}
+        self.assertEqual(checkpoints.settings(config)["best_metric"], "neg_recall_big5")
+
+    def test_neg_recall_big5_lay_RECALL_cua_DUNG_5_khia_canh(self):
+        """Lấy `recall` (KHÔNG phải `f1`), chỉ 5 khía cạnh `BIG_ASPECTS`; bỏ `price`/`packing`.
+
+        `price`/`packing` cố tình đặt recall thấp: nếu lọt vào thì số chọn `model/best` lại bị đúng
+        hai khía cạnh tí hon chi phối (luật 13).
+        """
+        samples = _FakeSamples({"by_aspect": {
+            "colour": {2: {"recall": 0.9, "f1": 0.1, "support": 54}},
+            "shipping": {2: {"recall": 0.8, "f1": 0.2, "support": 172}},
+            "smell": {2: {"recall": 0.7, "f1": 0.3, "support": 48}},
+            "stayingpower": {2: {"recall": 0.6, "f1": 0.4, "support": 95}},
+            "texture": {2: {"recall": 0.5, "f1": 0.5, "support": 83}},
+            "price": {2: {"recall": 0.0, "f1": 0.0, "support": 5}},
+            "packing": {2: {"recall": 0.1, "f1": 0.1, "support": 9}},
+        }})
+        # (0.9 + 0.8 + 0.7 + 0.6 + 0.5) / 5 = 0.7 - và KHÔNG phải (0.1+0.2+0.3+0.4+0.5)/5 = 0.3 (f1)
+        self.assertEqual(lora.neg_recall_big5_of(samples, {1: "positive", 2: "negative"}), 0.7)
+
+    def test_neg_recall_big5_bo_khia_canh_khong_co_o_am(self):
+        """Khía cạnh không có ô âm (`support` rỗng) bị BỎ, không tính là 0 - cùng quy ước `neg_f1_big5_of`."""
+        samples = _FakeSamples({"by_aspect": {
+            "colour": {2: {"recall": 0.9, "support": 54}},
+            "shipping": {2: {"recall": 0.8, "support": 172}},
+            "smell": {2: {"recall": 0.7, "support": 48}},
+            "stayingpower": {2: {"recall": 0.0, "support": 0}},
+            "texture": {2: {"recall": 0.5, "support": 83}},
+        }})
+        # Bỏ `stayingpower`: (0.9 + 0.8 + 0.7 + 0.5) / 4
+        self.assertEqual(lora.neg_recall_big5_of(samples, {1: "positive", 2: "negative"}), 0.725)
+
+    def test_neg_recall_big5_la_None_khi_khong_khia_canh_nao_co_o_am(self):
+        samples = _FakeSamples({"by_aspect": {"colour": {2: {"recall": 0.0, "support": 0}}}})
+        self.assertIsNone(lora.neg_recall_big5_of(samples, {1: "positive", 2: "negative"}))
+
+    def test_neg_recall_big5_la_None_khi_bang_nhan_khong_co_lop_am(self):
+        samples = _FakeSamples({"by_aspect": {"colour": {2: {"recall": 0.9, "support": 54}}}})
+        self.assertIsNone(lora.neg_recall_big5_of(samples, {0: "", 1: "positive", 3: "neutral"}))
+
     def test_big_aspects_trung_voi_bang_tong_hop(self):
         """Hai nơi khai CÙNG một nhóm khía cạnh, nên phải canh lệch bằng test.
 
