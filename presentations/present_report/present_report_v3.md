@@ -161,6 +161,38 @@ sau đáy nhưng mức vượt chỉ 0,001). Vì vậy **không lượt nào b�
   khoảng 420 ô**. Nguyên nhân: model sinh trả lời **"không nhắc tới" nhiều hơn**, mà ô "không nhắc tới" bị loại
   khỏi phần chấm, nên mẫu số của L1 nhỏ hơn. Vì vậy điểm của L1 **không so tuyệt đối** với encoder được.
 
+### 2.5. Đợt 13.2 (15/10/2026) - KẾT QUẢ NHÁNH và trạng thái bảng 10 lượt dẫn đầu
+
+15 lượt `exp079`–`exp093` (B4 × seed 1…6 · B1 × seed 1…6 · R × seed 1…3) đã chạy xong: **15/15 `FINISHED`**,
+`n = 1.623` review, `resume.mode = NEW`, `repo_sha = 22910c0`, dữ liệu `v0.2.0`, tỉ lệ đọc **100 %**. Số trên
+`test`, cơ sở `paper`, so với **họ 12 lượt `lr 4e-4`** (**98,283** · **94,377**):
+
+| Nhánh | n | `Accuracy macro` (sd) | Δ | `neg F1 (5n)` (sd) | Δ | Welch p (Acc / F1) | Đọc |
+|---|---:|---:|---:|---:|---:|---|---|
+| **B4** `best_metric: neg_f1_big5` | 9 | 98,367 (0,313) | **+0,084** | 94,491 (1,278) | **+0,114** | 0,463 / 0,801 | **KHÔNG xác nhận** - ứng viên "bàn đạp thứ 17" **bị rút lại** |
+| B1 `sentiment_f1` (đối chứng) | 9 | 98,167 (0,328) | −0,116 | 94,016 (1,213) | −0,361 | 0,330 / 0,411 | nhánh đối chứng ghép cặp |
+| **R** `best_metric: neg_recall_big5` | 3 | 97,567 (0,316) | −0,716 | 91,987 (1,480) | −2,390 | 0,055 / 0,105 | **ĐÓNG trục** (bán Precision quá đắt) |
+
+Ghép cặp **cùng seed** B4 − B1 (n = 9): Acc **+0,200** `p = 0,122`, `neg F1` **+0,476** `p = 0,391`
+(6/9 cặp dương). Hiệu ứng **co lại** so với n = 3 (+0,240 / +0,783) ⇒ kết quả n = 3 là **may mắn rút thăm**.
+
+**Bằng chứng mạnh nhất:** `exp090` là lượt **B1** - thước CHỌN MỐC **CŨ** `sentiment_f1` - vẫn đạt
+**98,60 / 95,76**. ⇒ Các đỉnh mới là do **hạt giống**, KHÔNG do núm chọn mốc.
+
+**Kỷ lục LƯỢT ĐƠN mới** (luật 10: không phải kết luận về cấu hình): **`exp080` 98,65** (Accuracy macro cao
+nhất của đường encoder trên `test`) và **`exp079` 95,86** (`neg F1 (5n)` cao nhất).
+
+#### ⚠️ Bảng 10 lượt dẫn đầu (mục 2.1, 4, 5, 6, 7, 8, 9) CHƯA được dựng lại theo kết quả này
+
+Các lượt mới **cao hơn** mọi cột encoder hiện có (E1 = `exp021` 98,41) ⇒ **9 cột encoder phải xếp lại**;
+riêng `exp082`/`exp088` **trùng số** nên theo điều kiện 6 của mục 2.1 chỉ tính **MỘT** kết quả. Việc dựng lại
+gồm 6 bảng (~600 ô) và phải tính lại cả mục 2.2 (chẩn đoán hội tụ) và 2.3 (chất lượng mốc) cho các cột mới -
+**chưa làm ở Đợt 13.2** để KHÔNG chép tay số. Trạng thái này được khai rõ thay vì để bảng cũ đứng im:
+**số của Đợt 13.2 đọc ở bảng nhánh trên; bảng 10 lượt dưới đây là của mốc 13/10/2026.**
+Danh sách encoder mới (Acc macro ↓; đã loại lượt `val` `exp005`/`exp006`/`exp050`–`exp054` và đã gộp trùng):
+`exp080` 98,65 · `exp090` 98,60 · `exp079` 98,59 · `exp074` 98,55 · `exp073` 98,52 · `exp082`=`exp088` 98,51 ·
+`exp075` 98,50 · `exp021` 98,41 · `exp040` 98,38 · `exp027` 98,37.
+
 ## 3. Độ tin cậy theo số ô (`n`)
 
 `n` là **số ô ground truth** trong tập `test` cho mỗi cặp (khía cạnh × sắc thái). Số này cố định cho mọi cột.
