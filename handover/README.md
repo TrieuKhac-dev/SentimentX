@@ -160,8 +160,9 @@ Gói **035** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp064` … `e
 **`8f4eb49`**. Chạy được **cả 15 cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính).
 
 > ✅ **KẾT QUẢ ĐÃ VỀ (14/10/2026): 15/15 lượt `FINISHED`.** Nhánh **B4** (`checkpoints.best_metric:
-> neg_f1_big5`) là **bàn đạp thứ 17** - thắng ở CẢ HAI trục: **98,523** (+0,240) và **95,160** (+0,783) so
-> với họ 12 lượt (98,283 · 94,377); Welch `p = 9,5e-06 / 0,0086`; cả 3 lượt đều vượt trần của họ.
+> neg_f1_big5`) **hơn ở n = 3** - **98,523** (+0,240) và **95,160** (+0,783) so với họ 12 lượt
+> (98,283 · 94,377); Welch `p = 9,5e-06 / 0,0086`; cả 3 lượt đều vượt trần của họ.
+> ⚠️ **Đợt 13.2 (n = 9) đã BÁC BỎ kết luận "bàn đạp thứ 17": xem mục "Đợt 13.2" ngay dưới.**
 > Trục `epochs` **đã đóng** (dừng sớm tự kích hoạt ở epoch 4–6; 15 epoch không hơn 3 epoch).
 > Bảng đầy đủ theo nhánh + số từng khía cạnh P/R/F: **`docs/06_plan/P9_batch13.md` mục 2.2**.
 >
@@ -208,6 +209,23 @@ dừng sớm thì ngắn hơn), nên **cả 15 chạy song song ≈ 2,5-3 h**.
 
 Gói **036** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp079` … `exp093`), tất cả ghim commit
 **`22910c0`**. Chạy được **cả 15 cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm danh tính).
+
+> ✅ **KẾT QUẢ ĐÃ VỀ (15/10/2026): 15/15 lượt `FINISHED` - KẾT LUẬN ÂM. KHÔNG cần chạy lại gói 036.**
+> Số trên `test`, cơ sở `paper`, so với họ 12 lượt `lr 4e-4` (**98,283** · **94,377**):
+> **B4 (n = 9)** `neg_f1_big5`: **98,367 / 94,491** = **+0,084 / +0,114** - Welch `p = 0,463 / 0,801`;
+> ghép cặp cùng seed với B1 (n = 9): **+0,200 / +0,476**, `p = 0,122 / 0,391` (6/9 cặp dương).
+> ⇒ **ứng viên "bàn đạp thứ 17" BỊ RÚT LẠI** (hiệu ứng co lại so với n = 3: +0,240 / +0,783); đọc là **ĐỒNG HẠNG**.
+> **B1 (n = 9)**: 98,167 / 94,016 (−0,116 / −0,361). **R (n = 3)** `neg_recall_big5`: 97,567 / 91,987
+> (−0,716 / −2,390) ⇒ **ĐÓNG trục**: Recall âm chỉ về đúng mức họ 12 đã có (97,060 vs 97,068) mà `colour`
+> Precision sụp 85,8 → **72,7**. **Bằng chứng mạnh nhất:** `exp090` là lượt **B1** (thước CHỌN MỐC CŨ)
+> vẫn đạt **98,60 / 95,76** ⇒ các đỉnh mới do **hạt giống**, không do núm chọn mốc.
+> Kỷ lục **lượt đơn** mới: `exp080` **98,65** (Acc) · `exp079` **95,86** (`neg F1 5n`) - luật 10: KHÔNG phải kết luận.
+> ⚠️ KHAI: `exp082` (B4 seed 4) và `exp088` (B1 seed 4) **trùng số** vì chọn trúng **cùng mốc**
+> (`config_sha256` KHÁC nhau, thời gian huấn luyện khác) - hai lượt thật, không phải copy nhầm.
+> ⚠️ KHAI: n = 9 của B4 **trộn 2 `repo_sha`** (`8f4eb49` ×3 + `22910c0` ×6); diff `src/training/lora.py` giữa hai
+> sha là **thuần thêm mới** (không chạm phép tính huấn luyện).
+> **Hệ quả cho việc tiếp theo:** 13.3 (Optuna) **rút `best_metric` + `epochs` + `every_n_steps` khỏi không gian**,
+> giữ `best_metric: sentiment_f1` cố định; 13.6 dùng nền **B4**. Chi tiết: `docs/06_plan/P9_batch13.md` mục 2.3 và 8.
 
 **Câu hỏi của đợt:** Đợt 13.1 (15/15 lượt `FINISHED`) cho thấy **bàn đạp thắng nằm ở thước CHỌN MỐC**, không
 phải ở số epoch: `checkpoints.best_metric: neg_f1_big5` hơn họ 12 lượt ở CẢ HAI trục (98,523 / 95,160) nhưng
