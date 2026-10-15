@@ -60,6 +60,9 @@ checkpoints:
   # `lora.neg_f1_big5_of`). Dùng khi muốn `model/best` tối ưu cho ĐÚNG nhóm khía cạnh còn yếu: cả
   # `sentiment_f1` (trung bình 14 cặp) lẫn `negative_f1` (gộp 7 khía cạnh) đều bị `price` (~5-6 ô âm)
   # và `packing` (~9-10 ô) chi phối - luật 13 của docs/04_experiments/metrics.md.
+  # Thêm 15/10/2026: `neg_recall_big5` = TB RECALL lớp âm trên **5 khía cạnh `n` LỚN** (xem
+  # `lora.neg_recall_big5_of`) - thước thiên RECALL, dùng khi muốn `model/best` đánh vào Recall âm
+  # (Đích #2 của đợt 13): chọn mốc theo F1 làm model nghiêng Precision và Recall âm tụt.
   best_metric: sentiment_f1
 
 

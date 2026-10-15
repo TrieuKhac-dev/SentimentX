@@ -40,6 +40,9 @@ Các mục dưới đây là QUYẾT ĐỊNH đã chốt; việc CHƯA làm nằ
   (`epoch đã chạy`, `dừng sớm`) - `training.epochs` trong cùng tệp là số ĐÃ KHAI, không phải số đã chạy.
   Thêm `checkpoints.best_metric: neg_f1_big5` = TB F1 lớp âm trên **5 khía cạnh `n` lớn** (`lora.neg_f1_big5_of`):
   chọn mốc theo ĐÚNG nhóm khía cạnh còn yếu, thay vì `sentiment_f1`/`negative_f1` vốn bị `price`/`packing` chi phối.
+  **15/10/2026** thêm `checkpoints.best_metric: neg_recall_big5` = TB **RECALL** lớp âm trên cùng 5 khía
+  cạnh `n` lớn (`lora.neg_recall_big5_of`): thước thiên Recall, dùng được làm núm P/R để đánh Đích #2
+  (vì chọn mốc theo F1 làm model nghiêng Precision và Recall âm tụt - luật 16).
   Thêm một điều dễ hiểu nhầm (đo 13/10/2026): `early_stop.patience` đếm **LẦN ĐO**, không đếm epoch -
   `checkpoints.every_n_steps: 100` cho ~3,8 lần đo/epoch trên bộ này, nên `patience: 12` ≈ 3 epoch.
 - **14/10/2026, ĐÃ ĐO (Đợt 13.1, 15 lượt `exp064`–`exp078`, 5 nhánh × 3 seed `42 · 7 · 13`):**

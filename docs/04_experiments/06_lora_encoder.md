@@ -184,11 +184,15 @@ ngay sau mỗi lần lưu.
     `price`** trên `val`; xem `08_experiment_rationale.md` §7.
 - **`val` đo bằng ĐÚNG engine của `test`** (`src/evaluation/scorers`), nên `val` có đủ
   `sentiment_precision/recall/f1`, `detection_f1`, `accuracy_cell`, `negative_f1`, `neg_f1_big5`,
-  `loss` - không có định nghĩa metric thứ hai. Nhờ vậy đổi hàm chấm điểm là đổi cho cả `val` lẫn `test`.
+  `neg_recall_big5`, `loss` - không có định nghĩa metric thứ hai. Nhờ vậy đổi hàm chấm điểm là đổi cho
+  cả `val` lẫn `test`.
   **13/10/2026** thêm `neg_f1_big5` = TB F1 lớp âm trên **5 khía cạnh `n` lớn** (`colour`, `shipping`,
   `smell`, `stayingpower`, `texture`; xem `lora.neg_f1_big5_of`): thước này không bị `price` (~5-6 ô âm)
   và `packing` (~9-10 ô) chi phối như `sentiment_f1` (trung bình 14 cặp) và `negative_f1` (gộp 7 khía
   cạnh) - luật 13 của `docs/04_experiments/metrics.md`.
+  **15/10/2026** thêm `neg_recall_big5` = TB **Recall** lớp âm trên **cùng 5 khía cạnh `n` lớn** (xem
+  `lora.neg_recall_big5_of`): thước thiên Recall, dùng khi muốn `model/best` đánh vào Recall âm - vì
+  chọn mốc theo F1 làm model nghiêng Precision và Recall âm tụt (luật 16).
 - **Dừng sớm** (`early_stop.enabled: true`): khi chỉ số best không tăng quá `min_delta` trong `patience`
   lần đo liên tiếp thì dừng, ghi `dừng sớm ...` vào `run.log`. Từ **13/10/2026** `min_delta` được DÙNG
   THẬT (`lora.is_improved`): bản trước chỉ so `value > mốc cũ`, nên với `val` nhiễu cỡ 0,02-0,07 thì một
