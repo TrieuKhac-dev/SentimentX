@@ -1,0 +1,102 @@
+=== lần chạy 2026-10-15 04:17:17 - mode=NEW ===
+[RUN] mode=NEW
+[RUN] dataset=cosmetics
+[RUN] version_id=cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3
+[RUN] split=test
+[RUN] approach=encoder
+[RUN] prompt=None
+[RUN] prompt_sha=None
+[RUN] model=uitnlp/CafeBERT
+[RUN] quant=none
+[RUN] max_length=256
+[RUN] batch_size=16
+[RUN] subset.limit=0
+[RUN] subset.seed=3
+[RUN] n_samples=1623
+[RUN] experiment.model=cafebert
+[RUN] experiment.method=lora
+[RUN] experiment.exp_id=exp093
+[RUN] repo_sha=22910c0903da479043f01c0c51a07924a40d99cc
+[RUN] config_sha256=2940146848832a3f90c954465844d3636ad0f74501a4cc6b6ba4ac80869b7d41
+[RUN] label_space=binary
+[RUN] neutral_policy=drop
+[RUN] not_mentioned=separate
+[RUN] training.trainer=lora
+[RUN] training.epochs=15
+[RUN] training.batch=8
+[RUN] training.grad_accum=4
+[RUN] training.lr=0.0004
+[RUN] training.weight_decay=0.01
+[RUN] training.lora_r=16
+[RUN] training.lora_alpha=32
+[RUN] training.lora_dropout=0.05
+[RUN] training.target_modules=query, key, value, dense
+[RUN] training.quantization=none
+[RUN] training.dtype=auto
+[RUN] training.head_trainable=True
+[RUN] training.every_n_steps=100
+[RUN] training.keep_last_k=2
+[RUN] training.save_last=True
+[RUN] training.save_best=True
+[RUN] training.delete_intermediate=True
+[RUN] training.best_metric=neg_recall_big5
+[STEP] đã mở run trên MLflow: https://dagshub.com/TrieuKhac-dev/SentimentX.mlflow
+[CONFIG] thí nghiệm: cafebert/lora/exp093 | dữ liệu: cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3 | split chấm: test | n: cả split
+[CONFIG] đè checkpoints.best_metric: sentiment_f1 <- neg_recall_big5
+[CONFIG] đè decoding.seed: None <- 3
+[CONFIG] đè early_stop.enabled: False <- True
+[CONFIG] đè early_stop.min_delta: 0.0 <- 0.002
+[CONFIG] đè early_stop.patience: 5 <- 12
+[CONFIG] đè enabled: False <- True
+[CONFIG] đè epochs: 3 <- 15
+[CONFIG] đè head.trainable: False <- True
+[CONFIG] đè loss.class_weight: none <- inverse
+[CONFIG] đè loss.type: ce <- weighted_ce
+[CONFIG] đè lr: 0.0002 <- 0.0004
+[CONFIG] bài toán: label_space=binary neutral_policy=drop not_mentioned=separate | nhãn: 0, 1, 2
+[CONFIG] huấn luyện: trainer=lora lora r=16 alpha=32 dropout=0.05 | module=query, key, value, dense | lr=0.0004 batch=8 grad_accum=4 epochs=15 weight_decay=0.01
+[CONFIG] đầu phân loại: HỌC cùng adapter
+[CONFIG] checkpoint: mỗi 100 bước, giữ 2 | lưu last=True best=True xoá trung gian=True
+[CONFIG] chạy: max_length=256 | batch chấm=16 | device=cuda | dtype=auto
+[CONFIG] mã hạt giống: 3
+[STEP] huấn luyện: 15 epoch, batch 8 (tích luỹ 4), 12268 mẫu train, 1535 mẫu val
+[STEP] đầu phân loại: HỌC cùng adapter | theo khía cạnh: TẮT - 7 bộ trọng số riêng | 7132181 tham số học / 567022613 tổng
+[STEP] bước 100 | loss 0.5258 | val neg_recall_big5=0.8856 (10554 ô) | đã lưu model/best
+[STEP] bước 200 | loss 0.7439 | val neg_recall_big5=0.9544 (10554 ô) | đã lưu model/best
+[STEP] bước 300 | loss 0.0157 | val neg_recall_big5=0.9642 (10554 ô) | đã lưu model/best
+[STEP] bước 400 | loss 0.0380 | val neg_recall_big5=0.9542 (10554 ô) | chưa tốt hơn
+[STEP] bước 500 | loss 0.2355 | val neg_recall_big5=0.9324 (10554 ô) | chưa tốt hơn
+[STEP] bước 600 | loss 0.0974 | val neg_recall_big5=0.9414 (10554 ô) | chưa tốt hơn
+[STEP] bước 700 | loss 0.0807 | val neg_recall_big5=0.9584 (10554 ô) | chưa tốt hơn
+[STEP] bước 800 | loss 0.1409 | val neg_recall_big5=0.9412 (10554 ô) | chưa tốt hơn
+[STEP] bước 900 | loss 0.6053 | val neg_recall_big5=0.9538 (10554 ô) | chưa tốt hơn
+[STEP] bước 1000 | loss 0.0626 | val neg_recall_big5=0.9398 (10554 ô) | chưa tốt hơn
+[STEP] bước 1100 | loss 0.0157 | val neg_recall_big5=0.9828 (10554 ô) | đã lưu model/best
+[STEP] bước 1200 | loss 0.0280 | val neg_recall_big5=0.9490 (10554 ô) | chưa tốt hơn
+[STEP] bước 1300 | loss 0.0479 | val neg_recall_big5=0.9598 (10554 ô) | chưa tốt hơn
+[STEP] bước 1400 | loss 0.0477 | val neg_recall_big5=0.9670 (10554 ô) | chưa tốt hơn
+[STEP] bước 1500 | loss 0.1125 | val neg_recall_big5=0.9626 (10554 ô) | chưa tốt hơn
+[STEP] bước 1600 | loss 0.0190 | val neg_recall_big5=0.9524 (10554 ô) | chưa tốt hơn
+[STEP] bước 1700 | loss 0.1951 | val neg_recall_big5=0.9564 (10554 ô) | chưa tốt hơn
+[STEP] bước 1800 | loss 0.0187 | val neg_recall_big5=0.9414 (10554 ô) | chưa tốt hơn
+[STEP] bước 1900 | loss 0.0254 | val neg_recall_big5=0.9310 (10554 ô) | chưa tốt hơn
+[STEP] bước 2000 | loss 0.0201 | val neg_recall_big5=0.9384 (10554 ô) | chưa tốt hơn
+[STEP] dừng sớm: 'neg_recall_big5' không tăng quá 0.002 trong 12 lần đo liên tiếp (bước 2000)
+[STEP] dừng sớm sau epoch 6: 'neg_recall_big5' không tăng quá 0.002 trong 12 lần đo liên tiếp
+[STEP] huấn luyện xong: 2000 bước trong 3546.0 giây (7132181 tham số học / 567022613 tổng) | 3546.0 giây
+[STEP] ghi lịch sử huấn luyện: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp093/results/29401468/training_history.csv (26 điểm đo)
+[STEP] ghi biểu đồ train/val: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp093/results/29401468/plots/training.html
+[STEP] suy luận bằng /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp093/results/29401468/model/best
+[STEP] suy luận xong 1623 mẫu; checkpoint huấn luyện với 7 khía cạnh, nhãn 0, 1, 2
+[STEP] ghi xác suất từng ô: /content/drive/MyDrive/ABSA_2026_2027/experiments/cafebert/lora/exp093/results/29401468/probabilities.csv (11361 dòng = 1623 mẫu × 7 khía cạnh)
+[STEP] dừng sớm ở epoch 6 (đã khai 15) - dừng vì chỉ số chọn `model/best` không tăng quá `min_delta` trong `patience` lần đo liên tiếp
+[STEP] tổng 1623 mẫu (1623 mẫu mới), đọc được 100.0% kết quả
+[STEP] chấm xong 5 chỉ số: accuracy, aspect_detection, prf, aggregate, confusion
+[STEP] loại 200 ô neutral theo neutral_policy=drop
+[STEP] cơ sở đo paper: 2738 ô giữ lại, loại 8423 ô không phải hai chiều, 0 ô không đọc được
+[STEP] ghi 1623 dòng dự đoán
+[STEP] đã ghi: metrics.csv, metrics.json, mispredictions.csv, mispredictions_paper.csv, plots/accuracy.html, predictions.csv
+[STEP] ghi nhận: 19 tham số, 347 chỉ số, 8 file
+[RUN] kết thúc sau 3607.0 giây
+[STEP] run_meta.json: lần chạy thứ 1, trạng thái FINISHED
+[TRACK] ghi lên MLflow hỏng (RestException: INVALID_PARAMETER_VALUE: Response: {'error_code': 'INVALID_PARAMETER_VALUE'}) - kết quả vẫn nằm trong thư mục kết quả
