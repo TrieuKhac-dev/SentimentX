@@ -98,13 +98,13 @@ def write_run(root, tag, experiment=None, status="FINISHED", prompt="absa_cot_v1
         # `accuracy.macro` (cơ sở `paper`) là nguồn của cột `acc_paper_macro` - SỐ TIÊU ĐỀ khi so
         # công bố; nó KHÁC `accuracy_micro` ở trên (cơ sở `all`) vì mẫu số khác nhau.
         "scores_paper": {"accuracy": {"macro": 74.5}, "prf": {"by_aspect": {
-            "colour": {"negative": {"f1": 0.9, "support": 54}},
-            "shipping": {"negative": {"f1": 0.95, "support": 172}},
-            "smell": {"negative": {"f1": 0.85, "support": 48}},
-            "stayingpower": {"negative": {"f1": 0.99, "support": 95}},
-            "texture": {"negative": {"f1": 0.8, "support": 83}},
-            "price": {"negative": {"f1": 0.5, "support": 5}},
-            "packing": {"negative": {"f1": 0.7}},
+            "colour": {"negative": {"f1": 0.9, "recall": 0.7, "support": 54}},
+            "shipping": {"negative": {"f1": 0.95, "recall": 0.8, "support": 172}},
+            "smell": {"negative": {"f1": 0.85, "recall": 0.6, "support": 48}},
+            "stayingpower": {"negative": {"f1": 0.99, "recall": 0.9, "support": 95}},
+            "texture": {"negative": {"f1": 0.8, "recall": 0.5, "support": 83}},
+            "price": {"negative": {"f1": 0.5, "recall": 0.4, "support": 5}},
+            "packing": {"negative": {"f1": 0.7, "recall": 0.3}},
         }}},
     }, directory / "metrics.json")
     return directory
@@ -579,6 +579,23 @@ class TestNegativeF1Columns(unittest.TestCase):
         # 6 khía cạnh có `support` (bỏ `packing`): (0.9 + 0.95 + 0.85 + 0.99 + 0.8 + 0.5) / 6
         self.assertEqual(row["neg_f1_macro7"], 0.8317)
 
+    def test_recall_big5_is_the_mean_of_exactly_the_five_large_aspects(self):
+        """Cột `neg_recall_big5` lấy `recall` (không phải `f1`) của ĐÚNG 5 khía cạnh `n` lớn.
+
+        Nguồn số cho Đích #2 (Recall âm) - thước thiên Recall của Bước 2 (xem P9 §4.2).
+        """
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        # colour 0.7 · shipping 0.8 · smell 0.6 · stayingpower 0.9 · texture 0.5 -> 3.5 / 5
+        self.assertEqual(row["neg_recall_big5"], 0.7)
+
+    def test_recall_column_is_in_the_registry_table(self):
+        self.assertIn("neg_recall_big5", reports.REGISTRY_COLUMNS)
+        write_run(self.root, "a1")
+        row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
+        for column in reports.REGISTRY_COLUMNS:
+            self.assertIn(column, row)
+
     def test_a_run_without_paper_scores_gets_empty_columns_not_a_crash(self):
         directory = write_run(self.root, "a1")
         metrics = json.loads((directory / "metrics.json").read_text(encoding="utf-8"))
@@ -586,6 +603,7 @@ class TestNegativeF1Columns(unittest.TestCase):
         utils.write_json(metrics, directory / "metrics.json")
         row = reports.experiment_rows(reports.scan_runs([self.root]))[0]
         self.assertIsNone(row["neg_f1_big5"])
+        self.assertIsNone(row["neg_recall_big5"])
         self.assertIsNone(row["neg_f1_macro7"])
 
     def test_the_two_columns_are_in_the_registry_table(self):

@@ -344,7 +344,7 @@ REGISTRY_COLUMNS = ("run", "status", "started", "seconds", "model", "method", "e
                     "read_percent", "tokens_per_second",
                     "accuracy_micro", "f1_macro", "exact_match_percent",
                     "acc_paper_macro",
-                    "neg_f1_big5", "neg_f1_macro7", "out_dir")
+                    "neg_f1_big5", "neg_recall_big5", "neg_f1_macro7", "out_dir")
 
 # Năm khía cạnh có NHIỀU Ô ÂM NHẤT trên `test` (đo 12/10/2026: `colour` 54 · `shipping` 172 · `smell` 48 ·
 # `stayingpower` 95 · `texture` 83). Vì sao cần một thước riêng ngoài `neg F1 macro (7)`: hai khía cạnh tí
@@ -368,6 +368,23 @@ def negative_f1_of_aspects(metrics, aspects=NEG_BIG_ASPECTS):
         item = ((by_aspect.get(name) or {}).get("negative") or {})
         if item.get("support"):
             found.append(float(item.get("f1") or 0.0))
+    return round(sum(found) / len(found), 4) if found else None
+
+
+def negative_recall_of_aspects(metrics, aspects=NEG_BIG_ASPECTS):
+    """TB RECALL lớp âm trên cơ sở `paper` của một nhóm khía cạnh; `None` khi không khía cạnh nào có ô âm.
+
+    Gương của `negative_f1_of_aspects` nhưng lấy `recall` thay vì `f1`: đây là nguồn số DUY NHẤT cho
+    thước thiên Recall `neg_recall_big5` (Đích #2 của đợt 13, xem `lora.neg_recall_big5_of`). Cùng quy
+    ước bỏ khía cạnh không có ô âm chứ không tính là 0.
+    """
+    by_aspect = _dig(metrics, "scores_paper", "prf", "by_aspect") or {}
+    names = sorted(by_aspect) if aspects is None else list(aspects)
+    found = []
+    for name in names:
+        item = ((by_aspect.get(name) or {}).get("negative") or {})
+        if item.get("support"):
+            found.append(float(item.get("recall") or 0.0))
     return round(sum(found) / len(found), 4) if found else None
 
 
@@ -446,6 +463,7 @@ def experiment_rows(runs):
             "acc_paper_macro": _dig(metrics, "scores_paper", "accuracy", "macro"),
             # Hai thước đo lớp âm, đọc trên cơ sở `paper` (xem NEG_BIG_ASPECTS ở trên và luật 13).
             "neg_f1_big5": negative_f1_of_aspects(metrics),
+            "neg_recall_big5": negative_recall_of_aspects(metrics),
             "neg_f1_macro7": negative_f1_of_aspects(metrics, aspects=None),
             "out_dir": utils.rel(run["dir"]),
         })
