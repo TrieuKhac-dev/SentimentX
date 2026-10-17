@@ -1,0 +1,61 @@
+version: 1
+server:
+  host: 127.0.0.1
+  port: 8000
+  workers: 1
+  default_model: cafebert_exp027
+  request_timeout_s: 30
+  llm_timeout_s: 240
+  max_body_bytes: 1048576
+  gpu_policy: sequential
+  gpu_concurrency: 1
+  min_free_vram_mb: 1200
+  log_text: false
+labels:
+  aspects: [stayingpower, texture, smell, price, colour, shipping, packing]
+  codes:
+    0: {name: not_mentioned, vi: "Không nhắc tới"}
+    1: {name: positive, vi: "Tích cực"}
+    2: {name: negative, vi: "Tiêu cực"}
+models:
+  cafebert_exp027:
+    enabled: true
+    kind: encoder
+    version: cafebert/lora/exp027@43e40f61
+    load: {device: auto, max_batch: 16, idle_unload_s: 600}
+    runtime:
+      base: uitnlp/CafeBERT
+      base_revision: af76fcf2a04096b2b54b348a3e4eb48253c93c5d
+      checkpoint: experiments/cafebert/lora/exp027/results/43e40f61/model/best
+      segmenter: none
+      max_length: 256
+      dtype: float16
+      local_files_only: true
+    expected:
+      config_hash: 43e40f61400dbbaafba33a535b2ff292fe219dfe7e78187bad81d878ee773dca
+  qwen3_4b_exp009:
+    enabled: true
+    kind: llm
+    version: qwen3-4b-instruct-2507/prompt-cot/exp009@7cf3331e
+    load: {device: auto, max_batch: 4, idle_unload_s: 300}
+    runtime:
+      model_dir: data/models/Qwen3-4B-Instruct-2507
+      quantization: 4bit
+      dtype: float16
+      max_length: 2304
+      max_new_tokens: 400
+      do_sample: false
+      prompt_id: absa_cot_1shot_v1
+      prompt: configs/prompts/absa_cot_1shot_v1.txt
+      examples: configs/prompts/examples/absa_cot_1shot_v1.txt
+      system: configs/prompts/system/absa_cot.txt
+      prompt_sha: "9b862ed0"
+      examples_sha: "5d530f7c"
+      system_sha: "ee1ed0e1"
+      local_files_only: true
+    expected:
+      config_hash: 7cf3331e33834e26afbc51752111c2dc31a4c8ccd19941b11d6c92c199d89d24
+cache:
+  enabled: false
+  max_entries: 512
+  ttl_s: 900
