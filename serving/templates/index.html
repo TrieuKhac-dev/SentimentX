@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phân tích cảm xúc theo khía cạnh (ABSA)</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-default-model="{{ (default_model | default('', true)) | e }}">
+  <header class="app-header">
+    <div class="container">
+      <h1>Phân tích cảm xúc theo khía cạnh (ABSA)</h1>
+      <p class="subtitle">Son mỹ phẩm tiếng Việt · CafeBERT / Qwen3</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel" aria-label="Nhập dữ liệu">
+      <div class="field">
+        <label for="model-select">Mô hình</label>
+        <select id="model-select" name="model">
+          <option value="">Đang tải…</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="input-text">Văn bản cần phân tích</label>
+        <textarea id="input-text" rows="6" maxlength="4000" placeholder="Nhập hoặc dán một đánh giá son mỹ phẩm tiếng Việt…"></textarea>
+        <div class="char-counter"><span id="char-count">0</span> / <span id="char-limit">4000</span> ký tự</div>
+      </div>
+
+      <div class="samples" role="group" aria-label="Văn bản mẫu">
+        <button type="button" class="sample" data-sample="positive">Mẫu tích cực</button>
+        <button type="button" class="sample" data-sample="negative">Mẫu tiêu cực</button>
+        <button type="button" class="sample" data-sample="mixed">Mẫu trộn</button>
+      </div>
+
+      <button id="analyze-btn" type="button" class="primary">Phân tích</button>
+    </section>
+
+    <section id="error-box" class="error" role="alert" aria-live="assertive" hidden>
+      <span id="error-text"></span>
+    </section>
+
+    <section id="results" class="results" aria-live="polite" hidden>
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th scope="col">Khía cạnh</th>
+            <th scope="col">Nhãn</th>
+            <th scope="col">Độ tin cậy</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div class="container">
+      <p id="meta" class="meta"></p>
+      <details id="raw-details" class="raw">
+        <summary>JSON thô</summary>
+        <pre id="raw-json"></pre>
+      </details>
+      <p class="note">P0 — 2 model: CafeBERT exp027 + Qwen3-4B exp009{% if app_version %}<span class="app-version"> · v{{ app_version | e }}</span>{% endif %}</p>
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
