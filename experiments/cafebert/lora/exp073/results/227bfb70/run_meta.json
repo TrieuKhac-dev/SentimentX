@@ -6,8 +6,8 @@
     "log": "run.log",
     "errors": "errors.json",
     "status": "FINISHED",
-    "started": "2026-10-14 15:21:16",
-    "finished": "2026-10-14 16:05:38",
+    "started": "2026-10-16 08:56:49",
+    "finished": "2026-10-16 10:28:09",
     "note": null,
     "approach": "encoder",
     "split": "test",
@@ -258,20 +258,9 @@
   "attempts": [
     {
       "n": 1,
-      "started": "2026-10-14 11:02:55",
-      "finished": null,
-      "seconds": null,
-      "status": "INTERRUPTED",
-      "sha": "8f4eb49714eee261c60458cb6425fc872d94e97c",
-      "config_sha256": "227bfb708c6f9725e79703ac9bfbb5525fe59c8a62efd82135baa8c6fefc7a2a",
-      "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
-      "note": "phiên trước không chốt được (bị ngắt)"
-    },
-    {
-      "n": 2,
-      "started": "2026-10-14 15:21:16",
-      "finished": "2026-10-14 16:05:38",
-      "seconds": 2662.0,
+      "started": "2026-10-16 08:56:49",
+      "finished": "2026-10-16 10:28:09",
+      "seconds": 5480.0,
       "status": "FINISHED",
       "sha": "8f4eb49714eee261c60458cb6425fc872d94e97c",
       "config_sha256": "227bfb708c6f9725e79703ac9bfbb5525fe59c8a62efd82135baa8c6fefc7a2a",
@@ -342,6 +331,6 @@
     }
   ],
   "tracking": {
-    "run_id": "414a9cfb8be74ec38bdee706ee077eb3"
+    "run_id": "b76060a047684896b0aa75b41c5a14c4"
   }
 }

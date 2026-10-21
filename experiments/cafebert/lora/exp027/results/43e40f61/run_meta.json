@@ -6,8 +6,8 @@
     "log": "run.log",
     "errors": "errors.json",
     "status": "FINISHED",
-    "started": "2026-10-11 10:45:05",
-    "finished": "2026-10-11 11:25:49",
+    "started": "2026-10-16 07:45:39",
+    "finished": "2026-10-16 08:49:26",
     "note": null,
     "approach": "encoder",
     "split": "test",
@@ -234,20 +234,9 @@
   "attempts": [
     {
       "n": 1,
-      "started": "2026-10-11 09:48:09",
-      "finished": "2026-10-11 10:14:55",
-      "seconds": 1606.0,
-      "status": "FAILED",
-      "sha": "2ba65eac14787ad275ff6d9ae46fd74772e435c3",
-      "config_sha256": "43e40f61400dbbaafba33a535b2ff292fe219dfe7e78187bad81d878ee773dca",
-      "build": "cosmetics-ds0.2.0-pl0.2.0-srccosmetics@0.1.0-e616c1e3",
-      "note": null
-    },
-    {
-      "n": 2,
-      "started": "2026-10-11 10:45:05",
-      "finished": "2026-10-11 11:25:49",
-      "seconds": 2444.0,
+      "started": "2026-10-16 07:45:39",
+      "finished": "2026-10-16 08:49:26",
+      "seconds": 3827.0,
       "status": "FINISHED",
       "sha": "2ba65eac14787ad275ff6d9ae46fd74772e435c3",
       "config_sha256": "43e40f61400dbbaafba33a535b2ff292fe219dfe7e78187bad81d878ee773dca",
@@ -318,6 +307,6 @@
     }
   ],
   "tracking": {
-    "run_id": "233f29e3824f48bb9d25e08f853b115a"
+    "run_id": "8680aeabeb7047ff82ca4cf904d631dd"
   }
 }
