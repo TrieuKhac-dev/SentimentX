@@ -1,5 +1,17 @@
 # present_report_v3 - Đối chiếu dự án với công bố tham chiếu (10 lượt dẫn đầu: 9 encoder + 1 LLM)
 
+> ⚠️ **BẢN CŨ - đã được thay bởi [`present_report_v5.md`](present_report_v5.md)** (qua `present_report_v4.md`; bảng 10 cột
+> dựng lại theo kết quả Đợt 13.1 + 13.2 **và các điều kiện lọc mới**: loại lượt **chỉ đổi `decoding.seed`** - so theo
+> **giá trị hiệu lực**, loại lượt dính **overfit**, và **chỉ nhận lượt KIỂM ĐƯỢC overfit**; ngày 16/10/2026). Bảng trong
+> file này là **mốc 13/10/2026** và khối ⚠️ ở mục 2.5 đã ghi rõ điều đó. Giữ file này làm **dấu vết lịch sử**, không
+> dùng số của nó để báo cáo.
+
+> ⛔ **GHI CHÚ 16/10/2026 - HAI LƯỢT ĐÃ BỊ THAY.** `cafebert/lora/exp073` (`227bfb70`) và `cafebert/lora/exp027`
+> (`43e40f61`) đã được **chạy lại liền mạch**, vì bản ghi trong file này là lượt **bị ngắt phiên rồi chạy tiếp từ
+> checkpoint** nên `training_history.csv` chỉ còn các epoch cuối. Hai bản cũ **bị bỏ**: `exp073` **98,52 → 98,31**;
+> `exp027` **98,37 → 98,56**. Cây phát triển ở mục 8 của file này vì thế đọc `exp027` = 98,37 là **số cũ**.
+> Bảng đang dùng: [`present_report_v6.md`](present_report_v6.md).
+
 > **BẢN MỚI NHẤT - thay thế `present_report_v2.md`, `present_report_v1.md` và `present_report_v0.md`.**
 > Bản này gộp 10 lượt dẫn đầu của **toàn bộ dự án** vào MỘT bảng (9 lượt encoder + 1 lượt LLM), thêm hai cây
 > phát triển, thêm mục **điều kiện lọt bảng** và **chẩn đoán chất lượng lượt chạy**, thêm mục **hạn chế từng lượt**.

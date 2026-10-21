@@ -5,6 +5,13 @@
 > Liên quan: `docs/04_experiments/metrics.md` (luật đọc số), `present_plan_batch12.md` mục 14 (nhật ký Đợt 8),
 > `data/reports/experiment_registry/experiment_registry.csv` (**nguồn số duy nhất** cho mọi số dưới đây).
 
+> ⛔ **GHI CHÚ 16/10/2026 - HAI LƯỢT ENCODER ĐÃ BỊ THAY.** `cafebert/lora/exp027` (`43e40f61`) và
+> `cafebert/lora/exp073` (`227bfb70`) đã được **chạy lại liền mạch**; bản ghi trong file này là lượt **bị ngắt phiên
+> rồi chạy tiếp từ checkpoint** nên `training_history.csv` chỉ còn các epoch cuối. Số cũ → số mới:
+> **`cafebert/lora/exp027` 98,37 → 98,56**; **`cafebert/lora/exp073` 98,52 → 98,31**. Hai bản cũ **bị bỏ**.
+> *(Lưu ý: file này còn nhắc `exp027` của `qwen3-4b-instruct-2507/prompt-cot` - hash `af67f011`, 96,68 -
+> là **lượt khác**, KHÔNG bị thay.)* Bảng đang dùng: [`present_report_v6.md`](present_report_v6.md).
+
 ## 0. File này khác `present_report_v1.md` ở đâu
 
 | Hạng mục | `present_report_v1.md` | `present_report_v2.md` (file này) |

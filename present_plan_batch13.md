@@ -1,7 +1,7 @@
 # Kế hoạch Đợt 13 — số epoch + early stop · Optuna · lô suy luận LLM · dữ liệu v0.3.0
 
 > File này GIỮ KẾ HOẠCH của đợt 13 (chốt 13/10/2026). Nhật ký chạy ghi DẦN vào đây.
-> Liên quan: `present_plan_batch12.md` (đợt 8–12), `presentations/present_report/present_report_v3.md`
+> Liên quan: `present_plan_batch12.md` (đợt 8–12), `presentations/present_report/present_report_v6.md`
 > (bảng số đang dùng), `docs/04_experiments/07_evolution.md`, `docs/04_experiments/04_backlog.md` §9.1.
 >
 > **HƯỚNG DẪN THI HÀNH phần còn lại (13.2 → 13.6): `docs/06_plan/P9_batch13.md`** — đọc file đó trước khi làm
