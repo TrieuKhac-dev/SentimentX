@@ -126,6 +126,16 @@ class ModelRegistry:
                 self._lock.notify_all()
         return self._normalize_results(result, texts_list)
 
+    def preload(self, model_id: str) -> dict:
+        """Load+warm a model without running a user prediction."""
+        entry = self._resolve(model_id)
+        self._acquire(entry)
+        with self._lock:
+            entry.in_use -= 1
+            entry.last_used = time.monotonic()
+            self._lock.notify_all()
+            return self._describe(entry)
+
     def _resolve(self, model_id: Optional[str]) -> _ModelEntry:
         mid = model_id if model_id is not None else self._settings.default_model
         if not mid or mid not in self._entries:

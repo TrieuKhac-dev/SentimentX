@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SentimentX · Phân tích đánh giá sản phẩm</title>
+  <link rel="stylesheet" href="/static/v2/style.css?v=20261022-1">
+  <script src="/static/v2/samples.js?v=20261022-1" defer></script>
+  <script src="/static/v2/app.js?v=20261022-1" defer></script>
+</head>
+<body>
+  <noscript>
+    <p class="noscript">Trang cần JavaScript để tải mô hình và phân tích đánh giá. Vui lòng bật JavaScript.</p>
+  </noscript>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-main">
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 20 20" width="20" height="20" aria-hidden="true" focusable="false">
+            <path d="M3 14V10M7 14V6M11 14V8M15 14V4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <span class="brand-name">Sentiment<span class="brand-accent">X</span></span>
+        </div>
+        <p class="scope">Bàn phân tích · Đánh giá mỹ phẩm</p>
+        <p class="topbar-note">Phân tích cảm xúc theo khía cạnh</p>
+      </div>
+    </header>
+
+    <main id="main" class="workspace">
+      <div class="page-head">
+        <h1>Phân tích đánh giá sản phẩm</h1>
+        <p class="page-subtitle">So sánh nhãn cảm xúc theo từng khía cạnh cho một hoặc hai mô hình.</p>
+      </div>
+
+      <div class="workbench">
+        <section class="panel control-strip" aria-labelledby="input-title">
+          <h2 id="input-title" class="sr-only">Thiết lập phân tích</h2>
+
+          <div class="control-bar">
+            <div class="mode-switch" role="group" aria-label="Chế độ phân tích">
+              <button id="mode-single" type="button" aria-pressed="true">Một mô hình</button>
+              <button id="mode-compare" type="button" aria-pressed="false">So sánh</button>
+            </div>
+
+            <div class="model-field">
+              <label class="sr-only" for="model-select-primary">Mô hình</label>
+              <div class="select-wrap">
+                <select id="model-select-primary" name="model-select-primary"></select>
+              </div>
+            </div>
+
+            <div id="compare-controls" class="compare-controls" hidden>
+              <button id="swap-models" class="swap-button" type="button" aria-label="Đổi chỗ hai mô hình">
+                <svg class="swap-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
+                  <path d="M4 7h11m0 0-3-3m3 3-3 3M16 13H5m0 0 3-3m-3 3 3 3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </button>
+              <label class="sr-only" for="model-select-secondary">Mô hình so sánh</label>
+              <div class="select-wrap">
+                <select id="model-select-secondary" name="model-select-secondary"></select>
+              </div>
+            </div>
+
+            <div id="model-load-status" class="load-status" role="status" aria-live="polite">Đang tải mô hình…</div>
+
+            <div class="sample-inline">
+              <span class="sr-only">Mẫu có sẵn</span>
+              <div id="sample-buttons" class="sample-row"></div>
+            </div>
+          </div>
+
+          <div class="review-bar">
+            <div class="review-field">
+              <label class="sr-only" for="review-input">Đánh giá sản phẩm</label>
+              <textarea id="review-input" name="review-input" rows="2" placeholder="Dán hoặc nhập đánh giá sản phẩm bằng tiếng Việt…" aria-describedby="input-hint"></textarea>
+              <div class="review-meta">
+                <span id="char-count" class="char-count">0 ký tự</span>
+                <span id="input-hint" class="input-hint">Kết quả gồm nhãn, độ tin cậy và trích dẫn theo khía cạnh.</span>
+              </div>
+            </div>
+            <div class="input-actions">
+              <button id="analyze-button" class="primary-button" type="button">Phân tích đánh giá</button>
+              <button id="cancel-button" class="text-button cancel-button" type="button" hidden>Hủy</button>
+            </div>
+          </div>
+
+          <p id="sample-status" class="sample-status sr-only" role="status" aria-live="polite"></p>
+        </section>
+
+        <section class="panel results-panel" aria-labelledby="results-heading">
+          <div class="results-head">
+            <div class="results-title">
+              <h2 id="results-heading">Kết quả phân tích</h2>
+              <p id="result-meta" class="result-meta"></p>
+            </div>
+          </div>
+
+          <div id="result-status" class="status-banner" role="status" aria-live="polite" hidden></div>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-copy">
+              <p class="empty-title">Chưa có kết quả</p>
+              <p class="empty-text">Nhập đánh giá hoặc chọn một mẫu có sẵn, sau đó chọn “Phân tích đánh giá” để xem nhãn cảm xúc theo từng khía cạnh.</p>
+            </div>
+            <ul class="legend" aria-label="Chú giải nhãn cảm xúc">
+              <li class="legend-item"><span class="legend-dot legend-positive" aria-hidden="true"></span>Tích cực</li>
+              <li class="legend-item"><span class="legend-dot legend-negative" aria-hidden="true"></span>Tiêu cực</li>
+              <li class="legend-item"><span class="legend-dot legend-neutral" aria-hidden="true"></span>Trung lập</li>
+              <li class="legend-item"><span class="legend-dot legend-not-mentioned" aria-hidden="true"></span>Không nhắc tới</li>
+              <li class="legend-item"><span class="legend-dot legend-unknown" aria-hidden="true"></span>Không đọc được</li>
+            </ul>
+          </div>
+
+          <div id="results-content" class="results-content" hidden>
+            <div id="result-table" class="result-table-wrap"></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

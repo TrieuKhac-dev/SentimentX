@@ -213,13 +213,20 @@ class LLMRuntime:
             labels, _info = parse.parse_labels(
                 answers[0], self.aspects, self.codes, require_all=True
             )
-            results.append(self._aspect_results(labels))
+            evidence = parse.parse_evidence(answers[0], self.aspects)
+            results.append(self._aspect_results(labels, evidence))
         return results
 
-    def _aspect_results(self, labels: dict[str, int]) -> dict[str, AspectResult]:
+    def _aspect_results(
+        self, labels: dict[str, int], evidence: Optional[dict] = None
+    ) -> dict[str, AspectResult]:
         """Convert parsed codes into per-aspect ``AspectResult`` objects."""
+        evidence = evidence or {}
         out: dict[str, AspectResult] = {}
         for aspect in self.aspects:
+            entry = evidence.get(aspect) or {}
+            quote = entry.get("quote")
+            reason = entry.get("reason")
             code = labels.get(aspect)
             if code in self.codes:
                 meta = self._code_meta.get(int(code), {})
@@ -229,6 +236,8 @@ class LLMRuntime:
                     code=int(code),
                     confidence=None,
                     probs=None,
+                    quote=quote,
+                    reason=reason,
                 )
             else:
                 out[aspect] = AspectResult(
@@ -237,6 +246,8 @@ class LLMRuntime:
                     code=None,
                     confidence=None,
                     probs=None,
+                    quote=quote,
+                    reason=reason,
                 )
         return out
 

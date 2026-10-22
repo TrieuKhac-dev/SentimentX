@@ -37,6 +37,9 @@ REASONING_MARKERS = ("SUY LUẬN:", "SUY LUAN:", "SUY LUẬN :")
 # token tương ứng nên phải KIỂM TRA chứ không giả định: nếu có thì cắt trước khi đọc JSON.
 _THINK_RE = re.compile(r"<think(?:ing)?>.*?</think(?:ing)?>", re.S | re.I)
 
+# Dấu mã nhãn ở cuối một dòng SUY LUẬN, ví dụ "mã 2" (không phân biệt hoa thường).
+_CODE_RE = re.compile(r"mã\s*\d", re.I)
+
 OK = "ok"
 NO_RESULT = "không thấy khối kết quả"
 BAD_JSON = "JSON không hợp lệ"
@@ -190,3 +193,97 @@ def parse_labels(answer, aspects, codes, require_all=None):
     else:
         info["reason"] = OK
     return labels, info
+
+
+def parse_evidence(answer, aspects):
+    """Đọc phần trích dẫn (quote) và lí do (reason) trong khối SUY LUẬN.
+
+    Hàm THUẦN này chỉ phục vụ HIỂN THỊ, KHÔNG dùng để chấm điểm: mã nhãn vẫn do
+    ``parse_labels`` đọc từ khối KẾT QUẢ. Trả về ``{khía cạnh: {"quote": ..., "reason": ...}}``
+    cho MỌI khía cạnh trong ``aspects``, với ``None`` khi model không viết dòng tương ứng.
+
+    Tuyệt đối không suy diễn hay bịa thêm: chỉ lấy đúng chuỗi model đã sinh. Vì vậy chuỗi
+    ``"không nhắc tới"`` do model viết (không kèm ngoặc kép) được giữ NGUYÊN VĂN, không bị
+    đổi thành ``None`` - người xem cần thấy đó là câu model thật sự trả lời.
+
+    Định dạng mỗi dòng (sau dấu ``-``, ``*`` hoặc ``•``)::
+
+        - colour: "màu 102 rất bợt" | màu lệch và bợt so với kỳ vọng | mã 2
+
+    Phần trước dấu ``:``/``：`` là một hoặc nhiều khía cạnh (cách nhau bởi dấu phẩy).
+    Phần sau chia bởi ``|``: đoạn đầu là quote, đoạn cuối nếu chứa ``mã <số>`` là mã nhãn
+    (bỏ qua), các đoạn còn lại ghép thành reason. Dòng không có ``|`` hoặc không có khía
+    cạnh hợp lệ bị bỏ qua. Hàm không ném lỗi với đầu vào dị dạng.
+    """
+    aspects = [str(name) for name in (aspects or [])]
+    result = {
+        aspect.strip(): {"quote": None, "reason": None} for aspect in aspects
+    }
+
+    canonical = {}
+    for aspect in result:
+        canonical.setdefault(aspect.lower(), aspect)
+
+    if not answer:
+        return result
+
+    text = str(answer).replace("\\n", "\n")
+    text, _had_thinking = strip_thinking(text)
+
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line[0] not in "-*•":
+            continue
+        line = line[1:].strip()
+        if not line:
+            continue
+
+        parts = re.split(r"[:：]", line, maxsplit=1)
+        if len(parts) != 2:
+            continue
+        aspect_part, rest = parts
+        if "|" not in rest:
+            continue
+
+        names = []
+        for raw_name in aspect_part.split(","):
+            name = raw_name.strip().lower()
+            if name == "packaging":
+                name = "packing"
+            aspect = canonical.get(name)
+            if aspect is not None and aspect not in names:
+                names.append(aspect)
+        if not names:
+            continue
+
+        segments = [segment.strip() for segment in rest.split("|")]
+        quote = segments[0]
+        if len(quote) >= 2 and (
+            (quote[0] == '"' and quote[-1] == '"')
+            or (quote[0] == "“" and quote[-1] == "”")
+        ):
+            quote = quote[1:-1]
+        quote = quote.strip() or None
+
+        reason_segments = segments[1:]
+        if reason_segments and _CODE_RE.search(reason_segments[-1]):
+            reason_segments = reason_segments[:-1]
+        reason = " | ".join(
+            segment for segment in reason_segments if segment
+        ).strip()
+        if len(reason) >= 2 and (
+            (reason[0] == '"' and reason[-1] == '"')
+            or (reason[0] == "“" and reason[-1] == "”")
+        ):
+            reason = reason[1:-1]
+        reason = reason.strip() or None
+
+        for aspect in names:
+            entry = result[aspect]
+            if entry["quote"] is None and quote is not None:
+                entry["quote"] = quote
+            if entry["reason"] is None and reason is not None:
+                entry["reason"] = reason
+
+    return result
+

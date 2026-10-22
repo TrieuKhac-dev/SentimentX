@@ -18,6 +18,8 @@ class AspectPrediction(BaseModel):
     code: Optional[int] = None
     confidence: Optional[float] = None
     probs: Optional[Dict[str, float]] = None
+    quote: Optional[str] = None
+    reason: Optional[str] = None
 
 
 class PredictionItem(BaseModel):

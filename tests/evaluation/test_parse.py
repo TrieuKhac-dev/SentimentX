@@ -140,5 +140,120 @@ class TestParseLabels(unittest.TestCase):
         self.assertEqual(labels, {"texture": 1})
 
 
+class TestParseEvidence(unittest.TestCase):
+    """Quote/reason chỉ để hiển thị: đọc đúng chữ model sinh, không bịa, không chấm điểm."""
+
+    def test_quoted_quote_reason_and_code(self):
+        text = (
+            "SUY LUẬN:\n"
+            '- colour: "màu 102 rất bợt" | màu lệch và bợt so với kỳ vọng | mã 2\n'
+            "KẾT QUẢ:\n{\"colour\": 2}"
+        )
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["colour"]["quote"], "màu 102 rất bợt")
+        self.assertEqual(evidence["colour"]["reason"], "màu lệch và bợt so với kỳ vọng")
+
+    def test_unquoted_khong_nhac_toi_is_preserved(self):
+        text = "- price: không nhắc tới | không có thông tin về giá | mã 0"
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["price"]["quote"], "không nhắc tới")
+        self.assertEqual(evidence["price"]["reason"], "không có thông tin về giá")
+
+    def test_multiple_aspects_separated_by_comma(self):
+        text = '- colour, price: "bợt" | lệch màu | mã 2'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["colour"]["quote"], "bợt")
+        self.assertEqual(evidence["colour"]["reason"], "lệch màu")
+        self.assertEqual(evidence["price"]["quote"], "bợt")
+        self.assertEqual(evidence["price"]["reason"], "lệch màu")
+
+    def test_missing_aspect_is_not_fabricated(self):
+        text = '- colour: "bợt" | lệch | mã 2'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["colour"]["quote"], "bợt")
+        for aspect in ASPECTS:
+            if aspect == "colour":
+                continue
+            self.assertEqual(evidence[aspect], {"quote": None, "reason": None})
+
+    def test_empty_answer(self):
+        empty = {"quote": None, "reason": None}
+        for answer in ("", "   ", None):
+            evidence = parse.parse_evidence(answer, ASPECTS)
+            self.assertEqual(set(evidence), set(ASPECTS))
+            self.assertTrue(all(value == empty for value in evidence.values()))
+
+    def test_literal_backslash_n_is_a_newline(self):
+        text = (
+            '- colour: "bợt" | lệch | mã 2\\n'
+            '- price: "không nhắc tới" | không có | mã 0'
+        )
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["colour"]["quote"], "bợt")
+        self.assertEqual(evidence["price"]["quote"], "không nhắc tới")
+
+    def test_quote_with_internal_quotes(self):
+        text = '- smell: ""thơm" nhẹ" | mùi "dễ chịu" | mã 1'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["smell"]["quote"], '"thơm" nhẹ')
+        self.assertEqual(evidence["smell"]["reason"], 'mùi "dễ chịu"')
+
+    def test_reason_containing_pipe(self):
+        text = '- texture: "mịn" | mềm | mượt | mã 1'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["texture"]["quote"], "mịn")
+        self.assertEqual(evidence["texture"]["reason"], "mềm | mượt")
+
+    def test_two_segments_without_code(self):
+        text = '- texture: "mịn" | khen'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["texture"]["quote"], "mịn")
+        self.assertEqual(evidence["texture"]["reason"], "khen")
+
+    def test_duplicate_keeps_first_non_empty(self):
+        text = '- colour: "" | | mã 0\n- colour: "bợt" | lệch | mã 2'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["colour"]["quote"], "bợt")
+        self.assertEqual(evidence["colour"]["reason"], "lệch")
+
+    def test_packaging_is_mapped_to_packing(self):
+        text = '- packaging: "hộp đẹp" | đóng gói tốt | mã 1'
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertEqual(evidence["packing"]["quote"], "hộp đẹp")
+        self.assertEqual(evidence["packing"]["reason"], "đóng gói tốt")
+
+    def test_empty_quoted_reason_becomes_none(self):
+        evidence = parse.parse_evidence('- smell: "mùi thơm" | "" | mã 1', ["smell"])
+        self.assertEqual(evidence["smell"]["quote"], "mùi thơm")
+        self.assertIsNone(evidence["smell"]["reason"])
+
+    def test_empty_quoted_quote_becomes_none(self):
+        evidence = parse.parse_evidence('- smell: "" | lý do | mã 1', ["smell"])
+        self.assertIsNone(evidence["smell"]["quote"])
+        self.assertEqual(evidence["smell"]["reason"], "lý do")
+
+    def test_quoted_reason_is_unwrapped_and_preserved(self):
+        text = '- smell: "mùi thơm" | "mùi "dễ chịu", thoang thoảng" | mã 1'
+        evidence = parse.parse_evidence(text, ["smell"])
+        self.assertEqual(evidence["smell"]["reason"], 'mùi "dễ chịu", thoang thoảng')
+
+    def test_quoted_khong_nhac_toi_quote_is_preserved(self):
+        text = '- smell: "không nhắc tới" | không có | mã 0'
+        evidence = parse.parse_evidence(text, ["smell"])
+        self.assertEqual(evidence["smell"]["quote"], "không nhắc tới")
+        self.assertEqual(evidence["smell"]["reason"], "không có")
+
+    def test_lines_without_pipe_or_valid_aspect_are_skipped(self):
+        text = (
+            "- colour: bợt\n"
+            "- không có khía cạnh này: \"x\" | y | mã 1\n"
+            '{"colour": 2}\n'
+        )
+        evidence = parse.parse_evidence(text, ASPECTS)
+        self.assertTrue(all("quote" in value for value in evidence.values()))
+        self.assertTrue(all(value["quote"] is None for value in evidence.values()))
+        self.assertTrue(all(value["reason"] is None for value in evidence.values()))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -43,13 +43,34 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn("text/html", resp.headers.get("content-type", ""))
 
+    def test_load_model(self):
+        resp = self.client.post("/models/cafebert_exp027/load")
+        self.assertEqual(resp.status_code, 202)
+        data = resp.json()
+        self.assertEqual(data["model_id"], "cafebert_exp027")
+        self.assertIsInstance(data["generation"], int)
+        self.assertGreaterEqual(data["generation"], 1)
+        self.assertIn(
+            data["state"], {"QUEUED", "LOADING", "WARMING", "READY", "FAILED"}
+        )
+
+    def test_load_unknown_model(self):
+        resp = self.client.post("/models/nope/load")
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.json()["error"]["code"], "model_not_found")
+
     def test_predict_specific_model(self):
         resp = self.client.post("/predict", json={"model": "cafebert_exp027", "text": "son đẹp"})
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data["model"], "cafebert_exp027")
         self.assertEqual(set(data["results"][0]["aspects"]), set(ASPECTS))
-        self.assertEqual(data["results"][0]["aspects"]["colour"]["label"], "positive")
+        colour = data["results"][0]["aspects"]["colour"]
+        self.assertEqual(colour["label"], "positive")
+        for key in ("label", "label_vi", "code", "confidence", "probs", "quote", "reason"):
+            self.assertIn(key, colour)
+        self.assertIsNone(colour["quote"])
+        self.assertIsNone(colour["reason"])
         for key in ("results", "model", "latency_ms", "batch_size"):
             self.assertIn(key, data)
 
@@ -74,7 +95,15 @@ class ApiTests(unittest.TestCase):
     def test_predict_llm_fake(self):
         resp = self.client.post("/predict", json={"model": "qwen3_4b_exp009", "text": "tệ"})
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["model"], "qwen3_4b_exp009")
+        data = resp.json()
+        self.assertEqual(data["model"], "qwen3_4b_exp009")
+        aspects = data["results"][0]["aspects"]
+        self.assertEqual(set(aspects), set(ASPECTS))
+        for aspect in aspects.values():
+            self.assertIn("quote", aspect)
+            self.assertIn("reason", aspect)
+            self.assertIsNone(aspect["quote"])
+            self.assertIsNone(aspect["reason"])
 
     def test_predict_empty_body(self):
         resp = self.client.post("/predict", json={})
@@ -98,6 +127,11 @@ class DisabledModelApiTests(unittest.TestCase):
     def test_predict_disabled_model(self):
         resp = self.client.post("/predict/qwen3_4b_exp009", json={"text": "x"})
         self.assertEqual(resp.status_code, 503)
+        self.assertEqual(resp.json()["error"]["code"], "model_disabled")
+
+    def test_load_disabled_model(self):
+        resp = self.client.post("/models/qwen3_4b_exp009/load")
+        self.assertEqual(resp.status_code, 409)
         self.assertEqual(resp.json()["error"]["code"], "model_disabled")
 
 

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Optional, Protocol
 
 from ..specs import ModelSpec, Settings
 
@@ -21,6 +21,8 @@ class AspectResult:
     code: int | None
     confidence: float | None
     probs: dict[str, float] | None
+    quote: Optional[str] = None
+    reason: Optional[str] = None
 
 
 class Runtime(Protocol):

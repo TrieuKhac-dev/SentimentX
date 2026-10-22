@@ -50,6 +50,21 @@ def _import_model_registry():
     return ModelRegistry
 
 
+def _import_load_coordinator():
+    """Import ``ModelLoadCoordinator`` lazily so app import stays lightweight."""
+    from .load_coordinator import ModelLoadCoordinator
+
+    return ModelLoadCoordinator
+
+
+class _LoadModelDisabledError(ModelDisabledError):
+    """409 variant of the disabled-model error used by the load endpoint."""
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+        self.status_code = 409
+
+
 def _aspect_to_dict(aspect: Any) -> Dict[str, Any]:
     if isinstance(aspect, dict):
         return {
@@ -58,6 +73,8 @@ def _aspect_to_dict(aspect: Any) -> Dict[str, Any]:
             "code": aspect.get("code"),
             "confidence": aspect.get("confidence"),
             "probs": aspect.get("probs"),
+            "quote": aspect.get("quote"),
+            "reason": aspect.get("reason"),
         }
     return {
         "label": getattr(aspect, "label", ""),
@@ -65,6 +82,8 @@ def _aspect_to_dict(aspect: Any) -> Dict[str, Any]:
         "code": getattr(aspect, "code", None),
         "confidence": getattr(aspect, "confidence", None),
         "probs": getattr(aspect, "probs", None),
+        "quote": getattr(aspect, "quote", None),
+        "reason": getattr(aspect, "reason", None),
     }
 
 
@@ -93,6 +112,9 @@ def create_app(settings=None, registry=None) -> FastAPI:
         if reg is None:
             reg = _import_model_registry()(settings)
         app.state.registry = reg
+        load_coordinator = _import_load_coordinator()(reg)
+        app.state.load_coordinator = load_coordinator
+        load_coordinator.start()
 
         if settings.server.get("eager_default", True) and settings.default_model:
             try:
@@ -105,6 +127,7 @@ def create_app(settings=None, registry=None) -> FastAPI:
         try:
             yield
         finally:
+            load_coordinator.stop()
             if hasattr(reg, "stop_idle_unload"):
                 reg.stop_idle_unload()
             if hasattr(reg, "close"):
@@ -193,6 +216,27 @@ def create_app(settings=None, registry=None) -> FastAPI:
     @app.get("/models")
     async def list_models(request: Request) -> Dict[str, Any]:
         return {"models": request.app.state.registry.list_models()}
+
+    @app.post("/models/{model_id}/load", status_code=202)
+    async def load_model(request: Request, model_id: str) -> JSONResponse:
+        reg = request.app.state.registry
+
+        infos = {m["id"]: m for m in reg.list_models()}
+        if model_id not in infos:
+            raise ModelNotFoundError("Unknown model: {!r}".format(model_id))
+        if not infos[model_id].get("enabled"):
+            raise _LoadModelDisabledError(
+                "Model {!r} is disabled.".format(model_id)
+            )
+
+        coordinator = getattr(request.app.state, "load_coordinator", None)
+        if coordinator is None:
+            coordinator = _import_load_coordinator()(reg)
+            coordinator.start()
+            request.app.state.load_coordinator = coordinator
+
+        payload = await asyncio.to_thread(coordinator.request, model_id)
+        return JSONResponse(status_code=202, content=payload)
 
     async def _run_predict(
         request: Request, req: PredictRequest, forced_model: Optional[str] = None
