@@ -30,6 +30,116 @@ _IDLE_UNLOAD_INTERVAL_S = 30.0
 _BUSY_WAIT_TIMEOUT_S = 30.0
 
 
+def _progress_pct(completed: int, total) -> int:
+    """Map completed weight-loading steps to the 5..90 progress band."""
+    try:
+        total = int(total)
+    except (TypeError, ValueError):
+        total = 0
+    if total > 0:
+        pct = 5 + int(85 * completed / total)
+    else:
+        pct = 10
+    return max(5, min(90, pct))
+
+
+class _ProgressTqdm:
+    """Wrap a transformers tqdm bar and report weight-load progress."""
+
+    def __init__(self, inner, callback, total=None) -> None:
+        self._inner = inner
+        self._callback = callback
+        self._total = total
+        self._completed = 0
+
+    def _emit(self) -> None:
+        try:
+            self._callback(_progress_pct(self._completed, self._total))
+        except Exception:
+            pass
+
+    def _advance(self, steps: int = 1) -> None:
+        if steps <= 0:
+            return
+        self._completed += steps
+        self._emit()
+
+    def __iter__(self):
+        for item in self._inner:
+            yield item
+            self._advance(1)
+
+    def update(self, n=1):
+        result = self._inner.update(n)
+        try:
+            steps = int(n)
+        except (TypeError, ValueError):
+            steps = 1
+        self._advance(steps)
+        return result
+
+    def close(self) -> None:
+        close = getattr(self._inner, "close", None)
+        if close is not None:
+            close()
+
+    def __enter__(self):
+        enter = getattr(self._inner, "__enter__", None)
+        if enter is not None:
+            enter()
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        exit_fn = getattr(self._inner, "__exit__", None)
+        if exit_fn is None:
+            self.close()
+            return False
+        return exit_fn(exc_type, exc, tb)
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
+def _install_progress_hook(registry, entry):
+    """Install a transformers tqdm hook, returning ``(setter, previous)``.
+
+    Returns ``None`` when transformers or the hook API is unavailable so model
+    loading can continue without progress reporting.
+    """
+    try:
+        from transformers.utils import logging as transformers_logging
+    except Exception:
+        return None
+
+    set_hook = getattr(transformers_logging, "set_tqdm_hook", None)
+    if not callable(set_hook):
+        return None
+
+    def hook(factory, args=(), kwargs=None):
+        args = args or ()
+        kwargs = kwargs or {}
+        if kwargs.get("desc") != "Loading weights":
+            return factory(*args, **kwargs)
+        total = kwargs.get("total")
+        if not total and args:
+            try:
+                total = len(args[0])
+            except (TypeError, AttributeError):
+                total = None
+        inner = factory(*args, **kwargs)
+        return _ProgressTqdm(
+            inner,
+            lambda pct: registry._set_load_progress(entry, pct),
+            total,
+        )
+
+    try:
+        previous = set_hook(hook)
+    except Exception:
+        return None
+    return set_hook, previous
+
+
 @dataclass
 class _ModelEntry:
     """Runtime bookkeeping for one configured model."""
@@ -42,6 +152,7 @@ class _ModelEntry:
     last_used: Optional[float] = None
     load_seconds: Optional[float] = None
     in_use: int = 0
+    load_progress: int = 0
     metadata: dict = field(default_factory=dict)
 
 
@@ -75,6 +186,14 @@ class ModelRegistry:
         metadata = entry.metadata or {}
         device = metadata.get("device", entry.spec.load.get("device", "auto"))
         max_length = metadata.get("max_length", entry.spec.runtime.get("max_length"))
+        if entry.state == READY:
+            load_progress = 100
+        elif entry.state in (UNLOADED, FAILED, DISABLED, UNLOADING):
+            load_progress = 0
+        elif entry.state == WARMING:
+            load_progress = max(95, int(entry.load_progress or 0))
+        else:
+            load_progress = int(entry.load_progress or 0)
         return {
             "id": entry.spec.id,
             "kind": entry.spec.kind,
@@ -82,6 +201,7 @@ class ModelRegistry:
             "state": entry.state,
             "version": entry.spec.version,
             "loaded": entry.runtime is not None and entry.state == READY,
+            "load_progress": load_progress,
             "device": device,
             "max_length": max_length,
             "metrics": entry.spec.metrics,
@@ -92,6 +212,17 @@ class ModelRegistry:
                 or entry.spec.version
             ),
         }
+
+    def _set_load_progress(self, entry: _ModelEntry, pct: int) -> None:
+        """Raise a model's load progress (never backwards) and wake waiters."""
+        with self._lock:
+            if entry.state not in (LOADING, WARMING):
+                return
+            value = max(int(entry.load_progress or 0), int(pct))
+            value = max(0, min(100, value))
+            if value != entry.load_progress:
+                entry.load_progress = value
+                self._lock.notify_all()
 
     def list_models(self) -> list[dict]:
         """Describe every registered model, including disabled ones."""
@@ -163,6 +294,7 @@ class ModelRegistry:
                 entry.error = None
                 entry.runtime = None
                 entry.metadata = {}
+                entry.load_progress = 2
 
             try:
                 self._load_model(entry)
@@ -172,6 +304,7 @@ class ModelRegistry:
                     entry.error = None
                     entry.runtime = None
                     entry.metadata = {}
+                    entry.load_progress = 0
                     self._lock.notify_all()
                 raise
             except ModelFailedError as exc:
@@ -180,6 +313,7 @@ class ModelRegistry:
                     entry.state = FAILED
                     entry.error = str(exc) or "model failed"
                     entry.metadata = {}
+                    entry.load_progress = 0
                     self._lock.notify_all()
                 raise
             except Exception as exc:
@@ -188,6 +322,7 @@ class ModelRegistry:
                     entry.state = FAILED
                     entry.error = str(exc) or exc.__class__.__name__
                     entry.metadata = {}
+                    entry.load_progress = 0
                     self._lock.notify_all()
                 raise ModelFailedError(
                     "Model {!r} failed to load: {}".format(entry.spec.id, exc)
@@ -199,11 +334,22 @@ class ModelRegistry:
             self._apply_gpu_policy(entry)
 
             start = time.monotonic()
-            runtime.load(entry.spec, self._settings)
+            self._set_load_progress(entry, 5)
+            hook_state = _install_progress_hook(self, entry)
+            try:
+                runtime.load(entry.spec, self._settings)
+            finally:
+                if hook_state is not None:
+                    set_hook, previous = hook_state
+                    try:
+                        set_hook(previous)
+                    except Exception:
+                        pass
 
             with self._lock:
                 entry.runtime = runtime
                 entry.state = WARMING
+                entry.load_progress = 95
                 self._lock.notify_all()
 
             runtime.warmup()
@@ -221,6 +367,7 @@ class ModelRegistry:
                 entry.load_seconds = time.monotonic() - start
                 entry.last_used = entry.loaded_at
                 entry.error = None
+                entry.load_progress = 100
                 self._lock.notify_all()
 
     @staticmethod
@@ -307,6 +454,7 @@ class ModelRegistry:
                     other.state = UNLOADED
                     other.loaded_at = None
                     other.load_seconds = None
+                    other.load_progress = 0
                     self._lock.notify_all()
 
             if not busy_ids:
@@ -348,6 +496,7 @@ class ModelRegistry:
             entry.state = UNLOADED
             entry.loaded_at = None
             entry.load_seconds = None
+            entry.load_progress = 0
             self._lock.notify_all()
 
     def close(self) -> None:

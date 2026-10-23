@@ -215,7 +215,7 @@ button:disabled {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
-  align-items: end;
+  align-items: center;
 }
 
 .model-field {
@@ -504,9 +504,9 @@ button:disabled {
 
 #review-input {
   width: 100%;
-  height: 54px;
-  min-height: 52px;
-  max-height: 112px;
+  height: 96px;
+  min-height: 94px;
+  max-height: 180px;
   padding: 7px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -550,6 +550,8 @@ button:disabled {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  align-self: center;
+  transform: translateY(-8px);
   gap: 8px;
 }
 
@@ -583,11 +585,22 @@ button:disabled {
 }
 
 .cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
   min-height: 36px;
-  padding: 6px 12px;
+  padding: 0;
   border: 1px solid #FECDD3;
   background: var(--negative-soft);
   color: var(--negative);
+}
+
+.cancel-button svg {
+  display: block;
+  width: 14px;
+  height: 14px;
 }
 
 .cancel-button:hover {
@@ -833,7 +846,11 @@ button:disabled {
 }
 
 .result-table-wrap {
+  display: block;
   flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
   min-height: 0;
   overflow: auto;
   background: var(--surface);
@@ -863,47 +880,22 @@ button:disabled {
 
 .result-table {
   width: 100%;
-  table-layout: fixed;
+  max-width: none;
+  table-layout: auto;
   border-collapse: separate;
   border-spacing: 0;
   font-size: 13.5px;
   line-height: 1.45;
 }
 
-.result-table colgroup col.col-aspect {
-  width: 15%;
+.result-table th,
+.result-table td {
+  border-right: 1px solid #C9D5E4;
 }
 
-.result-table colgroup col.col-label {
-  width: 12%;
+.result-table tr > :last-child {
+  border-right: 0;
 }
-
-.result-table colgroup col.col-confidence {
-  width: 10%;
-}
-
-.result-table colgroup col.col-quote {
-  width: 25%;
-}
-
-.result-table colgroup col.col-reason {
-  width: 24%;
-}
-
-.result-table.is-encoder col.col-aspect { width: 50%; }
-.result-table.is-encoder col.col-label { width: 25%; }
-.result-table.is-encoder col.col-confidence { width: 25%; }
-
-.result-table.is-llm col.col-aspect { width: 16%; }
-.result-table.is-llm col.col-label { width: 14%; }
-.result-table.is-llm col.col-quote { width: 28%; }
-.result-table.is-llm col.col-reason { width: 42%; }
-
-.result-table.is-compare col.col-aspect { width: 9%; }
-.result-table.is-compare col.col-label { width: 11%; }
-.result-table.is-compare col.col-confidence { width: 8%; }
-.result-table.is-compare col.col-quote { width: 13%; }
-.result-table.is-compare col.col-reason { width: 13%; }
 
 .result-table thead th {
   position: sticky;
@@ -947,20 +939,18 @@ button:disabled {
   background: #FBFDFF;
 }
 
-@media (min-width: 769px) {
-  .result-table.is-compare tbody td + td {
-    border-left: 1px solid #E4EAF2;
-  }
-
-  .result-table.is-compare thead th + th {
-    border-left: 1px solid #DCE6F2;
-  }
-}
-
 .aspect-cell {
   border-left: 4px solid transparent;
   font-weight: 600;
   color: var(--ink);
+}
+
+.result-table.is-compare .is-group-end {
+  border-right: 2px solid #AFC0D4;
+}
+
+.result-table.is-compare thead th[colspan]:not(:last-child) {
+  border-right: 2px solid #AFC0D4;
 }
 
 .result-table tbody .aspect-cell,
@@ -968,6 +958,7 @@ th.aspect-cell {
   padding: 8px 11px 8px 9px;
   background: var(--surface);
   border-bottom: 1px solid #D3DDE8;
+  border-right: 2px solid #AFC0D4;
   border-left: 4px solid transparent;
   color: var(--ink);
   font-size: 14px;
@@ -998,7 +989,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
 .result-table tbody td.quote-cell {
   background: var(--raised);
-  border-left: 3px solid var(--accent-2);
+  border-left: 0;
   color: #334155;
 }
 
@@ -1128,7 +1119,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
     height: 100dvh;
     min-height: 0;
     display: grid;
-    grid-template-rows: 56px minmax(0, 1fr);
+    grid-template-rows: 48px minmax(0, 1fr);
     overflow: hidden;
   }
 
@@ -1147,7 +1138,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
     grid-template-rows: minmax(0, 1fr);
     gap: 8px;
     min-height: 0;
-    padding: 7px 24px;
+    padding: 5px 24px;
     overflow: hidden;
   }
 
@@ -1172,8 +1163,8 @@ tr[data-sentiment="unknown"] .aspect-cell {
   }
 
   .control-strip {
-    gap: 4px;
-    padding: 6px 12px;
+    gap: 3px;
+    padding: 4px 12px;
   }
 
   .review-field {
@@ -1214,27 +1205,47 @@ tr[data-sentiment="unknown"] .aspect-cell {
   }
 
   .result-table thead th {
-    height: 31px;
-    padding: 5px 8px;
+    height: 29px;
+    padding: 4px 8px;
     font-size: 12px;
     line-height: 1.35;
   }
 
   .result-table thead tr:nth-child(2) th {
-    top: 31px;
+    top: 29px;
   }
 
   .result-table tbody td {
-    padding: 4px 8px;
+    padding: 3px 8px;
     line-height: 1.35;
   }
 
   .result-table tbody .aspect-cell {
-    padding: 4px 8px 4px 6px;
+    padding: 3px 8px 3px 6px;
+  }
+
+  .label-pill {
+    white-space: nowrap;
+  }
+
+  .result-table td[data-label$="Nhãn"] {
+    min-width: 112px;
+    white-space: nowrap;
+  }
+
+  .aspect-cell {
+    min-width: 110px;
+    white-space: nowrap;
+  }
+
+  .result-table td[data-label$="Độ tin cậy"],
+  .confidence-cell {
+    min-width: 88px;
+    white-space: nowrap;
   }
 
   th.aspect-cell {
-    padding: 5px 8px;
+    padding: 4px 8px;
     font-size: 14px;
   }
 
@@ -1286,6 +1297,11 @@ tr[data-sentiment="unknown"] .aspect-cell {
   .review-bar {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;
+  }
+
+  .input-actions {
+    align-self: stretch;
+    transform: none;
   }
 }
 
@@ -1354,8 +1370,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
     gap: 8px;
   }
 
-  .primary-button,
-  .cancel-button {
+  .primary-button {
     width: 100%;
   }
 
@@ -1395,6 +1410,10 @@ tr[data-sentiment="unknown"] .aspect-cell {
   }
 
   .result-table-wrap {
+    display: block;
+    align-self: stretch;
+    width: 100%;
+    max-width: 100%;
     min-height: 0;
     overflow: visible;
     background: transparent;
@@ -1442,6 +1461,10 @@ tr[data-sentiment="unknown"] .aspect-cell {
     border: 0;
   }
 
+  .result-table.is-compare .is-group-end {
+    border-right: 0;
+  }
+
   .result-table tbody td::before {
     content: attr(data-label);
     display: block;
@@ -1462,6 +1485,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
     width: 100%;
     margin-bottom: 4px;
     padding: 0 0 8px 10px;
+    border-right: 0;
     border-bottom: 1px solid var(--border);
     font-size: 15px;
     text-align: left;
@@ -1494,7 +1518,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
   .result-table tbody td.quote-cell {
     margin: 6px 0;
     padding: 8px 10px;
-    border-left: 3px solid var(--accent-2);
+    border-left: 0;
     border-radius: 8px;
   }
 

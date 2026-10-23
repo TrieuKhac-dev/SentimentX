@@ -96,6 +96,14 @@
     }
     return null;
   }
+  function loadStatusText(model) {
+    var pct = model && model.load_progress;
+    if (typeof pct === "number" && Number.isFinite(pct)) {
+      pct = Math.max(0, Math.min(99, Math.round(pct)));
+      return "Đang nạp mô hình · " + pct + "%";
+    }
+    return "Đang nạp mô hình";
+  }
   function findFirstKind(kind) {
     for (var i = 0; i < models.length; i += 1) {
       if (models[i].kind === kind) return models[i];
@@ -287,6 +295,7 @@
           setLoadStatus(MSG.loadFailed, "is-error");
           return false;
         }
+        setLoadStatus(loadStatusText(findModel(modelId)), "is-loading");
       }
       return false;
     } catch (error) {
@@ -320,7 +329,7 @@
     loadController = controller;
     loadingModel = true;
     loadingModelId = modelId;
-    setLoadStatus("Đang nạp mô hình", "is-loading");
+    setLoadStatus(loadStatusText(findModel(modelId)), "is-loading");
     syncControls();
     loadPromise = runLoad(modelId, generation, controller);
     return loadPromise;
@@ -712,6 +721,7 @@
         : spec.key === "confidence" ? "confidence-cell" : "";
       return tdCell(prefix + spec.label, cellClass);
     });
+    if (key === "a" && cells.length) cells[cells.length - 1].classList.add("is-group-end");
     if (!side || side.pending) {
       cells.forEach(function (cell) { cell.append(el("span", "empty-value", MSG.pendingCell)); });
       return cells;
@@ -748,11 +758,15 @@
     )));
     var headOne = el("tr");
     headOne.append(thCell("Khía cạnh", "col", 2));
-    headOne.append(thCell(compareModelName(state && state.a && state.a.model) + timeSuffix(state && state.a && state.a.result), "colgroup", 0, specsA.length));
+    var headOneA = thCell(compareModelName(state && state.a && state.a.model) + timeSuffix(state && state.a && state.a.result), "colgroup", 0, specsA.length);
+    headOneA.classList.add("is-group-end");
+    headOne.append(headOneA);
     headOne.append(thCell(compareModelName(state && state.b && state.b.model) + timeSuffix(state && state.b && state.b.result), "colgroup", 0, specsB.length));
     var headTwo = el("tr");
-    specsA.concat(specsB).forEach(function (spec) {
-      headTwo.append(thCell(spec.label, "col"));
+    specsA.concat(specsB).forEach(function (spec, index) {
+      var subheader = thCell(spec.label, "col");
+      if (index === specsA.length - 1) subheader.classList.add("is-group-end");
+      headTwo.append(subheader);
     });
     var thead = el("thead");
     thead.append(headOne, headTwo);

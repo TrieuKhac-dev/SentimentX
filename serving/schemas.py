@@ -86,6 +86,7 @@ class ModelInfo(BaseModel):
     state: str
     version: str
     loaded: bool
+    load_progress: int = 0
     device: Optional[str] = None
     max_length: Optional[int] = None
     metrics: Optional[dict] = None
