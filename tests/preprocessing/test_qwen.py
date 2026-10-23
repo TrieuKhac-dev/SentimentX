@@ -17,6 +17,7 @@ import unittest
 from unittest import mock
 
 from src.preprocessing import qwen
+from tests.support import patch_modules
 
 
 class FakeTokenizer:
@@ -144,7 +145,7 @@ class EnsurePaddingTest(unittest.TestCase):
         fake_module = types.ModuleType("transformers")
         fake_module.AutoTokenizer = mock.Mock()
         fake_module.AutoTokenizer.from_pretrained = mock.Mock(return_value=found)
-        with mock.patch.dict(sys.modules, {"transformers": fake_module}), \
+        with patch_modules({"transformers": fake_module}), \
                 mock.patch.object(qwen, "_TOKENIZERS", {}), \
                 mock.patch.object(qwen, "checkpoint", return_value="zz/zz"):
             loaded = qwen.tokenizer("zz-model")

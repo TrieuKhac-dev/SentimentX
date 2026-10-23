@@ -31,6 +31,7 @@ from src.experiments import experiment_run, experiments, prompts
 from src.preprocessing import qwen
 from src.workflow import preflight, resume
 from src.preprocessing import qwen
+from tests.support import patch_modules
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -645,10 +646,10 @@ class FailureEndsSessionTest(NoRootOverrideMixin, unittest.TestCase):
         colab_runtime.unassign = unassign
         package = types.ModuleType("google.colab")
         package.runtime = colab_runtime
-        patcher = mock.patch.dict(sys.modules, {"google.colab": package,
-                                                "google.colab.runtime": colab_runtime})
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        patcher = patch_modules({"google.colab": package,
+                                 "google.colab.runtime": colab_runtime})
+        patcher.__enter__()
+        self.addCleanup(patcher.__exit__, None, None, None)
         return calls
 
     def test_luot_chay_hong_thi_ngat_phien(self):

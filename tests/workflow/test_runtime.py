@@ -24,6 +24,7 @@ from unittest import mock
 
 from src.workflow import runtime
 from src.core import paths
+from tests.support import patch_modules
 
 MARKER = ".sentimentx_root"
 
@@ -354,10 +355,10 @@ class TestEndSession(unittest.TestCase):
         runtime_module.unassign = unassign
         package = types.ModuleType("google.colab")
         package.runtime = runtime_module
-        patcher = mock.patch.dict(sys.modules, {
+        patcher = patch_modules({
             "google.colab": package, "google.colab.runtime": runtime_module})
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        patcher.__enter__()
+        self.addCleanup(patcher.__exit__, None, None, None)
         return calls
 
     @staticmethod
@@ -478,10 +479,10 @@ class EndSessionOnErrorTest(unittest.TestCase):
         colab_runtime.unassign = unassign
         package = types.ModuleType("google.colab")
         package.runtime = colab_runtime
-        patcher = mock.patch.dict(sys.modules, {"google.colab": package,
-                                                "google.colab.runtime": colab_runtime})
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        patcher = patch_modules({"google.colab": package,
+                                 "google.colab.runtime": colab_runtime})
+        patcher.__enter__()
+        self.addCleanup(patcher.__exit__, None, None, None)
         return calls
 
     def test_than_khoi_thanh_cong_thi_khong_ngat(self):
