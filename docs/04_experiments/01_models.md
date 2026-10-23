@@ -28,11 +28,11 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 > `meta-llama/Llama-3.1-8B-Instruct` (họ Llama) và `Viet-Mistral/Vistral-7B-Chat` (tiếng Việt chuyên
 > biệt, cùng cỡ với Mistral). Cả hai là repo **GATED** trên Hugging Face: máy dự án đã thử tải và bị từ
 > chối, nên chưa đo được token và chưa tạo được lượt. Cần `HF_TOKEN` có quyền + bấm nhận điều khoản trên
-> trang model - xem `present_plan_batch11.md` mục 7.
+> trang model - xem `docs/06_plan/archive/batches/present_plan_batch11.md` mục 7.
 >
 > **Một model ĐÃ vào bảng nhưng bị HỦY (11/10/2026):** `Qwen3-4B-Thinking-2507` - hai lượt
 > `prompt-cot/exp001` (DÒ) và `exp002` (chạy) **đã tạo + ghim nhưng KHÔNG chạy** vì quá chậm. Chi tiết:
-> `present_plan_batch12.md` NHÓM 12.
+> `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 12.
 >
 > **Ba model bị HỦY/BỎ vì CHI PHÍ (11/10/2026):** `Qwen3-8B` và `Mistral-7B-Instruct-v0.3` **đã chạy 3 lượt
 > mỗi model** nhưng **KHÔNG dùng được** - `Qwen3-8B` **chạm trần 100 %** (`token sinh TB` 399,8/400) nên chỉ
@@ -40,7 +40,7 @@ Tài liệu tiền xử lý cho model-4 (chuẩn bị input cho từng model, hu
 > **3 ngày Colab cho 6 lượt, thu về 0 kết quả dùng được** ⇒ **HỦY**. `meta-llama/Llama-3.1-8B-Instruct`
 > **BỎ TRƯỚC KHI TẠO** (quyền truy cập đã có, nhưng **cùng cỡ 8B** nên cùng chi phí);
 > `Viet-Mistral/Vistral-7B-Chat` **BỎ** (repo GATED + cùng nhóm chi phí). Chi tiết:
-> `present_plan_batch12.md` NHÓM 10 + NHÓM 12, và mục 10 (kết quả Đợt 1).
+> `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 10 + NHÓM 12, và mục 10 (kết quả Đợt 1).
 
 Mười hai model này phủ **bốn hướng câu hỏi**: sáu encoder (bốn kho tiền huấn luyện tiếng Việt, một bản lớn của
 PhoBERT, và một model đa ngữ làm **đối chứng nguồn tiền huấn luyện**) và **sáu mô hình sinh** dùng theo dạng
@@ -55,7 +55,7 @@ nhiêu điểm" trả lời được **mà không đổi bất kỳ thứ gì kh
 nó tiêu hết trần `max_new_tokens` trong khối ` thinking` rồi không còn chỗ in JSON. Ngày 02/10/2026 ba lượt
 0.6B vì thế chỉ đọc được **3,33 / 1,36 / 1,73%** số review. Muốn chạy 0.6B thì **phải** khai
 `preprocess.enable_thinking: false` ở cấu hình model (và nếu muốn *bật* suy nghĩ thì phải chạy một lượt
-**DÒ** trước để chốt trần token - xem `present_plan.md` mục 9.1).
+**DÒ** trước để chốt trần token - xem `docs/06_plan/archive/P7-P10/present_plan.md` mục 9.1).
 
 **Trạng thái kết quả.**
 

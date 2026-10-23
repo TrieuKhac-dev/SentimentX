@@ -1,9 +1,9 @@
 # present_plan — Kế hoạch đợt 7 → đợt 10 (ĐÃ XONG; MỐC LỊCH SỬ)
 
 > ⚠️ **KHÔNG phải kế hoạch đang chạy (cập nhật 14/10/2026).** Kế hoạch đang chạy là
-> `present_plan_batch13.md` (nhật ký đợt 13) + **`docs/06_plan/P9_batch13.md`** (hướng dẫn thi hành
+> `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký đợt 13) + **`docs/06_plan/P9_batch13.md`** (hướng dẫn thi hành
 > 13.2 → 13.6); mục lục mọi giai đoạn ở `docs/06_plan/README.md`. Tệp này giữ làm dấu vết của đợt 7–10:
-> khi đó đây là kế hoạch **ĐANG THỰC THI**, tệp đi kèm `check_present_plan.md` có **cùng mục, cùng mục
+> khi đó đây là kế hoạch **ĐANG THỰC THI**, tệp đi kèm `docs/06_plan/archive/P7-P10/check_present_plan.md` có **cùng mục, cùng mục
 > nhỏ**, chỉ ghi trạng thái (đã làm gì) để đọc lại nhanh.
 >
 > Kế hoạch của đợt trước đã được hợp nhất vào `docs/06_plan/P8_measurement_mlflow.md`. Cặp tệp này sẽ
@@ -45,7 +45,7 @@
     `exp003/results/d5b8e7fc` — `repo_sha 8bfe96e…`, `% đọc được` chỉ **3,33 / 1,36 / 1,73**, có khối
     `<think>` 999 / 714 / 788 lần, lí do lỗi chính là "không thấy JSON nào" (1549 / 1561 / 1536).
   - **Trước khi xoá**: in lại bằng chứng (`model`, `repo_sha`, `read_rate`, `paper.cells` từ
-    `metrics.json`) để ghi vào `check_present_plan.md`.
+    `metrics.json`) để ghi vào `docs/06_plan/archive/P7-P10/check_present_plan.md`.
 - **2.2** Xác nhận trên Drive đã xoá đúng **6** thư mục tương ứng (người dùng đã xoá 3 thư mục 4B cũ).
 - **2.3** Kiểm tra toàn vẹn **17 thư mục kết quả còn lại**: mỗi thư mục có đủ `run_meta.json`,
   `metrics.json`, `metrics.csv`.
@@ -170,10 +170,10 @@
 - **6.2** Chạy `scripts/build_package.py` ⇒ **gói 012** ⇒ commit sổ gói ⇒ `git push` ⇒ **MỐC DỪNG #2**.
   **Đã thực thi 04/10/2026 (lệch nhỏ, có lí do):** đợt 7 đóng **ba** gói nối tiếp - **012** (23 notebook),
   **013** (chỉ `README.md` sửa) và **014** (sửa `README.md` lần nữa: danh sách gửi lại + hai câu mô tả sai,
-  xem `check_present_plan.md` mục 14). Gói sau giải nén **đè lên** gói trước. Vì vậy số gói của các đợt sau
+  xem `docs/06_plan/archive/P7-P10/check_present_plan.md` mục 14). Gói sau giải nén **đè lên** gói trước. Vì vậy số gói của các đợt sau
   dịch: đợt 8 = **015**, gói cuối = **016** *(số này nay là LỊCH SỬ - con số đang dùng ở mục 6.3)*.
 - **6.3 Đã thực thi 05/10/2026 (đợt 7 nay đóng bốn gói).** Hai lỗi thật được sửa và một cơ chế được thêm
-  (xem mục 15 của `check_present_plan.md`), rồi **6 lượt ablation đầu phân loại** được tạo:
+  (xem mục 15 của `docs/06_plan/archive/P7-P10/check_present_plan.md`), rồi **6 lượt ablation đầu phân loại** được tạo:
   - bản mã **bắt buộc** phải ghim lại, vì Lỗi A (`write_csv` sai thứ tự tham số) làm chết lượt chạy ở
     **dòng cuối** - 4 encoder mới + lượt chạy tiếp của `xlm-roberta-base` đều đã chết vì nó;
   - vậy **14 notebook** được ghim lại: 6 lượt mới + **8 lượt encoder** của đợt 7 (4 encoder mới + 2 lượt
@@ -379,7 +379,7 @@
   nhắc giá, gán nhãn "chê giá / khen giá / không nhắc" theo quy tắc viết TRƯỚC, lưu tách hẳn ở
   `data/reports/price_probe/`, không trộn vào bảng `paper`) - cách duy nhất để có thước đo thật cho `price`;
   việc của người, 0 GPU, **người dùng chốt để làm SAU, chưa đưa vào kế hoạch đợt này** · và **hợp nhất hai
-  tệp `present_plan.md` + `check_present_plan.md` vào `docs/06_plan/P9_batch7.md`** khi kết thúc đợt (đề
+  tệp `docs/06_plan/archive/P7-P10/present_plan.md` + `docs/06_plan/archive/P7-P10/check_present_plan.md` vào `docs/06_plan/P9_batch7.md`** khi kết thúc đợt (đề
   xuất, **chờ người dùng duyệt**). **Cập nhật 05/10/2026:** hai việc "đo dao động diện rộng (đường encoder)"
   và "đầu phân loại theo khía cạnh / hai tầng theo khía cạnh" nay đã **rời danh sách để ngỏ** và thành **đợt 10**
   (mục 14, bảng ở mục 11.5); "thăng cấp luật lai thành một `method`" vẫn để ngỏ nhưng **gần** hướng 3, phải
@@ -426,7 +426,7 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
 
 - **14.1 (không cần GPU) Vệ sinh sổ sách sau hai lượt vừa xong.** Chạy `scripts/collect_reports.py` (5 nhóm
   bảng nay có hai lượt mới); sửa **ba chỗ ghi sai 16.149** thành **21.525** (`experiments/cafebert/lora/exp002/
-  config.yaml` dòng "= 16.149", `README.md` cùng lượt, và bảng mục 15 của `check_present_plan.md`) — CafeBERT
+  config.yaml` dòng "= 16.149", `README.md` cùng lượt, và bảng mục 15 của `docs/06_plan/archive/P7-P10/check_present_plan.md`) — CafeBERT
   rộng **1.024** ẩn, ĐO ĐƯỢC: `7.132.181 − 7.110.656 = 21.525`; ghi kết quả hai lượt vào
   `08_experiment_rationale.md` (§2b nay **6/6** cặp, cafebert **+0,21**) và **§5.3 mới** (lượt `prompt-one-turn`
   của 0,6B: **99,94%** đọc được), cây ở `07_evolution.md`, `handover/README.md` (5/6 → 6/6); commit **bằng
@@ -489,7 +489,7 @@ tập ô** nên được **báo cáo riêng**, không trộn vào bảng `paper`
   `system_prompt: ../../../../configs/prompts/system/absa_aspect_<khía cạnh>.txt` (7 cặp đã có, xem 14.9);
   gộp bằng `python scripts/fuse_aspect.py --encoder <lượt encoder> --aspect <lượt>×7` (luật đã đóng băng ở
   14.10). **Ghi vào `README.md` của từng lượt**: nó là MỘT TẦNG của bản gộp, không phải một lượt so điểm.
-- **14.12 (không cần GPU) Chốt sổ**: cập nhật `present_plan.md`, `check_present_plan.md`,
+- **14.12 (không cần GPU) Chốt sổ**: cập nhật `docs/06_plan/archive/P7-P10/present_plan.md`, `docs/06_plan/archive/P7-P10/check_present_plan.md`,
   `docs/06_plan/README.md` (hàng P8b), `handover/README.md`; dựng **gói 019** (nếu hướng 2/3 sửa mã);
   `ci_checks` + `unittest` + commit + `git push` ⇒ **MỐC DỪNG #6**.
 - **14.13 (XONG 06/10/2026, không cần GPU) ROUTER THEO KHÍA CẠNH** - việc MỚI ngoài kế hoạch gốc, thêm vì

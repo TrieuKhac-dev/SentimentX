@@ -83,7 +83,7 @@ class TokenStatsRegistryTest(unittest.TestCase):
         # 6 encoder + 6 model sinh. Đợt 11 thêm BA model sinh (hai bản Qwen3 và một họ KHÁC - Mistral).
         # HAI model của đợt 11 (`llama-3.1-8b-instruct`, `vistral-7b-chat`) là repo GATED nên CHƯA đăng ký
         # được: đăng ký một model không tải nổi tokenizer là làm hỏng phép đo của MỌI model khác trong
-        # cùng lần chạy - xem present_plan_batch11.md mục 7.
+        # cùng lần chạy - xem docs/06_plan/archive/batches/present_plan_batch11.md mục 7.
         self.assertEqual(len(ids), 12)
 
     def test_moi_muc_co_du_ham_va_ten_model_khop_config(self):

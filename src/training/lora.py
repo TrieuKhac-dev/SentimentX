@@ -30,7 +30,7 @@ hợp lệ và đang là mốc so sánh. `head.trainable: true` mở khoá đầ
 cố ý KHÔNG có `lr` riêng cho đầu: MỘT BIẾN mỗi thí nghiệm, và "đầu học cùng tốc độ với LoRA" đúng là
 phép so sánh cần trả lời ("đóng băng hay không đóng băng đầu phân loại khác gì nhau").
 
-KHÍA CẠNH ĐI VÀO ĐẦU VÀO: `head.aspect_marker` (mục 14.7 của `present_plan.md`)
+KHÍA CẠNH ĐI VÀO ĐẦU VÀO: `head.aspect_marker` (mục 14.7 của `docs/06_plan/archive/P7-P10/present_plan.md`)
 `false` (mặc định) = mỗi khía cạnh có BỘ TRỌNG SỐ RIÊNG. `true` = một one-hot 7 chiều của khía cạnh
 được GHÉP vào vector review (`(B,A,H) + (B,A,A) -> (B,A,H+A)`) rồi tính bằng MỘT lớp dùng chung, tức
 đầu phân loại biết nó đang trả lời khía cạnh nào. Đầu ra VẪN `(B, 7, 3)` nên phần chấm điểm không đổi;

@@ -11,7 +11,7 @@
 
 **Thành công khi:** hơn **cả** Accuracy macro **và** một chỉ số F1 lớp âm **> 0,7** so với `exp015`; dưới mức
 đó ghi **ĐỒNG HẠNG**. **Dấu vết:** `run.log` in hàm mất mát là focal + có trọng số. **Đọc kèm:**
-`present_plan_batch12.md` NHÓM 2; `price` âm ghi kèm "n = 6, không kết luận".
+`docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 2; `price` âm ghi kèm "n = 6, không kết luận".
 
 ---
 

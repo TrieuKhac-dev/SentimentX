@@ -2,7 +2,7 @@
 
 > Đọc file này khi: cần con số CHỐT của dự án so với công bố tham chiếu. Đây là bản thay thế
 > `present_report_v1.md` (giữ lại làm dấu vết: nó viết trước khi có 6 hạt giống v0 của Đợt 8).
-> Liên quan: `docs/04_experiments/metrics.md` (luật đọc số), `present_plan_batch12.md` mục 14 (nhật ký Đợt 8),
+> Liên quan: `docs/04_experiments/metrics.md` (luật đọc số), `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14 (nhật ký Đợt 8),
 > `data/reports/experiment_registry/experiment_registry.csv` (**nguồn số duy nhất** cho mọi số dưới đây).
 
 > ⛔ **GHI CHÚ 16/10/2026 - HAI LƯỢT ENCODER ĐÃ BỊ THAY.** `cafebert/lora/exp027` (`43e40f61`) và
@@ -74,7 +74,7 @@ thước đo có `n` cho +0,77: **thước đo nhiễu khuếch đại chênh l�
    nhóm này là MỘT tổng thể. Đây là đối chứng chứng minh phép đo không bị lệch theo đợt chạy.
 4. **Bên trong họ `lr 4e-4` mọi biến thể ĐỒNG HẠNG** (sd 0,107): `r 8` 98,31 · `r 16` 98,30 ·
    `every_n_steps 50` 98,28 · `epochs 6` 98,25 ⇒ `r`, `epochs` và mật độ checkpoint **không tạo ra khác biệt
-   đo được** (xem `present_plan_batch12.md` mục 11).
+   đo được** (xem `docs/06_plan/archive/batches/present_plan_batch12.md` mục 11).
 5. **Cái "kỷ lục" của bản cũ chỉ là lượt may nhất của nó:** đỉnh `present_report_v0.md`
    (`cafebert/lora/exp004`, 98,26) nằm TRONG dải của họ v0 mà trung bình họ v0 chỉ **98,08**; lượt đỉnh của
    họ mới (`exp021`, 98,41) cũng vậy (TB họ **98,28**). Không lấy số của một lượt làm kết luận (luật 10).
@@ -83,7 +83,7 @@ thước đo có `n` cho +0,77: **thước đo nhiễu khuếch đại chênh l�
 
 Ba đường này là toàn bộ những gì còn lại sau khi các trục siêu tham số (Đợt 2) và đường kết hợp (Đợt 6)
 đã chứng minh bão hoà. Cả ba đều được ghép cặp/khoá đúng MỘT biến nhờ W1-W8 của Đợt 8
-(xem `present_plan_batch12.md` mục 13) - và cả ba đều không vượt ngưỡng phát hiện **> 0,25 ở CẢ HAI trục**.
+(xem `docs/06_plan/archive/batches/present_plan_batch12.md` mục 13) - và cả ba đều không vượt ngưỡng phát hiện **> 0,25 ở CẢ HAI trục**.
 
 ### 3.1 Prompt/few-shot của LLM (8B) - **VÍ DỤ LẤY TỪ `train` LÀM LLM TỆ ĐI**
 
@@ -141,7 +141,7 @@ Ba đường này là toàn bộ những gì còn lại sau khi các trục siê
 | --- | --- | --- | --- |
 | 1 | `lr` 2e-4 → 4e-4 (Đợt 2) | mục 2: +0,19 Acc / +0,77 `neg F1`, **Welch p = 0,0035 / 0,0070** | ✅ **THẮNG có ý nghĩa** |
 | 2-4 | `lora.r` 8 vs 16 · `epochs` 3 vs 6 · `every_n_steps` 100 vs 50 (Đợt 2) | bốn nhóm TB 98,25-98,31 (sd 0,107) | ĐỒNG HẠNG |
-| 5-13 | **9 bàn đạp KẾT HỢP** (Đợt 6 + 5 bàn đạp trước đó): ensemble 6 model · ensemble 5 lượt cafebert · ngưỡng theo khía cạnh · biểu quyết 3 hạt giống encoder · router theo khía cạnh · gộp hai tầng · … | `data/reports/fusion/**`; chi tiết bảng ở `present_plan_batch12.md` mục 12 | ÂM / RỖNG |
+| 5-13 | **9 bàn đạp KẾT HỢP** (Đợt 6 + 5 bàn đạp trước đó): ensemble 6 model · ensemble 5 lượt cafebert · ngưỡng theo khía cạnh · biểu quyết 3 hạt giống encoder · router theo khía cạnh · gộp hai tầng · … | `data/reports/fusion/**`; chi tiết bảng ở `docs/06_plan/archive/batches/present_plan_batch12.md` mục 12 | ÂM / RỖNG |
 | 14 | **few-shot LLM từ `train`** (8B) | mục 3.1: 0 ví dụ 97,62/0,9300 > 1 ví dụ 96,83/0,9062 > 5 ví dụ 96,41/0,9066 | THUA |
 | 15 | **bỏ phiếu tự-đồng-thuận 3 mẫu LLM** (8C) | mục 3.2: `neg F1` 0,8039 < mọi mẫu (0,8922-0,9100) | RỖNG |
 | 16 | **chọn checkpoint theo lớp âm** (8D) | mục 3.3: −0,17 Acc / −0,51 `neg F1` | THUA |

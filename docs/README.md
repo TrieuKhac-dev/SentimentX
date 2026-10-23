@@ -61,3 +61,9 @@
 | 06_plan        | `README.md`                | mục lục kế hoạch và trạng thái từng bước         | hằng ngày                           |
 | 06_plan        | `P0..P8`                   | task nhỏ của từng bước, kèm commit               | khi triển khai                      |
 | 06_plan        | `APPENDIX_commits.md`      | bảng toàn bộ commit                              | khi commit                          |
+
+## Lưu trữ kế hoạch lịch sử
+
+> Kế hoạch các đợt cũ (đợt 7 → 13) đã đóng băng, chỉ đọc, tại [docs/06_plan/archive/](06_plan/archive/):
+> [P7-P10/](06_plan/archive/P7-P10/) (kế hoạch + nhật ký đợt 7 → 10) và
+> [batches/](06_plan/archive/batches/) (nhật ký đợt 11 → 13). Mục lục đang dùng vẫn là [docs/06_plan/README.md](06_plan/README.md).

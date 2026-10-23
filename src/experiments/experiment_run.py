@@ -509,7 +509,7 @@ def max_new_tokens_of(config_data, passed=None):
     hơn hẳn, vì model viết hết trần trong khối ` thinking` rồi không còn chỗ in JSON - đã gặp thật với
     `Qwen/Qwen3-0.6B` (ba lượt chỉ đọc được 3,33 / 1,36 / 1,73%). Trần token cũng đi vào dấu vân tay
     của lượt chạy (qua `run_identity`), nên nó phải là một phần CẤU HÌNH đọc lại được, không phải
-    tham số gõ tay dễ quên. Xem `present_plan.md` mục 4.2 và 9.1.
+    tham số gõ tay dễ quên. Xem `docs/06_plan/archive/P7-P10/present_plan.md` mục 4.2 và 9.1.
 
     **Tên khoá:** `decoding.max_new_tokens` (nhóm `decoding` đã có: `mode`, `temperature`, `top_p`).
     Kế hoạch đợt 7 gọi nó là `generation.max_new_tokens` - đó là **TÊN CŨ**, không phải một khoá thứ

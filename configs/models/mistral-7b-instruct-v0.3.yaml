@@ -17,7 +17,7 @@
 # JSON** (viết văn xuôi) dù KHÔNG chạm trần (`token sinh TB` 244-309 < 400). Người dùng chốt HỦY vì **chi
 # phí**: 3 ngày Colab cho 6 lượt (cả `mistral-7b` lẫn `qwen3-8b`) thu về 0 kết quả dùng được.
 # File này GIỮ làm bản ghi; muốn làm lại thì (a) nới `decoding.max_new_tokens` cho phần đuôi, (b) siết câu
-# yêu cầu định dạng đầu ra, và (c) chạy một lượt DÒ `n` nhỏ trước. Xem `present_plan_batch12.md` NHÓM 10.
+# yêu cầu định dạng đầu ra, và (c) chạy một lượt DÒ `n` nhỏ trước. Xem `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 10.
 
 model_id: mistral-7b-instruct-v0.3
 checkpoint: mistralai/Mistral-7B-Instruct-v0.3

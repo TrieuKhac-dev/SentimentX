@@ -1,8 +1,8 @@
 # present_plan_batch12 - Kế hoạch đợt 12 và SỔ TRẠNG THÁI
 
 > Đây là kế hoạch **ĐANG THỰC THI** của đợt 12, đặt ở gốc repo, và cũng là **sổ trạng thái** để không phải
-> mở file thứ hai. Kế hoạch đợt trước (`present_plan_batch11.md`, `present_plan.md`) **giữ nguyên, không sửa**.
-> Quy ước trạng thái (giống `check_present_plan.md`): `CHƯA LÀM` · `ĐANG LÀM` · `XONG <ngày>` ·
+> mở file thứ hai. Kế hoạch đợt trước (`docs/06_plan/archive/batches/present_plan_batch11.md`, `docs/06_plan/archive/P7-P10/present_plan.md`) **giữ nguyên, không sửa**.
+> Quy ước trạng thái (giống `docs/06_plan/archive/P7-P10/check_present_plan.md`): `CHƯA LÀM` · `ĐANG LÀM` · `XONG <ngày>` ·
 > `CHỜ NGƯỜI DÙNG` · `BỎ QUA <lí do>`.
 > **Luật của sổ này:** mọi lỗi gặp phải và mọi thay đổi so với kế hoạch **phải** ghi vào **mục 6 - Nhật ký**,
 > kèm ngày và lí do. Không sửa mục 4-5 cho khớp việc đã làm mà không ghi vào mục 6.
@@ -262,7 +262,7 @@ dòng khác trong `train`**, KHÔNG sửa ngưỡng.
 ### NHÓM 12 - HỦY / sửa
 | Việc | Chi tiết |
 | --- | --- |
-| **HỦY** `qwen3-4b-thinking-2507/prompt-cot/exp001`, `exp002` | Lí do người dùng chốt: **quá chậm, kể cả lượt DÒ**. Sửa 5 file: `present_plan_batch11.md`, `batch11_report.md`, `docs/04_experiments/01_models.md`, `handover/README.md`, `configs/models/qwen3-4b-thinking-2507.yaml` |
+| **HỦY** `qwen3-4b-thinking-2507/prompt-cot/exp001`, `exp002` | Lí do người dùng chốt: **quá chậm, kể cả lượt DÒ**. Sửa 5 file: `docs/06_plan/archive/batches/present_plan_batch11.md`, `batch11_report.md`, `docs/04_experiments/01_models.md`, `handover/README.md`, `configs/models/qwen3-4b-thinking-2507.yaml` |
 | ~~`cafebert/full/exp002` ← `exp001`, `lr: 2e-5`~~ **BỎ 11/10/2026** | Người dùng chốt **bỏ hẳn nhánh `full`**: cả 3 lượt đã chạy đều thoái hoá (mục 9.2) ⇒ không còn là mốc đối chứng. 3 lượt GIỮ làm bản ghi "đã thử và hỏng" |
 | **HỦY (sau khi chạy)** `qwen3-8b/prompt-cot/exp001-003` | Đọc được **1,05 / 0,92 / 0,12 %**; `token sinh TB` = **399,8/399,8/400,0** với trần 400 ⇒ **chạm trần 100 %** (model bật suy nghĩ mặc định). **3 ngày Colab cho 0 kết quả dùng được** |
 | **HỦY (sau khi chạy)** `mistral-7b-instruct-v0.3/prompt-cot/exp001-003` | Đọc được **60,4 / 72,2 / 63,5 %** (~32 % trả lời không có khối JSON); `read_rate.valid = false` |
@@ -309,7 +309,7 @@ giao thức của công bố) và **(b) tiêu chí CHỌN CHECKPOINT** (NHÓM 8 
 
 ### Danh sách HOÃN (**12 lượt** - cập nhật 12/10/2026) - **kèm LÝ DO và ĐIỀU KIỆN HỒI SINH**
 
-Nghĩa của `HOÃN` (theo `check_present_plan.md` §17 dùng chữ này): **chưa chạy BÂY GIỜ, KHÔNG xoá khỏi kế
+Nghĩa của `HOÃN` (theo `docs/06_plan/archive/P7-P10/check_present_plan.md` §17 dùng chữ này): **chưa chạy BÂY GIỜ, KHÔNG xoá khỏi kế
 hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>`.
 
 | Lượt | Nút | LÝ DO HOÃN (căn cứ SỐ ĐO) | Hồi sinh khi |
@@ -368,7 +368,7 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
       **cần người dùng quyết** trước khi làm NHÓM 12 phần `full`
 - [x] 0.5 **XONG 11/10/2026** - Người dùng chốt **BỎ hẳn nhánh `full`** (cả 3 lượt thoái hoá) ⇒ NHÓM 12 bỏ
       `cafebert/full/exp002`; tổng encoder **37 -> 36** lượt; đã ghi "không dùng được" vào
-      `docs/04_experiments/06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`,
+      `docs/04_experiments/06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`,
       `present_report_v1.md`
 
 ### Đợt 1 - 8 lượt ưu tiên
@@ -496,7 +496,7 @@ Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi t
 | 11/10/2026 | Đợt 0 | Ca A `best_metric`: **KHÔNG có lỗi** - `exp002` và `exp007` chọn CÙNG checkpoint bước 800 nên điểm trùng nhau là hợp lệ | NHÓM 8 giữ nguyên (đã có cơ sở) |
 | 11/10/2026 | **LỖI (lớn)** | Ca B nhánh `full`: cả 3 lượt đoán **"không nhắc tới" cho MỌI ô** (`sentiment_f1 = 0`, `paper.cells = 0`, `all acc = 73,69 %`); hai lượt PhoBERT khác `lr` **10 lần** ra y hệt từng khía cạnh | Ghi ở mục 9.2; **ĐỔI NHÓM 12** (phải thêm `inference.dtype: float32`); **BÁO CÁO người dùng** (mục 6 việc 0.5) |
 | 11/10/2026 | Phát hiện | `cafebert/full/exp001` **không có `metrics.json`** trên đĩa (mà `run.log` nói "đã ghi") - chỉ có `run.log`, `run_meta.json`, `model/` | Kết luận về lượt này lấy từ `run.log`; ghi rõ trong Phụ lục A |
-| 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`, `present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
+| 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`, `present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
 | 11/10/2026 | Đợt 1 | **TẠO XONG 8 thí nghiệm** `exp020` `exp021` `exp024` `exp025` `exp027` `exp028` `exp030` `exp033` (8 commit nhỏ `feat(experiments)`); mỗi lượt khác cha ĐÚNG 1 khoá/nhóm khoá | `ci_checks` xác nhận **cấu hình hợp lệ** (chỉ báo chưa ghim `REPO_SHA`); còn phải **ghim** sau khi CI xanh |
 | 11/10/2026 | Ghi nhận | Phải **gitignore `_scratch/`** vì `worktree_dirty()` tính cả file chưa theo dõi; và `new_experiment.py` **từ chối khi cây bẩn** nên mỗi lượt tạo xong phải commit trước khi tạo lượt kế | Đã gitignore (`9e68f73`); 7 lượt sau dùng `--allow-dirty` rồi commit riêng từng lượt |
 | 11/10/2026 | Lỗi (đã hiểu, không phải lỗi mã) | **CI đỏ ở `558ea0e` và `2ba65ea`** - nguyên nhân: `ci_checks` trả mã 1 khi có việc phải sửa, mà hai commit đó chứa notebook **chưa ghim** (`REPO_SHA = '<chua-ghim>'`) | Đây là thế "con gà - quả trứng" **đúng luồng dự án**: push (đỏ) -> ghim -> push. Sau khi ghim, **CI XANH ở `4f9819d`**. Xin ghi lại để người sau khỏi tưởng mã sai |
@@ -585,7 +585,7 @@ nan/inf ⇒ `argmax` của nan trả về chỉ số 0 = "không nhắc tới" c
    được** - nó dựa trên 3 lượt đều thoái hoá.
 3. Người dùng cần quyết: có điều tra tiếp nguyên nhân gốc không, hay chỉ chạy lại với `float32` để có mốc.
    → **CHỐT 11/10/2026 (người dùng): BỎ hẳn nhánh `full`** (nghi overfit/thoái hoá). Đã ghi "không dùng
-   được" vào `06_lora_encoder.md`, `batch11_report.md`, `present_plan_batch11.md`, `present_report_v1.md`.
+   được" vào `06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`, `present_report_v1.md`.
 
 ---
 

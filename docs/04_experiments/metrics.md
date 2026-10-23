@@ -185,7 +185,7 @@ Hai điều dễ lẫn, nói thẳng:
    có `valid`).
 3. **Token sinh chạm trần thì lượt đó là lượt BỊ CẮT.** Nếu số token sinh trung bình **≥ 95%** của
    `decoding.max_new_tokens` thì phải coi kết quả là bị cắt và chạy lại với trần cao hơn; riêng lượt
-   **bật suy nghĩ** phải chạy một lượt **DÒ** để chốt trần trước (xem `present_plan.md` mục 9.1).
+   **bật suy nghĩ** phải chạy một lượt **DÒ** để chốt trần trước (xem `docs/06_plan/archive/P7-P10/present_plan.md` mục 9.1).
 4. **Ghi rõ CƠ SỞ và KIỂU TRUNG BÌNH**: cơ sở `paper` (để so công bố) hay `all` (đo của dự án), và
    **macro** hay **micro** - hai con số khác nhau, không được trộn trong cùng một ô.
 5. **F1 ghi theo TỈ LỆ 0..1** (không ghi phần trăm) trong `metrics.csv` và các bảng; accuracy và

@@ -241,7 +241,7 @@ Nguồn: `model/best/trainer_state.json` (khoá `epoch`, `step`) đối chiếu 
    `none` → **`vncorenlp`** (tách từ tiếng Việt bằng RDRSegmenter/Java), tức **đầu vào văn bản khác hẳn**.
    Con số vẫn **so được với công bố** (cùng tập `test`, khoá tập đánh giá không đổi), nhưng: (a) nó **không cùng loại
    đòn** với 8 lượt kia; (b) tài liệu dự án xếp `segmenter: vncorenlp` vào danh sách lever **đã cạn và KHÔNG TÁI LẬP**
-   (`present_plan_batch13.md`) ⇒ lượt này **không lặp lại được** ở lần chạy sau.
+   (`docs/06_plan/archive/batches/present_plan_batch13.md`) ⇒ lượt này **không lặp lại được** ở lần chạy sau.
 
 **C. Ghi chú RIÊNG cho lượt L1** (`qwen3-4b-instruct-2507/prompt-cot/exp009`):
 

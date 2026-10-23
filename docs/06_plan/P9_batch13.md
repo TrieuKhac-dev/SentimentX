@@ -1,7 +1,7 @@
 # P9 - Bàn giao thi hành Đợt 13.2 → 13.6 (sau 14/10/2026)
 
 > Đọc file này khi: bạn là **người tiếp nhận** việc sau ngày **14/10/2026** và phải làm nốt **Đợt 13**.
-> Nguồn gốc: `present_plan_batch13.md` (kế hoạch đợt 13, mục A–H) ·
+> Nguồn gốc: `docs/06_plan/archive/batches/present_plan_batch13.md` (kế hoạch đợt 13, mục A–H) ·
 > `presentations/present_report/present_report_v3.md` (bảng số đang dùng của báo cáo).
 >
 > **Trạng thái:** Đợt **13.0** và **13.1** ĐÃ XONG và đã đẩy lên `origin/experiment` (mục 2).
@@ -327,7 +327,7 @@ min_delta 0.002}` · `every_n_steps 100` · `answer_from logits` (mặc định)
 3. `python scripts/ci_checks.py` → xanh.
 4. Commit + push kết quả (`experiment(stage-13.2): record the fifteen ... results`).
 5. Tính số theo §6.3 và **viết vào**: `presentations/present_report/present_report_v3.md` (bảng nhánh),
-   `present_plan_batch13.md` (nhật ký 13.2), `docs/04_experiments/07_evolution.md` (kết luận).
+   `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký 13.2), `docs/04_experiments/07_evolution.md` (kết luận).
 
 ### 6.3 Luật đọc số 13.2 (chốt trước khi chạy - KHÔNG nới sau khi thấy số)
 
@@ -373,7 +373,7 @@ min_delta 0.002}` · `every_n_steps 100` · `answer_from logits` (mặc định)
 - **Ngưỡng nhiễu 1 lượt:** ±0,7 pp. Phương sai hai họ lệch nhau ⇒ báo **Welch**, không dùng kiểm định gộp
   phương sai. Đơn vị: **điểm phần trăm (pp)** - viết `98,52`, không viết `0,9852`.
 
-## 8. Sau 13.2 - khung 13.3 → 13.6 (chi tiết ở `present_plan_batch13.md` mục C) - **ĐÃ SỬA theo kết quả ÂM của 13.2**
+## 8. Sau 13.2 - khung 13.3 → 13.6 (chi tiết ở `docs/06_plan/archive/batches/present_plan_batch13.md` mục C) - **ĐÃ SỬA theo kết quả ÂM của 13.2**
 
 | Đợt | Việc | GPU | Ghi chú đã cập nhật theo số của 13.1 |
 |---|---|---|---|

@@ -11,7 +11,7 @@ không tốt hơn thì checkpoint bước 800-1150 của 3 epoch vẫn được 
 
 **Thành công khi:** hơn **cả** Accuracy macro (98,35) **và** một chỉ số F1 lớp âm có `n` **> 0,7**; dưới mức
 đó ghi **ĐỒNG HẠNG** (biên nhiễu ±0,33…±0,67). **Dấu vết:** `training_history.csv` phải có **nhiều hơn 14
-dòng**; `best` có thể ở bước > 1150. **Đọc kèm:** `present_plan_batch12.md` NHÓM 3.
+dòng**; `best` có thể ở bước > 1150. **Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 3.
 
 ---
 

@@ -35,7 +35,7 @@ Model encoder KHÔNG có prompt để tự trả lời, nên thí nghiệm dùng
    `p(mã <mã>)` mang ĐÚNG mã nhãn đã huấn luyện (không phải số thứ tự). Tệp này **chỉ đường encoder có**,
    và phần chấm điểm **không** dùng nó - bước KẾT HỢP mới cần (dò ngưỡng theo khía cạnh, ensemble nhiều
    encoder, luật lai encoder + LLM). Nó **không** nằm trong danh sách "7 tệp nhẹ" gửi kèm mọi lượt: nhóm
-   encoder gửi thêm tệp này (ghi rõ ở README của gói bàn giao và `present_plan.md` mục 7.4), và **cũng
+   encoder gửi thêm tệp này (ghi rõ ở README của gói bàn giao và `docs/06_plan/archive/P7-P10/present_plan.md` mục 7.4), và **cũng
    không vào git** - cùng loại với `predictions.csv` (`.gitignore`); bản rút gọn có commit dùng cho bước
    kết hợp là `data/reports/fusion/inputs/`.
 
@@ -352,7 +352,7 @@ cùng bộ chấm điểm, cùng cách ghi kết quả.
 > `all acc = 73,69 %` (đúng bằng tỉ lệ ô "không nhắc tới"). Bằng chứng mạnh nhất: `phobert-base-v2/full/exp001`
 > và `exp002` khác `lr` **10 lần** (`2e-4` vs `2e-5`) mà ra **y hệt từng khía cạnh** ⇒ không phải chuyện tối ưu
 > mà là hệ thống. ⇒ **`full` KHÔNG còn là mốc đối chứng của nhóm LoRA**, và **bị bỏ khỏi kế hoạch đợt 12**
-> (`present_plan_batch12.md`, NHÓM 12). Ba lượt đã chạy GIỮ lại làm bản ghi, chỉ đọc như "đã thử và hỏng".
+> (`docs/06_plan/archive/batches/present_plan_batch12.md`, NHÓM 12). Ba lượt đã chạy GIỮ lại làm bản ghi, chỉ đọc như "đã thử và hỏng".
 > Muốn làm lại thì phải sửa gốc trước (nghi vấn: full fine-tune chạy ở **fp16** - `inference.dtype: auto` chọn
 > fp16 trên T4 vì Turing không có bf16 - mà không có `GradScaler`; thử `inference.dtype: float32`).
 >

@@ -2,7 +2,7 @@
 
 > Đọc file này khi: chạy một trong sáu bước kết hợp, hoặc đọc số của chúng.
 > Liên quan: `metrics.md` (luật đo), `06_lora_encoder.md` (tệp xác suất), `08_experiment_rationale.md`
-> §7 (`price`), `present_plan.md` mục 8.4/8.5 và 10.2-10.4, `data/reports/fusion/README.md`.
+> §7 (`price`), `docs/06_plan/archive/P7-P10/present_plan.md` mục 8.4/8.5 và 10.2-10.4, `data/reports/fusion/README.md`.
 
 ## 1. Vì sao có bước kết hợp
 
@@ -200,7 +200,7 @@ giữa lần HAI và lần BA **không phải luật** mà là **ỨNG VIÊN**.
   khía cạnh trên `test`; trên `val` trần là 97,8357 và router đạt **ĐÚNG** trần đó. Hai con số khác nhau vì
   trần là thứ ĐO ĐƯỢC, còn thứ CHỌN ĐƯỢC chỉ đến từ `val`.
 - **ĐÍNH CHÍNH con số "+0,51" (ghi 06/10/2026).** Số đó là một ƯỚC LƯỢNG của bộ ứng viên 2 lượt, KHÔNG phải số
-  đo; số ĐO được qua ba lần chạy là **+0,03 … +0,04** trên `test` (xem `check_present_plan.md` mục 17).
+  đo; số ĐO được qua ba lần chạy là **+0,03 … +0,04** trên `test` (xem `docs/06_plan/archive/P7-P10/check_present_plan.md` mục 17).
 - **Hai tiêu chí lại KHÁC nhau** (khác lần HAI): `accuracy` chọn `cafebert` 6/7 khía cạnh (chỉ `packing` cho
   `phobert-base-v2`), `f1_âm` chọn `phobert-large` cho `colour` - nên hai dòng KHÔNG còn trùng số, nhưng chênh
   nhau **rất ít** (acc `all` −0,30; acc `paper` +0,04; F1 âm macro **+0,002**). Nói ra vì đó là đánh đổi, dù nhỏ.
@@ -257,7 +257,7 @@ Hướng HAI TẦNG: lượt **encoder** giữ **khung ô** (nó phát hiện kh
 0,967), còn sắc thái **từng khía cạnh** lấy từ một lượt **một-khía-cạnh** của đường prompt (prompt
 `absa_aspect_<khía cạnh>_v1` + khối hệ thống `system/absa_aspect_<khía cạnh>.txt`).
 
-**LUẬT ĐÃ CHỐT TRƯỚC KHI CHẠY** (mục 14.10 của `present_plan.md`; hằng số `fusion.TWO_TIER_LAW`):
+**LUẬT ĐÃ CHỐT TRƯỚC KHI CHẠY** (mục 14.10 của `docs/06_plan/archive/P7-P10/present_plan.md`; hằng số `fusion.TWO_TIER_LAW`):
 
 | Ca | Luật |
 | --- | --- |
@@ -269,7 +269,7 @@ Hướng HAI TẦNG: lượt **encoder** giữ **khung ô** (nó phát hiện kh
 
 `đếm_ô.lệch_giữ_encoder` là con số phải đọc kèm: luật "giữ của encoder" ĐỔI kết quả, nên nếu không đếm
 thì bản gộp chỉ còn một con số không kiểm được. Bản gộp này KHÔNG vào bảng `paper` cho tới khi được
-chốt thành `method: fuse` (tiền lệ: `exp016`) - xem mục 11.3 và `present_plan.md` mục 14.11.
+chốt thành `method: fuse` (tiền lệ: `exp016`) - xem mục 11.3 và `docs/06_plan/archive/P7-P10/present_plan.md` mục 14.11.
 
 **KẾT QUẢ ĐO (07/10/2026, `test`, cùng bảy lượt một-khía-cạnh)** - BA khung, để thấy luật "lệch về không
 nhắc tới thì giữ encoder" đổi kết quả thế nào và để thấy kết luận phụ thuộc KHUNG ra sao. Bảy lượt
@@ -330,4 +330,4 @@ lượt; KHÔNG chứa văn bản review). Xem `data/reports/fusion/README.md`.
 `mispredictions_paper.csv`, `predictions.csv`) là bộ chuẩn cho MỌI lượt. `predictions.csv` là tệp thứ
 BẢY (từ 04/10/2026): bước kết hợp dựng `inputs/*.csv` từ nó (khung ô + nhãn đúng/đoán), và lượt **DÒ**
 cần nó để đo số token sinh. Riêng **nhóm encoder** gửi thêm `probabilities.csv` - thiếu nó thì người nhận
-không chạy lại được ngưỡng/ensemble/lai. Ghi rõ ở `handover/README.md` và `present_plan.md` mục 7.4.
+không chạy lại được ngưỡng/ensemble/lai. Ghi rõ ở `handover/README.md` và `docs/06_plan/archive/P7-P10/present_plan.md` mục 7.4.

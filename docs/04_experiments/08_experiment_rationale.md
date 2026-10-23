@@ -427,7 +427,7 @@ Tám lượt `cafebert/lora/exp020/021/024/025/027/028/030/033`, mỗi lượt k
 
 **Hệ quả cho kế hoạch:** trọng tâm chuyển từ "vặn siêu tham số" sang (a) **đo độ vững bằng seed** và
 (b) **kết hợp** (ensemble / ngưỡng theo khía cạnh), vì giá trị còn lại nằm ở việc ghép các điểm mạnh KHÁC
-NHAU của cụm đồng hạng. Chi tiết: `present_plan_batch12.md` NHÓM 6/7/9 và mục 10.
+NHAU của cụm đồng hạng. Chi tiết: `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 6/7/9 và mục 10.
 
 ## 10. Đợt 2 (11/10/2026) - MƯỜI LƯỢT SEED + NĂM LƯỢT `val`: đo được BIÊN NHIỄU
 
@@ -464,7 +464,7 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
    cũng phải sửa. Kế hoạch dự đoán `p ≈ 0,015` khi lên 9 lượt; **thực đo tốt hơn (0,0035 / 0,0070)**.
    **Đối chứng chứng minh 6 lượt mới không lệch hệ thống:** so "v0 cũ (3) vs v0 mới (6)" - CÙNG cấu hình - cho
    **p = 0,93 (Acc) / 0,90 (`neg F1`)**, tức hai nhóm là MỘT tổng thể. Chi tiết + bảng đầy đủ:
-   `presentations/present_report/present_report_v2.md` mục 2 và `present_plan_batch12.md` mục 14.A.
+   `presentations/present_report/present_report_v2.md` mục 2 và `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14.A.
 3. **Mọi "kỷ lục" của một lượt là lượt MAY NHẤT**: `exp021` 98,41 (TB 98,31); `exp004` 98,26 (TB họ v0 **98,08**).
    ⇒ Từ đây đọc theo **TB >= 3 lượt** (luật 10 của `metrics.md`).
 4. **`neg F1 macro (7 khía cạnh)` là thước đo NHIỄU** (luật 13 mới): trong CÙNG cấu hình `r 8`, 3 hạt giống cho
@@ -474,7 +474,7 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
    của nhóm `r 8`.
 5. **Dư địa còn lại ở LỚP ÂM, rải ở khía cạnh `n` LỚN**: lượt dẫn đầu còn **~22 ô âm sai / 467 (4,7 %)**
    (`colour` 5,2 · `texture` 4,4 · `smell` 3,7 · `shipping` 3,4 · `stayingpower` 2,0 · `price` 2,1 · `packing` 1,0).
-   **Cập nhật 12/10/2026:** đường KẾT HỢP đã chứng minh **CẠN** (Đợt 6, mục 12 của `present_plan_batch12.md`: 9 bàn
+   **Cập nhật 12/10/2026:** đường KẾT HỢP đã chứng minh **CẠN** (Đợt 6, mục 12 của `docs/06_plan/archive/batches/present_plan_batch12.md`: 9 bàn
    đạp, không cái nào vượt > 0,25 trên cả hai trục) ⇒ hai khe còn lại là **prompt/few-shot của LLM** và **tiêu chí
    chọn checkpoint**. **Cập nhật 12/10/2026 (tối) - HAI KHE ĐÓ NAY ĐÃ ĐÓNG BẰNG BẰNG CHỨNG ÂM:** few-shot LLM lấy
    ví dụ từ `train` (tám-B) cho **0 ví dụ > 1 ví dụ > 5 ví dụ** và cả ba đều DƯỚI mốc LLM sẵn có (`exp009` 0,9470);
@@ -507,7 +507,7 @@ xong và CẠN** (mục 11 dưới đây) ⇒ trọng tâm chuyển sang **Đợ
 
 Đợt 6 chạy trên một luật duy nhất: mọi thứ **chốt trên `val`** rồi mới **áp lên `test`** (luật 1 của `metrics.md`),
 nên không có đường "xem `test` rồi chọn". Cả ba việc đều **0 GPU** (công cụ chỉ đọc `probabilities.csv` đã có ở
-máy). Lệnh tái lập (đường dẫn đầy đủ ở `present_plan_batch12.md` mục 12):
+máy). Lệnh tái lập (đường dẫn đầy đủ ở `docs/06_plan/archive/batches/present_plan_batch12.md` mục 12):
 
 ```bash
 # 6.1 CHỐT trọng số trên val (6 model KHÁC NHAU) rồi ÁP lên test

@@ -92,7 +92,7 @@ def default_enable_thinking(model_id=None):
     `max_new_tokens: 400` nó viết hết trần trong khối ` thinking` rồi không còn chỗ in JSON - ba lượt
     ngày 02/10/2026 vì thế chỉ đọc được **3,33 / 1,36 / 1,73%**. Model nào muốn CHẮC CHẮN không suy
     nghĩ thì khai `enable_thinking: false` ở `configs/models/<model_id>.yaml`; model nào cố ý BẬT suy
-    nghĩ thì phải đi kèm trần token đủ lớn và một lượt DÒ - xem `present_plan.md` mục 9.1 và luật 3
+    nghĩ thì phải đi kèm trần token đủ lớn và một lượt DÒ - xem `docs/06_plan/archive/P7-P10/present_plan.md` mục 9.1 và luật 3
     của `docs/04_experiments/metrics.md`.
     """
     return model_config.enable_thinking(config_name(model_id))

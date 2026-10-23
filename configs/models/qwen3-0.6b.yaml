@@ -18,7 +18,7 @@ preprocess:
   # trần `max_new_tokens` trong khối  thinking rồi không còn chỗ in JSON - ba lượt ngày 02/10/2026 vì
   # thế chỉ đọc được 3,33 / 1,36 / 1,73%. Muốn CỐ Ý bật suy nghĩ thì khai `enable_thinking: true`
   # trong config THÍ NGHIỆM (lớp thí nghiệm ghi đè lớp model) và phải đi kèm `decoding.max_new_tokens`
-  # đủ lớn + một lượt DÒ chốt trần - xem present_plan.md mục 9.1.
+  # đủ lớn + một lượt DÒ chốt trần - xem docs/06_plan/archive/P7-P10/present_plan.md mục 9.1.
   enable_thinking: false
 
 inference:

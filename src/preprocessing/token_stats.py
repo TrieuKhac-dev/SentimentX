@@ -131,7 +131,7 @@ MODELS = (
     # Đợt 11 (Đ6/Đ7): ba model MỞ - tải tokenizer được mà không cần token. HAI model còn lại của nhóm
     # này (`meta-llama/Llama-3.1-8B-Instruct`, `Viet-Mistral/Vistral-7B-Chat`) là repo GATED: đã thử tải
     # và bị từ chối, nên CHƯA đăng ký - đăng ký một model không tải được là làm hỏng phép đo của MỌI
-    # model khác trong cùng lần chạy. Xem present_plan_batch11.md mục 7.
+    # model khác trong cùng lần chạy. Xem docs/06_plan/archive/batches/present_plan_batch11.md mục 7.
     _chat_spec("qwen3-8b"),
     _chat_spec("qwen3-4b-thinking-2507"),
     _chat_spec("mistral-7b-instruct-v0.3"),

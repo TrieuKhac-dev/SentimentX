@@ -13,7 +13,7 @@ Mọi thứ khác y hệt cha nên nếu điểm tăng thì nguyên nhân là **
 **Thành công khi:** hơn **cả** Accuracy macro (98,35) **và** một chỉ số F1 lớp âm có `n` **> 0,7**; dưới mức đó
 ghi **ĐỒNG HẠNG** (biên nhiễu ±0,33…±0,67). **Dấu vết:** `training_history.csv` phải có **~2 lần số dòng**
 so với `exp015`; `keep_last_k: 2` + `delete_intermediate: true` vẫn xoá ảnh chụp cũ nên **không phình đĩa**.
-**Đọc kèm:** `present_plan_batch12.md` NHÓM 3.
+**Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 3.
 
 ---
 

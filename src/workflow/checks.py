@@ -489,6 +489,10 @@ def orphan_shards(root=None):
 # vẫn đúng gốc.
 SOURCE_PATH_HISTORY_DOCS = ("APPENDIX_commits.md", "P0_repo_setup.md",
                             "P1_paths.md", "P2_versioning.md")
+# Tài liệu đã LƯU TRỮ (docs/06_plan/archive/) là bản ĐÓNG BĂNG: chúng cố ý giữ tên file mã nguồn
+# của thời điểm viết, kể cả file đã đổi tên hoặc chưa từng tồn tại. Ghi bằng TÊN TRẦN để không vi
+# phạm `test_sources_have_no_hardcoded_paths`.
+ARCHIVE_PATH_PARTS = ("06_plan", "archive")
 SOURCE_ROOTS = ("src", "tests")
 
 # `src/<đoạn>.py` hoặc `tests/<đoạn>.py`. Nhóm (?:...) KHÔNG bắt nhớ để `findall` trả cả token;
@@ -507,11 +511,14 @@ def documentation_source_paths(root):
     `[chữ](đường/dẫn)`; kiểm này soi đường dẫn nằm trong văn bản và trong khối code.
 
     Bỏ qua token có chỗ trống (`<`, `>`, `{`, `}`, `*`, `$`, `...`) vì đó là ví dụ mẫu, và các file
-    LỊCH SỬ trong `SOURCE_PATH_HISTORY_DOCS` (bảng chuyển nhà cố ý ghi tên cũ).
+    LỊCH SỬ trong `SOURCE_PATH_HISTORY_DOCS` (bảng chuyển nhà cố ý ghi tên cũ), và cả cây tài liệu
+    đã LƯU TRỮ trong `docs/06_plan/archive/` (bản đóng băng của từng đợt).
     """
     found = []
     for path in _documents(root):
         if path.name in SOURCE_PATH_HISTORY_DOCS:
+            continue
+        if all(part in path.parts for part in ARCHIVE_PATH_PARTS):
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
         for token in sorted(set(SOURCE_PATH_PATTERN.findall(text))):

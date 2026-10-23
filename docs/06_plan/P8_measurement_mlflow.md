@@ -25,14 +25,14 @@ xong (trừ A-6 để cuối). Nhóm 0; A-1..A-5; B; C; D; E; F; G; H đều xon
   - **Cập nhật 04/10/2026** (đợt 7): nay có **23 notebook** ghim CÙNG bản code (`4571648`; cả repo có
     **40** notebook - 17 notebook cũ giữ mã ghim cũ của chúng), gói mới nhất là **014**; đợt 7 đóng **ba gói
     nối tiếp**: **012** (23 notebook đợt 7 + đợt 8), **013** và **014** (chỉ `README.md` sửa - giải nén lần
-    lượt, gói sau đè lên gói trước). Số lượt chạy dùng được vẫn là **17**. Chi tiết ở `present_plan.md` +
-    `check_present_plan.md` + `P8_batch7.md`.
+    lượt, gói sau đè lên gói trước). Số lượt chạy dùng được vẫn là **17**. Chi tiết ở `docs/06_plan/archive/P7-P10/present_plan.md` +
+    `docs/06_plan/archive/P7-P10/check_present_plan.md` + `P8_batch7.md`.
   - **Cập nhật 05/10/2026** (đợt 7 đóng thêm gói **015**): hai lỗi thật đã sửa - thứ tự tham số của
     `utils.write_csv` ở DÒNG CUỐI của mọi lượt encoder (đã giết **5 lượt**) và `is_trainable` khi chạy tiếp -
     cộng cơ chế mới **`head.trainable`** và **6 lượt ablation đầu phân loại**. Vì bản mã phải ghim lại, nay có
     **29 notebook** ghim cùng bản code mới (23 cũ + 6 lượt mới; cả repo **46** notebook, 6 cái chưa ghim cho
     tới bước ghim). Gói mới nhất là **015**; đợt 8 = **gói 016**, gói cuối = **017**. Chi tiết ở mục 15 của
-    `check_present_plan.md`.
+    `docs/06_plan/archive/P7-P10/check_present_plan.md`.
 - Thời điểm dừng đợt: CI sạch, test 806 OK (skipped=2).
 - Còn lại: **A-6** (dọn run MLflow rỗng/treo `cd0cd000...`) - chỉ làm khi chạy notebook trên Colab
   (cần mạng + token DagsHub): `python scripts/reset_experiment.py --dry-run` rồi `--run <runName|run_id>`.

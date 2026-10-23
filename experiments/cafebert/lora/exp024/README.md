@@ -14,7 +14,7 @@ cả hai hay mất một?
 **Thành công khi:** hơn **cả** Accuracy macro (hoặc `all acc`/`detection_f1`) **và** một chỉ số F1 lớp âm
 **> 0,7** so với **cả** `exp002` và `exp017`; dưới mức đó ghi **ĐỒNG HẠNG**.
 **Lưu ý đọc số:** `focal` đổi phân bố dự đoán ⇒ phải đọc kèm `paper.cells` + `% đọc được`; `price` âm chỉ có
-**6 ô** nên mọi số `price` ghi kèm "n = 6, không kết luận". **Đọc kèm:** `present_plan_batch12.md` NHÓM 2.
+**6 ô** nên mọi số `price` ghi kèm "n = 6, không kết luận". **Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 2.
 
 ---
 

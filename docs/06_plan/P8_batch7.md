@@ -4,8 +4,8 @@
 > `qwen3-0.6b` chạy lại, ba lượt về khía cạnh `price`, hai lượt `val` cho encoder, bốn lượt lấy mẫu, và
 > bốn bước **KẾT HỢP** (ngưỡng / ensemble / lai / biểu quyết).
 > Liên quan: [README.md](README.md), [P7_rerun.md](P7_rerun.md),
-> [P8_measurement_mlflow.md](P8_measurement_mlflow.md), [../../present_plan.md](../../present_plan.md),
-> [../../check_present_plan.md](../../check_present_plan.md),
+> [P8_measurement_mlflow.md](P8_measurement_mlflow.md), [docs/06_plan/archive/P7-P10/present_plan.md](archive/P7-P10/present_plan.md),
+> [docs/06_plan/archive/P7-P10/check_present_plan.md](archive/P7-P10/check_present_plan.md),
 > [../04_experiments/08_experiment_rationale.md](../04_experiments/08_experiment_rationale.md) (bản NGƯỜI ĐỌC),
 > [../04_experiments/09_fusion.md](../04_experiments/09_fusion.md) (đặc tả các bước kết hợp).
 

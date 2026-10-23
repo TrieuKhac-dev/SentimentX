@@ -8,7 +8,7 @@ CÁCH DÙNG
         --aspect <... của stayingpower> --aspect <... của texture> \
         --out data/reports/fusion/fuse_aspect_test.json
 
-Luật đã CHỐT TRƯỚC khi chạy bảy lượt (`fusion.TWO_TIER_LAW`, mục 14.10 của `present_plan.md`):
+Luật đã CHỐT TRƯỚC khi chạy bảy lượt (`fusion.TWO_TIER_LAW`, mục 14.10 của `docs/06_plan/archive/P7-P10/present_plan.md`):
     - KHUNG Ô lấy từ lượt ENCODER (mọi dòng/khía cạnh đã chấm của lượt đó);
     - SẮC THÁI của mỗi khía cạnh lấy từ lượt MỘT-khía-cạnh của CHÍNH khía cạnh đó;
     - LỆCH về "không nhắc tới" thì GIỮ quyết định của ENCODER (phát hiện khía cạnh là điểm mạnh đã đo

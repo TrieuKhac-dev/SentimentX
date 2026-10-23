@@ -205,7 +205,7 @@ Hai dòng MACRO ở bảng 6 là **bảng điểm chính để so công bố** c
 
 > **Cập nhật 11/10/2026 (sau Đợt 2 - 15 lượt seed + `val`).** Mọi số dưới đây đọc theo **TRUNG BÌNH nhiều lượt**;
 > biên nhiễu **đã đo thật: sd = 0,11–0,16** (trước đó chỉ là ước lượng ±0,33…±0,67 từ 2 lượt). Xem
-> `present_plan_batch12.md` mục 11.
+> `docs/06_plan/archive/batches/present_plan_batch12.md` mục 11.
 
 1. **Vượt công bố ở Accuracy macro - và giờ có `n` để nói:** họ `lr 4e-4` = **98,28 (n = 12 lượt)** so với công bố
    **97,70** = **+0,58**; `neg F1 (5 n lớn)` = **94,38** so với **88,23** = **+6,15**. Mức vượt này **không phụ thuộc
@@ -274,7 +274,7 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > `phobert-base-v2/full/exp001`, `phobert-base-v2/full/exp002`) đều **thoái hoá**: dự đoán "không nhắc tới" cho
 > **MỌI ô** ⇒ `sentiment_f1 = 0`, `paper.cells = 0` - hai lượt PhoBERT khác `lr` **10 lần** mà ra giống y hệt
 > nhau. Vì vậy **mốc đối chứng "full fine-tune" trong tài liệu chưa dùng được.** Chi tiết:
-> `present_plan_batch12.md` mục 9.2. `cafebert/full/exp001` còn **không có `metrics.json`** trên đĩa, nên kết
+> `docs/06_plan/archive/batches/present_plan_batch12.md` mục 9.2. `cafebert/full/exp001` còn **không có `metrics.json`** trên đĩa, nên kết
 > luận về nó lấy từ `run.log`.
 >
 > **Chốt 11/10/2026 (người dùng):** nhánh `full` **BỊ BỎ khỏi kế hoạch** - không dùng làm mốc đối chứng nữa.
@@ -285,7 +285,7 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > ĐỘC LẬP** (TB 98,08) và mức hơn của họ `lr 4e-4` đọc lại bằng **Welch là p = 0,21 / 0,30** (không phải 0,06/0,10).
 > Cả hai lượt đã vào git (`006544c`), bảng gộp dựng lại (`03269bf`). Luật mới: **12** (cùng `decoding.seed` trên đường
 > encoder = MỘT lần rút thăm) · **13** (`neg F1 (7)` là thước đo nhiễu - đọc `neg F1 (5 n lớn)`) · **14** (bảng chính
-> chỉ nhận cùng bài toán + cùng phiên bản dữ liệu). Chi tiết: `present_plan_batch12.md` mục 11 và mục 13.
+> chỉ nhận cùng bài toán + cùng phiên bản dữ liệu). Chi tiết: `docs/06_plan/archive/batches/present_plan_batch12.md` mục 11 và mục 13.
 
 > **Cập nhật 11/10/2026 - kết quả 8 lượt đợt 1 (NHÓM 1-5) ĐÃ VỀ và 15 lượt Đợt 2 (NHÓM 6-7) cũng ĐÃ VỀ.**
 > Đợt 1: `exp020/021/024/025/027/028/030/033` chạy xong, `% đọc được` = 100 % ở mọi lượt; **không lượt nào vượt
@@ -294,7 +294,7 @@ Tổng: **115 notebook** đã ghim; **100 lượt đã có `metrics.json`** (t�
 > cha 98,35). Đợt 2 (10 lượt seed + 5 lượt `val`) đã **đo được biên nhiễu thật: sd = 0,11–0,16** ⇒ **bốn biến
 > thể trong họ `lr 4e-4` ĐỒNG HẠNG** (TB 98,25–98,31) và **mọi số của MỘT lượt đều là lượt-may-nhất** (các bảng
 > Bảng 3-6 ở trên vẫn đúng như số của từng lượt, nhưng **kết luận phải đọc theo TRUNG BÌNH** - xem mục 8).
-> Chi tiết: `present_plan_batch12.md` **mục 10** (Đợt 1) và **mục 11** (Đợt 2).
+> Chi tiết: `docs/06_plan/archive/batches/present_plan_batch12.md` **mục 10** (Đợt 1) và **mục 11** (Đợt 2).
 >
 > **Sáu lượt model sinh bị HỦY (11/10/2026):** `qwen3-8b` (đọc được 0,12-1,05 %) và `mistral-7b`
 > (đọc được 60-72 %) - **3 ngày Colab cho 0 kết quả dùng được**; `llama-3.1-8b` và `vistral-7b` **bỏ trước khi

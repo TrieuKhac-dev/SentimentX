@@ -331,10 +331,10 @@ hằng số của module. Đã sửa (`checkpoint` của config model là nguồ
 Lượt 2 (02/10/2026, sau khi sửa): ba thư mục **đúng** model `Qwen/Qwen3-0.6B` nhưng **bật suy nghĩ** - model
 ăn hết trần `max_new_tokens: 400` trong khối ` thinking` rồi không in JSON, nên chỉ đọc được **3,33 / 1,36 /
 1,73%**. Cả **sáu** thư mục kết quả (3 lượt nhầm 4B + 3 lượt bật suy nghĩ) đã xoá ngày 04/10/2026; bằng
-chứng ở `check_present_plan.md` mục 2.1.
+chứng ở `docs/06_plan/archive/P7-P10/check_present_plan.md` mục 2.1.
 
 Xong khi: ba lượt chạy lại có `metrics.json` ghi `model = Qwen/Qwen3-0.6B` **và** `% đọc được ≥ 95%`. Cách
-làm đã chốt: khoá `preprocess.enable_thinking: false` trong cấu hình model (việc 4.1 của `present_plan.md`),
+làm đã chốt: khoá `preprocess.enable_thinking: false` trong cấu hình model (việc 4.1 của `docs/06_plan/archive/P7-P10/present_plan.md`),
 chạy lại trong đợt 7 (mục 5.1); lượt **bật** suy nghĩ tách thành nhánh riêng, mở đầu bằng lượt **DÒ**
 (`exp004`, trần 8.192) để chốt trần token trước (mục 9.1).
 
@@ -379,7 +379,7 @@ xác lớp âm**, không phải bằng cách phát hiện nhiều hơn. Ba đi�
 trước khi chạy; (ii) luật và ngưỡng chốt trên `val`, không phải `test`; (iii) cần **xác suất** từng ô
 của encoder (hiện `predictions.csv` chỉ có nhãn cứng) nên phải sửa đường encoder để ghi thêm `p(mã)`.
 
-**Trạng thái 04/10/2026:** (i) và (ii) đã vào kế hoạch (`present_plan.md` mục 8.4, 8.5 - luật chốt trên
+**Trạng thái 04/10/2026:** (i) và (ii) đã vào kế hoạch (`docs/06_plan/archive/P7-P10/present_plan.md` mục 8.4, 8.5 - luật chốt trên
 `val` rồi mới áp lên `test`); (iii) là việc **4.5** (đường encoder ghi xác suất từng ô). Lượt `val` cần cho
 lượt lai: `prompt-cot/exp017` (phía LLM) và `lora/exp003` của hai encoder. **Lưu ý:** luật lai **không áp
 được cho `price`** vì `val` có 0 ô `price` âm (xem `08_experiment_rationale.md` §7). Nếu lượt lai thắng
@@ -397,7 +397,7 @@ muốn làm cần GPU ≥ 24 GB.
 seed là một thư mục kết quả mới). Giữ ở đây để lần sau nhớ rằng các kết luận kiểu "+0,02 so công bố"
 mới là MỘT lần chạy greedy, chưa phải một phân bố.
 
-**Cập nhật 04/10/2026:** đã đưa vào kế hoạch đợt 8 (`present_plan.md` mục 11.3): ba lượt lấy mẫu
+**Cập nhật 04/10/2026:** đã đưa vào kế hoạch đợt 8 (`docs/06_plan/archive/P7-P10/present_plan.md` mục 11.3): ba lượt lấy mẫu
 `exp018/019/020` (4-bit, `seed` 1/2/3) + một lượt đối chứng fp16 `exp021` (cùng `seed` 1) để tách
 **lượng hoá × lấy mẫu**; biểu quyết dùng **3 mẫu** (mục 9.4; luật 6 của `docs/04_experiments/metrics.md`).
 
@@ -413,7 +413,7 @@ hết 400 token trong khối ` thinking` rồi không còn chỗ in JSON. Ba lư
 tương ứng; lượt nào bật suy nghĩ thì phải chạy **lượt DÒ** (~60 mẫu) đo p50/p95/max token sinh rồi chọn
 `max_new_tokens = làm tròn lên (p99 × 1,5)`. Có **cửa chặn**: `% đọc được < 95%` ⇒ ghi `valid: false` kèm
 lí do. Việc này nằm ở luật 2 và luật 3 của `docs/04_experiments/metrics.md` và mục 9.1 của
-`present_plan.md`.
+`docs/06_plan/archive/P7-P10/present_plan.md`.
 
 ### 11.2. Thăng cấp LUẬT LAI thành một `method` - nếu nó thắng
 

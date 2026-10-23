@@ -21,7 +21,7 @@
 **Dấu vết phải kiểm TRƯỚC khi đọc điểm:** `trainable_params` phải **tăng** so với `exp015` (r 16 → 32);
 `read_rate.valid` phải `true` (`% đọc được` ≥ 95); luôn ghi kèm `paper.cells` (số ô).
 
-**Đọc kèm:** `present_plan_batch12.md` NHÓM 1, mục 2 (luật đọc số) và mục 3 (bench cần đánh bại).
+**Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 1, mục 2 (luật đọc số) và mục 3 (bench cần đánh bại).
 
 ---
 

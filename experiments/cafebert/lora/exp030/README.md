@@ -12,7 +12,7 @@ cho câu **"model đang bị regularize quá, hay chưa đủ"**.
 Đi kèm `exp031` (`dropout: 0.1`) để có cả hai chiều.
 
 **Thành công khi:** hơn **cả** Accuracy macro (98,35) **và** một chỉ số F1 lớp âm có `n` **> 0,7**; dưới mức đó
-ghi **ĐỒNG HẠNG** (biên nhiễu ±0,33…±0,67). **Đọc kèm:** `present_plan_batch12.md` NHÓM 3.
+ghi **ĐỒNG HẠNG** (biên nhiễu ±0,33…±0,67). **Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 3.
 
 ---
 

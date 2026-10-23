@@ -110,5 +110,5 @@
       `read_rate.valid = false` kèm lí do;
     - **(c) khai cả hai trong CẤU HÌNH**, không truyền tay lúc chạy - vì cả hai đi vào mã băm danh tính
       của lượt chạy (đổi một trong hai là ra thư mục kết quả khác, đúng như mong muốn).
-    Xem `docs/04_experiments/metrics.md` luật 2-3 và `present_plan.md` mục 9.1.
+    Xem `docs/04_experiments/metrics.md` luật 2-3 và `docs/06_plan/archive/P7-P10/present_plan.md` mục 9.1.
 

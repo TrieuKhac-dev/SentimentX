@@ -6,7 +6,7 @@ Năm việc này không chạy model: chúng đọc `predictions.csv` (nhãn c�
 từng ô - chỉ đường encoder có) rồi CHẤM LẠI bằng ĐÚNG engine của dự án (`src/evaluation/scorers/`).
 Nhờ vậy số của bước kết hợp so được với số của từng lượt, và không có "định nghĩa metric thứ hai".
 
-HAI LUẬT BẮT BUỘC (đã ghi ở `present_plan.md` mục 8.4/8.5 và `docs/04_experiments/metrics.md`)
+HAI LUẬT BẮT BUỘC (đã ghi ở `docs/06_plan/archive/P7-P10/present_plan.md` mục 8.4/8.5 và `docs/04_experiments/metrics.md`)
 1. **Luật chốt trên `val`, áp lên `test`** - không được xem `test` rồi mới chọn.
 2. **`price` không có ngưỡng**: `val` có 0 ô `price` âm (train 15, test 6) nên không có gì để dò; hàm
    nào cũng trả `None` kèm lí do cho khía cạnh đó, và các ô `price` giữ nguyên quyết định của model gốc.
@@ -263,7 +263,7 @@ def _delta(after, before):
 def _macro_over_all(values):
     """Trung bình F1 lớp âm trên MỌI khía cạnh; khía cạnh không có ô âm (như `price`) tính là 0,0.
 
-    Đây là cách đọc thứ HAI mà `present_plan.md` mục 8.4 yêu cầu, đứng cạnh `_macro`. Số này bị `price`
+    Đây là cách đọc thứ HAI mà `docs/06_plan/archive/P7-P10/present_plan.md` mục 8.4 yêu cầu, đứng cạnh `_macro`. Số này bị `price`
     kéo xuống, nhưng `price` đóng góp 0,0 ở CẢ trước lẫn sau nên nó không làm lệch phần chênh lệch -
     đó chính là lí do phải in cả hai cách.
     """
@@ -541,7 +541,7 @@ def apply_rules(llm_run, encoder_run, rules):
 def vote(runs):
     """Bỏ phiếu TỪNG Ô trên nhiều lượt chạy (self-consistency). Trả `(nhãn mới, thống kê)`.
 
-    Luật đã chốt (`present_plan.md` mục 4.9, `docs/04_experiments/metrics.md` luật 6):
+    Luật đã chốt (`docs/06_plan/archive/P7-P10/present_plan.md` mục 4.9, `docs/04_experiments/metrics.md` luật 6):
     - **ba mẫu** (`seed` 1/2/3) cho đợt này;
     - ô chỉ được bỏ phiếu nếu **đọc được ở ít nhất một lượt**; ô không lượt nào đọc được thì không có
       phiếu (giữ `None` - bộ chấm tính là sai, đúng như mọi lượt khác);
@@ -656,7 +656,7 @@ def _macro(scores_paper, aspects):
     - `số_khía_cạnh_có_ô_âm`: mẫu số của số thứ nhất (để người đọc biết trung bình trên bao nhiêu).
 
     Vì sao hai số: `price` chỉ có 1-6 ô (nhiễu), nên một con số macro duy nhất cho 7 khía cạnh là để
-    nhiễu đó làm loãng kết luận về việc ngưỡng có ích hay không - xem `present_plan.md` mục 8.4.
+    nhiễu đó làm loãng kết luận về việc ngưỡng có ích hay không - xem `docs/06_plan/archive/P7-P10/present_plan.md` mục 8.4.
     """
     values = [(aspect, negative_f1(scores_paper, aspect)) for aspect in aspects]
     usable = [value for _aspect, value in values if value is not None]
@@ -937,7 +937,7 @@ def members_report(runs):
 # GỘP HAI TẦNG (đợt 10, mục 14.9/14.10): KHUNG Ô từ ENCODER, SẮC THÁI từ lượt MỘT khía cạnh.
 #
 # LUẬT ĐÃ CHỐT - ghi TRƯỚC khi chạy bảy lượt một-khía-cạnh (luật 1.4 của `02_rules.md`; mục 14.10
-# của `present_plan.md`). Đổi luật sau khi đã thấy `test` là chọn bằng tập sẽ báo cáo:
+# của `docs/06_plan/archive/P7-P10/present_plan.md`). Đổi luật sau khi đã thấy `test` là chọn bằng tập sẽ báo cáo:
 #   1. KHUNG Ô (dòng nào, khía cạnh nào) lấy từ lượt ENCODER - lượt ĐẦU trong danh sách;
 #   2. SẮC THÁI của mỗi khía cạnh lấy từ lượt MỘT-khía-cạnh của CHÍNH khía cạnh đó;
 #   3. LỆCH về "không nhắc tới" (một bên nói có nhắc, bên kia nói không): giữ quyết định của

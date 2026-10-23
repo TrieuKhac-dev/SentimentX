@@ -5,7 +5,7 @@ CÁCH DÙNG
     python scripts/vote.py --run <seed1> --run <seed2> --run <seed3> \
         --out data/reports/fusion/vote.json
 
-Luật đã chốt (`present_plan.md` mục 4.9, `docs/04_experiments/metrics.md` luật 6):
+Luật đã chốt (`docs/06_plan/archive/P7-P10/present_plan.md` mục 4.9, `docs/04_experiments/metrics.md` luật 6):
 - **ba mẫu** cho đợt này (ba `seed`);
 - ô chỉ được bỏ phiếu nếu ĐỌC ĐƯỢC ở ít nhất một lượt; ô không lượt nào đọc được thì không có phiếu;
 - **hoà thì lấy nhãn của lượt ĐẦU TIÊN**, nên phải truyền các lượt theo thứ tự `seed` TĂNG DẦN.

@@ -11,7 +11,7 @@
 # `prompt-cot/exp002` = lượt chạy) **KHÔNG chạy**: người dùng chốt bỏ vì **quá chậm, kể cả lượt DÒ**
 # (lượt DÒ ở lô 2 ước tính 2-4 giờ cho 60 mẫu, mà bản Thinking-2507 tiêu hết trần 8.192 token/review).
 # File này GIỮ làm bản ghi, không xóa; muốn làm lại thì phải chốt trần bằng một lượt DÒ MỚI.
-# Xem `present_plan_batch12.md` NHÓM 12.
+# Xem `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 12.
 
 model_id: qwen3-4b-thinking-2507
 checkpoint: Qwen/Qwen3-4B-Thinking-2507

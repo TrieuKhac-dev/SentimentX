@@ -13,7 +13,7 @@ Chênh lệch dưới 0,7 ghi **ĐỒNG HẠNG**, không nói "tốt hơn".
 **Dấu vết:** `run_meta.json` và `metrics.json` ghi `generation.seed: null` (đường encoder luôn `greedy`, không
 rút thăm lúc suy luận) - ĐỪNG đọc nhầm là khoá bị bỏ qua; hạt giống nằm ở bước HUẤN LUYỆN.
 
-**Đọc kèm:** `present_plan_batch12.md` NHÓM 6 và mục 10.
+**Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 6 và mục 10.
 
 **Áp cho:** dinh bao cao CU (v0, 98,26).
 

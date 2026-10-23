@@ -12,7 +12,7 @@ chiều nhưng **nhỏ hơn biên nhiễu** nên chưa kết luận được. Đ
 `requires_extra`** (giống `exp008`): ô bootstrap tự cài Java + `py-vncorenlp` và tự tải model VnCoreNLP.
 
 **Thành công khi:** hơn **cả** Accuracy macro (98,35) **và** một chỉ số F1 lớp âm có `n` **> 0,7**; dưới mức đó
-ghi **ĐỒNG HẠNG** (biên nhiễu ±0,33…±0,67). **Đọc kèm:** `present_plan_batch12.md` NHÓM 4.
+ghi **ĐỒNG HẠNG** (biên nhiễu ±0,33…±0,67). **Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 4.
 
 ---
 

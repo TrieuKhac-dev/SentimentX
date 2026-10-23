@@ -10,7 +10,7 @@ không đọc được tác dụng.
 **Lưu ý đọc số:** đây **KHÔNG** phải lượt để so với công bố (khác tập đánh giá) - **KHÔNG** đưa số của nó vào
 bảng so công bố; nó là **nguyên liệu** cho bước kết hợp.
 
-**Đọc kèm:** `present_plan_batch12.md` NHÓM 7 và NHÓM 9.
+**Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 7 và NHÓM 9.
 
 **Áp cho:** exp019 (DoRA).
 

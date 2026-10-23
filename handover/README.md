@@ -130,7 +130,7 @@ cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm
 > 0,0070 `neg F1`**). **8B + 8C + 8D đều ÂM**: few-shot LLM lấy ví dụ từ `train` càng nhiều càng tệ (97,62 →
 > 96,83 → 96,41 Acc), bỏ phiếu 3 mẫu LLM cho `neg F1` 0,8039 (dưới mọi mẫu), `best_metric: negative_f1`
 > **−0,17 Acc / −0,51 `neg F1`**. ⇒ **16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý nghĩa.**
-> Báo cáo chốt: `presentations/present_report/present_report_v2.md`; nhật ký: `present_plan_batch12.md` mục 14.
+> Báo cáo chốt: `presentations/present_report/present_report_v2.md`; nhật ký: `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14.
 
 | Nhóm | Notebook | Trả lời câu gì | Ước tính mỗi lượt |
 | --- | --- | --- | --- |
@@ -202,7 +202,7 @@ dừng sớm thì ngắn hơn), nên **cả 15 chạy song song ≈ 2,5-3 h**.
   `patience 12` ≈ 3 epoch); `every_n_steps 50` ⇒ ~7,7 lần/epoch (B3, `patience 24` ≈ 3 epoch).
 
 **Kế hoạch đọc kết quả:** nhánh nào ĐẠT ⇒ chạy thêm 6 seed (n = 9) rồi báo cáo Welch; KHÔNG nhánh nào đạt
-⇒ **đóng trục `epochs`** với bằng chứng `n = 3`. Chi tiết: `present_plan_batch13.md` (mục C và H).
+⇒ **đóng trục `epochs`** với bằng chứng `n = 3`. Chi tiết: `docs/06_plan/archive/batches/present_plan_batch13.md` (mục C và H).
 
 
 ### Đợt 13.2 (15/10/2026) - 15 notebook MỚI: chạy MỘT LƯỢT SONG SONG
@@ -380,7 +380,7 @@ bị cắt **16.149 &#8594; 2.328** tham số. **Khoá `head.aspect_marker` đã
   **+0,21 → +1,16 điểm** độ chính xác, cặp `vibert-base-cased` kém **0,15**
   (chưa tách được khỏi nhiễu), còn **F1 lớp âm gần như đứng yên** - chi tiết và cách đọc ở
   `docs/04_experiments/08_experiment_rationale.md` §2b. **Lượt THƯỚC NHIỄU cho encoder** đã lên kế hoạch ở
-  đợt 10 (chạy lại 3 nhánh với hạt giống khác; xem `present_plan.md` mục 14).
+  đợt 10 (chạy lại 3 nhánh với hạt giống khác; xem `docs/06_plan/archive/P7-P10/present_plan.md` mục 14).
 - **`head.aspect_marker` ĐÃ CHẠY ĐỦ HAI LƯỢT (07/10/2026) - CẢ HAI ĐỀU ÂM, và lí do là CẤU TRÚC.** Bố cục 2x2
   (có/không marker × đầu ĐÓNG BĂNG/HỌC): `exp002` 93,28 vs `exp006` **51,60** (đầu đóng băng) và `exp005`
   97,25 vs `exp007` **50,51** (đầu học); detection F1 macro 0,891 &#8594; 0,495 và 0,959 &#8594; 0,489. **Cho

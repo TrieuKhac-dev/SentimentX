@@ -1,9 +1,9 @@
 # check_present_plan — Trạng thái thực thi đợt 7 → 10 (ĐÃ XONG; MỐC LỊCH SỬ)
 
 > ⚠️ **KHÔNG phải tệp trạng thái đang chạy (cập nhật 14/10/2026).** Trạng thái đang chạy: xem
-> `present_plan_batch13.md` (nhật ký đợt 13) và `docs/06_plan/P9_batch13.md` (hướng dẫn 13.2 → 13.6).
+> `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký đợt 13) và `docs/06_plan/P9_batch13.md` (hướng dẫn 13.2 → 13.6).
 
-> Cách dùng: mỗi mục nhỏ trong `present_plan.md` có **một dòng** ở đây. Trạng thái dùng các nhãn:
+> Cách dùng: mỗi mục nhỏ trong `docs/06_plan/archive/P7-P10/present_plan.md` có **một dòng** ở đây. Trạng thái dùng các nhãn:
 > `CHƯA LÀM` · `ĐANG LÀM` · `XONG <ngày>` · `CHỜ NGƯỜI DÙNG` · `BỎ QUA <lí do>`.
 > Mỗi lần làm xong một mục nhỏ thì sửa đúng dòng đó, ghi ngắn: đã làm gì, tệp nào, kết quả.
 
@@ -177,7 +177,7 @@
   `docs/00_workflow/02_rules.md` (22 luật cũ + luật 23 mới). Luật 23 gồm ba phần: (a) chạy lượt DÒ (~60
   mẫu) đo p50/p95/max token sinh rồi chốt `max_new_tokens = round_up(p99 × 1,5)`, không vượt cửa sổ ngữ
   cảnh; (b) giữ cửa `read_rate_min` 95%; (c) khai cả hai khoá trong CẤU HÌNH vì chúng đi vào mã băm danh
-  tính. Đã cập nhật cả `present_plan.md` mục 4.4 cho khớp.
+  tính. Đã cập nhật cả `docs/06_plan/archive/P7-P10/present_plan.md` mục 4.4 cho khớp.
 - 4.5 Đường encoder xuất xác suất từng ô — **XONG 04/10/2026**: `lora.predict()` trả thêm xác suất
   (softmax trên float32 - fp16 làm tròn thô, sai số lan vào ngưỡng); `encoder_run.probability_columns()`
   + `probability_rows()` (hàm thuần) và `run()` ghi `probabilities.csv` (một dòng cho mỗi (review, khía
@@ -315,7 +315,7 @@
   `changed`** là `README.md`) ⇒ **phải gửi `012` RỒI `013`** (đúng cơ chế gói tăng dần; `013` một mình chỉ có
   README).
   **Hệ quả về số gói (cập nhật 04/10/2026 sau khi dựng gói 014):** gói của đợt 7 là **012 + 013 + 014** ⇒
-  đợt 8 = **gói 015**, gói cuối = **016** *(LỊCH SỬ)* (đã sửa ở `P8_batch7.md` mục 1/2/4/9, `present_plan.md` mục
+  đợt 8 = **gói 015**, gói cuối = **016** *(LỊCH SỬ)* (đã sửa ở `P8_batch7.md` mục 1/2/4/9, `docs/06_plan/archive/P7-P10/present_plan.md` mục
   6.2/7.1/8.7/10.5/11.3 và `docs/06_plan/README.md`). Không có gì phải ghim lại: hai commit sau `002086b`
   (`dfa8511` tài liệu, `34bbe45` khuôn mẫu) **không** đụng `src/` nên notebook vẫn dùng đúng bản mã đã ghim.
   ⇒ **MỐC DỪNG #2** ✓ (chờ người dùng chạy đợt 7). **Cập nhật 05/10/2026:** đợt 7 đóng thêm **gói 015** (mục
@@ -386,7 +386,7 @@
   `README.md`), nên gói cho hướng 2/3 sửa mã là **019**.*
 
 ## Mục 11. Danh mục thí nghiệm theo đợt
-- 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `present_plan.md`; số liệu thật sẽ
+- 11.1 Đã chạy xong (đối chiếu) — XONG 04/10/2026: ghi danh mục trong `docs/06_plan/archive/P7-P10/present_plan.md`; số liệu thật sẽ
   đối chiếu ở mục 3.1/3.2.
 - 11.2 Đợt 7 (**23 lượt**) — **XONG phần tạo + ghim**: 17 notebook tạo và ghim `4571648` ngày 04/10/2026
   (**gói 012**), rồi **05/10/2026** tạo thêm **6 lượt ablation "đầu phân loại"** và ghim lại **14 notebook**
@@ -397,10 +397,10 @@
   mục 8.2 rồi tạo ở mục 8.7 + lượt `prompt-one-turn/exp001`) đã ghim `3942144` và đi kèm **gói 016**.
   *Trước ghi "9 lượt" - nay đếm lại đúng: 2 + 3 + 1 + 4 = **10**.*
 - 11.4 Đợt 9 (3 lượt) — **CHƯA LÀM, chờ quyết định** (mục 13.4): cần 3 config model mới + cân nhắc đo lại
-  19 bảng token. Danh mục đã ghi trong `present_plan.md` mục 11.4.
+  19 bảng token. Danh mục đã ghi trong `docs/06_plan/archive/P7-P10/present_plan.md` mục 11.4.
 
 ## Mục 12. Việc để ngỏ
-- 12.1 Danh sách việc mở — CHƯA LÀM: đã ghi danh sách trong `present_plan.md`; **đã thêm** mục "lập tập chẩn
+- 12.1 Danh sách việc mở — CHƯA LÀM: đã ghi danh sách trong `docs/06_plan/archive/P7-P10/present_plan.md`; **đã thêm** mục "lập tập chẩn
   đoán giá" theo quyết định 04/10/2026 (làm sau, không thuộc kế hoạch đợt này); sẽ chép vào
   `docs/04_experiments/04_backlog.md` ở mục 3.14.
 - 12.2 MLflow (đã mất, không khôi phục) — XONG 04/10/2026: ghi nhận quyết định "kệ MLflow" của người dùng;
@@ -433,11 +433,11 @@ và kiểm lại cỡ mẫu `price` từ EDA GỐC.
 | D2 | Hai `README.md` + hai `config.yaml` của `lora/exp004` ghi `fit_thresholds.py --apply` - cờ KHÔNG tồn tại | chỉ dẫn sai | **ĐÃ SỬA** (commit `bc36b97`). Chỉ chú thích/README: `config_sha256` băm GIÁ TRỊ cấu hình đã hợp nhất (không băm byte file) và notebook kéo commit đã ghim, nên hai lượt chạy không đổi |
 | D3 | Mục 3.7/3.8 của chính tệp này bị chép HAI lần (một bản `XONG` kèm bằng chứng, một bản `CHƯA LÀM`) | tệp trạng thái tự mâu thuẫn | **ĐÃ SỬA** - xoá bản `CHƯA LÀM` còn sót và xếp lại thứ tự 3.5 → 3.6 → 3.7 → 3.8 |
 
-| D4 | Số gói lệch ở 7 chỗ sau khi đợt 7 thành **012 + 013** (rồi +014) | tài liệu | **ĐÃ SỬA** - đợt 8 = **gói 015**, gói cuối = **016**, ở `check_present_plan.md`, `present_plan.md` (6.2/7.1/8.7/10.5/11.3) và `P8_batch7.md` (1/2/4/9) |
+| D4 | Số gói lệch ở 7 chỗ sau khi đợt 7 thành **012 + 013** (rồi +014) | tài liệu | **ĐÃ SỬA** - đợt 8 = **gói 015**, gói cuối = **016**, ở `docs/06_plan/archive/P7-P10/check_present_plan.md`, `docs/06_plan/archive/P7-P10/present_plan.md` (6.2/7.1/8.7/10.5/11.3) và `P8_batch7.md` (1/2/4/9) |
 | D5 | `P8_measurement_mlflow.md` còn "**20 notebook** ghim cùng bản code, gói mới nhất là **011**" | tài liệu | **ĐÃ SỬA** - nay là **23 notebook** ghim `4571648` (tổng 40 notebook trong repo), gói mới nhất 014 |
 | D6 | `handover/README.md` viết "**Chưa lượt nào chạy trước đây**" (sai: ba lượt 0.6B đã chạy ngày 02/10/2026 và hỏng), và câu về hai lượt `test` ngụ ý phụ thuộc ngưỡng LÚC CHẠY (ngưỡng áp NGOÀI) | tài liệu | **ĐÃ SỬA** trong gói 014 |
 | D7 | Khối lịch sử mục 4.12 còn câu sai "368 → 372" dù dòng ngay sau đã đính chính | dễ đọc sai | **ĐÃ SỬA** - chèn cảnh báo tại chỗ trỏ xuống ghi chú sửa lỗi |
-| D8 | Danh sách gửi lại gọi là "sáu tệp nhẹ" nhưng (a) `09_fusion.md` liệt kê 7 tên, (b) **thiếu `predictions.csv`** - mà bước kết hợp dựng `inputs/*.csv` từ nó và lượt DÒ cần nó để đo p50/p95/p99 | thiếu sót thật khi bàn giao | **ĐÃ SỬA** - nay là **7 tệp nhẹ** (thêm `predictions.csv`) ở `handover/README.md`, `present_plan.md` (4.5/7.4/9.2), `P8_batch7.md`, `check_present_plan.md` (7.4), `09_fusion.md`, `configs/paths.yaml` |
+| D8 | Danh sách gửi lại gọi là "sáu tệp nhẹ" nhưng (a) `09_fusion.md` liệt kê 7 tên, (b) **thiếu `predictions.csv`** - mà bước kết hợp dựng `inputs/*.csv` từ nó và lượt DÒ cần nó để đo p50/p95/p99 | thiếu sót thật khi bàn giao | **ĐÃ SỬA** - nay là **7 tệp nhẹ** (thêm `predictions.csv`) ở `handover/README.md`, `docs/06_plan/archive/P7-P10/present_plan.md` (4.5/7.4/9.2), `P8_batch7.md`, `docs/06_plan/archive/P7-P10/check_present_plan.md` (7.4), `09_fusion.md`, `configs/paths.yaml` |
 
 Ba phép kiểm riêng, đều ĐẠT:
 1. lượt **DÒ** có cột `token sinh` + `có <think>` trong `predictions.csv` ⇒ đo được p50/p95/p99/max, nên
@@ -509,7 +509,7 @@ cuối = **017**.
 **Tài liệu đã sửa:** `docs/04_experiments/06_lora_encoder.md` (bằng chứng + cơ chế + bảng 6 encoder),
 `docs/05_config/05_experiments_shared.md` (dòng khoá mới), `docs/04_experiments/08_experiment_rationale.md`
 (**§2b**), `docs/06_plan/P8_batch7.md` (mục 1/2/3/4/6.2/8/9), `docs/06_plan/README.md`, `handover/README.md`
-(23 notebook, 5 nhóm, 12 lượt encoder), `present_plan.md` (mục 6/7/8.7/10.5/11), `check_present_plan.md`, cùng
+(23 notebook, 5 nhóm, 12 lượt encoder), `docs/06_plan/archive/P7-P10/present_plan.md` (mục 6/7/8.7/10.5/11), `docs/06_plan/archive/P7-P10/check_present_plan.md`, cùng
 `README.md` + `config.yaml` của 6 lượt mới và 2 lượt `exp001`.
 
 **Đổi nhãn nhóm ablation thành `H` (05/10/2026, thuần tài liệu):** sáu lượt ablation "đầu phân loại" trong
@@ -518,7 +518,7 @@ chỗ - `docs/04_experiments/08_experiment_rationale.md` §5 và `presentations/
 còn `P8_measurement_mlflow.md` dùng **A-H** cho nhóm việc hạ tầng (**H** ở đó là "chốt thiết kế"). Chữ cái
 nhóm chỉ có phạm vi **trong từng tài liệu**; đổi ở đây để người đọc không lẫn ba nghĩa của một chữ. Sáu chỗ
 đã đổi trong `P8_batch7.md` (hàng bảng §3, dòng "Thứ tự chạy", §6.2, §8, §9) kèm một đoạn giải thích; thứ tự
-chạy **không đổi** (`nhóm 8` trong `check_present_plan.md` mục 7.2 vẫn đúng vì H vẫn là nhóm thứ tám).
+chạy **không đổi** (`nhóm 8` trong `docs/06_plan/archive/P7-P10/check_present_plan.md` mục 7.2 vẫn đúng vì H vẫn là nhóm thứ tám).
 `handover/README.md` vốn **không dùng chữ cái nhóm**, nên **không phải ghim lại, không phải dựng gói mới**.
 
 **Xử lý đợt 7, chốt luật, và bốn notebook đợt 8 (05/10/2026):**
@@ -561,7 +561,7 @@ test (`test_sau_kiem_tra_deu_sach`, vì nó chính là cửa CI); **đẩy xong 
 
 <!-- DIEM-NOI-TIEP -->
 
-## Mục 16. Đợt 10 — ba hướng mới (mục 14 của `present_plan.md`)
+## Mục 16. Đợt 10 — ba hướng mới (mục 14 của `docs/06_plan/archive/P7-P10/present_plan.md`)
 
 Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu phần vệ sinh sổ sách.
 
@@ -634,7 +634,7 @@ Trạng thái 05/10/2026: **đã ghi vào kế hoạch**, mới bắt đầu ph�
   trúc không nạp lẫn nhau), đã đăng ký `KNOWN_KEYS`, đã ghi tài liệu (`05_experiments_shared.md` +
   `06_lora_encoder.md`) và **+2 test** (945 test OK; `ci_checks` 0). Lượt mở khoá **14.8** đã TẠO và đã
   GHIM: `phobert-base-v2/lora/exp006` (parent `exp002`, khác ĐÚNG một khoá `head.aspect_marker: true`).
-- **B3 XONG 06/10/2026 - ROUTER THEO KHÍA CẠNH** (mục 14.13 của `present_plan.md`): `fusion.ROUTER_LAW` +
+- **B3 XONG 06/10/2026 - ROUTER THEO KHÍA CẠNH** (mục 14.13 của `docs/06_plan/archive/P7-P10/present_plan.md`): `fusion.ROUTER_LAW` +
   `fit_aspect_router`/`router_for`/`router_predictions`/`members_report` + `scripts/ensemble_aspect.py`
   (hai bước `--fit`/`--apply`, **`--criterion` bắt buộc lúc chốt và CẤM lúc áp**) + **19 test mới**
   (966 test OK, `ci_checks` 0). Đã chạy THỬ end-to-end ở máy với 2 ứng viên `val` có sẵn: cả 7 khía cạnh

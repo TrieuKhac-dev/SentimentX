@@ -12,7 +12,7 @@ neg F1 (7) **91,16** · công bố = 97,70.
 
 **Thành công khi:** hơn **cả** Accuracy macro **và** một chỉ số F1 lớp âm **> 0,7** (biên nhiễu ±0,33…±0,67);
 dưới mức đó ghi **ĐỒNG HẠNG**. **Dấu vết:** `trainable_params` phải **giảm** so với `exp015` (r 16 → 8);
-`read_rate.valid = true`. **Đọc kèm:** `present_plan_batch12.md` NHÓM 1.
+`read_rate.valid = true`. **Đọc kèm:** `docs/06_plan/archive/batches/present_plan_batch12.md` NHÓM 1.
 
 ---
 

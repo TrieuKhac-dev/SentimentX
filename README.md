@@ -314,9 +314,9 @@ SentimentX/
 │                       # show_prompt.py, smoke_tracking.py, setup/ (3 file .ps1 cài đặt tái lập)
 ├── docs/               # tài liệu: README.md (mục lục) + 00_workflow/, 01_dataset/, 02_eda/,
 │                       # 03_pipeline/, 04_experiments/, 05_config/, 06_plan/
+│                       # 06_plan/archive/ = kế hoạch lịch sử (chỉ đọc): P7-P10/present_plan.md +
+│                       # P7-P10/check_present_plan.md, batches/present_plan_batch11..13.md
 ├── presentations/      # bài trình bày (số liệu + sơ đồ Mermaid) cho báo cáo đồ án
-├── present_plan.md     # kế hoạch đang chạy (bản sống, cập nhật theo tiến độ)
-├── check_present_plan.md  # trạng thái thực thi, đối chiếu từng mục của present_plan.md
 ├── .github/workflows/  # ci.yml: chạy scripts/ci_checks.py + unittest khi push/PR vào `experiment`
 ├── tests/              # test `unittest`, không cần GPU, xếp GƯƠNG của src/: api/, core/, evaluation/,
 │                       # experiments/, pipeline/, preprocessing/, reporting/, training/, workflow/

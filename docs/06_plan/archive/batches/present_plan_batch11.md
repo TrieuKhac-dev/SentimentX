@@ -1,7 +1,7 @@
 # present_plan_batch11 - Kế hoạch đợt 11: trả lời 11 câu hỏi phản biện
 
 > Đây là kế hoạch **ĐANG THỰC THI** của đợt 11, đặt ở gốc repo. Kế hoạch của đợt trước nằm ở
-> `present_plan.md` (đợt 7 → đợt 10) và **giữ nguyên, không sửa**. Tệp này ghi cả TRẠNG THÁI
+> `docs/06_plan/archive/P7-P10/present_plan.md` (đợt 7 → đợt 10) và **giữ nguyên, không sửa**. Tệp này ghi cả TRẠNG THÁI
 > (mục 7) để không phải mở tệp thứ hai.
 
 ## 1. Vì sao có đợt này
