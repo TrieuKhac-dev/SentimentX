@@ -17,6 +17,7 @@ Chạy: python -m unittest discover -s tests
 
 import importlib.util
 import os
+import subprocess
 import tempfile
 import time
 import unittest
@@ -115,7 +116,10 @@ class TestEnvironmentAndState(unittest.TestCase):
     def test_state_sees_the_real_repo(self):
         found = run_notebook.state()
         self.assertRegex(found["head"], r"^[0-9a-f]{40}$")
-        self.assertEqual(found["branch"], "experiment")
+        expected = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=str(paths.root()), text=True).strip()
+        self.assertEqual(found["branch"], expected)
         self.assertIsInstance(found["changes"], list)
 
     def test_newest_result_dir_is_empty_when_nothing_ran(self):
