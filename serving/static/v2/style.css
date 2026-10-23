@@ -238,6 +238,7 @@ button:disabled {
   gap: 6px;
   min-width: 0;
   margin-left: auto;
+  margin-right: var(--sample-right-offset, 160px);
 }
 
 .sample-inline .sample-row {
@@ -847,11 +848,13 @@ button:disabled {
 
 .result-table-wrap {
   display: block;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   align-self: stretch;
   width: 100%;
   max-width: 100%;
   min-height: 0;
+  max-height: 100%;
+  height: auto;
   overflow: auto;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1302,6 +1305,11 @@ tr[data-sentiment="unknown"] .aspect-cell {
   .input-actions {
     align-self: stretch;
     transform: none;
+  }
+
+  .sample-inline {
+    margin-right: 0;
+    margin-left: 0;
   }
 }
 

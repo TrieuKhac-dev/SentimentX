@@ -5,7 +5,7 @@
   var POLL_INTERVAL = 500, TIMEOUT_ENCODER = 30000, TIMEOUT_LLM = 240000;
   var MAX_ENCODER = 4000, MAX_LLM = 6000;
   var ENCODER_HINT = "Tối đa 4.000 ký tự.";
-  var LLM_HINT = "Tối đa 6.000 ký tự. Lần đầu nạp Qwen có thể mất 30–60 giây.";
+  var LLM_HINT = "Tối đa 6.000 ký tự.";
 
   var MSG = {
     loadingModels: "Đang tải mô hình…",
@@ -36,7 +36,7 @@
     colour: "Màu sắc", shipping: "Vận chuyển", packing: "Đóng gói"
   };
   var SAMPLE_SETS = ["positive", "negative", "mixed"];
-  var SAMPLE_LABELS = { positive: "Mẫu tích cực", negative: "Mẫu tiêu cực", mixed: "Mẫu hỗn hợp" };
+  var SAMPLE_LABELS = { positive: "Tích cực", negative: "Tiêu cực", mixed: "Hỗn hợp" };
   var SAMPLE_STATUS_LABELS = { positive: "tích cực", negative: "tiêu cực", mixed: "hỗn hợp" };
   var PROB_LABELS = {
     positive: "Tích cực", negative: "Tiêu cực", neutral: "Trung lập",
@@ -206,6 +206,12 @@
     els.emptyState.hidden = false;
     els.resultMeta.textContent = "";
   }
+  function clearOldResultsForRun() {
+    els.resultTable.replaceChildren();
+    els.resultMeta.textContent = "";
+    els.resultsContent.hidden = true;
+    els.emptyState.hidden = true;
+  }
   function showStatusError(message) {
     hideResults();
     setStatus(message, "is-error");
@@ -254,8 +260,13 @@
     syncControls();
   }
   function applyModelMeta(model) {
-    els.reviewInput.maxLength = maxCharsFor(model);
-    els.inputHint.textContent = model && model.kind === "llm" ? LLM_HINT : ENCODER_HINT;
+    var max = currentMaxChars();
+    els.reviewInput.maxLength = max;
+    if (mode === "compare") {
+      els.inputHint.textContent = "Tối đa " + formatInt(max) + " ký tự.";
+    } else {
+      els.inputHint.textContent = model && model.kind === "llm" ? LLM_HINT : ENCODER_HINT;
+    }
     refreshCount();
   }
   function filterEnabled(list) {
@@ -349,8 +360,8 @@
     var modelId = String(els.modelSelect.value || "");
     selectedId = modelId;
     var model = findModel(modelId);
-    applyModelMeta(model);
     ensureSecondaryDistinct(mode === "compare");
+    applyModelMeta(model);
     if (!model) {
       setLoadStatus(MSG.noModels, "is-error");
       syncControls();
@@ -405,7 +416,7 @@
     var modelId = String(els.modelSelectSecondary.value || "");
     if (!modelId) {
       secondaryId = "";
-      syncControls();
+      applyModelMeta(findModel(selectedId));
       return;
     }
     if (modelId === selectedId) {
@@ -418,12 +429,12 @@
         els.modelSelectSecondary.value = secondaryId || "";
         setStatus(MSG.distinctModels, "is-warning");
       }
-      syncControls();
+      applyModelMeta(findModel(selectedId));
       return;
     }
     secondaryId = modelId;
     requestModelLoad(secondaryId);
-    syncControls();
+    applyModelMeta(findModel(selectedId));
   }
   function handleSwap() {
     if (analyzing) return;
@@ -540,7 +551,7 @@
   }
   function formatConfidence(value) {
     var number = numberOf(value);
-    return number === null ? null : Math.round(number * 100) + "%";
+    return number === null ? null : (number * 100).toFixed(2).replace(".", ",") + "%";
   }
   function probLabel(key) {
     var normalized = String(key).trim().toLowerCase().replace(/[\s-]+/g, "_");
@@ -884,11 +895,19 @@
       var button = el("button", "sample-button");
       button.type = "button";
       button.setAttribute("aria-pressed", "false");
+      button.setAttribute("aria-label", "Mẫu " + SAMPLE_STATUS_LABELS[set]);
+      button.title = "Mẫu " + SAMPLE_STATUS_LABELS[set];
       button.addEventListener("click", function () { handleSampleClick(set); });
       sampleButtons[set] = button;
       els.sampleButtons.append(button);
     });
     updateSampleLabels();
+    updateSampleOffset();
+  }
+
+  function updateSampleOffset() {
+    var width = els.analyzeButton.getBoundingClientRect().width + 8;
+    document.documentElement.style.setProperty("--sample-right-offset", Math.round(width) + "px");
   }
 
   function applyModeUi() {
@@ -898,7 +917,8 @@
     els.compareControls.hidden = !compare;
     els.resultsContent.classList.toggle("is-comparison", compare);
     els.analyzeButton.textContent = compare ? "So sánh đánh giá" : "Phân tích đánh giá";
-    refreshCount();
+    applyModelMeta(findModel(selectedId));
+    updateSampleOffset();
   }
   function switchMode(nextMode) {
     if (mode === nextMode) return;
@@ -999,6 +1019,7 @@
     runToken = token;
     var controller = new AbortController();
     analysisController = controller;
+    clearOldResultsForRun();
     setAnalyzing(true);
     setStatus(MSG.analyzing, "");
     try {
@@ -1055,7 +1076,7 @@
     focusResults();
   }
   async function analyzeComparison(text, modelA, modelB) {
-    hideResults();
+    clearOldResultsForRun();
     var token = runToken + 1;
     runToken = token;
     var controller = new AbortController();
@@ -1150,6 +1171,7 @@
       renderResult(cached.data, cached.item, model);
       return;
     }
+    clearOldResultsForRun();
     var startToken = runToken;
     if (stateOf(model) !== "READY") {
       var ready = await ensureReady(modelId);
@@ -1175,6 +1197,11 @@
 
   function handleReviewInput() {
     stopComparisonForInputChange();
+    if (activeSet !== null) {
+      activeSet = null;
+      els.sampleStatus.textContent = "";
+      updateSampleLabels();
+    }
     refreshCount();
   }
 
@@ -1188,10 +1215,14 @@
     els.modelSelect.addEventListener("change", handleModelChange);
     els.modelSelectSecondary.addEventListener("change", handleSecondaryChange);
     els.swapModels.addEventListener("click", handleSwap);
-    window.addEventListener("resize", handleClampResize);
+    window.addEventListener("resize", function () {
+      updateSampleOffset();
+      handleClampResize();
+    });
     initModes();
     renderSamples();
     applyModelMeta(null);
+    updateSampleOffset();
     loadModels();
   }
 
