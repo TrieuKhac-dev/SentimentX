@@ -173,6 +173,9 @@ class ModelRegistry:
             self._entries[model_id] = _ModelEntry(spec=spec, state=state)
         self._idle_thread: Optional[threading.Thread] = None
         self._idle_stop = threading.Event()
+        self._gpu_sema = threading.Semaphore(
+            int(settings.server.get("gpu_concurrency", 1) or 1)
+        )
 
     @property
     def default_model(self) -> str:
@@ -244,28 +247,30 @@ class ModelRegistry:
         include_probs: bool = True,
     ) -> list[dict[str, AspectResult]]:
         """Run a batch prediction, loading and warming the model if needed."""
-        entry = self._resolve(model_id)
-        texts_list = [texts] if isinstance(texts, str) else list(texts)
-        self._acquire(entry)
-        runtime = entry.runtime
-        try:
-            result = runtime.predict(texts_list, include_probs=include_probs)
-        finally:
+        with self._gpu_sema:
+            entry = self._resolve(model_id)
+            texts_list = [texts] if isinstance(texts, str) else list(texts)
+            self._acquire(entry)
+            runtime = entry.runtime
+            try:
+                result = runtime.predict(texts_list, include_probs=include_probs)
+            finally:
+                with self._lock:
+                    entry.in_use -= 1
+                    entry.last_used = time.monotonic()
+                    self._lock.notify_all()
+            return self._normalize_results(result, texts_list)
+
+    def preload(self, model_id: str) -> dict:
+        """Load+warm a model without running a user prediction."""
+        with self._gpu_sema:
+            entry = self._resolve(model_id)
+            self._acquire(entry)
             with self._lock:
                 entry.in_use -= 1
                 entry.last_used = time.monotonic()
                 self._lock.notify_all()
-        return self._normalize_results(result, texts_list)
-
-    def preload(self, model_id: str) -> dict:
-        """Load+warm a model without running a user prediction."""
-        entry = self._resolve(model_id)
-        self._acquire(entry)
-        with self._lock:
-            entry.in_use -= 1
-            entry.last_used = time.monotonic()
-            self._lock.notify_all()
-            return self._describe(entry)
+                return self._describe(entry)
 
     def _resolve(self, model_id: Optional[str]) -> _ModelEntry:
         mid = model_id if model_id is not None else self._settings.default_model
