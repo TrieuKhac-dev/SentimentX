@@ -622,7 +622,7 @@ class TestPaperAccuracyColumn(unittest.TestCase):
     Vì sao phải có cột riêng chứ không dùng `accuracy_micro`: hai cơ sở đo có MẪU SỐ khác nhau
     (`paper` loại ô mà nhãn đoán là "không nhắc tới"/`neutral`, xem docs/04_experiments/metrics.md),
     nên một lượt chạy có HAI số Accuracy khác nhau. Trước 12/10/2026 số `paper` chỉ nằm trong văn xuôi
-    (`present_report_v1.md`) - viết tay lại từng lượt là chỗ sinh sai; nay nó nằm trong bảng chuẩn.
+    (`presentations/present_report/archive/present_report_v1.md`) - viết tay lại từng lượt là chỗ sinh sai; nay nó nằm trong bảng chuẩn.
     """
 
     def setUp(self):

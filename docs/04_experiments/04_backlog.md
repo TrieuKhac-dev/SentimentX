@@ -36,7 +36,7 @@ số. Phần mô tả dưới đây giữ nguyên vì nó giải thích VÌ SAO 
 `prompt-cot/exp002..004`, prompt MỘT LƯỢT `prompt-one-turn/exp001`, và ba lượt đối chứng KHÔNG lượng hoá
 `prompt-cot/exp005..007` của đúng ba mức ví dụ đó), cộng **ba** lượt `qwen3-0.6b/prompt-cot/exp001..003`
 cho model thứ tư - model nhỏ, cùng tokenizer, để đo khoảng cách do quy mô. Mười lượt này cùng hai lượt
-LoRA cho encoder chấm trên cùng tập `test` và ghim cùng một bản code; xem `docs/06_plan/P7_rerun.md` mục 2
+LoRA cho encoder chấm trên cùng tập `test` và ghim cùng một bản code; xem `docs/06_plan/archive/experiments/P7_rerun.md` mục 2
 cho lý do của từng nhóm.
 
 **Việc:** cho Qwen3 trả lời tập test bằng prompt (zero-shot / few-shot / CoT), rồi đo tỉ
@@ -194,7 +194,7 @@ hoặc CỐ Ý LÀM KHÁC, ghi lại để không ai đọc kế hoạch mà tư
 | `run_rescore_eval.py` và `config.MODEL_EVAL_REPORT_DIR` | **ĐÃ BỎ 25/09/2026** | Trước đó giữ có chủ ý làm "đường chạy tay". Nay MỌI kết quả đều thuộc một thí nghiệm: `experiments/<model>/<method>/<expNNN>/results/<hash8>/`, thiếu định danh thí nghiệm là lỗi. Muốn tính lại điểm thì chạy lại thí nghiệm (xem [05_predictions.md](05_predictions.md) §5) |
 | `nbstripout` cài trên từng máy | **ĐÃ CẤU HÌNH 27/09/2026** | `chore(git): strip notebook outputs with nbstripout`: `.gitattributes` khai bộ lọc, máy nào cài `nbstripout` thì git tự bỏ output khi commit; kiểm 3 của CI vẫn là chốt cuối |
 | `mlflow_tags` đủ 8 nhãn và `artifacts` có `plots` | **ĐÃ LÀM 27/09/2026** | `feat(tracking): carry the eight mlflow tags and upload the plot`: nhãn `model`, `method`, `exp_id`, `dataset`, `version_id`, `split`, `repo_sha`, `config_sha256`; phát hiện thêm một lỗi - `resolve_tags` chỉ tra khoá mức ngoài nên `method`/`exp_id` (nằm trong khối `experiment`) bị BỎ ÂM THẦM, nay tra cả khối đó. `artifacts` thêm `plots/accuracy.html` |
-| Thư mục `data/reports/model_eval/**` | **ĐÃ BỎ 25/09/2026** | Bằng chứng của lượt kiểm resume ngày 24/09/2026 nằm ở đó (xem `docs/06_plan/P4_logging_mlflow.md` T8) đã bị xoá cùng lần dựng lại dữ liệu; kết quả của nhóm nay chỉ nằm trong `experiments/**/results/<hash8>/` |
+| Thư mục `data/reports/model_eval/**` | **ĐÃ BỎ 25/09/2026** | Bằng chứng của lượt kiểm resume ngày 24/09/2026 nằm ở đó (xem `docs/06_plan/archive/setup/P4_logging_mlflow.md` T8) đã bị xoá cùng lần dựng lại dữ liệu; kết quả của nhóm nay chỉ nằm trong `experiments/**/results/<hash8>/` |
 | Huấn luyện LoRA cho PhoBERT / ViSoBERT | **ĐÃ LÀM (đợt 2, 25/09/2026)** | `src/training/lora.py` (registry `TRAINERS`) và `src/experiments/encoder_run.py`, hai thí nghiệm `visobert/lora/exp001` + `phobert-base-v2/lora/exp001`. Từ đợt này `training.yaml` hết là khai báo suông: `trainer`, `checkpoints.*` đều có nơi đọc |
 | `src/sources/` (registry `SOURCE_KINDS`) và `src/models/` (registry `ADAPTERS`) | vẫn làm khác | Đường encoder mới dùng `ENCODERS` (`src/training/encoders.py`) cho model có thể huấn luyện, và `TRAINERS` cho cách huấn luyện; `kind` của nguồn vẫn kiểm ở `src/core/dataset.py` |
 | `save.plots` trong `configs/experiments/evaluation.yaml` | **ĐÃ LÀM 27/09/2026** | `feat(evaluation): make save.plots write a plot into the run folder`: `true` thì lượt chạy ghi `plots/accuracy.html` (độ chính xác từng khía cạnh + ma trận nhầm, HTML tự chứa, không cần `plotly`); `false` thì không tạo thư mục rỗng |

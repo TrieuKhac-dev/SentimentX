@@ -10,7 +10,7 @@
 > rồi chạy tiếp từ checkpoint** nên `training_history.csv` chỉ còn các epoch cuối. Số cũ → số mới:
 > **`cafebert/lora/exp027` 98,37 → 98,56**; **`cafebert/lora/exp073` 98,52 → 98,31**. Hai bản cũ **bị bỏ**.
 > *(Lưu ý: file này còn nhắc `exp027` của `qwen3-4b-instruct-2507/prompt-cot` - hash `af67f011`, 96,68 -
-> là **lượt khác**, KHÔNG bị thay.)* Bảng đang dùng: [`present_report_v6.md`](present_report_v6.md).
+> là **lượt khác**, KHÔNG bị thay.)* Bảng đang dùng: [`present_report_v6.md`](../present_report_v6.md).
 
 ## 0. File này khác `present_report_v1.md` ở đâu
 

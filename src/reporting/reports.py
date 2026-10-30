@@ -1113,7 +1113,7 @@ def build(roots=None, out_root=None, groups=None, reference=None, only="finished
 
     `roots` là các gốc chứa lượt chạy (mặc định: gốc kết quả của thí nghiệm và thư mục đánh giá chạy
     tay). `out_root` để trống thì ghi vào đúng nhóm report khai trong `configs/paths.yaml`; truyền
-    vào khi cần ghi ra chỗ khác (Colab ghi vào Drive - xem docs/06_plan/P6_reports_ci.md mục 5).
+    vào khi cần ghi ra chỗ khác (Colab ghi vào Drive - xem docs/06_plan/archive/setup/P6_reports_ci.md mục 5).
 
     `only` quyết định lượt NÀO vào bảng: `"finished"` (mặc định) chỉ lượt chạy xong, `"all"` liệt kê cả
     lượt hỏng. Nhóm `attempt_registry` LUÔN nhận đủ mọi lượt, vì việc của nó là kể lại đã thử những gì.

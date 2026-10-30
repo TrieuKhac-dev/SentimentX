@@ -7,7 +7,7 @@
 > (`43e40f61`) đã được **chạy lại liền mạch**. Lý do: bản ghi trong file này (và trong `v3`/`v5`) là lượt **bị ngắt
 > giữa phiên rồi chạy tiếp từ checkpoint**, nên `training_history.csv` chỉ còn các epoch cuối ⇒ không kiểm được hội tụ.
 > Số cũ → số mới: **`exp073` 98,52 → 98,31**; **`exp027` 98,37 → 98,56**. Hai bản cũ **bị bỏ**.
-> Bảng đang dùng: [`present_report_v6.md`](present_report_v6.md).
+> Bảng đang dùng: [`present_report_v6.md`](../present_report_v6.md).
 
 > **Vì sao file này là bản RÚT GỌN:** `present_report_v4.md` **chưa từng được commit vào git** (git chỉ thấy
 > `present_report_v3.md` là bản được theo dõi), và **toàn văn của nó đã bị bản `v5` ghi đè** khi dựng lại bảng theo

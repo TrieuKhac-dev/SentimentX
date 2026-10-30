@@ -138,7 +138,7 @@ Sáu lượt `phobert-base-v2` cần **VnCoreNLP** (Java + model 27 MB); ô boot
 - **Đ6/Đ7**: mã `src/preprocessing/chat_like.py` + 5 module model + 5 `configs/models/*.yaml` +
   `token_stats.MODELS`. `qwen3-8b/prompt-cot/exp001-003`, `qwen3-4b-thinking-2507/prompt-cot/exp001` (DÒ) và
   `exp002`, `llama-3.1-8b-instruct|mistral-7b-instruct-v0.3|vistral-7b-chat/prompt-cot/exp001-003`.
-- **Đ8** (0 GPU): 10 mục trong `presentations/present_report/present_report.md` - M1 không LoRA/học chỉ
+- **Đ8** (0 GPU): 10 mục trong `presentations/present_report/archive/present_report_v0.md` - M1 không LoRA/học chỉ
   đầu/LoRA · M2 tiền xử lý emoji & tách từ · M3 F1 hay accuracy · M4 đóng băng hay học đầu · M5 tham số LoRA ·
   M6 hàm mất mát · M7 cách huấn luyện · M8 model nhỏ hơn (cột `Dùng được để so?`) · M9 LLM lớn hơn & khác họ ·
   M10 điều kiện so công bằng (8 gạch đầu dòng).

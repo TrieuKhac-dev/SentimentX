@@ -269,7 +269,7 @@ dựng lại năm nhóm bảng trong `data/reports/`. Chín lượt vào bảng 
 Số so công bố trên `test` (cơ sở `paper`): mức **1 ví dụ +0,02**, mức **5 ví dụ +0,38**, mức 0 ví dụ
 **−0,21** - tức **TÁI HIỆN ĐƯỢC** công bố. Câu hỏi và điểm riêng của từng lượt ở
 `docs/04_experiments/08_experiment_rationale.md`; cây ở `07_evolution.md`; phân tích và hướng tiếp ở
-`presentations/present_report/present_report_v1.md`.
+`presentations/present_report/archive/present_report_v1.md`.
 
 **Ba lượt Qwen3-0.6B KHÔNG dùng, đã xoá.** Cả ba nạp nhầm trọng số của bản 4B: `metrics.json::model` là
 `Qwen/Qwen3-4B-Instruct-2507`; hai lượt đầu trùng cả số token sinh (`380.489` = `380.489`; `354.196` =

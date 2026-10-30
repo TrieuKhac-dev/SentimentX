@@ -75,7 +75,7 @@ notes: >
 # `records_sha256` trong `eval_lock.json` (băm theo BẢN GHI, bỏ qua định dạng file) mới là giá trị
 # được ĐỐI CHIẾU; `sha256` ở đây là dấu vết của bản đã công bố. Trên Windows, cùng một nội dung có
 # thể ra byte khác bản trên Colab (kiểu xuống dòng khi checkout git) - lệch byte mà vân tay bản ghi
-# khớp chỉ là ghi chú, không phải lỗi. Xem docs/06_plan/P7_rerun.md.
+# khớp chỉ là ghi chú, không phải lỗi. Xem docs/06_plan/archive/experiments/P7_rerun.md.
 eval_lock:
   enforce: true
   test:

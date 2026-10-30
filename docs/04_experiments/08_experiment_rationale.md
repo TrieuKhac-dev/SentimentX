@@ -1,7 +1,7 @@
 # 08. Vì sao có từng thí nghiệm
 
 > Đọc file này khi: muốn biết một thí nghiệm hỏi câu gì, khác gì lượt bên cạnh, và kết quả đã ra sao.
-> Liên quan: `docs/04_experiments/07_evolution.md` (cây), `docs/06_plan/P7_rerun.md` (đợt chạy), `data/reports/metrics_matrix/` (số)
+> Liên quan: `docs/04_experiments/07_evolution.md` (cây), `docs/06_plan/archive/experiments/P7_rerun.md` (đợt chạy), `data/reports/metrics_matrix/` (số)
 
 Mười bảy lượt đang có kết quả thuộc **bốn nhóm theo câu hỏi** - A (hai encoder học LoRA, 4 lượt),
 B (Qwen3-4B hỏi bằng prompt, 9 lượt), E (ba biến thể bộ 1 ví dụ, 3 lượt), F (Qwen3-4B hỏi một lượt, 1
@@ -391,7 +391,7 @@ Ba lượt tiếp theo về giá nhằm cải thiện và ĐO riêng khía cạn
 Số lấy từ chính lượt chạy ghi ra: `metrics.json` (số chính), `metrics.csv` (bảng dài, có cột `basis`) và
 bảng tổng hợp `data/reports/metrics_matrix/` do `python scripts/collect_reports.py` dựng lại từ các file
 đó - không có đường tính thứ hai. Phân tích kết quả và hướng phát triển tiếp:
-`presentations/present_report/present_report_v1.md`. Cây phát triển: `07_evolution.md`.
+`presentations/present_report/archive/present_report_v1.md`. Cây phát triển: `07_evolution.md`.
 
 ## 9. Đợt 12 (11/10/2026) - tám lượt biến đổi, và KẾT LUẬN: các trục siêu tham số ĐÃ BÃO HOÀ
 
@@ -464,7 +464,7 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
    cũng phải sửa. Kế hoạch dự đoán `p ≈ 0,015` khi lên 9 lượt; **thực đo tốt hơn (0,0035 / 0,0070)**.
    **Đối chứng chứng minh 6 lượt mới không lệch hệ thống:** so "v0 cũ (3) vs v0 mới (6)" - CÙNG cấu hình - cho
    **p = 0,93 (Acc) / 0,90 (`neg F1`)**, tức hai nhóm là MỘT tổng thể. Chi tiết + bảng đầy đủ:
-   `presentations/present_report/present_report_v2.md` mục 2 và `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14.A.
+   `presentations/present_report/present_report_v6.md` mục 2 và `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14.A.
 3. **Mọi "kỷ lục" của một lượt là lượt MAY NHẤT**: `exp021` 98,41 (TB 98,31); `exp004` 98,26 (TB họ v0 **98,08**).
    ⇒ Từ đây đọc theo **TB >= 3 lượt** (luật 10 của `metrics.md`).
 4. **`neg F1 macro (7 khía cạnh)` là thước đo NHIỄU** (luật 13 mới): trong CÙNG cấu hình `r 8`, 3 hạt giống cho
@@ -480,7 +480,7 @@ chạy thêm **seed 7 và 13** cho bốn cấu hình dẫn đầu, cộng **seed
    ví dụ từ `train` (tám-B) cho **0 ví dụ > 1 ví dụ > 5 ví dụ** và cả ba đều DƯỚI mốc LLM sẵn có (`exp009` 0,9470);
    tiêu chí chọn checkpoint theo lớp âm (tám-D) **thua −0,17 Acc / −0,51 `neg F1`** khi ghép cặp theo hạt giống;
    bỏ phiếu 3 mẫu LLM (tám-C) cũng RỖNG. ⇒ **đã chạm trần**: 16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý
-   nghĩa. Báo cáo chốt: `presentations/present_report/present_report_v2.md`.
+   nghĩa. Báo cáo chốt: `presentations/present_report/present_report_v6.md`.
 
 ### Hai bất thường (đã xử lý XONG 12/10/2026)
 

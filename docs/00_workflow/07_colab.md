@@ -3,7 +3,7 @@
 > Đọc file này khi: chuẩn bị máy Colab để chạy một thí nghiệm đã ghim, hoặc khi notebook báo
 > `Drive : CHƯA thấy`.
 > Liên quan: `docs/05_config/01_paths.md`, `docs/05_config/07_env.md`, `docs/00_workflow/01_flow.md`,
-> `docs/06_plan/P5_notebook_pin.md`
+> `docs/06_plan/archive/setup/P5_notebook_pin.md`
 
 ## 1. Ba gốc đường dẫn - đọc trước khi làm gì
 

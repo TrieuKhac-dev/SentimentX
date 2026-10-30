@@ -53,5 +53,5 @@ Hai điều dễ sai khi sửa bản mẫu:
 4. Ghi lại file notebook vào git, đẩy lên nhánh `experiment`.
 
 Từ bước 3 trở đi thì **không sửa** thư mục thí nghiệm nữa cho tới khi người nhận chạy xong
-(`docs/06_plan/P5_notebook_pin.md`, mục rủi ro): sửa sau khi ghim nghĩa là kết quả chạy ra không
+(`docs/06_plan/archive/setup/P5_notebook_pin.md`, mục rủi ro): sửa sau khi ghim nghĩa là kết quả chạy ra không
 ứng với bản code đã ghim.

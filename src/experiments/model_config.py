@@ -31,7 +31,7 @@ thay vì âm thầm bỏ qua - bỏ qua sẽ khiến cấu hình nằm lại ở
 
 GIỚI HẠN ĐÃ BIẾT
 Chưa kiểm `checkpoint` có khớp với model thật trên Hugging Face; việc đó cần mạng nên để
-notebook làm khi nạp model (xem docs/06_plan/P5_notebook_pin.md).
+notebook làm khi nạp model (xem docs/06_plan/archive/setup/P5_notebook_pin.md).
 """
 
 import difflib

@@ -95,7 +95,7 @@
     sửa rồi push tiếp, KHÔNG ghim từ bản đỏ. Lý do: notebook ghim một bản code, nên ghim từ bản CI đỏ là
     đóng băng một bản không kiểm được; gói bàn giao dựng từ bản đỏ cũng phải bỏ (đã gặp: gói 007 dựng từ
     bản `2f8c362` CI đỏ, bị thay bằng gói 008 - xem
-    [../06_plan/P8_measurement_mlflow.md](../06_plan/P8_measurement_mlflow.md)).
+    [../06_plan/archive/experiments/P8_measurement_mlflow.md](../06_plan/archive/experiments/P8_measurement_mlflow.md)).
 
 ## Khoá đi LIỀN NHAU (một cơ chế, hai khoá)
 

@@ -763,7 +763,7 @@ def existing_runs(result, version_id, root=None):
     Vì sao cần: cùng cấu hình trên cùng dữ liệu nghĩa là CÙNG một thí nghiệm. Không kiểm thì chạy
     lại sẽ đẻ ra hai thư mục kết quả gần giống nhau, và người đọc báo cáo không biết cái nào là
     kết quả dùng để so. Notebook dùng danh sách này để quyết định: lần chạy cũ ĐÃ XONG thì dừng và
-    báo; CHƯA XONG thì resume (xem docs/06_plan/P4_logging_mlflow.md).
+    báo; CHƯA XONG thì resume (xem docs/06_plan/archive/setup/P4_logging_mlflow.md).
 
     `root` để trống thì quét gốc kết quả (`SENTIMENTX_RESULTS_ROOT`, mặc định là `experiments/`).
     """

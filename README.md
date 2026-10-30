@@ -382,7 +382,7 @@ Trong cấu hình dataset có khoá `version`. **Tạo FILE MỚI khi dữ liệ
 `v0.2.0.yaml`), **không sửa file đã dùng**: nội dung file phiên bản đi vào mã phiên bản dữ liệu, nên
 sửa tại chỗ là hai định nghĩa khác nhau mang cùng một nhãn và kết quả cũ không còn tra được. Guard
 (`versioning.guard_versions`) sẽ chặn nếu bạn sửa file phiên bản đã dùng - chi tiết ở
-`docs/06_plan/P2_versioning.md`.
+`docs/06_plan/archive/setup/P2_versioning.md`.
 
 Hai trường hợp đặc biệt:
 
@@ -453,4 +453,4 @@ git add handover && git commit -m "chore(handover): package 002"
 Xem kết quả: DagsHub xem ngay (không phải copy gì); muốn đưa vào git thì copy **phần nhẹ** từ Drive về
 (`run.log`, `run_meta.json`, `metrics.json`, `metrics.csv`, `mispredictions.csv`,
 `mispredictions_paper.csv`) rồi chạy
-`python scripts/collect_reports.py`. Toàn bộ vòng bàn giao: `docs/06_plan/P7_rerun.md`.
+`python scripts/collect_reports.py`. Toàn bộ vòng bàn giao: `docs/06_plan/archive/experiments/P7_rerun.md`.

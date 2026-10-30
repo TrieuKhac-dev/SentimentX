@@ -26,7 +26,12 @@ python -m serving.app --model cafebert_exp027,qwen3_4b_exp009
 python -m unittest discover -s serving/tests -v
 ```
 
+Mở `http://127.0.0.1:8000/` để dùng giao diện v2.
+
 ## Trạng thái hiện tại
 
-**Đang triển khai (implementation in progress).** P0 chưa xong; các điều kiện chấp nhận ở
-`P0_PLAN.md` là mục tiêu, chưa phải kết quả đã đạt.
+UI v2 được phục vụ tại `/`, không cần hậu tố; `serving/app.py` là entrypoint duy nhất. API `/predict`,
+`/models`, `/models/{id}/load`, `/health` giữ nguyên.
+
+Hai chỉ tiêu chưa có bằng chứng: p95 encoder < 300 ms/review và LLM ≥ 95% readable. Cả hai chưa được đo
+trên GPU thật, nên không ghi nhận là đã đạt.

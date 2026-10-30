@@ -24,7 +24,7 @@ Mỗi lượt mới phải **giữ hoặc tăng F1** và **tăng Accuracy** so v
 - Lượt **bị ngắt ở tầng HUẤN LUYỆN rồi chạy tiếp** KHÔNG tính là một lần rút thăm sạch (dấu vết:
   `training_history.csv` không bắt đầu ở bước 100 / epoch 1) - xem luật 11 của `metrics.md`.
 - Mọi bảng kèm **số ô** (`paper.cells`) và **`% đọc được`** (cửa `read_rate_min = 95`).
-- **Hai thước đo F1 có trọng số `n`** (thêm ở đợt này, xem `present_report_v1.md`):
+- **Hai thước đo F1 có trọng số `n`** (thêm ở đợt này, xem `presentations/present_report/archive/present_report_v1.md`):
   `neg F1 macro (5 khía cạnh n lớn)` = trung bình F1 lớp âm trên 5 khía cạnh `n` = 48…174;
   `neg F1 micro (theo n)` = F1 lớp âm gộp mọi ô, trọng số = số ô.
 - **`price`**: `n` âm = 6 ở `test`, **0 ở `val`** ⇒ mọi số `price` phải ghi kèm "n = 6, không kết luận".
@@ -45,7 +45,7 @@ năng lực của cấu hình (xem mục 11).
 giống 1-6 về trong Đợt 8), và **mức hơn của họ `lr 4e-4` nay ĐẠT p < 0,05 ở CẢ HAI trục**:
 **t = 3,47 → p = 0,0035 (Acc)** · **t = 3,23 → p = 0,0070 (`neg F1`)**. Đối chứng: v0 cũ (3) vs v0 mới (6) -
 cùng cấu hình - cho p = 0,93/0,90 ⇒ hai nhóm là một tổng thể, 6 lượt mới **không lệch hệ thống**.
-Báo cáo chốt: `presentations/present_report/present_report_v2.md`.
+Báo cáo chốt: `presentations/present_report/archive/present_report_v2.md`.
 
 **SỬA 12/10/2026 (sau khi `exp042`/`exp049` về - xem mục 11).** Bảng trên trước đây ghi `v0 = 98,06` (đếm 4 lượt)
 và `họ lr 4e-4 = 98,29` (11 lượt). Sai ở chỗ: `exp049` chạy lại cho **98,11 - trùng KHÍT `exp048` từng khía cạnh**
@@ -68,7 +68,7 @@ chính là giao thức công bố) và **(b) tiêu chí CHỌN CHECKPOINT** (`be
 sẵn có `exp009` (97,77/0,9470); (b) `best_metric: negative_f1`: **−0,17 Acc / −0,51 `neg F1`** khi ghép cặp theo
 hạt giống. Thêm bỏ phiếu 3 mẫu LLM (RỖNG) ⇒ **16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý nghĩa**.
 Ba lý do DUY NHẤT còn được phép mở lại kế hoạch: **thêm dữ liệu · đổi định nghĩa bài toán · model khác** -
-chi tiết và chi phí ở `presentations/present_report/present_report_v2.md` mục 5.
+chi tiết và chi phí ở `presentations/present_report/archive/present_report_v2.md` mục 5.
 
 ## 4. Các nhóm thử nghiệm
 
@@ -163,7 +163,7 @@ Không có nhóm này thì KHÔNG được viết "đã vượt v0", chỉ đư�
 | `exp027` | 98,37 (`epochs 6`) | 7, 13 | `exp042`, `exp043` |
 | `exp015` | **đỉnh CŨ** (98,35) - giữ kỷ lục `neg F1 (5 n lớn)` | 7, 13 | `exp044`, `exp045` |
 | `exp028` | giữ kỷ lục `neg F1 (5 n lớn)` = 94,84 | 7, 13 | `exp046`, `exp047` |
-| `exp004` (v0) | đỉnh của báo cáo CŨ (`present_report_v0.md`) | 13 | `exp048` |
+| `exp004` (v0) | đỉnh của báo cáo CŨ (`presentations/present_report/archive/present_report_v0.md`) | 13 | `exp048` |
 | `exp002` (v0) | cha gốc của cả họ CafeBERT | 13 | `exp049` |
 
 **Ba lượt MỚI của Đợt 2b (11/10/2026) - ĐÃ THAY BẰNG 6 LƯỢT ở bảng trên (12/10/2026).** Lý do đổi: mức hơn
@@ -277,11 +277,11 @@ mọi con số `price` phải ghi kèm "n = 6, không kết luận"; dò ngưỡ
 ### NHÓM 14 - TÀI LIỆU (làm khi có kết quả)
 | Việc | File |
 | --- | --- |
-| Sửa **Phụ lục A** (3 lượt nay ĐÃ XONG; `cafebert/full/exp001` hỏng vì **phân kỳ**, không phải bị ngắt) | `presentations/present_report/present_report_v1.md` |
-| Thêm cột **nguồn** (v0 / đợt 11 / mới) + xếp hạng **2 trục** (Acc và F1) + gộp **đồng hạng** theo biên nhiễu | `present_report_v1.md` |
+| Sửa **Phụ lục A** (3 lượt nay ĐÃ XONG; `cafebert/full/exp001` hỏng vì **phân kỳ**, không phải bị ngắt) | `presentations/present_report/archive/present_report_v1.md` |
+| Thêm cột **nguồn** (v0 / đợt 11 / mới) + xếp hạng **2 trục** (Acc và F1) + gộp **đồng hạng** theo biên nhiễu | `presentations/present_report/archive/present_report_v1.md` |
 | Ghi trạng thái HỦY `qwen3-4b-thinking` | 5 file ở NHÓM 12 |
 | Cập nhật 12 -> 13 model (thêm Llama) | `docs/04_experiments/01_models.md` |
-| Nếu lượt mới vượt top => viết `present_report_v2.md`; `collect_reports.py` + commit phần nhẹ | `presentations/`, `data/reports/**` |
+| Nếu lượt mới vượt top => viết `presentations/present_report/archive/present_report_v2.md`; `collect_reports.py` + commit phần nhẹ | `presentations/`, `data/reports/**` |
 
 ### NHÓM 15 - Đổi ĐỊNH NGHĨA BÀI TOÁN - **ĐÃ ĐỀ XUẤT rồi RÚT (12/10/2026), KHÔNG CHẠY**
 
@@ -346,7 +346,7 @@ hoạch, và có điều kiện hồi sinh rõ ràng**. Khác `BỎ QUA <lí do>
 | **6** | 9 | ensemble · dò ngưỡng 6/7 khía cạnh · biểu quyết 3 seed | **0** | ✅ **XONG 12/10/2026 - CẢ BA ÂM/RỖNG** (mục 12) |
 | **8** | 6 + 10 + 8 | **15 LƯỢT CHẠY SONG SONG**: 6 v0 (seed 1-6) + 3 LLM few-shot (0/1/5 ví dụ) + 3 LLM lấy mẫu + 3 `best_metric` | 15 slot, **~3 h** (đường tới hạn = LLM 2,8 h) | 🟡 **ĐÃ GỬI 12/10/2026** - gói **034** (`...-ee24449-261012.zip`), ghim `5ec65f3`; chờ người dùng chạy |
 | **9** | 6 + 10 + 8 + 9 | tuỳ kết quả Đợt 8: nhân bản biến thể THẮNG (≤ 6 lượt) + biểu quyết mẫu LLM (0 GPU) + luật lai (0 GPU) | ≤ 15 slot | ⬜ sau Đợt 8 |
-| **7** | 14 | báo cáo chốt (+ `present_report_v2.md` nếu Đợt 8/9 hơn > 0,25 ở CẢ 2 trục) | **0** | sau Đợt 8 (hoặc 9) |
+| **7** | 14 | báo cáo chốt (+ `presentations/present_report/archive/present_report_v2.md` nếu Đợt 8/9 hơn > 0,25 ở CẢ 2 trục) | **0** | sau Đợt 8 (hoặc 9) |
 
 **Tổng (12/10/2026):** **129 lượt đã chạy có `metrics.json`**; còn phải chạy **15 lượt Đợt 8** (+ tối đa 15 lượt
 Đợt 9 tuỳ kết quả); **12 lượt HOÃN** (7 vặn-số + 5 Đợt 3). Đã HỦY/BỎ: `qwen3-4b-thinking` ×2, `qwen3-8b` ×3,
@@ -358,7 +358,7 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 ## 6. Sổ trạng thái (đánh dấu khi làm xong)
 
 ### Đợt 0 - 0 GPU
-- [x] 0.1 **XONG 11/10/2026** - Sửa Phụ lục A của `present_report_v1.md`: 3 lượt (`cafebert/lora/exp010`,
+- [x] 0.1 **XONG 11/10/2026** - Sửa Phụ lục A của `presentations/present_report/archive/present_report_v1.md`: 3 lượt (`cafebert/lora/exp010`,
       `exp012`, `phobert-base-v2/lora/exp017`) nay **ĐÃ XONG**; chỉ `cafebert/full/exp001` hỏng.
       Commit `83a1376`
 - [x] 0.2 **XONG 11/10/2026** - Ghi trạng thái **HỦY** cho `qwen3-4b-thinking-2507/prompt-cot/exp001-002`
@@ -369,7 +369,7 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 - [x] 0.5 **XONG 11/10/2026** - Người dùng chốt **BỎ hẳn nhánh `full`** (cả 3 lượt thoái hoá) ⇒ NHÓM 12 bỏ
       `cafebert/full/exp002`; tổng encoder **37 -> 36** lượt; đã ghi "không dùng được" vào
       `docs/04_experiments/06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`,
-      `present_report_v1.md`
+      `presentations/present_report/archive/present_report_v1.md`
 
 ### Đợt 1 - 8 lượt ưu tiên
 - [x] **TẠO XONG 11/10/2026** - 8 notebook của Đợt 1: `exp020` `exp021` `exp024` `exp025` `exp027` `exp028`
@@ -404,7 +404,7 @@ config + README, `--preflight-only`, ghim (`pin.py`) và đóng gói; **kết qu
 | --- | --- | --- |
 | **W1** | Commit file nhẹ `exp042`/`exp049` + `collect_reports.py` + dựng lại 5 bảng gộp | `experiments/cafebert/lora/exp04{2,9}/results/**`, `data/reports/**` |
 | **W2** | **Luật 12** (đường encoder: cùng `decoding.seed` = cùng hạt giống ⇒ MỘT lần rút thăm) · **Luật 13** (cấm lấy `neg F1 macro (7)` làm kỷ lục - `price` 5-6 ô + `packing` 9-10 ô chi phối) · **Luật 14** (bảng chính chỉ nhận cùng bài toán + cùng phiên bản dữ liệu) | `docs/04_experiments/metrics.md` |
-| **W3** | Sửa số: v0 = 98,08 (n=3) · Welch 0,21/0,30 · thêm `exp042`/`exp049`; bỏ câu "p ≈ 0,06/0,10" | mục 11 · `08_experiment_rationale.md` · `present_report_v1.md` |
+| **W3** | Sửa số: v0 = 98,08 (n=3) · Welch 0,21/0,30 · thêm `exp042`/`exp049`; bỏ câu "p ≈ 0,06/0,10" | mục 11 · `08_experiment_rationale.md` · `presentations/present_report/archive/present_report_v1.md` |
 | **W4** | Bảng xếp hạng **`neg F1 (5 n lớn)` cho MỌI lượt `test`** | `data/reports/**` |
 | **W5** | **TẠO công cụ** kiểm rò rỉ ví dụ few-shot + test | `scripts/check_examples.py`, `tests/workflow/**` |
 | **W6** | Sửa nhỏ: `checkpoints.best_metric` nhận **F1 lớp âm** + test | `src/training/lora.py`, `tests/training/**` |
@@ -473,10 +473,10 @@ Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi t
       `b783431` dựng lại 144 dòng) + **mục 14** đã điền (`802306a`)
 - [x] Bằng chứng 0 GPU cho 8C: `data/reports/fusion/vote_llm_1shot.json` (+ `inputs/…__nhan_tung_o.csv`);
       đường bỏ phiếu có **lỗi thật đã sửa** (`36736b0`, +3 test)
-- [x] **`present_report_v2.md`** (`75f4de7`): số chính **98,283 / 94,38 vs v0 98,091 / 93,60 (Welch p = 0,0035 /
+- [x] **`presentations/present_report/archive/present_report_v2.md`** (`75f4de7`): số chính **98,283 / 94,38 vs v0 98,091 / 93,60 (Welch p = 0,0035 /
       0,0070)**; ba kết quả ÂM; **16 bàn đạp** đã thử; ba lý do còn được phép mở lại
 - [x] Sửa `docs/04_experiments/08_experiment_rationale.md` (bảng họ + Welch + hai khe đã đóng) và
-      `present_report_v1.md` (trỏ v2); `handover/README.md` ghi kết quả
+      `presentations/present_report/archive/present_report_v1.md` (trỏ v2); `handover/README.md` ghi kết quả
 - [x] `ci_checks` **XANH** + `unittest` **1120 test** (1 lỗi môi trường có sẵn, 0 FAIL) → commit → **đã push**
 - [ ] **Gói 035: KHÔNG dựng** - không còn notebook nào cần chạy trên Colab (Đợt 9 đã đóng), và mọi kết quả đã
       nằm trong git. Chỉ dựng khi cần gửi lại bảng chuẩn: `python scripts/build_package.py`
@@ -496,7 +496,7 @@ Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi t
 | 11/10/2026 | Đợt 0 | Ca A `best_metric`: **KHÔNG có lỗi** - `exp002` và `exp007` chọn CÙNG checkpoint bước 800 nên điểm trùng nhau là hợp lệ | NHÓM 8 giữ nguyên (đã có cơ sở) |
 | 11/10/2026 | **LỖI (lớn)** | Ca B nhánh `full`: cả 3 lượt đoán **"không nhắc tới" cho MỌI ô** (`sentiment_f1 = 0`, `paper.cells = 0`, `all acc = 73,69 %`); hai lượt PhoBERT khác `lr` **10 lần** ra y hệt từng khía cạnh | Ghi ở mục 9.2; **ĐỔI NHÓM 12** (phải thêm `inference.dtype: float32`); **BÁO CÁO người dùng** (mục 6 việc 0.5) |
 | 11/10/2026 | Phát hiện | `cafebert/full/exp001` **không có `metrics.json`** trên đĩa (mà `run.log` nói "đã ghi") - chỉ có `run.log`, `run_meta.json`, `model/` | Kết luận về lượt này lấy từ `run.log`; ghi rõ trong Phụ lục A |
-| 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`, `present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
+| 11/10/2026 | Thay đổi (người dùng chốt) | **BỎ hẳn nhánh `full`** khỏi kế hoạch (lý do: full fine-tune bị overfit/thoái hoá). Đã ghi "không dùng được" vào `06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`, `presentations/present_report/archive/present_report_v1.md` | Tổng encoder **37 -> 36**; Đợt 4 nay chỉ còn NHÓM 8; 3 lượt `full` giữ làm bản ghi |
 | 11/10/2026 | Đợt 1 | **TẠO XONG 8 thí nghiệm** `exp020` `exp021` `exp024` `exp025` `exp027` `exp028` `exp030` `exp033` (8 commit nhỏ `feat(experiments)`); mỗi lượt khác cha ĐÚNG 1 khoá/nhóm khoá | `ci_checks` xác nhận **cấu hình hợp lệ** (chỉ báo chưa ghim `REPO_SHA`); còn phải **ghim** sau khi CI xanh |
 | 11/10/2026 | Ghi nhận | Phải **gitignore `_scratch/`** vì `worktree_dirty()` tính cả file chưa theo dõi; và `new_experiment.py` **từ chối khi cây bẩn** nên mỗi lượt tạo xong phải commit trước khi tạo lượt kế | Đã gitignore (`9e68f73`); 7 lượt sau dùng `--allow-dirty` rồi commit riêng từng lượt |
 | 11/10/2026 | Lỗi (đã hiểu, không phải lỗi mã) | **CI đỏ ở `558ea0e` và `2ba65ea`** - nguyên nhân: `ci_checks` trả mã 1 khi có việc phải sửa, mà hai commit đó chứa notebook **chưa ghim** (`REPO_SHA = '<chua-ghim>'`) | Đây là thế "con gà - quả trứng" **đúng luồng dự án**: push (đỏ) -> ghim -> push. Sau khi ghim, **CI XANH ở `4f9819d`**. Xin ghi lại để người sau khỏi tưởng mã sai |
@@ -515,7 +515,7 @@ Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi t
 | 11/10/2026 | Ghi nhận | 5 lượt `val` (NHÓM 7) chạy xong và **`probabilities.csv` có sẵn ở máy** | ⇒ **Đợt 6 (0 GPU) chạy được ngay**, không phải chờ |
 | 12/10/2026 | **Đợt 6 (kết quả)** | Cả 3 việc kết hợp **ÂM/RỖNG**: ensemble 6 model 97,87/0,795; ensemble 5 lượt cafebert 98,26/0,856; ngưỡng theo khía cạnh **rỗng** (lưới quét tăng đơn điệu về điểm gốc); biểu quyết 3 seed acc 98,41 nhưng `neg F1 (7)` 0,809 | Ghi **mục 12**; cộng 5 bàn đạp cũ = **9 bàn đạp, không cái nào vượt > 0,25** ⇒ đường KẾT HỢP cạn |
 | 12/10/2026 | Ghi nhận (2 lượt về sau) | Người dùng **xoá kết quả cũ + chạy lại hoàn toàn** `exp042` (98,24) và `exp049` (98,11) | Phát hiện **`exp049` ≡ `exp048` TỪNG Ô** ⇒ v0 chỉ có **3 lượt độc lập**; thêm **luật 12** |
-| 12/10/2026 | Sửa số (số cũ lạc quan) | Mức hơn của họ `lr4e-4` so v0 đọc lại bằng **Welch: p = 0,21 (Acc) / 0,30 (`neg F1`)** - bản ghi cũ "t ≈ 2,6, p ≈ 0,06" vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp phương sai | Sửa mục 3, mục 11, `08_experiment_rationale.md`, `present_report_v1.md` (`5d7aefb`) |
+| 12/10/2026 | Sửa số (số cũ lạc quan) | Mức hơn của họ `lr4e-4` so v0 đọc lại bằng **Welch: p = 0,21 (Acc) / 0,30 (`neg F1`)** - bản ghi cũ "t ≈ 2,6, p ≈ 0,06" vừa đếm `exp049` thành lượt thứ tư vừa dùng kiểm định gộp phương sai | Sửa mục 3, mục 11, `08_experiment_rationale.md`, `presentations/present_report/archive/present_report_v1.md` (`5d7aefb`) |
 | 12/10/2026 | Ràng buộc mới (người dùng chốt) | **Chạy được 15 thử nghiệm CÙNG LÚC** · **tuyệt đối KHÔNG thêm dữ liệu** | Gộp Đợt 2b + Đợt 5 thành **Đợt 8 (15 slot)**; xoá mọi ý dùng dữ liệu (distillation, hard-negative mining) |
 | 12/10/2026 | **RÚT NHÓM 15** (đề xuất rồi bỏ) | Đề xuất đổi `neutral_policy`/`not_mentioned` cho 6 lượt; kiểm mã cho thấy `neutral_policy` **đổi NHÃN + bảng nhãn huấn luyện** còn `not_mentioned` chỉ **đổi khung chấm** ⇒ cả hai phá tính so sánh với công bố | Xoá NHÓM 15; thêm **luật 14** để chặn tái diễn (mục 4) |
 | 12/10/2026 | **Đợt 8: TẠO + GHIM + ĐÓNG GÓI xong** | 15 config/notebook (`exp055`-`exp057`, `exp058`-`exp063`, `exp022`-`exp027`); cửa kiểm rò rỉ **1-shot 1/1 · 5-shot 5/5** đều "KHÔNG RÒ RỈ"; `show_prompt` xác nhận biến duy nhất = **số ví dụ**; `ci_checks` XANH ở commit ghim | Gói **034** = `handover/out/SentimentX-goi-034-ee24449-261012.zip` (31 file; bản đầu `b438241` bị thay sau khi **sửa tên prompt 0-ví-dụ** `…_0shot_…` → `…_zeroshot_…` cho đúng tập ĐÓNG của `test_prompts.py`); commit `dce35af` → `5ec65f3` → `ee24449` → `a5ce2f0` |
@@ -530,9 +530,9 @@ Duy chỉ có hàng cuối "cả ba hoà/thua" được kích hoạt ⇒ **đi t
 
 | Việc | Commit |
 | --- | --- |
-| Dọn `presentations/`: chỉ còn báo cáo; bỏ 4 tài liệu cũ + 6 CSV; `present_report.md` -> `present_report_v0.md` | `fc62424` |
-| Thêm `present_report_v1.md` (4 thước đo F1 có trọng số `n` + giữ nguyên Bảng 3-6 cũ) | `7b34fa2` |
-| Trỏ lại 3 link tài liệu sang `present_report_v1.md` | `e87cc5c` |
+| Dọn `presentations/`: chỉ còn báo cáo; bỏ 4 tài liệu cũ + 6 CSV; `present_report.md` -> `presentations/present_report/archive/present_report_v0.md` | `fc62424` |
+| Thêm `presentations/present_report/archive/present_report_v1.md` (4 thước đo F1 có trọng số `n` + giữ nguyên Bảng 3-6 cũ) | `7b34fa2` |
+| Trỏ lại 3 link tài liệu sang `presentations/present_report/archive/present_report_v1.md` | `e87cc5c` |
 | Đưa **276 file** kết quả nhẹ của **36 lượt** đợt 11 vào git | `ae5a532` |
 | Dựng lại bảng tổng hợp (`collect_reports.py`: **100** experiment, **106** attempt) | `0166ed4` |
 | Gitignore `_scratch/` để `new_experiment.py` / `pin.py` thấy cây sạch | `9e68f73` |
@@ -585,7 +585,7 @@ nan/inf ⇒ `argmax` của nan trả về chỉ số 0 = "không nhắc tới" c
    được** - nó dựa trên 3 lượt đều thoái hoá.
 3. Người dùng cần quyết: có điều tra tiếp nguyên nhân gốc không, hay chỉ chạy lại với `float32` để có mốc.
    → **CHỐT 11/10/2026 (người dùng): BỎ hẳn nhánh `full`** (nghi overfit/thoái hoá). Đã ghi "không dùng
-   được" vào `06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`, `present_report_v1.md`.
+   được" vào `06_lora_encoder.md`, `batch11_report.md`, `docs/06_plan/archive/batches/present_plan_batch11.md`, `presentations/present_report/archive/present_report_v1.md`.
 
 ---
 
@@ -739,7 +739,7 @@ Mọi số dưới đây do CHÍNH công cụ chấm; "mạnh nhất" = lượt 
 ### Kết luận Đợt 6 + hệ quả
 
 **Không việc nào vượt > 0,25 trên CẢ HAI trục so với từng thành viên** ⇒ theo luật đã chốt ở mục 8, Đợt 6
-**không sinh ra kết quả để báo cáo** (không có `present_report_v2.md`). Bằng chứng được GIỮ trong
+**không sinh ra kết quả để báo cáo** (không có `presentations/present_report/archive/present_report_v2.md`). Bằng chứng được GIỮ trong
 `data/reports/fusion/` (kèm `inputs/` để tái lập từ repo, không cần Drive).
 
 ⇒ Cùng với việc các trục siêu tham số đã bão hoà (mục 11), **bàn đạp "kết hợp" nay cũng đã cạn**: dự án đang ở

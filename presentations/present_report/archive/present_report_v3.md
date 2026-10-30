@@ -10,7 +10,7 @@
 > (`43e40f61`) đã được **chạy lại liền mạch**, vì bản ghi trong file này là lượt **bị ngắt phiên rồi chạy tiếp từ
 > checkpoint** nên `training_history.csv` chỉ còn các epoch cuối. Hai bản cũ **bị bỏ**: `exp073` **98,52 → 98,31**;
 > `exp027` **98,37 → 98,56**. Cây phát triển ở mục 8 của file này vì thế đọc `exp027` = 98,37 là **số cũ**.
-> Bảng đang dùng: [`present_report_v6.md`](present_report_v6.md).
+> Bảng đang dùng: [`present_report_v6.md`](../present_report_v6.md).
 
 > **BẢN MỚI NHẤT - thay thế `present_report_v2.md`, `present_report_v1.md` và `present_report_v0.md`.**
 > Bản này gộp 10 lượt dẫn đầu của **toàn bộ dự án** vào MỘT bảng (9 lượt encoder + 1 lượt LLM), thêm hai cây

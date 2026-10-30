@@ -94,7 +94,7 @@ Khoá tập đánh giá (`eval_lock.json`):
           "rows": 1518}}
 ```
 
-Mọi kết quả trong `docs/06_plan/P7_rerun.md` mục 2 và mọi thí nghiệm trong `experiments/` **trước
+Mọi kết quả trong `docs/06_plan/archive/experiments/P7_rerun.md` mục 2 và mọi thí nghiệm trong `experiments/` **trước
 01/10/2026** chấm trên *đúng* `test.csv` này; đổi nó là mọi con số cũ không còn so được. Từ 01/10/2026,
 `experiments/` chấm trên bản `…-e616c1e3` ở trên (test = dữ liệu gốc, 1.623 dòng); bản này giữ nguyên
 trong `data/processed/` như dấu vết của cơ sở so sánh cũ.
@@ -126,7 +126,7 @@ hướng: `export` ghi dataset bằng `single_line=False` (byte trở lại đú
 Tồn tại rất ngắn: nó ra đời trước khi lỗi băm ở P2 được sửa (`hash8` chưa gồm đủ đầu vào), nên mã phiên
 bản không phân biệt được hai bộ dữ liệu khác nhau. Đã xoá và dựng lại thành `…-e0ccc484`; dữ liệu bên
 trong hai bản giống nhau, chỉ mã khác. Số đo của tập đánh giá lúc đó là `64dbf812…` với 2.271 "dòng"
-- con số 2.271 là ĐẾM DÒNG chứ không phải số bản ghi, xem `docs/06_plan/P5_notebook_pin.md`.
+- con số 2.271 là ĐẾM DÒNG chứ không phải số bản ghi, xem `docs/06_plan/archive/setup/P5_notebook_pin.md`.
 
 ## Thêm một phiên bản mới thì ghi gì vào đây
 

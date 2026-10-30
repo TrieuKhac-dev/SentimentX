@@ -1,11 +1,8 @@
-> **ĐÂY LÀ KẾ HOẠCH HIỆN TẠI — CHƯA CHỐT TOÀN BỘ.**
-> Chỉ **Phase 0 (P0 — web serving)** được chốt và triển khai trước. Các phase P1–P4 (baseline/hybrid/ML/test) sẽ được cập nhật sau; mọi thay đổi sẽ ghi vào tài liệu này hoặc file kế hoạch kế tiếp.
-
 # P0 — Web Serving
 
 Kế hoạch triển khai **Phase 0**: đóng gói hai model đã có thành một web service để người dùng gửi một
-review tiếng Việt và nhận về dự đoán ABSA trên 7 aspect. Tài liệu này chỉ chốt **P0**; các phase sau
-(P1–P4) chưa chốt, xem §10.
+review tiếng Việt và nhận về dự đoán ABSA trên 7 aspect. P0 đang hoàn thiện; P1–P4 nằm ngoài phạm vi giai
+đoạn cuối và không được mô tả như đã chốt.
 
 ## 1. Mục tiêu P0
 
@@ -57,21 +54,33 @@ khoá `enabled`:
 | --- | --- | --- |
 | `GET` | `/health` | Trạng thái service (`ready`/`starting`), GPU, model nào đã nạp |
 | `GET` | `/models` | Danh sách model + trạng thái (`READY`/`LOADING`/`DISABLED`/`NOT_LOADED`) |
-| `GET` | `/` | Giao diện web (UI tiếng Việt) |
+| `POST` | `/models/{model_id}/load` | Yêu cầu nạp trước một model; trả `202` kèm trạng thái hiện tại |
+| `GET` | `/` | Giao diện web v2 (mặc định tại `/`) |
 | `POST` | `/predict` | Dự đoán; body có `model` (không bắt buộc), `text` (một chuỗi) hoặc `texts` (mảng) |
 | `POST` | `/predict/{model_id}` | Dự đoán bằng đúng một model |
 | `POST` | `/predict/hybrid` | Trả `501 Not Implemented` (dành cho P2) |
 
 ## 4. UI
 
-Giao diện web (tiếng Việt) gồm:
+Giao diện v2 phục vụ tại `/` từ `serving/static/v2/index.html` và `serving/static/v2/app.js`.
 
-- **textarea** để dán review cần dự đoán.
-- **model selector** đổ từ `GET /models` (chỉ liệt kê model `enabled`).
-- **bảng 7 aspect** (`stayingpower, texture, smell, price, colour, shipping, packing`), mỗi dòng: aspect, nhãn, badge màu theo `positive`/`negative`/`neutral`/không nhắc tới.
-- **confidence bar** cho xác suất của từng aspect.
-- **JSON raw** hiển thị payload gốc để debug.
-- Toàn bộ nhãn/điều khiển bằng tiếng Việt, tài nguyên tĩnh phục vụ **offline** (không CDN).
+- **Chọn mô hình**: `select` đổ từ `GET /models`, chỉ lấy model `enabled: true`. Mặc định
+  `cafebert_exp027`, fallback encoder đầu tiên.
+- **Nạp mô hình**: tự động khi đổi model. UI gọi `POST /models/{id}/load` rồi poll `GET /models` mỗi
+  500 ms, hiện "Đang nạp mô hình · N%" rồi "Sẵn sàng". Không có nút load riêng.
+- **Ô nhập review**: `textarea` có đếm ký tự; giới hạn 4.000 ký tự cho encoder, 6.000 cho LLM. Nút
+  "Phân tích đánh giá" và nút hủy khi đang chạy.
+- **Mẫu gợi ý**: ba nút Tích cực / Tiêu cực / Hỗn hợp lấy từ `serving/static/v2/samples.js`; bấm lại để
+  chuyển mẫu kế tiếp.
+- **Bảng 7 aspect**: đúng thứ tự `stayingpower, texture, smell, price, colour, shipping, packing` với
+  nhãn tiếng Việt (Độ bền, Chất son, Mùi hương, Giá cả, Màu sắc, Vận chuyển, Đóng gói). Mỗi dòng có pill
+  màu theo Tích cực / Tiêu cực / Trung lập / Không nhắc tới / Không đọc được.
+- **Cột theo loại model**: encoder hiện `Độ tin cậy` (phần trăm); LLM hiện `Đoạn trích` và `Lý do mô
+  hình đưa ra`, có nút "Xem thêm" khi nội dung bị cắt.
+- **Chế độ so sánh**: chọn hai model khác nhau, có nút đổi chỗ; bảng hai bên theo từng aspect, gắn nhãn
+  "Khác" khi nhãn lệch nhau.
+- **Không có JSON raw**: v2 không hiển thị payload gốc; lỗi và tiến trình hiện qua banner trạng thái.
+- Tài nguyên tĩnh phục vụ **offline** (không CDN).
 
 ## 5. File ownership / chống overwrite
 
@@ -81,11 +90,11 @@ không tự ý sửa — tránh hai agent ghi đè lên cùng một file.
 | Nhóm | File | Agent |
 | --- | --- | --- |
 | Core — config/specs/schemas/errors | `configs/serving.yaml`, `serving/config.py`, `serving/specs.py`, `serving/schemas.py`, `serving/errors.py` | Agent core |
-| Registry / base / loader | `serving/registry.py`, `serving/base.py`, `serving/loaders/*` | Agent registry |
-| Encoder | `serving/encoders/*` | Agent encoder |
-| LLM | `serving/llm/*` | Agent LLM |
-| App / middleware | `serving/app.py` (+ middleware) | Agent API |
-| UI | `serving/static/*`, `serving/templates/*` | Agent UI |
+| Registry / base / loader | `serving/registry.py`, `serving/inference/base.py`, `serving/inference/loader.py` | Agent registry |
+| Encoder | `serving/inference/encoder.py` | Agent encoder |
+| LLM | `serving/inference/llm.py` | Agent LLM |
+| App / middleware | `serving/app.py`, `serving/middleware.py`, `serving/load_coordinator.py`, `serving/cache.py` | Agent API |
+| UI | `serving/static/v2/*`, `serving/static/*` (asset cũ không còn phục vụ) | Agent UI |
 | Tests | `serving/tests/*` | Agent test |
 | Docs | `docs/07_serving/*`, `serving/README.md` | Agent docs |
 
@@ -101,6 +110,8 @@ không tự ý sửa — tránh hai agent ghi đè lên cùng một file.
 - **Không** đọc test labels trong lúc serving.
 - UI chạy **offline** (không phụ thuộc CDN).
 - Tests pass: `python -m unittest discover -s serving/tests -v`.
+
+Hai chỉ tiêu p95 encoder và LLM ≥ 95% readable là mục tiêu, chưa đo trên GPU thật.
 
 ## 7. Lệnh chạy (PowerShell, conda base)
 
@@ -140,11 +151,11 @@ Theo Conventional Commits, viết bằng **tiếng Anh**. Ví dụ:
 - `feat(serving): add P0 web interface`
 - `test(serving): add registry and API tests`
 
-## 10. Ghi chú cập nhật sau (chưa chốt, không nằm trong P0)
+## 10. Ghi chú ngoài phạm vi P0 (chưa chốt)
 
 - **P1 — baseline**: chạy lại `cafebert_exp027` với `n ≥ 3` seed để có số liệu ổn định.
 - **P2 — hybrid**: kết hợp encoder + LLM (điểm gắn `POST /predict/hybrid`).
 - **P3 — ML**: đưa thêm model/đường huấn luyện ML nếu có.
 - **P4 — test/report**: chạy bộ test cuối và viết báo cáo.
 
-Các mục này **chưa chốt**; khi chốt sẽ ghi vào tài liệu này hoặc file kế hoạch kế tiếp, không đưa vào P0.
+P1–P4 nằm ngoài phạm vi giai đoạn cuối; tài liệu này không cam kết cập nhật chúng.

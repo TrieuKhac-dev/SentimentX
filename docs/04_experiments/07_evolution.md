@@ -1,7 +1,7 @@
 # 07. Cây phát triển thí nghiệm
 
 > Đọc file này khi: muốn biết một thí nghiệm SINH RA từ đâu, hoặc vì sao dự án đi bước tiếp theo là bước đó.
-> Liên quan: `docs/04_experiments/04_backlog.md` (việc chưa làm), `docs/06_plan/P7_rerun.md` (đợt chạy lại)
+> Liên quan: `docs/04_experiments/04_backlog.md` (việc chưa làm), `docs/06_plan/archive/experiments/P7_rerun.md` (đợt chạy lại)
 
 File này là bản NGƯỜI ĐỌC của dòng phát triển thí nghiệm: **thí nghiệm nào sinh ra thí nghiệm nào, và
 VÌ SAO**. Bảng máy đọc nằm ở `data/reports/experiment_registry/` (mỗi lượt chạy một dòng); ở đây ghi
@@ -73,7 +73,7 @@ Các mục dưới đây là QUYẾT ĐỊNH đã chốt; việc CHƯA làm nằ
     XA THÊM** ⇒ muốn kéo Recall phải thêm một thước thiên Recall (`neg_recall_big5`, Đợt 13.2).
   - **Phải khai:** mốc được chọn TRÊN `val` bằng chính thước `neg_f1_big5` ⇒ phần thắng ở `neg F1` có yếu tố
     "được chọn"; kết luận phải dựa trên n = 9 + ghép cặp (Đợt 13.2), không phải trên 3 lượt này.
-  - Chi tiết thi hành phần còn lại của đợt: `docs/06_plan/P9_batch13.md`; nhật ký: `docs/06_plan/archive/batches/present_plan_batch13.md`.
+  - Chi tiết thi hành phần còn lại của đợt: `docs/06_plan/archive/experiments/P9_batch13.md`; nhật ký: `docs/06_plan/archive/batches/present_plan_batch13.md`.
 
 - **15/10/2026, ĐÃ ĐO (Đợt 13.2, 15 lượt `exp079`–`exp093`) - KẾT QUẢ ÂM: ứng viên "bàn đạp thứ 17" BỊ RÚT LẠI.**
   Đợt này chỉ **mở rộng `n`** (không đổi thiết kế): 6 seed cho nhánh `neg_f1_big5` (n = 3 → **9**), 6 seed cho
@@ -96,7 +96,7 @@ Các mục dưới đây là QUYẾT ĐỊNH đã chốt; việc CHƯA làm nằ
     **Đích #2 (Recall âm) ĐI LÙI** (97,068 → 95,400).
   - Kỷ lục **lượt đơn** mới: `exp080` **98,65** (Acc) · `exp079` **95,86** (`neg F1 5n`) - theo luật 10, đây KHÔNG
     phải kết luận về cấu hình.
-  - Chi tiết: `docs/06_plan/P9_batch13.md` mục 2.3; nhật ký: `docs/06_plan/archive/batches/present_plan_batch13.md` mục H.
+  - Chi tiết: `docs/06_plan/archive/experiments/P9_batch13.md` mục 2.3; nhật ký: `docs/06_plan/archive/batches/present_plan_batch13.md` mục H.
 
 
 

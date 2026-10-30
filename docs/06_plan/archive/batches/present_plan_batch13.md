@@ -4,7 +4,7 @@
 > Liên quan: `docs/06_plan/archive/batches/present_plan_batch12.md` (đợt 8–12), `presentations/present_report/present_report_v6.md`
 > (bảng số đang dùng), `docs/04_experiments/07_evolution.md`, `docs/04_experiments/04_backlog.md` §9.1.
 >
-> **HƯỚNG DẪN THI HÀNH phần còn lại (13.2 → 13.6): `docs/06_plan/P9_batch13.md`** — đọc file đó trước khi làm
+> **HƯỚNG DẪN THI HÀNH phần còn lại (13.2 → 13.6): `docs/06_plan/archive/experiments/P9_batch13.md`** — đọc file đó trước khi làm
 > tiếp: nó có đặc tả code, lệnh tạo lượt/ghim/đóng gói, luật đọc số đã chốt trước và khung 13.3 → 13.6.
 
 ## A. Mục tiêu (định lượng) và BẢNG ĐÍCH
@@ -20,7 +20,7 @@ P/R/F của dự án ở nhóm đó còn thấp.
 - **bắt buộc khai** Δ cho **từng khía cạnh `n` lớn** ở cả **P / R / F1**.
 
 **Bảng ĐÍCH — ô dự án còn DƯỚI công bố ở khía cạnh `n` lớn** (công bố = cột COT+1-shot; dự án = tốt
-nhất trong 10 lượt của `present_report_v3`):
+nhất trong 10 lượt của `presentations/present_report/archive/present_report_v3.md`):
 
 | Khía cạnh | Sắc thái | Chỉ số | Công bố | Dự án tốt nhất | Khoảng cách |
 |---|---|---|---:|---:|---:|
@@ -229,7 +229,7 @@ Ghi vào bảng chuẩn bằng `collect_reports.py` → commit **`e9f3d3b`**.
 | B5 `class_weight: inverse_by_aspect` | 3 | 97,713 | −0,570 | 92,147 | −2,230 | 0,140 / 0,106 | ⛔ **đóng VĨNH VIỄN** |
 | B2 `lora.r 8` + `epochs 15` | 3 | 97,830 | −0,453 | 92,920 | −1,457 | 0,0058 / 0,0041 | ❌ âm có ý nghĩa |
 
-**Ba kết luận lớn (đầy đủ ở `docs/06_plan/P9_batch13.md` mục 2.2):**
+**Ba kết luận lớn (đầy đủ ở `docs/06_plan/archive/experiments/P9_batch13.md` mục 2.2):**
 
 1. **Giả thuyết "underfit" SAI** — val đạt đỉnh ở epoch 3–6, dừng sớm tự kích hoạt ở cả 15 lượt, 15 epoch
    không bao giờ hơn 3 epoch ⇒ **đóng trục `epochs`** (và confound "lịch lr dài hơn" cũng không cần gỡ nữa).
@@ -258,9 +258,9 @@ phải xác nhận bằng n = 9 + ghép cặp (Đợt 13.2), không nới ngư�
 17" BỊ RÚT LẠI**; **B1 (n = 9)** = 98,167 / 94,016; **R (n = 3)** = 97,567 / 91,987 ⇒ **ĐÓNG trục thước thiên
 Recall**. Bằng chứng mạnh nhất: `exp090` là lượt **B1** (thước CHỌN MỐC CŨ) vẫn đạt **98,60 / 95,76** ⇒ đỉnh mới
 do hạt giống. **Hệ quả:** 13.3 rút `best_metric` + `epochs` + `every_n_steps` khỏi không gian tìm kiếm; 13.6 giữ
-nền **B4**. Số đầy đủ: `docs/06_plan/P9_batch13.md` §2.3; nhật ký chi tiết: mục H ngay dưới.
+nền **B4**. Số đầy đủ: `docs/06_plan/archive/experiments/P9_batch13.md` §2.3; nhật ký chi tiết: mục H ngay dưới.
 
-**Việc còn lại của đợt 13 (Bước 6): 13.3 → 13.6** - khung đã sửa ở `docs/06_plan/P9_batch13.md` §8.
+**Việc còn lại của đợt 13 (Bước 6): 13.3 → 13.6** - khung đã sửa ở `docs/06_plan/archive/experiments/P9_batch13.md` §8.
 
 
 

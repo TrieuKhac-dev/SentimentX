@@ -6,7 +6,7 @@ review son mỹ phẩm tiếng Việt.
 ## Mục đích
 
 - Cung cấp `POST /predict` nhận một hoặc nhiều review, trả nhãn + xác suất cho từng aspect.
-- Giao diện web đơn giản (`GET /`) để thử nhanh.
+- Giao diện web tại `GET /`, mặc định là bản v2.
 
 ## Model registry / config toggle
 
@@ -50,21 +50,29 @@ runtime được chọn theo `kind` trong block.
 
 ```
 serving/
-├── __init__.py        # phiên bản gói
-├── config.py          # entry point config: re-export `load_settings`
-├── specs.py           # ModelSpec, Settings, đọc + validate configs/serving.yaml
-├── schemas.py         # Pydantic request/response
-├── errors.py          # lỗi chuẩn (APIError + lỗi con)
-├── app.py             # FastAPI app + middleware (đang làm)
-├── registry.py        # registry: lazy load, idle unload, sequential (đang làm)
-├── encoders/          # encoder runtime (CafeBERT LoRA) (đang làm)
-├── llm/               # LLM runtime (Qwen3-4B 4-bit) (đang làm)
-├── static/            # css/js offline
-│   ├── app.js
-│   └── style.css
-├── templates/
-│   └── index.html     # giao diện tiếng Việt
-├── tests/             # unittest cho registry + API (đang làm)
+├── __init__.py         # phiên bản gói
+├── config.py           # entry point config: re-export `load_settings`
+├── specs.py            # ModelSpec, Settings, đọc + validate configs/serving.yaml
+├── schemas.py          # Pydantic request/response
+├── errors.py           # lỗi chuẩn (APIError + lỗi con)
+├── cache.py            # TTL cache trong bộ nhớ (mặc định tắt)
+├── load_coordinator.py # điều phối nạp model nền (latest-wins)
+├── middleware.py       # request-id, log, envelope lỗi
+├── app.py              # entrypoint duy nhất: FastAPI app + route
+├── registry.py         # registry: lazy load, idle unload, sequential
+├── inference/          # runtime suy luận
+│   ├── base.py         # interface chung
+│   ├── encoder.py      # CafeBERT + LoRA
+│   ├── llm.py          # Qwen3-4B 4-bit
+│   ├── loader.py       # chọn runtime theo `kind`
+│   └── fake.py         # runtime giả cho test
+├── static/
+│   └── v2/             # UI v2, phục vụ tại `/`
+│       ├── index.html
+│       ├── app.js
+│       ├── style.css
+│       └── samples.js
+├── tests/              # unittest cho registry + API
 └── README.md
 ```
 

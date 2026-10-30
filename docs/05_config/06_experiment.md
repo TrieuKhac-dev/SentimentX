@@ -1,7 +1,7 @@
 # 05.06. Cấu hình riêng của thí nghiệm
 
 > Đọc file này khi: tạo thí nghiệm mới hoặc sửa cấu hình của một thí nghiệm.
-> Liên quan: `docs/05_config/05_experiments_shared.md`, `docs/06_plan/P5_notebook_pin.md`
+> Liên quan: `docs/05_config/05_experiments_shared.md`, `docs/06_plan/archive/setup/P5_notebook_pin.md`
 
 File: `experiments/<model_id>/<method>/<expNNN>/config.yaml`.
 

@@ -20,7 +20,7 @@
 > **Hai bản cũ bị bỏ**, không dùng để báo cáo (giữ trong `_scratch/replaced/`).
 > Ngoài ra bản này áp luật overfit bằng cách đếm **tổng** số lần `val_loss` tăng nên loại `exp064`, trong khi câu chữ
 > ở mục 2.2 ghi "tăng **liên tiếp**"; đọc đúng câu chữ thì `exp064` **không** overfit và phải có mặt trong bảng.
-> **Bảng đang dùng: [`present_report_v6.md`](present_report_v6.md).**
+> **Bảng đang dùng: [`present_report_v6.md`](../present_report_v6.md).**
 
 > **Hai lỗi nữa của bản này (ghi để không lặp lại).** Mục 2.2 gán nhãn **UNDERFIT** cho `exp015`, `exp021`, `exp055`
 > — **sai**: theo đúng định nghĩa "ở lần đo cuối, **cả** `train_loss` **và** `val_loss` vẫn còn giảm", thì

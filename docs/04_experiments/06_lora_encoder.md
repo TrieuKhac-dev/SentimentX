@@ -270,7 +270,7 @@ chứng `sentiment_f1`, và **3 lượt** thử thước thiên Recall. Số tr�
   **98,60 / 95,76** ⇒ các đỉnh mới là do **hạt giống**, không do núm chọn mốc.
 - Nhánh R đưa Recall âm về **đúng mức họ 12 đã có** (97,060 vs 97,068) nhưng `colour` Precision sụp
   85,8 → **72,7**; `texture` Precision 92,8 → 88,4. Đổi lại: **không có gì**.
-- Chi tiết từng lượt + P/R/F từng khía cạnh: `docs/06_plan/P9_batch13.md` mục 2.3.
+- Chi tiết từng lượt + P/R/F từng khía cạnh: `docs/06_plan/archive/experiments/P9_batch13.md` mục 2.3.
 
 ### Kết quả hai hàm mất mát (số đo thật, bốn lượt LoRA)
 

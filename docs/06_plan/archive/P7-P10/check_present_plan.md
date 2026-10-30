@@ -1,7 +1,7 @@
 # check_present_plan — Trạng thái thực thi đợt 7 → 10 (ĐÃ XONG; MỐC LỊCH SỬ)
 
 > ⚠️ **KHÔNG phải tệp trạng thái đang chạy (cập nhật 14/10/2026).** Trạng thái đang chạy: xem
-> `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký đợt 13) và `docs/06_plan/P9_batch13.md` (hướng dẫn 13.2 → 13.6).
+> `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký đợt 13) và `docs/06_plan/archive/experiments/P9_batch13.md` (hướng dẫn 13.2 → 13.6).
 
 > Cách dùng: mỗi mục nhỏ trong `docs/06_plan/archive/P7-P10/present_plan.md` có **một dòng** ở đây. Trạng thái dùng các nhãn:
 > `CHƯA LÀM` · `ĐANG LÀM` · `XONG <ngày>` · `CHỜ NGƯỜI DÙNG` · `BỎ QUA <lí do>`.
@@ -10,7 +10,7 @@
 ## Mục 1. Quy tắc bắt buộc của repo
 - 1.1 Quy tắc commit — XONG 04/10/2026: đã đọc `docs/00_workflow/05_git_commits.md` (Conventional
   Commits tiếng Anh, một commit một task nhỏ, tách theo miền, không gộp fix với refactor).
-- 1.2 `ci_checks` + `unittest` sau mỗi nhóm — XONG 04/10/2026: đã đọc `docs/06_plan/P8_measurement_mlflow.md` §4.
+- 1.2 `ci_checks` + `unittest` sau mỗi nhóm — XONG 04/10/2026: đã đọc `docs/06_plan/archive/experiments/P8_measurement_mlflow.md` §4.
 - 1.3 Lỗi khó → quay lui git — XONG 04/10/2026: đã đọc, ghi nhận nguyên văn "Lỗi không fix được / quá
   khó -> quay lui (git) và xem xét lại kế hoạch".
 - 1.4 Bất biến dự án — XONG 04/10/2026: đã đọc `docs/00_workflow/02_rules.md` (luật 7, 8, 9, 10, 21).
@@ -289,7 +289,7 @@
   (`qwen3-4b-thinking-2507`, `qwen3-8b`, `qwen3-14b`) và nên thêm 3 model đó vào `token_stats.MODELS` ⇒
   kéo theo **đo lại cả 19 bảng token lần nữa** (~18 phút) mới giữ được nhất quán "bảng = mọi model đang
   dùng". Đợt 9 vốn được ghi là "mở rộng, chạy khi muốn" nên tôi **để nguyên**, chờ quyết định.
-- 5.4 **XONG 04/10/2026**: `docs/06_plan/P8_batch7.md` — 10 mục: mục tiêu, trạng thái, bảng 17 + 9 + 3 thí
+- 5.4 **XONG 04/10/2026**: `docs/06_plan/archive/experiments/P8_batch7.md` — 10 mục: mục tiêu, trạng thái, bảng 17 + 9 + 3 thí
   nghiệm, luật chống chạm trần, điều kiện mỗi lượt, luật chia mức nhánh suy nghĩ, **bốn luật kết hợp**, thứ
   tự ưu tiên, số phiên + mốc dừng, quy ước thực thi.
 - 5.5 **XONG 04/10/2026**: `handover/README.md` thay bảng 20 notebook bằng **17 dòng đợt 7** xếp theo thứ tự
@@ -508,12 +508,12 @@ cuối = **017**.
 
 **Tài liệu đã sửa:** `docs/04_experiments/06_lora_encoder.md` (bằng chứng + cơ chế + bảng 6 encoder),
 `docs/05_config/05_experiments_shared.md` (dòng khoá mới), `docs/04_experiments/08_experiment_rationale.md`
-(**§2b**), `docs/06_plan/P8_batch7.md` (mục 1/2/3/4/6.2/8/9), `docs/06_plan/README.md`, `handover/README.md`
+(**§2b**), `docs/06_plan/archive/experiments/P8_batch7.md` (mục 1/2/3/4/6.2/8/9), `docs/06_plan/README.md`, `handover/README.md`
 (23 notebook, 5 nhóm, 12 lượt encoder), `docs/06_plan/archive/P7-P10/present_plan.md` (mục 6/7/8.7/10.5/11), `docs/06_plan/archive/P7-P10/check_present_plan.md`, cùng
 `README.md` + `config.yaml` của 6 lượt mới và 2 lượt `exp001`.
 
 **Đổi nhãn nhóm ablation thành `H` (05/10/2026, thuần tài liệu):** sáu lượt ablation "đầu phân loại" trong
-`docs/06_plan/P8_batch7.md` được gọi là **nhóm H** (trước ghi **G**). Lí do: chữ **G** đã mang nghĩa khác ở hai
+`docs/06_plan/archive/experiments/P8_batch7.md` được gọi là **nhóm H** (trước ghi **G**). Lí do: chữ **G** đã mang nghĩa khác ở hai
 chỗ - `docs/04_experiments/08_experiment_rationale.md` §5 và `presentations/*` gọi **G** là **Qwen3-0.6B**,
 còn `P8_measurement_mlflow.md` dùng **A-H** cho nhóm việc hạ tầng (**H** ở đó là "chốt thiết kế"). Chữ cái
 nhóm chỉ có phạm vi **trong từng tài liệu**; đổi ở đây để người đọc không lẫn ba nghĩa của một chữ. Sáu chỗ

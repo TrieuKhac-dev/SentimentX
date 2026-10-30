@@ -64,6 +64,6 @@ lora:
 #     CÙNG với hệ số scaling", KHÔNG tách riêng hai thứ (muốn tách thì xem `exp022`, `exp023`).
 #   * `trainable_params` phải TĂNG so với `exp015` (r 16 -> 32) - đó là DẤU VẾT kiểm trước khi đọc điểm.
 # Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có trọng số `n`), không chỉ accuracy: xem
-# docs/04_experiments/metrics.md và presentations/present_report/present_report_v1.md.
+# docs/04_experiments/metrics.md và presentations/present_report/archive/present_report_v1.md.
 # Biên nhiễu của encoder đã đo là +-0,33...+-0,67 điểm (làm việc +-0,7): chênh lệch nhỏ hơn mức đó
 # KHÔNG kết luận được - ghi ĐỒNG HẠNG.

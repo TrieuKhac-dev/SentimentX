@@ -1,7 +1,7 @@
 # Thí nghiệm - huấn luyện và đánh giá
 
 > Đọc file này khi: chạy thí nghiệm và chấm điểm.
-> Liên quan: `docs/04_experiments/metrics.md`, `docs/06_plan/P4_logging_mlflow.md`
+> Liên quan: `docs/04_experiments/metrics.md`, `docs/06_plan/archive/setup/P4_logging_mlflow.md`
 
 ## 1. Định dạng nhãn khi huấn luyện
 
@@ -122,7 +122,7 @@ Danh sách khoá có thể đổi và ý nghĩa từng khoá:
 > `val` (tập LỰA CHỌN) với `n` nhỏ, để trả lời "đường chạy có ra số được không, có đúng ý không".
 > Thư mục kết quả của các lượt đó đã được xoá khỏi repo cho gọn; con số để SO VỚI CÔNG BỐ là các lượt
 > chạy trên `test` của `prompt-cot/exp002`, `exp003`, `exp004` (xem README của từng thí nghiệm
-> và `docs/06_plan/P7_rerun.md` T3/T4). Giữ bảng này lại vì nó là dấu vết của bước dựng đường chạy.
+> và `docs/06_plan/archive/experiments/P7_rerun.md` T3/T4). Giữ bảng này lại vì nó là dấu vết của bước dựng đường chạy.
 
 Đây là phần đầu tiên của nhóm thí nghiệm có số liệu CHẤT LƯỢNG thật. Bảng dưới đây so **bốn
 cách hỏi cùng một model Qwen3-4B**, chưa phải so model với model; ở thời điểm chạy các lượt
@@ -187,7 +187,7 @@ Bốn điều đọc ra từ bảng này:
   01/10/2026 có `val` 1.535 dòng, nên tập con 100 review (seed 42) **không** rút lại y hệt. Số ở mục
   6.1-6.2 vì vậy là bản ghi lịch sử của đợt khảo sát prompt, **không** phải số so với công bố; số so
   với công bố nằm ở cột `reference` của `data/reports/metrics_matrix/` (đo trên `test`) và **đã có**
-  từ Batch 6 (02/10/2026) - xem `docs/04_experiments/08_experiment_rationale.md` và `presentations/present_report/present_report_v1.md`.
+  từ Batch 6 (02/10/2026) - xem `docs/04_experiments/08_experiment_rationale.md` và `presentations/present_report/archive/present_report_v1.md`.
 - **Tập con 100 review** (seed 42): đủ để thấy xu hướng, chưa đủ để chốt con số.
 - **Một lần chạy greedy** cho mỗi cấu hình: chưa đo dao động giữa các lần chạy.
 - **Lượng hóa 4-bit** để vừa VRAM; chưa đối chiếu bf16 (GPU 6 GB không chạy nổi bf16).

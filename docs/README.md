@@ -9,7 +9,7 @@
 2. `docs/00_workflow/04_terms.md` để hiểu thuật ngữ và các nhóm việc của dự án.
 3. `docs/05_config/*` để biết mỗi file config chứa gì.
 4. `docs/04_experiments/metrics.md` và `reference_publication.md` để biết đích cần vượt.
-5. `docs/06_plan/README.md` để biết đang ở bước nào.
+5. `docs/06_plan/README.md` để biết đang ở bước nào; đọc thêm `docs/07_serving/README.md` nếu làm phần serving.
 
 ## Nhóm tài liệu
 
@@ -58,9 +58,10 @@
 | 05_config      | `05_experiments_shared.md` | config dùng chung cho thí nghiệm                 | đổi cách chấm hoặc huấn luyện       |
 | 05_config      | `06_experiment.md`         | config riêng của thí nghiệm                      | tạo thí nghiệm                      |
 | 05_config      | `07_env.md`                | biến môi trường và file env                      | cấu hình máy hoặc Colab             |
-| 06_plan        | `README.md`                | mục lục kế hoạch và trạng thái từng bước         | hằng ngày                           |
-| 06_plan        | `P0..P8`                   | task nhỏ của từng bước, kèm commit               | khi triển khai                      |
+| 06_plan        | `README.md`                | Kế hoạch: việc đang làm, việc chưa làm, kho lưu trữ các đợt đã đóng, và bảng commit | hằng ngày |
+| 06_plan        | `archive/`              | kế hoạch các đợt đã đóng (P0–P9)                  | khi tra lịch sử                     |
 | 06_plan        | `APPENDIX_commits.md`      | bảng toàn bộ commit                              | khi commit                          |
+| 07_serving     | `README.md`                | serving: registry model, API, giao diện v2, điều kiện chấp nhận | làm serving hoặc đóng gói deploy |
 
 ## Lưu trữ kế hoạch lịch sử
 

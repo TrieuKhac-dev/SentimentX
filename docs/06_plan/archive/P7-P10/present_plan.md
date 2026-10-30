@@ -1,12 +1,12 @@
 # present_plan — Kế hoạch đợt 7 → đợt 10 (ĐÃ XONG; MỐC LỊCH SỬ)
 
 > ⚠️ **KHÔNG phải kế hoạch đang chạy (cập nhật 14/10/2026).** Kế hoạch đang chạy là
-> `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký đợt 13) + **`docs/06_plan/P9_batch13.md`** (hướng dẫn thi hành
+> `docs/06_plan/archive/batches/present_plan_batch13.md` (nhật ký đợt 13) + **`docs/06_plan/archive/experiments/P9_batch13.md`** (hướng dẫn thi hành
 > 13.2 → 13.6); mục lục mọi giai đoạn ở `docs/06_plan/README.md`. Tệp này giữ làm dấu vết của đợt 7–10:
 > khi đó đây là kế hoạch **ĐANG THỰC THI**, tệp đi kèm `docs/06_plan/archive/P7-P10/check_present_plan.md` có **cùng mục, cùng mục
 > nhỏ**, chỉ ghi trạng thái (đã làm gì) để đọc lại nhanh.
 >
-> Kế hoạch của đợt trước đã được hợp nhất vào `docs/06_plan/P8_measurement_mlflow.md`. Cặp tệp này sẽ
+> Kế hoạch của đợt trước đã được hợp nhất vào `docs/06_plan/archive/experiments/P8_measurement_mlflow.md`. Cặp tệp này sẽ
 > được hợp nhất vào `docs/06_plan/P9_batch7.md` khi kết thúc đợt (đây là **đề xuất**, chờ người dùng
 > duyệt; chưa làm).
 >
@@ -88,7 +88,7 @@
   chỉ là một phần), **xoá giả thuyết sai** "5 ví dụ sinh ít token hơn".
 - **3.11** Quét số liệu cũ: "chín lượt" → "17 lượt"; "mười hai notebook" / "12 notebook" → "20 notebook"
   (ở `docs/00_workflow/10_template_notebook.md` 2 chỗ, `07_colab.md`, `handover/README.md`); "12 thí
-  nghiệm" trong `docs/01_dataset/changelog.md`; soát lại `docs/06_plan/P7_rerun.md` §9,
+  nghiệm" trong `docs/01_dataset/changelog.md`; soát lại `docs/06_plan/archive/experiments/P7_rerun.md` §9,
   `docs/06_plan/README.md`, `docs/README.md`.
 - **3.12** Ghi chú rõ trong tài liệu: `docs/04_experiments/02_model_input.md` **không sửa ở đợt này**
   (còn 228 dòng / 19 tệp) — sẽ sửa ở mục 4.12.
@@ -156,7 +156,7 @@
   ⇒ **đợt 8 là 8-10 notebook**. Hai lượt `test` có ngưỡng đã chạy xong ở đợt 7.
 - **5.3** Tạo **cấu hình và README cho 3 thí nghiệm đợt 9**, mỗi README ghi rõ **rủi ro chạm trần token**
   và cách chạy theo luật ở mục 9.1.
-- **5.4** Viết `docs/06_plan/P8_batch7.md`: luật chia mức cho nhánh suy nghĩ, luật kết hợp, thứ tự ưu
+- **5.4** Viết `docs/06_plan/archive/experiments/P8_batch7.md`: luật chia mức cho nhánh suy nghĩ, luật kết hợp, thứ tự ưu
   tiên, số phiên, các mốc dừng, **quyết định biểu quyết 3 mẫu**.
 - **5.5** `handover/README.md`: bảng notebook đợt 7 gồm **17 dòng**, ghi rõ số đo thật hay ước tính, ghi
   **nhánh suy nghĩ đắt gấp khoảng 5 lần** + luật chống chạm trần, và ghi **nhóm encoder gửi thêm tệp xác

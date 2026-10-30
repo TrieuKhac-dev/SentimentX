@@ -164,4 +164,4 @@ in **đích đã resolve** trước khi làm việc, và hai tool đo/kiểm cò
 - Đổi cờ thì sửa đồng thời: trang này, docstring của tool, và `tests/workflow/test_cli.py`.
 - Không viết cứng đường dẫn trong chuỗi help: dựng từ `configs/paths.yaml` qua `src/core/paths.py`
   (`tests/core/test_paths.py` chặn).
-- `docs/06_plan/P0..P2` là bản ghi lịch sử: đừng copy lệnh từ đó.
+- `docs/06_plan/archive/setup/` là bản ghi lịch sử: đừng copy lệnh từ đó.

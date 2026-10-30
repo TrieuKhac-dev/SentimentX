@@ -61,7 +61,7 @@ lora:
 #     CÙNG với hệ số scaling"; muốn tách thì so với `exp023` (`r 8` + `alpha 16`, scaling = 2).
 #   * `trainable_params` phải GIẢM so với `exp015` (r 16 -> 8) - DẤU VẾT kiểm trước khi đọc điểm.
 # Đọc theo CẶP chỉ số (Accuracy macro + F1 lớp âm có `n`): docs/04_experiments/metrics.md và
-# presentations/present_report/present_report_v1.md. Biên nhiễu +-0,33...+-0,67 (làm việc +-0,7):
+# presentations/present_report/archive/present_report_v1.md. Biên nhiễu +-0,33...+-0,67 (làm việc +-0,7):
 # chênh lệch nhỏ hơn mức đó ghi ĐỒNG HẠNG, không kết luận.
 decoding:
   seed: 7

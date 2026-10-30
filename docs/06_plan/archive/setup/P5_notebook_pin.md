@@ -57,7 +57,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       đọc tưởng hỏng, nên bootstrap nay kiểm thư mục đã là git repo chưa rồi mới kéo, và DỪNG kèm
       cách sửa nếu thư mục có sẵn mà không phải repo;
       (b) mã phiên bản dữ liệu hai máy lệch nhau (`...-2d9fc48b` trên Colab so với `...-bf68b1c5` ở
-      máy cá nhân) vì băm thẳng byte, xem `docs/06_plan/P2_versioning.md`.
+      máy cá nhân) vì băm thẳng byte, xem `docs/06_plan/archive/setup/P2_versioning.md`.
       Điều còn thiếu của P5 là gốc kết quả trên Drive: lần chạy trên không thấy Drive (chưa mount),
       nên preflight dừng ở việc thiếu dữ liệu.
       **Lần chạy thật thứ ba, trên máy cá nhân (25/09/2026)** lộ ra hai việc nữa của `repo.prepare()`,
@@ -82,7 +82,7 @@ preflight dừng ở việc thiếu dữ liệu. Vì vậy P5 chưa đóng hẳn
       `fe180947` vào ô đầu (`chore(experiments): pin commit fe180947 into the exp001 notebook`).
       exp001 chấm trên `val` với `n: 200`, prompt CoT lấy từ thư viện dùng chung bằng ĐƯỜNG DẪN.
       (25/09/2026: exp001 đã đổi sang chấm trên `test` với `n: null` để so được với công bố - xem
-      `docs/06_plan/P7_rerun.md` T3. Các lượt 200 mẫu trên `val` là bước kiểm đường chạy, thư mục kết
+      `docs/06_plan/archive/experiments/P7_rerun.md` T3. Các lượt 200 mẫu trên `val` là bước kiểm đường chạy, thư mục kết
       quả đã xoá.)
       Preflight cho exp001 báo 0 việc phải sửa. Lượt chạy 200 mẫu của exp001 để dành cho P7; đường
       chạy đã chứng minh bằng một lượt 4 mẫu thật ngoài thí nghiệm (xem P4 T8).

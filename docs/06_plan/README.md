@@ -1,69 +1,28 @@
-# Kế hoạch triển khai - mục lục
+# Kế hoạch
 
-> Đọc file này khi: bắt đầu làm việc, hoặc muốn biết đang ở bước nào.
-> Liên quan: `docs/00_workflow/01_flow.md`, `docs/00_workflow/05_git_commits.md`, `docs/README.md`
+> Đọc file này khi cần biết dự án đang làm gì và còn gì chưa làm.
 
-## Cách dùng
+## Đang thực hiện
 
-- Mỗi giai đoạn là một file. Trong mỗi file, mục **3. Task nhỏ** là danh sách task có checkbox.
-- Một task = **một commit** (Conventional Commits, tiếng Anh). Commit message ghi ngay cạnh task.
-- Trạng thái ghi ở **mục 2** của từng file: `chưa làm` / `đang làm` / `xong`.
-- Chỉ chuyển giai đoạn khi mục **4. Điều kiện hoàn thành (DoD)** đã đạt.
+| Việc | File | Trạng thái |
+| --- | --- | --- |
+| Web serving và đóng gói Docker | `docs/07_serving/P0_PLAN.md` | đang làm |
 
-## Trạng thái tổng
+## Chưa làm
 
-| Giai đoạn | Nội dung                                 | File                   | Trạng thái |
-| ----- | ---------------------------------------- | ---------------------- | ---------- |
-| P0    | Dựng cây mới, commit đầu tiên, tạo nhánh | `P0_repo_setup.md`     | xong       |
-| P1    | Đường dẫn tập trung                      | `P1_paths.md`          | xong       |
-| P2    | Versioning dữ liệu và guard              | `P2_versioning.md`     | xong       |
-| P3    | Tầng config thí nghiệm                   | `P3_config_layer.md`   | xong       |
-| P4    | Log, MLflow/DagsHub, resume              | `P4_logging_mlflow.md` | xong       |
-| P5    | Ghim code và notebook                    | `P5_notebook_pin.md`   | xong T1..T6; DoD "kéo code theo sha trên Colab thật" ĐÃ có bằng chứng (hai lần chạy thật); còn DoD "gốc kết quả trên Drive" |
-| P6    | Reports, CI, docs                        | `P6_reports_ci.md`     | xong T1..T7 (T5–T7 đã soát lại 25/09/2026) |
-| P7    | Chạy lại từ đầu và so với công bố        | `P7_rerun.md`          | T1 (dataset v0.2.0 `...-e616c1e3`) và T2 (EDA + report) xong. T3 nay gồm **20 thí nghiệm**: 4 lượt LoRA encoder (PhoBERT và ViSoBERT, mỗi model một lượt `ce` + một lượt `weighted_ce`) + 13 lượt prompt Qwen3-4B (`prompt-cot/exp002..013` và `prompt-one-turn/exp001`) + 3 lượt Qwen3-0.6B, chấm trên `test`. **17 lượt đã có kết quả** (tới 04/10/2026): mức 4-bit lô 4 hơn công bố +0,07 (1 ví dụ) và +0,45 (5 ví dụ), đỉnh `exp009` 97,77; sửa **câu chữ prompt** không cứu được lớp âm nhưng sửa **hàm mất mát** (`weighted_ce`) thì có. Ba lượt Qwen3-0.6B hỏng HAI kiểu (nạp nhầm trọng số 4B; bật suy nghĩ ăn hết trần token) nên cả 6 thư mục kết quả đã xoá 04/10/2026 - **đã tạo lại và ghim ba lượt 0.6B trong gói 012 (04/10/2026), chờ chạy**. Còn T5 (vòng bàn giao) - chi tiết `P7_rerun.md` mục 2 và §8, `docs/06_plan/archive/P7-P10/present_plan.md` (đợt 7-9) |
-| P8    | Đợt "đo lường + MLflow" (rescore đo THÊM, early stop, curve train/val, loss, MLflow `run_id`)      | `P8_measurement_mlflow.md` | xong (trừ A-6 để cuối) |
-| P8b   | Đợt 7 → đợt 10 (chạy nốt 23 + 10 + 3 notebook, chốt luật trên `val`, bốn bước kết hợp)            | `P8_batch7.md`         | đang chạy: **05/10/2026** sửa hai lỗi thật (thứ tự tham số của `write_csv`, `is_trainable` khi chạy tiếp), thêm cơ chế **`head.trainable`**, tạo **6 lượt ablation đầu phân loại** ⇒ đã tạo + ghim **33 notebook** (23 đợt 7 + 6 ablation + 4 đợt 8) và đóng **gói 012 + 013 + 014 + 015 + 016**; đã **nhận đủ 23/23 kết quả đợt 7** + **2 lượt nữa** (lượt chạy lại `cafebert/lora/exp002` và lượt `qwen3-0.6b/prompt-one-turn/exp001` đọc được **99,94%**), chốt **trần 1985** cho nhánh suy nghĩ, chốt **ba bước kết hợp trên `val`**, tạo thêm **4 notebook đợt 8** (0.6B bật suy nghĩ + một lượt) ⇒ đợt 8 = **10 notebook**, **gói 016 đã gửi**; **đợt 10** (ba hướng mới: thước nhiễu encoder + đầu phân loại theo khía cạnh + hai tầng theo khía cạnh) đã ghi vào `docs/06_plan/archive/P7-P10/present_plan.md` mục 14 |
-| P9    | Đợt 11 → 13 (thước đo trên `n` lớn · chọn mốc · số epoch + early stop) | `P9_batch13.md`        | đang chạy: **13.0 + 13.1 XONG**; **13.2 XONG (15/10/2026) - KẾT LUẬN ÂM**: khi nâng lên n = 9 thì **"bàn đạp thứ 17" BỊ RÚT LẠI** (`neg_f1_big5` chỉ còn **+0,084 Acc / +0,114 F1**; Welch p = 0,463 / 0,801) và **thước thiên Recall `neg_recall_big5` bị ĐÓNG** (Recall chỉ về đúng mức họ 12 mà trả giá `Accuracy` −0,716 / `neg F1` −2,390). Chỉ còn **Bước 6: 13.3 → 13.6** - khung **đã sửa theo kết quả âm**: 13.3 rút `best_metric`/`epochs`/`every_n_steps` khỏi không gian Optuna; 13.6 giữ nền B4 |
-| -     | Bảng toàn bộ commit                      | `APPENDIX_commits.md`  | -          |
+Việc còn lại ghi ở `docs/04_experiments/04_backlog.md`.
 
-> **Tệp kế hoạch nay ĐÃ LƯU TRỮ** (chỉ đọc, không cập nhật): cặp `docs/06_plan/archive/P7-P10/present_plan.md` +
-> `docs/06_plan/archive/P7-P10/check_present_plan.md` là kế hoạch của **đợt 7 → 10** (nay là MỐC LỊCH SỬ);
-> nhật ký từng đợt ở `docs/06_plan/archive/batches/present_plan_batch11.md` ·
-> `docs/06_plan/archive/batches/present_plan_batch12.md` · `docs/06_plan/archive/batches/present_plan_batch13.md`.
-> Chúng đã được hợp nhất (git mv) vào `docs/06_plan/archive/`; mọi tham chiếu trong `docs/`, `configs/` và
-> `experiments/**/README.md` đã trỏ tới đường dẫn lưu trữ. Bản đang dùng vẫn là bảng ở trên.
+## Đã đóng
 
+| Nhóm | Nội dung | Vị trí |
+| --- | --- | --- |
+| P0–P6 | dựng repo, đường dẫn, versioning, config, log, notebook, báo cáo | `archive/setup/` |
+| P7–P9 | chạy lại, đo lường, các đợt thực nghiệm | `archive/experiments/` |
+| Đợt 7–10 | kế hoạch và nhật ký | `archive/P7-P10/` |
+| Đợt 11–13 | nhật ký từng đợt | `archive/batches/` |
 
-Bảng trên là **nguồn duy nhất** nói đang ở bước nào: sửa mục 2 của file con thì sửa luôn dòng tương
-ứng ở đây, để không lặp lại việc tài liệu nói một đằng, việc đã làm một nẻo.
+Bảng commit: `APPENDIX_commits.md`.
 
-> **Số lượng HIỆN TẠI** (đo **15/10/2026**, bảng dựng lại ở commit `8d5e00d` nhánh `experiment`): repo có **183
-> notebook đã ghim** (`experiments/**/notebook.ipynb`) và **174 thư mục kết quả có `metrics.json`** trên đĩa;
-> `experiment_registry.csv` = **174 dòng** (trong đó `cafebert/lora` = **81**, gồm 15 lượt đợt 13.1
-> `exp064`–`exp078` + 15 lượt đợt 13.2 `exp079`–`exp093`), `attempt_registry.csv` = **180 dòng**. Con số **"17 lượt"** ở hàng P7 và
-> **"33 notebook"** ở hàng P8b là **MỐC LỊCH SỬ** ở ngày ghi, KHÔNG phải số hiện tại. Nguồn đối
-> chiếu chuẩn là `python scripts/collect_reports.py --dry-run` (bảng `attempt_registry`).
+## Luật
 
-
-## Cổng kiểm tra bắt buộc
-
-Trước khi làm bất cứ việc gì phụ thuộc MLflow, phải đạt **cổng ở P4**:
-
-1. Chạy một smoke run: log 1 run giả (params, metrics, 1 artifact nhỏ).
-2. Mở `https://dagshub.com/TrieuKhac-dev/SentimentX` và xác nhận run xuất hiện.
-
-Không đạt thì dừng, báo cáo và đưa giải pháp, không triển khai tiếp phần phụ thuộc MLflow.
-
-*Trạng thái 27/09/2026:* cổng này đạt ở lượt smoke trên máy cá nhân (P4 T7) nhưng **KHÔNG đạt trên Colab**
-trong ba lượt chạy thật đầu tiên: ô bootstrap của notebook cài một danh sách gói cố định mà thiếu `mlflow`,
-nên cả ba lượt đều ghi `[TRACK] không ghi nhận gì (tracker tắt)` và không run nào lên DagsHub. Đã sửa
-(bootstrap cài `mlflow`, ô cuối chỉ in địa chỉ DagsHub khi có dòng `[TRACK]` thành công) - lượt chạy lại
-theo P7 T3 là lần xác nhận cổng này. Chi tiết ở `docs/06_plan/P4_logging_mlflow.md` mục 4.
-
-## Quy ước chung cho mọi giai đoạn
-
-- Không hardcode đường dẫn và giá trị: đọc từ `configs/paths.yaml` và `configs/**`.
-- Không đặt giá trị mặc định trong code: thiếu khoá thì báo lỗi rõ kèm danh sách file đã đọc.
-- Chú thích ngắn gọn, rõ ràng; không dùng dải gạch dài để phân mục trong code.
-- Sau mỗi commit, dự án vẫn phải chạy được.
+Tối đa một việc ở trạng thái "đang làm". Muốn mở việc mới thì đóng việc cũ hoặc đưa về "chưa làm". Không tạo file kế hoạch mới ngoài cấu trúc này.

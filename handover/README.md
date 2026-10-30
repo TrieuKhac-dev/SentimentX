@@ -130,7 +130,7 @@ cùng lúc** (mỗi lượt ghi vào thư mục kết quả riêng theo mã băm
 > 0,0070 `neg F1`**). **8B + 8C + 8D đều ÂM**: few-shot LLM lấy ví dụ từ `train` càng nhiều càng tệ (97,62 →
 > 96,83 → 96,41 Acc), bỏ phiếu 3 mẫu LLM cho `neg F1` 0,8039 (dưới mọi mẫu), `best_metric: negative_f1`
 > **−0,17 Acc / −0,51 `neg F1`**. ⇒ **16 bàn đạp đã thử, chỉ `lr` 2e-4 → 4e-4 là thắng có ý nghĩa.**
-> Báo cáo chốt: `presentations/present_report/present_report_v2.md`; nhật ký: `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14.
+> Báo cáo chốt: `presentations/present_report/present_report_v6.md`; nhật ký: `docs/06_plan/archive/batches/present_plan_batch12.md` mục 14.
 
 | Nhóm | Notebook | Trả lời câu gì | Ước tính mỗi lượt |
 | --- | --- | --- | --- |
@@ -164,10 +164,10 @@ Gói **035** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp064` … `e
 > (98,283 · 94,377); Welch `p = 9,5e-06 / 0,0086`; cả 3 lượt đều vượt trần của họ.
 > ⚠️ **Đợt 13.2 (n = 9) đã BÁC BỎ kết luận "bàn đạp thứ 17": xem mục "Đợt 13.2" ngay dưới.**
 > Trục `epochs` **đã đóng** (dừng sớm tự kích hoạt ở epoch 4–6; 15 epoch không hơn 3 epoch).
-> Bảng đầy đủ theo nhánh + số từng khía cạnh P/R/F: **`docs/06_plan/P9_batch13.md` mục 2.2**.
+> Bảng đầy đủ theo nhánh + số từng khía cạnh P/R/F: **`docs/06_plan/archive/experiments/P9_batch13.md` mục 2.2**.
 >
 > **Gói TIẾP THEO = 036 (Đợt 13.2, 15 notebook `exp079`…`exp093`)** - việc còn lại, cách tạo/ghim/đóng gói và
-> luật đọc số đã chốt trước: **`docs/06_plan/P9_batch13.md`**.
+> luật đọc số đã chốt trước: **`docs/06_plan/archive/experiments/P9_batch13.md`**.
 
 **Câu hỏi của đợt:** 7/9 lượt encoder đang dưới công bố ở các ô `n` lớn, và đường cong train/val cho thấy
 chúng còn ở TRÊN ngưỡng (`val_loss` vẫn giảm khi hết 3 epoch). ⇒ **`epochs 15` + dừng sớm** - trục CHƯA
@@ -225,7 +225,7 @@ Gói **036** mang **15** notebook MỚI (`notebooks/cafebert/lora/exp079` … `e
 > ⚠️ KHAI: n = 9 của B4 **trộn 2 `repo_sha`** (`8f4eb49` ×3 + `22910c0` ×6); diff `src/training/lora.py` giữa hai
 > sha là **thuần thêm mới** (không chạm phép tính huấn luyện).
 > **Hệ quả cho việc tiếp theo:** 13.3 (Optuna) **rút `best_metric` + `epochs` + `every_n_steps` khỏi không gian**,
-> giữ `best_metric: sentiment_f1` cố định; 13.6 dùng nền **B4**. Chi tiết: `docs/06_plan/P9_batch13.md` mục 2.3 và 8.
+> giữ `best_metric: sentiment_f1` cố định; 13.6 dùng nền **B4**. Chi tiết: `docs/06_plan/archive/experiments/P9_batch13.md` mục 2.3 và 8.
 
 **Câu hỏi của đợt:** Đợt 13.1 (15/15 lượt `FINISHED`) cho thấy **bàn đạp thắng nằm ở thước CHỌN MỐC**, không
 phải ở số epoch: `checkpoints.best_metric: neg_f1_big5` hơn họ 12 lượt ở CẢ HAI trục (98,523 / 95,160) nhưng
@@ -265,7 +265,7 @@ ghim đúng sha). Nhóm **R** phải có `checkpoints.best_metric = neg_recall_b
 - **Trục so sánh:** `Accuracy macro` (cột `acc_paper_macro`) **và** `neg F1 (5 khía cạnh `n` lớn)` (cột
   `neg_f1_big5`), cả hai đọc ở **cơ sở `paper`**, so với **họ 12 lượt `lr 4e-4`** (98,283 · 94,377).
 - **Bắt buộc khai Δ từng khía cạnh `n` lớn ở cả P / R / F1** cho mọi nhánh (đã là luật của Đợt 13).
-- Chi tiết thi hành và luật đầy đủ: `docs/06_plan/P9_batch13.md` §5 và §6.3.
+- Chi tiết thi hành và luật đầy đủ: `docs/06_plan/archive/experiments/P9_batch13.md` §5 và §6.3.
 
 
 

@@ -7,7 +7,7 @@
 `decoding.max_new_tokens: 1985` (trần ĐO từ lượt DÒ `exp004`).
 
 **Chạy khi nào:** nhánh bật suy nghĩ ĐẮT gấp khoảng 5 lần nhánh tắt, nên luật chia mức ở
-`docs/06_plan/P8_batch7.md` mục 6.3 nói lượt này **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ**. Trần 1985 dùng
+`docs/06_plan/archive/experiments/P8_batch7.md` mục 6.3 nói lượt này **chỉ chạy khi mỗi lượt ≤ khoảng 3 giờ**. Trần 1985 dùng
 CHUNG cho cả nhánh, chưa có lượt DÒ riêng cho mức 0 ví dụ (nói rõ để không tưởng là đã đo riêng).
 
 ---
