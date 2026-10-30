@@ -19,9 +19,8 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import uvicorn
@@ -163,22 +162,15 @@ def create_app(settings=None, registry=None) -> FastAPI:
     )
     app.add_middleware(BaseHTTPMiddleware, dispatch=request_id_middleware)
 
-    templates = Jinja2Templates(directory=str(_SERVING_DIR / "templates"))
     static_dir = _SERVING_DIR / "static"
     if static_dir.is_dir():
         app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
     @app.get("/", include_in_schema=False)
-    async def index(request: Request) -> Any:
-        reg = request.app.state.registry
-        return templates.TemplateResponse(
-            request,
-            "index.html",
-            {
-                "models": reg.list_models(),
-                "default_model": reg.default_model,
-                "app_version": __version__,
-            },
+    async def index() -> FileResponse:
+        return FileResponse(
+            _SERVING_DIR / "static" / "v2" / "index.html",
+            headers={"Cache-Control": "no-store"},
         )
 
     @app.get("/health")
