@@ -76,6 +76,27 @@ class EncodePathTest(unittest.TestCase):
         self.assertIs(fake.calls[0]["enable_thinking"], True)
 
 
+class BuildInputsTest(unittest.TestCase):
+    """`build_inputs()` phải trả về DICT của tokenizer - `runner` đọc `inputs.items()`.
+
+    Lỗi thật đã gặp: `POST /predict` với `qwen3_4b_exp009` trả 503
+    `'Tensor' object has no attribute 'items'`, vì `apply_chat_template` trả về Tensor khi
+    thiếu `return_dict=True` (docstring của `build_inputs` hứa trả dict).
+    """
+
+    def test_build_inputs_truyen_return_dict_true(self):
+        fake = FakeTokenizer()
+        with mock.patch.object(qwen, "tokenizer", return_value=fake), \
+                mock.patch.object(qwen, "conversations",
+                                  return_value=[{"role": "user", "content": "x"}]), \
+                mock.patch.object(qwen, "default_enable_thinking", return_value=None), \
+                mock.patch.object(qwen, "default_add_generation_prompt", return_value=True):
+            qwen.build_inputs(["một review"], max_length=512,
+                              prompt_name="zz-prompt", model_id="zz-model")
+        self.assertIs(fake.calls[0]["return_dict"], True)
+        self.assertIs(fake.calls[0]["return_tensors"], "pt")
+
+
 class FakePadlessTokenizer:
     """Tokenizer giả GIỐNG MISTRAL: có `eos_token` nhưng KHÔNG có `pad_token`.
 

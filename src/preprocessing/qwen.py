@@ -368,7 +368,8 @@ def build_inputs(texts, max_length=None, add_generation_prompt=None,
     if max_length is None:
         max_length = limit(model_id)[0]
     kwargs = _chat_kwargs(add_generation_prompt, enable_thinking, model_id)
-    kwargs.update(padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+    kwargs.update(padding=True, truncation=True, max_length=max_length,
+                  return_tensors="pt", return_dict=True)
     return tokenizer(model_id).apply_chat_template(
         conversations(texts, aspects, label_map, prompt_name), **kwargs)
 
