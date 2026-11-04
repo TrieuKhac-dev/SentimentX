@@ -7,7 +7,7 @@ server:
   request_timeout_s: 30
   llm_timeout_s: 240
   max_body_bytes: 1048576
-  gpu_policy: sequential
+  gpu_policy: concurrent
   gpu_concurrency: 1
   min_free_vram_mb: 1200
   log_text: false
