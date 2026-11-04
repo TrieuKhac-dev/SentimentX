@@ -2,9 +2,9 @@
 
 > Đọc file này khi: cần tra vì sao có các thay đổi về đo lường, rescore, curve train/val, loss và
 > MLflow; hoặc đang chuẩn bị **phát hành lại** (sửa CI -> ghim -> gói bàn giao).
-> Liên quan: [README.md](README.md), [P4_logging_mlflow.md](P4_logging_mlflow.md),
-> [P6_reports_ci.md](P6_reports_ci.md), [P7_rerun.md](P7_rerun.md),
-> [../04_experiments/07_evolution.md](../04_experiments/07_evolution.md) (bản NGƯỜI ĐỌC của các chốt).
+> Liên quan: [README.md](README.md), [P4_logging_mlflow.md](../setup/P4_logging_mlflow.md),
+> [P6_reports_ci.md](../setup/P6_reports_ci.md), [P7_rerun.md](P7_rerun.md),
+> [../04_experiments/07_evolution.md](../../../04_experiments/07_evolution.md) (bản NGƯỜI ĐỌC của các chốt).
 >
 > File này GỘP hai file kế hoạch tạm trước đây ở gốc repo (`check_last_plan.md` + `last_plan.md`):
 > mục 2 là "trạng thái nhanh", mục 3 là nội dung chi tiết. Trạng thái tổng cũng nằm ở bảng trong
@@ -44,12 +44,12 @@ xong (trừ A-6 để cuối). Nhóm 0; A-1..A-5; B; C; D; E; F; G; H đều xon
 
 - [x] **0-1** `scripts/ci_checks.py`: docstring ghi "CHÍN KIỂM TRA" nhưng chỉ liệt kê 8 mục; thêm mục thứ
   9 ("tài liệu trỏ đường dẫn mã nguồn") cho khớp `src/workflow/checks.py` và
-  [../00_workflow/03_ci.md](../00_workflow/03_ci.md).
-- [x] **0-2** [../05_config/02_pipeline.md](../05_config/02_pipeline.md): bỏ ví dụ `steps.normalize.teencode`
+  [../00_workflow/03_ci.md](../../../00_workflow/03_ci.md).
+- [x] **0-2** [../05_config/02_pipeline.md](../../../05_config/02_pipeline.md): bỏ ví dụ `steps.normalize.teencode`
   (khoá không tồn tại trong `configs/pipeline/*.yaml`, trái chủ trương "pipeline không có công tắc teencode").
-- [x] **0-3** [../00_workflow/02_rules.md](../00_workflow/02_rules.md) luật 20: thêm `eval_lock.json` vào
+- [x] **0-3** [../00_workflow/02_rules.md](../../../00_workflow/02_rules.md) luật 20: thêm `eval_lock.json` vào
   danh sách file PHẢI commit (khớp `03_ci.md` check 1, `paths.yaml`, `.gitignore`, `changelog.md`).
-- [x] **0-4** [../05_config/03_datasets.md](../05_config/03_datasets.md): ví dụ dùng `version: "0.3.0"`
+- [x] **0-4** [../05_config/03_datasets.md](../../../05_config/03_datasets.md): ví dụ dùng `version: "0.3.0"`
   (thiếu tiền tố `v`) trong khi file thật là `vX.Y.Z`; sửa cho nhất quán.
 - [x] **0-5** [../../README.md](../../README.md) mục quy ước: nói rõ **4 `run_*.py`** (`run_eda`,
   `run_pipeline`, `run_token_stats`, `run_check_examples`) + `build_report.py` = **5 file**.
@@ -95,8 +95,8 @@ Bảng NGUỒN SỐ DUY NHẤT:
 | Chọn best / early-stop (val) | `training_history.csv` + `metrics.json` (khối training) | người/MLflow; KHÔNG vào `metrics_matrix` |
 | Curve train/val | `training_history.csv` + `plots/training.html` | người/MLflow step-metric |
 
-- [x] **B-1** Ghi bảng nguồn số trên vào [../04_experiments/metrics.md](../04_experiments/metrics.md)
-  + [../04_experiments/reference_publication.md](../04_experiments/reference_publication.md).
+- [x] **B-1** Ghi bảng nguồn số trên vào [../04_experiments/metrics.md](../../../04_experiments/metrics.md)
+  + [../04_experiments/reference_publication.md](../../../04_experiments/reference_publication.md).
 - [x] **B-2** `src/reporting/reports.py::metric_map` đọc thêm `metrics_rescored.csv` (giữ cột `basis`);
   KHÔNG trộn nguồn theo từng ô.
 - [x] **B-3** Hiển thị HAI HỌ CỘT có nhãn `(gốc)` / `(rescored)` cho mỗi lượt (chỉ khi lượt đó có
@@ -154,10 +154,10 @@ Bảng NGUỒN SỐ DUY NHẤT:
 
 ### Nhóm G - Lưu vết, docs, test, hạ tầng
 
-- [x] **G-1** [../04_experiments/04_backlog.md](../04_experiments/04_backlog.md): Optuna (hoãn một nhịp),
+- [x] **G-1** [../04_experiments/04_backlog.md](../../../04_experiments/04_backlog.md): Optuna (hoãn một nhịp),
   focal/trọng số khía cạnh (sau `weighted_ce` + bằng chứng curve).
-- [x] **G-2** [../04_experiments/07_evolution.md](../04_experiments/07_evolution.md) - file MỚI, TRỐNG chờ
-  ghi dần; đăng ký [../README.md](../README.md).
+- [x] **G-2** [../04_experiments/07_evolution.md](../../../04_experiments/07_evolution.md) - file MỚI, TRỐNG chờ
+  ghi dần; đăng ký [../README.md](../../../README.md).
 - [x] **G-3** Ghi chú A7: ma trận nhầm ở artifact/report, không lên MLflow.
 - [x] **G-4** Docs kèm: `06_lora_encoder.md`, `05_experiments_shared.md`, `01_paths.md`, `metrics.md`,
   `05_predictions.md`, `P7_rerun.md`.
@@ -185,7 +185,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
 ## 4. Quy ước thực thi (bắt buộc)
 
 1. Commit sau mỗi mục đã xong, theo Conventional Commits tiếng Anh
-   ([../00_workflow/05_git_commits.md](../00_workflow/05_git_commits.md)).
+   ([../00_workflow/05_git_commits.md](../../../00_workflow/05_git_commits.md)).
 2. Sau mỗi nhóm: `python scripts/ci_checks.py` + `python -m unittest discover -s tests`
    (Windows: `$env:PYTHONUTF8=1`).
 3. Lỗi không fix được / quá khó -> quay lui (git) và xem xét lại kế hoạch.
@@ -193,7 +193,7 @@ Bảng NGUỒN SỐ DUY NHẤT:
    code (thiếu khoá là lỗi); notebook đã ghim KHÔNG sửa (muốn hiệu lực thì ghim mới).
 5. **CI phải XANH trước khi ghim.** Sau khi `git push`, đợi CI GitHub của commit đó chạy xong và báo
    XANH rồi mới ghim lại notebook / dựng-gửi gói. CI đỏ thì sửa rồi push tiếp, **KHÔNG** ghim từ bản đỏ.
-   Xem [../00_workflow/02_rules.md](../00_workflow/02_rules.md) luật 22.
+   Xem [../00_workflow/02_rules.md](../../../00_workflow/02_rules.md) luật 22.
 
 ## 5. Mặc định đã chốt cho file mới
 

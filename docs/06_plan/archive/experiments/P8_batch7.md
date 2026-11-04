@@ -4,10 +4,10 @@
 > `qwen3-0.6b` chạy lại, ba lượt về khía cạnh `price`, hai lượt `val` cho encoder, bốn lượt lấy mẫu, và
 > bốn bước **KẾT HỢP** (ngưỡng / ensemble / lai / biểu quyết).
 > Liên quan: [README.md](README.md), [P7_rerun.md](P7_rerun.md),
-> [P8_measurement_mlflow.md](P8_measurement_mlflow.md), [docs/06_plan/archive/P7-P10/present_plan.md](archive/P7-P10/present_plan.md),
-> [docs/06_plan/archive/P7-P10/check_present_plan.md](archive/P7-P10/check_present_plan.md),
-> [../04_experiments/08_experiment_rationale.md](../04_experiments/08_experiment_rationale.md) (bản NGƯỜI ĐỌC),
-> [../04_experiments/09_fusion.md](../04_experiments/09_fusion.md) (đặc tả các bước kết hợp).
+> [P8_measurement_mlflow.md](P8_measurement_mlflow.md), [docs/06_plan/archive/P7-P10/present_plan.md](../P7-P10/present_plan.md),
+> [docs/06_plan/archive/P7-P10/check_present_plan.md](../P7-P10/check_present_plan.md),
+> [../04_experiments/08_experiment_rationale.md](../../../04_experiments/08_experiment_rationale.md) (bản NGƯỜI ĐỌC),
+> [../04_experiments/09_fusion.md](../../../04_experiments/09_fusion.md) (đặc tả các bước kết hợp).
 
 ## 1. Mục tiêu giai đoạn
 
@@ -167,7 +167,7 @@ tay của lượt chạy, nên gõ tay là lần sau không tái lập được.
 
 ## 7. Luật kết hợp (mọi luật chốt trên `val`, rồi mới áp lên `test`)
 
-Đặc tả đầy đủ ở [../04_experiments/09_fusion.md](../04_experiments/09_fusion.md); dưới đây là các quyết
+Đặc tả đầy đủ ở [../04_experiments/09_fusion.md](../../../04_experiments/09_fusion.md); dưới đây là các quyết
 định đã chốt, để lượt chạy và báo cáo không lệch nhau.
 
 1. **Ngưỡng theo khía cạnh** - áp cho **SÁU** khía cạnh (`stayingpower`, `texture`, `smell`, `colour`,
@@ -212,7 +212,7 @@ chưa chạy.
 ## 10. Quy ước thực thi (bắt buộc)
 
 1. Một mục xong = một commit, Conventional Commits tiếng Anh
-   ([../00_workflow/05_git_commits.md](../00_workflow/05_git_commits.md)).
+   ([../00_workflow/05_git_commits.md](../../../00_workflow/05_git_commits.md)).
 2. Sau mỗi nhóm: `python scripts/ci_checks.py` + `python -m unittest discover -s tests`
    (Windows: đặt `$env:PYTHONUTF8=1`).
 3. **CI phải XANH rồi mới ghim lại notebook hoặc dựng-gửi gói** (luật 22). Lỗi không sửa được thì quay lui
