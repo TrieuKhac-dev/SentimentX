@@ -2,7 +2,7 @@
   "use strict";
 
   var DEFAULT_MODEL_ID = "cafebert_exp027";
-  var POLL_INTERVAL = 500, TIMEOUT_ENCODER = 30000, TIMEOUT_LLM = 240000;
+  var POLL_INTERVAL = 1000, TIMEOUT_ENCODER = 30000, TIMEOUT_LLM = 240000;
   var MAX_ENCODER = 4000, MAX_LLM = 6000;
   var ENCODER_HINT = "Tối đa 4.000 ký tự.";
   var LLM_HINT = "Tối đa 6.000 ký tự.";
@@ -12,6 +12,7 @@
     noModels: "Không có mô hình khả dụng.",
     modelsFailed: "Không tải được danh sách mô hình.",
     ready: "Sẵn sàng",
+    loadOnAnalyze: "Sẽ nạp khi phân tích",
     loadFailed: "Không nạp được mô hình.",
     analyzing: "Đang phân tích…",
     cancelled: "Đã hủy yêu cầu.",
@@ -76,6 +77,7 @@
   var activeSet = null, sampleIndex = { positive: 0, negative: 0, mixed: 0 }, sampleButtons = {};
   var resultCache = new Map();
   var CACHE_LIMIT = 30;
+  var CACHE_STORAGE_KEY = "sentimentx.cache.v1";
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -178,6 +180,36 @@
       if (oldest.done) break;
       resultCache.delete(oldest.value);
     }
+    persistCache();
+  }
+  function hydrateCache() {
+    try {
+      var raw = sessionStorage.getItem(CACHE_STORAGE_KEY);
+      if (!raw) return;
+      var saved = JSON.parse(raw);
+      if (!saved || typeof saved !== "object") return;
+      Object.keys(saved).forEach(function (key) {
+        var entry = saved[key];
+        if (entry && entry.data && entry.item) resultCache.set(key, entry);
+      });
+    } catch (error) {
+      resultCache.clear();
+    }
+  }
+  var persistTimer = null;
+  function persistCache() {
+    window.clearTimeout(persistTimer);
+    persistTimer = window.setTimeout(function () {
+      try {
+        var out = {};
+        Array.from(resultCache.keys()).slice(-CACHE_LIMIT).forEach(function (key) {
+          out[key] = resultCache.get(key);
+        });
+        sessionStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(out));
+      } catch (error) {
+        try { sessionStorage.removeItem(CACHE_STORAGE_KEY); } catch (ignore) {}
+      }
+    }, 150);
   }
   function errorMessageForStatus(status) {
     if (status === 413) return MSG.tooLong;
@@ -395,6 +427,26 @@
     loadingModel = false;
     loadingModelId = null;
   }
+  function showModelLoadState(modelId) {
+    var model = findModel(modelId);
+    var state = stateOf(model);
+    if (!model) {
+      setLoadStatus(MSG.noModels, "is-error");
+      return;
+    }
+    if (state === "READY") {
+      cancelModelLoad();
+      setLoadStatus(MSG.ready, "is-ready");
+      return;
+    }
+    if (state === "LOADING" || state === "WARMING") {
+      requestModelLoad(modelId);
+      return;
+    }
+    cancelModelLoad();
+    setLoadStatus(MSG.loadOnAnalyze, "is-idle");
+  }
+
   function handleModelChange() {
     stopComparisonForInputChange();
     var modelId = String(els.modelSelect.value || "");
@@ -402,18 +454,8 @@
     var model = findModel(modelId);
     ensureSecondaryDistinct(mode === "compare");
     applyModelMeta(model);
-    if (!model) {
-      setLoadStatus(MSG.noModels, "is-error");
-      syncControls();
-      return;
-    }
-    if (stateOf(model) === "READY") {
-      cancelModelLoad();
-      setLoadStatus(MSG.ready, "is-ready");
-      syncControls();
-      return;
-    }
-    requestModelLoad(modelId);
+    showModelLoadState(modelId);
+    syncControls();
   }
   function pickDistinctModel(excludeId) {
     var excluded = findModel(excludeId);
@@ -464,7 +506,7 @@
       if (candidate) {
         secondaryId = String(candidate.id);
         els.modelSelectSecondary.value = secondaryId;
-        requestModelLoad(secondaryId);
+        showModelLoadState(secondaryId);
       } else {
         els.modelSelectSecondary.value = secondaryId || "";
         setStatus(MSG.distinctModels, "is-warning");
@@ -473,7 +515,7 @@
       return;
     }
     secondaryId = modelId;
-    requestModelLoad(secondaryId);
+    showModelLoadState(secondaryId);
     applyModelMeta(findModel(selectedId));
   }
   function handleSwap() {
@@ -490,13 +532,7 @@
     els.modelSelectSecondary.value = secondaryId;
     var model = findModel(selectedId);
     applyModelMeta(model);
-    if (!model) {
-      setLoadStatus(MSG.noModels, "is-error");
-    } else if (stateOf(model) === "READY") {
-      setLoadStatus(MSG.ready, "is-ready");
-    } else {
-      requestModelLoad(selectedId);
-    }
+    showModelLoadState(selectedId);
     syncControls();
   }
   function populatePrimary() {
@@ -1417,6 +1453,7 @@
     renderSamples();
     applyModelMeta(null);
     updateSampleOffset();
+    hydrateCache();
     loadModels();
   }
 

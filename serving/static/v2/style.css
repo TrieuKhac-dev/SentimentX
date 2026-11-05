@@ -405,6 +405,14 @@ button:disabled {
   background: var(--positive);
 }
 
+.load-status.is-idle {
+  color: var(--muted);
+}
+
+.load-status.is-idle::before {
+  background: var(--muted);
+}
+
 .load-status.is-error {
   color: var(--negative);
 }
