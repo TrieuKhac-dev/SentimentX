@@ -220,7 +220,7 @@
   }
 
   function setLoadStatus(message, variant) {
-    els.modelLoadStatus.classList.remove("is-loading", "is-ready", "is-error");
+    els.modelLoadStatus.classList.remove("is-loading", "is-ready", "is-error", "is-idle");
     if (variant) els.modelLoadStatus.classList.add(variant);
     els.modelLoadStatus.textContent = message;
   }
