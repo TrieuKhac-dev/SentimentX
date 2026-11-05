@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Phân tích cảm xúc theo khía cạnh cho đánh giá mỹ phẩm tiếng Việt bằng CafeBERT và Qwen3-4B.">
+  <meta name="theme-color" content="#2563EB">
   <title>SentimentX · Phân tích đánh giá sản phẩm</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M3 14V10M7 14V6M11 14V8M15 14V4' stroke='%232563EB' stroke-width='2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/static/v2/style.css?v=20261022-1">
   <script src="/static/v2/samples.js?v=20261022-1" defer></script>
   <script src="/static/v2/app.js?v=20261022-1" defer></script>
@@ -101,7 +104,11 @@
           <div id="empty-state" class="empty-state">
             <div class="empty-copy">
               <p class="empty-title">Chưa có kết quả</p>
-              <p class="empty-text">Nhập đánh giá hoặc chọn một mẫu có sẵn, sau đó chọn “Phân tích đánh giá” để xem nhãn cảm xúc theo từng khía cạnh.</p>
+              <ol class="getting-started">
+                <li><span class="step-num" aria-hidden="true">1</span><span>Dán đánh giá hoặc chọn một mẫu có sẵn.</span></li>
+                <li><span class="step-num" aria-hidden="true">2</span><span>Chọn mô hình: CafeBERT trả lời nhanh, Qwen3-4B phân tích sâu và có trích dẫn.</span></li>
+                <li><span class="step-num" aria-hidden="true">3</span><span>Bấm “Phân tích đánh giá” để xem nhãn cảm xúc theo từng khía cạnh.</span></li>
+              </ol>
             </div>
             <ul class="legend" aria-label="Chú giải nhãn cảm xúc">
               <li class="legend-item"><span class="legend-dot legend-positive" aria-hidden="true"></span>Tích cực</li>
@@ -109,10 +116,12 @@
               <li class="legend-item"><span class="legend-dot legend-neutral" aria-hidden="true"></span>Trung lập</li>
               <li class="legend-item"><span class="legend-dot legend-not-mentioned" aria-hidden="true"></span>Không nhắc tới</li>
               <li class="legend-item"><span class="legend-dot legend-unknown" aria-hidden="true"></span>Không đọc được</li>
+              <li class="legend-item"><span class="legend-badge" aria-hidden="true">Khác</span>Hai mô hình bất đồng</li>
             </ul>
           </div>
 
           <div id="results-content" class="results-content" hidden>
+            <div id="summary-strip" class="summary-strip" hidden></div>
             <div id="result-table" class="result-table-wrap"></div>
           </div>
         </section>

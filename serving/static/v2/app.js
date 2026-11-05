@@ -49,6 +49,13 @@
     3: { kind: "neutral", className: "pill-neutral", text: "Trung lập" },
     unknown: { kind: "unknown", className: "pill-unknown", text: "Không đọc được" }
   };
+  var SUMMARY_LABELS = [
+    { key: "positive", label: "Tích cực", modifier: "is-positive" },
+    { key: "negative", label: "Tiêu cực", modifier: "is-negative" },
+    { key: "neutral", label: "Trung lập", modifier: "is-neutral" },
+    { key: "not_mentioned", label: "Không nhắc tới", modifier: "is-zero" },
+    { key: "unknown", label: "Không đọc được", modifier: "is-unknown" }
+  ];
   var ELS = {
     modeSingle: "mode-single", modeCompare: "mode-compare",
     modelSelect: "model-select-primary", modelLoadStatus: "model-load-status",
@@ -58,7 +65,7 @@
     analyzeButton: "analyze-button", cancelButton: "cancel-button",
     resultsHeading: "results-heading", resultMeta: "result-meta", resultStatus: "result-status",
     emptyState: "empty-state", resultsContent: "results-content",
-    resultTable: "result-table"
+    summaryStrip: "summary-strip", resultTable: "result-table"
   };
 
   var samples = window.SENTIMENTX_SAMPLES || null;
@@ -129,10 +136,15 @@
   function timeoutForModel(model) { return model && model.kind === "llm" ? TIMEOUT_LLM : TIMEOUT_ENCODER; }
   function aspectLabel(name) { return ASPECT_LABELS[name] || String(name); }
   function formatInt(value) { return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
-  function formatSeconds(ms) { return (ms / 1000).toFixed(1).replace(".", ","); }
+  function formatSeconds(ms) {
+    if (!Number.isFinite(ms)) return "";
+    if (ms < 1000) return Math.round(ms) + " ms";
+    return (ms / 1000).toFixed(1).replace(".", ",");
+  }
   function timeSuffix(data) {
-    return data && typeof data.latency_ms === "number" && Number.isFinite(data.latency_ms)
-      ? " · " + formatSeconds(data.latency_ms) + " giây" : "";
+    if (!data || typeof data.latency_ms !== "number" || !Number.isFinite(data.latency_ms)) return "";
+    var value = formatSeconds(data.latency_ms);
+    return " · " + value + (data.latency_ms < 1000 ? "" : " giây");
   }
   function numberOf(value) {
     if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -180,13 +192,36 @@
     if (variant) els.modelLoadStatus.classList.add(variant);
     els.modelLoadStatus.textContent = message;
   }
+  var waitingTextNode = null;
   function setStatus(message, variant) {
+    waitingTextNode = null;
     els.resultStatus.classList.remove("is-error", "is-warning", "is-success");
     if (variant) els.resultStatus.classList.add(variant);
     els.resultStatus.textContent = message;
     els.resultStatus.hidden = false;
   }
+  function waitingMessageFor(model) {
+    var pct = model && model.load_progress;
+    if (stateOf(model) !== "READY" && typeof pct === "number" && Number.isFinite(pct)) {
+      return loadStatusText(model) + " — lần đầu có thể mất 30 giây";
+    }
+    return MSG.analyzing;
+  }
+  function setWaitingStatus(message) {
+    els.resultStatus.classList.remove("is-error", "is-warning", "is-success");
+    els.resultStatus.hidden = false;
+    els.resultStatus.replaceChildren();
+    var spinner = el("span", "spinner");
+    spinner.setAttribute("aria-hidden", "true");
+    waitingTextNode = el("span", "", message);
+    els.resultStatus.append(spinner, waitingTextNode);
+  }
+  function updateWaitingStatus(model) {
+    if (!waitingTextNode) return;
+    waitingTextNode.textContent = waitingMessageFor(model);
+  }
   function clearStatus() {
+    waitingTextNode = null;
     els.resultStatus.hidden = true;
     els.resultStatus.classList.remove("is-error", "is-warning", "is-success");
     els.resultStatus.textContent = "";
@@ -203,6 +238,8 @@
     comparison = null;
     els.resultsContent.hidden = true;
     els.resultTable.replaceChildren();
+    els.summaryStrip.hidden = true;
+    els.summaryStrip.replaceChildren();
     els.emptyState.hidden = false;
     els.resultMeta.textContent = "";
   }
@@ -210,6 +247,8 @@
     els.resultTable.replaceChildren();
     els.resultMeta.textContent = "";
     els.resultsContent.hidden = true;
+    els.summaryStrip.hidden = true;
+    els.summaryStrip.replaceChildren();
     els.emptyState.hidden = true;
   }
   function showStatusError(message) {
@@ -297,6 +336,7 @@
         var list = await fetchModelList(controller.signal);
         if (generation !== loadGeneration || controller.signal.aborted) return false;
         models = list;
+        updateWaitingStatus(findModel(modelId));
         var state = stateOf(findModel(modelId));
         if (state === "READY") {
           setLoadStatus(MSG.ready, "is-ready");
@@ -540,6 +580,17 @@
     var code = numberOf(aspect && aspect.code);
     return PILLS[code] || PILLS.unknown;
   }
+  function labelKeyOf(aspect) {
+    var code = numberOf(aspect && aspect.code);
+    if (code === 1) return "positive";
+    if (code === 2) return "negative";
+    if (code === 0) return "not_mentioned";
+    if (code === 3) return "neutral";
+    return "unknown";
+  }
+  function isNotMentioned(aspect) {
+    return labelKeyOf(aspect) === "not_mentioned";
+  }
   function pillText(aspect, meta) {
     return aspect && typeof aspect.label_vi === "string" && aspect.label_vi.trim() !== ""
       ? aspect.label_vi : meta.text;
@@ -620,6 +671,10 @@
   function tdCell(label, className) {
     var cell = el("td", className || "");
     if (label) cell.dataset.label = label;
+    var hidden = document.createElement("span");
+    hidden.className = "sr-only";
+    hidden.textContent = (label ? label + ": " : "");
+    cell.appendChild(hidden);
     return cell;
   }
   function toggleClamp(clamp, button) {
@@ -692,14 +747,20 @@
         row.append(labelCell);
         if (isLlm) {
           var quoteCell = tdCell("Đoạn trích", "quote-cell");
-          appendClamp(quoteCell, entry.aspect.quote);
           var reasonCell = tdCell("Lý do mô hình đưa ra", "reason-cell");
-          appendClamp(reasonCell, entry.aspect.reason);
+          if (isNotMentioned(entry.aspect)) {
+            row.classList.add("is-not-mentioned");
+            quoteCell.classList.add("is-empty");
+            reasonCell.classList.add("is-empty");
+          } else {
+            appendClamp(quoteCell, entry.aspect.quote);
+            appendClamp(reasonCell, entry.aspect.reason);
+          }
           row.append(quoteCell, reasonCell);
         } else {
           var confidence = formatConfidence(entry.aspect.confidence);
           var confidenceCell = tdCell("Độ tin cậy");
-          if (confidence) confidenceCell.textContent = confidence;
+          if (confidence) confidenceCell.append(document.createTextNode(confidence));
           else confidenceCell.append(el("span", "empty-value", MSG.empty));
           row.append(confidenceCell);
         }
@@ -748,8 +809,10 @@
         if (differ && key === "b") cell.append(el("span", "label-diff-badge", "Khác"));
       } else if (spec.key === "confidence") {
         var confidence = formatConfidence(aspect.confidence);
-        if (confidence) cell.textContent = confidence;
+        if (confidence) cell.append(document.createTextNode(confidence));
         else cell.append(el("span", "empty-value", MSG.empty));
+      } else if (isNotMentioned(aspect)) {
+        cell.classList.add("is-empty");
       } else {
         appendClamp(cell, spec.key === "quote" ? aspect.quote : aspect.reason);
       }
@@ -796,6 +859,9 @@
         var differ = comparisonLabelsDiffer(entry);
         var row = el("tr");
         row.dataset.sentiment = metaA.kind;
+        if ((entry.a && isNotMentioned(entry.a)) || (entry.b && isNotMentioned(entry.b))) {
+          row.classList.add("is-not-mentioned");
+        }
         var aspectCell = thCell(aspectLabel(entry.name), "row");
         aspectCell.classList.add("aspect-cell");
         row.append(aspectCell);
@@ -809,6 +875,63 @@
     setupClamps();
   }
 
+  function countLabels(aspects) {
+    var counts = { positive: 0, negative: 0, neutral: 0, not_mentioned: 0, unknown: 0 };
+    orderEntries(aspects || {}).forEach(function (entry) {
+      counts[labelKeyOf(entry.aspect)] += 1;
+    });
+    return counts;
+  }
+  function renderSummary(resultData, compareData) {
+    var strip = els.summaryStrip;
+    strip.replaceChildren();
+    strip.setAttribute("role", "list");
+    strip.setAttribute("aria-label", "Tóm tắt kết quả");
+    var mainAspects = null, otherAspects = null;
+    if (compareData) {
+      mainAspects = compareData.a && compareData.a.item ? compareData.a.item.aspects : null;
+      otherAspects = compareData.b && compareData.b.item ? compareData.b.item.aspects : null;
+    } else if (resultData) {
+      var item = resultData.results && resultData.results[0];
+      mainAspects = item ? item.aspects : null;
+    }
+    var counts = countLabels(mainAspects);
+    var chips = 0;
+    SUMMARY_LABELS.forEach(function (spec) {
+      var count = counts[spec.key] || 0;
+      if (count <= 0) return;
+      var chip = el("span", "summary-chip " + spec.modifier);
+      chip.setAttribute("role", "listitem");
+      chip.setAttribute("aria-label", count + " khía cạnh " + spec.label.toLowerCase());
+      var dot = el("span", "dot");
+      dot.setAttribute("aria-hidden", "true");
+      chip.append(dot);
+      chip.append(document.createTextNode(spec.label + " " + count));
+      strip.append(chip);
+      chips += 1;
+    });
+    if (!chips) {
+      var emptyChip = el("span", "summary-chip is-unknown");
+      emptyChip.setAttribute("role", "listitem");
+      var emptyDot = el("span", "dot");
+      emptyDot.setAttribute("aria-hidden", "true");
+      emptyChip.append(emptyDot);
+      emptyChip.append(document.createTextNode("Chưa đọc được"));
+      strip.append(emptyChip);
+    }
+    if (compareData && mainAspects && otherAspects) {
+      var diff = 0;
+      collectComparisonEntries(compareData).forEach(function (entry) {
+        if (!entry.a || !entry.b) return;
+        if (comparisonLabelsDiffer(entry)) diff += 1;
+      });
+      if (diff > 0) {
+        strip.append(el("span", "summary-sep"));
+        strip.append(el("span", "summary-diff", diff + " khía cạnh bất đồng"));
+      }
+    }
+    strip.hidden = false;
+  }
   function renderComparison() {
     var list = collectComparisonEntries(comparison);
     els.emptyState.hidden = true;
@@ -816,6 +939,7 @@
     els.resultsContent.classList.add("is-comparison");
     els.resultMeta.textContent = buildComparisonMeta(comparison, list.length);
     renderCompareTable();
+    renderSummary(null, comparison);
   }
   function orderEntries(aspects) {
     var ordered = [];
@@ -850,6 +974,7 @@
     if (mode === "single") els.resultsContent.classList.remove("is-comparison");
     els.resultMeta.textContent = buildResultMeta(entries.length);
     renderSingleTable(data);
+    renderSummary(data, null);
     if (item.readable === false) setStatus(MSG.unreadable, "is-warning");
     else clearStatus();
     focusResults();
@@ -1021,7 +1146,7 @@
     analysisController = controller;
     clearOldResultsForRun();
     setAnalyzing(true);
-    setStatus(MSG.analyzing, "");
+    setWaitingStatus(MSG.analyzing);
     try {
       var outcome = await fetchPrediction(modelId, text, controller.signal, timeoutForModel(model));
       if (token !== runToken) return;
@@ -1108,9 +1233,10 @@
         var key = queue[i];
         var side = comparison[key];
         var model = side.model;
-        setStatus("Đang chạy " + compareModelName(model) + " (" + (i + 1) + "/" + queue.length + ")…", "");
+        setWaitingStatus("Đang chạy " + compareModelName(model) + " (" + (i + 1) + "/" + queue.length + ")…");
         var ready = await ensureReady(String(model.id));
         if (token !== runToken) return;
+        if (ready) setWaitingStatus("Đang chạy " + compareModelName(model) + " (" + (i + 1) + "/" + queue.length + ")…");
         var outcome = ready
           ? await fetchPrediction(String(model.id), text, controller.signal, timeoutForModel(model))
           : { ok: false, message: MSG.loadFailed, data: null };
@@ -1172,6 +1298,7 @@
       return;
     }
     clearOldResultsForRun();
+    setWaitingStatus(waitingMessageFor(model));
     var startToken = runToken;
     if (stateOf(model) !== "READY") {
       var ready = await ensureReady(modelId);

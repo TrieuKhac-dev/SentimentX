@@ -10,6 +10,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 import sys
 import time
 import uuid
@@ -19,7 +20,7 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -40,6 +41,29 @@ from .schemas import PredictRequest, PredictResponse
 logger = logging.getLogger("serving")
 
 _SERVING_DIR = Path(__file__).resolve().parent
+
+_INDEX_ASSETS = ("style.css", "samples.js", "app.js")
+
+
+def _versioned_index_html() -> str:
+    """HTML của UI v2 với query ?v=<hash nội dung> cho từng asset.
+
+    Hash tính từ nội dung file, nên mỗi lần asset đổi thì URL đổi theo và
+    trình duyệt không dùng lại bản cũ trong cache.
+    """
+    base = _SERVING_DIR / "static" / "v2"
+    html = (base / "index.html").read_text(encoding="utf-8")
+    for name in _INDEX_ASSETS:
+        try:
+            digest = hashlib.sha256((base / name).read_bytes()).hexdigest()[:10]
+        except OSError:
+            continue
+        html = re.sub(
+            r"(" + re.escape(name) + r"\?v=)[^\"']*",
+            lambda m, d=digest: m.group(1) + d,
+            html,
+        )
+    return html
 
 
 def _import_model_registry():
@@ -134,6 +158,11 @@ def create_app(settings=None, registry=None) -> FastAPI:
 
     app = FastAPI(title="SentimentX ABSA Serving", version=__version__, lifespan=lifespan)
 
+    try:
+        index_html = _versioned_index_html()
+    except OSError:
+        index_html = None
+
     app.state.settings = settings
     app.state.registry = registry
     app.state.started_at = time.time()
@@ -167,11 +196,9 @@ def create_app(settings=None, registry=None) -> FastAPI:
         app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
     @app.get("/", include_in_schema=False)
-    async def index() -> FileResponse:
-        return FileResponse(
-            _SERVING_DIR / "static" / "v2" / "index.html",
-            headers={"Cache-Control": "no-store"},
-        )
+    async def index() -> HTMLResponse:
+        body = index_html if index_html is not None else _versioned_index_html()
+        return HTMLResponse(body, headers={"Cache-Control": "no-store"})
 
     @app.get("/health")
     async def health(request: Request) -> Dict[str, Any]:
