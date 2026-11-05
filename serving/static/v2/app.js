@@ -604,6 +604,54 @@
     var number = numberOf(value);
     return number === null ? null : (number * 100).toFixed(2).replace(".", ",") + "%";
   }
+  var CONFIDENCE_LOW = 0.5;
+  var PROB_DISPLAY = {
+    positive: "Tích cực",
+    negative: "Tiêu cực",
+    not_mentioned: "Không nhắc",
+    neutral: "Trung lập",
+    unknown: "Không đọc được"
+  };
+  function formatProb1(value) {
+    var pct = value * 100;
+    var digits = pct > 0 && pct < 1 ? 2 : 1;
+    return pct.toFixed(digits).replace(".", ",") + "%";
+  }
+  function confidenceBreakdown(aspect) {
+    var probs = aspect && aspect.probs;
+    if (!probs || typeof probs !== "object") return null;
+    var chosen = labelKeyOf(aspect);
+    var items = [];
+    Object.keys(probs).forEach(function (key) {
+      var value = numberOf(probs[key]);
+      if (value === null || key === chosen) return;
+      items.push({ key: key, value: value });
+    });
+    if (!items.length) return null;
+    items.sort(function (a, b) { return b.value - a.value; });
+    return items.map(function (item) {
+      return (PROB_DISPLAY[item.key] || probLabel(item.key)) + " " + formatProb1(item.value);
+    }).join(" · ");
+  }
+  function isLowConfidence(aspect) {
+    var value = numberOf(aspect && aspect.confidence);
+    return value !== null && value < CONFIDENCE_LOW;
+  }
+  function buildLowConfidenceBadge() {
+    var badge = el("span", "confidence-warning", "Độ tin cậy thấp");
+    badge.title = "Xác suất của nhãn được chọn dưới 50%.";
+    return badge;
+  }
+  function appendConfidence(cell, aspect) {
+    var confidence = formatConfidence(aspect && aspect.confidence);
+    if (!confidence) {
+      cell.append(el("span", "empty-value", MSG.empty));
+      return;
+    }
+    cell.append(el("span", "confidence-value", confidence));
+    var breakdown = confidenceBreakdown(aspect);
+    if (breakdown) cell.append(el("span", "confidence-breakdown", breakdown));
+  }
   function probLabel(key) {
     var normalized = String(key).trim().toLowerCase().replace(/[\s-]+/g, "_");
     return PROB_LABELS[normalized] || String(key);
@@ -743,7 +791,12 @@
         aspectCell.classList.add("aspect-cell");
         row.append(aspectCell);
         var labelCell = tdCell("Nhãn");
-        labelCell.append(buildPill(entry.aspect, meta));
+        var labelWrap = el("span", "label-wrap");
+        labelWrap.append(buildPill(entry.aspect, meta));
+        if (!isLlm && isLowConfidence(entry.aspect)) {
+          labelWrap.append(buildLowConfidenceBadge());
+        }
+        labelCell.append(labelWrap);
         row.append(labelCell);
         if (isLlm) {
           var quoteCell = tdCell("Đoạn trích", "quote-cell");
@@ -758,10 +811,8 @@
           }
           row.append(quoteCell, reasonCell);
         } else {
-          var confidence = formatConfidence(entry.aspect.confidence);
           var confidenceCell = tdCell("Độ tin cậy");
-          if (confidence) confidenceCell.append(document.createTextNode(confidence));
-          else confidenceCell.append(el("span", "empty-value", MSG.empty));
+          appendConfidence(confidenceCell, entry.aspect);
           row.append(confidenceCell);
         }
         tbody.append(row);
@@ -802,15 +853,19 @@
       cells.forEach(function (cell) { cell.append(el("span", "empty-value", MSG.noResultCell)); });
       return cells;
     }
+    var sideHasConfidence = specs.some(function (s) { return s.key === "confidence"; });
     specs.forEach(function (spec, index) {
       var cell = cells[index];
       if (spec.key === "label") {
-        cell.append(buildPill(aspect, labelMeta(aspect)));
-        if (differ && key === "b") cell.append(el("span", "label-diff-badge", "Khác"));
+        var labelWrap = el("span", "label-wrap");
+        labelWrap.append(buildPill(aspect, labelMeta(aspect)));
+        if (sideHasConfidence && isLowConfidence(aspect)) {
+          labelWrap.append(buildLowConfidenceBadge());
+        }
+        if (differ && key === "b") labelWrap.append(el("span", "label-diff-badge", "Khác"));
+        cell.append(labelWrap);
       } else if (spec.key === "confidence") {
-        var confidence = formatConfidence(aspect.confidence);
-        if (confidence) cell.append(document.createTextNode(confidence));
-        else cell.append(el("span", "empty-value", MSG.empty));
+        appendConfidence(cell, aspect);
       } else if (isNotMentioned(aspect)) {
         cell.classList.add("is-empty");
       } else {
