@@ -612,26 +612,36 @@
     neutral: "Trung lập",
     unknown: "Không đọc được"
   };
-  function formatProb1(value) {
-    var pct = value * 100;
-    var digits = pct > 0 && pct < 1 ? 2 : 1;
-    return pct.toFixed(digits).replace(".", ",") + "%";
+  function formatProb2(pct) {
+    return pct.toFixed(2).replace(".", ",") + "%";
   }
-  function confidenceBreakdown(aspect) {
+  function confidenceBreakdown(aspect, mainPercent) {
     var probs = aspect && aspect.probs;
     if (!probs || typeof probs !== "object") return null;
     var chosen = labelKeyOf(aspect);
     var items = [];
+    var otherTotal = 0;
     Object.keys(probs).forEach(function (key) {
       var value = numberOf(probs[key]);
-      if (value === null || key === chosen) return;
+      if (value === null || key === chosen || value <= 0) return;
       items.push({ key: key, value: value });
+      otherTotal += value;
     });
-    if (!items.length) return null;
+    if (!items.length || otherTotal <= 0) return null;
     items.sort(function (a, b) { return b.value - a.value; });
-    return items.map(function (item) {
-      return (PROB_DISPLAY[item.key] || probLabel(item.key)) + " " + formatProb1(item.value);
-    }).join(" · ");
+    var rest = Math.max(0, 100 - mainPercent);
+    var assigned = 0;
+    var parts = items.map(function (item, index) {
+      var pct;
+      if (index === items.length - 1) {
+        pct = Math.round((rest - assigned) * 100) / 100;
+      } else {
+        pct = Math.round((rest * item.value / otherTotal) * 100) / 100;
+        assigned += pct;
+      }
+      return (PROB_DISPLAY[item.key] || probLabel(item.key)) + " " + formatProb2(pct);
+    });
+    return parts.join(" · ");
   }
   function isLowConfidence(aspect) {
     var value = numberOf(aspect && aspect.confidence);
@@ -643,13 +653,15 @@
     return badge;
   }
   function appendConfidence(cell, aspect) {
-    var confidence = formatConfidence(aspect && aspect.confidence);
-    if (!confidence) {
+    var raw = numberOf(aspect && aspect.confidence);
+    var confidence = formatConfidence(raw);
+    if (confidence === null) {
       cell.append(el("span", "empty-value", MSG.empty));
       return;
     }
+    var mainPercent = Math.round(raw * 10000) / 100;
     cell.append(el("span", "confidence-value", confidence));
-    var breakdown = confidenceBreakdown(aspect);
+    var breakdown = confidenceBreakdown(aspect, mainPercent);
     if (breakdown) cell.append(el("span", "confidence-breakdown", breakdown));
   }
   function probLabel(key) {
