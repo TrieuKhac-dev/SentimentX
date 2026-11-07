@@ -1307,19 +1307,20 @@ tr[data-sentiment="unknown"] .aspect-cell {
 @media (min-width: 1024px) {
   html,
   body {
-    height: 100%;
+    height: auto;
+    min-height: 100%;
   }
 
   body {
-    overflow: hidden;
+    overflow: visible;
   }
 
   .app-shell {
-    height: 100dvh;
-    min-height: 0;
+    height: auto;
+    min-height: 100dvh;
     display: grid;
-    grid-template-rows: 48px minmax(0, 1fr);
-    overflow: hidden;
+    grid-template-rows: 48px auto;
+    overflow: visible;
   }
 
   .topbar {
@@ -1334,11 +1335,11 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
   .workspace {
     display: grid;
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-rows: auto;
     gap: 8px;
     min-height: 0;
     padding: 5px 24px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .page-head {
@@ -1356,7 +1357,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
   .workbench {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
     gap: 8px;
     min-height: 0;
   }
@@ -1376,7 +1377,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
   .results-panel {
     min-height: clamp(280px, 44vh, 420px);
-    overflow: hidden;
+    overflow: visible;
     flex: 0 0 auto;
     align-self: start;
   }
@@ -1389,11 +1390,12 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
   .results-panel.has-results .results-content {
     min-height: 0;
-    overflow: auto;
+    overflow: visible;
   }
 
   .results-panel.has-results .result-table-wrap {
     min-height: 0;
+    max-height: clamp(320px, 55vh, 640px);
     overflow: auto;
   }
 
@@ -1413,7 +1415,7 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
   .results-content {
     padding: 7px 14px 8px;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .result-table {
