@@ -570,12 +570,13 @@ button:disabled {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
 }
 
 .review-actions .primary-button,
 .review-actions .text-button {
+  height: 44px;
   min-height: 44px;
 }
 
@@ -1795,6 +1796,40 @@ tr[data-sentiment="unknown"] .aspect-cell {
   .review-actions #clear-button,
   .review-actions #cancel-button {
     width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .review-bar {
+    gap: 6px;
+  }
+
+  .review-actions {
+    gap: 8px;
+  }
+
+  .review-actions .primary-button,
+  .review-actions .text-button {
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .review-actions .cancel-button {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .review-actions .primary-button,
+  .review-actions .text-button {
+    height: 38px;
+    min-height: 38px;
+  }
+
+  .review-actions .cancel-button {
+    width: 38px;
+    height: 38px;
   }
 }
 
