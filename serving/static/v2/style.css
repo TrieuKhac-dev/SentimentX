@@ -513,7 +513,7 @@ button:disabled {
 
 #review-input {
   width: 100%;
-  height: clamp(170px, 28vh, 240px);
+  height: clamp(113px, 18.67vh, 160px);
   padding: 7px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -540,13 +540,13 @@ button:disabled {
 
 @media (min-width: 768px) {
   #review-input {
-    height: clamp(104px, 14vh, 128px);
+    height: clamp(69px, 9.33vh, 85px);
   }
 }
 
 @media (min-width: 1024px) {
   #review-input {
-    height: clamp(88px, 11vh, 116px);
+    height: clamp(58px, 7.33vh, 77px);
   }
 }
 
