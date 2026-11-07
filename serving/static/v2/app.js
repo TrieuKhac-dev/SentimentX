@@ -66,7 +66,7 @@
     analyzeButton: "analyze-button", clearButton: "clear-button",
     cancelButton: "cancel-button", reviewActions: "review-actions",
     resultsHeading: "results-heading", resultMeta: "result-meta", resultStatus: "result-status",
-    emptyState: "empty-state", resultsContent: "results-content",
+    emptyState: "empty-state", resultsContent: "results-content", resultsPanel: "results-panel",
     summaryStrip: "summary-strip", resultTable: "result-table"
   };
 
@@ -264,6 +264,9 @@
   }
   function focusStatus() { focusElement(els.resultStatus); }
   function focusResults() { focusElement(els.resultsHeading); }
+  function setHasResults(value) {
+    els.resultsPanel.classList.toggle("has-results", Boolean(value));
+  }
   function hideResults() {
     entries = [];
     activeIndex = -1;
@@ -275,6 +278,7 @@
     els.summaryStrip.replaceChildren();
     els.emptyState.hidden = false;
     els.resultMeta.textContent = "";
+    setHasResults(false);
   }
   function clearOldResultsForRun() {
     els.resultTable.replaceChildren();
@@ -283,6 +287,7 @@
     els.summaryStrip.hidden = true;
     els.summaryStrip.replaceChildren();
     els.emptyState.hidden = true;
+    setHasResults(false);
   }
   function showStatusError(message) {
     hideResults();
@@ -1046,6 +1051,7 @@
     els.resultMeta.textContent = buildComparisonMeta(comparison, list.length);
     renderCompareTable();
     renderSummary(null, comparison);
+    setHasResults(true);
   }
   function orderEntries(aspects) {
     var ordered = [];
@@ -1081,6 +1087,7 @@
     els.resultMeta.textContent = buildResultMeta(entries.length);
     renderSingleTable(data);
     renderSummary(data, null);
+    setHasResults(true);
     if (item.readable === false) setStatus(MSG.unreadable, "is-warning");
     else clearStatus();
     focusResults();

@@ -540,13 +540,13 @@ button:disabled {
 
 @media (min-width: 768px) {
   #review-input {
-    height: clamp(140px, 22vh, 180px);
+    height: clamp(104px, 14vh, 128px);
   }
 }
 
 @media (min-width: 1024px) {
   #review-input {
-    height: clamp(110px, 16vh, 150px);
+    height: clamp(88px, 11vh, 116px);
   }
 }
 
@@ -1378,6 +1378,22 @@ tr[data-sentiment="unknown"] .aspect-cell {
     overflow: hidden;
     flex: 0 0 auto;
     align-self: start;
+  }
+
+  .results-panel.has-results {
+    min-height: 0;
+    flex: 1 1 auto;
+    align-self: stretch;
+  }
+
+  .results-panel.has-results .results-content {
+    min-height: 0;
+    overflow: auto;
+  }
+
+  .results-panel.has-results .result-table-wrap {
+    min-height: 0;
+    overflow: auto;
   }
 
   .results-head {
