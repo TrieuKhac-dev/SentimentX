@@ -212,10 +212,10 @@ button:disabled {
 }
 
 .review-bar {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .model-field {
@@ -513,9 +513,7 @@ button:disabled {
 
 #review-input {
   width: 100%;
-  height: 96px;
-  min-height: 94px;
-  max-height: 180px;
+  height: clamp(170px, 28vh, 240px);
   padding: 7px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -540,6 +538,18 @@ button:disabled {
   outline-offset: 1px;
 }
 
+@media (min-width: 768px) {
+  #review-input {
+    height: clamp(140px, 22vh, 180px);
+  }
+}
+
+@media (min-width: 1024px) {
+  #review-input {
+    height: clamp(110px, 16vh, 150px);
+  }
+}
+
 .review-meta {
   display: flex;
   flex-wrap: wrap;
@@ -555,13 +565,18 @@ button:disabled {
   font-size: 11.5px;
 }
 
-.input-actions {
+.review-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  align-self: center;
-  transform: translateY(-8px);
+  justify-content: center;
   gap: 8px;
+  width: 100%;
+}
+
+.review-actions .primary-button,
+.review-actions .text-button {
+  min-height: 44px;
 }
 
 .primary-button {
@@ -615,6 +630,33 @@ button:disabled {
 .cancel-button:hover {
   background: #FFE4E6;
   color: #9F1239;
+}
+
+.clear-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.clear-button:hover {
+  border-color: #B9C6D8;
+  background: var(--raised);
+  color: var(--ink);
+}
+
+.review-actions .cancel-button {
+  width: 44px;
+  height: 44px;
+}
+
+.review-actions button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .sample-block {
@@ -1453,16 +1495,6 @@ tr[data-sentiment="unknown"] .aspect-cell {
 }
 
 @media (max-width: 1023px) {
-  .review-bar {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .input-actions {
-    align-self: stretch;
-    transform: none;
-  }
-
   .sample-inline {
     margin-right: 0;
     margin-left: 0;
@@ -1521,21 +1553,6 @@ tr[data-sentiment="unknown"] .aspect-cell {
   .compare-controls .select-wrap {
     flex: 1 1 160px;
     max-width: none;
-  }
-
-  .review-bar {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 8px;
-  }
-
-  .input-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .primary-button {
-    width: 100%;
   }
 
   .sample-inline {
@@ -1741,6 +1758,27 @@ tr[data-sentiment="unknown"] .aspect-cell {
 
   .legend {
     gap: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .review-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .review-actions #analyze-button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .review-actions:not(.is-analyzing) #clear-button {
+    grid-column: 1 / -1;
+  }
+
+  .review-actions #clear-button,
+  .review-actions #cancel-button {
+    width: 100%;
   }
 }
 

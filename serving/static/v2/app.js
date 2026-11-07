@@ -63,7 +63,8 @@
     compareControls: "compare-controls", modelSelectSecondary: "model-select-secondary",
     swapModels: "swap-models", reviewInput: "review-input", charCount: "char-count",
     inputHint: "input-hint", sampleButtons: "sample-buttons", sampleStatus: "sample-status",
-    analyzeButton: "analyze-button", cancelButton: "cancel-button",
+    analyzeButton: "analyze-button", clearButton: "clear-button",
+    cancelButton: "cancel-button", reviewActions: "review-actions",
     resultsHeading: "results-heading", resultMeta: "result-meta", resultStatus: "result-status",
     emptyState: "empty-state", resultsContent: "results-content",
     summaryStrip: "summary-strip", resultTable: "result-table"
@@ -306,11 +307,13 @@
     var secondary = findModel(secondaryId);
     var compare = mode === "compare";
     var missingCompare = compare && (!secondary || String(secondary.id) === String(selectedId));
+    var hasText = els.reviewInput.value.trim() !== "";
     var overLimit = els.reviewInput.value.length > currentMaxChars();
-    els.analyzeButton.disabled = analyzing || loadingModel || !model || overLimit || missingCompare;
+    els.analyzeButton.disabled = analyzing || loadingModel || !model || !hasText || overLimit || missingCompare;
     els.analyzeButton.classList.toggle("is-loading", analyzing);
     els.analyzeButton.setAttribute("aria-busy", analyzing ? "true" : "false");
     els.cancelButton.hidden = !analyzing;
+    els.reviewActions.classList.toggle("is-analyzing", analyzing);
     els.modelSelect.disabled = analyzing;
     els.modelSelectSecondary.disabled = analyzing || !secondary;
     els.swapModels.disabled = analyzing || !secondary || String(secondary.id) === String(selectedId);
@@ -1435,11 +1438,22 @@
     refreshCount();
   }
 
+  function clearReviewInput() {
+    if (!els.reviewInput.value) {
+      els.reviewInput.focus();
+      return;
+    }
+    els.reviewInput.value = "";
+    handleReviewInput();
+    els.reviewInput.focus();
+  }
+
   function init() {
     els = queryElements();
     els.resultsHeading.setAttribute("tabindex", "-1");
     els.resultStatus.setAttribute("tabindex", "-1");
     els.analyzeButton.addEventListener("click", analyze);
+    els.clearButton.addEventListener("click", clearReviewInput);
     els.cancelButton.addEventListener("click", cancelAnalysis);
     els.reviewInput.addEventListener("input", handleReviewInput);
     els.modelSelect.addEventListener("change", handleModelChange);
